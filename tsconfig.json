@@ -18,7 +18,7 @@
         "name": "next"
       }
     ],
-    // RUTA CORREGIDA: Esto arregla el error de compilación en Vercel
+    // RUTA CRÍTICA CORREGIDA: Esto mapea '@/...' a './src/...' y soluciona el fallo de Vercel.
     "paths": {
       "@/*": ["./src/*"] 
     },
