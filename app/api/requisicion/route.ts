@@ -8,25 +8,28 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { usuario, obra, comentarios, materiales } = body;
 
+    // Generar Folio
     const folio = 'REQ-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random() * 1000);
 
-    // FIX: Backticks para el HTML
+    // Generar lista HTML (Sin errores de sintaxis)
     const listaHtml = materiales.map((m: any) => 
       `<li><strong>${m.qty} ${m.unit}</strong> - ${m.name} ${m.comments ? '(' + m.comments + ')' : ''}</li>`
     ).join('');
 
+    // Enviar correo
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: ['recursos.humanos@gcuavante.com', usuario.email],
       subject: 'Confirmación Requisición - Folio: ' + folio,
       html: `
-        <div style="font-family: Arial; color: #333;">
-          <h1>✅ Requisición Exitosa</h1>
+        <div style="font-family: sans-serif; color: #333;">
+          <h1>✅ Nueva Requisición</h1>
           <p><strong>Folio:</strong> ${folio}</p>
           <p><strong>Usuario:</strong> ${usuario.nombre}</p>
           <p><strong>Obra:</strong> ${obra}</p>
+          <p><strong>Notas:</strong> ${comentarios || 'Sin comentarios'}</p>
           <hr/>
-          <h3>Materiales:</h3>
+          <h3>Lista de Materiales:</h3>
           <ul>${listaHtml}</ul>
         </div>
       `
