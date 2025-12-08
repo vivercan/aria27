@@ -19,8 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
-    }
+      // RUTA CORREGIDA: "@" apunta a la carpeta "src"
+      "@/*": ["./src/*"] 
+    },
+    // Añadir baseUrl si no existe (generalmente requerido con paths)
+    "baseUrl": "." 
   },
   "include": [
     "next-env.d.ts",
@@ -32,4 +35,3 @@
   ],
   "exclude": ["node_modules"]
 }
-
