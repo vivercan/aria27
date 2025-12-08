@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 
-// Usamos variables de entorno o strings vacíos si no están definidas
+// Usamos las variables de entorno de Vercel (NEXT_PUBLIC)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -23,47 +23,35 @@ export default function CargaMasivaBtn({ onUploadSuccess }: { onUploadSuccess?: 
         const ws = wb.Sheets[wb.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(ws);
 
-        const items = data.map((row: any) => {
-            return {
-              sku:                     row['SKU'] || row['sku'],
-              category:                row['Categoría'] || row['Category'] || row['category'],
-              subcategory:             row['Subcategoría'] || row['Subcategory'] || row['subcategory'],
-              name:                    row['Nombre Producto'] || row['Name'] || row['name'],
-              short_description:       row['Descripción Corta'] || row['Short Description'],
-              long_description:        row['Descripción Larga'] || row['Long Description'],
-              unit:                    row['Unidad Medida'] || row['Unit'] || row['unit'],
-              commercial_presentation: row['Presentación Comercial'] || row['Commercial Presentation'],
-              type:                    row['Tipo'] || row['Type'] || row['type']
-            };
-        }).filter((item: any) => item.name);
-
-        if (items.length === 0) {
-          alert('⚠️ No se encontraron datos válidos.');
-          setLoading(false);
-          return;
-        }
+        // Mapeo (Excel -> DB) para el botón web
+        const items = data.map((row: any) => ({
+            sku: row['SKU'],
+            category: row['Categoría'] || row['Categoria'],
+            subcategory: row['Subcategoría'] || row['Subcategoria'],
+            name: row['Nombre Producto'],
+            short_description: row['Descripción Corta'],
+            long_description: row['Descripción Larga'],
+            unit: row['Unidad Medida'],
+            commercial_presentation: row['Presentación Comercial'],
+            type: row['Tipo']
+        })).filter((i: any) => i.name);
 
         const { error } = await supabase.from('products').insert(items);
         if (error) throw error;
         
-        alert('✅ ¡Éxito! ' + items.length + ' productos cargados.');
+        alert('✅ ¡Carga Exitosa desde la web! ' + items.length + ' productos agregados.');
         if (onUploadSuccess) onUploadSuccess();
-
       } catch (err: any) {
-        console.error(err);
         alert('❌ Error: ' + err.message);
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     };
     reader.readAsBinaryString(file);
   };
 
-  // AQUÍ ESTABA EL ERROR: Usamos concatenación simple para evitar bugs de PowerShell
   return (
-    <label className={"flex items-center gap-2 px-4 py-2 text-white rounded cursor-pointer transition shadow-md " + (loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700")}>
+    <label className={'flex items-center gap-2 px-4 py-2 text-white rounded cursor-pointer transition shadow-md ' + (loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700')}>
       <span>{loading ? 'Subiendo...' : '📥 Carga Masiva (Excel)'}</span>
-      <input type="file" accept=".xlsx,.xls,.csv" className="hidden" disabled={loading} onChange={handleFileUpload} />
+      <input type="file" accept='.xlsx,.xls,.csv' className='hidden' disabled={loading} onChange={handleFileUpload} />
     </label>
   );
 }
