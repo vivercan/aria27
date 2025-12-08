@@ -9,9 +9,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function iniciarCarga() {
     const rutaExcel = path.join(__dirname, 'catalogo.xlsx');
-
     if (!fs.existsSync(rutaExcel)) {
-        console.error('\n❌ ERROR: Archivo catalogo.xlsx NO encontrado. Subida de datos cancelada. Asegúrate de que el archivo esté en el mismo directorio donde ejecutas el script.');
+        console.error('\n❌ ERROR: Archivo catalogo.xlsx NO encontrado. Subida de datos cancelada.');
         return;
     }
 
