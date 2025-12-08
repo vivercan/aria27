@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,8 +11,8 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    // Validación exacta
-    if (email === 'recursos.humanos@gcuavante.com' && pass === 'cVfo1fk@') {
+    // Validación con credenciales fijas
+    if (email.trim() === 'recursos.humanos@gcuavante.com' && pass.trim() === 'cVfo1fk@') {
       router.push('/dashboard/supply-desk')
     } else {
       alert('Credenciales incorrectas. Verifica mayúsculas y espacios.')
@@ -19,47 +20,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-start overflow-hidden bg-[#0f172a]">
-      {/* Fondo Gradiente Estilo Ubuntu Deep Blue */}
+    <div className="relative min-h-screen w-full flex items-center justify-between px-10 lg:px-32 overflow-hidden bg-[#0f172a]">
+      {/* Fondo Gradiente Deep Blue */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0044AA] via-[#001133] to-black opacity-90" />
       
-      {/* Efectos de luz volumétrica */}
-      <div className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-[100px]" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px]" />
+      {/* Efectos de luz */}
+      <div className="absolute top-[-20%] right-[-20%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[120px] -z-10" />
+      <div className="absolute bottom-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
 
+      {/* COLUMNA IZQUIERDA: Formulario de Login */}
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 ml-10 md:ml-24 w-full max-w-md"
+        className="relative z-10 w-full max-w-md"
       >
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-8 rounded-3xl shadow-2xl">
+          {/* Título pequeño del formulario */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white tracking-tighter mb-1">
-              ARIA<span className="text-blue-400">27</span>
+            <h1 className="text-2xl font-bold text-white tracking-tighter">
+              Iniciar Sesión
             </h1>
-            <p className="text-blue-200/70 text-sm">Sistema de Gestión Integral</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-blue-300 uppercase tracking-wider ml-1">Usuario Zoho</label>
+              {/* Sin etiqueta "Usuario Zoho" */}
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/20"
+                className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
                 placeholder="usuario@gcuavante.com"
               />
             </div>
             
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-blue-300 uppercase tracking-wider ml-1">Contraseña</label>
+              {/* Sin etiqueta "Contraseña" */}
               <input 
                 type="password" 
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/20"
+                className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
                 placeholder="••••••••"
               />
             </div>
@@ -71,12 +73,27 @@ export default function LoginPage() {
               Entrar al Sistema
             </button>
           </form>
+          {/* Sin pie de página "SECURE SERVER..." */}
+        </div>
+      </motion.div>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-white/30">
-            <span>SECURE SERVER</span>
-            <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-            <span>ZOHO LINKED</span>
-          </div>
+      {/* COLUMNA DERECHA: Logo Grande */}
+      <motion.div 
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="relative z-10 hidden md:flex items-center justify-center"
+      >
+        {/* El logo se mostrará en grande (h-40 en desktop, h-56 en pantallas grandes) */}
+        <div className="relative w-auto h-40 lg:h-56">
+          <Image 
+            src="/logo.png" 
+            alt="ARIA27 Logo" 
+            width={600} 
+            height={200}
+            className="object-contain h-full w-auto drop-shadow-2xl"
+            priority
+          />
         </div>
       </motion.div>
     </div>
