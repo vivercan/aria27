@@ -18,11 +18,10 @@
         "name": "next"
       }
     ],
+    // RUTA CORREGIDA: Esto arregla el error de compilación en Vercel
     "paths": {
-      // RUTA CORREGIDA: "@" apunta a la carpeta "src"
       "@/*": ["./src/*"] 
     },
-    // Añadir baseUrl si no existe (generalmente requerido con paths)
     "baseUrl": "." 
   },
   "include": [
