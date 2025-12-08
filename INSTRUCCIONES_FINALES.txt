@@ -1,0 +1,18 @@
+==================================================
+   INSTRUCCIONES PARA FINALIZAR (COPIA Y PEGA)
+==================================================
+
+1. PARA EL LOGIN PRE-LLENADO:
+   Ve a tu archivo de Login (src/app/auth/login/page.tsx) y pon esto:
+   
+   const [email, setEmail] = useState('recursos.humano@gcuavante.com');
+   const [password, setPassword] = useState('cVfo1fk@');
+
+2. PARA EL BOTÓN DE CARGA MASIVA:
+   En tu pantalla de Requisición, importa el botón así:
+   import CargaMasivaBtn from '@/components/CargaMasivaBtn';
+
+   Y colócalo donde quieras el botón:
+   <CargaMasivaBtn onUploadSuccess={() => window.location.reload()} />
+
+==================================================
