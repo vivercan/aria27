@@ -18,7 +18,7 @@
         "name": "next"
       }
     ],
-    // RUTA CRÍTICA CORREGIDA: Esto mapea '@/...' a './src/...' y soluciona el fallo de Vercel.
+    // CORRECCIÓN FINAL: Mapeo de rutas a la carpeta 'src'
     "paths": {
       "@/*": ["./src/*"] 
     },
