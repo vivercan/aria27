@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     const folio = 'REQ-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random() * 1000);
 
-    // FIX: Usamos backticks (comillas invertidas) para el HTML
+    // FIX: Backticks para el HTML
     const listaHtml = materiales.map((m: any) => 
       `<li><strong>${m.qty} ${m.unit}</strong> - ${m.name} ${m.comments ? '(' + m.comments + ')' : ''}</li>`
     ).join('');
