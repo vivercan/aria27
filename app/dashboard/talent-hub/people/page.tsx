@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, UserPlus, FileDown, Trash2, Edit, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, UserPlus, FileDown, Trash2, Edit, AlertCircle, CheckCircle, Shield } from "lucide-react";
 
 export default function HRPeoplePage() {
   const [employees, setEmployees] = useState<any[]>([]);
