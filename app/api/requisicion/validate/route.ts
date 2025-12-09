@@ -40,20 +40,43 @@ export async function GET(request: Request) {
       .eq("requisition_id", req.id);
 
     const materialesHtml = (items || []).map((m: any) =>
-      `<tr><td style="padding:8px;border:1px solid #ddd">${m.product_name}</td><td style="padding:8px;border:1px solid #ddd;text-align:center">${m.unit}</td><td style="padding:8px;border:1px solid #ddd;text-align:center">${m.quantity}</td></tr>`
+      `<tr><td style="padding:8px;border:1px solid #ddd">${m.product_name}</td><td style="padding:8px;border:1px solid #ddd;text-align:center">${m.unit}</td><td style="padding:8px;border:1px solid #ddd;text-align:center">${m.quantity}</td><td style="padding:8px;border:1px solid #ddd">${m.observations || "-"}</td></tr>`
     ).join("");
 
-    const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><tr style="background:#1e3a5f;color:white"><th style="padding:10px;text-align:left">Material</th><th style="padding:10px">Unidad</th><th style="padding:10px">Cantidad</th></tr>${materialesHtml}</table>`;
+    const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><tr style="background:#1e3a5f;color:white"><th style="padding:10px;text-align:left">Material</th><th style="padding:10px">Unidad</th><th style="padding:10px">Cantidad</th><th style="padding:10px">Observaciones</th></tr>${materialesHtml}</table>`;
 
     const statusText = action === "APROBADA" ? "VALIDADA" : action === "RECHAZADA" ? "RECHAZADA" : "DEVUELTA PARA REVISION";
     const statusColor = action === "APROBADA" ? "#10b981" : action === "RECHAZADA" ? "#ef4444" : "#f59e0b";
+    const fechaReq = req.required_date ? new Date(req.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) : "No especificada";
 
     if (action === "APROBADA") {
+      await supabase.from("requisitions").update({ purchase_status: "POR_COTIZAR" }).eq("id", req.id);
+      
       await resend.emails.send({
         from: "ARIA27 <noreply@mail.jjcrm27.com>",
         to: "juanviverosv@gmail.com",
-        subject: `Requisicion ${req.folio} VALIDADA - Proceder con compra`,
-        html: `<div style="font-family:Arial,sans-serif"><div style="background:#10b981;color:white;padding:20px;text-align:center"><h1>Requisicion Validada</h1></div><div style="padding:20px"><p>La siguiente requisicion ha sido VALIDADA:</p><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p>${tablaHtml}</div></div>`
+        subject: `COMPRAS: Requisicion ${req.folio} lista para cotizar`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#2563eb;color:white;padding:20px;text-align:center">
+            <h1 style="margin:0">Nueva Requisicion para Compras</h1>
+          </div>
+          <div style="padding:20px;background:#f8fafc">
+            <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:15px;margin-bottom:20px">
+              <strong>FECHA REQUERIDA:</strong> ${fechaReq}
+            </div>
+            <div style="background:white;padding:15px;border-radius:8px;margin-bottom:20px">
+              <p style="margin:5px 0"><strong>Folio:</strong> ${req.folio}</p>
+              <p style="margin:5px 0"><strong>Obra/Centro:</strong> ${req.cost_center_name}</p>
+              <p style="margin:5px 0"><strong>Solicitante:</strong> ${req.created_by}</p>
+              ${req.instructions ? `<p style="margin:5px 0"><strong>Instrucciones:</strong> ${req.instructions}</p>` : ""}
+            </div>
+            <h3>Materiales solicitados:</h3>
+            ${tablaHtml}
+            <div style="text-align:center;margin-top:20px">
+              <a href="https://aria.jjcrm27.com/dashboard/supply-desk/requisitions/purchasing" style="display:inline-block;background:#2563eb;color:white;padding:12px 30px;text-decoration:none;border-radius:25px;font-weight:bold">Ir a Compras</a>
+            </div>
+          </div>
+        </div>`
       });
     }
 
@@ -61,7 +84,7 @@ export async function GET(request: Request) {
       from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: "recursos.humanos@gcuavante.com",
       subject: `Requisicion ${req.folio} ${statusText}`,
-      html: `<div style="font-family:Arial,sans-serif"><div style="background:${statusColor};color:white;padding:20px;text-align:center"><h1>Requisicion ${statusText}</h1></div><div style="padding:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p>${tablaHtml}</div></div>`
+      html: `<div style="font-family:Arial,sans-serif"><div style="background:${statusColor};color:white;padding:20px;text-align:center"><h1>Requisicion ${statusText}</h1></div><div style="padding:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Fecha requerida:</strong> ${fechaReq}</p>${tablaHtml}</div></div>`
     });
 
     await resend.emails.send({
