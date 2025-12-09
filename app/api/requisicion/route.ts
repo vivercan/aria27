@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       product_name: m.name,
       unit: m.unit,
       quantity: m.qty,
-      observations: m.comments || ""
+      comments: m.comments || ""
     }));
     await supabase.from("requisition_items").insert(items);
 
@@ -95,3 +95,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
