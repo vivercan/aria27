@@ -26,7 +26,7 @@ async function getNextFolio(): Promise<string> {
 }
 
 export async function POST(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const resend = new Resend("re_UC3y5AmZ_6HxRpDWvNropUomZenU6joi5");
   
   try {
     const body = await request.json();

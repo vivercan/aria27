@@ -7,7 +7,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const resend = new Resend("re_UC3y5AmZ_6HxRpDWvNropUomZenU6joi5");
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
   const action = searchParams.get("action") as "APROBADA" | "RECHAZADA" | "REVISION";
