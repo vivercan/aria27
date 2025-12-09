@@ -3,6 +3,37 @@ import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 
 const BASE_URL = "https://aria.jjcrm27.com";
+const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
+const PHONE_NUMBER_ID = "869940452874474";
+
+async function sendWhatsApp(to: string, templateName: string, components?: any[]) {
+  const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+  if (!ACCESS_TOKEN) return null;
+
+  try {
+    const response = await fetch(`${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: to.replace(/\D/g, ""),
+        type: "template",
+        template: {
+          name: templateName,
+          language: { code: "en_US" },
+          components: components || []
+        }
+      })
+    });
+    return await response.json();
+  } catch (e) {
+    console.error("WhatsApp error:", e);
+    return null;
+  }
+}
 
 async function getNextFolio(): Promise<string> {
   const { data } = await supabase
@@ -34,11 +65,12 @@ export async function POST(request: Request) {
     // Obtener display_name del usuario
     const { data: userData } = await supabase
       .from("users")
-      .select("display_name, name")
+      .select("display_name, name, phone")
       .eq("email", usuario.email)
       .single();
     
     const displayName = userData?.display_name || userData?.name || usuario.nombre;
+    const userPhone = userData?.phone;
 
     // Guardar requisición
     const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
@@ -82,8 +114,12 @@ export async function POST(request: Request) {
       `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`
     ).join("");
 
+    const materialesList = materiales.map((m: any) => `• ${m.qty} ${m.unit} - ${m.name}`).join("\n");
+
     const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Observaciones</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
 
+    // ==================== EMAILS ====================
+    
     // Email al usuario
     await resend.emails.send({
       from: "ARIA27 <noreply@mail.jjcrm27.com>",
@@ -98,7 +134,6 @@ export async function POST(request: Request) {
             <h2 style="color:#1e3a5f;margin-top:0">Requisición Generada</h2>
             <p>Hola <strong>${displayName}</strong>,</p>
             <p>Tu requisición ha sido registrada correctamente.</p>
-            
             <div style="background:#f8fafc;border-radius:8px;padding:20px;margin:20px 0">
               <table style="width:100%">
                 <tr><td style="color:#64748b;padding:5px 0">Folio:</td><td style="font-weight:bold">${folio}</td></tr>
@@ -107,42 +142,12 @@ export async function POST(request: Request) {
                 <tr><td style="color:#64748b;padding:5px 0">Fecha requerida:</td><td style="font-weight:bold;color:${urgencyColor}">${fechaReq}</td></tr>
               </table>
             </div>
-            
             <h3 style="color:#1e3a5f">Materiales solicitados:</h3>
             ${tablaHtml}
-          </div>
-          <div style="background:#f1f5f9;padding:15px;text-align:center;color:#64748b;font-size:12px">
-            ARIA27 ERP - Grupo Constructor Avante
           </div>
         </div>
       `
     });
-
-    // Email a RH
-    if (usuario.email !== "recursos.humanos@gcuavante.com") {
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>",
-        to: "recursos.humanos@gcuavante.com",
-        subject: `Nueva requisición ${folio} - ${obra}`,
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto">
-            <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center">
-              <h1 style="margin:0">Nueva Requisición</h1>
-            </div>
-            <div style="padding:25px">
-              <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px">
-                <p style="margin:5px 0"><strong>Folio:</strong> ${folio}</p>
-                <p style="margin:5px 0"><strong>Solicitante:</strong> ${displayName}</p>
-                <p style="margin:5px 0"><strong>Obra:</strong> ${obra}</p>
-                <p style="margin:5px 0"><strong>Generada:</strong> ${fechaGeneracion}</p>
-                <p style="margin:5px 0;color:${urgencyColor}"><strong>Fecha requerida:</strong> ${fechaReq} (${urgencyText})</p>
-              </div>
-              ${tablaHtml}
-            </div>
-          </div>
-        `
-      });
-    }
 
     // Email al validador
     const validateUrl = `${BASE_URL}/api/requisicion/validate?token=${token}&action=APROBADA`;
@@ -158,12 +163,10 @@ export async function POST(request: Request) {
           <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center">
             <h1 style="margin:0">Requisición Pendiente de Validación</h1>
           </div>
-          
           <div style="background:${urgencyColor};color:white;padding:15px;text-align:center">
             <div style="font-size:12px">TIEMPO PARA ENTREGA</div>
             <div style="font-size:32px;font-weight:bold">${urgencyText}</div>
           </div>
-          
           <div style="padding:25px">
             <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px">
               <p style="margin:5px 0"><strong>Folio:</strong> ${folio}</p>
@@ -172,10 +175,8 @@ export async function POST(request: Request) {
               <p style="margin:5px 0"><strong>Generada:</strong> ${fechaGeneracion}</p>
               <p style="margin:5px 0"><strong>Para cuando:</strong> ${fechaReq}</p>
             </div>
-            
             <h3 style="color:#1e3a5f">Materiales solicitados:</h3>
             ${tablaHtml}
-            
             <div style="text-align:center;margin:30px 0">
               <a href="${validateUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">VALIDAR</a>
               <a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a>
@@ -185,6 +186,12 @@ export async function POST(request: Request) {
         </div>
       `
     });
+
+    // ==================== WHATSAPP ====================
+    
+    // WhatsApp al validador (número de prueba por ahora)
+    const validadorWhatsApp = "5218112392266"; // Número de prueba
+    await sendWhatsApp(validadorWhatsApp, "hello_world");
 
     return NextResponse.json({ success: true, folio, message: "Requisición generada" });
   } catch (error: any) {
