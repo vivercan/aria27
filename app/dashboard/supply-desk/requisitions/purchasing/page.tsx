@@ -66,6 +66,7 @@ export default function PurchasingPage() {
     setMode("view");
     setSelectedSupplier(null);
     const { data } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
+    console.log("Items loaded:", data);
     setItems((data || []).map((i: any) => ({ ...i, unit_cost: 0, total_cost: 0 })) as Item[]);
   };
 
@@ -289,3 +290,4 @@ export default function PurchasingPage() {
     </div>
   );
 }
+
