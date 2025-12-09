@@ -27,17 +27,17 @@ export default function LoginPage() {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full max-w-sm"
       >
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-8 rounded-3xl shadow-2xl">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white tracking-tighter">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-2xl">
+          <div className="mb-5">
+            <h1 className="text-xl font-bold text-white tracking-tighter">
               Iniciar Sesion
             </h1>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-1">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
               <input
                 type="email"
                 value={email}
@@ -47,7 +47,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="space-y-1">
+            <div>
               <input
                 type="password"
                 value={pass}
@@ -59,7 +59,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-blue-900/40 mt-4 active:scale-95"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-blue-900/40 active:scale-95"
             >
               Entrar al Sistema
             </button>
@@ -73,7 +73,7 @@ export default function LoginPage() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative z-10 hidden md:flex items-center justify-center"
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-end">
           <h1 
             className="text-white drop-shadow-2xl"
             style={{ 
@@ -86,7 +86,7 @@ export default function LoginPage() {
           >
             ARIA
           </h1>
-          <p className="text-xs text-white/60 mt-4 tracking-[0.3em] uppercase">
+          <p className="text-xs text-white/60 mt-4 tracking-[0.3em] uppercase pr-1">
             Infinity Loop
           </p>
         </div>
