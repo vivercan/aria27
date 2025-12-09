@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 const BASE_URL = "https://aria.jjcrm27.com";
 
 export async function POST(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY!);
   try {
     const { requisition, items, suppliers, total, token, daysUntil } = await request.json();
 
@@ -142,3 +143,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 const BASE_URL = "https://aria.jjcrm27.com";
 
 export async function GET(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY!);
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
   const action = searchParams.get("action");
@@ -137,3 +138,4 @@ export async function GET(request: Request) {
 
   return new Response("<h1>Acción no válida</h1>", { headers: { "Content-Type": "text/html" } });
 }
+
