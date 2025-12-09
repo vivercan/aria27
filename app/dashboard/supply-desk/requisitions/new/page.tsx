@@ -218,8 +218,8 @@ export default function NewRequisitionPage() {
           <span className="text-xs text-white/50">{materials.length} partidas</span>
         </div>
         <div className="flex-1 overflow-auto rounded-xl border border-white/10 bg-black/20">
-          <div className="grid grid-cols-[2fr_80px_70px_1fr_40px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
-            <div>Descripción</div><div>Unidad</div><div>Cant.</div><div>Observaciones</div><div></div>
+          <div className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+            <div>Descripción</div><div>Unidad</div><div>Cantidad</div><div>Observaciones</div><div></div>
           </div>
           {isCartEmpty ? (
             <div className="px-3 py-8 text-center text-sm text-white/40">
@@ -227,7 +227,7 @@ export default function NewRequisitionPage() {
               Requisición vacía. Busca y agrega materiales arriba.
             </div>
           ) : materials.map(m => (
-            <div key={m.id} className="grid grid-cols-[2fr_80px_70px_1fr_40px] gap-2 items-center px-3 py-2 text-xs">
+            <div key={m.id} className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 items-center px-3 py-2 text-xs">
               <div className="truncate font-medium">{m.name}</div>
               <div className="text-white/60">{m.unit}</div>
               <input ref={el => { if (el) qtyInputRefs.current.set(m.id, el); }} type="number" min={1} className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => updateQty(m.id, Number(e.target.value))} />
