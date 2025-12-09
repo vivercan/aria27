@@ -1,12 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-// 🔒 Conexión fija al proyecto real de Supabase (ARIA27)
-const supabaseUrl = "https://vimztapqbwtwkmotpqia.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpbXp0YXBxYnd0d2ttb3RwcWlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxODI3NDQsImV4cCI6MjA3ODc1ODc0NH0.LK0KTLu15PwNGa4FMvwy4D1P7d6x6fQvoYsdU652J4Q";
+// Conexión fija al proyecto ARIA27 en Supabase
+const supabaseUrl = "https://yhylkvpynzyorqortbkk.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase credentials missing");
-}
-
-// Cliente único para todo ARIA27
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
