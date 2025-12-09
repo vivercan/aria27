@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ShoppingCart, Calendar, Building2, DollarSign, Send, Loader2 } from "lucide-react";
+import { ShoppingCart, Calendar, Building2, DollarSign, Send, Loader2, Trash2 } from "lucide-react";
 
 type Requisition = {
   id: string;
@@ -61,6 +61,7 @@ export default function PurchasingPage() {
   };
 
   const selectReq = async (req: Requisition) => {
+    console.log("Seleccionando requisicion:", req.id, req.folio);
     setSelectedReq(req);
     setMode("view");
     setSelectedSupplier(null);
@@ -70,7 +71,12 @@ export default function PurchasingPage() {
       .select("*")
       .eq("requisition_id", req.id);
     
-    if (error) console.error("Error cargando items:", error);
+    console.log("Items cargados:", data, "Error:", error);
+    
+    if (error) {
+      console.error("Error cargando items:", error);
+      setMessage("Error cargando items: " + error.message);
+    }
     
     const loadedItems = (data || []).map((i: any) => ({
       id: i.id,
@@ -81,7 +87,18 @@ export default function PurchasingPage() {
       unit_cost: 0,
       total_cost: 0
     }));
+    console.log("Items procesados:", loadedItems);
     setItems(loadedItems);
+  };
+
+  const deleteReq = async (reqId: string) => {
+    if (!confirm("¿Eliminar esta requisición?")) return;
+    await supabase.from("requisition_items").delete().eq("requisition_id", reqId);
+    await supabase.from("requisitions").delete().eq("id", reqId);
+    setMessage("Requisición eliminada");
+    setSelectedReq(null);
+    setItems([]);
+    loadData();
   };
 
   const updateItemCost = (id: string, cost: number) => {
@@ -153,17 +170,21 @@ export default function PurchasingPage() {
               {requisitions.map(r => {
                 const days = getDaysUntil(r.required_date);
                 return (
-                  <button key={r.id} onClick={() => selectReq(r)}
-                    className={`w-full text-left rounded-xl p-3 border transition ${selectedReq?.id === r.id ? "border-blue-500 bg-blue-500/20" : days <= 2 ? "border-red-500 bg-red-500/10" : "border-white/10 bg-white/5"} hover:bg-white/10`}>
-                    <div className="flex justify-between">
-                      <span className="font-mono text-xs text-blue-400">{r.folio}</span>
-                      <span className={`text-xs px-2 rounded ${days <= 2 ? "bg-red-500" : "bg-white/20"}`}>{days <= 0 ? "URGENTE" : `${days} días`}</span>
-                    </div>
-                    <div className="text-sm font-medium mt-1">{r.cost_center_name}</div>
-                    <div className="text-xs text-white/50 flex items-center gap-1 mt-1">
-                      <Calendar className="h-3 w-3" />{r.required_date ? new Date(r.required_date).toLocaleDateString("es-MX") : "Sin fecha"}
-                    </div>
-                  </button>
+                  <div key={r.id} className={`rounded-xl p-3 border transition ${selectedReq?.id === r.id ? "border-blue-500 bg-blue-500/20" : days <= 2 ? "border-red-500 bg-red-500/10" : "border-white/10 bg-white/5"}`}>
+                    <button onClick={() => selectReq(r)} className="w-full text-left">
+                      <div className="flex justify-between">
+                        <span className="font-mono text-xs text-blue-400">{r.folio}</span>
+                        <span className={`text-xs px-2 rounded ${days <= 2 ? "bg-red-500" : "bg-white/20"}`}>{days <= 0 ? "URGENTE" : `${days} días`}</span>
+                      </div>
+                      <div className="text-sm font-medium mt-1">{r.cost_center_name}</div>
+                      <div className="text-xs text-white/50 flex items-center gap-1 mt-1">
+                        <Calendar className="h-3 w-3" />{r.required_date ? new Date(r.required_date).toLocaleDateString("es-MX") : "Sin fecha"}
+                      </div>
+                    </button>
+                    <button onClick={() => deleteReq(r.id)} className="mt-2 text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
+                      <Trash2 className="h-3 w-3" /> Eliminar
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -180,6 +201,7 @@ export default function PurchasingPage() {
                   <div>
                     <h2 className="text-xl font-bold">{selectedReq.folio}</h2>
                     <p className="text-white/60">{selectedReq.cost_center_name}</p>
+                    <p className="text-xs text-white/40">ID: {selectedReq.id}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-white/50">Fecha requerida</div>
@@ -190,14 +212,17 @@ export default function PurchasingPage() {
                 {selectedReq.instructions && <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-4 text-sm"><strong>Instrucciones:</strong> {selectedReq.instructions}</div>}
 
                 <div className="flex gap-2 mb-4">
-                  <button onClick={() => setMode("view")} className={`px-3 py-1 rounded-lg text-sm ${mode === "view" ? "bg-blue-500" : "bg-white/10"}`}>Ver</button>
+                  <button onClick={() => setMode("view")} className={`px-3 py-1 rounded-lg text-sm ${mode === "view" ? "bg-blue-500" : "bg-white/10"}`}>Ver ({items.length})</button>
                   <button onClick={() => setMode("manual")} className={`px-3 py-1 rounded-lg text-sm ${mode === "manual" ? "bg-blue-500" : "bg-white/10"}`}>
                     <DollarSign className="h-4 w-4 inline mr-1" />Capturar Costos
                   </button>
                 </div>
 
                 {items.length === 0 ? (
-                  <div className="text-center py-8 text-white/50">No hay materiales en esta requisición</div>
+                  <div className="text-center py-8 text-white/50">
+                    <p>No hay materiales en esta requisición</p>
+                    <p className="text-xs mt-2">ID: {selectedReq.id}</p>
+                  </div>
                 ) : (
                   <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
                     <div className={`grid ${mode === "manual" ? "grid-cols-[2fr_70px_60px_90px_90px]" : "grid-cols-[2fr_80px_60px_1fr]"} gap-2 bg-white/5 px-3 py-2 text-xs uppercase text-white/50`}>
