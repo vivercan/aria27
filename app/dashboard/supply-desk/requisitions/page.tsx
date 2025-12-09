@@ -412,7 +412,7 @@ export default function RequisitionsPage() {
               ) : (
                 <>
                   <Check className="h-4 w-4" />
-                  Finalizar Requisición
+                  Generar Requisición
                 </>
               )}
             </button>
