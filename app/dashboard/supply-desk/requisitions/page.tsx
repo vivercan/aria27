@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Plus, Trash2, Check, Loader2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 type CostCenter = {
@@ -23,136 +23,134 @@ type MaterialRow = {
   name: string;
   unit: string;
   qty: number;
-  comments?: string;
+  observations: string;
 };
 
+const STATIC_COST_CENTERS: CostCenter[] = [
+  { id: 1, code: "OFMAT", name: "Oficina Matriz" },
+  { id: 2, code: "PINAR", name: "Pinar del Lago" },
+  { id: 3, code: "JESUS-F", name: "Jesús Flores" },
+  { id: 4, code: "PARQUE-JT", name: "Parque Jesús Terán" },
+  { id: 5, code: "LAB-SEMIC", name: "Laboratorio Semiconductores" },
+];
+
 export default function RequisitionsPage() {
-  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenter[]>(STATIC_COST_CENTERS);
   const [selectedCostCenterId, setSelectedCostCenterId] = useState<number | null>(null);
   const [generalComments, setGeneralComments] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
-  const [loadingCenters, setLoadingCenters] = useState(false);
   const [searching, setSearching] = useState(false);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
+  
+  const qtyInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
-  // 🔹 Cargar centros de costo al entrar a la pantalla
+  // Cargar centros de costo
   useEffect(() => {
     const loadCenters = async () => {
-      setLoadingCenters(true);
-      setErrorMsg(null);
       try {
         const { data, error } = await supabase
           .from("cost_centers")
           .select("id, code, name")
           .order("name", { ascending: true });
-
-        if (error) {
-          console.error("Error cargando cost_centers:", error);
-          setErrorMsg("No se pudieron cargar los centros de costo.");
-          return;
+        if (!error && data && data.length > 0) {
+          setCostCenters(data as CostCenter[]);
         }
-
-        setCostCenters(data || []);
-      } finally {
-        setLoadingCenters(false);
+      } catch (err) {
+        console.error("Error cargando cost_centers:", err);
       }
     };
-
     loadCenters();
   }, []);
 
-  // 🔹 Buscar productos en Supabase cuando escribes en la lupa
+  // Buscar productos
   const handleSearch = async (term: string) => {
     setSearchTerm(term);
-    setErrorMsg(null);
-    setMessage(null);
-
     const value = term.trim();
     if (value.length < 2) {
       setSearchResults([]);
       return;
     }
-
     setSearching(true);
     try {
       const { data, error } = await supabase
         .from("products")
         .select("id, name, unit, category, description")
-        .or(
-          `name.ilike.%${value}%,description.ilike.%${value}%,category.ilike.%${value}%`
-        )
-        .limit(25);
-
-      if (error) {
-        console.error("Error buscando productos:", error);
-        setErrorMsg("No se pudo buscar en el catálogo.");
-        setSearchResults([]);
-        return;
+        .or(`name.ilike.%${value}%,description.ilike.%${value}%,category.ilike.%${value}%`)
+        .limit(15);
+      if (!error) {
+        setSearchResults((data || []) as Product[]);
       }
-
-      setSearchResults(data || []);
+    } catch (err) {
+      console.error("Error buscando productos:", err);
     } finally {
       setSearching(false);
     }
   };
 
-  // 🔹 Agregar producto a la lista de materiales
+  // Agregar producto al carrito
   const addMaterial = (product: Product) => {
-    if (!product.id) return;
-
-    const safeName: string = product.name ?? "SIN NOMBRE";
+    if (!product.id || !product.name) return;
+    
+    // Feedback visual: marcar como añadido
+    setAddedIds(prev => new Set(prev).add(product.id));
+    setTimeout(() => {
+      setAddedIds(prev => {
+        const next = new Set(prev);
+        next.delete(product.id);
+        return next;
+      });
+    }, 2000);
 
     setMaterials((prev) => {
       const exists = prev.find((m) => m.id === product.id);
       if (exists) {
-        // Si ya existe, solo incrementa la cantidad
         return prev.map((m) =>
           m.id === product.id ? { ...m, qty: m.qty + 1 } : m
         );
       }
-
-      const nuevo: MaterialRow = {
+      const newRow: MaterialRow = {
         id: product.id,
-        name: safeName,
+        name: product.name ?? "",
         unit: product.unit || "",
         qty: 1,
+        observations: "",
       };
-
-      return [...prev, nuevo];
+      
+      // Focus en el input de cantidad del nuevo ítem
+      setTimeout(() => {
+        const input = qtyInputRefs.current.get(product.id);
+        if (input) input.focus();
+      }, 100);
+      
+      return [...prev, newRow];
     });
-
-    setSearchTerm("");
-    setSearchResults([]);
   };
 
-  // 🔹 Eliminar material de la lista
+  // Eliminar material
   const removeMaterial = (id: number) => {
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   };
 
-  // 🔹 Actualizar cantidad o comentarios de un renglón
-  const updateMaterial = (
-    id: number,
-    field: "qty" | "comments",
-    value: number | string
-  ) => {
+  // Actualizar cantidad
+  const updateQty = (id: number, value: number) => {
     setMaterials((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? {
-              ...m,
-              [field]: field === "qty" ? Number(value) || 0 : value,
-            }
-          : m
-      )
+      prev.map((m) => (m.id === id ? { ...m, qty: Math.max(0, value) } : m))
     );
   };
 
-  // 🔹 Enviar requisición a la API /api/requisicion
+  // Actualizar observaciones
+  const updateObservations = (id: number, value: string) => {
+    setMaterials((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, observations: value } : m))
+    );
+  };
+
+  // Enviar requisición
   const handleSubmit = async () => {
     setErrorMsg(null);
     setMessage(null);
@@ -161,16 +159,12 @@ export default function RequisitionsPage() {
       setErrorMsg("Selecciona un centro de costo.");
       return;
     }
-
     if (materials.length === 0) {
-      setErrorMsg("Agrega al menos un material a la lista.");
+      setErrorMsg("Agrega al menos un material a la requisición.");
       return;
     }
 
-    const selectedCenter = costCenters.find(
-      (c) => c.id === selectedCostCenterId
-    );
-
+    const selectedCenter = costCenters.find((c) => c.id === selectedCostCenterId);
     if (!selectedCenter) {
       setErrorMsg("Centro de costo inválido.");
       return;
@@ -179,17 +173,14 @@ export default function RequisitionsPage() {
     setSending(true);
     try {
       const body = {
-        usuario: {
-          nombre: "Usuario ARIA27",
-          email: "recursos.humanos@gcuavante.com",
-        },
+        usuario: { nombre: "Usuario ARIA27", email: "recursos.humanos@gcuavante.com" },
         obra: `${selectedCenter.code} - ${selectedCenter.name}`,
         comentarios: generalComments,
         materiales: materials.map((m) => ({
           name: m.name,
           unit: m.unit,
           qty: m.qty,
-          comments: m.comments,
+          comments: m.observations,
         })),
       };
 
@@ -198,83 +189,62 @@ export default function RequisitionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
       const json = await res.json();
 
       if (!res.ok || !json.success) {
-        console.error("Error al enviar requisición:", json);
-        setErrorMsg(
-          json?.error || "No se pudo enviar la requisición. Intenta de nuevo."
-        );
+        setErrorMsg(json?.error || "No se pudo enviar la requisición.");
         return;
       }
 
-      setMessage(`Requisición enviada. Folio: ${json.folio}`);
+      setMessage(`✅ Requisición generada. Folio: ${json.folio}`);
       setMaterials([]);
       setGeneralComments("");
     } catch (err) {
-      console.error("Error de red al enviar requisición:", err);
       setErrorMsg("Error de red al enviar la requisición.");
     } finally {
       setSending(false);
     }
   };
 
+  const isCartEmpty = materials.length === 0;
+
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Mensajes arriba */}
+    <div className="flex flex-col gap-4 p-6 h-full">
+      {/* Mensajes */}
       {errorMsg && (
-        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">
           {errorMsg}
         </div>
       )}
       {message && (
-        <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+        <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
           {message}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        {/* 🔵 Columna izquierda: Configuración */}
+      {/* Fila superior: Configuración + Catálogo */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Panel 1: CONFIGURACIÓN */}
         <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
-
           <div className="space-y-4">
-            {/* Centro de costo */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">
-                Obra / Centro de Costos
-              </label>
+              <label className="text-xs font-medium text-white/70">Obra / Centro de Costos</label>
               <select
                 className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-sky-400"
                 value={selectedCostCenterId ?? ""}
-                onChange={(e) =>
-                  setSelectedCostCenterId(
-                    e.target.value ? Number(e.target.value) : null
-                  )
-                }
-                disabled={loadingCenters}
+                onChange={(e) => setSelectedCostCenterId(e.target.value ? Number(e.target.value) : null)}
               >
-                <option value="">
-                  {loadingCenters
-                    ? "Cargando centros de costo..."
-                    : "Seleccione una obra..."}
-                </option>
+                <option value="">Seleccione una obra...</option>
                 {costCenters.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.code} - {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.code} - {c.name}</option>
                 ))}
               </select>
             </div>
-
-            {/* Comentarios generales */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">
-                Instrucciones generales
-              </label>
+              <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
               <textarea
-                className="h-32 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-sky-400"
+                className="h-24 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-sky-400"
                 placeholder="Instrucciones de entrega, referencias de obra, horarios, etc."
                 value={generalComments}
                 onChange={(e) => setGeneralComments(e.target.value)}
@@ -283,142 +253,168 @@ export default function RequisitionsPage() {
           </div>
         </section>
 
-        {/* 🔵 Columna derecha: Lista de materiales */}
-        <section className="flex flex-col rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">2. LISTA DE MATERIALES</h2>
-              <p className="text-xs text-white/60">
-                Busca en el catálogo y agrega partidas a la requisición.
-              </p>
-            </div>
-          </div>
-
+        {/* Panel 2: BUSCADOR + CATÁLOGO */}
+        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+          <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
+          
           {/* Buscador */}
-          <div className="relative mb-4">
+          <div className="relative mb-3">
             <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2">
               <Search className="h-4 w-4 opacity-70" />
               <input
                 className="w-full bg-transparent text-sm outline-none"
-                placeholder="Escribe al menos 2 letras para buscar en el catálogo..."
+                placeholder="Escribe al menos 2 letras para buscar..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
               />
-              {searching && (
-                <Loader2 className="h-4 w-4 animate-spin opacity-70" />
-              )}
+              {searching && <Loader2 className="h-4 w-4 animate-spin opacity-70" />}
             </div>
-
-            {/* Resultados de búsqueda */}
-            {searchResults.length > 0 && (
-              <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-white/20 bg-slate-950/95 text-xs shadow-xl">
-                {searchResults.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className="flex w-full items-start justify-between gap-2 px-3 py-2 text-left hover:bg-white/5"
-                    onClick={() => addMaterial(p)}
-                  >
-                    <div>
-                      <div className="font-medium">
-                        {p.name ?? "SIN NOMBRE"}
-                      </div>
-                      <div className="text-[11px] text-white/60">
-                        {p.unit && <>Unidad: {p.unit} · </>}
-                        {p.category || ""}
-                      </div>
-                      {p.description && (
-                        <div className="mt-0.5 text-[11px] text-white/50 line-clamp-2">
-                          {p.description}
-                        </div>
-                      )}
-                    </div>
-                    <Plus className="mt-1 h-4 w-4 shrink-0" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Tabla de materiales */}
-          <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/20">
-            <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_40px] border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-white/70">
+          {/* Resultados del catálogo */}
+          <div className="text-xs text-white/50 mb-2">Resultados del catálogo</div>
+          <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
+            <div className="grid grid-cols-[1fr_100px_60px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-white/70">
               <div>Descripción</div>
               <div>Unidad</div>
-              <div>Cantidad</div>
-              <div></div>
+              <div className="text-center">Agregar</div>
             </div>
-
-            <div className="max-h-72 overflow-auto">
-              {materials.length === 0 ? (
-                <div className="px-3 py-6 text-center text-xs text-white/50">
-                  Tu lista está vacía. Busca arriba un material del catálogo y
-                  agrégalo.
+            <div className="divide-y divide-white/5">
+              {searchResults.length === 0 ? (
+                <div className="px-3 py-4 text-center text-xs text-white/40">
+                  {searchTerm.length < 2 ? "Escribe para buscar artículos..." : "Sin resultados"}
                 </div>
               ) : (
-                materials.map((m) => (
-                  <div
-                    key={m.id}
-                    className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_40px] items-center gap-2 border-b border-white/5 px-3 py-2 text-xs"
-                  >
-                    <div className="truncate">{m.name}</div>
-                    <div>
-                      <input
-                        className="w-full rounded-lg bg-black/40 px-2 py-1 text-[11px] outline-none"
-                        value={m.unit}
-                        onChange={(e) =>
-                          updateMaterial(m.id, "comments", e.target.value)
-                        }
-                        placeholder={m.unit || "Unidad"}
-                      />
+                searchResults.map((p) => {
+                  const isAdded = addedIds.has(p.id);
+                  const alreadyInCart = materials.some(m => m.id === p.id);
+                  return (
+                    <div key={p.id} className="grid grid-cols-[1fr_100px_60px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
+                      <div className="truncate">{p.name || "Sin nombre"}</div>
+                      <div className="text-white/60 truncate">{p.unit || "-"}</div>
+                      <div className="flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => addMaterial(p)}
+                          disabled={isAdded}
+                          className={`flex items-center justify-center rounded-full p-1.5 transition ${
+                            isAdded 
+                              ? "bg-gray-500 cursor-not-allowed" 
+                              : alreadyInCart
+                                ? "bg-blue-500 hover:bg-blue-400"
+                                : "bg-emerald-500 hover:bg-emerald-400"
+                          }`}
+                          title={isAdded ? "Añadido" : alreadyInCart ? "Agregar más" : "Agregar"}
+                        >
+                          {isAdded ? (
+                            <Check className="h-3 w-3 text-white" />
+                          ) : (
+                            <Plus className="h-3 w-3 text-white" />
+                          )}
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <input
-                        type="number"
-                        min={0}
-                        className="w-full rounded-lg bg-black/40 px-2 py-1 text-[11px] outline-none"
-                        value={m.qty}
-                        onChange={(e) =>
-                          updateMaterial(m.id, "qty", Number(e.target.value))
-                        }
-                      />
-                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Panel 3: PARTIDAS DE LA REQUISICIÓN (Carrito) */}
+      <section className="flex-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-emerald-400" />
+            <h2 className="text-lg font-semibold">3. PARTIDAS DE LA REQUISICIÓN</h2>
+          </div>
+          <span className="text-xs text-white/50">
+            {materials.length} {materials.length === 1 ? "partida" : "partidas"} añadidas
+          </span>
+        </div>
+
+        {/* Tabla de partidas */}
+        <div className="flex-1 overflow-auto rounded-xl border border-white/10 bg-black/20">
+          <div className="grid grid-cols-[2fr_100px_80px_1fr_50px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-white/70 sticky top-0">
+            <div>Descripción</div>
+            <div>Unidad</div>
+            <div>Cantidad</div>
+            <div>Observaciones</div>
+            <div></div>
+          </div>
+          <div className="divide-y divide-white/5">
+            {isCartEmpty ? (
+              <div className="px-3 py-8 text-center text-sm text-white/40">
+                <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                Tu requisición está vacía.<br />
+                <span className="text-xs">Busca materiales arriba y agrégalos con el botón +</span>
+              </div>
+            ) : (
+              materials.map((m) => (
+                <div key={m.id} className="grid grid-cols-[2fr_100px_80px_1fr_50px] gap-2 items-center px-3 py-2 text-xs">
+                  <div className="truncate font-medium">{m.name}</div>
+                  <div className="text-white/60">{m.unit}</div>
+                  <div>
+                    <input
+                      ref={(el) => { if (el) qtyInputRefs.current.set(m.id, el); }}
+                      type="number"
+                      min={1}
+                      className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none focus:ring-1 focus:ring-sky-400"
+                      value={m.qty}
+                      onChange={(e) => updateQty(m.id, Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none focus:ring-1 focus:ring-sky-400"
+                      placeholder="Opcional..."
+                      value={m.observations}
+                      onChange={(e) => updateObservations(m.id, e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-center">
                     <button
                       type="button"
-                      className="flex items-center justify-center rounded-full bg-red-500/70 p-1 text-white hover:bg-red-500"
+                      className="flex items-center justify-center rounded-full bg-red-500/70 p-1.5 text-white hover:bg-red-500"
                       onClick={() => removeMaterial(m.id)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
                   </div>
-                ))
-              )}
-            </div>
+                </div>
+              ))
+            )}
           </div>
+        </div>
 
-          {/* Botón Finalizar */}
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={sending}
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 shadow-md transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {sending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4" />
-                  Generar Requisición
-                </>
-              )}
-            </button>
-          </div>
-        </section>
-      </div>
+        {/* Footer con botón */}
+        <div className="mt-4 flex items-center justify-end gap-4">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={sending || isCartEmpty}
+            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${
+              isCartEmpty
+                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"
+            }`}
+          >
+            {sending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generando...
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4" />
+                Generar Requisición
+              </>
+            )}
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
