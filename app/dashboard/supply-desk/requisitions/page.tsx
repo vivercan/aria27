@@ -1,213 +1,424 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+
+import { useEffect, useState } from "react";
+import { Search, Plus, Trash2, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { Search, Plus, Upload, Building, Trash, Check, MessageSquare, X, Package } from "lucide-react";
+
+type CostCenter = {
+  id: number;
+  code: string;
+  name: string;
+};
+
+type Product = {
+  id: number;
+  name: string | null;
+  unit: string | null;
+  category: string | null;
+  description: string | null;
+};
+
+type MaterialRow = {
+  id: number;
+  name: string;
+  unit: string;
+  qty: number;
+  comments?: string;
+};
 
 export default function RequisitionsPage() {
-  const [costCenters, setCostCenters] = useState<any[]>([]);
-  const [selectedCenter, setSelectedCenter] = useState("");
+  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+  const [selectedCostCenterId, setSelectedCostCenterId] = useState<number | null>(null);
   const [generalComments, setGeneralComments] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
-  const searchTimeout = useRef<any>(null);
-  const [isManualOpen, setIsManualOpen] = useState(false);
-  const [manualItem, setManualItem] = useState({ name: "", unit: "Pza", qty: 1, comments: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false); // Estado de carga
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [materials, setMaterials] = useState<MaterialRow[]>([]);
+  const [loadingCenters, setLoadingCenters] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // 🔹 Cargar centros de costo al entrar a la pantalla
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase.from('cost_centers').select('*');
-      if (data) setCostCenters(data);
-    }
-    load();
+    const loadCenters = async () => {
+      setLoadingCenters(true);
+      setErrorMsg(null);
+      try {
+        const { data, error } = await supabase
+          .from("cost_centers")
+          .select("id, code, name")
+          .order("name", { ascending: true });
+
+        if (error) {
+          console.error("Error cargando cost_centers:", error);
+          setErrorMsg("No se pudieron cargar los centros de costo.");
+          return;
+        }
+
+        setCostCenters(data || []);
+      } finally {
+        setLoadingCenters(false);
+      }
+    };
+
+    loadCenters();
   }, []);
 
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-    if (searchTimeout.current) clearTimeout(searchTimeout.current);
-    if (text.length < 2) { setSearchResults([]); return; }
-    searchTimeout.current = setTimeout(async () => {
-      const { data } = await supabase.from('products').select('*').ilike('name', `%${text}%`).limit(5);
-      setSearchResults(data || []);
-    }, 500);
-  };
+  // 🔹 Buscar productos en Supabase cuando escribes en la lupa
+  const handleSearch = async (term: string) => {
+    setSearchTerm(term);
+    setErrorMsg(null);
+    setMessage(null);
 
-  const addToCart = (p: any) => {
-    const exists = cart.find(c => c.id === p.id);
-    if (exists) return;
-    setCart([...cart, { ...p, qty: 1, isManual: false }]);
-    setSearchQuery(""); setSearchResults([]);
-  };
+    const value = term.trim();
+    if (value.length < 2) {
+      setSearchResults([]);
+      return;
+    }
 
-  const saveManualItem = () => {
-    if (!manualItem.name) return alert("Escribe una descripción");
-    setCart([...cart, { id: `manual-${Date.now()}`, sku: 'MANUAL', name: manualItem.name, unit: manualItem.unit, qty: manualItem.qty, comments: manualItem.comments, isManual: true }]);
-    setManualItem({ name: "", unit: "Pza", qty: 1, comments: "" });
-    setIsManualOpen(false);
-  };
-
-  const removeFromCart = (index: number) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
-  };
-
-  const updateQty = (index: number, val: string) => {
-    const newCart = [...cart];
-    newCart[index].qty = Number(val);
-    setCart(newCart);
-  };
-
-  // --- FUNCIÓN DE ENVÍO REAL ---
-  const handleFinalize = async () => {
-    if (cart.length === 0) return alert("La lista está vacía.");
-    if (!selectedCenter) return alert("Selecciona una Obra / Centro de Costos.");
-    
-    if (!confirm("¿Confirmar requisición y notificar a RH?")) return;
-
-    setIsSubmitting(true);
+    setSearching(true);
     try {
-      const res = await fetch('/api/requisicion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          usuario: { nombre: 'Deya Montalvo', email: 'deya@gcuavante.com' }, // Usuario Fijo Admin
-          obra: selectedCenter,
-          comentarios: generalComments,
-          materiales: cart
-        })
-      });
-      
-      const data = await res.json();
-      if (data.success) {
-        alert(`✅ REQUISICIÓN EXITOSA\nFolio: ${data.folio}\n\nSe ha enviado el correo de confirmación.`);
-        window.location.reload();
-      } else {
-        alert("❌ Error: " + (data.error || "Error desconocido"));
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, unit, category, description")
+        .or(
+          `name.ilike.%${value}%,description.ilike.%${value}%,category.ilike.%${value}%`
+        )
+        .limit(25);
+
+      if (error) {
+        console.error("Error buscando productos:", error);
+        setErrorMsg("No se pudo buscar en el catálogo.");
+        setSearchResults([]);
+        return;
       }
-    } catch (err) {
-      alert("Error de conexión con el servidor.");
+
+      setSearchResults(data || []);
     } finally {
-      setIsSubmitting(false);
+      setSearching(false);
+    }
+  };
+
+  // 🔹 Agregar producto a la lista de materiales
+  const addMaterial = (product: Product) => {
+    if (!product.id) return;
+
+    const safeName: string = product.name ?? "SIN NOMBRE";
+
+    setMaterials((prev) => {
+      const exists = prev.find((m) => m.id === product.id);
+      if (exists) {
+        // Si ya existe, solo incrementa la cantidad
+        return prev.map((m) =>
+          m.id === product.id ? { ...m, qty: m.qty + 1 } : m
+        );
+      }
+
+      const nuevo: MaterialRow = {
+        id: product.id,
+        name: safeName,
+        unit: product.unit || "",
+        qty: 1,
+      };
+
+      return [...prev, nuevo];
+    });
+
+    setSearchTerm("");
+    setSearchResults([]);
+  };
+
+  // 🔹 Eliminar material de la lista
+  const removeMaterial = (id: number) => {
+    setMaterials((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  // 🔹 Actualizar cantidad o comentarios de un renglón
+  const updateMaterial = (
+    id: number,
+    field: "qty" | "comments",
+    value: number | string
+  ) => {
+    setMaterials((prev) =>
+      prev.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              [field]: field === "qty" ? Number(value) || 0 : value,
+            }
+          : m
+      )
+    );
+  };
+
+  // 🔹 Enviar requisición a la API /api/requisicion
+  const handleSubmit = async () => {
+    setErrorMsg(null);
+    setMessage(null);
+
+    if (!selectedCostCenterId) {
+      setErrorMsg("Selecciona un centro de costo.");
+      return;
+    }
+
+    if (materials.length === 0) {
+      setErrorMsg("Agrega al menos un material a la lista.");
+      return;
+    }
+
+    const selectedCenter = costCenters.find(
+      (c) => c.id === selectedCostCenterId
+    );
+
+    if (!selectedCenter) {
+      setErrorMsg("Centro de costo inválido.");
+      return;
+    }
+
+    setSending(true);
+    try {
+      const body = {
+        usuario: {
+          nombre: "Usuario ARIA27",
+          email: "recursos.humanos@gcuavante.com",
+        },
+        obra: `${selectedCenter.code} - ${selectedCenter.name}`,
+        comentarios: generalComments,
+        materiales: materials.map((m) => ({
+          name: m.name,
+          unit: m.unit,
+          qty: m.qty,
+          comments: m.comments,
+        })),
+      };
+
+      const res = await fetch("/api/requisicion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        console.error("Error al enviar requisición:", json);
+        setErrorMsg(
+          json?.error || "No se pudo enviar la requisición. Intenta de nuevo."
+        );
+        return;
+      }
+
+      setMessage(`Requisición enviada. Folio: ${json.folio}`);
+      setMaterials([]);
+      setGeneralComments("");
+    } catch (err) {
+      console.error("Error de red al enviar requisición:", err);
+      setErrorMsg("Error de red al enviar la requisición.");
+    } finally {
+      setSending(false);
     }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in zoom-in duration-300 relative">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Nueva Requisición</h1>
-          <p className="text-slate-400 text-sm">Agrega productos del catálogo o partidas manuales.</p>
-        </div>
-        <div className="flex gap-2">
-           <button className="bg-white/5 hover:bg-white/10 text-xs text-slate-300 px-3 py-2 rounded-lg border border-white/10 flex gap-2 items-center">
-             <Upload size={14} /> Carga Masiva
-           </button>
-           <button onClick={() => setIsManualOpen(true)} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg flex gap-2 items-center shadow-lg shadow-blue-500/20 transition-all">
-             <Plus size={14} /> Agregar Manualmente
-           </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md h-fit">
-          <h3 className="text-sm font-bold text-blue-300 mb-4 uppercase tracking-wider">1. Configuración</h3>
-          <div className="space-y-5">
-             <div>
-               <label className="text-xs text-slate-400 mb-1 block">Obra / Centro de Costos</label>
-               <div className="relative">
-                 <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
-                 <select className="w-full bg-white text-gray-900 font-medium rounded-lg py-2.5 pl-10 pr-3 text-sm outline-none shadow-lg"
-                    value={selectedCenter} onChange={(e) => setSelectedCenter(e.target.value)}>
-                   <option value="">Seleccione una obra...</option>
-                   {costCenters.map(cc => <option key={cc.id} value={cc.name}>{cc.name} ({cc.code})</option>)}
-                 </select>
-               </div>
-            </div>
-            <div>
-              <label className="text-xs text-slate-400 mb-1 block">Comentarios Generales</label>
-              <div className="relative">
-                <MessageSquare className="absolute left-3 top-3 text-slate-500" size={16} />
-                <textarea className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white text-sm outline-none min-h-[100px]"
-                  placeholder="Instrucciones generales..." value={generalComments} onChange={(e) => setGeneralComments(e.target.value)} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-           <h3 className="text-sm font-bold text-blue-300 mb-4 uppercase tracking-wider">2. Lista de Materiales</h3>
-           <div className="relative mb-6">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-             <input type="text" placeholder="Buscar en catálogo..." className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-10 px-4 text-white focus:border-blue-500 transition-all"
-               value={searchQuery} onChange={(e) => handleSearch(e.target.value)} />
-             {searchResults.length > 0 && (
-               <div className="absolute top-full mt-2 w-full bg-[#020617] border border-blue-500/30 rounded-xl shadow-2xl z-50 overflow-hidden">
-                 {searchResults.map(p => (
-                   <div key={p.id} className="p-3 hover:bg-blue-600/20 cursor-pointer text-white border-b border-white/5 flex justify-between items-center" onClick={() => addToCart(p)}>
-                      <span>{p.name}</span><span className="text-xs bg-white/10 px-2 py-1 rounded text-slate-300">{p.unit}</span>
-                   </div>
-                 ))}
-               </div>
-             )}
-           </div>
-
-           <div className="bg-black/20 rounded-xl border border-white/5 overflow-hidden min-h-[250px]">
-             <table className="w-full text-left text-sm text-slate-300">
-               <thead className="bg-white/5 text-slate-100 text-xs font-bold uppercase">
-                  <tr><th className="p-3">Descripción</th><th className="p-3 text-center">Unidad</th><th className="p-3 text-center w-24">Cantidad</th><th className="p-3 w-10"></th></tr>
-               </thead>
-               <tbody className="divide-y divide-white/5">
-                 {cart.length === 0 ? (
-                    <tr><td colSpan={4} className="p-8 text-center text-slate-500 italic text-xs">Tu lista está vacía.</td></tr>
-                 ) : cart.map((item, idx) => (
-                   <tr key={idx} className="hover:bg-white/5 transition-colors">
-                     <td className="p-3 text-white">
-                        <div className="font-medium flex items-center gap-2">{item.isManual && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1 rounded">MANUAL</span>}{item.name}</div>
-                        <div className="text-[10px] text-slate-500">{item.sku} {item.comments}</div>
-                     </td>
-                     <td className="p-3 text-center text-xs">{item.unit}</td>
-                     <td className="p-3 text-center">
-                       <input type="number" className="w-16 bg-white/10 border border-white/20 text-white text-center rounded py-1 outline-none" value={item.qty} onChange={(e) => updateQty(idx, e.target.value)} />
-                     </td>
-                     <td className="p-3 text-center"><button onClick={() => removeFromCart(idx)} className="text-slate-500 hover:text-rose-400"><Trash size={16}/></button></td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
-           </div>
-
-           <div className="mt-6 flex justify-end">
-             <button onClick={handleFinalize} disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-               {isSubmitting ? "Procesando..." : <><Check size={16} /> Finalizar Requisición</>}
-             </button>
-           </div>
-        </div>
-      </div>
-
-      {isManualOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#0f172a] border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-              <h3 className="text-white font-bold flex items-center gap-2"><Package size={18} className="text-blue-400"/> Agregar Partida</h3>
-              <button onClick={() => setIsManualOpen(false)} className="text-slate-400 hover:text-white"><X size={20}/></button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div><label className="text-xs text-slate-400 block">Descripción</label><input autoFocus type="text" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white outline-none" value={manualItem.name} onChange={e => setManualItem({...manualItem, name: e.target.value})} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-xs text-slate-400 block">Unidad</label><select className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white outline-none" value={manualItem.unit} onChange={e => setManualItem({...manualItem, unit: e.target.value})}><option>Pza</option><option>Kg</option><option>Mto</option><option>Lt</option><option>Servicio</option></select></div>
-                <div><label className="text-xs text-slate-400 block">Cantidad</label><input type="number" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white outline-none" value={manualItem.qty} onChange={e => setManualItem({...manualItem, qty: Number(e.target.value)})} /></div>
-              </div>
-              <div><label className="text-xs text-slate-400 block">Comentarios</label><input type="text" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white outline-none" value={manualItem.comments} onChange={e => setManualItem({...manualItem, comments: e.target.value})} /></div>
-            </div>
-            <div className="p-4 bg-white/5 border-t border-white/10 flex justify-end gap-3">
-              <button onClick={() => setIsManualOpen(false)} className="px-4 py-2 text-slate-400 hover:text-white text-sm">Cancelar</button>
-              <button onClick={saveManualItem} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Agregar</button>
-            </div>
-          </div>
+    <div className="flex flex-col gap-6 p-6">
+      {/* Mensajes arriba */}
+      {errorMsg && (
+        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+          {errorMsg}
         </div>
       )}
+      {message && (
+        <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+          {message}
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        {/* 🔵 Columna izquierda: Configuración */}
+        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+          <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
+
+          <div className="space-y-4">
+            {/* Centro de costo */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">
+                Obra / Centro de Costos
+              </label>
+              <select
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-sky-400"
+                value={selectedCostCenterId ?? ""}
+                onChange={(e) =>
+                  setSelectedCostCenterId(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
+                disabled={loadingCenters}
+              >
+                <option value="">
+                  {loadingCenters
+                    ? "Cargando centros de costo..."
+                    : "Seleccione una obra..."}
+                </option>
+                {costCenters.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code} - {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Comentarios generales */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">
+                Instrucciones generales
+              </label>
+              <textarea
+                className="h-32 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-sky-400"
+                placeholder="Instrucciones de entrega, referencias de obra, horarios, etc."
+                value={generalComments}
+                onChange={(e) => setGeneralComments(e.target.value)}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* 🔵 Columna derecha: Lista de materiales */}
+        <section className="flex flex-col rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">2. LISTA DE MATERIALES</h2>
+              <p className="text-xs text-white/60">
+                Busca en el catálogo y agrega partidas a la requisición.
+              </p>
+            </div>
+          </div>
+
+          {/* Buscador */}
+          <div className="relative mb-4">
+            <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2">
+              <Search className="h-4 w-4 opacity-70" />
+              <input
+                className="w-full bg-transparent text-sm outline-none"
+                placeholder="Escribe al menos 2 letras para buscar en el catálogo..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+              {searching && (
+                <Loader2 className="h-4 w-4 animate-spin opacity-70" />
+              )}
+            </div>
+
+            {/* Resultados de búsqueda */}
+            {searchResults.length > 0 && (
+              <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-white/20 bg-slate-950/95 text-xs shadow-xl">
+                {searchResults.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className="flex w-full items-start justify-between gap-2 px-3 py-2 text-left hover:bg-white/5"
+                    onClick={() => addMaterial(p)}
+                  >
+                    <div>
+                      <div className="font-medium">
+                        {p.name ?? "SIN NOMBRE"}
+                      </div>
+                      <div className="text-[11px] text-white/60">
+                        {p.unit && <>Unidad: {p.unit} · </>}
+                        {p.category || ""}
+                      </div>
+                      {p.description && (
+                        <div className="mt-0.5 text-[11px] text-white/50 line-clamp-2">
+                          {p.description}
+                        </div>
+                      )}
+                    </div>
+                    <Plus className="mt-1 h-4 w-4 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Tabla de materiales */}
+          <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/20">
+            <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_40px] border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase tracking-wide text-white/70">
+              <div>Descripción</div>
+              <div>Unidad</div>
+              <div>Cantidad</div>
+              <div></div>
+            </div>
+
+            <div className="max-h-72 overflow-auto">
+              {materials.length === 0 ? (
+                <div className="px-3 py-6 text-center text-xs text-white/50">
+                  Tu lista está vacía. Busca arriba un material del catálogo y
+                  agrégalo.
+                </div>
+              ) : (
+                materials.map((m) => (
+                  <div
+                    key={m.id}
+                    className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_40px] items-center gap-2 border-b border-white/5 px-3 py-2 text-xs"
+                  >
+                    <div className="truncate">{m.name}</div>
+                    <div>
+                      <input
+                        className="w-full rounded-lg bg-black/40 px-2 py-1 text-[11px] outline-none"
+                        value={m.unit}
+                        onChange={(e) =>
+                          updateMaterial(m.id, "comments", e.target.value)
+                        }
+                        placeholder={m.unit || "Unidad"}
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="number"
+                        min={0}
+                        className="w-full rounded-lg bg-black/40 px-2 py-1 text-[11px] outline-none"
+                        value={m.qty}
+                        onChange={(e) =>
+                          updateMaterial(m.id, "qty", Number(e.target.value))
+                        }
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="flex items-center justify-center rounded-full bg-red-500/70 p-1 text-white hover:bg-red-500"
+                      onClick={() => removeMaterial(m.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Botón Finalizar */}
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={sending}
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 shadow-md transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {sending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  Finalizar Requisición
+                </>
+              )}
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

@@ -67,11 +67,11 @@ async function seedCostCenters() {
   console.log("Actualizando centros de costos (cost_centers)...");
 
   const costCenters = [
-    { code: "OFMAT", name: "Oficina Matriz Aguascalientes" },
-    { code: "OBRA-01", name: "Obra Carretera Federal Tramo 1" },
-    { code: "OBRA-02", name: "Obra Carretera Federal Tramo 2" },
-    { code: "YARDA-AGS", name: "Yarda y Taller Aguascalientes" },
-    { code: "ADMIN-GRAL", name: "Gastos Administrativos Generales" },
+    { code: "OFMAT",     name: "Oficina Matriz" },
+    { code: "PINAR",     name: "Pinar del Lago" },
+    { code: "JESUS-F",   name: "Jesús Flores" },
+    { code: "PARQUE-JT", name: "Parque Jesús Terán" },
+    { code: "LAB-SEMIC", name: "Laboratorio Semiconductores" },
   ];
 
   const { error: delError } = await supabase.from("cost_centers").delete().neq("id", 0);
