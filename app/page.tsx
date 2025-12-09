@@ -74,10 +74,19 @@ export default function LoginPage() {
         className="relative z-10 hidden md:flex items-center justify-center"
       >
         <div className="flex flex-col items-center">
-          <h1 className="text-7xl lg:text-8xl font-bold text-white tracking-tight drop-shadow-2xl">
+          <h1 
+            className="text-white drop-shadow-2xl"
+            style={{ 
+              fontFamily: '"Arial Black", "Helvetica Neue", Arial, sans-serif',
+              fontSize: '250px',
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              lineHeight: 1
+            }}
+          >
             ARIA
           </h1>
-          <p className="text-xs text-white/60 mt-2 tracking-[0.3em] uppercase">
+          <p className="text-xs text-white/60 mt-4 tracking-[0.3em] uppercase">
             Infinity Loop
           </p>
         </div>
