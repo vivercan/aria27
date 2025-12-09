@@ -7,7 +7,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(request: Request) {
-  const resend = new Resend("re_UC3y5AmZ_6HxRpDWvNropUomZenU6joi5");
+  const resend = new Resend("re_4zCzGpfh_BrRuEinLAHVxms2kNqetqNkP");
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
   const action = searchParams.get("action") as "APROBADA" | "RECHAZADA" | "REVISION";
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
     // EMAIL a Compras (solo si fue aprobada)
     if (action === "APROBADA") {
       await resend.emails.send({
-        from: "ARIA27 <noreply@jjcrm27.com>",
+        from: "ARIA27 <noreply@mail.jjcrm27.com>",
         to: "juanviverosv@gmail.com",
         subject: `✅ Requisición ${req.folio} VALIDADA - Proceder con compra`,
         html: `
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
 
     // EMAIL a Recursos Humanos
     await resend.emails.send({
-      from: "ARIA27 <noreply@jjcrm27.com>",
+      from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: "recursos.humanos@gcuavante.com",
       subject: `${action === "APROBADA" ? "✅" : action === "RECHAZADA" ? "❌" : "↩"} Requisición ${req.folio} ${statusText}`,
       html: `
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
 
     // EMAIL al solicitante original
     await resend.emails.send({
-      from: "ARIA27 <noreply@jjcrm27.com>",
+      from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: req.created_by,
       subject: `${action === "APROBADA" ? "✅" : action === "RECHAZADA" ? "❌" : "↩"} Tu requisición ${req.folio} fue ${statusText}`,
       html: `

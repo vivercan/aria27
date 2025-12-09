@@ -26,7 +26,7 @@ async function getNextFolio(): Promise<string> {
 }
 
 export async function POST(request: Request) {
-  const resend = new Resend("re_UC3y5AmZ_6HxRpDWvNropUomZenU6joi5");
+  const resend = new Resend("re_4zCzGpfh_BrRuEinLAHVxms2kNqetqNkP");
   
   try {
     const body = await request.json();
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
 
     // EMAIL 1: Confirmación al usuario que creó
     await resend.emails.send({
-      from: "ARIA27 <noreply@jjcrm27.com>",
+      from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: usuario.email,
       subject: `✅ Requisición ${folio} generada`,
       html: `
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     // EMAIL 2: Notificación a Recursos Humanos (si no es el mismo)
     if (usuario.email !== "recursos.humanos@gcuavante.com") {
       await resend.emails.send({
-        from: "ARIA27 <noreply@jjcrm27.com>",
+        from: "ARIA27 <noreply@mail.jjcrm27.com>",
         to: "recursos.humanos@gcuavante.com",
         subject: `📋 Nueva requisición ${folio} - ${obra}`,
         html: `
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
     const returnUrl = `${BASE_URL}/api/requisicion/validate?token=${token}&action=REVISION`;
 
     await resend.emails.send({
-      from: "ARIA27 <noreply@jjcrm27.com>",
+      from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: "vivercan@yahoo.com",
       subject: `🔔 Validar requisición ${folio} - ${obra}`,
       html: `
