@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Search, UserPlus, FileDown, Trash2, Edit, AlertCircle, CheckCircle } from "lucide-react";
@@ -30,7 +31,8 @@ export default function HRPeoplePage() {
           <p className="text-slate-400 text-sm">{employees.length} registros conectados a BD</p>
         </div>
         <div className="flex gap-2">
-           <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"><UserPlus size={16} /> Nuevo</button>
+           <Link href="/dashboard/talent-hub/users" className="inline-flex items-center gap-2 rounded-full bg-purple-500/80 px-4 py-2 text-sm font-medium hover:bg-purple-500"><Shield className="h-4 w-4" />Usuarios</Link>
+            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"><UserPlus size={16} /> Nuevo</button>
         </div>
       </div>
 

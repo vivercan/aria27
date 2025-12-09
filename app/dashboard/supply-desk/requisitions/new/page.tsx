@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Calendar } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -31,7 +31,6 @@ export default function NewRequisitionPage() {
       if (data) setCostCenters(data);
     };
     loadCenters();
-    // Fecha por defecto: mañana
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
@@ -77,50 +76,26 @@ export default function NewRequisitionPage() {
 
     setSending(true);
     try {
-      const folio = "REQ-" + new Date().toISOString().slice(0,10).replace(/-/g,"") + "-" + Math.floor(Math.random()*1000);
-      
-      // Guardar en BD
-      const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
-        folio,
-        cost_center_id: center.id,
-        cost_center_name: center.name,
-        instructions: generalComments,
-        required_date: requiredDate,
-        status: "PENDIENTE",
-        created_by: "recursos.humanos@gcuavante.com"
-      }).select().single();
-
-      if (reqErr) throw reqErr;
-
-      // Guardar partidas
-      const items = materials.map(m => ({
-        requisition_id: req.id,
-        product_id: m.id,
-        product_name: m.name,
-        unit: m.unit,
-        quantity: m.qty,
-        observations: m.observations
-      }));
-      await supabase.from("requisition_items").insert(items);
-
-      // Enviar email
-      await fetch("/api/requisicion", {
+      const res = await fetch("/api/requisicion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           usuario: { nombre: "Usuario ARIA27", email: "recursos.humanos@gcuavante.com" },
           obra: center.name,
           comentarios: generalComments,
-          materiales: materials.map(m => ({ name: m.name, unit: m.unit, qty: m.qty, comments: m.observations })),
-          folio,
-          requiredDate
+          materiales: materials.map(m => ({ id: m.id, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations })),
+          requiredDate,
+          costCenterId: center.id
         })
       });
 
-      setMessage(`✅ Requisición ${folio} generada exitosamente.`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setMessage(`✅ Requisición ${data.folio} generada exitosamente. Se enviaron notificaciones por email.`);
       setMaterials([]);
       setGeneralComments("");
-      setTimeout(() => router.push("/dashboard/supply-desk/requisitions/status"), 2000);
+      setTimeout(() => router.push("/dashboard/supply-desk/requisitions/status"), 3000);
     } catch (err: any) {
       setErrorMsg(err?.message || "Error al generar la requisición.");
     } finally {
@@ -140,7 +115,6 @@ export default function NewRequisitionPage() {
       {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* CONFIGURACIÓN */}
         <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -159,15 +133,13 @@ export default function NewRequisitionPage() {
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Fecha Requerida</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-                  value={requiredDate}
-                  onChange={(e) => setRequiredDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </div>
+              <input
+                type="date"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
+                value={requiredDate}
+                onChange={(e) => setRequiredDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
             </div>
           </div>
           <div className="mt-4 space-y-1">
@@ -181,7 +153,6 @@ export default function NewRequisitionPage() {
           </div>
         </section>
 
-        {/* CATÁLOGO */}
         <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
           <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2 mb-3">
@@ -208,7 +179,6 @@ export default function NewRequisitionPage() {
         </section>
       </div>
 
-      {/* CARRITO */}
       <section className="flex-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
