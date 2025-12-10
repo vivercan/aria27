@@ -101,11 +101,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         `}>
           {/* LOGO ARIA GRANDE */}
           <div className="flex items-center gap-4 px-6 py-7 border-b border-white/[0.06]">
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 border border-white/20 shadow-lg shadow-blue-500/30">
-              <span className="text-white font-bold text-2xl">A</span>
-            </div>
             <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
                 ARIA
               </h1>
               <p className="text-[10px] text-slate-500 tracking-[0.15em] font-medium mt-0.5">OPERATIONS OS</p>
@@ -204,7 +201,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   {userName.charAt(0)}
                 </div>
                 <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all" title="Cerrar sesión">
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -219,3 +216,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+

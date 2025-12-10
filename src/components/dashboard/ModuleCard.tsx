@@ -35,7 +35,7 @@ export function ModuleCard({
       border border-white/[0.08]
       bg-[#0a0f1a]/80 backdrop-blur-xl
       p-5 h-[140px]
-      w-full max-w-[560px]
+      w-full
       shadow-[0_8px_32px_rgba(0,0,0,0.3)]
       transition-all duration-300 ease-out
       ${disabled 
@@ -103,3 +103,4 @@ export function ModuleCard({
     </Link>
   );
 }
+
