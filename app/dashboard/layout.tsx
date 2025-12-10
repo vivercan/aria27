@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -99,13 +99,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link 
                 key={item.path} 
                 href={item.path}
-                className={group relative flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 }
+                className={`group relative flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${isActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/5"}`}
               >
                 {/* Barra luminosa activa */}
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
                 )}
-                <item.icon className={w-5 h-5 transition-colors } />
+                <item.icon className={`w-5 h-5 transition-colors ${isActive ? "text-blue-400" : ""}`} />
                 <span>{item.name}</span>
               </Link>
             );
