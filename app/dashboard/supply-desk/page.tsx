@@ -2,11 +2,11 @@
 
 import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
-  FileText, 
-  Package, 
-  Users, 
-  ClipboardList, 
-  Truck, 
+  FileCheck,
+  Package,
+  Users,
+  ClipboardList,
+  Truck,
   Settings,
   ShoppingCart,
   CreditCard
@@ -16,10 +16,11 @@ const modules = [
   { 
     title: "Requisiciones", 
     description: "Solicitudes de materiales para obra.", 
-    icon: FileText, 
+    icon: FileCheck, 
     href: "/dashboard/supply-desk/requisitions", 
     color: "from-emerald-500 to-emerald-600",
-    badge: "Activo"
+    badge: "Activo",
+    badgeColor: "bg-emerald-500/20 text-emerald-300"
   },
   { 
     title: "Inventario", 
@@ -33,8 +34,9 @@ const modules = [
     description: "Catálogo de proveedores.", 
     icon: Users, 
     href: "/dashboard/supply-desk/vendors", 
-    color: "from-purple-500 to-purple-600",
-    badge: "CRUD"
+    color: "from-violet-500 to-violet-600",
+    badge: "CRUD",
+    badgeColor: "bg-violet-500/20 text-violet-300"
   },
   { 
     title: "Órdenes de Compra", 
@@ -90,6 +92,7 @@ export default function SupplyDeskPage() {
             href={mod.href}
             color={mod.color}
             badge={mod.badge}
+            badgeColor={mod.badgeColor}
           />
         ))}
       </ModuleGrid>

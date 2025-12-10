@@ -17,7 +17,8 @@ const modules = [
     icon: Briefcase, 
     href: "/dashboard/build-desk/pipeline", 
     color: "from-amber-500 to-orange-600",
-    badge: "5 activos"
+    badge: "5 obras",
+    badgeColor: "bg-amber-500/20 text-amber-300"
   },
   { 
     title: "Tender Hub", 
@@ -73,6 +74,7 @@ export default function BuildDeskPage() {
             href={mod.href}
             color={mod.color}
             badge={mod.badge}
+            badgeColor={mod.badgeColor}
           />
         ))}
       </ModuleGrid>

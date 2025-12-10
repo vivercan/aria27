@@ -8,7 +8,7 @@ import {
   SlidersHorizontal, 
   Scale, 
   Grid3X3,
-  UserPlus
+  UserCog
 } from "lucide-react";
 
 const modules = [
@@ -18,7 +18,8 @@ const modules = [
     icon: Users, 
     href: "/dashboard/talent-hub/people", 
     color: "from-violet-500 to-purple-600",
-    badge: "16 registros"
+    badge: "16 registros",
+    badgeColor: "bg-violet-500/20 text-violet-300"
   },
   { 
     title: "Clock-In Hub", 
@@ -58,10 +59,11 @@ const modules = [
   { 
     title: "User Access", 
     description: "Control de usuarios del sistema.", 
-    icon: UserPlus, 
+    icon: UserCog, 
     href: "/dashboard/talent-hub/users", 
     color: "from-slate-500 to-slate-600",
-    badge: "Admin"
+    badge: "Admin",
+    badgeColor: "bg-slate-500/20 text-slate-300"
   },
 ];
 
@@ -82,6 +84,7 @@ export default function TalentHubPage() {
             href={mod.href}
             color={mod.color}
             badge={mod.badge}
+            badgeColor={mod.badgeColor}
           />
         ))}
       </ModuleGrid>
