@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { LucideIcon } from "lucide-react";
 
@@ -9,97 +8,41 @@ interface ModuleCardProps {
   icon: LucideIcon;
   href: string;
   color: string;
-  glowColor: string;
-  badge?: string;
-  badgeColor?: string;
-  meta?: string;
-  disabled?: boolean;
+  badge?: string | number;
 }
 
-export function ModuleCard({ 
-  title, 
-  description, 
-  icon: Icon, 
-  href, 
-  color, 
-  glowColor,
-  badge, 
-  badgeColor = "bg-white/10 text-slate-300 border-white/10",
-  meta,
-  disabled 
-}: ModuleCardProps) {
-  const cardContent = (
-    <div className={`
-      group relative overflow-hidden 
-      rounded-2xl 
-      border border-white/[0.08]
-      bg-[#0a0f1a]/80 backdrop-blur-xl
-      p-5 h-[140px]
-      w-full max-w-[560px]
-      shadow-[0_8px_32px_rgba(0,0,0,0.3)]
-      transition-all duration-300 ease-out
-      ${disabled 
-        ? 'opacity-40 cursor-not-allowed grayscale' 
-        : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:border-white/[0.12] hover:bg-[#0a0f1a]/90 active:translate-y-0'
-      }
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
-    `}>
-      {/* Content */}
-      <div className="relative z-10 flex items-center gap-4 h-full">
-        {/* ICON - Bordes suaves 2px + 10% transparencia */}
-        <div className={`
-          relative flex-shrink-0 flex items-center justify-center 
-          w-12 h-12 
-          rounded-lg
-          bg-gradient-to-br ${color}
-          opacity-90
-          shadow-[0_4px_15px_${glowColor}]
-          transition-all duration-300
-          group-hover:opacity-100
-          group-hover:shadow-[0_6px_20px_${glowColor}]
-          group-hover:scale-105
-        `}>
-          <Icon className="relative z-10 h-6 w-6 text-white" strokeWidth={1.75} />
-        </div>
-        
-        {/* Text */}
-        <div className="flex-1 flex flex-col justify-center min-w-0">
-          <h3 className="text-[15px] font-semibold text-white leading-tight mb-1 group-hover:text-white transition-colors truncate">
-            {title}
-          </h3>
-          <p className="text-[13px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors line-clamp-2">
-            {description}
-          </p>
-          {meta && (
-            <p className="text-[11px] text-slate-500 mt-1 font-medium">{meta}</p>
-          )}
-        </div>
-        
-        {/* BADGE - Extrema derecha */}
-        {badge && (
-          <div className="flex-shrink-0 self-center">
-            <span className={`
-              inline-flex items-center 
-              px-3 py-1.5 
-              rounded-full 
-              text-[10px] font-bold tracking-wider uppercase
-              ${badgeColor} 
-              border 
-              backdrop-blur-sm
-            `}>
-              {badge}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+const colorClasses: Record<string, { bg: string; hover: string }> = {
+  blue: { bg: "bg-blue-500/80", hover: "hover:bg-blue-500/20 hover:border-blue-500/50" },
+  cyan: { bg: "bg-cyan-500/80", hover: "hover:bg-cyan-500/20 hover:border-cyan-500/50" },
+  emerald: { bg: "bg-emerald-500/80", hover: "hover:bg-emerald-500/20 hover:border-emerald-500/50" },
+  green: { bg: "bg-green-500/80", hover: "hover:bg-green-500/20 hover:border-green-500/50" },
+  amber: { bg: "bg-amber-500/80", hover: "hover:bg-amber-500/20 hover:border-amber-500/50" },
+  orange: { bg: "bg-orange-500/80", hover: "hover:bg-orange-500/20 hover:border-orange-500/50" },
+  purple: { bg: "bg-purple-500/80", hover: "hover:bg-purple-500/20 hover:border-purple-500/50" },
+  pink: { bg: "bg-pink-500/80", hover: "hover:bg-pink-500/20 hover:border-pink-500/50" },
+  red: { bg: "bg-red-500/80", hover: "hover:bg-red-500/20 hover:border-red-500/50" },
+  indigo: { bg: "bg-indigo-500/80", hover: "hover:bg-indigo-500/20 hover:border-indigo-500/50" },
+  slate: { bg: "bg-slate-500/80", hover: "hover:bg-slate-500/20 hover:border-slate-500/50" },
+};
 
-  if (disabled) return cardContent;
-
+export function ModuleCard({ title, description, icon: Icon, href, color, badge }: ModuleCardProps) {
+  const classes = colorClasses[color] || colorClasses.blue;
   return (
-    <Link href={href} className="block focus:outline-none">
-      {cardContent}
+    <Link href={href}>
+      <div className={`relative h-[140px] p-4 rounded-2xl bg-slate-800/50 border border-white/10 backdrop-blur transition-all duration-300 hover:-translate-y-1 ${classes.hover}`}>
+        {badge !== undefined && (
+          <span className="absolute top-3 right-3 bg-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>
+        )}
+        <div className="flex items-start gap-4">
+          <div className={`w-[52px] h-[52px] rounded-xl flex items-center justify-center ${classes.bg}`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-semibold text-base">{title}</h3>
+            <p className="text-slate-400 text-sm mt-1 line-clamp-2">{description}</p>
+          </div>
+        </div>
+      </div>
     </Link>
   );
 }
