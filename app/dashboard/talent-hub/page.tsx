@@ -1,94 +1,25 @@
 "use client";
 
 import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
-import { 
-  Users, 
-  Clock, 
-  Wallet, 
-  SlidersHorizontal, 
-  Scale, 
-  Grid3X3,
-  UserCog
-} from "lucide-react";
+import { Users, Clock, Wallet, SlidersHorizontal, Scale, Grid3X3, UserCog } from "lucide-react";
 
 const modules = [
-  { 
-    title: "HR People", 
-    description: "Expedientes de colaboradores.", 
-    icon: Users, 
-    href: "/dashboard/talent-hub/people", 
-    color: "from-[#A855F7] to-[#7C3AED]",
-    badge: "16",
-    badgeColor: "bg-violet-500/20 text-violet-400 border-violet-500/30",
-    meta: "Colaboradores registrados"
-  },
-  { 
-    title: "Clock-In Hub", 
-    description: "Control de asistencia.", 
-    icon: Clock, 
-    href: "/dashboard/talent-hub/clock-in", 
-    color: "from-[#38BDF8] to-[#2563EB]",
-    meta: "WhatsApp integration"
-  },
-  { 
-    title: "Payroll Flow", 
-    description: "Gestión de nómina.", 
-    icon: Wallet, 
-    href: "/dashboard/talent-hub/payroll", 
-    color: "from-[#22C55E] to-[#16A34A]"
-  },
-  { 
-    title: "Adjustments", 
-    description: "Incidencias y ajustes.", 
-    icon: SlidersHorizontal, 
-    href: "/dashboard/talent-hub/adjustments", 
-    color: "from-[#F59E0B] to-[#D97706]"
-  },
-  { 
-    title: "Legal HR", 
-    description: "Contratos y documentos legales.", 
-    icon: Scale, 
-    href: "/dashboard/talent-hub/legal", 
-    color: "from-[#FB7185] to-[#EF4444]"
-  },
-  { 
-    title: "Salary Matrix", 
-    description: "Tabulador de sueldos.", 
-    icon: Grid3X3, 
-    href: "/dashboard/talent-hub/matrix", 
-    color: "from-[#06B6D4] to-[#0891B2]"
-  },
-  { 
-    title: "User Access", 
-    description: "Control de usuarios del sistema.", 
-    icon: UserCog, 
-    href: "/dashboard/talent-hub/users", 
-    color: "from-[#64748B] to-[#475569]",
-    badge: "Admin",
-    badgeColor: "bg-slate-500/20 text-slate-400 border-slate-500/30"
-  },
+  { title: "HR People", description: "Expedientes de colaboradores.", icon: Users, href: "/dashboard/talent-hub/people", color: "from-purple-500 to-purple-600", glowColor: "rgba(168,85,247,0.4)", badge: "16", badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30", meta: "Colaboradores" },
+  { title: "Clock-In Hub", description: "Control de asistencia.", icon: Clock, href: "/dashboard/talent-hub/clock-in", color: "from-blue-500 to-blue-600", glowColor: "rgba(59,130,246,0.4)", meta: "WhatsApp" },
+  { title: "Payroll Flow", description: "Gestión de nómina.", icon: Wallet, href: "/dashboard/talent-hub/payroll", color: "from-emerald-500 to-emerald-600", glowColor: "rgba(52,211,153,0.4)" },
+  { title: "Adjustments", description: "Incidencias y ajustes.", icon: SlidersHorizontal, href: "/dashboard/talent-hub/adjustments", color: "from-amber-500 to-orange-500", glowColor: "rgba(245,158,11,0.4)" },
+  { title: "Legal HR", description: "Contratos y documentos legales.", icon: Scale, href: "/dashboard/talent-hub/legal", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.4)" },
+  { title: "Salary Matrix", description: "Tabulador de sueldos.", icon: Grid3X3, href: "/dashboard/talent-hub/matrix", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.4)" },
+  { title: "User Access", description: "Control de usuarios del sistema.", icon: UserCog, href: "/dashboard/talent-hub/users", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.3)", badge: "Admin", badgeColor: "bg-slate-500/20 text-slate-400 border-slate-500/30" },
 ];
 
 export default function TalentHubPage() {
   return (
     <div>
-      <ModuleHeader 
-        title="Talent Hub" 
-        subtitle="Gestión de recursos humanos y nómina."
-      />
+      <ModuleHeader title="Talent Hub" subtitle="Gestión de recursos humanos y nómina." />
       <ModuleGrid>
         {modules.map((mod, idx) => (
-          <ModuleCard
-            key={idx}
-            title={mod.title}
-            description={mod.description}
-            icon={mod.icon}
-            href={mod.href}
-            color={mod.color}
-            badge={mod.badge}
-            badgeColor={mod.badgeColor}
-            meta={mod.meta}
-          />
+          <ModuleCard key={idx} title={mod.title} description={mod.description} icon={mod.icon} href={mod.href} color={mod.color} glowColor={mod.glowColor} badge={mod.badge} badgeColor={mod.badgeColor} meta={mod.meta} />
         ))}
       </ModuleGrid>
     </div>

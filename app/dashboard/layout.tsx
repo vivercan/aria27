@@ -51,24 +51,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#021024]">
-      {/* ===== FONDO LIMPIO - SIN NOISE ===== */}
+    <div className="relative min-h-screen overflow-hidden bg-[#0f172a]">
+      {/* ===== DEEP GLASS BACKGROUND ===== */}
+      <div className="fixed inset-0 z-0 bg-[#0f172a]" />
       
-      {/* Capa única: Gradiente radial limpio estilo Pantone 293C */}
+      {/* Ambient blob 1 */}
       <div 
-        className="fixed inset-0 z-0"
+        className="fixed z-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 70% at 85% 90%, #0B57D0 0%, #003DA5 45%, #021024 100%)",
+          width: '800px',
+          height: '800px',
+          top: '-200px',
+          left: '-200px',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+        }}
+      />
+      
+      {/* Ambient blob 2 */}
+      <div 
+        className="fixed z-0 pointer-events-none"
+        style={{
+          width: '1000px',
+          height: '1000px',
+          bottom: '-300px',
+          right: '-200px',
+          background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 40%, transparent 70%)',
+          filter: 'blur(100px)',
         }}
       />
 
       {/* ===== CONTENIDO z-10 ===== */}
       <div className="relative z-10 flex min-h-screen">
         
-        {/* ===== MOBILE MENU BUTTON ===== */}
+        {/* MOBILE MENU */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(2,16,36,0.95)] backdrop-blur-xl border border-white/10 text-white shadow-lg"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-white shadow-lg"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -76,20 +95,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ===== SIDEBAR ===== */}
         <aside className={`
           fixed left-0 top-0 bottom-0 w-64 flex flex-col 
-          bg-[#010B18]/98 backdrop-blur-2xl 
-          border-r border-white/[0.04]
-          shadow-[4px_0_30px_-4px_rgba(0,0,0,0.5)]
+          bg-[#0a0f1a]/90 backdrop-blur-2xl 
+          border-r border-white/[0.06]
           transition-transform duration-300 z-40
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           {/* Logo */}
-          <div className="flex items-center gap-3 px-6 py-6 border-b border-white/[0.04]">
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[#38BDF8] to-[#003DA5] shadow-lg shadow-blue-500/25">
+          <div className="flex items-center gap-3 px-6 py-6 border-b border-white/[0.06]">
+            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/15 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
               <span className="text-white font-bold text-xl">A</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-tight">ARIA</h1>
-              <p className="text-[10px] text-white/40 tracking-[0.2em] font-medium">OPERATIONS OS</p>
+              <h1 className="text-xl font-semibold text-white tracking-tight">ARIA</h1>
+              <p className="text-[10px] text-slate-400 tracking-[0.2em] font-medium">OPERATIONS OS</p>
             </div>
           </div>
 
@@ -103,86 +121,104 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    group relative flex items-center gap-3 px-3 py-2.5 
-                    text-sm font-medium rounded-xl
-                    transition-all duration-200
+                    group relative flex items-center gap-3 px-4 py-3 
+                    text-sm font-medium rounded-2xl
+                    transition-all duration-300
                     outline-none 
-                    focus-visible:ring-2 focus-visible:ring-[#38BDF8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#021024]
+                    focus-visible:ring-2 focus-visible:ring-blue-500/50
                     ${isActive 
-                      ? "bg-white/[0.06] text-white" 
-                      : "text-white/70 hover:text-white/90 hover:bg-white/[0.03]"
+                      ? "bg-white/[0.08] text-white shadow-[0_0_20px_rgba(59,130,246,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]" 
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
                     }
                   `}
                 >
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-[#38BDF8] to-[#003DA5] rounded-full shadow-[0_0_12px_rgba(56,189,248,0.8)]" />
+                    <>
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-gradient-to-b from-blue-400 to-purple-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-transparent" />
+                    </>
                   )}
-                  <item.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-white/70"}`} strokeWidth={2} />
-                  <span className="flex-1">{item.name}</span>
-                  {isActive && <ChevronRight className="w-4 h-4 text-white/40" />}
+                  <item.icon className={`relative z-10 w-5 h-5 ${isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"}`} strokeWidth={1.75} />
+                  <span className="relative z-10 flex-1">{item.name}</span>
+                  {isActive && <ChevronRight className="relative z-10 w-4 h-4 text-slate-500" />}
                 </Link>
               );
             })}
           </nav>
 
           {/* Footer */}
-          <div className="px-4 py-4 border-t border-white/[0.04]">
+          <div className="px-4 py-4 border-t border-white/[0.06]">
             <div className="flex items-center gap-2 justify-center">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-              <p className="text-[10px] text-white/30 tracking-wide">ARIA v2025.1 · Production</p>
+              <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <p className="text-[10px] text-slate-500 tracking-wide">ARIA v2025.1 · Production</p>
             </div>
           </div>
         </aside>
 
-        {/* ===== OVERLAY MOBILE ===== */}
+        {/* OVERLAY */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
 
-        {/* ===== MAIN CONTENT ===== */}
+        {/* ===== MAIN ===== */}
         <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
           
-          {/* ===== TOPBAR ===== */}
+          {/* ===== TOPBAR MÁS VISIBLE ===== */}
           <header className="sticky top-0 z-20 px-4 lg:px-6 py-4">
-            <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl bg-[rgba(2,16,36,0.90)] backdrop-blur-xl border border-white/[0.06] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
+            <div className="
+              flex items-center justify-between gap-4 
+              px-5 py-3.5 
+              rounded-2xl 
+              bg-slate-900/80 backdrop-blur-xl
+              border border-white/[0.12]
+              shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.3)]
+            ">
               {/* Search */}
               <div className="relative flex-1 max-w-md ml-10 lg:ml-0">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Buscar módulos, documentos..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl text-sm text-white placeholder-white/40 outline-none focus:border-[#38BDF8]/40 focus:ring-1 focus:ring-[#38BDF8]/50 transition-all"
+                  className="
+                    w-full pl-10 pr-4 py-2.5 
+                    bg-white/[0.06] backdrop-blur
+                    border border-white/[0.10] rounded-xl 
+                    text-sm text-white placeholder-slate-400 
+                    outline-none 
+                    focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 focus:bg-white/[0.08]
+                    transition-all
+                  "
                 />
               </div>
 
               {/* Date */}
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-[11px] font-semibold text-white/80 tracking-wider">{currentDate.day}</span>
-                <span className="text-[11px] text-white/50">{currentDate.full}</span>
+                <span className="text-[11px] font-semibold text-white tracking-wider">{currentDate.day}</span>
+                <span className="text-[11px] text-slate-300">{currentDate.full}</span>
               </div>
 
-              <div className="hidden md:block w-px h-8 bg-white/10" />
+              <div className="hidden md:block w-px h-8 bg-white/15" />
 
               {/* User */}
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-sm font-medium text-white/90">{userName}</span>
+                  <span className="text-sm font-medium text-white">{userName}</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-                    <span className="text-[11px] text-white/50">{userRole}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                    <span className="text-[11px] text-slate-300">{userRole}</span>
                   </div>
                 </div>
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#003DA5] text-white text-sm font-semibold shadow-lg shadow-blue-500/20">
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 text-white text-sm font-semibold shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                   {userName.charAt(0)}
                 </div>
-                <button onClick={handleLogout} className="p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent hover:border-white/10" title="Cerrar sesión">
+                <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all border border-transparent hover:border-white/15" title="Cerrar sesión">
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </header>
 
-          {/* ===== PAGE CONTENT ===== */}
+          {/* PAGE CONTENT */}
           <main className="flex-1 px-4 lg:px-6 pb-8">
             {children}
           </main>

@@ -8,10 +8,10 @@ interface ModuleHeaderProps {
 export function ModuleHeader({ title, subtitle }: ModuleHeaderProps) {
   return (
     <div className="mb-8">
-      <h1 className="text-3xl font-bold text-white tracking-tight mb-2 drop-shadow-sm">
+      <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">
         {title}
       </h1>
-      <p className="text-base text-white/50 font-medium">
+      <p className="text-base text-slate-300">
         {subtitle}
       </p>
     </div>
