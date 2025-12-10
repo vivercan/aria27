@@ -47,7 +47,7 @@ export default function AssetPage() {
         title="Asset" 
         subtitle="Gestión de activos fijos y maquinaria."
       />
-      <ModuleGrid columns={4}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

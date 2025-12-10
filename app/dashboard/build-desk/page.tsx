@@ -65,7 +65,7 @@ export default function BuildDeskPage() {
         title="Build Desk" 
         subtitle="Control de obras, licitaciones y documentación."
       />
-      <ModuleGrid columns={3}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

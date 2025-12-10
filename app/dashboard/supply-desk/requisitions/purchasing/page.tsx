@@ -72,10 +72,10 @@ export default function PurchasingPage() {
         </div>
       </div>
 
-      {/* Content Grid */}
-      <div className="grid lg:grid-cols-[380px_1fr] gap-6">
+      {/* Content Grid - Cards max 420px */}
+      <div className="grid lg:grid-cols-[420px_1fr] gap-8">
         
-        {/* LEFT COLUMN */}
+        {/* LEFT COLUMN - Cards compactas */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-white/80 flex items-center gap-2">
@@ -85,7 +85,7 @@ export default function PurchasingPage() {
             </h2>
           </div>
           
-          {/* Cards con gap-6 (24px) */}
+          {/* Cards con gap 24px y max-width */}
           <div className="flex flex-col gap-6">
             {loading ? (
               <div className="text-center py-8 text-white/40 text-sm">Cargando...</div>
@@ -104,7 +104,7 @@ export default function PurchasingPage() {
                     key={req.id}
                     onClick={() => setSelectedReq(req)}
                     className={`
-                      group w-full text-left
+                      group w-full max-w-[420px] text-left
                       rounded-[20px] 
                       border transition-all duration-300
                       ${isSelected 

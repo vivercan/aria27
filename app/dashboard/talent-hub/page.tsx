@@ -76,7 +76,7 @@ export default function TalentHubPage() {
         title="Talent Hub" 
         subtitle="Gestión de recursos humanos y nómina."
       />
-      <ModuleGrid columns={4}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

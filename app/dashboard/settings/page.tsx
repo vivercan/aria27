@@ -75,7 +75,7 @@ export default function SettingsPage() {
         title="Settings" 
         subtitle="Configuración general del sistema."
       />
-      <ModuleGrid columns={4}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

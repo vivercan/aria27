@@ -47,7 +47,7 @@ export default function TemplatesPage() {
         title="Templates" 
         subtitle="Plantillas y documentación estándar."
       />
-      <ModuleGrid columns={4}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

@@ -33,6 +33,7 @@ export function ModuleCard({
       border border-white/[0.06]
       bg-[rgba(2,16,36,0.85)] backdrop-blur-xl
       p-5 h-[180px]
+      w-full max-w-[540px]
       shadow-[0_16px_40px_rgba(0,0,0,0.50)]
       transition-all duration-300 ease-out
       ${disabled 

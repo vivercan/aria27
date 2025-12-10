@@ -63,7 +63,7 @@ export default function FinancePage() {
         title="Finance" 
         subtitle="Control financiero y contabilidad."
       />
-      <ModuleGrid columns={3}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}

@@ -27,7 +27,7 @@ const modules = [
     title: "Inventario", 
     description: "Control de stock y almacén.", 
     icon: Package, 
-    href: "/dashboard/supply-desk/inventory", 
+    href: "/dashboard/supply-desk/products", 
     color: "from-[#38BDF8] to-[#2563EB]",
     meta: "Próximamente"
   },
@@ -84,7 +84,7 @@ export default function SupplyDeskPage() {
         title="Supply Desk" 
         subtitle="Gestión de compras, inventario y proveedores."
       />
-      <ModuleGrid columns={4}>
+      <ModuleGrid>
         {modules.map((mod, idx) => (
           <ModuleCard
             key={idx}
