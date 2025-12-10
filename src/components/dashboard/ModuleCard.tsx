@@ -31,7 +31,7 @@ export function ModuleCard({
     <div 
       className={`
         group relative overflow-hidden
-        rounded-[18px]
+        rounded-lg
         border border-white/[0.08]
         bg-[#0a0f1a]/80 backdrop-blur-xl
         shadow-[0_8px_32px_rgba(0,0,0,0.3)]
@@ -106,3 +106,4 @@ export function ModuleCard({
     </Link>
   );
 }
+

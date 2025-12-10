@@ -8,14 +8,12 @@ interface ModuleGridProps {
 export function ModuleGrid({ children }: ModuleGridProps) {
   return (
     <div 
+      className="w-full pt-8"
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 420px)',
+        gridTemplateColumns: 'repeat(3, minmax(320px, 1fr))',
         columnGap: '32px',
-        rowGap: '24px',
-        justifyContent: 'flex-start',
-        alignItems: 'start',
-        paddingTop: '32px'
+        rowGap: '24px'
       }}
     >
       {children}
