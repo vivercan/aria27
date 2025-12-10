@@ -19,14 +19,6 @@ export default function LoginPage() {
   return (
     <>
       <style jsx global>{`
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes infinityGlow {
-          0%, 100% { opacity: 0.08; }
-          50% { opacity: 0.15; }
-        }
         .password-input::-webkit-input-placeholder {
           letter-spacing: 0.15em;
         }
@@ -36,35 +28,47 @@ export default function LoginPage() {
       `}</style>
       
       <div className="relative min-h-screen w-full overflow-hidden">
-        {/* Fondo con degradado animado */}
+        
+        {/* CAPA 1: Degradado base - oscuro arriba-izquierda, azul brillante abajo-derecha */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, #020817 0%, #03101F 25%, #0a1628 50%, #0047FF 100%)',
-            backgroundSize: '200% 200%',
-            animation: 'gradientShift 40s ease infinite',
+            background: 'linear-gradient(135deg, #020617 0%, #020617 35%, #0a1628 50%, #0052CC 85%, #0066FF 100%)',
           }}
         />
         
-        {/* Textura noise sutil */}
+        {/* CAPA 2: Halo radial brillante en zona derecha-baja */}
         <div 
-          className="absolute inset-0 opacity-[0.025]"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(0,102,255,0.5) 0%, rgba(0,82,204,0.3) 30%, transparent 60%)',
           }}
         />
-
-        {/* Halo de luz central */}
+        
+        {/* CAPA 3: Segundo halo más intenso y concentrado */}
         <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full pointer-events-none"
+          className="absolute inset-0"
           style={{
-            background: 'radial-gradient(circle, rgba(0,71,255,0.12) 0%, rgba(0,71,255,0.04) 40%, transparent 70%)',
+            background: 'radial-gradient(circle at 70% 65%, rgba(37,99,235,0.4) 0%, transparent 40%)',
           }}
         />
-
-        {/* Efectos de luz adicionales */}
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        {/* CAPA 4: Glow difuso adicional */}
+        <div 
+          className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(0,102,255,0.35) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+          }}
+        />
+        
+        {/* CAPA 5: Noise/textura sutil */}
+        <div 
+          className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
 
         {/* Version tag - esquina superior derecha */}
         <div className="absolute top-6 right-8 z-20">
@@ -161,15 +165,15 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ARIA + Infinity Loop - derecha con espacio extra */}
+          {/* ARIA + Infinity Loop - derecha */}
           <div className="hidden md:flex items-center justify-center relative mr-12 lg:mr-20 overflow-visible">
-            {/* Simbolo infinito como luz de fondo con animacion */}
+            {/* Simbolo infinito como luz de fondo */}
             <div 
               className="absolute pointer-events-none"
               style={{
                 width: '550px',
                 height: '330px',
-                animation: 'infinityGlow 8s ease-in-out infinite',
+                opacity: 0.12,
               }}
             >
               <svg viewBox="0 0 200 100" className="w-full h-full" style={{ overflow: 'visible' }}>
@@ -185,14 +189,14 @@ export default function LoginPage() {
                 <path
                   d="M50,50 C50,20 80,20 100,50 C120,80 150,80 150,50 C150,20 120,20 100,50 C80,80 50,80 50,50"
                   fill="none"
-                  stroke="rgba(255,255,255,0.6)"
+                  stroke="rgba(255,255,255,0.7)"
                   strokeWidth="1"
                   filter="url(#glow)"
                 />
               </svg>
             </div>
 
-            {/* Texto ARIA - con padding extra para evitar corte */}
+            {/* Texto ARIA */}
             <div className="relative flex flex-col items-end" style={{ paddingRight: '20px' }}>
               <h1 
                 style={{ 
@@ -211,7 +215,7 @@ export default function LoginPage() {
                 ARIA
               </h1>
               
-              {/* Tagline con icono infinito - mas legible */}
+              {/* Tagline con icono infinito */}
               <div 
                 style={{ 
                   display: 'flex', 
