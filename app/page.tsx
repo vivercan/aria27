@@ -77,7 +77,7 @@ export default function LoginPage() {
         <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
           
           {/* Card de login - izquierda baja */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <div 
               className="relative overflow-hidden backdrop-blur-2xl rounded-2xl"
               style={{
@@ -161,8 +161,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ARIA + Infinity Loop - derecha */}
-          <div className="hidden md:flex items-center justify-center relative mr-8 lg:mr-16">
+          {/* ARIA + Infinity Loop - derecha con espacio extra */}
+          <div className="hidden md:flex items-center justify-center relative mr-12 lg:mr-20 overflow-visible">
             {/* Simbolo infinito como luz de fondo con animacion */}
             <div 
               className="absolute pointer-events-none"
@@ -172,7 +172,7 @@ export default function LoginPage() {
                 animation: 'infinityGlow 8s ease-in-out infinite',
               }}
             >
-              <svg viewBox="0 0 200 100" className="w-full h-full">
+              <svg viewBox="0 0 200 100" className="w-full h-full" style={{ overflow: 'visible' }}>
                 <defs>
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -192,19 +192,20 @@ export default function LoginPage() {
               </svg>
             </div>
 
-            {/* Texto ARIA */}
-            <div className="relative flex flex-col items-end">
+            {/* Texto ARIA - con padding extra para evitar corte */}
+            <div className="relative flex flex-col items-end" style={{ paddingRight: '20px' }}>
               <h1 
                 style={{ 
                   fontFamily: '"Arial Black", "Helvetica Neue", Arial, sans-serif',
-                  fontSize: '220px',
+                  fontSize: '200px',
                   fontWeight: 900,
-                  letterSpacing: '-0.02em',
+                  letterSpacing: '0.02em',
                   lineHeight: 1,
                   background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(180,195,220,0.8) 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 15px 40px rgba(0,0,0,0.4))'
+                  filter: 'drop-shadow(0 15px 40px rgba(0,0,0,0.4))',
+                  paddingRight: '10px',
                 }}
               >
                 ARIA
@@ -216,7 +217,8 @@ export default function LoginPage() {
                   display: 'flex', 
                   alignItems: 'center', 
                   marginTop: '14px',
-                  paddingRight: '5px'
+                  paddingRight: '15px',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <span 
