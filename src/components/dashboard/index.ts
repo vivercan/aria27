@@ -1,3 +1,3 @@
-export { ModuleCard } from "./ModuleCard";
+export { default as ModuleCard } from "./ModuleCard";
 export { ModuleHeader } from "./ModuleHeader";
-export { ModuleGrid } from "./ModuleGrid";
+export { default as ModuleGrid } from "./ModuleGrid";
