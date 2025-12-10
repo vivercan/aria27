@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { LucideIcon } from "lucide-react";
 
@@ -8,100 +9,97 @@ interface ModuleCardProps {
   icon: LucideIcon;
   href: string;
   color: string;
-  badge?: string | number;
+  glowColor: string;
+  badge?: string;
+  badgeColor?: string;
+  meta?: string;
+  disabled?: boolean;
 }
 
-export default function ModuleCard({
-  title,
-  description,
-  icon: Icon,
-  href,
-  color,
-  badge,
+export function ModuleCard({ 
+  title, 
+  description, 
+  icon: Icon, 
+  href, 
+  color, 
+  glowColor,
+  badge, 
+  badgeColor = "bg-white/10 text-slate-300 border-white/10",
+  meta,
+  disabled 
 }: ModuleCardProps) {
-  // Mapeo de colores para hover del card completo
-  const colorMap: Record<string, string> = {
-    blue: "hover:bg-blue-600/20 hover:border-blue-500/40",
-    cyan: "hover:bg-cyan-600/20 hover:border-cyan-500/40",
-    emerald: "hover:bg-emerald-600/20 hover:border-emerald-500/40",
-    green: "hover:bg-green-600/20 hover:border-green-500/40",
-    amber: "hover:bg-amber-600/20 hover:border-amber-500/40",
-    orange: "hover:bg-orange-600/20 hover:border-orange-500/40",
-    purple: "hover:bg-purple-600/20 hover:border-purple-500/40",
-    pink: "hover:bg-pink-600/20 hover:border-pink-500/40",
-    red: "hover:bg-red-600/20 hover:border-red-500/40",
-    indigo: "hover:bg-indigo-600/20 hover:border-indigo-500/40",
-    slate: "hover:bg-slate-600/20 hover:border-slate-500/40",
-  };
-
-  const bgColorMap: Record<string, string> = {
-    blue: "bg-blue-600/80",
-    cyan: "bg-cyan-600/80",
-    emerald: "bg-emerald-600/80",
-    green: "bg-green-600/80",
-    amber: "bg-amber-600/80",
-    orange: "bg-orange-600/80",
-    purple: "bg-purple-600/80",
-    pink: "bg-pink-600/80",
-    red: "bg-red-600/80",
-    indigo: "bg-indigo-600/80",
-    slate: "bg-slate-600/80",
-  };
-
-  const hoverClass = colorMap[color] || colorMap.blue;
-  const iconBgClass = bgColorMap[color] || bgColorMap.blue;
-
-  return (
-    <Link href={href} className="block group">
-      <div
-        className={`
-          relative overflow-hidden rounded-2xl
-          bg-[rgba(8,16,30,0.85)] backdrop-blur-md
-          border border-white/[0.04]
-          h-[140px] p-4
-          transition-all duration-300 ease-out
-          hover:-translate-y-1
-          ${hoverClass}
-        `}
-        style={{
-          boxShadow: '0 18px 40px rgba(0, 0, 0, 0.55)',
-        }}
-      >
-        {/* Badge */}
-        {badge !== undefined && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full min-w-[24px] text-center">
-            {badge}
+  const cardContent = (
+    <div className={`
+      group relative overflow-hidden 
+      rounded-2xl 
+      border border-white/[0.08]
+      bg-[#0a0f1a]/80 backdrop-blur-xl
+      p-5 h-[140px]
+      w-full max-w-[560px]
+      shadow-[0_8px_32px_rgba(0,0,0,0.3)]
+      transition-all duration-300 ease-out
+      ${disabled 
+        ? 'opacity-40 cursor-not-allowed grayscale' 
+        : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:border-white/[0.12] hover:bg-[#0a0f1a]/90 active:translate-y-0'
+      }
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
+    `}>
+      {/* Content */}
+      <div className="relative z-10 flex items-center gap-4 h-full">
+        {/* ICON - Bordes suaves 2px + 10% transparencia */}
+        <div className={`
+          relative flex-shrink-0 flex items-center justify-center 
+          w-12 h-12 
+          rounded-lg
+          bg-gradient-to-br ${color}
+          opacity-90
+          shadow-[0_4px_15px_${glowColor}]
+          transition-all duration-300
+          group-hover:opacity-100
+          group-hover:shadow-[0_6px_20px_${glowColor}]
+          group-hover:scale-105
+        `}>
+          <Icon className="relative z-10 h-6 w-6 text-white" strokeWidth={1.75} />
+        </div>
+        
+        {/* Text */}
+        <div className="flex-1 flex flex-col justify-center min-w-0">
+          <h3 className="text-[15px] font-semibold text-white leading-tight mb-1 group-hover:text-white transition-colors truncate">
+            {title}
+          </h3>
+          <p className="text-[13px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors line-clamp-2">
+            {description}
+          </p>
+          {meta && (
+            <p className="text-[11px] text-slate-500 mt-1 font-medium">{meta}</p>
+          )}
+        </div>
+        
+        {/* BADGE - Extrema derecha */}
+        {badge && (
+          <div className="flex-shrink-0 self-center">
+            <span className={`
+              inline-flex items-center 
+              px-3 py-1.5 
+              rounded-full 
+              text-[10px] font-bold tracking-wider uppercase
+              ${badgeColor} 
+              border 
+              backdrop-blur-sm
+            `}>
+              {badge}
+            </span>
           </div>
         )}
-
-        {/* Contenido */}
-        <div className="flex items-start gap-4 h-full">
-          {/* Icono - 20% transparencia (opacity-80), +2px (50x50) */}
-          <div
-            className={`
-              flex-shrink-0 w-[50px] h-[50px] rounded-xl
-              flex items-center justify-center
-              ${iconBgClass}
-              border border-white/20
-              shadow-lg
-              transition-transform duration-300
-              group-hover:scale-110
-            `}
-          >
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-
-          {/* Texto */}
-          <div className="flex flex-col justify-center min-w-0 flex-1">
-            <h3 className="text-white font-semibold text-base truncate">
-              {title}
-            </h3>
-            <p className="text-slate-400 text-sm mt-1 line-clamp-2">
-              {description}
-            </p>
-          </div>
-        </div>
       </div>
+    </div>
+  );
+
+  if (disabled) return cardContent;
+
+  return (
+    <Link href={href} className="block focus:outline-none">
+      {cardContent}
     </Link>
   );
 }
