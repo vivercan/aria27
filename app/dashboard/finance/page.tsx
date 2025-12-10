@@ -1,43 +1,79 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
   Calculator, 
-  Wallet, 
-  Landmark, 
   Receipt, 
+  Banknote, 
+  Building2, 
   CreditCard, 
-  Banknote 
+  TrendingUp 
 } from "lucide-react";
-import { SubModuleCard } from "@/components/dashboard/SubModuleCard";
+
+const modules = [
+  { 
+    title: "Job Costing", 
+    description: "Costeo por proyecto.", 
+    icon: Calculator, 
+    href: "/dashboard/finance/job-costing", 
+    color: "from-blue-500 to-cyan-600"
+  },
+  { 
+    title: "Billing Desk", 
+    description: "Facturación y cobros.", 
+    icon: Receipt, 
+    href: "/dashboard/finance/billing", 
+    color: "from-emerald-500 to-emerald-600" 
+  },
+  { 
+    title: "Field Cash", 
+    description: "Caja chica de obra.", 
+    icon: Banknote, 
+    href: "/dashboard/finance/field-cash", 
+    color: "from-amber-500 to-orange-600" 
+  },
+  { 
+    title: "Bank Reco", 
+    description: "Conciliación bancaria.", 
+    icon: Building2, 
+    href: "/dashboard/finance/bank-reco", 
+    color: "from-violet-500 to-purple-600" 
+  },
+  { 
+    title: "Accounts Payable", 
+    description: "Cuentas por pagar.", 
+    icon: CreditCard, 
+    href: "/dashboard/finance/accounts-payable", 
+    color: "from-rose-500 to-pink-600" 
+  },
+  { 
+    title: "Receivables", 
+    description: "Cuentas por cobrar.", 
+    icon: TrendingUp, 
+    href: "/dashboard/finance/receivables", 
+    color: "from-teal-500 to-teal-600" 
+  },
+];
 
 export default function FinancePage() {
-  const modules = [
-    { title: "Job Costing", desc: "Control de gastos por centro de costos y obra.", icon: Calculator, href: "/dashboard/finance/job-costing" },
-    { title: "Field Cash", desc: "Administración de caja chica de obra.", icon: Wallet, href: "/dashboard/finance/field-cash" },
-    { title: "Bank Reco", desc: "Conciliaciones bancarias y estados de cuenta.", icon: Landmark, href: "/dashboard/finance/bank-reco" },
-    { title: "Billing Desk", desc: "Facturación a clientes y timbrado.", icon: Receipt, href: "/dashboard/finance/billing" },
-    { title: "Accounts", desc: "Cuentas por pagar a proveedores.", icon: CreditCard, href: "/dashboard/finance/accounts-payable" },
-    { title: "Receivables", desc: "Cuentas por cobrar a clientes.", icon: Banknote, href: "/dashboard/finance/receivables" },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Finance</h1>
-        <p className="text-slate-400">Administración financiera y control de flujo.</p>
-      </div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Finance" 
+        subtitle="Control financiero y contabilidad."
+      />
+      <ModuleGrid columns={3}>
         {modules.map((mod, idx) => (
-          <SubModuleCard key={idx} title={mod.title} description={mod.desc} icon={mod.icon} href={mod.href} />
+          <ModuleCard
+            key={idx}
+            title={mod.title}
+            description={mod.description}
+            icon={mod.icon}
+            href={mod.href}
+            color={mod.color}
+          />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }

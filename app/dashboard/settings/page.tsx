@@ -1,44 +1,87 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
   Shield, 
+  Bell, 
   Sliders, 
   Database, 
-  Bell, 
   Mail, 
-  Clock
+  Clock,
+  Rocket
 } from "lucide-react";
-import { SubModuleCard } from "@/components/dashboard/SubModuleCard";
+
+const modules = [
+  { 
+    title: "Access Control", 
+    description: "Permisos y roles.", 
+    icon: Shield, 
+    href: "/dashboard/settings/access", 
+    color: "from-violet-500 to-purple-600"
+  },
+  { 
+    title: "Alert Engine", 
+    description: "Configuración de alertas.", 
+    icon: Bell, 
+    href: "/dashboard/settings/alerts", 
+    color: "from-amber-500 to-orange-600" 
+  },
+  { 
+    title: "Config Matrix", 
+    description: "Parámetros del sistema.", 
+    icon: Sliders, 
+    href: "/dashboard/settings/config", 
+    color: "from-blue-500 to-blue-600" 
+  },
+  { 
+    title: "Master Data", 
+    description: "Catálogos maestros.", 
+    icon: Database, 
+    href: "/dashboard/settings/master-data", 
+    color: "from-emerald-500 to-emerald-600" 
+  },
+  { 
+    title: "Mail Config", 
+    description: "Configuración de correo.", 
+    icon: Mail, 
+    href: "/dashboard/settings/mail", 
+    color: "from-rose-500 to-pink-600" 
+  },
+  { 
+    title: "Reminders", 
+    description: "Recordatorios automáticos.", 
+    icon: Clock, 
+    href: "/dashboard/settings/reminders", 
+    color: "from-cyan-500 to-cyan-600" 
+  },
+  { 
+    title: "Deploy", 
+    description: "Estado del sistema.", 
+    icon: Rocket, 
+    href: "/dashboard/settings/deploy", 
+    color: "from-slate-500 to-slate-600" 
+  },
+];
 
 export default function SettingsPage() {
-  // Se eliminaron "Integration Hub" y "Deploy" como solicitaste
-  const modules = [
-    { title: "Access Control", desc: "Gestión de usuarios, roles y permisos.", icon: Shield, href: "/dashboard/settings/access" },
-    { title: "Config Matrix", desc: "Parámetros generales del sistema.", icon: Sliders, href: "/dashboard/settings/config" },
-    { title: "Master Data", desc: "Catálogos maestros (centros de costo, etc).", icon: Database, href: "/dashboard/settings/master-data" },
-    { title: "Alert Engine", desc: "Motor de alertas y notificaciones push.", icon: Bell, href: "/dashboard/settings/alerts" },
-    { title: "Mail Config", desc: "Configuración de cuentas (Zoho/Resend).", icon: Mail, href: "/dashboard/settings/mail" },
-    { title: "Reminders", desc: "Sistema de recordatorios automáticos.", icon: Clock, href: "/dashboard/settings/reminders" },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Settings</h1>
-        <p className="text-slate-400">Configuración general y parámetros del sistema.</p>
-      </div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Settings" 
+        subtitle="Configuración general del sistema."
+      />
+      <ModuleGrid columns={4}>
         {modules.map((mod, idx) => (
-          <SubModuleCard key={idx} title={mod.title} description={mod.desc} icon={mod.icon} href={mod.href} />
+          <ModuleCard
+            key={idx}
+            title={mod.title}
+            description={mod.description}
+            icon={mod.icon}
+            href={mod.href}
+            color={mod.color}
+          />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }

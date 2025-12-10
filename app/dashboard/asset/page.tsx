@@ -1,39 +1,63 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
-  Truck, 
+  Box, 
+  Activity, 
   MapPin, 
-  Wrench, 
-  Activity 
+  Wrench 
 } from "lucide-react";
-import { SubModuleCard } from "@/components/dashboard/SubModuleCard";
+
+const modules = [
+  { 
+    title: "Asset Master", 
+    description: "Catálogo de activos fijos.", 
+    icon: Box, 
+    href: "/dashboard/asset/master", 
+    color: "from-rose-500 to-pink-600"
+  },
+  { 
+    title: "Asset Status", 
+    description: "Estado actual de activos.", 
+    icon: Activity, 
+    href: "/dashboard/asset/status", 
+    color: "from-blue-500 to-blue-600" 
+  },
+  { 
+    title: "Site Allocation", 
+    description: "Asignación por obra.", 
+    icon: MapPin, 
+    href: "/dashboard/asset/allocation", 
+    color: "from-emerald-500 to-emerald-600" 
+  },
+  { 
+    title: "Maintenance", 
+    description: "Mantenimiento preventivo.", 
+    icon: Wrench, 
+    href: "/dashboard/asset/maintenance", 
+    color: "from-amber-500 to-orange-600" 
+  },
+];
 
 export default function AssetPage() {
-  const modules = [
-    { title: "Asset Master", desc: "Catálogo maestro de maquinaria y equipo.", icon: Truck, href: "/dashboard/asset/master" },
-    { title: "Site Allocation", desc: "Asignación de equipo a obras específicas.", icon: MapPin, href: "/dashboard/asset/allocation" },
-    { title: "Maintenance", desc: "Programa de mantenimientos preventivos/correctivos.", icon: Wrench, href: "/dashboard/asset/maintenance" },
-    { title: "Asset Status", desc: "Estatus operativo en tiempo real (Taller/Obra).", icon: Activity, href: "/dashboard/asset/status" },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Asset Management</h1>
-        <p className="text-slate-400">Control de maquinaria, vehículos y activos fijos.</p>
-      </div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Asset" 
+        subtitle="Gestión de activos fijos y maquinaria."
+      />
+      <ModuleGrid columns={4}>
         {modules.map((mod, idx) => (
-          <SubModuleCard key={idx} title={mod.title} description={mod.desc} icon={mod.icon} href={mod.href} />
+          <ModuleCard
+            key={idx}
+            title={mod.title}
+            description={mod.description}
+            icon={mod.icon}
+            href={mod.href}
+            color={mod.color}
+          />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }

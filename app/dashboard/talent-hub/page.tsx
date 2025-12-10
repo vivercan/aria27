@@ -1,79 +1,90 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
   Users, 
   Clock, 
-  Banknote, 
+  Wallet, 
+  SlidersHorizontal, 
   Scale, 
-  FileText, 
-  TrendingUp 
+  Grid3X3,
+  UserPlus
 } from "lucide-react";
-import { SubModuleCard } from "@/components/dashboard/SubModuleCard";
+
+const modules = [
+  { 
+    title: "HR People", 
+    description: "Expedientes de colaboradores.", 
+    icon: Users, 
+    href: "/dashboard/talent-hub/people", 
+    color: "from-violet-500 to-purple-600",
+    badge: "16 registros"
+  },
+  { 
+    title: "Clock-In Hub", 
+    description: "Control de asistencia.", 
+    icon: Clock, 
+    href: "/dashboard/talent-hub/clock-in", 
+    color: "from-blue-500 to-blue-600" 
+  },
+  { 
+    title: "Payroll Flow", 
+    description: "Gestión de nómina.", 
+    icon: Wallet, 
+    href: "/dashboard/talent-hub/payroll", 
+    color: "from-emerald-500 to-emerald-600" 
+  },
+  { 
+    title: "Adjustments", 
+    description: "Incidencias y ajustes.", 
+    icon: SlidersHorizontal, 
+    href: "/dashboard/talent-hub/adjustments", 
+    color: "from-amber-500 to-orange-600" 
+  },
+  { 
+    title: "Legal HR", 
+    description: "Contratos y documentos legales.", 
+    icon: Scale, 
+    href: "/dashboard/talent-hub/legal", 
+    color: "from-rose-500 to-pink-600" 
+  },
+  { 
+    title: "Salary Matrix", 
+    description: "Tabulador de sueldos.", 
+    icon: Grid3X3, 
+    href: "/dashboard/talent-hub/matrix", 
+    color: "from-cyan-500 to-cyan-600" 
+  },
+  { 
+    title: "User Access", 
+    description: "Control de usuarios del sistema.", 
+    icon: UserPlus, 
+    href: "/dashboard/talent-hub/users", 
+    color: "from-slate-500 to-slate-600",
+    badge: "Admin"
+  },
+];
 
 export default function TalentHubPage() {
-  const modules = [
-    {
-      title: "HR People",
-      desc: "Maestro de empleados y colaboradores activos.",
-      icon: Users,
-      href: "/dashboard/talent-hub/people",
-    },
-    {
-      title: "Clock-In Hub",
-      desc: "Control de asistencia, retardos y checador biométrico.",
-      icon: Clock,
-      href: "/dashboard/talent-hub/clock-in",
-    },
-    {
-      title: "Payroll Flow",
-      desc: "Cálculo y dispersión de nómina semanal automática.",
-      icon: Banknote,
-      href: "/dashboard/talent-hub/payroll",
-    },
-    {
-      title: "Adjustments",
-      desc: "Gestión de incidencias, préstamos y descuentos.",
-      icon: TrendingUp,
-      href: "/dashboard/talent-hub/adjustments",
-    },
-    {
-      title: "Legal HR",
-      desc: "Altas IMSS, bajas, contratos y finiquitos.",
-      icon: FileText,
-      href: "/dashboard/talent-hub/legal",
-    },
-    {
-      title: "Salary Matrix",
-      desc: "Catálogo de puestos, tarifas y tabuladores.",
-      icon: Scale,
-      href: "/dashboard/talent-hub/matrix",
-    },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Talent Hub</h1>
-        <p className="text-slate-400">Capital humano, nómina y control de asistencia.</p>
-      </div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Talent Hub" 
+        subtitle="Gestión de recursos humanos y nómina."
+      />
+      <ModuleGrid columns={4}>
         {modules.map((mod, idx) => (
-          <SubModuleCard
+          <ModuleCard
             key={idx}
             title={mod.title}
-            description={mod.desc}
+            description={mod.description}
             icon={mod.icon}
             href={mod.href}
+            color={mod.color}
+            badge={mod.badge}
           />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }

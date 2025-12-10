@@ -1,14 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
   FileText, 
-  ClipboardList, 
+  Package, 
   Users, 
+  ClipboardList, 
   Truck, 
-  Package,
-  Settings
+  Settings,
+  ShoppingCart,
+  CreditCard
 } from "lucide-react";
 
 const modules = [
@@ -17,7 +18,8 @@ const modules = [
     description: "Solicitudes de materiales para obra.", 
     icon: FileText, 
     href: "/dashboard/supply-desk/requisitions", 
-    color: "from-emerald-500 to-emerald-600" 
+    color: "from-emerald-500 to-emerald-600",
+    badge: "Activo"
   },
   { 
     title: "Inventario", 
@@ -31,21 +33,36 @@ const modules = [
     description: "Catálogo de proveedores.", 
     icon: Users, 
     href: "/dashboard/supply-desk/vendors", 
-    color: "from-purple-500 to-purple-600" 
+    color: "from-purple-500 to-purple-600",
+    badge: "CRUD"
   },
   { 
     title: "Órdenes de Compra", 
-    description: "Gestión de órdenes.", 
+    description: "Gestión de órdenes autorizadas.", 
     icon: ClipboardList, 
-    href: "/dashboard/supply-desk/orders", 
+    href: "/dashboard/supply-desk/requisitions/orders", 
     color: "from-amber-500 to-amber-600" 
+  },
+  { 
+    title: "Compras", 
+    description: "Cotizaciones y comparativas.", 
+    icon: ShoppingCart, 
+    href: "/dashboard/supply-desk/requisitions/purchasing", 
+    color: "from-cyan-500 to-cyan-600" 
+  },
+  { 
+    title: "Pagos", 
+    description: "Control de pagos a proveedores.", 
+    icon: CreditCard, 
+    href: "/dashboard/supply-desk/payments", 
+    color: "from-rose-500 to-rose-600" 
   },
   { 
     title: "Logística", 
     description: "Entregas y seguimiento.", 
     icon: Truck, 
-    href: "/dashboard/supply-desk/logistics", 
-    color: "from-cyan-500 to-cyan-600" 
+    href: "/dashboard/supply-desk/delivery", 
+    color: "from-teal-500 to-teal-600" 
   },
   { 
     title: "Configuración", 
@@ -58,33 +75,24 @@ const modules = [
 
 export default function SupplyDeskPage() {
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Supply Desk</h1>
-        <p className="text-slate-400">Gestión de compras, inventario y proveedores.</p>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Supply Desk" 
+        subtitle="Gestión de compras, inventario y proveedores."
+      />
+      <ModuleGrid columns={4}>
         {modules.map((mod, idx) => (
-          <Link key={idx} href={mod.href} className="group block">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg transition hover:border-white/20 hover:bg-white/10 h-full">
-              <div className={`absolute inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition`} />
-              <div className="relative z-10">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${mod.color} mb-4`}>
-                  <mod.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{mod.title}</h3>
-                <p className="text-sm text-white/60">{mod.description}</p>
-              </div>
-            </div>
-          </Link>
+          <ModuleCard
+            key={idx}
+            title={mod.title}
+            description={mod.description}
+            icon={mod.icon}
+            href={mod.href}
+            color={mod.color}
+            badge={mod.badge}
+          />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }

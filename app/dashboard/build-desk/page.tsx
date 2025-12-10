@@ -1,81 +1,81 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
 import { 
   Briefcase, 
-  Gavel, 
-  HardHat, 
-  ClipboardList, 
-  FileCheck, 
+  FileSearch, 
+  PackageCheck, 
+  Scale, 
+  ClipboardCheck, 
   Calculator 
 } from "lucide-react";
-import { SubModuleCard } from "@/components/dashboard/SubModuleCard";
+
+const modules = [
+  { 
+    title: "Obra Pipeline", 
+    description: "Seguimiento de proyectos activos.", 
+    icon: Briefcase, 
+    href: "/dashboard/build-desk/pipeline", 
+    color: "from-amber-500 to-orange-600",
+    badge: "5 activos"
+  },
+  { 
+    title: "Tender Hub", 
+    description: "Gestión de licitaciones.", 
+    icon: FileSearch, 
+    href: "/dashboard/build-desk/tender", 
+    color: "from-blue-500 to-blue-600" 
+  },
+  { 
+    title: "Packing List", 
+    description: "Control de envíos y materiales.", 
+    icon: PackageCheck, 
+    href: "/dashboard/build-desk/packing", 
+    color: "from-emerald-500 to-emerald-600" 
+  },
+  { 
+    title: "Legal Pack", 
+    description: "Documentación legal de obras.", 
+    icon: Scale, 
+    href: "/dashboard/build-desk/legal", 
+    color: "from-violet-500 to-purple-600" 
+  },
+  { 
+    title: "SIROC Desk", 
+    description: "Registro IMSS obras.", 
+    icon: ClipboardCheck, 
+    href: "/dashboard/build-desk/siroc", 
+    color: "from-rose-500 to-pink-600" 
+  },
+  { 
+    title: "Estimate Flow", 
+    description: "Presupuestos y estimaciones.", 
+    icon: Calculator, 
+    href: "/dashboard/build-desk/estimates", 
+    color: "from-cyan-500 to-cyan-600" 
+  },
+];
 
 export default function BuildDeskPage() {
-  const modules = [
-    {
-      title: "Obra Pipeline",
-      desc: "Pipeline de proyectos y obras activas en tiempo real.",
-      icon: HardHat,
-      href: "/dashboard/build-desk/pipeline",
-    },
-    {
-      title: "Tender Hub",
-      desc: "Seguimiento de licitaciones y concursos en proceso.",
-      icon: Gavel,
-      href: "/dashboard/build-desk/tender",
-    },
-    {
-      title: "Packing List",
-      desc: "Listados maestros de materiales por obra.",
-      icon: ClipboardList,
-      href: "/dashboard/build-desk/packing",
-    },
-    {
-      title: "Legal Pack",
-      desc: "Contratos, fianzas y documentos legales de obra.",
-      icon: Briefcase,
-      href: "/dashboard/build-desk/legal",
-    },
-    {
-      title: "SIROC Desk",
-      desc: "Alta y gestión de obras ante el IMSS (SIROC).",
-      icon: FileCheck,
-      href: "/dashboard/build-desk/siroc",
-    },
-    {
-      title: "Estimate Flow",
-      desc: "Generador y control de estimaciones de obra.",
-      icon: Calculator,
-      href: "/dashboard/build-desk/estimates",
-    },
-  ];
-
   return (
-    <div className="space-y-8">
-      {/* Encabezado del Módulo */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Build Desk</h1>
-        <p className="text-slate-400">Gestión integral de obras y licitaciones.</p>
-      </div>
-
-      {/* Grid de Submódulos */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <div>
+      <ModuleHeader 
+        title="Build Desk" 
+        subtitle="Control de obras, licitaciones y documentación."
+      />
+      <ModuleGrid columns={3}>
         {modules.map((mod, idx) => (
-          <SubModuleCard
+          <ModuleCard
             key={idx}
             title={mod.title}
-            description={mod.desc}
+            description={mod.description}
             icon={mod.icon}
             href={mod.href}
+            color={mod.color}
+            badge={mod.badge}
           />
         ))}
-      </motion.div>
+      </ModuleGrid>
     </div>
   );
 }
