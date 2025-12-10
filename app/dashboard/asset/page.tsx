@@ -14,7 +14,7 @@ const modules = [
     description: "Catálogo de activos fijos.", 
     icon: Box, 
     href: "/dashboard/asset/master", 
-    color: "from-rose-500 to-pink-600",
+    color: "from-[#FB7185] to-[#EF4444]",
     meta: "Maquinaria y equipo"
   },
   { 
@@ -22,21 +22,21 @@ const modules = [
     description: "Estado actual de activos.", 
     icon: Activity, 
     href: "/dashboard/asset/status", 
-    color: "from-blue-500 to-blue-600"
+    color: "from-[#38BDF8] to-[#2563EB]"
   },
   { 
     title: "Site Allocation", 
     description: "Asignación por obra.", 
     icon: MapPin, 
     href: "/dashboard/asset/allocation", 
-    color: "from-emerald-500 to-emerald-600"
+    color: "from-[#22C55E] to-[#16A34A]"
   },
   { 
     title: "Maintenance", 
     description: "Mantenimiento preventivo.", 
     icon: Wrench, 
     href: "/dashboard/asset/maintenance", 
-    color: "from-amber-500 to-orange-600"
+    color: "from-[#F59E0B] to-[#D97706]"
   },
 ];
 

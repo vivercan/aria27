@@ -14,7 +14,7 @@ const modules = [
     description: "Plantillas de documentos.", 
     icon: FileText, 
     href: "/dashboard/templates/library", 
-    color: "from-slate-400 to-slate-600",
+    color: "from-[#64748B] to-[#475569]",
     meta: "Formatos estándar"
   },
   { 
@@ -22,21 +22,21 @@ const modules = [
     description: "Centro de documentación.", 
     icon: FolderOpen, 
     href: "/dashboard/templates/docs", 
-    color: "from-blue-500 to-blue-600"
+    color: "from-[#38BDF8] to-[#2563EB]"
   },
   { 
     title: "Bid Pack", 
     description: "Paquetes de licitación.", 
     icon: FileSpreadsheet, 
     href: "/dashboard/templates/bids", 
-    color: "from-emerald-500 to-emerald-600"
+    color: "from-[#22C55E] to-[#16A34A]"
   },
   { 
     title: "PO Pack", 
     description: "Formatos de órdenes.", 
     icon: ClipboardList, 
     href: "/dashboard/templates/po", 
-    color: "from-amber-500 to-orange-600"
+    color: "from-[#F59E0B] to-[#D97706]"
   },
 ];
 

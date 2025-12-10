@@ -16,7 +16,7 @@ const modules = [
     description: "Costeo por proyecto.", 
     icon: Calculator, 
     href: "/dashboard/finance/job-costing", 
-    color: "from-blue-500 to-cyan-600",
+    color: "from-[#38BDF8] to-[#2563EB]",
     meta: "Análisis de costos por obra"
   },
   { 
@@ -24,35 +24,35 @@ const modules = [
     description: "Facturación y cobros.", 
     icon: Receipt, 
     href: "/dashboard/finance/billing", 
-    color: "from-emerald-500 to-emerald-600"
+    color: "from-[#22C55E] to-[#16A34A]"
   },
   { 
     title: "Field Cash", 
     description: "Caja chica de obra.", 
     icon: Banknote, 
     href: "/dashboard/finance/field-cash", 
-    color: "from-amber-500 to-orange-600"
+    color: "from-[#F59E0B] to-[#D97706]"
   },
   { 
     title: "Bank Reco", 
     description: "Conciliación bancaria.", 
     icon: Building2, 
     href: "/dashboard/finance/bank-reco", 
-    color: "from-violet-500 to-purple-600"
+    color: "from-[#A855F7] to-[#7C3AED]"
   },
   { 
     title: "Accounts Payable", 
     description: "Cuentas por pagar.", 
     icon: CreditCard, 
     href: "/dashboard/finance/accounts-payable", 
-    color: "from-rose-500 to-pink-600"
+    color: "from-[#FB7185] to-[#EF4444]"
   },
   { 
     title: "Receivables", 
     description: "Cuentas por cobrar.", 
     icon: TrendingUp, 
     href: "/dashboard/finance/receivables", 
-    color: "from-teal-500 to-teal-600"
+    color: "from-[#14B8A6] to-[#0D9488]"
   },
 ];
 

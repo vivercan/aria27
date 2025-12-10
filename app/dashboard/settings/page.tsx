@@ -17,7 +17,7 @@ const modules = [
     description: "Permisos y roles.", 
     icon: Shield, 
     href: "/dashboard/settings/access", 
-    color: "from-violet-500 to-purple-600",
+    color: "from-[#A855F7] to-[#7C3AED]",
     meta: "Seguridad del sistema"
   },
   { 
@@ -25,46 +25,46 @@ const modules = [
     description: "Configuración de alertas.", 
     icon: Bell, 
     href: "/dashboard/settings/alerts", 
-    color: "from-amber-500 to-orange-600"
+    color: "from-[#F59E0B] to-[#D97706]"
   },
   { 
     title: "Config Matrix", 
     description: "Parámetros del sistema.", 
     icon: Sliders, 
     href: "/dashboard/settings/config", 
-    color: "from-blue-500 to-blue-600"
+    color: "from-[#38BDF8] to-[#2563EB]"
   },
   { 
     title: "Master Data", 
     description: "Catálogos maestros.", 
     icon: Database, 
     href: "/dashboard/settings/master-data", 
-    color: "from-emerald-500 to-emerald-600"
+    color: "from-[#22C55E] to-[#16A34A]"
   },
   { 
     title: "Mail Config", 
     description: "Configuración de correo.", 
     icon: Mail, 
     href: "/dashboard/settings/mail", 
-    color: "from-rose-500 to-pink-600",
+    color: "from-[#FB7185] to-[#EF4444]",
     badge: "Resend",
-    badgeColor: "bg-rose-500/20 text-rose-300"
+    badgeColor: "bg-rose-500/20 text-rose-400 border-rose-500/30"
   },
   { 
     title: "Reminders", 
     description: "Recordatorios automáticos.", 
     icon: Clock, 
     href: "/dashboard/settings/reminders", 
-    color: "from-cyan-500 to-cyan-600"
+    color: "from-[#06B6D4] to-[#0891B2]"
   },
   { 
     title: "Deploy", 
     description: "Estado del sistema.", 
     icon: Rocket, 
     href: "/dashboard/settings/deploy", 
-    color: "from-slate-500 to-slate-600",
+    color: "from-[#64748B] to-[#475569]",
     badge: "Prod",
-    badgeColor: "bg-emerald-500/20 text-emerald-300"
+    badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
   },
 ];
 

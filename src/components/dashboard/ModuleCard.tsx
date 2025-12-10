@@ -22,40 +22,47 @@ export function ModuleCard({
   href, 
   color, 
   badge, 
-  badgeColor = "bg-white/10 text-white/70",
+  badgeColor = "bg-white/10 text-white/80 border-white/15",
   meta,
   disabled 
 }: ModuleCardProps) {
   const cardContent = (
     <div className={`
-      group relative overflow-hidden rounded-2xl 
-      border border-white/[0.08] 
-      bg-gradient-to-br from-slate-800/50 to-slate-900/50
-      backdrop-blur-xl
-      p-6 h-[180px]
-      shadow-[0_4px_24px_-4px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.04)]
+      group relative overflow-hidden 
+      rounded-3xl 
+      border border-white/10
+      bg-white/5 backdrop-blur-lg
+      p-6 h-[190px]
+      shadow-[0_24px_60px_rgba(0,0,0,0.65)]
       transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]
       ${disabled 
         ? 'opacity-40 cursor-not-allowed grayscale' 
-        : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] hover:border-white/[0.15] active:translate-y-0 active:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.3)]'
+        : 'cursor-pointer hover:-translate-y-[3px] hover:shadow-[0_30px_80px_rgba(0,0,0,0.8)] hover:border-[#38BDF8]/60 active:translate-y-0 active:shadow-[0_18px_45px_rgba(0,0,0,0.7)] active:scale-[0.99]'
       }
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#020617]
     `}>
-      {/* Gradient glow on hover */}
-      <div className={`absolute -inset-px bg-gradient-to-br ${color} opacity-0 group-hover:opacity-[0.12] transition-opacity duration-500 rounded-2xl blur-sm`} />
+      {/* Gradiente interno sutil */}
+      <div 
+        className="absolute inset-0 opacity-30 rounded-3xl"
+        style={{
+          background: "linear-gradient(145deg, rgba(2,8,31,0.5) 0%, rgba(4,23,49,0.3) 100%)",
+        }}
+      />
       
-      {/* Top shine line */}
-      <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Hover gradient glow */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500 rounded-3xl`} />
+      
+      {/* Top shine */}
+      <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
       
       {/* Badge - esquina superior derecha */}
       {badge && (
         <div className="absolute top-4 right-4 z-20">
           <span className={`
-            inline-flex items-center px-2.5 py-1 rounded-full 
+            inline-flex items-center px-3 py-1 rounded-full 
             text-[10px] font-bold tracking-wider uppercase
             ${badgeColor}
-            border border-white/10
-            shadow-sm
+            border
           `}>
             {badge}
           </span>
@@ -63,37 +70,37 @@ export function ModuleCard({
       )}
       
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full">
-        {/* ICON BADGE GRANDE - 56x56px */}
+      <div className="relative z-10 flex gap-5 h-full">
+        {/* ICON BADGE GRANDE - 60x60px */}
         <div className={`
-          relative flex items-center justify-center 
-          w-14 h-14 rounded-2xl 
+          relative flex-shrink-0 flex items-center justify-center 
+          w-[60px] h-[60px] rounded-2xl 
           bg-gradient-to-br ${color}
-          shadow-lg shadow-black/30
-          mb-4
+          border border-white/40
+          shadow-[0_12px_30px_rgba(0,0,0,0.45)]
           transition-all duration-300
-          group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-black/40
-          before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-black/20 before:to-transparent
-          after:absolute after:inset-[1px] after:rounded-[14px] after:bg-gradient-to-b after:from-white/25 after:to-transparent after:opacity-60
+          group-hover:scale-105 group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.55)]
         `}>
-          <Icon className="relative z-10 h-7 w-7 text-white drop-shadow-md" strokeWidth={1.75} />
+          {/* Inner glow */}
+          <div className="absolute inset-[1px] rounded-[14px] bg-gradient-to-b from-white/25 to-transparent opacity-60" />
+          <Icon className="relative z-10 h-8 w-8 text-white drop-shadow-md" strokeWidth={1.5} />
         </div>
         
         {/* Texto */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col justify-center min-w-0">
           {/* Title */}
-          <h3 className="text-[15px] font-semibold text-white/95 leading-tight mb-1 group-hover:text-white transition-colors">
+          <h3 className="text-lg font-semibold text-white/95 leading-tight mb-1.5 group-hover:text-white transition-colors truncate">
             {title}
           </h3>
           
           {/* Description */}
-          <p className="text-[13px] text-white/45 leading-relaxed group-hover:text-white/55 transition-colors flex-1">
+          <p className="text-sm text-white/70 leading-relaxed group-hover:text-white/80 transition-colors line-clamp-2">
             {description}
           </p>
           
-          {/* Meta info - renglón opcional */}
+          {/* Meta info */}
           {meta && (
-            <p className="text-[11px] text-white/30 mt-2 font-medium tracking-wide">
+            <p className="text-xs text-white/50 mt-2 font-medium">
               {meta}
             </p>
           )}
@@ -101,7 +108,7 @@ export function ModuleCard({
       </div>
       
       {/* Bottom gradient line on hover */}
-      <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r ${color} opacity-0 group-hover:opacity-60 transition-opacity duration-300`} />
+      <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r ${color} opacity-0 group-hover:opacity-70 transition-opacity duration-300`} />
     </div>
   );
 

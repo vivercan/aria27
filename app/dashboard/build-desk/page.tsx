@@ -16,9 +16,9 @@ const modules = [
     description: "Seguimiento de proyectos activos.", 
     icon: Briefcase, 
     href: "/dashboard/build-desk/pipeline", 
-    color: "from-amber-500 to-orange-600",
+    color: "from-[#F59E0B] to-[#D97706]",
     badge: "5 Obras",
-    badgeColor: "bg-amber-500/20 text-amber-300",
+    badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     meta: "Proyectos en ejecución"
   },
   { 
@@ -26,35 +26,35 @@ const modules = [
     description: "Gestión de licitaciones.", 
     icon: FileSearch, 
     href: "/dashboard/build-desk/tender", 
-    color: "from-blue-500 to-blue-600"
+    color: "from-[#38BDF8] to-[#2563EB]"
   },
   { 
     title: "Packing List", 
     description: "Control de envíos y materiales.", 
     icon: PackageCheck, 
     href: "/dashboard/build-desk/packing", 
-    color: "from-emerald-500 to-emerald-600"
+    color: "from-[#22C55E] to-[#16A34A]"
   },
   { 
     title: "Legal Pack", 
     description: "Documentación legal de obras.", 
     icon: Scale, 
     href: "/dashboard/build-desk/legal", 
-    color: "from-violet-500 to-purple-600"
+    color: "from-[#A855F7] to-[#7C3AED]"
   },
   { 
     title: "SIROC Desk", 
     description: "Registro IMSS obras.", 
     icon: ClipboardCheck, 
     href: "/dashboard/build-desk/siroc", 
-    color: "from-rose-500 to-pink-600"
+    color: "from-[#FB7185] to-[#EF4444]"
   },
   { 
     title: "Estimate Flow", 
     description: "Presupuestos y estimaciones.", 
     icon: Calculator, 
     href: "/dashboard/build-desk/estimates", 
-    color: "from-cyan-500 to-cyan-600"
+    color: "from-[#06B6D4] to-[#0891B2]"
   },
 ];
 
