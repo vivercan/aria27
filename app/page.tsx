@@ -24,12 +24,12 @@ export default function LoginPage() {
       <div className="absolute top-[-20%] right-[-20%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
       
-      {/* Imagen infinito grande de fondo - 500px, muy transparente, bajado 50px */}
+      {/* Imagen infinito grande de fondo - 500px, 8% opacidad, bajado 50px */}
       <div 
         className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
         style={{ paddingTop: '50px' }}
       >
-        <div style={{ opacity: 0.15, width: '500px', height: '500px' }}>
+        <div style={{ opacity: 0.08, width: '500px', height: '500px' }}>
           <Image
             src="/infinito.png"
             alt=""
