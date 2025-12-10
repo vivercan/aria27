@@ -11,6 +11,7 @@ interface ModuleCardProps {
   color: string;
   badge?: string;
   badgeColor?: string;
+  meta?: string;
   disabled?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function ModuleCard({
   color, 
   badge, 
   badgeColor = "bg-white/10 text-white/70",
+  meta,
   disabled 
 }: ModuleCardProps) {
   const cardContent = (
@@ -30,7 +32,7 @@ export function ModuleCard({
       border border-white/[0.08] 
       bg-gradient-to-br from-slate-800/50 to-slate-900/50
       backdrop-blur-xl
-      p-5 h-full min-h-[140px]
+      p-6 h-[180px]
       shadow-[0_4px_24px_-4px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.04)]
       transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]
       ${disabled 
@@ -45,47 +47,57 @@ export function ModuleCard({
       {/* Top shine line */}
       <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
+      {/* Badge - esquina superior derecha */}
+      {badge && (
+        <div className="absolute top-4 right-4 z-20">
+          <span className={`
+            inline-flex items-center px-2.5 py-1 rounded-full 
+            text-[10px] font-bold tracking-wider uppercase
+            ${badgeColor}
+            border border-white/10
+            shadow-sm
+          `}>
+            {badge}
+          </span>
+        </div>
+      )}
+      
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full">
-        {/* Header: Icon + Badge */}
-        <div className="flex items-start justify-between mb-4">
-          {/* Icon Badge */}
-          <div className={`
-            relative flex items-center justify-center 
-            w-11 h-11 rounded-xl 
-            bg-gradient-to-br ${color}
-            shadow-lg shadow-black/30
-            transition-all duration-300
-            group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-black/40
-            before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-t before:from-black/20 before:to-transparent
-            after:absolute after:inset-[1px] after:rounded-[10px] after:bg-gradient-to-b after:from-white/20 after:to-transparent after:opacity-60
-          `}>
-            <Icon className="relative z-10 h-5 w-5 text-white drop-shadow-sm" strokeWidth={2} />
-          </div>
-          
-          {/* Badge */}
-          {badge && (
-            <span className={`
-              inline-flex items-center px-2.5 py-1 rounded-full 
-              text-[10px] font-semibold tracking-wide uppercase
-              ${badgeColor}
-              border border-white/10
-              shadow-sm
-            `}>
-              {badge}
-            </span>
-          )}
+        {/* ICON BADGE GRANDE - 56x56px */}
+        <div className={`
+          relative flex items-center justify-center 
+          w-14 h-14 rounded-2xl 
+          bg-gradient-to-br ${color}
+          shadow-lg shadow-black/30
+          mb-4
+          transition-all duration-300
+          group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-black/40
+          before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-black/20 before:to-transparent
+          after:absolute after:inset-[1px] after:rounded-[14px] after:bg-gradient-to-b after:from-white/25 after:to-transparent after:opacity-60
+        `}>
+          <Icon className="relative z-10 h-7 w-7 text-white drop-shadow-md" strokeWidth={1.75} />
         </div>
         
-        {/* Title */}
-        <h3 className="text-[15px] font-semibold text-white/95 leading-tight mb-1.5 group-hover:text-white transition-colors">
-          {title}
-        </h3>
-        
-        {/* Description */}
-        <p className="text-[13px] text-white/45 leading-relaxed group-hover:text-white/55 transition-colors">
-          {description}
-        </p>
+        {/* Texto */}
+        <div className="flex-1 flex flex-col">
+          {/* Title */}
+          <h3 className="text-[15px] font-semibold text-white/95 leading-tight mb-1 group-hover:text-white transition-colors">
+            {title}
+          </h3>
+          
+          {/* Description */}
+          <p className="text-[13px] text-white/45 leading-relaxed group-hover:text-white/55 transition-colors flex-1">
+            {description}
+          </p>
+          
+          {/* Meta info - renglón opcional */}
+          {meta && (
+            <p className="text-[11px] text-white/30 mt-2 font-medium tracking-wide">
+              {meta}
+            </p>
+          )}
+        </div>
       </div>
       
       {/* Bottom gradient line on hover */}

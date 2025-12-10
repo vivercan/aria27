@@ -17,43 +17,44 @@ const modules = [
     icon: Briefcase, 
     href: "/dashboard/build-desk/pipeline", 
     color: "from-amber-500 to-orange-600",
-    badge: "5 obras",
-    badgeColor: "bg-amber-500/20 text-amber-300"
+    badge: "5 Obras",
+    badgeColor: "bg-amber-500/20 text-amber-300",
+    meta: "Proyectos en ejecución"
   },
   { 
     title: "Tender Hub", 
     description: "Gestión de licitaciones.", 
     icon: FileSearch, 
     href: "/dashboard/build-desk/tender", 
-    color: "from-blue-500 to-blue-600" 
+    color: "from-blue-500 to-blue-600"
   },
   { 
     title: "Packing List", 
     description: "Control de envíos y materiales.", 
     icon: PackageCheck, 
     href: "/dashboard/build-desk/packing", 
-    color: "from-emerald-500 to-emerald-600" 
+    color: "from-emerald-500 to-emerald-600"
   },
   { 
     title: "Legal Pack", 
     description: "Documentación legal de obras.", 
     icon: Scale, 
     href: "/dashboard/build-desk/legal", 
-    color: "from-violet-500 to-purple-600" 
+    color: "from-violet-500 to-purple-600"
   },
   { 
     title: "SIROC Desk", 
     description: "Registro IMSS obras.", 
     icon: ClipboardCheck, 
     href: "/dashboard/build-desk/siroc", 
-    color: "from-rose-500 to-pink-600" 
+    color: "from-rose-500 to-pink-600"
   },
   { 
     title: "Estimate Flow", 
     description: "Presupuestos y estimaciones.", 
     icon: Calculator, 
     href: "/dashboard/build-desk/estimates", 
-    color: "from-cyan-500 to-cyan-600" 
+    color: "from-cyan-500 to-cyan-600"
   },
 ];
 
@@ -75,6 +76,7 @@ export default function BuildDeskPage() {
             color={mod.color}
             badge={mod.badge}
             badgeColor={mod.badgeColor}
+            meta={mod.meta}
           />
         ))}
       </ModuleGrid>

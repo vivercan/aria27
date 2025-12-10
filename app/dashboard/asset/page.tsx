@@ -14,28 +14,29 @@ const modules = [
     description: "Catálogo de activos fijos.", 
     icon: Box, 
     href: "/dashboard/asset/master", 
-    color: "from-rose-500 to-pink-600"
+    color: "from-rose-500 to-pink-600",
+    meta: "Maquinaria y equipo"
   },
   { 
     title: "Asset Status", 
     description: "Estado actual de activos.", 
     icon: Activity, 
     href: "/dashboard/asset/status", 
-    color: "from-blue-500 to-blue-600" 
+    color: "from-blue-500 to-blue-600"
   },
   { 
     title: "Site Allocation", 
     description: "Asignación por obra.", 
     icon: MapPin, 
     href: "/dashboard/asset/allocation", 
-    color: "from-emerald-500 to-emerald-600" 
+    color: "from-emerald-500 to-emerald-600"
   },
   { 
     title: "Maintenance", 
     description: "Mantenimiento preventivo.", 
     icon: Wrench, 
     href: "/dashboard/asset/maintenance", 
-    color: "from-amber-500 to-orange-600" 
+    color: "from-amber-500 to-orange-600"
   },
 ];
 
@@ -55,6 +56,7 @@ export default function AssetPage() {
             icon={mod.icon}
             href={mod.href}
             color={mod.color}
+            meta={mod.meta}
           />
         ))}
       </ModuleGrid>

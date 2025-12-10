@@ -18,43 +18,45 @@ const modules = [
     icon: Users, 
     href: "/dashboard/talent-hub/people", 
     color: "from-violet-500 to-purple-600",
-    badge: "16 registros",
-    badgeColor: "bg-violet-500/20 text-violet-300"
+    badge: "16",
+    badgeColor: "bg-violet-500/20 text-violet-300",
+    meta: "Colaboradores registrados"
   },
   { 
     title: "Clock-In Hub", 
     description: "Control de asistencia.", 
     icon: Clock, 
     href: "/dashboard/talent-hub/clock-in", 
-    color: "from-blue-500 to-blue-600" 
+    color: "from-blue-500 to-blue-600",
+    meta: "WhatsApp integration"
   },
   { 
     title: "Payroll Flow", 
     description: "Gestión de nómina.", 
     icon: Wallet, 
     href: "/dashboard/talent-hub/payroll", 
-    color: "from-emerald-500 to-emerald-600" 
+    color: "from-emerald-500 to-emerald-600"
   },
   { 
     title: "Adjustments", 
     description: "Incidencias y ajustes.", 
     icon: SlidersHorizontal, 
     href: "/dashboard/talent-hub/adjustments", 
-    color: "from-amber-500 to-orange-600" 
+    color: "from-amber-500 to-orange-600"
   },
   { 
     title: "Legal HR", 
     description: "Contratos y documentos legales.", 
     icon: Scale, 
     href: "/dashboard/talent-hub/legal", 
-    color: "from-rose-500 to-pink-600" 
+    color: "from-rose-500 to-pink-600"
   },
   { 
     title: "Salary Matrix", 
     description: "Tabulador de sueldos.", 
     icon: Grid3X3, 
     href: "/dashboard/talent-hub/matrix", 
-    color: "from-cyan-500 to-cyan-600" 
+    color: "from-cyan-500 to-cyan-600"
   },
   { 
     title: "User Access", 
@@ -85,6 +87,7 @@ export default function TalentHubPage() {
             color={mod.color}
             badge={mod.badge}
             badgeColor={mod.badgeColor}
+            meta={mod.meta}
           />
         ))}
       </ModuleGrid>

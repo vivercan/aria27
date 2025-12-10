@@ -14,28 +14,29 @@ const modules = [
     description: "Plantillas de documentos.", 
     icon: FileText, 
     href: "/dashboard/templates/library", 
-    color: "from-slate-400 to-slate-600"
+    color: "from-slate-400 to-slate-600",
+    meta: "Formatos estándar"
   },
   { 
     title: "Docs Center", 
     description: "Centro de documentación.", 
     icon: FolderOpen, 
     href: "/dashboard/templates/docs", 
-    color: "from-blue-500 to-blue-600" 
+    color: "from-blue-500 to-blue-600"
   },
   { 
     title: "Bid Pack", 
     description: "Paquetes de licitación.", 
     icon: FileSpreadsheet, 
     href: "/dashboard/templates/bids", 
-    color: "from-emerald-500 to-emerald-600" 
+    color: "from-emerald-500 to-emerald-600"
   },
   { 
     title: "PO Pack", 
     description: "Formatos de órdenes.", 
     icon: ClipboardList, 
     href: "/dashboard/templates/po", 
-    color: "from-amber-500 to-orange-600" 
+    color: "from-amber-500 to-orange-600"
   },
 ];
 
@@ -55,6 +56,7 @@ export default function TemplatesPage() {
             icon={mod.icon}
             href={mod.href}
             color={mod.color}
+            meta={mod.meta}
           />
         ))}
       </ModuleGrid>
