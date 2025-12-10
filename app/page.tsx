@@ -24,12 +24,12 @@ export default function LoginPage() {
       <div className="absolute top-[-20%] right-[-20%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
       
-      {/* Imagen infinito grande de fondo - 500px, 8% opacidad, bajado 50px */}
+      {/* Imagen infinito grande de fondo - 500px, 20% opacidad (80% transparencia), bajado 50px */}
       <div 
         className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
         style={{ paddingTop: '50px' }}
       >
-        <div style={{ opacity: 0.08, width: '500px', height: '500px' }}>
+        <div style={{ opacity: 0.2, width: '500px', height: '500px' }}>
           <Image
             src="/infinito.png"
             alt=""
@@ -40,7 +40,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Card de login - compacto */}
+      {/* Card de login - compacto sin titulo */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
@@ -52,12 +52,6 @@ export default function LoginPage() {
           className="backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl"
           style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '18px' }}
         >
-          <div style={{ marginBottom: '14px' }}>
-            <h1 className="font-bold text-white tracking-tighter" style={{ fontSize: '18px' }}>
-              Iniciar Sesion
-            </h1>
-          </div>
-
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <input
               type="email"
@@ -117,7 +111,6 @@ export default function LoginPage() {
               paddingRight: '9px'
             }}
           >
-            {/* Icono infinito pequeno como bullet - 16px */}
             <div style={{ opacity: 0.85, marginRight: '6px', width: '16px', height: '16px' }}>
               <Image
                 src="/infinito.png"
