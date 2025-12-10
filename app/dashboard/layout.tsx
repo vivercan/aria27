@@ -51,33 +51,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0f172a]">
-      {/* ===== DEEP GLASS BACKGROUND ===== */}
-      <div className="fixed inset-0 z-0 bg-[#0f172a]" />
+    <div className="relative min-h-screen overflow-hidden bg-[#0a0f1a]">
+      {/* ===== FONDO AZUL BRILLANTE (lado derecho) ===== */}
+      <div className="fixed inset-0 z-0 bg-[#0a0f1a]" />
       
-      {/* Ambient blob 1 */}
+      {/* Gradiente azul brillante - lado derecho */}
       <div 
         className="fixed z-0 pointer-events-none"
         style={{
-          width: '800px',
-          height: '800px',
-          top: '-200px',
-          left: '-200px',
-          background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-          filter: 'blur(80px)',
+          width: '100%',
+          height: '100%',
+          top: 0,
+          right: 0,
+          background: 'linear-gradient(135deg, #0a0f1a 0%, #0a0f1a 30%, #0066CC 70%, #0055BB 100%)',
         }}
       />
       
-      {/* Ambient blob 2 */}
+      {/* Capa adicional para intensificar el azul a la derecha */}
       <div 
         className="fixed z-0 pointer-events-none"
         style={{
-          width: '1000px',
-          height: '1000px',
-          bottom: '-300px',
-          right: '-200px',
-          background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 40%, transparent 70%)',
-          filter: 'blur(100px)',
+          width: '60%',
+          height: '100%',
+          top: 0,
+          right: 0,
+          background: 'linear-gradient(90deg, transparent 0%, #0066DD 60%, #0077EE 100%)',
+          opacity: 0.8,
         }}
       />
 
@@ -87,32 +86,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* MOBILE MENU */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-white shadow-lg"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 text-white shadow-lg"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
-        {/* ===== SIDEBAR ===== */}
+        {/* ===== SIDEBAR OSCURO ===== */}
         <aside className={`
           fixed left-0 top-0 bottom-0 w-64 flex flex-col 
-          bg-[#0a0f1a]/90 backdrop-blur-2xl 
+          bg-[#0a0f1a]/98 backdrop-blur-2xl 
           border-r border-white/[0.06]
           transition-transform duration-300 z-40
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          {/* Logo */}
-          <div className="flex items-center gap-3 px-6 py-6 border-b border-white/[0.06]">
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/15 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-              <span className="text-white font-bold text-xl">A</span>
+          {/* LOGO ARIA GRANDE */}
+          <div className="flex items-center gap-4 px-6 py-7 border-b border-white/[0.06]">
+            <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 border border-white/20 shadow-lg shadow-blue-500/30">
+              <span className="text-white font-bold text-2xl">A</span>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-white tracking-tight">ARIA</h1>
-              <p className="text-[10px] text-slate-400 tracking-[0.2em] font-medium">OPERATIONS OS</p>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                ARIA
+              </h1>
+              <p className="text-[10px] text-slate-500 tracking-[0.15em] font-medium mt-0.5">OPERATIONS OS</p>
             </div>
           </div>
 
           {/* Menu */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
             {menuItems.map((item) => {
               const isActive = pathname.startsWith(item.path);
               return (
@@ -122,20 +123,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     group relative flex items-center gap-3 px-4 py-3 
-                    text-sm font-medium rounded-2xl
+                    text-sm font-medium rounded-xl
                     transition-all duration-300
                     outline-none 
                     focus-visible:ring-2 focus-visible:ring-blue-500/50
                     ${isActive 
-                      ? "bg-white/[0.08] text-white shadow-[0_0_20px_rgba(59,130,246,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]" 
+                      ? "bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" 
                       : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
                     }
                   `}
                 >
                   {isActive && (
                     <>
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-gradient-to-b from-blue-400 to-purple-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-transparent" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                     </>
                   )}
                   <item.icon className={`relative z-10 w-5 h-5 ${isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"}`} strokeWidth={1.75} />
@@ -163,15 +163,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ===== MAIN ===== */}
         <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
           
-          {/* ===== TOPBAR MÁS VISIBLE ===== */}
+          {/* ===== TOPBAR ===== */}
           <header className="sticky top-0 z-20 px-4 lg:px-6 py-4">
             <div className="
               flex items-center justify-between gap-4 
               px-5 py-3.5 
               rounded-2xl 
-              bg-slate-900/80 backdrop-blur-xl
-              border border-white/[0.12]
-              shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.3)]
+              bg-[#0a0f1a]/90 backdrop-blur-xl
+              border border-white/[0.10]
+              shadow-[0_8px_32px_rgba(0,0,0,0.4)]
             ">
               {/* Search */}
               <div className="relative flex-1 max-w-md ml-10 lg:ml-0">
@@ -179,15 +179,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <input
                   type="text"
                   placeholder="Buscar módulos, documentos..."
-                  className="
-                    w-full pl-10 pr-4 py-2.5 
-                    bg-white/[0.06] backdrop-blur
-                    border border-white/[0.10] rounded-xl 
-                    text-sm text-white placeholder-slate-400 
-                    outline-none 
-                    focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 focus:bg-white/[0.08]
-                    transition-all
-                  "
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.06] border border-white/[0.10] rounded-xl text-sm text-white placeholder-slate-400 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -208,10 +200,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <span className="text-[11px] text-slate-300">{userRole}</span>
                   </div>
                 </div>
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 text-white text-sm font-semibold shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400/30 to-blue-600/30 border border-white/15 text-white text-sm font-semibold">
                   {userName.charAt(0)}
                 </div>
-                <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all border border-transparent hover:border-white/15" title="Cerrar sesión">
+                <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all" title="Cerrar sesión">
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>

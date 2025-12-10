@@ -10,9 +10,9 @@ interface ModuleGridProps {
 export function ModuleGrid({ children, columns = 2 }: ModuleGridProps) {
   return (
     <div 
-      className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-7 lg:max-w-[1200px]"
+      className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-5 lg:max-w-[1200px]"
       style={{
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 580px))'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 560px))'
       }}
     >
       {children}
