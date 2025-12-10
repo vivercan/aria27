@@ -24,7 +24,7 @@ export default function LoginPage() {
       <div className="absolute top-[-20%] right-[-20%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
       
-      {/* Imagen infinito grande de fondo - 500px, 10% opacidad (90% transparencia), bajado 50px */}
+      {/* Imagen infinito grande de fondo - 500px, 10% opacidad */}
       <div 
         className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
         style={{ paddingTop: '50px' }}
@@ -58,7 +58,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
-              style={{ padding: '8px 14px', fontSize: '15px', width: '100%' }}
+              style={{ padding: '6px 14px', fontSize: '15px', width: '100%', height: '36px' }}
               placeholder="usuario@gcuavante.com"
             />
 
@@ -67,14 +67,14 @@ export default function LoginPage() {
               value={pass}
               onChange={(e) => setPass(e.target.value)}
               className="bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
-              style={{ padding: '8px 14px', fontSize: '15px', width: '100%' }}
+              style={{ padding: '6px 14px', fontSize: '15px', width: '100%', height: '36px' }}
               placeholder="********"
             />
 
             <button
               type="submit"
               className="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/40 active:scale-95 tracking-tighter"
-              style={{ padding: '8px', fontSize: '18px', width: '100%' }}
+              style={{ padding: '6px', fontSize: '18px', width: '100%', height: '36px' }}
             >
               Entrar
             </button>
