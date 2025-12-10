@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#020617]">
+    <div className="relative min-h-screen overflow-hidden bg-[#020712]">
       {/* ===== FONDO TIMONFX - CAPAS ===== */}
       
       {/* Capa 1: Gradiente base ultra oscuro */}
@@ -62,11 +62,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }}
       />
       
-      {/* Capa 2: Halo metálico principal - esquina inferior derecha */}
+      {/* Capa 2: Halo metálico principal - Pantone 293C inspired */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 60% 50% at 85% 85%, rgba(37,99,235,0.25) 0%, rgba(37,99,235,0.08) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse 60% 50% at 85% 85%, rgba(0,61,165,0.30) 0%, rgba(13,63,141,0.12) 40%, transparent 70%)",
         }}
       />
       
@@ -78,19 +78,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }}
       />
       
-      {/* Capa 4: Halo superior izquierdo sutil */}
+      {/* Capa 4: Accent cyan sutil */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: "radial-gradient(circle at 10% 10%, rgba(56,189,248,0.06) 0%, transparent 35%)",
+          background: "radial-gradient(circle at 15% 15%, rgba(56,189,248,0.04) 0%, transparent 30%)",
         }}
       />
       
-      {/* Capa 5: Noise texture */}
+      {/* Capa 5: Noise texture - MUY sutil */}
       <div 
-        className="fixed inset-0 z-0 opacity-[0.08] pointer-events-none"
+        className="fixed inset-0 z-0 opacity-[0.10] pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
 
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ===== MOBILE MENU BUTTON ===== */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-white shadow-lg"
+          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(8,16,30,0.9)] backdrop-blur-xl border border-white/10 text-white shadow-lg"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -109,14 +109,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside className={`
           fixed left-0 top-0 bottom-0 w-64 flex flex-col 
           bg-[#02081F]/95 backdrop-blur-2xl 
-          border-r border-white/5
+          border-r border-white/[0.04]
           shadow-[4px_0_30px_-4px_rgba(0,0,0,0.5)]
           transition-transform duration-300 z-40
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           {/* Logo */}
-          <div className="flex items-center gap-3 px-6 py-6 border-b border-white/5">
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[#38BDF8] to-[#2563EB] shadow-lg shadow-blue-500/30">
+          <div className="flex items-center gap-3 px-6 py-6 border-b border-white/[0.04]">
+            <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[#38BDF8] to-[#003DA5] shadow-lg shadow-blue-500/25">
               <span className="text-white font-bold text-xl">A</span>
             </div>
             <div>
@@ -143,17 +143,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     outline-none 
                     focus-visible:ring-2 focus-visible:ring-[#38BDF8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#020617]
                     ${isActive 
-                      ? "bg-white/5 text-white" 
+                      ? "bg-white/[0.05] text-white" 
                       : "text-white/70 hover:text-white/90 hover:bg-white/[0.03]"
                     }
                   `}
                 >
                   {/* Barra luminosa activa */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-[#38BDF8] to-[#2563EB] rounded-full shadow-[0_0_12px_rgba(56,189,248,0.8)]" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-[#38BDF8] to-[#003DA5] rounded-full shadow-[0_0_12px_rgba(56,189,248,0.8)]" />
                   )}
                   
-                  <item.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-white/70"}`} strokeWidth={1.75} />
+                  <item.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-white/70"}`} strokeWidth={2} />
                   <span className="flex-1">{item.name}</span>
                   
                   {isActive && (
@@ -165,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
 
           {/* Footer sidebar */}
-          <div className="px-4 py-4 border-t border-white/5">
+          <div className="px-4 py-4 border-t border-white/[0.04]">
             <div className="flex items-center gap-2 justify-center">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
               <p className="text-[10px] text-white/30 tracking-wide">
@@ -192,8 +192,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               flex items-center justify-between gap-4 
               px-5 py-3.5 
               rounded-2xl 
-              bg-white/5 backdrop-blur-lg
-              border border-white/10
+              bg-[rgba(8,16,30,0.85)] backdrop-blur-xl
+              border border-white/[0.06]
               shadow-[0_18px_45px_rgba(0,0,0,0.55)]
             ">
               {/* Search */}
@@ -204,11 +204,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   placeholder="Buscar módulos, documentos..."
                   className="
                     w-full pl-10 pr-4 py-2.5 
-                    bg-white/5 backdrop-blur
-                    border border-white/10 rounded-xl 
+                    bg-white/[0.04] backdrop-blur
+                    border border-white/[0.06] rounded-xl 
                     text-sm text-white placeholder-white/40 
                     outline-none 
-                    focus:border-[#38BDF8]/50 focus:ring-1 focus:ring-[#38BDF8] focus:bg-white/[0.07]
+                    focus:border-[#38BDF8]/40 focus:ring-1 focus:ring-[#38BDF8]/50 focus:bg-white/[0.06]
                     transition-all
                   "
                 />
@@ -236,12 +236,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <span className="text-[11px] text-white/50">{userRole}</span>
                   </div>
                 </div>
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#2563EB] text-white text-sm font-semibold shadow-lg shadow-blue-500/25">
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#003DA5] text-white text-sm font-semibold shadow-lg shadow-blue-500/20">
                   {userName.charAt(0)}
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
+                  className="p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent hover:border-white/10"
                   title="Cerrar sesión"
                 >
                   <LogOut className="w-4 h-4" />

@@ -20,3 +20,44 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* ===== ARIA27 DESIGN TOKENS - TIMONFX ===== */
+:root {
+  /* Primary Blues - Pantone 293C inspired */
+  --aria-blue-core: #003DA5;
+  --aria-blue-soft: #0D3F8D;
+  --aria-blue-glow: #38BDF8;
+  --aria-blue-accent: #2563EB;
+  
+  /* Dark Navy */
+  --aria-deep-navy: #020712;
+  --aria-card-bg: rgba(8, 16, 30, 0.85);
+  --aria-card-bg-hover: rgba(12, 22, 40, 0.90);
+  
+  /* Borders */
+  --aria-border-subtle: rgba(255, 255, 255, 0.04);
+  --aria-border-hover: rgba(56, 189, 248, 0.40);
+  
+  /* Shadows */
+  --aria-card-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  --aria-card-shadow-hover: 0 24px 50px rgba(0, 0, 0, 0.65);
+  --aria-glow-blue: 0 0 18px rgba(0, 125, 255, 0.35);
+  
+  /* Radius */
+  --aria-card-radius: 20px;
+  --aria-badge-radius: 999px;
+  
+  /* Spacing */
+  --aria-card-gap: 24px;
+  --aria-card-padding: 16px 20px;
+}
+
+/* Noise texture muy sutil */
+.aria-noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
