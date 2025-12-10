@@ -15,6 +15,25 @@ interface ModuleCardProps {
   disabled?: boolean;
 }
 
+// Mapeo de colores a RGB para el hover accent
+const accentMap: Record<string, string> = {
+  "from-emerald-500 to-emerald-600": "16, 185, 129",
+  "from-green-500 to-green-600": "34, 197, 94",
+  "from-cyan-500 to-cyan-600": "6, 182, 212",
+  "from-blue-500 to-blue-600": "59, 130, 246",
+  "from-indigo-500 to-indigo-600": "99, 102, 241",
+  "from-purple-500 to-purple-600": "168, 85, 247",
+  "from-pink-500 to-pink-600": "236, 72, 153",
+  "from-rose-500 to-rose-600": "244, 63, 94",
+  "from-red-500 to-red-600": "239, 68, 68",
+  "from-orange-500 to-orange-600": "249, 115, 22",
+  "from-amber-500 to-amber-600": "245, 158, 11",
+  "from-yellow-500 to-yellow-600": "234, 179, 8",
+  "from-teal-500 to-teal-600": "20, 184, 166",
+  "from-slate-500 to-slate-600": "100, 116, 139",
+  "from-gray-500 to-gray-600": "107, 114, 128",
+};
+
 export function ModuleCard({
   title,
   description,
@@ -27,24 +46,45 @@ export function ModuleCard({
   meta,
   disabled
 }: ModuleCardProps) {
+  const accentRgb = accentMap[color] || "59, 130, 246";
+  
   const cardContent = (
     <div 
       className={`
         group relative overflow-hidden
-        rounded-lg
-        border border-white/[0.08]
-        bg-[#0a0f1a]/80 backdrop-blur-xl
-        shadow-[0_8px_32px_rgba(0,0,0,0.3)]
-        transition-all duration-300 ease-out
+        rounded-xl
+        backdrop-blur-[14px]
+        transition-all duration-200 ease-out
         ${disabled
           ? 'opacity-40 cursor-not-allowed grayscale'
-          : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:border-white/[0.12] hover:bg-[#0a0f1a]/90 active:translate-y-0'
+          : 'cursor-pointer'
         }
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
       `}
       style={{
         height: '120px',
-        padding: '20px 24px'
+        padding: '20px 24px',
+        background: 'linear-gradient(135deg, rgba(5, 12, 28, 0.88), rgba(10, 28, 60, 0.78))',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        boxShadow: '0 8px 22px rgba(0, 0, 0, 0.45)',
+        // CSS variable para el hover
+        ['--accent-rgb' as string]: accentRgb,
+      }}
+      onMouseEnter={(e) => {
+        if (disabled) return;
+        const el = e.currentTarget;
+        el.style.background = `radial-gradient(circle at top left, rgba(${accentRgb}, 0.14), transparent 55%), linear-gradient(135deg, rgba(5, 12, 28, 0.92), rgba(10, 28, 60, 0.82))`;
+        el.style.borderColor = `rgba(${accentRgb}, 0.4)`;
+        el.style.boxShadow = `0 10px 26px rgba(0, 0, 0, 0.55), 0 0 18px rgba(${accentRgb}, 0.22)`;
+        el.style.transform = 'translateY(-3px)';
+      }}
+      onMouseLeave={(e) => {
+        if (disabled) return;
+        const el = e.currentTarget;
+        el.style.background = 'linear-gradient(135deg, rgba(5, 12, 28, 0.88), rgba(10, 28, 60, 0.78))';
+        el.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+        el.style.boxShadow = '0 8px 22px rgba(0, 0, 0, 0.45)';
+        el.style.transform = 'translateY(0)';
       }}
     >
       <div className="relative z-10 flex items-center gap-4 h-full">
@@ -53,16 +93,15 @@ export function ModuleCard({
           className={`
             relative flex-shrink-0 flex items-center justify-center
             bg-gradient-to-br ${color}
-            shadow-[0_4px_15px_${glowColor}]
             transition-all duration-300
-            group-hover:shadow-[0_6px_20px_${glowColor}]
             group-hover:scale-105
           `}
           style={{
             width: '72px',
             height: '72px',
             borderRadius: '14px',
-            opacity: 0.7
+            opacity: 0.7,
+            boxShadow: `0 4px 15px ${glowColor}`,
           }}
         >
           <Icon className="relative z-10 text-white" style={{ width: '36px', height: '36px', opacity: 1 }} strokeWidth={1.75} />
