@@ -43,26 +43,30 @@ export function ModuleCard({
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
       `}
       style={{
-        width: '420px',
         height: '120px',
         padding: '20px 24px'
       }}
     >
       <div className="relative z-10 flex items-center gap-4 h-full">
-        {/* ICON */}
-        <div className={`
-          relative flex-shrink-0 flex items-center justify-center
-          w-12 h-12
-          rounded-lg
-          bg-gradient-to-br ${color}
-          opacity-90
-          shadow-[0_4px_15px_${glowColor}]
-          transition-all duration-300
-          group-hover:opacity-100
-          group-hover:shadow-[0_6px_20px_${glowColor}]
-          group-hover:scale-105
-        `}>
-          <Icon className="relative z-10 h-6 w-6 text-white" strokeWidth={1.75} />
+        {/* ICON - 15% mas grande: 56x56px */}
+        <div 
+          className={`
+            relative flex-shrink-0 flex items-center justify-center
+            rounded-[18px]
+            bg-gradient-to-br ${color}
+            opacity-90
+            shadow-[0_4px_15px_${glowColor}]
+            transition-all duration-300
+            group-hover:opacity-100
+            group-hover:shadow-[0_6px_20px_${glowColor}]
+            group-hover:scale-105
+          `}
+          style={{
+            width: '56px',
+            height: '56px'
+          }}
+        >
+          <Icon className="relative z-10 text-white" style={{ width: '28px', height: '28px' }} strokeWidth={1.75} />
         </div>
 
         {/* Text */}
@@ -106,4 +110,3 @@ export function ModuleCard({
     </Link>
   );
 }
-

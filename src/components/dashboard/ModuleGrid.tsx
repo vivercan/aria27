@@ -8,12 +8,13 @@ interface ModuleGridProps {
 export function ModuleGrid({ children }: ModuleGridProps) {
   return (
     <div 
-      className="w-full pt-8"
+      className="w-full"
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, minmax(320px, 1fr))',
+        gridTemplateColumns: 'repeat(3, minmax(360px, 1fr))',
         columnGap: '32px',
-        rowGap: '24px'
+        rowGap: '24px',
+        marginTop: '56px'
       }}
     >
       {children}
