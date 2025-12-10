@@ -24,62 +24,63 @@ export default function LoginPage() {
       <div className="absolute top-[-20%] right-[-20%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] -z-10" />
       
-      {/* Imagen infinito grande de fondo - 400px, 25% opacidad */}
-      <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-        <Image
-          src="/infinito.png"
-          alt=""
-          width={400}
-          height={400}
-          style={{ opacity: 0.25 }}
-          priority
-        />
+      {/* Imagen infinito grande de fondo - 500px, muy transparente, bajado 50px */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
+        style={{ paddingTop: '50px' }}
+      >
+        <div style={{ opacity: 0.15, width: '500px', height: '500px' }}>
+          <Image
+            src="/infinito.png"
+            alt=""
+            width={500}
+            height={500}
+            priority
+          />
+        </div>
       </div>
 
+      {/* Card de login - compacto */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 w-full"
-        style={{ maxWidth: '320px' }}
+        className="relative z-10"
+        style={{ width: '300px' }}
       >
         <div 
           className="backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl"
-          style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '20px' }}
+          style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '18px' }}
         >
-          <div style={{ marginBottom: '16px' }}>
-            <h1 className="font-bold text-white tracking-tighter" style={{ fontSize: '20px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <h1 className="font-bold text-white tracking-tighter" style={{ fontSize: '18px' }}>
               Iniciar Sesion
             </h1>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-3">
-            <div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
-                style={{ padding: '12px 16px', fontSize: '16px' }}
-                placeholder="usuario@gcuavante.com"
-              />
-            </div>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
+              style={{ padding: '10px 14px', fontSize: '15px', width: '100%' }}
+              placeholder="usuario@gcuavante.com"
+            />
 
-            <div>
-              <input
-                type="password"
-                value={pass}
-                onChange={(e) => setPass(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
-                style={{ padding: '12px 16px', fontSize: '16px' }}
-                placeholder="********"
-              />
-            </div>
+            <input
+              type="password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              className="bg-black/40 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-white/40"
+              style={{ padding: '10px 14px', fontSize: '15px', width: '100%' }}
+              placeholder="********"
+            />
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/40 active:scale-95 tracking-tighter"
-              style={{ padding: '12px', fontSize: '20px' }}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/40 active:scale-95 tracking-tighter"
+              style={{ padding: '10px', fontSize: '18px', width: '100%' }}
             >
               Entrar
             </button>
@@ -87,45 +88,51 @@ export default function LoginPage() {
         </div>
       </motion.div>
 
+      {/* ARIA + Infinity Loop */}
       <motion.div
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative z-10 hidden md:flex items-center justify-center"
       >
-        <div className="flex flex-col items-end">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <h1 
-            className="text-white drop-shadow-2xl"
             style={{ 
               fontFamily: '"Arial Black", "Helvetica Neue", Arial, sans-serif',
               fontSize: '250px',
               fontWeight: 900,
               letterSpacing: '-0.02em',
               lineHeight: 1,
-              opacity: 0.9
+              color: 'rgba(255,255,255,0.9)',
+              textShadow: '0 25px 50px rgba(0,0,0,0.5)'
             }}
           >
             ARIA
           </h1>
           <div 
-            className="flex items-center mt-4"
-            style={{ paddingRight: '5px' }}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              marginTop: '16px',
+              paddingRight: '9px'
+            }}
           >
-            {/* Icono infinito pequeno como bullet */}
-            <Image
-              src="/infinito.png"
-              alt=""
-              width={14}
-              height={14}
-              style={{ opacity: 0.85, marginRight: '6px' }}
-            />
+            {/* Icono infinito pequeno como bullet - 16px */}
+            <div style={{ opacity: 0.85, marginRight: '6px', width: '16px', height: '16px' }}>
+              <Image
+                src="/infinito.png"
+                alt=""
+                width={16}
+                height={16}
+              />
+            </div>
             <p 
-              className="uppercase"
               style={{
                 fontSize: '12px',
                 fontWeight: 700,
                 letterSpacing: '0.3em',
-                color: 'rgba(255,255,255,0.85)'
+                color: 'rgba(255,255,255,0.85)',
+                textTransform: 'uppercase'
               }}
             >
               Infinity Loop
