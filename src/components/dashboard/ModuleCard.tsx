@@ -48,25 +48,24 @@ export function ModuleCard({
       }}
     >
       <div className="relative z-10 flex items-center gap-4 h-full">
-        {/* ICON - 15% mas grande: 56x56px */}
+        {/* ICON BADGE - 62x62px, 85% opacity, rounded-16px */}
         <div 
           className={`
             relative flex-shrink-0 flex items-center justify-center
-            rounded-[18px]
             bg-gradient-to-br ${color}
-            opacity-90
             shadow-[0_4px_15px_${glowColor}]
             transition-all duration-300
-            group-hover:opacity-100
             group-hover:shadow-[0_6px_20px_${glowColor}]
             group-hover:scale-105
           `}
           style={{
-            width: '56px',
-            height: '56px'
+            width: '62px',
+            height: '62px',
+            borderRadius: '16px',
+            opacity: 0.85
           }}
         >
-          <Icon className="relative z-10 text-white" style={{ width: '28px', height: '28px' }} strokeWidth={1.75} />
+          <Icon className="relative z-10 text-white" style={{ width: '31px', height: '31px', opacity: 1 }} strokeWidth={1.75} />
         </div>
 
         {/* Text */}
@@ -110,3 +109,4 @@ export function ModuleCard({
     </Link>
   );
 }
+
