@@ -15,7 +15,7 @@ export function ModuleGrid({ children, columns = 3 }: ModuleGridProps) {
   };
 
   return (
-    <div className={`grid ${gridCols[columns]} gap-5`}>
+    <div className={`grid ${gridCols[columns]} gap-6`}>
       {children}
     </div>
   );
