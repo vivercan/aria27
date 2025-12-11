@@ -8,7 +8,6 @@ export async function sendWhatsAppTemplate(templateName: string, variables: stri
     return null;
   }
 
-  // Formatear número: agregar 52 si no lo tiene
   let phone = toPhone.replace(/\D/g, "");
   if (phone.length === 10) phone = "52" + phone;
 
