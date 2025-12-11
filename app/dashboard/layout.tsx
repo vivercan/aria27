@@ -1,8 +1,8 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import {
   HardHat,
   Users,
@@ -28,15 +28,25 @@ const menuItems = [
   { name: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrador",
+  validador: "Validador", 
+  compras: "Compras",
+  operacion: "Operación",
+  user: "Usuario",
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState({ day: "", full: "" });
-  const [userName] = useState("Admin");
-  const [userRole] = useState("Administrador");
+  const [userName, setUserName] = useState("Cargando...");
+  const [userRole, setUserRole] = useState("");
+  const [userInitial, setUserInitial] = useState("?");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Fecha
     const now = new Date();
     const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -44,19 +54,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       day: days[now.getDay()].toUpperCase(),
       full: `${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}`,
     });
+
+    // Obtener usuario de localStorage
+    const loadUser = async () => {
+      const storedEmail = localStorage.getItem("userEmail");
+      if (storedEmail) {
+        const { data: user } = await supabase
+          .from("users")
+          .select("display_name, name, role")
+          .eq("email", storedEmail)
+          .single();
+        
+        if (user) {
+          const displayName = user.display_name || user.name || "Usuario";
+          setUserName(displayName);
+          setUserRole(ROLE_LABELS[user.role] || user.role);
+          setUserInitial(displayName.charAt(0).toUpperCase());
+        }
+      } else {
+        // Si no hay email, usar default para demo
+        setUserName("Deya Montalvo");
+        setUserRole("Administrador");
+        setUserInitial("D");
+      }
+    };
+    loadUser();
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem("userEmail");
     router.push("/");
   };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0f1a]">
-      {/* ===== FONDO AZUL BRILLANTE (lado derecho) ===== */}
+      {/* ===== FONDO AZUL BRILLANTE ===== */}
       <div className="fixed inset-0 z-0 bg-[#0a0f1a]" />
-      
-      {/* Gradiente azul brillante - lado derecho */}
-      <div 
+      <div
         className="fixed z-0 pointer-events-none"
         style={{
           width: '100%',
@@ -66,9 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           background: 'linear-gradient(135deg, #0a0f1a 0%, #0a0f1a 30%, #0066CC 70%, #0055BB 100%)',
         }}
       />
-      
-      {/* Capa adicional para intensificar el azul a la derecha */}
-      <div 
+      <div
         className="fixed z-0 pointer-events-none"
         style={{
           width: '60%',
@@ -82,7 +114,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ===== CONTENIDO z-10 ===== */}
       <div className="relative z-10 flex min-h-screen">
-        
         {/* MOBILE MENU */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -93,13 +124,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* ===== SIDEBAR OSCURO ===== */}
         <aside className={`
-          fixed left-0 top-0 bottom-0 w-64 flex flex-col 
-          bg-[#0a0f1a]/98 backdrop-blur-2xl 
+          fixed left-0 top-0 bottom-0 w-64 flex flex-col
+          bg-[#0a0f1a]/98 backdrop-blur-2xl
           border-r border-white/[0.06]
           transition-transform duration-300 z-40
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          {/* LOGO ARIA GRANDE */}
+          {/* LOGO */}
           <div className="flex items-center gap-4 px-6 py-7 border-b border-white/[0.06]">
             <div>
               <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
@@ -119,21 +150,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    group relative flex items-center gap-3 px-4 py-3 
+                    group relative flex items-center gap-3 px-4 py-3
                     text-sm font-medium rounded-xl
                     transition-all duration-300
-                    outline-none 
+                    outline-none
                     focus-visible:ring-2 focus-visible:ring-blue-500/50
-                    ${isActive 
-                      ? "bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" 
+                    ${isActive
+                      ? "bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                       : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
                     }
                   `}
                 >
                   {isActive && (
-                    <>
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                    </>
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                   )}
                   <item.icon className={`relative z-10 w-5 h-5 ${isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"}`} strokeWidth={1.75} />
                   <span className="relative z-10 flex-1">{item.name}</span>
@@ -159,17 +188,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* ===== MAIN ===== */}
         <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-          
           {/* ===== TOPBAR ===== */}
           <header className="sticky top-0 z-20 px-4 lg:px-6 py-4">
-            <div className="
-              flex items-center justify-between gap-4 
-              px-5 py-3.5 
-              rounded-2xl 
-              bg-[#0a0f1a]/90 backdrop-blur-xl
-              border border-white/[0.10]
-              shadow-[0_8px_32px_rgba(0,0,0,0.4)]
-            ">
+            <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl bg-[#0a0f1a]/90 backdrop-blur-xl border border-white/[0.10] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               {/* Search */}
               <div className="relative flex-1 max-w-md ml-10 lg:ml-0">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -198,7 +219,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </div>
                 </div>
                 <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400/30 to-blue-600/30 border border-white/15 text-white text-sm font-semibold">
-                  {userName.charAt(0)}
+                  {userInitial}
                 </div>
                 <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all" title="Cerrar sesión">
                   <LogOut className="w-5 h-5" />
@@ -216,4 +237,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-
