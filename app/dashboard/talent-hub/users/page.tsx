@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Plus, Trash2, Save, X, Shield } from "lucide-react";
+import { Users, Plus, Trash2, Save, X, Shield, Phone } from "lucide-react";
 
 type User = {
   id: number;
   email: string;
   name: string;
   role: string;
+  phone: string;
   permissions: any;
   active: boolean;
 };
@@ -16,15 +17,19 @@ type User = {
 const ROLES = [
   { value: "admin", label: "Administrador", color: "bg-purple-500" },
   { value: "compras", label: "Compras", color: "bg-blue-500" },
+  { value: "validador", label: "Validador", color: "bg-emerald-500" },
   { value: "operacion", label: "Operación", color: "bg-amber-500" },
   { value: "user", label: "Usuario", color: "bg-slate-500" },
 ];
 
 const MODULES = [
-  { id: "talent-hub", name: "Talent Hub", submodules: ["people", "users"] },
-  { id: "supply-desk", name: "Supply Desk", submodules: ["requisitions", "inventory"] },
-  { id: "build-desk", name: "Build Desk", submodules: ["projects", "progress"] },
-  { id: "finance", name: "Finance", submodules: ["invoices", "payments"] },
+  { id: "build-desk", name: "Build Desk", submodules: ["pipeline", "tender", "estimates", "packing", "siroc", "legal"] },
+  { id: "talent-hub", name: "Talent Hub", submodules: ["people", "clock-in", "payroll", "adjustments", "matrix", "legal", "users"] },
+  { id: "supply-desk", name: "Supply Desk", submodules: ["requisitions", "vendors", "suppliers", "products", "quotes", "delivery", "payments", "prospecting"] },
+  { id: "finance", name: "Finance", submodules: ["billing", "receivables", "accounts-payable", "field-cash", "bank-reco", "job-costing"] },
+  { id: "asset", name: "Asset", submodules: ["master", "allocation", "maintenance", "status"] },
+  { id: "templates", name: "Templates", submodules: ["docs", "bids", "po", "library"] },
+  { id: "settings", name: "Settings", submodules: ["config", "master-data", "integrations", "alerts", "reminders", "mail", "access", "deploy"] },
 ];
 
 export default function UsersPage() {
@@ -32,7 +37,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [form, setForm] = useState({ email: "", name: "", role: "user", permissions: {} as any });
+  const [form, setForm] = useState({ email: "", name: "", role: "user", phone: "", permissions: {} as any });
 
   useEffect(() => {
     loadUsers();
@@ -46,13 +51,19 @@ export default function UsersPage() {
 
   const openNew = () => {
     setEditingUser(null);
-    setForm({ email: "", name: "", role: "user", permissions: {} });
+    setForm({ email: "", name: "", role: "user", phone: "", permissions: {} });
     setShowModal(true);
   };
 
   const openEdit = (user: User) => {
     setEditingUser(user);
-    setForm({ email: user.email, name: user.name, role: user.role, permissions: user.permissions || {} });
+    setForm({ 
+      email: user.email, 
+      name: user.name, 
+      role: user.role, 
+      phone: user.phone || "",
+      permissions: user.permissions || {} 
+    });
     setShowModal(true);
   };
 
@@ -79,22 +90,20 @@ export default function UsersPage() {
 
   const handleSave = async () => {
     if (!form.email || !form.name) return;
-    
+
+    const payload = {
+      name: form.name,
+      role: form.role,
+      phone: form.phone.replace(/\D/g, ""),
+      permissions: form.permissions
+    };
+
     if (editingUser) {
-      await supabase.from("users").update({
-        name: form.name,
-        role: form.role,
-        permissions: form.permissions
-      }).eq("id", editingUser.id);
+      await supabase.from("users").update(payload).eq("id", editingUser.id);
     } else {
-      await supabase.from("users").insert({
-        email: form.email,
-        name: form.name,
-        role: form.role,
-        permissions: form.permissions
-      });
+      await supabase.from("users").insert({ ...payload, email: form.email });
     }
-    
+
     setShowModal(false);
     loadUsers();
   };
@@ -103,6 +112,13 @@ export default function UsersPage() {
     if (!confirm("¿Eliminar este usuario?")) return;
     await supabase.from("users").delete().eq("id", id);
     loadUsers();
+  };
+
+  const formatPhone = (phone: string) => {
+    if (!phone) return "-";
+    const clean = phone.replace(/\D/g, "");
+    if (clean.length === 10) return `${clean.slice(0,3)} ${clean.slice(3,6)} ${clean.slice(6)}`;
+    return phone;
   };
 
   return (
@@ -132,6 +148,7 @@ export default function UsersPage() {
                 <tr className="border-b border-white/10 text-left text-xs uppercase text-white/50">
                   <th className="pb-3 pr-4">Nombre</th>
                   <th className="pb-3 pr-4">Email</th>
+                  <th className="pb-3 pr-4">WhatsApp</th>
                   <th className="pb-3 pr-4">Rol</th>
                   <th className="pb-3 pr-4">Módulos</th>
                   <th className="pb-3">Acciones</th>
@@ -139,12 +156,22 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {users.map((u) => {
-                  const role = ROLES.find(r => r.value === u.role) || ROLES[3];
+                  const role = ROLES.find(r => r.value === u.role) || ROLES[4];
                   const moduleCount = Object.keys(u.permissions || {}).length;
                   return (
                     <tr key={u.id} className="hover:bg-white/5">
                       <td className="py-3 pr-4 font-medium">{u.name}</td>
                       <td className="py-3 pr-4 text-white/70">{u.email}</td>
+                      <td className="py-3 pr-4 text-white/70">
+                        {u.phone ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-400">
+                            <Phone className="h-3 w-3" />
+                            {formatPhone(u.phone)}
+                          </span>
+                        ) : (
+                          <span className="text-white/30">-</span>
+                        )}
+                      </td>
                       <td className="py-3 pr-4">
                         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${role.color}`}>
                           {role.label}
@@ -171,7 +198,7 @@ export default function UsersPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="w-full max-w-lg rounded-2xl bg-slate-800 p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-2xl bg-slate-800 p-6 shadow-xl max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</h2>
               <button onClick={() => setShowModal(false)} className="rounded-full p-1 hover:bg-white/10">
@@ -202,6 +229,21 @@ export default function UsersPage() {
                 />
               </div>
               <div>
+                <label className="text-xs text-white/70">WhatsApp (10 dígitos)</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/50 text-sm">+52</span>
+                  <input
+                    type="tel"
+                    className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+                    value={form.phone}
+                    onChange={(e) => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                    placeholder="8112345678"
+                    maxLength={10}
+                  />
+                </div>
+                <p className="text-xs text-white/40 mt-1">Para notificaciones de requisiciones y autorizaciones</p>
+              </div>
+              <div>
                 <label className="text-xs text-white/70">Rol</label>
                 <select
                   className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-purple-400"
@@ -216,7 +258,7 @@ export default function UsersPage() {
 
               <div>
                 <label className="text-xs text-white/70 mb-2 block">Permisos por Módulo</label>
-                <div className="space-y-2 max-h-48 overflow-auto">
+                <div className="space-y-2 max-h-64 overflow-auto pr-2">
                   {MODULES.map(mod => (
                     <div key={mod.id} className="rounded-xl bg-black/20 p-3">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -224,19 +266,20 @@ export default function UsersPage() {
                           type="checkbox"
                           checked={!!form.permissions[mod.id]}
                           onChange={() => togglePermission(mod.id)}
-                          className="rounded"
+                          className="rounded accent-purple-500"
                         />
                         <span className="font-medium">{mod.name}</span>
+                        <span className="text-xs text-white/40">({mod.submodules.length})</span>
                       </label>
                       {form.permissions[mod.id] && (
                         <div className="ml-6 mt-2 flex flex-wrap gap-2">
                           {mod.submodules.map(sub => (
-                            <label key={sub} className="flex items-center gap-1 text-xs cursor-pointer bg-white/5 rounded px-2 py-1">
+                            <label key={sub} className="flex items-center gap-1 text-xs cursor-pointer bg-white/5 rounded px-2 py-1 hover:bg-white/10">
                               <input
                                 type="checkbox"
                                 checked={(form.permissions[mod.id] || []).includes(sub)}
                                 onChange={() => togglePermission(mod.id, sub)}
-                                className="rounded"
+                                className="rounded accent-purple-500"
                               />
                               {sub}
                             </label>
