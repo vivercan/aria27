@@ -133,10 +133,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* LOGO */}
           <div className="flex items-center gap-4 px-6 py-7 border-b border-white/[0.06]">
             <div>
-              <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-tight">
+              <h1 className="text-4xl font-black text-white tracking-tight" style={{textShadow: '0 0 20px rgba(34,211,238,0.6), 0 0 40px rgba(34,211,238,0.3)'}}>
                 ARIA
               </h1>
-              <p className="text-[10px] text-slate-500 tracking-[0.15em] font-medium mt-0.5">OPERATIONS OS</p>
+              <p className="text-[10px] text-white/90 tracking-[0.15em] font-medium mt-0.5" style={{textShadow: '0 0 10px rgba(255,255,255,0.5)'}}>INFINITY LOOP</p>
             </div>
           </div>
 
@@ -237,3 +237,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
