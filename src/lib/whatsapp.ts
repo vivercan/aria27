@@ -1,13 +1,16 @@
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 const PHONE_NUMBER_ID = "869940452874474";
-const TEST_PHONE = "528112392266";
 
-export async function sendWhatsAppTemplate(templateName: string, variables: string[]) {
+export async function sendWhatsAppTemplate(templateName: string, variables: string[], toPhone: string) {
   const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
   if (!ACCESS_TOKEN) {
     console.error("No hay WHATSAPP_ACCESS_TOKEN");
     return null;
   }
+
+  // Formatear número: agregar 52 si no lo tiene
+  let phone = toPhone.replace(/\D/g, "");
+  if (phone.length === 10) phone = "52" + phone;
 
   const components = variables.length > 0 ? [{
     type: "body",
@@ -23,7 +26,7 @@ export async function sendWhatsAppTemplate(templateName: string, variables: stri
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
-        to: TEST_PHONE,
+        to: phone,
         type: "template",
         template: {
           name: templateName,
@@ -33,7 +36,7 @@ export async function sendWhatsAppTemplate(templateName: string, variables: stri
       })
     });
     const result = await response.json();
-    console.log(`WhatsApp [${templateName}]:`, JSON.stringify(result));
+    console.log(`WhatsApp [${templateName}] -> ${phone}:`, JSON.stringify(result));
     return result;
   } catch (e) {
     console.error("WhatsApp error:", e);
@@ -41,9 +44,12 @@ export async function sendWhatsAppTemplate(templateName: string, variables: stri
   }
 }
 
-export async function sendWhatsAppText(message: string) {
+export async function sendWhatsAppText(message: string, toPhone: string) {
   const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
   if (!ACCESS_TOKEN) return null;
+
+  let phone = toPhone.replace(/\D/g, "");
+  if (phone.length === 10) phone = "52" + phone;
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`, {
@@ -54,7 +60,7 @@ export async function sendWhatsAppText(message: string) {
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
-        to: TEST_PHONE,
+        to: phone,
         type: "text",
         text: { preview_url: true, body: message }
       })
