@@ -1,72 +1,121 @@
-const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
-const PHONE_NUMBER_ID = "869940452874474";
+// src/lib/whatsapp.ts
+// ACTUALIZADO: Usa plantillas aprobadas en Meta + números temporales para pruebas
 
-export async function sendWhatsAppTemplate(templateName: string, variables: string[], toPhone: string) {
-  const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-  if (!ACCESS_TOKEN) {
-    console.error("No hay WHATSAPP_ACCESS_TOKEN");
-    return null;
-  }
+const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
 
-  let phone = toPhone.replace(/\D/g, "");
-  if (phone.length === 10) phone = "52" + phone;
+// ============================================
+// NÚMEROS DE CONTACTO - TEMPORALES PARA PRUEBAS
+// ============================================
+// Originales (guardar para después):
+// - Validador: 4951198249 (Deysi)
+// - Compras: 4495880244 (Jessica)
+// ============================================
 
-  const components = variables.length > 0 ? [{
-    type: "body",
-    parameters: variables.map(v => ({ type: "text", text: String(v) }))
-  }] : [];
+export const CONTACTS = {
+  ADMIN: "528112392266",      // JJ - Dirección (sin cambio)
+  RH: "524492788797",         // Deya - RH (sin cambio)
+  VALIDADOR: "528116069329",  // TEMPORAL: Era Deysi 4951198249
+  COMPRAS: "528112425452",    // TEMPORAL: Era Jessica 4495880244
+};
 
+// ============================================
+// FUNCIÓN PRINCIPAL EXPORTADA
+// Firma: sendWhatsAppTemplate(templateName, parameters, phone)
+// ============================================
+export async function sendWhatsAppTemplate(
+  templateName: string,
+  parameters: string[],
+  phone: string
+): Promise<boolean> {
   try {
-    const response = await fetch(`${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: phone,
-        type: "template",
-        template: {
-          name: templateName,
-          language: { code: "es_MX" },
-          components
-        }
-      })
-    });
-    const result = await response.json();
-    console.log(`WhatsApp [${templateName}] -> ${phone}:`, JSON.stringify(result));
-    return result;
-  } catch (e) {
-    console.error("WhatsApp error:", e);
-    return null;
+    // Formatear número: asegurar que tenga 52 al inicio
+    let formattedPhone = phone.replace(/\D/g, "");
+    if (formattedPhone.length === 10) {
+      formattedPhone = "52" + formattedPhone;
+    }
+
+    const components = parameters.length > 0 ? [
+      {
+        type: "body",
+        parameters: parameters.map(text => ({ type: "text", text }))
+      }
+    ] : [];
+
+    console.log(`📱 Enviando WhatsApp [${templateName}] -> ${formattedPhone}`);
+    console.log(`   Parámetros: ${JSON.stringify(parameters)}`);
+
+    const response = await fetch(
+      `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: formattedPhone,
+          type: "template",
+          template: {
+            name: templateName,
+            language: { code: "es_MX" },
+            components: components
+          }
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`❌ WhatsApp Error [${templateName}]:`, JSON.stringify(data));
+      return false;
+    }
+
+    console.log(`✅ WhatsApp OK [${templateName}] -> ${formattedPhone}`);
+    return true;
+  } catch (error) {
+    console.error("❌ WhatsApp Exception:", error);
+    return false;
   }
 }
 
-export async function sendWhatsAppText(message: string, toPhone: string) {
-  const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-  if (!ACCESS_TOKEN) return null;
-
-  let phone = toPhone.replace(/\D/g, "");
-  if (phone.length === 10) phone = "52" + phone;
-
+// ============================================
+// FUNCIÓN LEGACY (texto plano) - BACKUP
+// ============================================
+export async function sendWhatsAppMessage(to: string, message: string): Promise<boolean> {
   try {
-    const response = await fetch(`${WHATSAPP_API_URL}/${PHONE_NUMBER_ID}/messages`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: phone,
-        type: "text",
-        text: { preview_url: true, body: message }
-      })
-    });
-    return await response.json();
-  } catch (e) {
-    console.error("WhatsApp text error:", e);
-    return null;
+    let formattedPhone = to.replace(/\D/g, "");
+    if (formattedPhone.length === 10) {
+      formattedPhone = "52" + formattedPhone;
+    }
+
+    const response = await fetch(
+      `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: formattedPhone,
+          type: "text",
+          text: { body: message }
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("WhatsApp Text Error:", data);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("WhatsApp Text Exception:", error);
+    return false;
   }
 }
