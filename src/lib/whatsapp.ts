@@ -1,19 +1,16 @@
 // src/lib/whatsapp.ts
-// ACTUALIZADO: Plantillas con botones correctos
+// CORREGIDO: Botones con URL completa
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
 
-// Formatear teléfono
 function formatPhone(phone: string): string {
   let p = phone.replace(/\D/g, "");
   if (p.length === 10) p = "52" + p;
   return p;
 }
 
-// ============================================
 // 1. REQUISICIÓN CREADA (sin botones)
-// ============================================
 export async function sendRequisicionCreada(
   phone: string, folio: string, solicitante: string, obra: string, fecha: string
 ): Promise<boolean> {
@@ -47,14 +44,12 @@ export async function sendRequisicionCreada(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// ============================================
 // 2. REQUISICIÓN VALIDAR (con 2 botones URL)
-// ============================================
 export async function sendRequisicionValidar(
   phone: string, folio: string, solicitante: string, obra: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    const baseUrl = "https://aria.jjcrm27.com/api/requisicion/validate";
+    const linkValidar = `https://aria.jjcrm27.com/api/requisicion/validate?token=${token}&action=APROBADA`;
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -73,11 +68,11 @@ export async function sendRequisicionValidar(
                 { type: "text", text: solicitante },
                 { type: "text", text: obra },
                 { type: "text", text: urgencia },
-                { type: "text", text: `${baseUrl}?token=${token}` }
+                { type: "text", text: linkValidar }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `${token}&action=APROBADA` }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `${token}&action=RECHAZADA` }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `token=${token}&action=APROBADA` }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `token=${token}&action=RECHAZADA` }] }
           ]
         }
       }),
@@ -89,9 +84,7 @@ export async function sendRequisicionValidar(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// ============================================
 // 3. REQUISICIÓN COMPRAS (sin botones)
-// ============================================
 export async function sendRequisicionCompras(
   phone: string, folio: string, obra: string, urgencia: string
 ): Promise<boolean> {
@@ -124,14 +117,12 @@ export async function sendRequisicionCompras(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// ============================================
 // 4. COMPRA AUTORIZAR (con 2 botones URL)
-// ============================================
 export async function sendCompraAutorizar(
   phone: string, folio: string, obra: string, total: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    const baseUrl = "https://aria.jjcrm27.com/api/requisicion/approve-purchase";
+    const linkAutorizar = `https://aria.jjcrm27.com/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -150,11 +141,11 @@ export async function sendCompraAutorizar(
                 { type: "text", text: obra },
                 { type: "text", text: total },
                 { type: "text", text: urgencia },
-                { type: "text", text: `${baseUrl}?token=${token}` }
+                { type: "text", text: linkAutorizar }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `${token}&action=AUTORIZAR` }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `${token}&action=RECHAZAR` }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `token=${token}&action=AUTORIZAR` }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `token=${token}&action=RECHAZAR` }] }
           ]
         }
       }),
@@ -166,9 +157,7 @@ export async function sendCompraAutorizar(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// ============================================
 // 5. OC GENERADA (sin botones)
-// ============================================
 export async function sendOCGenerada(
   phone: string, requisicion: string, oc: string, obra: string, total: string, urgencia: string
 ): Promise<boolean> {
@@ -203,9 +192,7 @@ export async function sendOCGenerada(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// ============================================
 // LEGACY - Para compatibilidad
-// ============================================
 export async function sendWhatsAppTemplate(
   templateName: string, parameters: string[], phone: string
 ): Promise<boolean> {
