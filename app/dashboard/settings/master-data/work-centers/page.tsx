@@ -1,205 +1,204 @@
-﻿"use client";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { MapPin, Plus, Trash2, Edit, Save, X, Building2 } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-interface CentroTrabajo {
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase-browser";
+
+interface WorkCenter {
   id: string;
-  codigo: string;
-  nombre: string;
-  direccion: string;
-  latitud: number;
-  longitud: number;
-  radio_metros: number;
-  activo: boolean;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  radius_meters: number;
+  created_at: string;
 }
 
 export default function WorkCentersPage() {
-  const [centros, setCentros] = useState<CentroTrabajo[]>([]);
+  const [centers, setCenters] = useState<WorkCenter[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    codigo: "",
-    nombre: "",
-    direccion: "",
-    latitud: "",
-    longitud: "",
-    radio_metros: "100"
-  });
+  const [form, setForm] = useState({ name: "", address: "", latitude: "", longitude: "", radius_meters: "1000" });
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  useEffect(() => { fetchCentros(); }, []);
+  const supabase = createClient();
 
-  async function fetchCentros() {
-    const { data } = await supabase.from("centros_trabajo").select("*").order("codigo", { ascending: true });
-    if (data) setCentros(data);
+  useEffect(() => { loadCenters(); }, []);
+
+  async function loadCenters() {
+    setLoading(true);
+    const { data } = await supabase.from("work_centers").select("*").order("name");
+    setCenters(data || []);
     setLoading(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const payload = {
-      codigo: form.codigo.toUpperCase(),
-      nombre: form.nombre,
-      direccion: form.direccion,
-      latitud: parseFloat(form.latitud),
-      longitud: parseFloat(form.longitud),
-      radio_metros: parseInt(form.radio_metros),
-      activo: true
-    };
-    if (editingId) {
-      await supabase.from("centros_trabajo").update(payload).eq("id", editingId);
-    } else {
-      await supabase.from("centros_trabajo").insert(payload);
-    }
-    setForm({ codigo: "", nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
-    setShowForm(false);
+  function openNew() {
+    setForm({ name: "", address: "", latitude: "", longitude: "", radius_meters: "1000" });
     setEditingId(null);
-    fetchCentros();
+    setShowModal(true);
   }
 
-  function handleEdit(centro: CentroTrabajo) {
+  function openEdit(center: WorkCenter) {
     setForm({
-      codigo: centro.codigo,
-      nombre: centro.nombre,
-      direccion: centro.direccion || "",
-      latitud: centro.latitud.toString(),
-      longitud: centro.longitud.toString(),
-      radio_metros: centro.radio_metros.toString()
+      name: center.name,
+      address: center.address || "",
+      latitude: center.latitude.toString(),
+      longitude: center.longitude.toString(),
+      radius_meters: center.radius_meters.toString()
     });
-    setEditingId(centro.id);
-    setShowForm(true);
+    setEditingId(center.id);
+    setShowModal(true);
+  }
+
+  async function handleSave() {
+    if (!form.name || !form.latitude || !form.longitude) {
+      alert("Nombre y coordenadas son requeridos");
+      return;
+    }
+
+    const data = {
+      name: form.name,
+      address: form.address,
+      latitude: parseFloat(form.latitude),
+      longitude: parseFloat(form.longitude),
+      radius_meters: parseInt(form.radius_meters) || 1000
+    };
+
+    if (editingId) {
+      await supabase.from("work_centers").update(data).eq("id", editingId);
+    } else {
+      await supabase.from("work_centers").insert(data);
+    }
+
+    setShowModal(false);
+    loadCenters();
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Eliminar este centro?")) {
-      await supabase.from("centros_trabajo").delete().eq("id", id);
-      fetchCentros();
+    setDeleting(true);
+    await supabase.from("work_centers").delete().eq("id", id);
+    setConfirmDelete(null);
+    setDeleting(false);
+    loadCenters();
+  }
+
+  function parseCoordinates(text: string) {
+    // Detectar formato "21.8818, -102.2916" de Google Maps
+    const match = text.match(/([-]?\d+\.?\d*)\s*,\s*([-]?\d+\.?\d*)/);
+    if (match) {
+      setForm({ ...form, latitude: match[1], longitude: match[2] });
     }
   }
 
-  async function handleToggleActive(id: string, activo: boolean) {
-    await supabase.from("centros_trabajo").update({ activo: !activo }).eq("id", id);
-    fetchCentros();
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-[400px]"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div></div>;
   }
 
-  const openForm = () => {
-    setShowForm(true);
-    setEditingId(null);
-    setForm({ codigo: "", nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
-  };
-
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingId(null);
-  };
-
-  const getMapUrl = (lat: number, lng: number) => {
-    return "https://www.google.com/maps?q=" + lat + "," + lng;
-  };
-
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex items-center gap-2 text-sm text-slate-400">
-        <Link href="/dashboard/settings/master-data" className="hover:text-white">Master Data</Link>
-        <span>/</span>
-        <span className="text-white">Centros de Trabajo</span>
-      </div>
-
-      <div className="flex justify-between items-center">
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Building2 className="text-blue-400" />
-            Centros de Trabajo
-          </h1>
-          <p className="text-slate-400 text-sm">{centros.length} obras registradas</p>
+          <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
+          <p className="text-slate-400 text-sm">Configura las ubicaciones y geocercas para asistencia</p>
         </div>
-        <button onClick={openForm} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">
-          <Plus size={16} /> Nuevo Centro
+        <button onClick={openNew} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-all">
+          + Agregar Centro
         </button>
       </div>
 
-      {showForm && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-          <h2 className="text-lg font-semibold text-white mb-4">{editingId ? "Editar Centro" : "Nuevo Centro"}</h2>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Codigo *</label>
-              <input type="text" value={form.codigo} onChange={(e) => setForm({ ...form, codigo: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="OBRA-001" required />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Nombre *</label>
-              <input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="Nombre obra" required />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Direccion</label>
-              <input type="text" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="Calle, numero..." />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Latitud *</label>
-              <input type="text" value={form.latitud} onChange={(e) => setForm({ ...form, latitud: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="25.6866142" required />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Longitud *</label>
-              <input type="text" value={form.longitud} onChange={(e) => setForm({ ...form, longitud: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="-100.3161126" required />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-1">Radio (metros)</label>
-              <input type="number" value={form.radio_metros} onChange={(e) => setForm({ ...form, radio_metros: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="100" />
-            </div>
-            <div className="md:col-span-2 lg:col-span-3 flex gap-2 justify-end mt-2">
-              <button type="button" onClick={closeForm} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
-              <button type="submit" className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg">
-                <Save size={16} /> {editingId ? "Actualizar" : "Guardar"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold">
-            <tr>
-              <th className="px-6 py-4">Codigo</th>
-              <th className="px-6 py-4">Nombre</th>
-              <th className="px-6 py-4">Ubicacion</th>
-              <th className="px-6 py-4">Radio</th>
-              <th className="px-6 py-4">Estatus</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
+      <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-slate-900/50 text-slate-400 text-sm">
+              <th className="p-4 text-left">Nombre</th>
+              <th className="p-4 text-left">Dirección</th>
+              <th className="p-4 text-left">Coordenadas</th>
+              <th className="p-4 text-left">Radio (m)</th>
+              <th className="p-4 text-left">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
-            {loading ? (
-              <tr><td colSpan={6} className="px-6 py-8 text-center">Cargando...</td></tr>
-            ) : centros.length === 0 ? (
-              <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-500">No hay centros</td></tr>
-            ) : centros.map((centro) => (
-              <tr key={centro.id} className="hover:bg-white/5">
-                <td className="px-6 py-4 text-blue-300 font-mono">{centro.codigo}</td>
-                <td className="px-6 py-4 text-white">{centro.nombre}</td>
-                <td className="px-6 py-4">
-                  <Link href={getMapUrl(centro.latitud, centro.longitud)} target="_blank" className="flex items-center gap-1 text-emerald-400 hover:underline">
-                    <MapPin size={14} />
-                    {centro.latitud.toFixed(4)}, {centro.longitud.toFixed(4)}
-                  </Link>
-                </td>
-                <td className="px-6 py-4">{centro.radio_metros}m</td>
-                <td className="px-6 py-4">
-                  <button onClick={() => handleToggleActive(centro.id, centro.activo)} className={centro.activo ? "px-2 py-1 rounded text-xs bg-emerald-500/20 text-emerald-400" : "px-2 py-1 rounded text-xs bg-rose-500/20 text-rose-400"}>
-                    {centro.activo ? "Activo" : "Inactivo"}
-                  </button>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button onClick={() => handleEdit(centro)} className="p-2 hover:bg-white/10 rounded-lg text-blue-400"><Edit size={16} /></button>
-                  <button onClick={() => handleDelete(centro.id)} className="p-2 hover:bg-white/10 rounded-lg text-rose-400"><Trash2 size={16} /></button>
+          <tbody>
+            {centers.map((c) => (
+              <tr key={c.id} className="border-t border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+                <td className="p-4 text-white font-medium">{c.name}</td>
+                <td className="p-4 text-slate-300">{c.address || "-"}</td>
+                <td className="p-4 text-slate-300 font-mono text-sm">{c.latitude}, {c.longitude}</td>
+                <td className="p-4 text-slate-300">{c.radius_meters}m</td>
+                <td className="p-4 flex gap-2">
+                  <button onClick={() => openEdit(c)} className="p-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-all" title="Editar">✏️</button>
+                  <button onClick={() => setConfirmDelete(c.id)} className="p-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-all" title="Eliminar">🗑️</button>
+                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" className="p-2 bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white rounded-lg transition-all" title="Ver en Maps">🗺️</a>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {centers.length === 0 && <div className="p-8 text-center text-slate-400">No hay centros de trabajo configurados</div>}
       </div>
+
+      {/* Modal Agregar/Editar */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-xl p-6 max-w-lg w-full mx-4 border border-slate-700">
+            <h2 className="text-xl font-bold text-white mb-4">{editingId ? "Editar" : "Agregar"} Centro de Trabajo</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-slate-400 text-sm mb-1">Nombre *</label>
+                <input type="text" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Oficina Central" />
+              </div>
+              
+              <div>
+                <label className="block text-slate-400 text-sm mb-1">Dirección</label>
+                <input type="text" value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Av. Principal #123, Col. Centro" />
+              </div>
+
+              <div>
+                <label className="block text-slate-400 text-sm mb-1">Pegar coordenadas de Google Maps</label>
+                <input type="text" onChange={(e) => parseCoordinates(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-500 rounded-lg text-white" placeholder="21.8818, -102.2916" />
+                <p className="text-xs text-slate-500 mt-1">Clic derecho en Google Maps → Copiar coordenadas</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-400 text-sm mb-1">Latitud *</label>
+                  <input type="text" value={form.latitude} onChange={(e) => setForm({...form, latitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="21.8818" />
+                </div>
+                <div>
+                  <label className="block text-slate-400 text-sm mb-1">Longitud *</label>
+                  <input type="text" value={form.longitude} onChange={(e) => setForm({...form, longitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="-102.2916" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 text-sm mb-1">Radio de geocerca (metros)</label>
+                <input type="number" value={form.radius_meters} onChange={(e) => setForm({...form, radius_meters: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="1000" />
+                <p className="text-xs text-slate-500 mt-1">1000m = 1km de radio</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
+              <button onClick={handleSave} className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg">Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmar Eliminar */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-xl p-6 max-w-sm w-full mx-4 border border-slate-700">
+            <h2 className="text-xl font-bold text-white mb-4">¿Eliminar centro?</h2>
+            <p className="text-slate-300 mb-6">Los empleados asignados quedarán sin centro de trabajo.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
+              <button onClick={() => handleDelete(confirmDelete)} disabled={deleting} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">{deleting ? "..." : "Eliminar"}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
