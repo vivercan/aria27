@@ -1,5 +1,5 @@
 // src/lib/whatsapp.ts
-// CORREGIDO: Botones con URL completa
+// CORREGIDO: Botones solo envían el token, no la URL completa
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
@@ -49,7 +49,6 @@ export async function sendRequisicionValidar(
   phone: string, folio: string, solicitante: string, obra: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    const linkValidar = `https://aria.jjcrm27.com/api/requisicion/validate?token=${token}&action=APROBADA`;
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -68,11 +67,11 @@ export async function sendRequisicionValidar(
                 { type: "text", text: solicitante },
                 { type: "text", text: obra },
                 { type: "text", text: urgencia },
-                { type: "text", text: linkValidar }
+                { type: "text", text: token }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `token=${token}&action=APROBADA` }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `token=${token}&action=RECHAZADA` }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: token }] }
           ]
         }
       }),
@@ -122,7 +121,6 @@ export async function sendCompraAutorizar(
   phone: string, folio: string, obra: string, total: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    const linkAutorizar = `https://aria.jjcrm27.com/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -141,11 +139,11 @@ export async function sendCompraAutorizar(
                 { type: "text", text: obra },
                 { type: "text", text: total },
                 { type: "text", text: urgencia },
-                { type: "text", text: linkAutorizar }
+                { type: "text", text: token }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `token=${token}&action=AUTORIZAR` }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: `token=${token}&action=RECHAZAR` }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: token }] }
           ]
         }
       }),
