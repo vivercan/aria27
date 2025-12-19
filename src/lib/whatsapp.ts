@@ -1,5 +1,5 @@
 // src/lib/whatsapp.ts
-// CORREGIDO: Botones solo envían el token, no la URL completa
+// CORREGIDO: El parámetro del botón es la ruta completa
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
@@ -49,6 +49,10 @@ export async function sendRequisicionValidar(
   phone: string, folio: string, solicitante: string, obra: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
+    // URLs completas para los botones (solo la parte después del dominio)
+    const urlValidar = `/api/requisicion/validate?token=${token}&action=APROBADA`;
+    const urlRechazar = `/api/requisicion/validate?token=${token}&action=RECHAZADA`;
+    
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -67,11 +71,11 @@ export async function sendRequisicionValidar(
                 { type: "text", text: solicitante },
                 { type: "text", text: obra },
                 { type: "text", text: urgencia },
-                { type: "text", text: token }
+                { type: "text", text: `https://aria.jjcrm27.com${urlValidar}` }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: token }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: urlValidar }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: urlRechazar }] }
           ]
         }
       }),
@@ -121,6 +125,9 @@ export async function sendCompraAutorizar(
   phone: string, folio: string, obra: string, total: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
+    const urlAutorizar = `/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
+    const urlRechazar = `/api/requisicion/approve-purchase?token=${token}&action=RECHAZAR`;
+    
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
@@ -139,11 +146,11 @@ export async function sendCompraAutorizar(
                 { type: "text", text: obra },
                 { type: "text", text: total },
                 { type: "text", text: urgencia },
-                { type: "text", text: token }
+                { type: "text", text: `https://aria.jjcrm27.com${urlAutorizar}` }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: token }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: urlAutorizar }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: urlRechazar }] }
           ]
         }
       }),
@@ -190,7 +197,7 @@ export async function sendOCGenerada(
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
-// LEGACY - Para compatibilidad
+// LEGACY
 export async function sendWhatsAppTemplate(
   templateName: string, parameters: string[], phone: string
 ): Promise<boolean> {
@@ -209,6 +216,5 @@ export async function sendWhatsAppTemplate(
   if (templateName === "oc_generada") {
     return sendOCGenerada(phone, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
   }
-  console.error("Plantilla no reconocida:", templateName);
   return false;
 }
