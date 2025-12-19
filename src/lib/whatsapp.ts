@@ -1,5 +1,5 @@
 // src/lib/whatsapp.ts
-// CORREGIDO: El parámetro del botón es la ruta completa
+// ADAPTADO A LA PLANTILLA ACTUAL DE META
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
@@ -39,19 +39,19 @@ export async function sendRequisicionCreada(
     });
     const data = await response.json();
     if (!response.ok) { console.error("WA requisicion_creada ERROR:", data); return false; }
-    console.log("WA requisicion_creada OK ->", phone);
     return true;
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
 
 // 2. REQUISICIÓN VALIDAR (con 2 botones URL)
+// La plantilla en Meta tiene URL base: https://aria.jjcrm27.com y {{1}} se concatena
+// Entonces {{1}} debe ser: /api/requisicion/validate?token=XXX&action=APROBADA
 export async function sendRequisicionValidar(
   phone: string, folio: string, solicitante: string, obra: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    // URLs completas para los botones (solo la parte después del dominio)
-    const urlValidar = `/api/requisicion/validate?token=${token}&action=APROBADA`;
-    const urlRechazar = `/api/requisicion/validate?token=${token}&action=RECHAZADA`;
+    const pathValidar = `/api/requisicion/validate?token=${token}&action=APROBADA`;
+    const pathRechazar = `/api/requisicion/validate?token=${token}&action=RECHAZADA`;
     
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
@@ -71,18 +71,17 @@ export async function sendRequisicionValidar(
                 { type: "text", text: solicitante },
                 { type: "text", text: obra },
                 { type: "text", text: urgencia },
-                { type: "text", text: `https://aria.jjcrm27.com${urlValidar}` }
+                { type: "text", text: `https://aria.jjcrm27.com${pathValidar}` }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: urlValidar }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: urlRechazar }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: pathValidar }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: pathRechazar }] }
           ]
         }
       }),
     });
     const data = await response.json();
     if (!response.ok) { console.error("WA requisicion_validar ERROR:", data); return false; }
-    console.log("WA requisicion_validar OK ->", phone);
     return true;
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
@@ -115,7 +114,6 @@ export async function sendRequisicionCompras(
     });
     const data = await response.json();
     if (!response.ok) { console.error("WA requisicion_compras ERROR:", data); return false; }
-    console.log("WA requisicion_compras OK ->", phone);
     return true;
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
@@ -125,8 +123,8 @@ export async function sendCompraAutorizar(
   phone: string, folio: string, obra: string, total: string, urgencia: string, token: string
 ): Promise<boolean> {
   try {
-    const urlAutorizar = `/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
-    const urlRechazar = `/api/requisicion/approve-purchase?token=${token}&action=RECHAZAR`;
+    const pathAutorizar = `/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
+    const pathRechazar = `/api/requisicion/approve-purchase?token=${token}&action=RECHAZAR`;
     
     const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
@@ -146,18 +144,17 @@ export async function sendCompraAutorizar(
                 { type: "text", text: obra },
                 { type: "text", text: total },
                 { type: "text", text: urgencia },
-                { type: "text", text: `https://aria.jjcrm27.com${urlAutorizar}` }
+                { type: "text", text: `https://aria.jjcrm27.com${pathAutorizar}` }
               ]
             },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: urlAutorizar }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: urlRechazar }] }
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: pathAutorizar }] },
+            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: pathRechazar }] }
           ]
         }
       }),
     });
     const data = await response.json();
     if (!response.ok) { console.error("WA compra_autorizar ERROR:", data); return false; }
-    console.log("WA compra_autorizar OK ->", phone);
     return true;
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
@@ -192,7 +189,6 @@ export async function sendOCGenerada(
     });
     const data = await response.json();
     if (!response.ok) { console.error("WA oc_generada ERROR:", data); return false; }
-    console.log("WA oc_generada OK ->", phone);
     return true;
   } catch (e) { console.error("WA Exception:", e); return false; }
 }
