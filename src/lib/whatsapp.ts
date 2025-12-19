@@ -1,5 +1,5 @@
 // src/lib/whatsapp.ts
-// TEMPORAL: Usa requisicion_creada mientras se aprueba requisicion_validar
+// CON LINKS DIRECTOS EN EL TEXTO
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
@@ -10,176 +10,118 @@ function formatPhone(phone: string): string {
   return p;
 }
 
-// 1. REQUISICIÓN CREADA (sin botones) - APPROVED
+// Enviar mensaje de texto simple con links
+async function sendTextMessage(phone: string, message: string): Promise<boolean> {
+  try {
+    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: formatPhone(phone),
+        type: "text",
+        text: { body: message }
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) { console.error("WA text ERROR:", data); return false; }
+    return true;
+  } catch (e) { console.error("WA Exception:", e); return false; }
+}
+
+// 1. REQUISICIÓN CREADA
 export async function sendRequisicionCreada(
   phone: string, folio: string, solicitante: string, obra: string, fecha: string
 ): Promise<boolean> {
-  try {
-    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: formatPhone(phone),
-        type: "template",
-        template: {
-          name: "requisicion_creada",
-          language: { code: "es_MX" },
-          components: [{
-            type: "body",
-            parameters: [
-              { type: "text", text: folio },
-              { type: "text", text: solicitante },
-              { type: "text", text: obra },
-              { type: "text", text: fecha }
-            ]
-          }]
-        }
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("WA requisicion_creada ERROR:", data); return false; }
-    return true;
-  } catch (e) { console.error("WA Exception:", e); return false; }
+  const msg = `*REQUISICIÓN CREADA*
+
+*Folio:* ${folio}
+*Solicitó:* ${solicitante}
+*Obra:* ${obra}
+*Fecha:* ${fecha}
+
+_ARIA27 ERP - Grupo Cuavante_`;
+  return sendTextMessage(phone, msg);
 }
 
-// 2. REQUISICIÓN VALIDAR - TEMPORAL usa requisicion_creada hasta que se apruebe
+// 2. REQUISICIÓN VALIDAR - CON LINKS
 export async function sendRequisicionValidar(
   phone: string, folio: string, solicitante: string, obra: string, urgencia: string, token: string
 ): Promise<boolean> {
-  // TEMPORAL: Usar requisicion_creada mientras requisicion_validar está PENDING
-  // TODO: Cambiar a requisicion_validar cuando Meta la apruebe
-  try {
-    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: formatPhone(phone),
-        type: "template",
-        template: {
-          name: "requisicion_creada",
-          language: { code: "es_MX" },
-          components: [{
-            type: "body",
-            parameters: [
-              { type: "text", text: folio },
-              { type: "text", text: solicitante },
-              { type: "text", text: obra },
-              { type: "text", text: urgencia }
-            ]
-          }]
-        }
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("WA requisicion_validar ERROR:", data); return false; }
-    return true;
-  } catch (e) { console.error("WA Exception:", e); return false; }
+  const linkValidar = `https://aria.jjcrm27.com/api/requisicion/validate?token=${token}&action=APROBADA`;
+  const linkRechazar = `https://aria.jjcrm27.com/api/requisicion/validate?token=${token}&action=RECHAZADA`;
+  
+  const msg = `*REQUISICIÓN PENDIENTE DE VALIDAR*
+
+*Folio:* ${folio}
+*Solicitó:* ${solicitante}
+*Obra:* ${obra}
+*Urgencia:* ${urgencia}
+
+✅ *VALIDAR:*
+${linkValidar}
+
+❌ *RECHAZAR:*
+${linkRechazar}
+
+_ARIA27 ERP - Grupo Cuavante_`;
+  return sendTextMessage(phone, msg);
 }
 
-// 3. REQUISICIÓN COMPRAS - APPROVED
+// 3. REQUISICIÓN COMPRAS
 export async function sendRequisicionCompras(
   phone: string, folio: string, obra: string, urgencia: string
 ): Promise<boolean> {
-  try {
-    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: formatPhone(phone),
-        type: "template",
-        template: {
-          name: "requisicion_compras",
-          language: { code: "es_MX" },
-          components: [{
-            type: "body",
-            parameters: [
-              { type: "text", text: folio },
-              { type: "text", text: obra },
-              { type: "text", text: urgencia }
-            ]
-          }]
-        }
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("WA requisicion_compras ERROR:", data); return false; }
-    return true;
-  } catch (e) { console.error("WA Exception:", e); return false; }
+  const msg = `*REQUISICIÓN PARA COMPRAS*
+
+*Folio:* ${folio}
+*Obra:* ${obra}
+*Urgencia:* ${urgencia}
+
+Se requiere cotización y gestión de compra.
+
+_ARIA27 ERP - Grupo Cuavante_`;
+  return sendTextMessage(phone, msg);
 }
 
-// 4. COMPRA AUTORIZAR - APPROVED
+// 4. COMPRA AUTORIZAR - CON LINKS
 export async function sendCompraAutorizar(
   phone: string, folio: string, obra: string, total: string, urgencia: string, token: string
 ): Promise<boolean> {
-  try {
-    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: formatPhone(phone),
-        type: "template",
-        template: {
-          name: "compra_autorizar",
-          language: { code: "es_MX" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: folio },
-                { type: "text", text: obra },
-                { type: "text", text: total },
-                { type: "text", text: urgencia },
-                { type: "text", text: token }
-              ]
-            },
-            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] },
-            { type: "button", sub_type: "url", index: "1", parameters: [{ type: "text", text: token }] }
-          ]
-        }
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("WA compra_autorizar ERROR:", data); return false; }
-    return true;
-  } catch (e) { console.error("WA Exception:", e); return false; }
+  const linkAutorizar = `https://aria.jjcrm27.com/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
+  const linkRechazar = `https://aria.jjcrm27.com/api/requisicion/approve-purchase?token=${token}&action=RECHAZAR`;
+  
+  const msg = `*COMPRA PENDIENTE DE AUTORIZAR*
+
+*Folio:* ${folio}
+*Obra:* ${obra}
+*Total:* ${total}
+*Urgencia:* ${urgencia}
+
+✅ *AUTORIZAR:*
+${linkAutorizar}
+
+❌ *RECHAZAR:*
+${linkRechazar}
+
+_ARIA27 ERP - Grupo Cuavante_`;
+  return sendTextMessage(phone, msg);
 }
 
-// 5. OC GENERADA - APPROVED
+// 5. OC GENERADA
 export async function sendOCGenerada(
   phone: string, requisicion: string, oc: string, obra: string, total: string, urgencia: string
 ): Promise<boolean> {
-  try {
-    const response = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: formatPhone(phone),
-        type: "template",
-        template: {
-          name: "oc_generada",
-          language: { code: "es_MX" },
-          components: [{
-            type: "body",
-            parameters: [
-              { type: "text", text: requisicion },
-              { type: "text", text: oc },
-              { type: "text", text: obra },
-              { type: "text", text: total },
-              { type: "text", text: urgencia }
-            ]
-          }]
-        }
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) { console.error("WA oc_generada ERROR:", data); return false; }
-    return true;
-  } catch (e) { console.error("WA Exception:", e); return false; }
+  const msg = `*ORDEN DE COMPRA GENERADA*
+
+*Requisición:* ${requisicion}
+*OC:* ${oc}
+*Obra:* ${obra}
+*Total:* ${total}
+*Urgencia:* ${urgencia}
+
+_ARIA27 ERP - Grupo Cuavante_`;
+  return sendTextMessage(phone, msg);
 }
 
 // LEGACY
