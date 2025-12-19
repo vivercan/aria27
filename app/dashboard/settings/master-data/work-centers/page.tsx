@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase-browser";
+import { createBrowserClient } from "@supabase/ssr";
 
 interface WorkCenter {
   id: string;
@@ -19,16 +19,19 @@ export default function WorkCentersPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", address: "", latitude: "", longitude: "", radius_meters: "1000" });
-  const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const supabase = createClient();
+  const supabase = createBrowserClient(
+    "https://yhylkvpynzyorqortbkk.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo"
+  );
 
   useEffect(() => { loadCenters(); }, []);
 
   async function loadCenters() {
     setLoading(true);
-    const { data } = await supabase.from("work_centers").select("*").order("name");
+    const { data, error } = await supabase.from("work_centers").select("*").order("name");
+    console.log("Work centers:", data, error);
     setCenters(data || []);
     setLoading(false);
   }
@@ -76,15 +79,12 @@ export default function WorkCentersPage() {
   }
 
   async function handleDelete(id: string) {
-    setDeleting(true);
     await supabase.from("work_centers").delete().eq("id", id);
     setConfirmDelete(null);
-    setDeleting(false);
     loadCenters();
   }
 
   function parseCoordinates(text: string) {
-    // Detectar formato "21.8818, -102.2916" de Google Maps
     const match = text.match(/([-]?\d+\.?\d*)\s*,\s*([-]?\d+\.?\d*)/);
     if (match) {
       setForm({ ...form, latitude: match[1], longitude: match[2] });
@@ -112,7 +112,7 @@ export default function WorkCentersPage() {
           <thead>
             <tr className="bg-slate-900/50 text-slate-400 text-sm">
               <th className="p-4 text-left">Nombre</th>
-              <th className="p-4 text-left">Dirección</th>
+              <th className="p-4 text-left">Direccion</th>
               <th className="p-4 text-left">Coordenadas</th>
               <th className="p-4 text-left">Radio (m)</th>
               <th className="p-4 text-left">Acciones</th>
@@ -137,47 +137,39 @@ export default function WorkCentersPage() {
         {centers.length === 0 && <div className="p-8 text-center text-slate-400">No hay centros de trabajo configurados</div>}
       </div>
 
-      {/* Modal Agregar/Editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl p-6 max-w-lg w-full mx-4 border border-slate-700">
             <h2 className="text-xl font-bold text-white mb-4">{editingId ? "Editar" : "Agregar"} Centro de Trabajo</h2>
-            
             <div className="space-y-4">
               <div>
                 <label className="block text-slate-400 text-sm mb-1">Nombre *</label>
                 <input type="text" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Oficina Central" />
               </div>
-              
               <div>
-                <label className="block text-slate-400 text-sm mb-1">Dirección</label>
-                <input type="text" value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Av. Principal #123, Col. Centro" />
+                <label className="block text-slate-400 text-sm mb-1">Direccion</label>
+                <input type="text" value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Av. Principal #123" />
               </div>
-
               <div>
                 <label className="block text-slate-400 text-sm mb-1">Pegar coordenadas de Google Maps</label>
-                <input type="text" onChange={(e) => parseCoordinates(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-500 rounded-lg text-white" placeholder="21.8818, -102.2916" />
-                <p className="text-xs text-slate-500 mt-1">Clic derecho en Google Maps → Copiar coordenadas</p>
+                <input type="text" onChange={(e) => parseCoordinates(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-cyan-500 rounded-lg text-white" placeholder="21.8818, -102.2916" />
+                <p className="text-xs text-cyan-400 mt-1">Clic derecho en Google Maps → Copiar coordenadas</p>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-slate-400 text-sm mb-1">Latitud *</label>
-                  <input type="text" value={form.latitude} onChange={(e) => setForm({...form, latitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="21.8818" />
+                  <input type="text" value={form.latitude} onChange={(e) => setForm({...form, latitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
                 </div>
                 <div>
                   <label className="block text-slate-400 text-sm mb-1">Longitud *</label>
-                  <input type="text" value={form.longitude} onChange={(e) => setForm({...form, longitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="-102.2916" />
+                  <input type="text" value={form.longitude} onChange={(e) => setForm({...form, longitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
                 </div>
               </div>
-
               <div>
                 <label className="block text-slate-400 text-sm mb-1">Radio de geocerca (metros)</label>
-                <input type="number" value={form.radius_meters} onChange={(e) => setForm({...form, radius_meters: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="1000" />
-                <p className="text-xs text-slate-500 mt-1">1000m = 1km de radio</p>
+                <input type="number" value={form.radius_meters} onChange={(e) => setForm({...form, radius_meters: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
               <button onClick={handleSave} className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg">Guardar</button>
@@ -186,15 +178,14 @@ export default function WorkCentersPage() {
         </div>
       )}
 
-      {/* Modal Confirmar Eliminar */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl p-6 max-w-sm w-full mx-4 border border-slate-700">
-            <h2 className="text-xl font-bold text-white mb-4">¿Eliminar centro?</h2>
-            <p className="text-slate-300 mb-6">Los empleados asignados quedarán sin centro de trabajo.</p>
+            <h2 className="text-xl font-bold text-white mb-4">Eliminar centro?</h2>
+            <p className="text-slate-300 mb-6">Los empleados asignados quedaran sin centro.</p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
-              <button onClick={() => handleDelete(confirmDelete)} disabled={deleting} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">{deleting ? "..." : "Eliminar"}</button>
+              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Eliminar</button>
             </div>
           </div>
         </div>
