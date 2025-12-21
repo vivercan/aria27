@@ -1,7 +1,7 @@
 "use client";
 
 import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
-import { Shield, Bell, Sliders, Database, Mail, Clock, Rocket } from "lucide-react";
+import { Shield, Bell, Sliders, Database, Mail, Clock } from "lucide-react";
 
 const modules = [
   { title: "Access Control", description: "Permisos y roles.", icon: Shield, href: "/dashboard/settings/access", color: "from-purple-500 to-purple-600", glowColor: "rgba(168,85,247,0.3)", meta: "Seguridad" },
@@ -10,7 +10,6 @@ const modules = [
   { title: "Master Data", description: "Catálogos maestros.", icon: Database, href: "/dashboard/settings/master-data", color: "from-emerald-500 to-emerald-600", glowColor: "rgba(52,211,153,0.3)" },
   { title: "Mail Config", description: "Configuración de correo.", icon: Mail, href: "/dashboard/settings/mail", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)", badge: "Resend", badgeColor: "bg-rose-500/20 text-rose-400 border-rose-500/30" },
   { title: "Reminders", description: "Recordatorios automáticos.", icon: Clock, href: "/dashboard/settings/reminders", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.3)" },
-  { title: "Deploy", description: "Estado del sistema.", icon: Rocket, href: "/dashboard/settings/deploy", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)", badge: "Prod", badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
 ];
 
 export default function SettingsPage() {
