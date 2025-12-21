@@ -92,6 +92,7 @@ export default function UsersPage() {
     if (!form.email || !form.name) return;
 
     const payload = {
+      email: form.email,
       name: form.name,
       role: form.role,
       phone: form.phone.replace(/\D/g, ""),
@@ -214,7 +215,6 @@ export default function UsersPage() {
                   className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-purple-400"
                   value={form.email}
                   onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                  disabled={!!editingUser}
                   placeholder="correo@gcuavante.com"
                 />
               </div>
