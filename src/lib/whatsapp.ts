@@ -2,7 +2,7 @@
 // USANDO PLANTILLAS APROBADAS EN META WHATSAPP BUSINESS
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "963627606824867";
 
 function formatPhone(phone: string): string {
   let p = phone.replace(/\D/g, "");
