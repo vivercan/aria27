@@ -21,7 +21,7 @@ function formatPhone(phone: string): string {
   }
 
   // Si viene solo con 10 dígitos, asumimos MX y agregamos 52
-  if (p.length === 10) p = "52" + p;
+  if (p.length === 10) p = "521" + p;
 
   return p;
 }
