@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "963627606824867";
 const VERIFY_TOKEN = "aria27_webhook_token";
 
 // Calcular distancia entre 2 puntos (Haversine)
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000; // metros
+  const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -19,19 +19,23 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
 
 // Enviar mensaje de texto por WhatsApp
 async function sendWhatsApp(phone: string, message: string) {
-  await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to: phone,
-      type: "text",
-      text: { body: message }
-    })
-  });
+  try {
+    await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: phone,
+        type: "text",
+        text: { body: message }
+      })
+    });
+  } catch (e) {
+    console.error("Error enviando WhatsApp:", e);
+  }
 }
 
-// GET - Verificación del webhook
+// GET - Verificacion del webhook
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get("hub.mode");
@@ -49,7 +53,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
     const entry = body.entry?.[0];
     const changes = entry?.changes?.[0];
     const value = changes?.value;
@@ -60,12 +63,12 @@ export async function POST(request: NextRequest) {
     }
 
     const message = messages[0];
-    const from = message.from; // Número del remitente
-    const phone = from.startsWith("521") ? from.substring(3) : from.startsWith("52") ? from.substring(2) : from;
+    const from = message.from;
+    const phone10 = from.startsWith("521") ? from.substring(3) : from.startsWith("52") ? from.substring(2) : from;
 
-    // Solo procesar mensajes de ubicación
+    // Solo procesar mensajes de ubicacion
     if (message.type !== "location") {
-      await sendWhatsApp(from, "📍 Para registrar asistencia, envía tu *ubicación actual* usando el clip 📎 → Ubicación → Enviar ubicación actual");
+      await sendWhatsApp(from, "Para registrar asistencia, envia tu ubicacion actual usando el clip > Ubicacion > Enviar ubicacion actual");
       return NextResponse.json({ status: "not location" });
     }
 
@@ -74,104 +77,132 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split("T")[0];
     const now = new Date().toISOString();
 
-    console.log(`Ubicación recibida de ${phone}: ${lat}, ${lng}`);
+    console.log(`Ubicacion recibida de ${phone10}: ${lat}, ${lng}`);
 
-    // Buscar empleado por teléfono
+    // Buscar empleado por telefono (10 digitos)
     const { data: employee } = await supabase
       .from("employees")
-      .select("*, work_centers(*)")
-      .eq("phone", phone)
+      .select("*")
+      .or(`phone.eq.${phone10},whatsapp.eq.${phone10}`)
       .eq("active", true)
       .single();
 
     if (!employee) {
-      await sendWhatsApp(from, "❌ Tu número no está registrado en el sistema. Contacta a Recursos Humanos.");
+      await sendWhatsApp(from, "Tu numero no esta registrado en el sistema. Contacta a Recursos Humanos.");
       return NextResponse.json({ status: "employee not found" });
     }
 
-    if (!employee.work_center_id || !employee.work_centers) {
-      await sendWhatsApp(from, "❌ No tienes un centro de trabajo asignado. Contacta a Recursos Humanos.");
-      return NextResponse.json({ status: "no work center" });
+    // Buscar centro de trabajo del empleado
+    let workCenter = null;
+    if (employee.work_center_id) {
+      const { data: wc } = await supabase
+        .from("work_centers")
+        .select("*")
+        .eq("id", employee.work_center_id)
+        .single();
+      workCenter = wc;
     }
 
-    const workCenter = employee.work_centers;
-    const distance = getDistance(lat, lng, workCenter.latitude, workCenter.longitude);
-    const isValid = distance <= (workCenter.radius_meters || 1000);
+    // Si no tiene centro asignado, buscar el mas cercano
+    if (!workCenter) {
+      const { data: allCenters } = await supabase.from("work_centers").select("*");
+      if (allCenters && allCenters.length > 0) {
+        let minDist = Infinity;
+        for (const wc of allCenters) {
+          if (wc.latitude && wc.longitude) {
+            const d = getDistance(lat, lng, wc.latitude, wc.longitude);
+            if (d < minDist) {
+              minDist = d;
+              workCenter = wc;
+            }
+          }
+        }
+      }
+    }
 
-    console.log(`Distancia: ${distance.toFixed(0)}m, Válido: ${isValid}`);
+    if (!workCenter || !workCenter.latitude || !workCenter.longitude) {
+      await sendWhatsApp(from, "No hay centros de trabajo configurados con GPS. Contacta a Recursos Humanos.");
+      return NextResponse.json({ status: "no work center gps" });
+    }
+
+    const distance = getDistance(lat, lng, workCenter.latitude, workCenter.longitude);
+    const radius = workCenter.radius_meters || 500;
+    const isValid = distance <= radius;
+
+    console.log(`Distancia: ${distance.toFixed(0)}m, Radio: ${radius}m, Valido: ${isValid}`);
 
     // Buscar asistencia de hoy
     const { data: existingAttendance } = await supabase
-      .from("attendance")
+      .from("asistencias")
       .select("*")
-      .eq("employee_phone", phone)
-      .eq("date", today)
+      .eq("employee_id", employee.id)
+      .eq("fecha", today)
       .single();
 
+    const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+
     if (!existingAttendance) {
-      // ENTRADA - Primera ubicación del día
-      const { error } = await supabase.from("attendance").insert({
+      // ENTRADA
+      const { error } = await supabase.from("asistencias").insert({
         employee_id: employee.id,
         employee_name: employee.name,
-        employee_phone: phone,
-        date: today,
-        check_in_time: now,
-        check_in_lat: lat,
-        check_in_lng: lng,
-        check_in_valid: isValid,
+        employee_phone: phone10,
+        fecha: today,
+        hora_entrada: now,
+        lat_entrada: lat,
+        lng_entrada: lng,
+        entrada_valida: isValid,
         work_center_id: workCenter.id,
-        work_center_name: workCenter.name
+        work_center_name: workCenter.name,
+        distancia_entrada: Math.round(distance)
       });
 
       if (error) {
         console.error("Error insertando entrada:", error);
-        await sendWhatsApp(from, "❌ Error al registrar entrada. Intenta de nuevo.");
+        await sendWhatsApp(from, "Error al registrar entrada. Intenta de nuevo.");
         return NextResponse.json({ status: "error", error });
       }
 
-      const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-      
       if (isValid) {
-        await sendWhatsApp(from, `✅ *ENTRADA REGISTRADA*\n\n👤 ${employee.name}\n🏢 ${workCenter.name}\n🕐 ${hora}\n📍 Ubicación válida\n\n_Que tengas excelente día!_`);
+        await sendWhatsApp(from, `ENTRADA REGISTRADA\n\n${employee.name}\n${workCenter.name}\nHora: ${hora}\nUbicacion valida\n\nQue tengas excelente dia!`);
       } else {
-        await sendWhatsApp(from, `⚠️ *ENTRADA REGISTRADA (FUERA DE ZONA)*\n\n👤 ${employee.name}\n🏢 ${workCenter.name}\n🕐 ${hora}\n📍 Estás a ${distance.toFixed(0)}m del centro de trabajo\n\n_Se notificará a RH_`);
+        await sendWhatsApp(from, `ENTRADA REGISTRADA (FUERA DE ZONA)\n\n${employee.name}\n${workCenter.name}\nHora: ${hora}\nEstas a ${distance.toFixed(0)}m del centro\n\nSe notificara a RH`);
       }
 
-    } else if (!existingAttendance.check_out_time) {
-      // SALIDA - Segunda ubicación del día
+    } else if (!existingAttendance.hora_salida) {
+      // SALIDA
       const { error } = await supabase
-        .from("attendance")
+        .from("asistencias")
         .update({
-          check_out_time: now,
-          check_out_lat: lat,
-          check_out_lng: lng,
-          check_out_valid: isValid
+          hora_salida: now,
+          lat_salida: lat,
+          lng_salida: lng,
+          salida_valida: isValid,
+          distancia_salida: Math.round(distance)
         })
         .eq("id", existingAttendance.id);
 
       if (error) {
         console.error("Error actualizando salida:", error);
-        await sendWhatsApp(from, "❌ Error al registrar salida. Intenta de nuevo.");
+        await sendWhatsApp(from, "Error al registrar salida. Intenta de nuevo.");
         return NextResponse.json({ status: "error", error });
       }
 
-      const horaEntrada = new Date(existingAttendance.check_in_time).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-      const horaSalida = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-      
-      // Calcular horas trabajadas
-      const entrada = new Date(existingAttendance.check_in_time);
+      const horaEntrada = new Date(existingAttendance.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+      const entrada = new Date(existingAttendance.hora_entrada);
       const salida = new Date();
       const horasTrabajadas = ((salida.getTime() - entrada.getTime()) / (1000 * 60 * 60)).toFixed(1);
 
       if (isValid) {
-        await sendWhatsApp(from, `✅ *SALIDA REGISTRADA*\n\n👤 ${employee.name}\n🏢 ${workCenter.name}\n🕐 Entrada: ${horaEntrada}\n🕐 Salida: ${horaSalida}\n⏱️ Horas: ${horasTrabajadas}h\n📍 Ubicación válida\n\n_Hasta mañana!_`);
+        await sendWhatsApp(from, `SALIDA REGISTRADA\n\n${employee.name}\n${workCenter.name}\nEntrada: ${horaEntrada}\nSalida: ${hora}\nHoras: ${horasTrabajadas}h\n\nHasta manana!`);
       } else {
-        await sendWhatsApp(from, `⚠️ *SALIDA REGISTRADA (FUERA DE ZONA)*\n\n👤 ${employee.name}\n🏢 ${workCenter.name}\n🕐 Entrada: ${horaEntrada}\n🕐 Salida: ${horaSalida}\n⏱️ Horas: ${horasTrabajadas}h\n📍 Estás a ${distance.toFixed(0)}m\n\n_Se notificará a RH_`);
+        await sendWhatsApp(from, `SALIDA REGISTRADA (FUERA DE ZONA)\n\n${employee.name}\n${workCenter.name}\nEntrada: ${horaEntrada}\nSalida: ${hora}\nHoras: ${horasTrabajadas}h\nEstas a ${distance.toFixed(0)}m\n\nSe notificara a RH`);
       }
 
     } else {
-      // Ya registró entrada y salida
-      await sendWhatsApp(from, `ℹ️ Ya registraste entrada y salida hoy.\n\n🕐 Entrada: ${new Date(existingAttendance.check_in_time).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}\n🕐 Salida: ${new Date(existingAttendance.check_out_time).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`);
+      const horaE = new Date(existingAttendance.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+      const horaS = new Date(existingAttendance.hora_salida).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+      await sendWhatsApp(from, `Ya registraste entrada y salida hoy.\n\nEntrada: ${horaE}\nSalida: ${horaS}`);
     }
 
     return NextResponse.json({ status: "ok" });
