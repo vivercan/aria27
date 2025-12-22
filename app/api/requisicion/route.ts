@@ -6,8 +6,8 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 const BASE_URL = "https://aria.jjcrm27.com";
 
 const ADMIN_EMAIL = "recursos.humanos@gcuavante.com";
-const VALIDADOR_EMAIL = "superintendencia@gcuavante.com";
-const COMPRAS_EMAIL = "compras@gcuavante.com";
+const VALIDADOR_EMAIL = "vivercan@yahoo.com";
+const COMPRAS_EMAIL = "timonfx@hotmail.com";
 
 async function getNextFolio(): Promise<string> {
   const { data } = await supabase.from("sequences").select("current_value").eq("id", "requisitions").single();
