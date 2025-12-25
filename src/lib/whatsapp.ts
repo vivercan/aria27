@@ -1,12 +1,22 @@
 // src/lib/whatsapp.ts
-// USANDO PLANTILLAS APROBADAS EN META WHATSAPP BUSINESS
+// PLANTILLAS WHATSAPP CON IDIOMAS CORRECTOS SEGUN META
 import "server-only";
 
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_VERSION || "v22.0";
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "963627606824867";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
 
 type ButtonType = "url" | "quick_reply";
+
+// MAPEO DE IDIOMAS POR PLANTILLA (segun Meta)
+const TEMPLATE_LANGUAGES: Record<string, string> = {
+  requisicion_creada: "es_MX",    // Spanish (MEX)
+  requisicion_validar: "en",       // English
+  requisicion_compras: "en",       // English
+  compra_autorizar: "es_MX",       // Spanish (MEX)
+  oc_generada: "es_MX",            // Spanish (MEX)
+  hello_world: "en_US",            // English (US)
+};
 
 function requireEnv(name: string, value?: string) {
   if (!value || !value.trim()) throw new Error(`[WA] Falta variable de entorno: ${name}`);
@@ -15,13 +25,13 @@ function requireEnv(name: string, value?: string) {
 function formatPhone(phone: string): string {
   let p = (phone || "").replace(/\D/g, "");
 
-  // Caso típico MX: +521XXXXXXXXXX  -> 52XXXXXXXXXX
+  // Caso MX: +521XXXXXXXXXX -> 52XXXXXXXXXX
   if (p.startsWith("521") && p.length === 13) {
     p = "52" + p.slice(3);
   }
 
-  // Si viene solo con 10 dígitos, asumimos MX y agregamos 52
-  if (p.length === 10) p = "521" + p;
+  // Si viene solo con 10 digitos, asumimos MX
+  if (p.length === 10) p = "52" + p;
 
   return p;
 }
@@ -40,6 +50,8 @@ async function postWhatsApp(body: any): Promise<WhatsAppSendResult> {
 
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${PHONE_ID}/messages`;
 
+  console.log(`[WA] Enviando a ${body?.to}...`);
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -51,6 +63,10 @@ async function postWhatsApp(body: any): Promise<WhatsAppSendResult> {
 
   const data = await response.json().catch(() => ({ parse_error: true }));
 
+  if (!response.ok) {
+    console.error(`[WA] Error ${response.status}:`, JSON.stringify(data, null, 2));
+  }
+
   return {
     ok: response.ok,
     status: response.status,
@@ -61,30 +77,33 @@ async function postWhatsApp(body: any): Promise<WhatsAppSendResult> {
 }
 
 // ============================================
-// ENVIAR PLANTILLA DE WHATSAPP (RAW para debug)
+// ENVIAR PLANTILLA (CON IDIOMA AUTOMATICO)
 // ============================================
 export async function sendTemplateRaw(opts: {
   phone: string;
   templateName: string;
   parameters: string[];
-  languageCode?: string; // default es_MX
+  languageCode?: string;
   hasButtons?: boolean;
-  buttonType?: ButtonType; // url | quick_reply
-  buttonPayloads?: string[]; // uno por botón
+  buttonType?: ButtonType;
+  buttonPayloads?: string[];
 }): Promise<WhatsAppSendResult> {
   const {
     phone,
     templateName,
     parameters,
-    languageCode = "es_MX",
+    languageCode,
     hasButtons = false,
     buttonType = "url",
     buttonPayloads = [],
   } = opts;
 
+  // Usar idioma del mapeo o el proporcionado
+  const lang = languageCode || TEMPLATE_LANGUAGES[templateName] || "es_MX";
+
   const components: any[] = [];
 
-  // Parámetros del body
+  // Parametros del body
   if (parameters?.length) {
     components.push({
       type: "body",
@@ -100,7 +119,7 @@ export async function sendTemplateRaw(opts: {
       components.push({
         type: "button",
         sub_type: buttonType,
-        index: String(index), // IMPORTANTE: string en muchas implementaciones
+        index: String(index),
         parameters: [
           isQuick
             ? { type: "payload", payload: String(payload ?? "") }
@@ -116,15 +135,17 @@ export async function sendTemplateRaw(opts: {
     type: "template",
     template: {
       name: templateName,
-      language: { code: languageCode },
+      language: { code: lang },
       components,
     },
   };
 
+  console.log(`[WA] Template: ${templateName}, Lang: ${lang}, To: ${formatPhone(phone)}`);
+
   return postWhatsApp(body);
 }
 
-// Wrapper boolean (tu app lo puede seguir usando igual)
+// Wrapper boolean
 async function sendTemplate(
   phone: string,
   templateName: string,
@@ -144,11 +165,11 @@ async function sendTemplate(
     });
 
     if (!res.ok) {
-      console.error(`[WA] Error enviando plantilla ${templateName}:`, res.responseBody);
+      console.error(`[WA] Error enviando ${templateName}:`, res.responseBody);
       return false;
     }
 
-    console.log(`[WA] ✓ Plantilla ${templateName} enviada`);
+    console.log(`[WA] OK ${templateName} enviada a ${res.to}`);
     return true;
   } catch (err) {
     console.error(`[WA] Exception en ${templateName}:`, err);
@@ -157,10 +178,10 @@ async function sendTemplate(
 }
 
 // ============================================
-// FUNCIONES ESPECÍFICAS POR PLANTILLA
+// FUNCIONES POR PLANTILLA
 // ============================================
 
-// 1. REQUISICIÓN CREADA
+// 1. REQUISICION CREADA (es_MX)
 export async function sendRequisicionCreada(
   phone: string,
   folio: string,
@@ -171,7 +192,7 @@ export async function sendRequisicionCreada(
   return sendTemplate(phone, "requisicion_creada", [folio, solicitante, obra, fecha]);
 }
 
-// 2. REQUISICIÓN VALIDAR (CON BOTONES)
+// 2. REQUISICION VALIDAR (en) - CON BOTONES
 export async function sendRequisicionValidar(
   phone: string,
   folio: string,
@@ -192,7 +213,7 @@ export async function sendRequisicionValidar(
   );
 }
 
-// 3. REQUISICIÓN COMPRAS
+// 3. REQUISICION COMPRAS (en)
 export async function sendRequisicionCompras(
   phone: string,
   folio: string,
@@ -202,7 +223,7 @@ export async function sendRequisicionCompras(
   return sendTemplate(phone, "requisicion_compras", [folio, obra, urgencia]);
 }
 
-// 4. COMPRA AUTORIZAR (CON BOTONES)
+// 4. COMPRA AUTORIZAR (es_MX) - CON BOTONES
 export async function sendCompraAutorizar(
   phone: string,
   folio: string,
@@ -223,7 +244,7 @@ export async function sendCompraAutorizar(
   );
 }
 
-// 5. OC GENERADA
+// 5. OC GENERADA (es_MX)
 export async function sendOCGenerada(
   phone: string,
   requisicion: string,
@@ -236,7 +257,7 @@ export async function sendOCGenerada(
 }
 
 // ============================================
-// FUNCIÓN LEGACY (compatibilidad)
+// FUNCION LEGACY (compatibilidad)
 // ============================================
 export async function sendWhatsAppTemplate(
   templateName: string,
@@ -248,7 +269,6 @@ export async function sendWhatsAppTemplate(
       return sendRequisicionCreada(phone, parameters[0], parameters[1], parameters[2], parameters[3]);
 
     case "requisicion_validar":
-      // parameters: folio, solicitante, obra, urgencia, tokenValidar, (opcional) tokenRechazar, (opcional) buttonType
       return sendRequisicionValidar(
         phone,
         parameters[0],
@@ -264,7 +284,6 @@ export async function sendWhatsAppTemplate(
       return sendRequisicionCompras(phone, parameters[0], parameters[1], parameters[2]);
 
     case "compra_autorizar":
-      // parameters: folio, obra, total, urgencia, tokenAutorizar, (opcional) tokenRechazar, (opcional) buttonType
       return sendCompraAutorizar(
         phone,
         parameters[0],
@@ -286,7 +305,7 @@ export async function sendWhatsAppTemplate(
 }
 
 // ============================================
-// MENSAJE DE TEXTO SIMPLE (RAW para debug)
+// MENSAJE DE TEXTO SIMPLE
 // ============================================
 export async function sendTextMessageRaw(phone: string, message: string): Promise<WhatsAppSendResult> {
   const body = {
@@ -299,7 +318,6 @@ export async function sendTextMessageRaw(phone: string, message: string): Promis
   return postWhatsApp(body);
 }
 
-// Wrapper boolean (compat)
 export async function sendTextMessage(phone: string, message: string): Promise<boolean> {
   try {
     const res = await sendTextMessageRaw(phone, message);
