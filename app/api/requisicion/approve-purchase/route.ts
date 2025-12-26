@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const COMPRAS_EMAIL = "compras@gcuavante.com";
+const COMPRAS_EMAIL = "timonfx@hotmail.com";
 const AUTORIZADOR_EMAIL = "juanviverosv@gmail.com";
 
 export async function GET(request: Request) {
@@ -71,3 +71,4 @@ export async function GET(request: Request) {
 
   return new Response("<h1>Accion no valida</h1>", { headers: { "Content-Type": "text/html" } });
 }
+
