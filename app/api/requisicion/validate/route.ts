@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
 const BASE_URL = "https://aria.jjcrm27.com";
-const COMPRAS_EMAIL = "compras@gcuavante.com";
+const COMPRAS_EMAIL = "timonfx@hotmail.com";
 
 export async function GET(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -57,3 +57,4 @@ export async function GET(request: Request) {
 
   return new Response("<h1>Accion no valida</h1>", { headers: { "Content-Type": "text/html" } });
 }
+
