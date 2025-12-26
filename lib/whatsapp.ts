@@ -23,9 +23,12 @@ export async function sendWhatsAppTemplate(
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
+  // Formatear telefono
   let formattedPhone = phone.replace(/\D/g, "");
   if (formattedPhone.length === 10) {
     formattedPhone = "52" + formattedPhone;
+  } else if (formattedPhone.startsWith("52") && formattedPhone.length === 12) {
+    // ya esta bien
   } else if (formattedPhone.startsWith("521") && formattedPhone.length === 13) {
     formattedPhone = "52" + formattedPhone.slice(3);
   }
@@ -39,6 +42,7 @@ export async function sendWhatsAppTemplate(
     },
   ];
 
+  // Agregar boton si la plantilla lo requiere
   if (config.hasButton && buttonToken) {
     components.push({
       type: "button",
@@ -59,7 +63,7 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] Enviando", templateName, "a", formattedPhone);
+  console.log(`[WhatsApp] Enviando ${templateName} a ${formattedPhone}`, JSON.stringify(body, null, 2));
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
@@ -74,14 +78,14 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] Error:", data);
+      console.error(`[WhatsApp] Error:`, data);
       return { success: false, error: data.error?.message || "Error desconocido" };
     }
 
-    console.log("[WhatsApp] Exito:", data.messages?.[0]?.id);
+    console.log(`[WhatsApp] Exito: ${data.messages?.[0]?.id}`);
     return { success: true, messageId: data.messages?.[0]?.id };
   } catch (error: any) {
-    console.error("[WhatsApp] Exception:", error);
+    console.error(`[WhatsApp] Exception:`, error);
     return { success: false, error: error.message };
   }
 }

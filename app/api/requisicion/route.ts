@@ -94,7 +94,7 @@ export async function POST(request: Request) {
         html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisición Pendiente</h1></div><div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Para:</strong> ${fechaReq}</p></div>${tablaHtml}<div style="text-align:center;margin:30px 0"><a href="${validateUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">✅ VALIDAR</a><a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">❌ RECHAZAR</a></div></div></div>`
       });
       if (validadorUser.phone) {
-        await sendWhatsAppTemplate("requisicion_validar", [folio, displayName, obra, urgencyText, token], validadorUser.phone);
+        await sendWhatsAppTemplate("requisicion_validar", [folio, displayName, obra, urgencyText, token], validadorUser.phone, token);
       }
       notificados.push(`Validador: ${VALIDADOR_EMAIL} (${validadorUser.phone})`);
     }
@@ -132,3 +132,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
