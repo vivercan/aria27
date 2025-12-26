@@ -1,12 +1,11 @@
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
-const TEMPLATE_CONFIG: Record<string, { language: string; hasButton?: boolean }> = {
-  requisicion_creada: { language: "es_MX" },
-  requisicion_validar: { language: "en", hasButton: true },
-  requisicion_compras: { language: "en" },
-  compra_autorizar: { language: "es_MX", hasButton: true },
-  oc_generada: { language: "es_MX" },
-  hello_world: { language: "en_US" },
+const TEMPLATE_CONFIG: Record<string, { language: string; hasButton?: boolean; paramCount: number }> = {
+  requisicion_creada: { language: "es_MX", paramCount: 4 },
+  requisicion_validar: { language: "en", hasButton: true, paramCount: 5 },
+  requisicion_compras: { language: "en", paramCount: 4 },
+  compra_autorizar: { language: "es_MX", paramCount: 6 },
+  oc_generada: { language: "es_MX", paramCount: 5 },
 };
 
 export async function sendWhatsAppTemplate(
@@ -30,7 +29,7 @@ export async function sendWhatsAppTemplate(
     formattedPhone = "52" + formattedPhone.slice(3);
   }
 
-  const config = TEMPLATE_CONFIG[templateName] || { language: "es_MX" };
+  const config = TEMPLATE_CONFIG[templateName] || { language: "es_MX", paramCount: params.length };
   
   const components: any[] = [
     {
@@ -59,7 +58,7 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] Enviando", templateName, "a", formattedPhone);
+  console.log("[WhatsApp] Enviando", templateName, "a", formattedPhone, "params:", params.length);
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
@@ -74,7 +73,7 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] Error:", data);
+      console.error("[WhatsApp] Error:", JSON.stringify(data));
       return { success: false, error: data.error?.message || "Error desconocido" };
     }
 
