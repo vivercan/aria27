@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     });
 
     if (comprasUser?.phone) {
-      await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.cost_center_name, urgencyText], comprasUser.phone);
+      await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.created_by, req.cost_center_name, urgencyText], comprasUser.phone);
     }
 
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Requisición Validada</h1><p style="color:#64748b">${req.folio}</p><p>Se notificó a Compras (${COMPRAS_EMAIL})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
@@ -57,4 +57,5 @@ export async function GET(request: Request) {
 
   return new Response("<h1>Accion no valida</h1>", { headers: { "Content-Type": "text/html" } });
 }
+
 
