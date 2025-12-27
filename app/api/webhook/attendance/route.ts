@@ -55,13 +55,14 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString();
 
     // Buscar empleado
-    const { data: emp, error: empErr } = await supabase
+    const { data, error: empErr } = await supabase
       .from("employees")
       .select("*")
       .or(`whatsapp.eq.${phone10},whatsapp.eq.${from}`)
       .eq("status", "ACTIVO")
-      .single();
+      .limit(1);
 
+    const emp = data?.[0];
     console.log("Empleado encontrado:", emp?.full_name, "Error:", empErr?.message);
 
     if (!emp) {
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
       .select("*")
       .eq("employee_id", emp.id)
       .eq("fecha", today)
-      .single();
+      .limit(1);
 
     const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
 
@@ -151,3 +152,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
+
+
