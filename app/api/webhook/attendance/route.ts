@@ -105,16 +105,12 @@ export async function POST(request: NextRequest) {
       // ENTRADA
       await supabase.from("asistencias").insert({
         employee_id: emp.id,
-        employee_name: emp.full_name,
-        employee_phone: phone10,
         fecha: today,
-        hora_entrada: now,
-        lat_entrada: lat,
-        lng_entrada: lng,
-        entrada_valida: isValid,
-        work_center_id: workCenter.id,
-        work_center_name: workCenter.name,
-        distancia_entrada: Math.round(distance)
+        hora_entrada: hora,
+        latitud_entrada: lat,
+        longitud_entrada: lng,
+        dentro_geocerca_entrada: isValid,
+        notas: `${workCenter.name} - ${Math.round(distance)}m`
       });
 
       const msg = isValid
@@ -125,11 +121,11 @@ export async function POST(request: NextRequest) {
     } else if (!asist.hora_salida) {
       // SALIDA
       await supabase.from("asistencias").update({
-        hora_salida: now,
-        lat_salida: lat,
-        lng_salida: lng,
-        salida_valida: isValid,
-        distancia_salida: Math.round(distance)
+        hora_salida: hora,
+        latitud_salida: lat,
+        longitud_salida: lng,
+        dentro_geocerca_salida: isValid,
+        notas: asist.notas + ` | Salida: ${workCenter.name} - ${Math.round(distance)}m`
       }).eq("id", asist.id);
 
       const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
@@ -152,6 +148,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
+
 
 
 
