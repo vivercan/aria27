@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       .eq("fecha", today)
       .limit(1);
     const asist = asistData?.[0];
-    const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+    const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
 
     if (!asist) {
       // ENTRADA
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         notas: asist.notas + ` | Salida: ${workCenter.name} - ${Math.round(distance)}m`
       }).eq("id", asist.id);
 
-      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
       const horas = ((Date.now() - new Date(asist.hora_entrada).getTime()) / 3600000).toFixed(1);
 
       const msg = isValid
@@ -137,8 +137,8 @@ export async function POST(request: NextRequest) {
       await sendWhatsApp(from, msg);
 
     } else {
-      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
-      const horaS = new Date(asist.hora_salida).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
+      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
+      const horaS = new Date(asist.hora_salida).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
       await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\nEntrada: ${horaE}\nSalida: ${horaS}`);
     }
 
@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
 
 
