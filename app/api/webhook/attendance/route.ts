@@ -92,13 +92,13 @@ export async function POST(request: NextRequest) {
     console.log("Centro:", workCenter.name, "Distancia:", distance.toFixed(0), "m");
 
     // Buscar asistencia de hoy
-    const { data: asist } = await supabase
+    const { data: asistData } = await supabase
       .from("asistencias")
       .select("*")
       .eq("employee_id", emp.id)
       .eq("fecha", today)
       .limit(1);
-
+    const asist = asistData?.[0];
     const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", timeZone: "America/Mexico_City" });
 
     if (!asist) {
@@ -152,6 +152,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
+
+
 
 
 
