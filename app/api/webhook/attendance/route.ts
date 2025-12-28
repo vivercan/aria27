@@ -128,17 +128,20 @@ export async function POST(request: NextRequest) {
         notas: asist.notas + ` | Salida: ${workCenter.name} - ${Math.round(distance)}m`
       }).eq("id", asist.id);
 
-      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
-      const horas = ((Date.now() - new Date(asist.hora_entrada).getTime()) / 3600000).toFixed(1);
+      const horaE = asist.hora_entrada.substring(0, 5);
+      const [hE, mE] = asist.hora_entrada.split(":").map(Number);
+      const [hS, mS] = hora.split(":").map(Number);
+      const horas = ((hS * 60 + mS) - (hE * 60 + mE)) / 60;
+      const horasStr = horas > 0 ? horas.toFixed(1) : "0";
 
       const msg = isValid
-        ? `SALIDA REGISTRADA\n\n${emp.full_name}\n${workCenter.name}\nEntrada: ${horaE}\nSalida: ${hora}\nHoras: ${horas}h\n\nHasta manana!`
-        : `SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\nEntrada: ${horaE}\nSalida: ${hora}\nHoras: ${horas}h`;
+        ? `SALIDA REGISTRADA\n\n${emp.full_name}\n${workCenter.name}\nEntrada: ${horaE}\nSalida: ${hora}\nHoras: ${horasStr}h\n\nHasta manana!`
+        : `SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\nEntrada: ${horaE}\nSalida: ${hora}\nHoras: ${horasStr}h`;
       await sendWhatsApp(from, msg);
 
     } else {
-      const horaE = new Date(asist.hora_entrada).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
-      const horaS = new Date(asist.hora_salida).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
+      const horaE = asist.hora_entrada.substring(0, 5);
+      const horaS = asist.hora_salida ? asist.hora_salida.substring(0, 5) : "N/A";
       await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\nEntrada: ${horaE}\nSalida: ${horaS}`);
     }
 
@@ -148,6 +151,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
 
 
