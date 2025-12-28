@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     const lat = message.location.latitude;
     const lng = message.location.longitude;
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
     const now = new Date().toISOString();
 
     // Buscar empleado
@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
 
 
