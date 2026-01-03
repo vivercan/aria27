@@ -7,22 +7,32 @@ export default function PayrollPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [nominaData, setNominaData] = useState<any[]>([]);
-  const [periodoTipo, setPeriodoTipo] = useState("quincenal");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [totales, setTotales] = useState({ empleados: 0, salarioBruto: 0, deducciones: 0, salarioNeto: 0 });
   const [config, setConfig] = useState({ salario_minimo: 278.80, isr_base: 0.15, tolerancia_minutos: 15 });
 
   useEffect(() => {
+    // Calcular semana JUEVES a MIÉRCOLES
     const today = new Date();
-    const day = today.getDate();
-    if (day <= 15) {
-      setFechaInicio(new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0]);
-      setFechaFin(new Date(today.getFullYear(), today.getMonth(), 15).toISOString().split("T")[0]);
+    const dayOfWeek = today.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab
+    
+    // Encontrar el JUEVES anterior (inicio de semana de pago)
+    let juevesAnterior = new Date(today);
+    if (dayOfWeek >= 4) {
+      // Si es Jue, Vie o Sab -> el jueves de esta semana
+      juevesAnterior.setDate(today.getDate() - (dayOfWeek - 4));
     } else {
-      setFechaInicio(new Date(today.getFullYear(), today.getMonth(), 16).toISOString().split("T")[0]);
-      setFechaFin(new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split("T")[0]);
+      // Si es Dom, Lun, Mar o Mie -> el jueves de la semana pasada
+      juevesAnterior.setDate(today.getDate() - (dayOfWeek + 3));
     }
+    
+    // El MIÉRCOLES es 6 días después del jueves
+    let miercolesSiguiente = new Date(juevesAnterior);
+    miercolesSiguiente.setDate(juevesAnterior.getDate() + 6);
+    
+    setFechaInicio(juevesAnterior.toISOString().split("T")[0]);
+    setFechaFin(miercolesSiguiente.toISOString().split("T")[0]);
     loadConfig();
   }, []);
 
@@ -36,6 +46,24 @@ export default function PayrollPage() {
     setLoading(false);
   };
 
+  const semanaAnterior = () => {
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    inicio.setDate(inicio.getDate() - 7);
+    fin.setDate(fin.getDate() - 7);
+    setFechaInicio(inicio.toISOString().split("T")[0]);
+    setFechaFin(fin.toISOString().split("T")[0]);
+  };
+
+  const semanaSiguiente = () => {
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    inicio.setDate(inicio.getDate() + 7);
+    fin.setDate(fin.getDate() + 7);
+    setFechaInicio(inicio.toISOString().split("T")[0]);
+    setFechaFin(fin.toISOString().split("T")[0]);
+  };
+
   const calcularNomina = async () => {
     setGenerating(true);
     const { data: employees } = await supabase.from("employees").select("*").eq("status", "ACTIVO").order("employee_number");
@@ -43,16 +71,18 @@ export default function PayrollPage() {
 
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
+    
+    // Días laborables: Lunes a Sábado (6 días, excluyendo domingo)
     let diasLaborables = 0;
     for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
-      if (d.getDay() !== 0) diasLaborables++;
+      if (d.getDay() !== 0) diasLaborables++; // No contar domingos
     }
 
     const rows: any[] = [];
     for (const emp of employees) {
       const { data: asistencias } = await supabase.from("asistencias").select("fecha, hora_entrada, hora_salida").eq("employee_id", emp.id).gte("fecha", fechaInicio).lte("fecha", fechaFin);
       const diasTrabajados = asistencias?.length || 0;
-      const faltas = diasLaborables - diasTrabajados;
+      const faltas = Math.max(0, diasLaborables - diasTrabajados);
       let retardos = 0;
       const horaBase = emp.hora_entrada || "08:00:00";
       asistencias?.forEach((a: any) => {
@@ -80,29 +110,53 @@ export default function PayrollPage() {
   };
 
   const exportCSV = () => {
-    const csv = ["Empleado,Dias,Faltas,Retardos,Bruto,IMSS,ISR,Neto", ...nominaData.map(r => `${r.employee.full_name},${r.diasTrabajados},${r.faltas},${r.retardos},${r.salarioBruto.toFixed(2)},${r.deduccionIMSS.toFixed(2)},${r.deduccionISR.toFixed(2)},${r.salarioNeto.toFixed(2)}`)].join("\n");
+    const csv = ["Empleado,No.Empleado,Dias,Faltas,Retardos,Salario Diario,Bruto,IMSS,ISR,Neto", ...nominaData.map(r => `${r.employee.full_name},${r.employee.employee_number},${r.diasTrabajados},${r.faltas},${r.retardos},${(r.employee.salario_diario || config.salario_minimo).toFixed(2)},${r.salarioBruto.toFixed(2)},${r.deduccionIMSS.toFixed(2)},${r.deduccionISR.toFixed(2)},${r.salarioNeto.toFixed(2)}`)].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `nomina_${fechaInicio}_${fechaFin}.csv`;
+    link.download = `prenomina_${fechaInicio}_a_${fechaFin}.csv`;
     link.click();
   };
 
   const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
+  
+  const formatFecha = (fecha: string) => {
+    const d = new Date(fecha + "T12:00:00");
+    return d.toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" });
+  };
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div></div>;
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold text-white flex items-center gap-3"><Calculator className="w-7 h-7 text-emerald-400" />Pre-Nómina</h1><p className="text-slate-400 mt-1">Genera la pre-nómina del período</p></div>
-      
+      <div>
+        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+          <Calculator className="w-7 h-7 text-emerald-400" />Pre-Nómina Semanal
+        </h1>
+        <p className="text-slate-400 mt-1">Período: Jueves a Miércoles | Pago: Jueves 12:00 PM</p>
+      </div>
+
       <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-blue-400" />Período</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div><label className="block text-sm text-slate-400 mb-2">Tipo</label><select value={periodoTipo} onChange={e => setPeriodoTipo(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white"><option value="quincenal">Quincenal</option><option value="semanal">Semanal</option></select></div>
-          <div><label className="block text-sm text-slate-400 mb-2">Inicio</label><input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white" /></div>
-          <div><label className="block text-sm text-slate-400 mb-2">Fin</label><input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white" /></div>
-          <div className="flex items-end"><button onClick={calcularNomina} disabled={generating} className="w-full px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 disabled:opacity-50 flex items-center justify-center gap-2">{generating ? "Calculando..." : <><Calculator className="w-4 h-4" />Generar</>}</button></div>
+        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-blue-400" />Semana de Pago
+        </h2>
+        <div className="flex items-center gap-4 flex-wrap">
+          <button onClick={semanaAnterior} className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white">← Anterior</button>
+          
+          <div className="flex-1 text-center">
+            <p className="text-2xl font-bold text-white">
+              {formatFecha(fechaInicio)} → {formatFecha(fechaFin)}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              {fechaInicio} al {fechaFin}
+            </p>
+          </div>
+          
+          <button onClick={semanaSiguiente} className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white">Siguiente →</button>
+          
+          <button onClick={calcularNomina} disabled={generating} className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 disabled:opacity-50 flex items-center gap-2">
+            {generating ? "Calculando..." : <><Calculator className="w-5 h-5" />Generar Pre-Nómina</>}
+          </button>
         </div>
       </div>
 
@@ -112,28 +166,41 @@ export default function PayrollPage() {
             <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20"><div className="flex items-center gap-2 text-blue-400 mb-1"><Users className="w-4 h-4" /><span className="text-sm">Empleados</span></div><p className="text-2xl font-bold text-white">{totales.empleados}</p></div>
             <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><div className="flex items-center gap-2 text-emerald-400 mb-1"><DollarSign className="w-4 h-4" /><span className="text-sm">Bruto</span></div><p className="text-2xl font-bold text-white">{fmt(totales.salarioBruto)}</p></div>
             <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20"><div className="flex items-center gap-2 text-amber-400 mb-1"><AlertCircle className="w-4 h-4" /><span className="text-sm">Deducciones</span></div><p className="text-2xl font-bold text-white">{fmt(totales.deducciones)}</p></div>
-            <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20"><div className="flex items-center gap-2 text-violet-400 mb-1"><CheckCircle2 className="w-4 h-4" /><span className="text-sm">Neto</span></div><p className="text-2xl font-bold text-white">{fmt(totales.salarioNeto)}</p></div>
+            <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20"><div className="flex items-center gap-2 text-violet-400 mb-1"><CheckCircle2 className="w-4 h-4" /><span className="text-sm">Neto a Pagar</span></div><p className="text-2xl font-bold text-white">{fmt(totales.salarioNeto)}</p></div>
           </div>
 
           <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
-            <div className="p-4 border-b border-white/[0.06] flex items-center justify-between"><h2 className="text-lg font-semibold text-white flex items-center gap-2"><FileSpreadsheet className="w-5 h-5 text-blue-400" />Detalle</h2><button onClick={exportCSV} className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white text-sm flex items-center gap-2"><Download className="w-4 h-4" />CSV</button></div>
+            <div className="p-4 border-b border-white/[0.06] flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2"><FileSpreadsheet className="w-5 h-5 text-blue-400" />Detalle por Empleado</h2>
+              <button onClick={exportCSV} className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white text-sm flex items-center gap-2"><Download className="w-4 h-4" />Exportar CSV</button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead><tr className="bg-white/[0.02]"><th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Empleado</th><th className="px-4 py-3 text-center text-xs text-slate-400">Días</th><th className="px-4 py-3 text-center text-xs text-slate-400">Faltas</th><th className="px-4 py-3 text-center text-xs text-slate-400">Retardos</th><th className="px-4 py-3 text-right text-xs text-slate-400">Bruto</th><th className="px-4 py-3 text-right text-xs text-slate-400">IMSS</th><th className="px-4 py-3 text-right text-xs text-slate-400">ISR</th><th className="px-4 py-3 text-right text-xs text-slate-400">Neto</th></tr></thead>
+                <thead><tr className="bg-white/[0.02]"><th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Empleado</th><th className="px-4 py-3 text-center text-xs text-slate-400">Días</th><th className="px-4 py-3 text-center text-xs text-slate-400">Faltas</th><th className="px-4 py-3 text-center text-xs text-slate-400">Retardos</th><th className="px-4 py-3 text-right text-xs text-slate-400">$/Día</th><th className="px-4 py-3 text-right text-xs text-slate-400">Bruto</th><th className="px-4 py-3 text-right text-xs text-slate-400">IMSS</th><th className="px-4 py-3 text-right text-xs text-slate-400">ISR</th><th className="px-4 py-3 text-right text-xs text-slate-400">NETO</th></tr></thead>
                 <tbody className="divide-y divide-white/[0.04]">
                   {nominaData.map((r, i) => (
                     <tr key={i} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3"><p className="text-white font-medium">{r.employee.full_name}</p><p className="text-xs text-slate-400">{r.employee.employee_number}</p></td>
-                      <td className="px-4 py-3 text-center text-emerald-400 font-medium">{r.diasTrabajados}</td>
-                      <td className="px-4 py-3 text-center text-red-400">{r.faltas}</td>
-                      <td className="px-4 py-3 text-center text-amber-400">{r.retardos}</td>
-                      <td className="px-4 py-3 text-right text-white">{fmt(r.salarioBruto)}</td>
+                      <td className="px-4 py-3"><p className="text-white font-medium">{r.employee.full_name}</p><p className="text-xs text-slate-400">{r.employee.employee_number} • {r.employee.position || "Sin puesto"}</p></td>
+                      <td className="px-4 py-3 text-center text-emerald-400 font-bold text-lg">{r.diasTrabajados}</td>
+                      <td className="px-4 py-3 text-center"><span className={r.faltas > 0 ? "text-red-400 font-bold" : "text-slate-500"}>{r.faltas}</span></td>
+                      <td className="px-4 py-3 text-center"><span className={r.retardos > 0 ? "text-amber-400 font-bold" : "text-slate-500"}>{r.retardos}</span></td>
+                      <td className="px-4 py-3 text-right text-slate-300">{fmt(r.employee.salario_diario || config.salario_minimo)}</td>
+                      <td className="px-4 py-3 text-right text-white font-medium">{fmt(r.salarioBruto)}</td>
                       <td className="px-4 py-3 text-right text-red-400 text-sm">-{fmt(r.deduccionIMSS)}</td>
                       <td className="px-4 py-3 text-right text-red-400 text-sm">-{fmt(r.deduccionISR)}</td>
-                      <td className="px-4 py-3 text-right text-emerald-400 font-bold">{fmt(r.salarioNeto)}</td>
+                      <td className="px-4 py-3 text-right text-emerald-400 font-bold text-lg">{fmt(r.salarioNeto)}</td>
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr className="bg-white/[0.05] border-t-2 border-emerald-500/30">
+                    <td colSpan={5} className="px-4 py-4 text-right text-white font-bold text-lg">TOTALES:</td>
+                    <td className="px-4 py-4 text-right text-white font-bold">{fmt(totales.salarioBruto)}</td>
+                    <td className="px-4 py-4 text-right text-red-400 font-bold">-{fmt(nominaData.reduce((s,r)=>s+r.deduccionIMSS,0))}</td>
+                    <td className="px-4 py-4 text-right text-red-400 font-bold">-{fmt(nominaData.reduce((s,r)=>s+r.deduccionISR,0))}</td>
+                    <td className="px-4 py-4 text-right text-emerald-400 font-bold text-xl">{fmt(totales.salarioNeto)}</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -143,10 +210,14 @@ export default function PayrollPage() {
       {nominaData.length === 0 && !generating && (
         <div className="p-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] text-center">
           <Calculator className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white mb-2">Sin datos</h3>
-          <p className="text-slate-400">Selecciona período y clic en Generar</p>
+          <h3 className="text-lg font-medium text-white mb-2">Sin datos de nómina</h3>
+          <p className="text-slate-400">Clic en "Generar Pre-Nómina" para calcular</p>
         </div>
       )}
+
+      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+        <p className="text-sm text-blue-300"><strong>Recordatorio:</strong> Pre-nómina lista cada Jueves 9:00 AM • Pago: Jueves 12:00 PM</p>
+      </div>
     </div>
   );
 }
