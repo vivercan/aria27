@@ -14,14 +14,14 @@ const masterDataItems = [
     title: "Configuración Nómina",
     description: "Parámetros de cálculo: salario mínimo, horas extra, tolerancias",
     icon: DollarSign,
-    href: "/dashboard/configuracion/maestros/Nómina-Configuración",
+    href: "/dashboard/configuracion/maestros/nomina",
     color: "bg-emerald-500"
   },
   {
     title: "Horarios",
     description: "Definir horarios laborales y días de trabajo",
     icon: Clock,
-    href: "/dashboard/configuracion/maestros/schedules",
+    href: "/dashboard/configuracion/maestros/centros",
     color: "bg-purple-500"
   }
 ];

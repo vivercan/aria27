@@ -48,7 +48,7 @@ const modules = [
       { name: "checadas", href: "/dashboard/talento/checadas" },
       { name: "Nómina", href: "/dashboard/talento/nomina" },
       { name: "Incidencias", href: "/dashboard/talento/incidencias" },
-      { name: "Legales", href: "/dashboard/talento/legales" },
+      { name: "Legales", href: "/dashboard/talento/legaleses" },
       { name: "Matriz", href: "/dashboard/talento/matriz" },
     ],
   },
