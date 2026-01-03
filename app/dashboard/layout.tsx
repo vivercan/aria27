@@ -22,9 +22,9 @@ const menuItems = [
   { name: "Obras", path: "/dashboard/obras", icon: HardHat },
   { name: "Talento", path: "/dashboard/talento", icon: Users },
   { name: "Requisiciones", path: "/dashboard/requisiciones", icon: ShoppingCart },
-  { name: "Finanzas", path: "/dashboard/Finanzas", icon: Wallet },
-  { name: "Activos", path: "/dashboard/Activos", icon: Box },
-  { name: "Plantillas", path: "/dashboard/Plantillas", icon: FileText },
+  { name: "Finanzas", path: "/dashboard/finanzas", icon: Wallet },
+  { name: "Activos", path: "/dashboard/activos", icon: Box },
+  { name: "Plantillas", path: "/dashboard/plantillas", icon: FileText },
   { name: "Configuración", path: "/dashboard/configuracion", icon: Settings },
 ];
 

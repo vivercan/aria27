@@ -8,9 +8,9 @@ const menuItems = [
   { name: "Obras", href: "/dashboard/obras", icon: HardHat },
   { name: "Talento", href: "/dashboard/talento", icon: Users },
   { name: "Requisiciones", href: "/dashboard/requisiciones", icon: Package },
-  { name: "Finanzas", href: "/dashboard/Finanzas", icon: Wallet },
-  { name: "Activos", href: "/dashboard/Activos", icon: Warehouse },
-  { name: "Plantillas", href: "/dashboard/Plantillas", icon: FileText },
+  { name: "Finanzas", href: "/dashboard/finanzas", icon: Wallet },
+  { name: "Activos", href: "/dashboard/activos", icon: Warehouse },
+  { name: "Plantillas", href: "/dashboard/plantillas", icon: FileText },
   { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
 ];
 
