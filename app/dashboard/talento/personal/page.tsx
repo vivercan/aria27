@@ -184,7 +184,7 @@ export default function HRPersonalPage() {
           <p className="text-slate-400 text-sm">{Personal.length} registros conectados a BD</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/dashboard/talento/Users" className="inline-flex items-center gap-2 rounded-full bg-purple-500/80 px-4 py-2 text-sm font-medium hover:bg-purple-500">
+          <Link href="/dashboard/talento/usuarios" className="inline-flex items-center gap-2 rounded-full bg-purple-500/80 px-4 py-2 text-sm font-medium hover:bg-purple-500">
             <Shield className="h-4 w-4" />Users
           </Link>
           <button 

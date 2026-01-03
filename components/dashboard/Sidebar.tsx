@@ -43,7 +43,7 @@ const modules = [
     color: "text-violet-400",
     submodules: [
       { name: "Personal", href: "/dashboard/talento/personal" },
-      { name: "Users", href: "/dashboard/talento/Users" },
+      { name: "Users", href: "/dashboard/talento/usuarios" },
       { name: "Checadas", href: "/dashboard/talento/checadas" },
       { name: "checadas", href: "/dashboard/talento/checadas" },
       { name: "Nómina", href: "/dashboard/talento/nomina" },

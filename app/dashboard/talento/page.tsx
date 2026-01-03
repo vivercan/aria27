@@ -10,7 +10,7 @@ const modules = [
   { title: "Adjustments", description: "Incidencias y ajustes.", icon: SlidersHorizontal, href: "/dashboard/talento/adjustments", color: "from-amber-500 to-orange-500", glowColor: "rgba(245,158,11,0.3)" },
   { title: "Legal HR", description: "Contratos y documentos legales.", icon: Scale, href: "/dashboard/talento/legal", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)" },
   { title: "Salary Matrix", description: "Tabulador de sueldos.", icon: Grid3X3, href: "/dashboard/talento/matrix", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.3)" },
-  { title: "User Access", description: "Control de Users del sistema.", icon: UserCog, href: "/dashboard/talento/Users", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)", badge: "Admin", badgeColor: "bg-slate-500/20 text-slate-400 border-slate-500/30" },
+  { title: "User Access", description: "Control de Users del sistema.", icon: UserCog, href: "/dashboard/talento/usuarios", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)", badge: "Admin", badgeColor: "bg-slate-500/20 text-slate-400 border-slate-500/30" },
 ];
 
 export default function TalentHubPage() {
