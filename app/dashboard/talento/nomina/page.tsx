@@ -10,7 +10,7 @@ export default function NóminaPage() {
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [totales, setTotales] = useState({ empleados: 0, salarioBruto: 0, deducciones: 0, salarioNeto: 0 });
-  const [config, setConfig] = useState({ salario_minimo: 278.80, isr_base: 0.15, tolerancia_minutos: 15 });
+  const [Configuración, setConfiguración] = useState({ salario_minimo: 278.80, isr_base: 0.15, tolerancia_minutos: 15 });
 
   useEffect(() => {
     // Calcular semana JUEVES a MIÉRCOLES
@@ -33,15 +33,15 @@ export default function NóminaPage() {
     
     setFechaInicio(juevesAnterior.toISOString().split("T")[0]);
     setFechaFin(miercolesSiguiente.toISOString().split("T")[0]);
-    loadConfig();
+    loadConfiguración();
   }, []);
 
-  const loadConfig = async () => {
-    const { data } = await supabase.from("configuracion_nomina").select("parametro, valor");
+  const loadConfiguración = async () => {
+    const { data } = await supabase.from("Configuraciónuracion_nomina").select("parametro, valor");
     if (data) {
       const c: any = {};
       data.forEach((i: any) => { c[i.parametro] = parseFloat(i.valor); });
-      setConfig({ ...config, ...c });
+      setConfiguración({ ...Configuración, ...c });
     }
     setLoading(false);
   };
@@ -89,13 +89,13 @@ export default function NóminaPage() {
         if (a.hora_entrada) {
           const [hB, mB] = horaBase.split(":").map(Number);
           const [hR, mR] = a.hora_entrada.split(":").map(Number);
-          if ((hR * 60 + mR) - (hB * 60 + mB) > config.tolerancia_minutos) retardos++;
+          if ((hR * 60 + mR) - (hB * 60 + mB) > Configuración.tolerancia_minutos) retardos++;
         }
       });
-      const salarioDiario = emp.salario_diario || config.salario_minimo;
+      const salarioDiario = emp.salario_diario || Configuración.salario_minimo;
       const salarioBruto = salarioDiario * diasTrabajados;
       const deduccionIMSS = salarioBruto * 0.0275;
-      const deduccionISR = salarioBruto * config.isr_base;
+      const deduccionISR = salarioBruto * Configuración.isr_base;
       const salarioNeto = salarioBruto - deduccionIMSS - deduccionISR;
       rows.push({ employee: emp, diasTrabajados, faltas, retardos, salarioBruto, deduccionIMSS, deduccionISR, salarioNeto });
     }
@@ -110,7 +110,7 @@ export default function NóminaPage() {
   };
 
   const exportCSV = () => {
-    const csv = ["Empleado,No.Empleado,Dias,Faltas,Retardos,Salario Diario,Bruto,IMSS,ISR,Neto", ...nominaData.map(r => `${r.employee.full_name},${r.employee.employee_number},${r.diasTrabajados},${r.faltas},${r.retardos},${(r.employee.salario_diario || config.salario_minimo).toFixed(2)},${r.salarioBruto.toFixed(2)},${r.deduccionIMSS.toFixed(2)},${r.deduccionISR.toFixed(2)},${r.salarioNeto.toFixed(2)}`)].join("\n");
+    const csv = ["Empleado,No.Empleado,Dias,Faltas,Retardos,Salario Diario,Bruto,IMSS,ISR,Neto", ...nominaData.map(r => `${r.employee.full_name},${r.employee.employee_number},${r.diasTrabajados},${r.faltas},${r.retardos},${(r.employee.salario_diario || Configuración.salario_minimo).toFixed(2)},${r.salarioBruto.toFixed(2)},${r.deduccionIMSS.toFixed(2)},${r.deduccionISR.toFixed(2)},${r.salarioNeto.toFixed(2)}`)].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -184,7 +184,7 @@ export default function NóminaPage() {
                       <td className="px-4 py-3 text-center text-emerald-400 font-bold text-lg">{r.diasTrabajados}</td>
                       <td className="px-4 py-3 text-center"><span className={r.faltas > 0 ? "text-red-400 font-bold" : "text-slate-500"}>{r.faltas}</span></td>
                       <td className="px-4 py-3 text-center"><span className={r.retardos > 0 ? "text-amber-400 font-bold" : "text-slate-500"}>{r.retardos}</span></td>
-                      <td className="px-4 py-3 text-right text-slate-300">{fmt(r.employee.salario_diario || config.salario_minimo)}</td>
+                      <td className="px-4 py-3 text-right text-slate-300">{fmt(r.employee.salario_diario || Configuración.salario_minimo)}</td>
                       <td className="px-4 py-3 text-right text-white font-medium">{fmt(r.salarioBruto)}</td>
                       <td className="px-4 py-3 text-right text-red-400 text-sm">-{fmt(r.deduccionIMSS)}</td>
                       <td className="px-4 py-3 text-right text-red-400 text-sm">-{fmt(r.deduccionISR)}</td>

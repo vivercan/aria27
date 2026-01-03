@@ -20,8 +20,8 @@ export default function SubModulePage() {
         <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
           <Box size={40} className="text-emerald-400" />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Módulo: CONFIG</h1>
-        <p className="text-slate-400">Gestión activa: CONFIG</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Módulo: Configuración</h1>
+        <p className="text-slate-400">Gestión activa: Configuración</p>
       </div>
     </div>
   );

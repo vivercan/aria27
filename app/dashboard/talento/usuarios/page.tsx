@@ -29,7 +29,7 @@ const MODULES = [
   { id: "Finanzas", name: "Finanzas", submodules: ["billing", "receivables", "accounts-payable", "field-cash", "bank-reco", "job-costing"] },
   { id: "Activos", name: "Activos", submodules: ["master", "allocation", "maintenance", "status"] },
   { id: "Plantillas", name: "Plantillas", submodules: ["docs", "bids", "po", "library"] },
-  { id: "Config", name: "Config", submodules: ["config", "master-data", "integrations", "alerts", "reminders", "mail", "access", "deploy"] },
+  { id: "Configuración", name: "Configuración", submodules: ["Configuración", "master-data", "integrations", "alerts", "reminders", "mail", "access", "deploy"] },
 ];
 
 export default function UsersPage() {

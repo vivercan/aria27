@@ -25,7 +25,7 @@ const menuItems = [
   { name: "Finanzas", path: "/dashboard/Finanzas", icon: Wallet },
   { name: "Activos", path: "/dashboard/Activos", icon: Box },
   { name: "Plantillas", path: "/dashboard/Plantillas", icon: FileText },
-  { name: "Config", path: "/dashboard/config", icon: Settings },
+  { name: "Configuración", path: "/dashboard/Configuraciónuracion", icon: Settings },
 ];
 
 const ROLE_LABELS: Record<string, string> = {

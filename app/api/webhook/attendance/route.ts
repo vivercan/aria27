@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     // Buscar centro mas cercano en work_centers
     const { data: centers } = await supabase.from("work_centers").select("*").eq("active", true);
     if (!centers || centers.length === 0) {
-      await sendWhatsApp(from, "No hay centros de trabajo configurados. Contacta a RH.");
+      await sendWhatsApp(from, "No hay centros de trabajo Configuraciónurados. Contacta a RH.");
       return NextResponse.json({ status: "no centers" });
     }
 

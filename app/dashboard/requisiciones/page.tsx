@@ -11,7 +11,7 @@ const modules = [
   { title: "Compras", description: "Cotizaciones y comparativas.", icon: ShoppingCart, href: "/dashboard/requisiciones/Requisiciones/Compras", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.3)" },
   { title: "Pagos", description: "Control de pagos a proveedores.", icon: CreditCard, href: "/dashboard/requisiciones/payments", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)" },
   { title: "Logística", description: "Entregas y seguimiento.", icon: Truck, href: "/dashboard/requisiciones/delivery", color: "from-teal-500 to-teal-600", glowColor: "rgba(20,184,166,0.3)" },
-  { title: "Configuración", description: "Ajustes del módulo.", icon: Settings, href: "/dashboard/requisiciones/Config", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)" },
+  { title: "Configuraciónuración", description: "Ajustes del módulo.", icon: Settings, href: "/dashboard/requisiciones/Configuración", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)" },
 ];
 
 export default function SupplyDeskPage() {

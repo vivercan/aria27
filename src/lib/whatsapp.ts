@@ -1,6 +1,6 @@
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
-const TEMPLATE_CONFIG: Record<string, { language: string; hasButton?: boolean; paramCount: number }> = {
+const TEMPLATE_Configuración: Record<string, { language: string; hasButton?: boolean; paramCount: number }> = {
   requisicion_creada: { language: "es_MX", paramCount: 4 },
   requisicion_validar: { language: "en", hasButton: true, paramCount: 5 },
   requisicion_compras: { language: "en", paramCount: 4 },
@@ -29,7 +29,7 @@ export async function sendWhatsAppTemplate(
     formattedPhone = "52" + formattedPhone.slice(3);
   }
 
-  const config = TEMPLATE_CONFIG[templateName] || { language: "es_MX", paramCount: params.length };
+  const Configuración = TEMPLATE_Configuración[templateName] || { language: "es_MX", paramCount: params.length };
   
   const components: any[] = [
     {
@@ -38,7 +38,7 @@ export async function sendWhatsAppTemplate(
     },
   ];
 
-  if (config.hasButton && buttonToken) {
+  if (Configuración.hasButton && buttonToken) {
     components.push({
       type: "button",
       sub_type: "url",
@@ -53,7 +53,7 @@ export async function sendWhatsAppTemplate(
     type: "template",
     template: {
       name: templateName,
-      language: { code: config.language },
+      language: { code: Configuración.language },
       components,
     },
   };

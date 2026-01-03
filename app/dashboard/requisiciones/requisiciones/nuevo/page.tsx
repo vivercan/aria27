@@ -116,7 +116,7 @@ export default function NewRequisitionPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
-          <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
+          <h2 className="mb-4 text-lg font-semibold">1. ConfiguraciónURACIÓN</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Obra / Centro de Costos</label>

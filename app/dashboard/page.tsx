@@ -184,8 +184,8 @@ export default function DashboardPage() {
     },
     {
       title: "Centros de Trabajo",
-      description: "Configurar obras y ubicaciones",
-      href: "/dashboard/config/maestros/centros",
+      description: "Configuraciónurar obras y ubicaciones",
+      href: "/dashboard/Configuraciónuracion/maestros/centros",
       icon: Activity,
       color: "from-amber-500 to-orange-500",
     },

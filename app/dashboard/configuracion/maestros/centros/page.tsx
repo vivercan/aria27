@@ -100,7 +100,7 @@ export default function WorkCentersPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
-          <p className="text-slate-400 text-sm">Configura las ubicaciones y geocercas para asistencia</p>
+          <p className="text-slate-400 text-sm">Configuraciónura las ubicaciones y geocercas para asistencia</p>
         </div>
         <button onClick={openNew} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-all">
           + Agregar Centro
@@ -134,7 +134,7 @@ export default function WorkCentersPage() {
             ))}
           </tbody>
         </table>
-        {centers.length === 0 && <div className="p-8 text-center text-slate-400">No hay centros de trabajo configurados</div>}
+        {centers.length === 0 && <div className="p-8 text-center text-slate-400">No hay centros de trabajo Configuraciónurados</div>}
       </div>
 
       {showModal && (
