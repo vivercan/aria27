@@ -14,8 +14,11 @@ import {
   DollarSign,
   Send,
   Loader2,
-  Check,
-  Trash2
+  Phone,
+  Mail,
+  CreditCard,
+  ChevronDown,
+  Users
 } from "lucide-react";
 
 type Requisition = {
@@ -32,25 +35,40 @@ type Requisition = {
   authorization_comments: string;
 };
 
+type Supplier = {
+  id: number;
+  name: string;
+  razon_social: string;
+  phone: string;
+  email: string;
+  payment_method: string;
+  credit_days: number;
+};
+
 type RequisitionItem = {
   id: number;
   product_name: string;
   unit: string;
   quantity: number;
   comments: string;
+  category: string;
   selected_price?: number;
   selected_supplier?: string;
+};
+
+type ItemWithSuppliers = RequisitionItem & {
+  suppliers: Supplier[];
 };
 
 export default function PurchasingPage() {
   const [requisitions, setRequisitions] = useState<Requisition[]>([]);
   const [selectedReq, setSelectedReq] = useState<Requisition | null>(null);
-  const [items, setItems] = useState<RequisitionItem[]>([]);
+  const [items, setItems] = useState<ItemWithSuppliers[]>([]);
   const [showItems, setShowItems] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingItems, setLoadingItems] = useState(false);
   const [sending, setSending] = useState(false);
-  const [prices, setPrices] = useState<Record<number, { price: number; supplier: string }>>({});
+  const [prices, setPrices] = useState<Record<string, { price: number; supplier: string; supplierId: number | null }>>({});
 
   useEffect(() => {
     loadData();
@@ -66,21 +84,82 @@ export default function PurchasingPage() {
     setLoading(false);
   };
 
+  // Mapeo de categorías de productos a categorías de proveedores
+  const getCategoryMapping = (productCategory: string): string[] => {
+    const mappings: Record<string, string[]> = {
+      "Acero y productos metalicos": ["ACEROS", "acero"],
+      "Combustibles y lubricantes": ["COMBUSTIBLES"],
+      "Concretos asfaltos y estabilizantes": ["CONCRETOS"],
+      "Agregados y materiales de banco": ["AGREGADOS", "agregados"],
+      "Material electrico": ["ELECTRICO"],
+      "EPP y seguridad": ["EPP"],
+      "Ferreteria y fijacion": ["FERRETERIA", "ferreteria"],
+      "Tuberias y conexiones": ["TUBERIAS"],
+      "Papelería y oficina": ["PAPELERIA"],
+      "Equipo de cómputo": ["COMPUTO"],
+      "Limpieza": ["EPP", "PAPELERIA"],
+      "Alimentos y bebidas": ["ALIMENTOS"],
+      "Herramienta y equipo": ["MAQUINARIA", "FERRETERIA"],
+      "Materiales de construccion": ["AGREGADOS", "CONCRETOS", "FERRETERIA"],
+      "Servicios y rentas": ["MAQUINARIA"],
+    };
+    return mappings[productCategory] || [];
+  };
+
   const loadItems = async (reqId: number) => {
     setLoadingItems(true);
-    const { data } = await supabase
+    
+    // 1. Cargar items de la requisición
+    const { data: itemsData } = await supabase
       .from("requisition_items")
       .select("*")
       .eq("requisition_id", reqId);
-    const itemsData = (data || []) as RequisitionItem[];
-    setItems(itemsData);
     
-    // Inicializar precios con los valores guardados o vacíos
-    const initialPrices: Record<number, { price: number; supplier: string }> = {};
-    itemsData.forEach(item => {
+    const rawItems = (itemsData || []) as RequisitionItem[];
+    
+    // 2. Para cada item, buscar proveedores por categoría
+    const itemsWithSuppliers: ItemWithSuppliers[] = await Promise.all(
+      rawItems.map(async (item) => {
+        const categoryKeys = getCategoryMapping(item.category);
+        
+        let suppliers: Supplier[] = [];
+        
+        if (categoryKeys.length > 0) {
+          // Buscar proveedores que tengan alguna de estas categorías
+          const { data: suppliersData } = await supabase
+            .from("suppliers")
+            .select("id, name, razon_social, phone, email, payment_method, credit_days")
+            .or(categoryKeys.map(cat => `categories.cs.{"${cat}"}`).join(","))
+            .eq("status", "ACTIVO")
+            .order("name");
+          
+          suppliers = (suppliersData || []) as Supplier[];
+        }
+        
+        // Si no encontró por categoría, buscar todos los activos
+        if (suppliers.length === 0) {
+          const { data: allSuppliers } = await supabase
+            .from("suppliers")
+            .select("id, name, razon_social, phone, email, payment_method, credit_days")
+            .eq("status", "ACTIVO")
+            .order("name")
+            .limit(10);
+          suppliers = (allSuppliers || []) as Supplier[];
+        }
+        
+        return { ...item, suppliers };
+      })
+    );
+    
+    setItems(itemsWithSuppliers);
+    
+    // 3. Inicializar precios
+    const initialPrices: Record<string, { price: number; supplier: string; supplierId: number | null }> = {};
+    itemsWithSuppliers.forEach(item => {
       initialPrices[item.id] = {
         price: item.selected_price || 0,
-        supplier: item.selected_supplier || ""
+        supplier: item.selected_supplier || "",
+        supplierId: null
       };
     });
     setPrices(initialPrices);
@@ -88,12 +167,23 @@ export default function PurchasingPage() {
     setLoadingItems(false);
   };
 
-  const updatePrice = (itemId: number, field: "price" | "supplier", value: string | number) => {
+  const updatePrice = (itemId: string, field: "price" | "supplier" | "supplierId", value: string | number | null) => {
     setPrices(prev => ({
       ...prev,
       [itemId]: {
         ...prev[itemId],
         [field]: field === "price" ? parseFloat(value as string) || 0 : value
+      }
+    }));
+  };
+
+  const selectSupplier = (itemId: string, supplier: Supplier) => {
+    setPrices(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        supplier: supplier.name,
+        supplierId: supplier.id
       }
     }));
   };
@@ -106,15 +196,14 @@ export default function PurchasingPage() {
   };
 
   const allItemsHavePrices = () => {
-    return items.every(item => prices[item.id]?.price > 0);
+    return items.every(item => prices[item.id]?.price > 0 && prices[item.id]?.supplier);
   };
 
   const saveAndSendToAuthorization = async () => {
     if (!selectedReq || !allItemsHavePrices()) return;
-    
+
     setSending(true);
     try {
-      // Guardar precios en cada item
       for (const item of items) {
         await supabase
           .from("requisition_items")
@@ -125,16 +214,13 @@ export default function PurchasingPage() {
           .eq("id", item.id);
       }
 
-      // Actualizar requisición
       await supabase
         .from("requisitions")
         .update({ purchase_status: "COTIZADO" })
         .eq("id", selectedReq.id);
 
-      // Calcular días hasta fecha requerida
       const daysUntil = Math.ceil((new Date(selectedReq.required_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
-      // Enviar a autorización via API
       const response = await fetch("/api/requisicion/authorize-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -178,6 +264,12 @@ export default function PurchasingPage() {
     if (days <= 2) return { text: `${days}d`, color: "from-orange-500 to-orange-600" };
     if (days <= 5) return { text: `${days}d`, color: "from-amber-500 to-amber-600" };
     return { text: `${days}d`, color: "from-slate-500 to-slate-600" };
+  };
+
+  const getSelectedSupplierInfo = (itemId: string, suppliers: Supplier[]) => {
+    const supplierId = prices[itemId]?.supplierId;
+    if (!supplierId) return null;
+    return suppliers.find(s => s.id === supplierId);
   };
 
   return (
@@ -281,13 +373,13 @@ export default function PurchasingPage() {
               </div>
 
               {!showItems ? (
-                <button 
+                <button
                   onClick={() => loadItems(selectedReq.id)}
                   disabled={loadingItems}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#38BDF8] to-[#003DA5] text-white font-medium text-sm shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                 >
                   {loadingItems ? <Loader2 className="w-4 h-4 animate-spin" /> : <Package className="w-4 h-4" />}
-                  {loadingItems ? "Cargando..." : "Cargar Artículos para Cotizar"}
+                  {loadingItems ? "Cargando artículos y proveedores..." : "Cargar Artículos para Cotizar"}
                 </button>
               ) : (
                 <div className="border-t border-white/10 pt-4">
@@ -300,53 +392,107 @@ export default function PurchasingPage() {
                       <X className="w-4 h-4 text-white/40" />
                     </button>
                   </div>
-                  
-                  <div className="space-y-3 max-h-[350px] overflow-auto mb-4">
-                    {items.map((item, idx) => (
-                      <div key={item.id} className="p-3 rounded-xl bg-white/5 space-y-2">
-                        <div className="flex items-start gap-3">
-                          <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#38BDF8]/20 text-[#38BDF8] text-xs font-bold flex-shrink-0">
-                            {idx + 1}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white font-medium">{item.product_name}</p>
-                            <p className="text-xs text-white/40">{item.quantity} {item.unit}</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 ml-9">
-                          <div>
-                            <label className="text-[10px] text-white/40 block mb-1">Precio unitario</label>
-                            <div className="relative">
-                              <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
-                              <input
-                                type="number"
-                                placeholder="0.00"
-                                value={prices[item.id]?.price || ""}
-                                onChange={(e) => updatePrice(item.id, "price", e.target.value)}
-                                className="w-full pl-6 pr-2 py-1.5 rounded-lg bg-black/30 border border-white/10 text-sm text-white placeholder-white/30 focus:border-[#38BDF8]/50 outline-none"
-                              />
+
+                  <div className="space-y-4 max-h-[450px] overflow-auto mb-4 pr-2">
+                    {items.map((item, idx) => {
+                      const selectedSupplier = getSelectedSupplierInfo(String(item.id), item.suppliers);
+                      
+                      return (
+                        <div key={item.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                          {/* Producto */}
+                          <div className="flex items-start gap-3 mb-3">
+                            <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#38BDF8]/20 text-[#38BDF8] text-xs font-bold flex-shrink-0">
+                              {idx + 1}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-white font-medium">{item.product_name}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-white/40">{item.quantity} {item.unit}</span>
+                                <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{item.category}</span>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <label className="text-[10px] text-white/40 block mb-1">Proveedor</label>
-                            <input
-                              type="text"
-                              placeholder="Nombre"
-                              value={prices[item.id]?.supplier || ""}
-                              onChange={(e) => updatePrice(item.id, "supplier", e.target.value)}
-                              className="w-full px-2 py-1.5 rounded-lg bg-black/30 border border-white/10 text-sm text-white placeholder-white/30 focus:border-[#38BDF8]/50 outline-none"
-                            />
+                          
+                          {/* Proveedores sugeridos */}
+                          <div className="mb-3">
+                            <label className="text-[11px] text-white/40 flex items-center gap-1 mb-2">
+                              <Users className="w-3 h-3" />
+                              Proveedores sugeridos ({item.suppliers.length})
+                            </label>
+                            
+                            {item.suppliers.length > 0 ? (
+                              <div className="grid grid-cols-2 gap-2">
+                                {item.suppliers.slice(0, 6).map((supplier) => (
+                                  <button
+                                    key={supplier.id}
+                                    onClick={() => selectSupplier(String(item.id), supplier)}
+                                    className={`text-left p-2 rounded-lg border transition-all ${
+                                      prices[item.id]?.supplierId === supplier.id
+                                        ? "border-[#38BDF8] bg-[#38BDF8]/20"
+                                        : "border-white/10 bg-black/20 hover:border-white/30"
+                                    }`}
+                                  >
+                                    <p className="text-xs font-medium text-white truncate">{supplier.name}</p>
+                                    <p className="text-[10px] text-white/40">
+                                      {supplier.credit_days > 0 ? `${supplier.credit_days}d crédito` : "Contado"}
+                                    </p>
+                                  </button>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-white/30 italic">Sin proveedores vinculados</p>
+                            )}
+                          </div>
+
+                          {/* Info del proveedor seleccionado */}
+                          {selectedSupplier && (
+                            <div className="mb-3 p-2 rounded-lg bg-[#38BDF8]/10 border border-[#38BDF8]/30">
+                              <p className="text-xs font-medium text-[#38BDF8] mb-1">{selectedSupplier.name}</p>
+                              <div className="flex flex-wrap gap-3 text-[10px] text-white/60">
+                                {selectedSupplier.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="w-3 h-3" /> {selectedSupplier.phone}
+                                  </span>
+                                )}
+                                {selectedSupplier.email && (
+                                  <span className="flex items-center gap-1">
+                                    <Mail className="w-3 h-3" /> {selectedSupplier.email}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                  <CreditCard className="w-3 h-3" /> 
+                                  {selectedSupplier.credit_days > 0 ? `${selectedSupplier.credit_days} días crédito` : "Contado"}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Precio */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <label className="text-[10px] text-white/40 block mb-1">Precio unitario</label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
+                                <input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={prices[item.id]?.price || ""}
+                                  onChange={(e) => updatePrice(String(item.id), "price", e.target.value)}
+                                  className="w-full pl-6 pr-2 py-2 rounded-lg bg-black/30 border border-white/10 text-sm text-white placeholder-white/30 focus:border-[#38BDF8]/50 outline-none"
+                                />
+                              </div>
+                            </div>
+                            {prices[item.id]?.price > 0 && (
+                              <div className="text-right pt-4">
+                                <span className="text-sm text-emerald-400 font-bold">
+                                  ${(prices[item.id].price * item.quantity).toLocaleString()}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        {prices[item.id]?.price > 0 && (
-                          <div className="ml-9 text-right">
-                            <span className="text-xs text-emerald-400 font-medium">
-                              Subtotal: ${(prices[item.id].price * item.quantity).toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Total y Enviar */}
@@ -368,7 +514,7 @@ export default function PurchasingPage() {
                       {sending ? "Enviando..." : "Enviar a Autorización"}
                     </button>
                     {!allItemsHavePrices() && (
-                      <p className="text-xs text-amber-400 text-center mt-2">Agrega precio a todos los artículos</p>
+                      <p className="text-xs text-amber-400 text-center mt-2">Selecciona proveedor y agrega precio a todos los artículos</p>
                     )}
                   </div>
                 </div>
