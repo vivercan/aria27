@@ -7,7 +7,7 @@ import { useState } from "react";
 const menuItems = [
   { name: "Obras", href: "/dashboard/obras", icon: HardHat },
   { name: "Talento", href: "/dashboard/talento", icon: Users },
-  { name: "Abasto", href: "/dashboard/abasto", icon: Package },
+  { name: "Requisiciones", href: "/dashboard/requisiciones", icon: Package },
   { name: "Finanzas", href: "/dashboard/Finanzas", icon: Wallet },
   { name: "Activos", href: "/dashboard/Activos", icon: Warehouse },
   { name: "Plantillas", href: "/dashboard/Plantillas", icon: FileText },
@@ -16,7 +16,7 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [openMenus, setOpenMenus] = useState<string[]>(["Talento", "Abasto"]);
+  const [openMenus, setOpenMenus] = useState<string[]>(["Talento", "Requisiciones"]);
   const toggleMenu = (name: string) => setOpenMenus((prev) => prev.includes(name) ? prev.filter((m) => m !== name) : [...prev, name]);
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 

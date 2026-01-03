@@ -164,7 +164,7 @@ export default function DashboardPage() {
     {
       title: "Nueva Requisición",
       description: "Solicitar materiales o servicios",
-      href: "/dashboard/abasto/Requisiciones",
+      href: "/dashboard/requisiciones/Requisiciones",
       icon: FileText,
       color: "from-blue-500 to-cyan-500",
     },

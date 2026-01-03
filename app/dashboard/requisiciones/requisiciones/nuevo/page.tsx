@@ -95,7 +95,7 @@ export default function NewRequisitionPage() {
       setMessage(`✅ Requisición ${data.folio} generada exitosamente. Se enviaron notificaciones por email.`);
       setMaterials([]);
       setGeneralComments("");
-      setTimeout(() => router.push("/dashboard/abasto/Requisiciones/estatus"), 3000);
+      setTimeout(() => router.push("/dashboard/requisiciones/Requisiciones/estatus"), 3000);
     } catch (err: any) {
       setErrorMsg(err?.message || "Error al generar la requisición.");
     } finally {

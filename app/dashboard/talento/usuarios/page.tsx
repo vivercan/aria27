@@ -25,7 +25,7 @@ const ROLES = [
 const MODULES = [
   { id: "build-desk", name: "Obras", submodules: ["pipeline", "tender", "estimates", "packing", "siroc", "legal"] },
   { id: "talent-hub", name: "Talento", submodules: ["Personal", "Checadas", "Nómina", "adjustments", "matrix", "legal", "Users"] },
-  { id: "supply-desk", name: "Abasto", submodules: ["Requisiciones", "vendors", "Proveedores", "Productos", "Cotizaciones", "delivery", "payments", "prospecting"] },
+  { id: "supply-desk", name: "Requisiciones", submodules: ["Requisiciones", "vendors", "Proveedores", "Productos", "Cotizaciones", "delivery", "payments", "prospecting"] },
   { id: "Finanzas", name: "Finanzas", submodules: ["billing", "receivables", "accounts-payable", "field-cash", "bank-reco", "job-costing"] },
   { id: "Activos", name: "Activos", submodules: ["master", "allocation", "maintenance", "status"] },
   { id: "Plantillas", name: "Plantillas", submodules: ["docs", "bids", "po", "library"] },

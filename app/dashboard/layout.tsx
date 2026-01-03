@@ -21,7 +21,7 @@ import {
 const menuItems = [
   { name: "Obras", path: "/dashboard/obras", icon: HardHat },
   { name: "Talento", path: "/dashboard/talento", icon: Users },
-  { name: "Abasto", path: "/dashboard/abasto", icon: ShoppingCart },
+  { name: "Requisiciones", path: "/dashboard/requisiciones", icon: ShoppingCart },
   { name: "Finanzas", path: "/dashboard/Finanzas", icon: Wallet },
   { name: "Activos", path: "/dashboard/Activos", icon: Box },
   { name: "Plantillas", path: "/dashboard/Plantillas", icon: FileText },

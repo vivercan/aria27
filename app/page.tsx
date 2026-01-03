@@ -10,7 +10,7 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (email.trim() === 'recursos.humanos@gcuavante.com' && pass.trim() === 'cVfo1fk@') {
-      router.push('/dashboard/abasto')
+      router.push('/dashboard/requisiciones')
     } else {
       alert('Credenciales incorrectas. Verifica mayusculas y espacios.')
     }

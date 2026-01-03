@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList } from "lucide-react";
 
 const submodules = [
-  { title: "Nueva Requisición", description: "Crear solicitud de materiales.", icon: FilePlus, href: "/dashboard/abasto/Requisiciones/nuevo", color: "from-emerald-500 to-emerald-600" },
-  { title: "Estatus de Requisiciones", description: "Monitor de solicitudes.", icon: ListChecks, href: "/dashboard/abasto/Requisiciones/estatus", color: "from-blue-500 to-blue-600" },
-  { title: "Autorizar Requisiciones", description: "Aprobar solicitudes pendientes.", icon: ShieldCheck, href: "/dashboard/abasto/Requisiciones/autorizar", color: "from-amber-500 to-amber-600" },
-  { title: "Compras", description: "Gestionar cotizaciones.", icon: ShoppingCart, href: "/dashboard/abasto/Requisiciones/Compras", color: "from-purple-500 to-purple-600" },
-  { title: "Órdenes de Compra", description: "Órdenes autorizadas.", icon: ClipboardList, href: "/dashboard/abasto/Requisiciones/ordenes", color: "from-cyan-500 to-cyan-600" },
+  { title: "Nueva Requisición", description: "Crear solicitud de materiales.", icon: FilePlus, href: "/dashboard/requisiciones/Requisiciones/nuevo", color: "from-emerald-500 to-emerald-600" },
+  { title: "Estatus de Requisiciones", description: "Monitor de solicitudes.", icon: ListChecks, href: "/dashboard/requisiciones/Requisiciones/estatus", color: "from-blue-500 to-blue-600" },
+  { title: "Autorizar Requisiciones", description: "Aprobar solicitudes pendientes.", icon: ShieldCheck, href: "/dashboard/requisiciones/Requisiciones/autorizar", color: "from-amber-500 to-amber-600" },
+  { title: "Compras", description: "Gestionar cotizaciones.", icon: ShoppingCart, href: "/dashboard/requisiciones/Requisiciones/Compras", color: "from-purple-500 to-purple-600" },
+  { title: "Órdenes de Compra", description: "Órdenes autorizadas.", icon: ClipboardList, href: "/dashboard/requisiciones/Requisiciones/ordenes", color: "from-cyan-500 to-cyan-600" },
 ];
 
 export default function RequisicionesPage() {
