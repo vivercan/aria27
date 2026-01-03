@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Buscar empleado
     const { data, error: empErr } = await supabase
-      .from("employees")
+      .from("Personal")
       .select("*")
       .or(`whatsapp.eq.${phone10},whatsapp.eq.${from}`)
       .eq("status", "ACTIVO")

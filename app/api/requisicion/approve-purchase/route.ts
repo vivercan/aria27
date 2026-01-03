@@ -14,10 +14,10 @@ export async function GET(request: Request) {
 
   if (!token) return new Response("<h1>Token invalido</h1>", { headers: { "Content-Type": "text/html" } });
 
-  const { data: req, error } = await supabase.from("requisitions").select("*").eq("authorization_comments", token).single();
+  const { data: req, error } = await supabase.from("Requisiciones").select("*").eq("authorization_comments", token).single();
   if (error || !req) return new Response("<h1>Requisicion no encontrada</h1>", { headers: { "Content-Type": "text/html" } });
 
-  const { data: comprasUser } = await supabase.from("users").select("*").eq("email", COMPRAS_EMAIL).single();
+  const { data: comprasUser } = await supabase.from("Users").select("*").eq("email", COMPRAS_EMAIL).single();
 
   if (action === "AUTORIZAR") {
     const { data: lastOC } = await supabase.from("purchase_orders").select("folio").order("created_at", { ascending: false }).limit(1);
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       authorized_by: AUTORIZADOR_EMAIL, authorized_at: new Date().toISOString()
     });
 
-    await supabase.from("requisitions").update({
+    await supabase.from("Requisiciones").update({
       status: "OC_GENERADA", purchase_status: "AUTORIZADA",
       authorized_by: AUTORIZADOR_EMAIL, authorized_at: new Date().toISOString()
     }).eq("id", req.id);
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="color:#1e3a5f;font-size:24px;font-weight:bold">${ocFolio}</p><p style="color:#64748b">Requisición: ${req.folio}</p><p style="color:#64748b">Total: $${total.toLocaleString()} MXN</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
   } else if (action === "RECHAZAR") {
-    await supabase.from("requisitions").update({ status: "COMPRA_RECHAZADA", purchase_status: "RECHAZADA" }).eq("id", req.id);
+    await supabase.from("Requisiciones").update({ status: "COMPRA_RECHAZADA", purchase_status: "RECHAZADA" }).eq("id", req.id);
 
     await resend.emails.send({
       from: "ARIA27 <noreply@mail.jjcrm27.com>", to: COMPRAS_EMAIL,

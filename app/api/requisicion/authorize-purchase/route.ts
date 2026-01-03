@@ -9,9 +9,9 @@ const AUTORIZADOR_EMAIL = "juanviverosv@gmail.com";
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
   try {
-    const { requisition, items, suppliers, total, token, daysUntil } = await request.json();
+    const { requisition, items, Proveedores, total, token, daysUntil } = await request.json();
 
-    const { data: autorizadorUser } = await supabase.from("users").select("*").eq("email", AUTORIZADOR_EMAIL).single();
+    const { data: autorizadorUser } = await supabase.from("Users").select("*").eq("email", AUTORIZADOR_EMAIL).single();
 
     const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
     const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";

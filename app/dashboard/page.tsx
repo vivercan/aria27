@@ -45,7 +45,7 @@ export default function DashboardPage() {
         const storedEmail = localStorage.getItem("userEmail");
         if (storedEmail) {
           const { data: user } = await supabase
-            .from("users")
+            .from("Users")
             .select("display_name, name")
             .eq("email", storedEmail)
             .single();
@@ -59,31 +59,31 @@ export default function DashboardPage() {
 
         // Requisiciones de hoy
         const { count: reqHoy } = await supabase
-          .from("requisitions")
+          .from("Requisiciones")
           .select("*", { count: "exact", head: true })
           .gte("created_at", today);
 
         // Requisiciones pendientes
         const { count: reqPend } = await supabase
-          .from("requisitions")
+          .from("Requisiciones")
           .select("*", { count: "exact", head: true })
           .in("status", ["PENDIENTE", "VALIDADA", "EN_COTIZACION"]);
 
         // Requisiciones aprobadas
         const { count: reqApproved } = await supabase
-          .from("requisitions")
+          .from("Requisiciones")
           .select("*", { count: "exact", head: true })
           .eq("status", "AUTORIZADA");
 
         // Empleados activos
         const { count: emps } = await supabase
-          .from("employees")
+          .from("Personal")
           .select("*", { count: "exact", head: true })
           .eq("status", "ACTIVO");
 
         // Productos
         const { count: prods } = await supabase
-          .from("products")
+          .from("Productos")
           .select("*", { count: "exact", head: true });
 
         // Centros de costo
@@ -164,28 +164,28 @@ export default function DashboardPage() {
     {
       title: "Nueva Requisición",
       description: "Solicitar materiales o servicios",
-      href: "/dashboard/supply-desk/requisitions",
+      href: "/dashboard/abasto/Requisiciones",
       icon: FileText,
       color: "from-blue-500 to-cyan-500",
     },
     {
       title: "Ver Empleados",
       description: "Gestionar personal y asistencias",
-      href: "/dashboard/talent-hub/people",
+      href: "/dashboard/talento/Personal",
       icon: Users,
       color: "from-violet-500 to-purple-500",
     },
     {
       title: "Registro de Asistencia",
       description: "Ver entradas y salidas del día",
-      href: "/dashboard/talent-hub/clock-in",
+      href: "/dashboard/talento/Checadas",
       icon: Clock,
       color: "from-emerald-500 to-green-500",
     },
     {
       title: "Centros de Trabajo",
       description: "Configurar obras y ubicaciones",
-      href: "/dashboard/settings/master-data/work-centers",
+      href: "/dashboard/config/maestros/centros",
       icon: Activity,
       color: "from-amber-500 to-orange-500",
     },

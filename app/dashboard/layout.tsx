@@ -19,13 +19,13 @@ import {
 } from "lucide-react";
 
 const menuItems = [
-  { name: "Build Desk", path: "/dashboard/build-desk", icon: HardHat },
-  { name: "Talent Hub", path: "/dashboard/talent-hub", icon: Users },
-  { name: "Supply Desk", path: "/dashboard/supply-desk", icon: ShoppingCart },
-  { name: "Finance", path: "/dashboard/finance", icon: Wallet },
-  { name: "Asset", path: "/dashboard/asset", icon: Box },
-  { name: "Templates", path: "/dashboard/templates", icon: FileText },
-  { name: "Settings", path: "/dashboard/settings", icon: Settings },
+  { name: "Obras", path: "/dashboard/obras", icon: HardHat },
+  { name: "Talento", path: "/dashboard/talento", icon: Users },
+  { name: "Abasto", path: "/dashboard/abasto", icon: ShoppingCart },
+  { name: "Finanzas", path: "/dashboard/Finanzas", icon: Wallet },
+  { name: "Activos", path: "/dashboard/Activos", icon: Box },
+  { name: "Plantillas", path: "/dashboard/Plantillas", icon: FileText },
+  { name: "Config", path: "/dashboard/config", icon: Settings },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const storedEmail = localStorage.getItem("userEmail");
       if (storedEmail) {
         const { data: user } = await supabase
-          .from("users")
+          .from("Users")
           .select("display_name, name, role")
           .eq("email", storedEmail)
           .single();

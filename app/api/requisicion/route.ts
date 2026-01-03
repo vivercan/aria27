@@ -10,14 +10,14 @@ const VALIDADOR_EMAIL = "vivercan@yahoo.com";
 const COMPRAS_EMAIL = "timonfx@hotmail.com";
 
 async function getNextFolio(): Promise<string> {
-  const { data } = await supabase.from("sequences").select("current_value").eq("id", "requisitions").single();
+  const { data } = await supabase.from("sequences").select("current_value").eq("id", "Requisiciones").single();
   const next = (data?.current_value || 0) + 1;
-  await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
+  await supabase.from("sequences").update({ current_value: next }).eq("id", "Requisiciones");
   return `REQ-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
 }
 
 async function getUserByEmail(email: string) {
-  const { data } = await supabase.from("users").select("*").eq("email", email).single();
+  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
   return data;
 }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const folio = await getNextFolio();
     const token = crypto.randomUUID();
 
-    // Obtener usuarios del sistema
+    // Obtener Users del sistema
     const creatorUser = await getUserByEmail(usuario.email);
     const adminUser = await getUserByEmail(ADMIN_EMAIL);
     const validadorUser = await getUserByEmail(VALIDADOR_EMAIL);
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     const isAdmin = usuario.email === ADMIN_EMAIL;
 
     // Guardar requisición
-    const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
+    const { data: req, error: reqErr } = await supabase.from("Requisiciones").insert({
       folio, cost_center_id: costCenterId, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate, 
       status: isValidador ? "APROBADA" : "PENDIENTE",
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: "ARIA27 <noreply@mail.jjcrm27.com>", to: COMPRAS_EMAIL,
         subject: `🛒 COTIZAR: ${folio} - ${urgencyText}`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisición para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/supply-desk/requisitions/purchasing" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisición para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/abasto/Requisiciones/Compras" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
       });
       if (comprasUser.phone) {
         await sendWhatsAppTemplate("requisicion_compras", [folio, displayName, obra, urgencyText], comprasUser.phone);

@@ -20,18 +20,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No se especificaron requisiciones" }, { status: 400 });
     }
 
-    const { data: requisitions } = await supabase
-      .from("requisitions")
+    const { data: Requisiciones } = await supabase
+      .from("Requisiciones")
       .select("*")
       .in("id", requisitionIds);
 
-    for (const req of requisitions || []) {
+    for (const req of Requisiciones || []) {
       const { data: items } = await supabase
         .from("requisition_items")
         .select("*")
         .eq("requisition_id", req.id);
 
-      await supabase.from("requisitions_backup").insert({
+      await supabase.from("Requisiciones_backup").insert({
         original_id: req.id,
         folio: req.folio,
         cost_center_id: req.cost_center_id,
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       await supabase.from("requisition_items").delete().eq("requisition_id", req.id);
     }
 
-    await supabase.from("requisitions").delete().in("id", requisitionIds);
+    await supabase.from("Requisiciones").delete().in("id", requisitionIds);
 
     return NextResponse.json({ 
       success: true, 

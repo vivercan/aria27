@@ -36,7 +36,7 @@ export default function CargaMasivaBtn({ onUploadSuccess }: { onUploadSuccess?: 
             type: row['Tipo']
         })).filter((i: any) => i.name);
 
-        const { error } = await supabase.from('products').insert(items);
+        const { error } = await supabase.from('Productos').insert(items);
         if (error) throw error;
         
         alert('✅ ¡Carga Exitosa desde la web! ' + items.length + ' productos agregados.');

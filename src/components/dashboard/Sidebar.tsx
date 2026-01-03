@@ -5,18 +5,18 @@ import { LayoutDashboard, HardHat, Users, Package, Wallet, Warehouse, FileText, 
 import { useState } from "react";
 
 const menuItems = [
-  { name: "Build Desk", href: "/dashboard/build-desk", icon: HardHat },
-  { name: "Talent Hub", href: "/dashboard/talent-hub", icon: Users },
-  { name: "Supply Desk", href: "/dashboard/supply-desk", icon: Package },
-  { name: "Finance", href: "/dashboard/finance", icon: Wallet },
-  { name: "Asset", href: "/dashboard/asset", icon: Warehouse },
-  { name: "Templates", href: "/dashboard/templates", icon: FileText },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Obras", href: "/dashboard/obras", icon: HardHat },
+  { name: "Talento", href: "/dashboard/talento", icon: Users },
+  { name: "Abasto", href: "/dashboard/abasto", icon: Package },
+  { name: "Finanzas", href: "/dashboard/Finanzas", icon: Wallet },
+  { name: "Activos", href: "/dashboard/Activos", icon: Warehouse },
+  { name: "Plantillas", href: "/dashboard/Plantillas", icon: FileText },
+  { name: "Config", href: "/dashboard/config", icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [openMenus, setOpenMenus] = useState<string[]>(["Talent Hub", "Supply Desk"]);
+  const [openMenus, setOpenMenus] = useState<string[]>(["Talento", "Abasto"]);
   const toggleMenu = (name: string) => setOpenMenus((prev) => prev.includes(name) ? prev.filter((m) => m !== name) : [...prev, name]);
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 

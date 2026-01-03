@@ -8,21 +8,21 @@ import React from 'react';
 export default function RequisitionPage() {
     // Lógica del Catálogo y Búsqueda
     const [searchQuery, setSearchQuery] = useState('');
-    const { products, loading } = useProducts(searchQuery);
+    const { Productos, loading } = useProducts(searchQuery);
 
     // Componente que renderiza la tabla de resultados del catálogo
     const CatalogoResultado = () => {
         if (loading) return <p className="text-gray-400">Cargando catálogo (2483 artículos)...</p>;
-        if (products.length === 0 && searchQuery.length > 0) return <p className="text-red-400">No se encontraron productos para "{searchQuery}".</p>;
-        if (products.length === 0 && searchQuery.length === 0) return <p className="text-gray-400">Escriba para buscar artículos en el catálogo.</p>;
+        if (Productos.length === 0 && searchQuery.length > 0) return <p className="text-red-400">No se encontraron productos para "{searchQuery}".</p>;
+        if (Productos.length === 0 && searchQuery.length === 0) return <p className="text-gray-400">Escriba para buscar artículos en el catálogo.</p>;
 
         return (
             <div className="mt-4 border border-gray-700 p-4 rounded-lg">
-                <h4 className="text-white text-lg mb-2">Resultados de Catálogo ({products.length})</h4>
+                <h4 className="text-white text-lg mb-2">Resultados de Catálogo ({Productos.length})</h4>
                 <table className="min-w-full divide-y divide-gray-700 text-sm text-white">
                     <thead><tr><th className="px-6 py-3 text-left text-gray-400">SKU</th><th className="px-6 py-3 text-left text-gray-400">Nombre Producto</th><th className="px-6 py-3 text-left text-gray-400">Unidad</th><th className="px-6 py-3 text-left text-gray-400">Acción</th></tr></thead>
                     <tbody>
-                        {products.slice(0, 10).map((product) => (
+                        {Productos.slice(0, 10).map((product) => (
                             <tr key={product.id} className="hover:bg-gray-800">
                                 <td className="px-6 py-2">{product.sku}</td>
                                 <td className="px-6 py-2">{product.name}</td>
