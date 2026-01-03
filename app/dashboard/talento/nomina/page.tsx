@@ -37,7 +37,7 @@ export default function NóminaPage() {
   }, []);
 
   const loadConfiguración = async () => {
-    const { data } = await supabase.from("Configuraciónuracion_nomina").select("parametro, valor");
+    const { data } = await supabase.from("configuracion_nomina").select("parametro, valor");
     if (data) {
       const c: any = {};
       data.forEach((i: any) => { c[i.parametro] = parseFloat(i.valor); });

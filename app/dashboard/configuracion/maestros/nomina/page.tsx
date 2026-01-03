@@ -22,7 +22,7 @@ export default function NóminaConfiguraciónPage() {
 
   async function fetchConfiguracións() {
     const { data } = await supabase
-      .from("Configuraciónuracion_nomina")
+      .from("configuracion_nomina")
       .select("*")
       .order("clave");
     if (data) setConfiguracións(data);
@@ -31,7 +31,7 @@ export default function NóminaConfiguraciónPage() {
 
   async function handleSave(id: string, valor: string) {
     setSaving(true);
-    await supabase.from("Configuraciónuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
+    await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
     setSaving(false);
   }
 
@@ -51,15 +51,15 @@ export default function NóminaConfiguraciónPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 text-sm text-slate-400">
-        <Link href="/dashboard/Configuraciónuracion/maestros" className="hover:text-white">Maestros</Link>
+        <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>
-        <span className="text-white">Configuraciónuración Nómina</span>
+        <span className="text-white">Configuración Nómina</span>
       </div>
 
       <div>
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
-          Configuraciónuración de Nómina
+          Configuración de Nómina
         </h1>
         <p className="text-slate-400 text-sm">Parámetros para cálculo de nómina y asistencias</p>
       </div>

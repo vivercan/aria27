@@ -7,21 +7,21 @@ const masterDataItems = [
     title: "Centros de Trabajo",
     description: "Obras y ubicaciones con geocerca para control de asistencia",
     icon: Building2,
-    href: "/dashboard/Configuraciónuracion/maestros/centros",
+    href: "/dashboard/configuracion/maestros/centros",
     color: "bg-blue-500"
   },
   {
-    title: "Configuraciónuración Nómina",
+    title: "Configuración Nómina",
     description: "Parámetros de cálculo: salario mínimo, horas extra, tolerancias",
     icon: DollarSign,
-    href: "/dashboard/Configuraciónuracion/maestros/Nómina-Configuración",
+    href: "/dashboard/configuracion/maestros/Nómina-Configuración",
     color: "bg-emerald-500"
   },
   {
     title: "Horarios",
     description: "Definir horarios laborales y días de trabajo",
     icon: Clock,
-    href: "/dashboard/Configuraciónuracion/maestros/schedules",
+    href: "/dashboard/configuracion/maestros/schedules",
     color: "bg-purple-500"
   }
 ];
@@ -34,7 +34,7 @@ export default function MasterDataPage() {
           <Settings className="text-slate-400" />
           Maestros
         </h1>
-        <p className="text-slate-400 text-sm">Configuraciónuración de catálogos y parámetros del sistema</p>
+        <p className="text-slate-400 text-sm">Configuración de catálogos y parámetros del sistema</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

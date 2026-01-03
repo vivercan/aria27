@@ -11,7 +11,7 @@ const menuItems = [
   { name: "Finanzas", href: "/dashboard/Finanzas", icon: Wallet },
   { name: "Activos", href: "/dashboard/Activos", icon: Warehouse },
   { name: "Plantillas", href: "/dashboard/Plantillas", icon: FileText },
-  { name: "Configuración", href: "/dashboard/Configuraciónuracion", icon: Settings },
+  { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
 ];
 
 export default function Sidebar() {

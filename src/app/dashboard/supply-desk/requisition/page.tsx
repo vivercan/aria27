@@ -44,9 +44,9 @@ export default function RequisitionPage() {
                 <h2 className="text-2xl font-bold mb-6">Nueva Requisición</h2>
                 <p className="mb-6 text-gray-400">Agrega productos del catálogo o partidas manuales.</p>
 
-                {/* 1. ConfiguraciónURACIÓN */}
+                {/* 1. Configuración */}
                 <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-xl">
-                    <h3 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">1. ConfiguraciónURACIÓN</h3>
+                    <h3 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">1. Configuración</h3>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-300">Obra / Centro de Costos</label>
                         <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-gray-700 text-white">
