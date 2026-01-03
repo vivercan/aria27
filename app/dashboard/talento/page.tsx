@@ -1,27 +1,88 @@
 "use client";
+import { Users, Clock, DollarSign, AlertCircle, FileText, BarChart3, UserCog } from "lucide-react";
+import Link from "next/link";
 
-import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
-import { Users, Clock, Wallet, SlidersHorizontal, Scale, Grid3X3, UserCog } from "lucide-react";
-
-const modules = [
-  { title: "HR Personal", description: "Expedientes de colaboradores.", icon: Users, href: "/dashboard/talento/personal", color: "from-purple-500 to-purple-600", glowColor: "rgba(168,85,247,0.3)", badge: "16", badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30", meta: "Colaboradores" },
-  { title: "Checadas Hub", description: "Control de asistencia.", icon: Clock, href: "/dashboard/talento/checadas", color: "from-blue-500 to-blue-600", glowColor: "rgba(59,130,246,0.3)", meta: "WhatsApp" },
-  { title: "Nómina Flow", description: "Gestión de nómina.", icon: Wallet, href: "/dashboard/talento/nomina", color: "from-emerald-500 to-emerald-600", glowColor: "rgba(52,211,153,0.3)" },
-  { title: "Adjustments", description: "Incidencias y ajustes.", icon: SlidersHorizontal, href: "/dashboard/talento/incidencias", color: "from-amber-500 to-orange-500", glowColor: "rgba(245,158,11,0.3)" },
-  { title: "Legal HR", description: "Contratos y documentos legales.", icon: Scale, href: "/dashboard/talento/legales", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)" },
-  { title: "Salary Matrix", description: "Tabulador de sueldos.", icon: Grid3X3, href: "/dashboard/talento/matriz", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.3)" },
-  { title: "User Access", description: "Control de Users del sistema.", icon: UserCog, href: "/dashboard/talento/usuarios", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)", badge: "Admin", badgeColor: "bg-slate-500/20 text-slate-400 border-slate-500/30" },
+const subModules = [
+  {
+    title: "HR Personal",
+    description: "Expedientes de colaboradores.",
+    href: "/dashboard/talento/personal",
+    icon: Users,
+    color: "bg-blue-500"
+  },
+  {
+    title: "Asistencias",
+    description: "Control de entradas y salidas.",
+    href: "/dashboard/talento/checadas",
+    icon: Clock,
+    color: "bg-green-500"
+  },
+  {
+    title: "Nómina",
+    description: "Gestión de nómina.",
+    href: "/dashboard/talento/nomina",
+    icon: DollarSign,
+    color: "bg-amber-500"
+  },
+  {
+    title: "Incidencias",
+    description: "Faltas, permisos y ajustes.",
+    href: "/dashboard/talento/incidencias",
+    icon: AlertCircle,
+    color: "bg-rose-500"
+  },
+  {
+    title: "Legal HR",
+    description: "Contratos y documentos legales.",
+    href: "/dashboard/talento/legales",
+    icon: FileText,
+    color: "bg-purple-500"
+  },
+  {
+    title: "Salary Matrix",
+    description: "Tabulador de sueldos.",
+    href: "/dashboard/talento/matriz",
+    icon: BarChart3,
+    color: "bg-cyan-500"
+  },
+  {
+    title: "User Access",
+    description: "Usuarios del sistema.",
+    href: "/dashboard/talento/usuarios",
+    icon: UserCog,
+    color: "bg-indigo-500"
+  }
 ];
 
-export default function TalentHubPage() {
+export default function TalentoPage() {
   return (
-    <div>
-      <ModuleHeader title="Talento" subtitle="Gestión de recursos humanos y nómina." />
-      <ModuleGrid>
-        {modules.map((mod, idx) => (
-          <ModuleCard key={idx} {...mod} />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Talento</h1>
+        <p className="text-slate-400 mt-1">Gestión de recursos humanos y nómina.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {subModules.map((module) => (
+          <Link
+            key={module.href}
+            href={module.href}
+            className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+          >
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-xl ${module.color}/20`}>
+                <module.icon className={`w-6 h-6 text-white`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                  {module.title}
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">{module.description}</p>
+              </div>
+            </div>
+          </Link>
         ))}
-      </ModuleGrid>
+      </div>
     </div>
   );
 }

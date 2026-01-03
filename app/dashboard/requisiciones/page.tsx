@@ -1,28 +1,104 @@
 "use client";
+import { FileText, Package, Users, ClipboardList, ShoppingCart, CreditCard, Truck, Search } from "lucide-react";
+import Link from "next/link";
 
-import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
-import { FileCheck, Package, Users, ClipboardList, Truck, Settings, ShoppingCart, CreditCard } from "lucide-react";
-
-const modules = [
-  { title: "Requisiciones", description: "Solicitudes de materiales para obra.", icon: FileCheck, href: "/dashboard/requisiciones/requisiciones", color: "from-emerald-500 to-emerald-600", glowColor: "rgba(52,211,153,0.3)", badge: "Activo", badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", meta: "Flujo completo" },
-  { title: "Inventario", description: "Control de stock y almacén.", icon: Package, href: "/dashboard/requisiciones/productos", color: "from-blue-500 to-blue-600", glowColor: "rgba(59,130,246,0.3)" },
-  { title: "Maestro Proveedores", description: "Catálogo de proveedores.", icon: Users, href: "/dashboard/requisiciones/proveedores", color: "from-purple-500 to-purple-600", glowColor: "rgba(168,85,247,0.3)", badge: "CRUD", badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  { title: "Órdenes de Compra", description: "Gestión de órdenes autorizadas.", icon: ClipboardList, href: "/dashboard/requisiciones/requisiciones/ordenes", color: "from-amber-500 to-orange-500", glowColor: "rgba(245,158,11,0.3)" },
-  { title: "Compras", description: "Cotizaciones y comparativas.", icon: ShoppingCart, href: "/dashboard/requisiciones/requisiciones/tramite", color: "from-cyan-500 to-cyan-600", glowColor: "rgba(6,182,212,0.3)" },
-  { title: "Pagos", description: "Control de pagos a proveedores.", icon: CreditCard, href: "/dashboard/requisiciones/pagos", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)" },
-  { title: "Logística", description: "Entregas y seguimiento.", icon: Truck, href: "/dashboard/requisiciones/entregas", color: "from-teal-500 to-teal-600", glowColor: "rgba(20,184,166,0.3)" },
-  { title: "Configuración", description: "Ajustes del módulo.", icon: Settings, href: "/dashboard/requisiciones/prospeccion", color: "from-slate-500 to-slate-600", glowColor: "rgba(100,116,139,0.2)" },
+const subModules = [
+  {
+    title: "Requisiciones",
+    description: "Solicitudes de materiales para obra.",
+    href: "/dashboard/requisiciones/requisiciones",
+    icon: FileText,
+    color: "bg-blue-500",
+    badge: "ACTIVO"
+  },
+  {
+    title: "Productos",
+    description: "Control de stock y almacén.",
+    href: "/dashboard/requisiciones/productos",
+    icon: Package,
+    color: "bg-teal-500"
+  },
+  {
+    title: "Proveedores",
+    description: "Catálogo de proveedores.",
+    href: "/dashboard/requisiciones/proveedores",
+    icon: Users,
+    color: "bg-green-500",
+    badge: "CRUD"
+  },
+  {
+    title: "Órdenes de Compra",
+    description: "Gestión de órdenes autorizadas.",
+    href: "/dashboard/requisiciones/requisiciones/ordenes",
+    icon: ClipboardList,
+    color: "bg-amber-500"
+  },
+  {
+    title: "Compras",
+    description: "Cotizaciones y comparativas.",
+    href: "/dashboard/requisiciones/compras",
+    icon: ShoppingCart,
+    color: "bg-cyan-500"
+  },
+  {
+    title: "Pagos",
+    description: "Control de pagos a proveedores.",
+    href: "/dashboard/requisiciones/pagos",
+    icon: CreditCard,
+    color: "bg-rose-500"
+  },
+  {
+    title: "Entregas",
+    description: "Entregas y seguimiento.",
+    href: "/dashboard/requisiciones/entregas",
+    icon: Truck,
+    color: "bg-indigo-500"
+  },
+  {
+    title: "Prospección",
+    description: "Búsqueda de nuevos proveedores.",
+    href: "/dashboard/requisiciones/prospeccion",
+    icon: Search,
+    color: "bg-purple-500"
+  }
 ];
 
-export default function SupplyDeskPage() {
+export default function RequisicionesPage() {
   return (
-    <div>
-      <ModuleHeader title="Requisiciones" subtitle="Gestión de compras, inventario y proveedores." />
-      <ModuleGrid>
-        {modules.map((mod, idx) => (
-          <ModuleCard key={idx} {...mod} />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Requisiciones</h1>
+        <p className="text-slate-400 mt-1">Gestión de compras, inventario y proveedores.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {subModules.map((module) => (
+          <Link
+            key={module.href}
+            href={module.href}
+            className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+          >
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-xl ${module.color}/20`}>
+                <module.icon className={`w-6 h-6 text-white`} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                    {module.title}
+                  </h3>
+                  {module.badge && (
+                    <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-400 rounded-full">
+                      {module.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-slate-400 mt-1">{module.description}</p>
+              </div>
+            </div>
+          </Link>
         ))}
-      </ModuleGrid>
+      </div>
     </div>
   );
 }

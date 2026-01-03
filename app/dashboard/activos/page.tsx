@@ -1,24 +1,67 @@
 "use client";
+import { Database, Activity, MapPin, Wrench } from "lucide-react";
+import Link from "next/link";
 
-import { ModuleCard, ModuleHeader, ModuleGrid } from "@/components/dashboard";
-import { Box, Activity, MapPin, Wrench } from "lucide-react";
-
-const modules = [
-  { title: "Activos Master", description: "Catálogo de activos fijos.", icon: Box, href: "/dashboard/activos/catalogo", color: "from-rose-500 to-rose-600", glowColor: "rgba(244,63,94,0.3)", meta: "Maquinaria" },
-  { title: "Activos Status", description: "Estado actual de activos.", icon: Activity, href: "/dashboard/activos/estado", color: "from-blue-500 to-blue-600", glowColor: "rgba(59,130,246,0.3)" },
-  { title: "Site Allocation", description: "Asignación por obra.", icon: MapPin, href: "/dashboard/activos/asignacion", color: "from-emerald-500 to-emerald-600", glowColor: "rgba(52,211,153,0.3)" },
-  { title: "Maintenance", description: "Mantenimiento preventivo.", icon: Wrench, href: "/dashboard/activos/mantenimiento", color: "from-amber-500 to-orange-500", glowColor: "rgba(245,158,11,0.3)" },
+const subModules = [
+  {
+    title: "Catálogo",
+    description: "Catálogo de activos fijos.",
+    href: "/dashboard/activos/catalogo",
+    icon: Database,
+    color: "bg-blue-500"
+  },
+  {
+    title: "Estado",
+    description: "Estado actual de activos.",
+    href: "/dashboard/activos/estado",
+    icon: Activity,
+    color: "bg-green-500"
+  },
+  {
+    title: "Asignación",
+    description: "Asignación por obra.",
+    href: "/dashboard/activos/asignacion",
+    icon: MapPin,
+    color: "bg-amber-500"
+  },
+  {
+    title: "Mantenimiento",
+    description: "Mantenimiento preventivo.",
+    href: "/dashboard/activos/mantenimiento",
+    icon: Wrench,
+    color: "bg-rose-500"
+  }
 ];
 
 export default function ActivosPage() {
   return (
-    <div>
-      <ModuleHeader title="Activos" subtitle="Gestión de activos fijos y maquinaria." />
-      <ModuleGrid>
-        {modules.map((mod, idx) => (
-          <ModuleCard key={idx} {...mod} />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Activos</h1>
+        <p className="text-slate-400 mt-1">Control de activos fijos y maquinaria.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {subModules.map((module) => (
+          <Link
+            key={module.href}
+            href={module.href}
+            className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+          >
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-xl ${module.color}/20`}>
+                <module.icon className={`w-6 h-6 text-white`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                  {module.title}
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">{module.description}</p>
+              </div>
+            </div>
+          </Link>
         ))}
-      </ModuleGrid>
+      </div>
     </div>
   );
 }
