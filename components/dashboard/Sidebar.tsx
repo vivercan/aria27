@@ -43,10 +43,14 @@ const modules = [
     color: "text-violet-400",
     submodules: [
       { name: "Personal", href: "/dashboard/talento/personal" },
-      { name: "Users", href: "/dashboard/talento/usuarios" },
+      { name: "Usuarios", href: "/dashboard/talento/usuarios" },
       { name: "Checadas", href: "/dashboard/talento/checadas" },
-      { name: "checadas", href: "/dashboard/talento/checadas" },
       { name: "Nómina", href: "/dashboard/talento/nomina" },
+      { name: "Pre-Nómina", href: "/dashboard/talento/nomina/pre-nomina" },
+      { name: "Prestaciones", href: "/dashboard/talento/prestaciones" },
+      { name: "Préstamos", href: "/dashboard/talento/prestaciones/prestamos" },
+      { name: "Vacaciones", href: "/dashboard/talento/prestaciones/vacaciones" },
+      { name: "Gastos de Obra", href: "/dashboard/talento/gastos-obra" },
       { name: "Incidencias", href: "/dashboard/talento/incidencias" },
       { name: "Legales", href: "/dashboard/talento/legales" },
       { name: "Matriz", href: "/dashboard/talento/matriz" },
@@ -58,7 +62,11 @@ const modules = [
     href: "/dashboard/requisiciones",
     color: "text-cyan-400",
     submodules: [
-      { name: "Requisiciones", href: "/dashboard/requisiciones/requisiciones" },
+      { name: "Nueva", href: "/dashboard/requisiciones/requisiciones/nuevo" },
+      { name: "Estatus", href: "/dashboard/requisiciones/requisiciones/estatus" },
+      { name: "Trámite", href: "/dashboard/requisiciones/requisiciones/tramite" },
+      { name: "Autorizar", href: "/dashboard/requisiciones/requisiciones/autorizar" },
+      { name: "Órdenes de Compra", href: "/dashboard/requisiciones/requisiciones/ordenes" },
       { name: "Proveedores", href: "/dashboard/requisiciones/proveedores" },
       { name: "Productos", href: "/dashboard/requisiciones/productos" },
       { name: "Cotizaciones", href: "/dashboard/requisiciones/cotizaciones" },
@@ -74,11 +82,12 @@ const modules = [
     href: "/dashboard/finanzas",
     color: "text-emerald-400",
     submodules: [
+      { name: "Gastos de Obra", href: "/dashboard/finanzas/gastos-obra" },
       { name: "Facturación", href: "/dashboard/finanzas/facturacion" },
       { name: "Cobranza", href: "/dashboard/finanzas/cobranza" },
       { name: "Por Pagar", href: "/dashboard/finanzas/por-pagar" },
       { name: "Costeo", href: "/dashboard/finanzas/costeo" },
-      { name: "Caja", href: "/dashboard/finanzas/caja" },
+      { name: "Caja Chica", href: "/dashboard/finanzas/caja" },
       { name: "Bancos", href: "/dashboard/finanzas/bancos" },
     ],
   },
@@ -113,6 +122,8 @@ const modules = [
     color: "text-slate-400",
     submodules: [
       { name: "Maestros", href: "/dashboard/configuracion/maestros" },
+      { name: "Centros de Trabajo", href: "/dashboard/configuracion/maestros/centros" },
+      { name: "Config. Nómina", href: "/dashboard/configuracion/maestros/nomina" },
       { name: "Accesos", href: "/dashboard/configuracion/accesos" },
       { name: "Integraciones", href: "/dashboard/configuracion/integraciones" },
       { name: "Alertas", href: "/dashboard/configuracion/alertas" },
@@ -137,7 +148,7 @@ export default function Sidebar() {
   };
 
   const isActive = (href: string) => pathname === href;
-  const isModuleActive = (module: any) =>
+  const isModuleActive = (module: typeof modules[0]) =>
     pathname.startsWith(module.href) && module.href !== "/dashboard";
 
   return (
@@ -150,7 +161,7 @@ export default function Sidebar() {
           </span>
         </Link>
         <p className="text-[10px] uppercase tracking-widest text-slate-500 mt-1">
-          Operations OS
+          Infinity Loop
         </p>
       </div>
 
