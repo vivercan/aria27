@@ -56,7 +56,7 @@ export default function OrdersPage() {
       .from("purchase_orders")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     setOrders((ocs || []) as PurchaseOrder[]);
 
     if (ocs?.length) {
@@ -66,7 +66,6 @@ export default function OrdersPage() {
       (reqs || []).forEach(r => reqMap[r.id] = r);
       setRequisiciones(reqMap);
 
-      // Cargar items de cada requisición
       const itemsMap: {[key: string]: Item[]} = {};
       for (const reqId of reqIds) {
         const { data: reqItems } = await supabase.from("requisition_items").select("*").eq("requisition_id", reqId);
@@ -96,7 +95,7 @@ export default function OrdersPage() {
   const handleReceive = async () => {
     if (!selectedOrder) return;
     setReceiving(true);
-    
+
     await supabase.from("purchase_orders").update({
       status: "RECIBIDA",
       received_at: new Date().toISOString(),
@@ -105,7 +104,6 @@ export default function OrdersPage() {
       invoice_number: receiveForm.invoiceNumber
     }).eq("id", selectedOrder.id);
 
-    // Actualizar requisición
     const req = Requisiciones[selectedOrder.requisition_id];
     if (req) {
       await supabase.from("Requisiciones").update({
@@ -135,12 +133,17 @@ export default function OrdersPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FileText className="h-6 w-6 text-cyan-400" />
-            Órdenes de Compra
-          </h1>
-          <p className="text-white/60 text-sm">Seguimiento de compras autorizadas y recepción de materiales.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <FileText className="h-6 w-6 text-cyan-400" />
+              Órdenes de Compra
+            </h1>
+            <p className="text-white/60 text-sm">Seguimiento de compras autorizadas y recepción de materiales.</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setFilter("all")} className={`px-4 py-2 rounded-lg text-sm transition ${filter === "all" ? "bg-white/20" : "bg-white/5 hover:bg-white/10"}`}>
@@ -155,7 +158,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Resumen */}
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 p-4 border border-cyan-500/30">
           <div className="text-3xl font-bold">{orders.length}</div>
@@ -175,7 +177,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Lista de OCs */}
       <div className="rounded-2xl bg-white/5 p-5">
         {loading ? (
           <div className="text-center py-12 text-white/50"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
@@ -190,7 +191,7 @@ export default function OrdersPage() {
               const req = Requisiciones[order.requisition_id];
               const orderItems = items[order.requisition_id] || [];
               const timeInfo = getTimeInfo(order);
-              
+
               return (
                 <div key={order.id} className={`rounded-xl border p-5 transition hover:bg-white/5 ${order.status === "RECIBIDA" ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/10 bg-black/20"}`}>
                   <div className="flex items-start justify-between">
@@ -221,8 +222,6 @@ export default function OrdersPage() {
                             ${order.total?.toLocaleString() || 0} MXN
                           </span>
                         </div>
-                        
-                        {/* Preview de items */}
                         <div className="mt-3 text-xs text-white/50">
                           {orderItems.slice(0, 2).map(item => (
                             <span key={item.id} className="inline-block bg-white/10 rounded px-2 py-1 mr-2 mb-1">
@@ -233,21 +232,18 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     </div>
-                    
                     <div className="text-right flex flex-col items-end gap-2">
                       {order.status !== "RECIBIDA" && (
                         <div className={`text-2xl font-bold ${timeInfo.color === "red" ? "text-red-400" : timeInfo.color === "amber" ? "text-amber-400" : "text-emerald-400"}`}>
                           {timeInfo.text}
                         </div>
                       )}
-                      
                       <div className="flex gap-2">
                         <button onClick={() => openDetail(order)} className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-sm hover:bg-white/20">
                           <Eye className="h-4 w-4" /> Ver
                         </button>
                         {order.status !== "RECIBIDA" ? (
-                          <button onClick={() => openReceive(order)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400">
+                          <button onClick={() => openReceive(order)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400">
                             <Package className="h-4 w-4" /> Recibir
                           </button>
                         ) : (
@@ -266,7 +262,6 @@ export default function OrdersPage() {
         )}
       </div>
 
-      {/* Modal Detalle */}
       {showDetailModal && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 overflow-auto py-8">
           <div className="w-full max-w-2xl rounded-2xl bg-slate-800 p-6 shadow-xl mx-4">
@@ -274,7 +269,6 @@ export default function OrdersPage() {
               <h2 className="text-xl font-bold">{selectedOrder.folio}</h2>
               <button onClick={() => setShowDetailModal(false)} className="rounded-full p-1 hover:bg-white/10"><X className="h-5 w-5" /></button>
             </div>
-            
             {(() => {
               const req = Requisiciones[selectedOrder.requisition_id];
               const orderItems = items[selectedOrder.requisition_id] || [];
@@ -298,56 +292,40 @@ export default function OrdersPage() {
                       <div className="font-bold text-emerald-400">${selectedOrder.total?.toLocaleString()} MXN</div>
                     </div>
                   </div>
-                  
                   <div className="rounded-xl bg-white/5 p-4">
                     <div className="text-xs text-white/50 mb-2">Materiales</div>
-                    <div className="max-h-[calc(100vh-280px)] overflow-y-auto"><table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
-                        <tr className="border-b border-white/10 text-xs text-white/50">
-                          <th className="text-left pb-2">Producto</th>
-                          <th className="text-center pb-2">Cantidad</th>
-                          <th className="text-right pb-2">Precio</th>
-                          <th className="text-right pb-2">Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orderItems.map(item => (
-                          <tr key={item.id} className="border-b border-white/5">
-                            <td className="py-2">{item.product_name}</td>
-                            <td className="text-center py-2">{item.quantity} {item.unit}</td>
-                            <td className="text-right py-2">${(item.selected_price || 0).toLocaleString()}</td>
-                            <td className="text-right py-2 text-emerald-400">${((item.selected_price || 0) * item.quantity).toLocaleString()}</td>
+                    <div className="max-h-[calc(100vh-280px)] overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
+                          <tr className="border-b border-white/10 text-xs text-white/50">
+                            <th className="text-left pb-2">Producto</th>
+                            <th className="text-center pb-2">Cantidad</th>
+                            <th className="text-right pb-2">Precio</th>
+                            <th className="text-right pb-2">Subtotal</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table></div>
+                        </thead>
+                        <tbody>
+                          {orderItems.map(item => (
+                            <tr key={item.id} className="border-b border-white/5">
+                              <td className="py-2">{item.product_name}</td>
+                              <td className="text-center py-2">{item.quantity} {item.unit}</td>
+                              <td className="text-right py-2">${(item.selected_price || 0).toLocaleString()}</td>
+                              <td className="text-right py-2 text-emerald-400">${((item.selected_price || 0) * item.quantity).toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-white/50">Autorizado por:</span> {selectedOrder.authorized_by}
-                    </div>
-                    <div>
-                      <span className="text-white/50">Fecha autorización:</span> {new Date(selectedOrder.authorized_at).toLocaleString("es-MX")}
-                    </div>
+                    <div><span className="text-white/50">Autorizado por:</span> {selectedOrder.authorized_by}</div>
+                    <div><span className="text-white/50">Fecha autorización:</span> {new Date(selectedOrder.authorized_at).toLocaleString("es-MX")}</div>
                     {selectedOrder.status === "RECIBIDA" && (
                       <>
-                        <div>
-                          <span className="text-white/50">Recibido por:</span> {selectedOrder.received_by}
-                        </div>
-                        <div>
-                          <span className="text-white/50">Fecha recepción:</span> {new Date(selectedOrder.received_at).toLocaleString("es-MX")}
-                        </div>
-                        {selectedOrder.invoice_number && (
-                          <div className="col-span-2">
-                            <span className="text-white/50">Factura:</span> {selectedOrder.invoice_number}
-                          </div>
-                        )}
-                        {selectedOrder.delivery_notes && (
-                          <div className="col-span-2">
-                            <span className="text-white/50">Notas:</span> {selectedOrder.delivery_notes}
-                          </div>
-                        )}
+                        <div><span className="text-white/50">Recibido por:</span> {selectedOrder.received_by}</div>
+                        <div><span className="text-white/50">Fecha recepción:</span> {new Date(selectedOrder.received_at).toLocaleString("es-MX")}</div>
+                        {selectedOrder.invoice_number && <div className="col-span-2"><span className="text-white/50">Factura:</span> {selectedOrder.invoice_number}</div>}
+                        {selectedOrder.delivery_notes && <div className="col-span-2"><span className="text-white/50">Notas:</span> {selectedOrder.delivery_notes}</div>}
                       </>
                     )}
                   </div>
@@ -358,7 +336,6 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Modal Recepción */}
       {showReceiveModal && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="w-full max-w-lg rounded-2xl bg-slate-800 p-6 shadow-xl mx-4">
@@ -369,30 +346,20 @@ export default function OrdersPage() {
               </h2>
               <button onClick={() => setShowReceiveModal(false)} className="rounded-full p-1 hover:bg-white/10"><X className="h-5 w-5" /></button>
             </div>
-            
             <div className="space-y-4">
               <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
                 <div className="text-sm text-white/50">Orden de Compra</div>
                 <div className="text-xl font-bold">{selectedOrder.folio}</div>
                 <div className="text-emerald-400 font-bold mt-1">${selectedOrder.total?.toLocaleString()} MXN</div>
               </div>
-
               <div>
                 <label className="text-xs text-white/70">Número de Factura *</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm mt-1"
-                  placeholder="Ej: FAC-12345"
-                  value={receiveForm.invoiceNumber}
-                  onChange={e => setReceiveForm(f => ({...f, invoiceNumber: e.target.value}))} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm mt-1" placeholder="Ej: FAC-12345" value={receiveForm.invoiceNumber} onChange={e => setReceiveForm(f => ({...f, invoiceNumber: e.target.value}))} />
               </div>
-
               <div>
                 <label className="text-xs text-white/70">Notas de Recepción</label>
-                <textarea className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm mt-1 h-20"
-                  placeholder="Observaciones sobre la entrega, estado del material, etc."
-                  value={receiveForm.notes}
-                  onChange={e => setReceiveForm(f => ({...f, notes: e.target.value}))} />
+                <textarea className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm mt-1 h-20" placeholder="Observaciones sobre la entrega, estado del material, etc." value={receiveForm.notes} onChange={e => setReceiveForm(f => ({...f, notes: e.target.value}))} />
               </div>
-
               <div>
                 <label className="text-xs text-white/70 flex items-center gap-2"><Camera className="h-4 w-4" />Evidencia Fotográfica</label>
                 <div className="mt-2 border-2 border-dashed border-white/20 rounded-xl p-6 text-center text-white/40 hover:bg-white/5 cursor-pointer">
@@ -402,11 +369,9 @@ export default function OrdersPage() {
                 </div>
               </div>
             </div>
-
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowReceiveModal(false)} className="px-4 py-2 rounded-full text-sm hover:bg-white/10">Cancelar</button>
-              <button onClick={handleReceive} disabled={receiving || !receiveForm.invoiceNumber}
-                className={`inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-medium ${!receiveForm.invoiceNumber ? "bg-gray-600 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
+              <button onClick={handleReceive} disabled={receiving || !receiveForm.invoiceNumber} className={`inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-medium ${!receiveForm.invoiceNumber ? "bg-gray-600 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
                 {receiving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                 Confirmar Recepción
               </button>
@@ -417,5 +382,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
-

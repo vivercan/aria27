@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, ArrowLeft } from "lucide-react";
@@ -15,9 +14,14 @@ const submodules = [
 export default function RequisicionesPage() {
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Requisiciones</h1>
-        <p className="text-slate-400">Gestión de solicitudes de materiales para obra.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-white tracking-tight">Requisiciones</h1>
+          <p className="text-slate-400">Gestión de solicitudes de materiales para obra.</p>
+        </div>
       </div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {submodules.map((mod, idx) => (
@@ -38,4 +42,3 @@ export default function RequisicionesPage() {
     </div>
   );
 }
-

@@ -63,7 +63,7 @@ export default function AuthorizeRequisicionesPage() {
       authorized_at: new Date().toISOString(),
       authorization_comments: comments
     }).eq("id", selectedReq.id);
-    
+
     setSelectedReq(null);
     setItems([]);
     setComments("");
@@ -73,9 +73,14 @@ export default function AuthorizeRequisicionesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
-        <p className="text-white/60 text-sm">Revisar y aprobar solicitudes pendientes.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
+          <p className="text-white/60 text-sm">Revisar y aprobar solicitudes pendientes.</p>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -168,4 +173,3 @@ export default function AuthorizeRequisicionesPage() {
     </div>
   );
 }
-

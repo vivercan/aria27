@@ -32,7 +32,6 @@ interface NominaGuardada {
   estatus: string;
 }
 
-// DETALLE HISTORICO SEMANAS 45-53
 const HISTORIAL_DETALLE: Record<number, {nombre: string; obra: string; sueldo: number}[]> = {
   45: [
     {nombre: "DAISY SANCHEZ CALVILLO", obra: "OFICINA", sueldo: 6311.11},
@@ -139,14 +138,14 @@ export default function NominaPage() {
     csv += `Periodo: ${nomina.periodo_inicio} al ${nomina.periodo_fin}\n`;
     csv += `Folio: ${nomina.folio}\n\n`;
     csv += `No.,Nombre,Obra,Sueldo Neto\n`;
-    
+
     detalle.forEach((emp, i) => {
       csv += `${i+1},"${emp.nombre}","${emp.obra}",${emp.sueldo.toFixed(2)}\n`;
     });
-    
+
     const total = detalle.reduce((a, e) => a + e.sueldo, 0);
     csv += `\n,,TOTAL:,$${total.toFixed(2)}\n`;
-    
+
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -160,14 +159,14 @@ export default function NominaPage() {
     let csv = "\uFEFF";
     csv += "GRUPO CUAVANTE - RESUMEN NOMINAS 2025\n\n";
     csv += "Semana,Periodo Inicio,Periodo Fin,Empleados,Total Nomina,Estatus\n";
-    
+
     historial.forEach((nom) => {
       csv += `${nom.semana},${nom.periodo_inicio},${nom.periodo_fin},${nom.empleados_count},$${nom.total_nomina?.toFixed(2) || 0},${nom.estatus}\n`;
     });
-    
+
     const totalGeneral = historial.reduce((a, n) => a + (n.total_nomina || 0), 0);
     csv += `\n,,,,TOTAL 2025:,$${totalGeneral.toFixed(2)}\n`;
-    
+
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -177,14 +176,18 @@ export default function NominaPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <DollarSign className="w-7 h-7 text-emerald-400" />
-            Historial de Nóminas 2025
-          </h1>
-          <p className="text-slate-400 mt-1">{historial.length} semanas registradas</p>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+              <DollarSign className="w-7 h-7 text-emerald-400" />
+              Historial de Nóminas 2025
+            </h1>
+            <p className="text-slate-400 mt-1">{historial.length} semanas registradas</p>
+          </div>
         </div>
         <button onClick={exportarTodo} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30">
           <Download className="w-4 h-4" />
@@ -198,7 +201,6 @@ export default function NominaPage() {
         </div>
       )}
 
-      {/* Lista de Nóminas */}
       <div className="grid gap-3">
         {loading ? (
           <div className="text-center py-8 text-slate-400">Cargando...</div>
@@ -239,7 +241,6 @@ export default function NominaPage() {
         )}
       </div>
 
-      {/* Modal Detalle */}
       {selectedNomina && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
@@ -292,4 +293,3 @@ export default function NominaPage() {
     </div>
   );
 }
-

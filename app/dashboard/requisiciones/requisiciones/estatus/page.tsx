@@ -26,7 +26,7 @@ export default function RequisicionesStatusPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteType, setDeleteType] = useState<"single" | "selected" | "all">("single");
   const [singleDeleteId, setSingleDeleteId] = useState<string>("");
-  
+
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
   const clickSoundRef = useRef<HTMLAudioElement | null>(null);
 
@@ -34,7 +34,6 @@ export default function RequisicionesStatusPage() {
   const canDelete = userEmail === "recursos.humanos@gcuavante.com";
 
   useEffect(() => {
-    // Crear sonidos
     hoverSoundRef.current = new Audio("data:audio/wav;base64,UklGRl9vT19teleXBhdmVmbXQgEAAAABAAEARKwAAESsAAACABAAZGF0YQoAAAD//wIA");
     clickSoundRef.current = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Onp+beV9ac4OXpqqhknhkYXOCl6utpIpvYmBwe46grKuZgGtmZHWJnaass55+aWVpdomdqaynlnxsZml4iZypqaecgnBqaXqImaenp5uAdGxqe4iZpaakmoB0bGt8iJmkpKObgHRtbH2ImaSko5uAdG1sfYiZpKOim4B0bWx9iJmko6KbgHRtbH2ImaSjopuAdG1sfYiZpKOim4B0bWx9iJmko6KbgHRtbH2ImaSjopuAdG1sfYiZpA==");
     loadData();
@@ -191,11 +190,16 @@ export default function RequisicionesStatusPage() {
       `}</style>
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Estatus de Requisiciones</h1>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Estatus de Requisiciones</h1>
+        </div>
         <div className="flex gap-2">
           {canDelete && selectedIds.length > 0 && (
-            <button 
-              onClick={() => openDeleteModal("selected")} 
+            <button
+              onClick={() => openDeleteModal("selected")}
               onMouseEnter={playHoverSound}
               className="btn-ripple btn-delete px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
             >
@@ -203,8 +207,8 @@ export default function RequisicionesStatusPage() {
             </button>
           )}
           {canDelete && (
-            <button 
-              onClick={() => openDeleteModal("all")} 
+            <button
+              onClick={() => openDeleteModal("all")}
               onMouseEnter={playHoverSound}
               className="btn-ripple btn-delete px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded-lg"
             >
@@ -220,11 +224,11 @@ export default function RequisicionesStatusPage() {
             <tr className="bg-slate-900/50 text-slate-400 text-sm">
               {canDelete && (
                 <th className="p-4 text-left">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedIds.length === Requisiciones.length && Requisiciones.length > 0} 
-                    onChange={(e) => handleSelectAll(e.target.checked)} 
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 cursor-pointer" 
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === Requisiciones.length && Requisiciones.length > 0}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 cursor-pointer"
                   />
                 </th>
               )}
@@ -241,11 +245,11 @@ export default function RequisicionesStatusPage() {
               <tr key={req.id} className="border-t border-slate-700/50 hover:bg-slate-700/30 transition-colors">
                 {canDelete && (
                   <td className="p-4">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedIds.includes(req.id)} 
-                      onChange={(e) => handleSelect(req.id, e.target.checked)} 
-                      className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 cursor-pointer" 
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(req.id)}
+                      onChange={(e) => handleSelect(req.id, e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 cursor-pointer"
                     />
                   </td>
                 )}
@@ -260,8 +264,8 @@ export default function RequisicionesStatusPage() {
                 </td>
                 {canDelete && (
                   <td className="p-4">
-                    <button 
-                      onClick={() => openDeleteModal("single", req.id)} 
+                    <button
+                      onClick={() => openDeleteModal("single", req.id)}
                       onMouseEnter={playHoverSound}
                       className="btn-ripple btn-delete p-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg"
                       title="Eliminar"
@@ -291,26 +295,26 @@ export default function RequisicionesStatusPage() {
               <label className="block text-slate-400 text-sm mb-2">
                 Escribe <span className="text-red-400 font-bold">DELETE</span> para confirmar:
               </label>
-              <input 
-                type="text" 
-                value={deleteConfirmation} 
-                onChange={(e) => setDeleteConfirmation(e.target.value)} 
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-red-500" 
-                placeholder="DELETE" 
+              <input
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                placeholder="DELETE"
               />
             </div>
             <div className="flex gap-3">
-              <button 
-                onClick={() => { playClickSound(); setShowDeleteModal(false); }} 
+              <button
+                onClick={() => { playClickSound(); setShowDeleteModal(false); }}
                 onMouseEnter={playHoverSound}
                 className="btn-ripple flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg"
               >
                 Cancelar
               </button>
-              <button 
-                onClick={handleDelete} 
+              <button
+                onClick={handleDelete}
                 onMouseEnter={playHoverSound}
-                disabled={deleteConfirmation !== "DELETE" || deleting} 
+                disabled={deleteConfirmation !== "DELETE" || deleting}
                 className="btn-ripple btn-delete flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg"
               >
                 {deleting ? "Eliminando..." : "Eliminar"}
@@ -322,5 +326,3 @@ export default function RequisicionesStatusPage() {
     </div>
   );
 }
-
-

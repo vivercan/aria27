@@ -95,12 +95,17 @@ export default function ProveedoresPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-emerald-400" />
-            Proveedores
-          </h1>
-          <p className="text-white/60 text-sm">Gestión de proveedores y condiciones comerciales.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Building2 className="h-6 w-6 text-emerald-400" />
+              Proveedores
+            </h1>
+            <p className="text-white/60 text-sm">Gestión de proveedores y condiciones comerciales.</p>
+          </div>
         </div>
         <button onClick={openNew} className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400">
           <Plus className="h-4 w-4" /> Nuevo Proveedor
@@ -186,7 +191,7 @@ export default function ProveedoresPage() {
                 <div><label className="text-xs text-white/70">Sitio Web</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.website} onChange={e => setForm(f => ({...f, website: e.target.value}))} /></div>
                 <div className="col-span-2"><label className="text-xs text-white/70">Dirección</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.address} onChange={e => setForm(f => ({...f, address: e.target.value}))} /></div>
               </div>
-              
+
               <div className="border-t border-white/10 pt-4">
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><CreditCard className="h-4 w-4" />Datos de Pago</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -217,5 +222,3 @@ export default function ProveedoresPage() {
     </div>
   );
 }
-
-
