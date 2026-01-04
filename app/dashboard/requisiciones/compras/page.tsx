@@ -33,8 +33,8 @@ export default function ComprasPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button onClick={() => router.back()} className="p-2 rounded-full bg-white/5 hover:bg-white/10">
-          <ArrowLeft size={20} className="text-slate-400" />
+        <button onClick={() => router.back()} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-white">Comparador de Cotizaciones</h1>
@@ -86,3 +86,4 @@ export default function ComprasPage() {
     </div>
   );
 }
+
