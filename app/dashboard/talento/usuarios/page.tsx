@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X } from "lucide-react";
 
 interface User {
   id: string;
@@ -15,6 +15,8 @@ interface User {
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editRole, setEditRole] = useState("");
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -22,6 +24,27 @@ export default function UsuariosPage() {
     const { data } = await supabase.from("users").select("*").order("name");
     if (data) setUsers(data);
     setLoading(false);
+  };
+
+  const startEdit = (user: User) => {
+    setEditingId(user.id);
+    setEditRole(user.role);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditRole("");
+  };
+
+  const saveRole = async (id: string) => {
+    await supabase.from("users").update({ role: editRole }).eq("id", id);
+    setEditingId(null);
+    loadUsers();
+  };
+
+  const toggleActive = async (user: User) => {
+    await supabase.from("users").update({ active: !user.active }).eq("id", user.id);
+    loadUsers();
   };
 
   const getRoleColor = (role: string) => {
@@ -58,6 +81,7 @@ export default function UsuariosPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Teléfono</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Rol</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Estado</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -66,11 +90,33 @@ export default function UsuariosPage() {
                     <td className="px-4 py-3 text-white font-medium">{u.name}</td>
                     <td className="px-4 py-3 text-slate-300"><Mail className="w-4 h-4 text-slate-500 inline mr-2" />{u.email}</td>
                     <td className="px-4 py-3 text-slate-300"><Phone className="w-4 h-4 text-slate-500 inline mr-2" />{u.phone || "-"}</td>
-                    <td className="px-4 py-3 text-center"><span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>{u.role}</span></td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                      {editingId === u.id ? (
+                        <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="bg-slate-700 text-white text-xs rounded px-2 py-1">
+                          <option value="admin">admin</option>
+                          <option value="validador">validador</option>
+                          <option value="compras">compras</option>
+                          <option value="operador">operador</option>
+                          <option value="viewer">viewer</option>
+                        </select>
+                      ) : (
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>{u.role}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => toggleActive(u)} className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                         {u.active ? "Activo" : "Inactivo"}
-                      </span>
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {editingId === u.id ? (
+                        <div className="flex justify-center gap-2">
+                          <button onClick={() => saveRole(u.id)} className="p-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"><Save className="w-4 h-4" /></button>
+                          <button onClick={cancelEdit} className="p-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><X className="w-4 h-4" /></button>
+                        </div>
+                      ) : (
+                        <button onClick={() => startEdit(u)} className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white"><Edit2 className="w-4 h-4" /></button>
+                      )}
                     </td>
                   </tr>
                 ))}
