@@ -39,7 +39,7 @@ export default function ProveedoresPage() {
   useEffect(() => { loadProveedores(); }, []);
 
   const loadProveedores = async () => {
-    const { data } = await supabase.from("Proveedores").select("*").order("name");
+    const { data } = await supabase.from("suppliers").select("*").order("name");
     setProveedores((data || []) as Supplier[]);
     setLoading(false);
   };
@@ -77,9 +77,9 @@ export default function ProveedoresPage() {
       folio: editingSupplier?.folio || nextFolio
     };
     if (editingSupplier) {
-      await supabase.from("Proveedores").update(data).eq("id", editingSupplier.id);
+      await supabase.from("suppliers").update(data).eq("id", editingSupplier.id);
     } else {
-      await supabase.from("Proveedores").insert(data);
+      await supabase.from("suppliers").insert(data);
     }
     setShowModal(false);
     loadProveedores();
@@ -87,7 +87,7 @@ export default function ProveedoresPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("¿Eliminar este proveedor?")) return;
-    await supabase.from("Proveedores").delete().eq("id", id);
+    await supabase.from("suppliers").delete().eq("id", id);
     loadProveedores();
   };
 
