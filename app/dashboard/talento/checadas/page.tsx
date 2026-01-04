@@ -17,7 +17,7 @@ interface Asistencia {
   retardo: boolean;
   minutos_retardo: number;
   notas: string;
-  Personal: {
+  employee: {
     employee_number: string;
     full_name: string;
     position: string;
@@ -34,11 +34,13 @@ export default function ClockInPage() {
 
   async function fetchAsistencias() {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("asistencias")
-      .select("*, Personal(employee_number, full_name, position)")
+      .select("*, employee:employees(employee_number, full_name, position)")
       .eq("fecha", fecha)
       .order("hora_entrada", { ascending: true });
+    
+    console.log("Asistencias data:", data, "Error:", error);
     if (data) setAsistencias(data);
     setLoading(false);
   }
@@ -58,8 +60,8 @@ export default function ClockInPage() {
 
   async function exportCSV() {
     const rows = asistencias.map(a => [
-      a.Personal?.employee_number || "",
-      a.Personal?.full_name || "",
+      a.employee?.employee_number || "",
+      a.employee?.full_name || "",
       a.fecha,
       formatTime(a.hora_entrada),
       formatTime(a.hora_salida),
@@ -78,8 +80,8 @@ export default function ClockInPage() {
   }
 
   const filtered = asistencias.filter(a =>
-    a.Personal?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.Personal?.employee_number?.toLowerCase().includes(searchTerm.toLowerCase())
+    a.employee?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.employee?.employee_number?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = {
@@ -163,11 +165,11 @@ export default function ClockInPage() {
               {loading ? (
                 <tr><td colSpan={7} className="px-6 py-8 text-center">Cargando...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-500">No hay registros</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-500">No hay registros para {fecha}</td></tr>
               ) : filtered.map((a) => (
                 <tr key={a.id} className="hover:bg-white/5">
-                  <td className="px-4 py-3 text-blue-300 font-mono text-xs">{a.Personal?.employee_number}</td>
-                  <td className="px-4 py-3 text-white">{a.Personal?.full_name}</td>
+                  <td className="px-4 py-3 text-blue-300 font-mono text-xs">{a.employee?.employee_number}</td>
+                  <td className="px-4 py-3 text-white">{a.employee?.full_name}</td>
                   <td className="px-4 py-3 text-center">
                     <span className="text-emerald-400 font-mono">{formatTime(a.hora_entrada)}</span>
                     {a.latitud_entrada && (
