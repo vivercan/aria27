@@ -109,10 +109,9 @@ export default function NewRequisitionPage() {
   return (
     <div className="flex flex-col gap-4 p-6 h-full">
       {/* Flecha de regreso */}
-      <Link href="/dashboard/requisiciones/requisiciones" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
-        <ArrowLeft className="w-5 h-5" />
-        <span>Regresar</span>
-      </Link>
+              <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
@@ -222,4 +221,5 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
 

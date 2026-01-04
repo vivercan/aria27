@@ -73,7 +73,7 @@ export default function MatrizPage() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
         <table className="w-full text-left text-sm text-slate-300">
           <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold sticky top-0 bg-[#0a1628] z-10">
             <tr>
@@ -120,4 +120,5 @@ export default function MatrizPage() {
     </div>
   );
 }
+
 

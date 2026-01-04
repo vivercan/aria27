@@ -300,7 +300,7 @@ export default function HRPersonalPage() {
         <input type="text" placeholder="Buscar por nombre, número o WhatsApp..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 text-white" onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md">
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md max-h-[calc(100vh-280px)] overflow-y-auto">
         <table className="w-full text-left text-sm text-slate-300">
           <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold sticky top-0 bg-[#0a1628] z-10">
             <tr>
@@ -350,4 +350,5 @@ export default function HRPersonalPage() {
     </div>
   );
 }
+
 

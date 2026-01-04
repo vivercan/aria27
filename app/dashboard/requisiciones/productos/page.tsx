@@ -86,7 +86,7 @@ export default function ProductosPage() {
         {loading ? (
           <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div></div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
             <table className="w-full">
               <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                 <tr className="bg-white/[0.02] border-b border-white/[0.06]">
@@ -131,4 +131,5 @@ export default function ProductosPage() {
     </div>
   );
 }
+
 

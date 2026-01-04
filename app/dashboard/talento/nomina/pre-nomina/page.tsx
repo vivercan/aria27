@@ -144,10 +144,9 @@ export default function PreNominaPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Flecha de regreso */}
-      <Link href="/dashboard/talento/nomina" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
-        <ArrowLeft className="w-5 h-5" />
-        <span>Regresar</span>
-      </Link>
+              <Link href="/dashboard/talento/nomina" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
 
       <div className="flex items-center justify-between">
         <div>
@@ -191,7 +190,7 @@ export default function PreNominaPage() {
       )}
 
       {/* Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
         <table className="w-full">
           <thead className="bg-white/5">
             <tr className="text-left text-slate-400 text-sm">
@@ -245,4 +244,6 @@ export default function PreNominaPage() {
     </div>
   );
 }
+
+
 

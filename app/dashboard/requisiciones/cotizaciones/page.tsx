@@ -204,7 +204,7 @@ export default function CotizacionesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10">
@@ -298,3 +298,4 @@ export default function CotizacionesPage() {
     </div>
   );
 }
+

@@ -91,7 +91,7 @@ export default function GastosObraPage() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
         <table className="w-full">
           <thead className="bg-white/5">
             <tr className="text-left text-slate-400 text-sm">
@@ -166,4 +166,5 @@ export default function GastosObraPage() {
     </div>
   );
 }
+
 

@@ -113,7 +113,7 @@ export default function ProveedoresPage() {
         ) : Proveedores.length === 0 ? (
           <div className="text-center py-8 text-white/50">No hay proveedores registrados.</div>
         ) : (
-          <div className="overflow-auto">
+          <div className="overflow-auto max-h-[calc(100vh-280px)] overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                 <tr className="border-b border-white/10 text-left text-xs uppercase text-white/50">
@@ -217,4 +217,5 @@ export default function ProveedoresPage() {
     </div>
   );
 }
+
 
