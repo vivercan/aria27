@@ -65,10 +65,14 @@ export default function GastosObraPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Gastos de Obra</h1>
           <p className="text-slate-400">Control de gastos por obra y tipo de pago</p>
-        </div>
+        </div></div>
         <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Gasto
         </button>
@@ -166,5 +170,6 @@ export default function GastosObraPage() {
     </div>
   );
 }
+
 
 

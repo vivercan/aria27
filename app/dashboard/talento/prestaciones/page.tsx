@@ -12,10 +12,14 @@ const submodulos = [
 export default function PrestacionesPage() {
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Prestaciones</h1>
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Prestaciones</h1>
         <p className="text-slate-400">Gestión de prestaciones laborales</p>
-      </div>
+      </div></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {submodulos.map((mod) => (
           <Link key={mod.href} href={mod.href} className="group p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 transition-all">
@@ -30,4 +34,5 @@ export default function PrestacionesPage() {
     </div>
   );
 }
+
 

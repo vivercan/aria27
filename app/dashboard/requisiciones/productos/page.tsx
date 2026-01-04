@@ -52,13 +52,17 @@ export default function ProductosPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+        <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Package className="w-7 h-7 text-cyan-400" />
             Catálogo de Productos
           </h1>
           <p className="text-slate-400 mt-1">{total.toLocaleString()} productos registrados</p>
-        </div>
+        </div></div>
       </div>
 
       <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-wrap gap-4">
@@ -131,5 +135,6 @@ export default function ProductosPage() {
     </div>
   );
 }
+
 
 

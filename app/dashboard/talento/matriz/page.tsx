@@ -44,13 +44,17 @@ export default function MatrizPage() {
         ← Regresar al Panel
       </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
           Matriz Salarial
         </h1>
         <p className="text-slate-400">Resumen de salarios y distribución de pago</p>
-      </div>
+      </div></div>
 
       {/* Resumen */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -120,5 +124,6 @@ export default function MatrizPage() {
     </div>
   );
 }
+
 
 
