@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { DollarSign, Plus, Search, Download, X, Building, CreditCard, Banknote, AlertTriangle, CheckCircle, TrendingUp, Edit, Trash2, Save, Loader2 } from "lucide-react";
+import { DollarSign, Plus, Search, Download, X, Building, CreditCard, Banknote, AlertTriangle, CheckCircle, TrendingUp, Edit, Trash2, Save, Loader2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface GastoObra {
   id: string;
@@ -35,11 +36,9 @@ export default function GastosObraFinancePage() {
     try {
       const { data: gastosData } = await supabase.from("gastos_obra").select("*, centro_trabajo:centros_trabajo(nombre)").order("created_at", { ascending: false });
       setGastos(gastosData || []);
-      
       const { data: centrosData } = await supabase.from("centros_trabajo").select("id, nombre").eq("activo", true).order("nombre");
-      if (centrosData && centrosData.length > 0) {
-        setCentros(centrosData);
-      } else {
+      if (centrosData && centrosData.length > 0) { setCentros(centrosData); }
+      else {
         const { data: wc } = await supabase.from("work_centers").select("id, name").eq("active", true).order("name");
         setCentros((wc || []).map(w => ({ id: w.id, nombre: w.name })));
       }
@@ -88,10 +87,14 @@ export default function GastosObraFinancePage() {
 
   return (
     <div className="space-y-6">
+      {/* Header con botón regresar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-xl bg-emerald-500/20"><DollarSign className="w-6 h-6 text-emerald-400" /></div>
-          <div><h1 className="text-2xl font-bold text-white">Gastos de Obra</h1><p className="text-slate-400 text-sm">Datos en tiempo real desde Supabase</p></div>
+          <div><h1 className="text-2xl font-bold text-white">Gastos de Obra</h1><p className="text-slate-400 text-sm">Control de gastos por proyecto</p></div>
         </div>
         <div className="flex gap-3">
           <button onClick={cargarDatos} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-sm"><Download className="w-4 h-4" />Actualizar</button>
@@ -99,6 +102,7 @@ export default function GastosObraFinancePage() {
         </div>
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-5 gap-4">
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]"><div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-emerald-500/20"><DollarSign className="w-4 h-4 text-emerald-400" /></div><span className="text-slate-400 text-xs">Total</span></div><p className="text-xl font-bold text-white">{formatMoney(stats.total)}</p></div>
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]"><div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-blue-500/20"><CreditCard className="w-4 h-4 text-blue-400" /></div><span className="text-slate-400 text-xs">Transferir</span></div><p className="text-xl font-bold text-blue-400">{formatMoney(stats.transferir)}</p></div>
@@ -107,11 +111,12 @@ export default function GastosObraFinancePage() {
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]"><div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-green-500/20"><CheckCircle className="w-4 h-4 text-green-400" /></div><span className="text-slate-400 text-xs">Pagado</span></div><p className="text-xl font-bold text-green-400">{formatMoney(stats.pagado)}</p></div>
       </div>
 
+      {/* Content */}
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-6">
           {obrasResumen.length > 0 && (
             <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-              <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 text-white"><TrendingUp className="w-5 h-5 text-emerald-400" />Por Obra (BD Real)</h2>
+              <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 text-white"><TrendingUp className="w-5 h-5 text-emerald-400" />Resumen por Obra</h2>
               <div className="grid grid-cols-2 gap-3">
                 {obrasResumen.map((o, i) => (
                   <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
@@ -134,7 +139,7 @@ export default function GastosObraFinancePage() {
               </div>
             </div>
             {filteredGastos.length === 0 ? (
-              <div className="text-center py-12 text-slate-400"><DollarSign className="w-12 h-12 mx-auto mb-4 opacity-20" /><p>No hay gastos</p><button onClick={handleNew} className="mt-4 text-emerald-400 hover:underline">+ Nuevo</button></div>
+              <div className="text-center py-12 text-slate-400"><DollarSign className="w-12 h-12 mx-auto mb-4 opacity-20" /><p>No hay gastos registrados</p><button onClick={handleNew} className="mt-4 text-emerald-400 hover:underline">+ Agregar primer gasto</button></div>
             ) : (
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-white/10 text-left text-xs text-slate-400"><th className="px-3 py-2">Folio</th><th className="px-3 py-2">Fecha</th><th className="px-3 py-2">Obra</th><th className="px-3 py-2">Concepto</th><th className="px-3 py-2">Tipo</th><th className="px-3 py-2 text-right">Monto</th><th className="px-3 py-2 text-center">Estado</th><th className="px-3 py-2 text-center">Acc</th></tr></thead>
