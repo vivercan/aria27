@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "963627606824867";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
 const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -421,3 +421,4 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
