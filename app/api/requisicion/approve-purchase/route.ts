@@ -54,7 +54,6 @@ export async function GET(request: Request) {
       await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name, total.toLocaleString(), urgencyText], comprasUser.phone);
     }
 
-    console.log(`✅ OC ${ocFolio} generada - Notificado a ${COMPRAS_EMAIL} (${comprasUser?.phone})`);
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="color:#1e3a5f;font-size:24px;font-weight:bold">${ocFolio}</p><p style="color:#64748b">Requisición: ${req.folio}</p><p style="color:#64748b">Total: $${total.toLocaleString()} MXN</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
   } else if (action === "RECHAZAR") {

@@ -24,7 +24,6 @@ async function sendWhatsApp(phone: string, message: string) {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } })
     });
-    console.log("WhatsApp enviado:", await res.json());
   } catch (e) { console.error("Error WhatsApp:", e); }
 }
 
@@ -92,7 +91,6 @@ Si no puedes leer algo, pon null en ese campo. El monto debe ser número sin sig
     }
     return null;
   } catch (error) {
-    console.error("Error extrayendo datos con Claude:", error);
     return null;
   }
 }
@@ -135,7 +133,6 @@ Si no parece ser un gasto, responde: {"esGasto": false}`
     }
     return null;
   } catch (error) {
-    console.error("Error extrayendo gasto de texto:", error);
     return null;
   }
 }
@@ -149,7 +146,6 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
     const data = await response.json();
     return { url: data.url, mimeType: data.mime_type };
   } catch (error) {
-    console.error("Error obteniendo media URL:", error);
     return null;
   }
 }
@@ -211,7 +207,6 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
   }).select().single();
 
   if (error) {
-    console.error("Error guardando gasto:", error);
     await sendWhatsApp(from, "❌ Error al guardar el gasto. Intenta de nuevo.");
     return;
   }
@@ -245,7 +240,6 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     .limit(1);
 
   const emp = data?.[0];
-  console.log("Empleado encontrado:", emp?.full_name, "Error:", empErr?.message);
 
   if (!emp) {
     await sendWhatsApp(from, "Tu numero no esta registrado. Contacta a Recursos Humanos.");
@@ -271,7 +265,6 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   const distance = minDist;
   const radius = workCenter.radius_meters || 500;
   const isValid = distance <= radius;
-  console.log("Centro:", workCenter.name, "Distancia:", distance.toFixed(0), "m");
 
   // Buscar asistencia de hoy
   const { data: asistData } = await supabase
@@ -345,7 +338,6 @@ export async function POST(request: NextRequest) {
 
     const from = message.from;
     const phone10 = from.replace(/^521/, "").replace(/^52/, "");
-    console.log("📱 Mensaje de:", from, "Tipo:", message.type);
 
     // ====== UBICACIÓN = ASISTENCIA ======
     if (message.type === "location") {
@@ -357,7 +349,6 @@ export async function POST(request: NextRequest) {
 
     // ====== IMAGEN = GASTO CON TICKET ======
     if (message.type === "image") {
-      console.log("📷 Procesando imagen como gasto...");
       const mediaId = message.image.id;
       const mediaInfo = await getMediaUrl(mediaId);
       
@@ -392,7 +383,6 @@ export async function POST(request: NextRequest) {
                       /\$?\d+/.test(texto);
 
       if (esGasto) {
-        console.log("💬 Procesando texto como posible gasto...");
         const gastoData = await extractGastoFromText(message.text.body);
         
         if (gastoData && gastoData.esGasto !== false && gastoData.monto) {
@@ -417,7 +407,6 @@ Para registrar *GASTO*:
 
     return NextResponse.json({ status: "unhandled type" });
   } catch (error) {
-    console.error("Webhook error:", error);
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }

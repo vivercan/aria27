@@ -35,10 +35,8 @@ export async function POST(request: Request) {
       await sendWhatsAppTemplate("compra_autorizar", [requisition.folio, requisition.created_by, requisition.cost_center_name, total.toLocaleString(), urgencyText, token], autorizadorUser.phone);
     }
 
-    console.log(`✅ Autorización enviada a ${AUTORIZADOR_EMAIL} (${autorizadorUser?.phone})`);
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

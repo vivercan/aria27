@@ -247,7 +247,6 @@ export default function ComprasPage() {
         throw new Error("Error al enviar");
       }
     } catch (error) {
-      console.error(error);
       alert("Error al enviar a autorización");
     } finally {
       setSending(false);

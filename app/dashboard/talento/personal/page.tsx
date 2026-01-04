@@ -63,7 +63,6 @@ export default function HRPersonalPage() {
       supabase.from("employees").select("*, centro_trabajo:centros_trabajo(nombre)").order("employee_number"),
       supabase.from("centros_trabajo").select("id, codigo, nombre")
     ]);
-    console.log("Employees:", empRes.data, "Error:", empRes.error);
     if (empRes.data) setEmployees(empRes.data);
     if (centrosRes.data) setCentros(centrosRes.data);
     setLoading(false);

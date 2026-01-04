@@ -40,7 +40,6 @@ export default function ClockInPage() {
       .eq("fecha", fecha)
       .order("hora_entrada", { ascending: true });
     
-    console.log("Asistencias data:", data, "Error:", error);
     if (data) setAsistencias(data);
     setLoading(false);
   }

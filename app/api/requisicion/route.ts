@@ -125,10 +125,8 @@ export async function POST(request: Request) {
       notificados.push(`Compras: ${COMPRAS_EMAIL} (${comprasUser.phone})`);
     }
 
-    console.log(`✅ ${folio} creada - Notificados: ${notificados.join(", ")}`);
     return NextResponse.json({ success: true, folio, notificados });
   } catch (error: any) {
-    console.error("Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

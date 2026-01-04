@@ -33,7 +33,6 @@ export default function WorkCentersPage() {
   async function loadCenters() {
     setLoading(true);
     const { data, error } = await supabase.from("work_centers").select("*").order("name");
-    console.log("Work centers:", data, error);
     setCenters(data || []);
     setLoading(false);
   }

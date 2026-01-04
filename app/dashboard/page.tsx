@@ -100,7 +100,6 @@ export default function DashboardPage() {
           centrosDeCosto: centers || 0,
         });
       } catch (error) {
-        console.error("Error cargando stats:", error);
       } finally {
         setLoading(false);
       }
