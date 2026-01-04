@@ -301,7 +301,7 @@ export default function OrdersPage() {
                   
                   <div className="rounded-xl bg-white/5 p-4">
                     <div className="text-xs text-white/50 mb-2">Materiales</div>
-                    <table className="w-full text-sm">
+                    <div className="max-h-[calc(100vh-280px)] overflow-y-auto"><table className="w-full text-sm">
                       <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                         <tr className="border-b border-white/10 text-xs text-white/50">
                           <th className="text-left pb-2">Producto</th>
@@ -320,7 +320,7 @@ export default function OrdersPage() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -417,4 +417,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
 

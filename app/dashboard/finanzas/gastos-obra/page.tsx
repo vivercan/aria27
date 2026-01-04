@@ -141,7 +141,7 @@ export default function GastosObraFinancePage() {
             {filteredGastos.length === 0 ? (
               <div className="text-center py-12 text-slate-400"><DollarSign className="w-12 h-12 mx-auto mb-4 opacity-20" /><p>No hay gastos registrados</p><button onClick={handleNew} className="mt-4 text-emerald-400 hover:underline">+ Agregar primer gasto</button></div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="max-h-[calc(100vh-280px)] overflow-y-auto"><table className="w-full text-sm">
                 <thead><tr className="border-b border-white/10 text-left text-xs text-slate-400"><th className="px-3 py-2">Folio</th><th className="px-3 py-2">Fecha</th><th className="px-3 py-2">Obra</th><th className="px-3 py-2">Concepto</th><th className="px-3 py-2">Tipo</th><th className="px-3 py-2 text-right">Monto</th><th className="px-3 py-2 text-center">Estado</th><th className="px-3 py-2 text-center">Acc</th></tr></thead>
                 <tbody>
                   {filteredGastos.slice(0,25).map(g => (
@@ -157,7 +157,7 @@ export default function GastosObraFinancePage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </div>
@@ -208,3 +208,4 @@ export default function GastosObraFinancePage() {
     </div>
   );
 }
+
