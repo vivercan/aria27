@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Plus, Receipt, Building, DollarSign, FileText, X } from "lucide-react";
+import { Plus, Receipt, Building, DollarSign, FileText, X, ArrowLeft } from "lucide-react";
 
 interface Gasto {
   id: string;
@@ -165,3 +166,4 @@ export default function GastosObraPage() {
     </div>
   );
 }
+

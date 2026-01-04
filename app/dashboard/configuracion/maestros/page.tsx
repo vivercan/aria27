@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Building2, Users, Settings, MapPin, DollarSign, Clock } from "lucide-react";
+import { Building2, Users, Settings, MapPin, DollarSign, Clock, ArrowLeft } from "lucide-react";
 
 const masterDataItems = [
   {
@@ -55,3 +55,4 @@ export default function MasterDataPage() {
     </div>
   );
 }
+

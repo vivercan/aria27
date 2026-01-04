@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase-browser";
@@ -320,3 +322,4 @@ export default function RequisicionesStatusPage() {
     </div>
   );
 }
+

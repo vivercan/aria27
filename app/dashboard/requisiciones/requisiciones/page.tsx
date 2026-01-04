@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList } from "lucide-react";
+import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, ArrowLeft } from "lucide-react";
 
 const submodules = [
   { title: "Nueva Requisición", description: "Crear solicitud de materiales.", icon: FilePlus, href: "/dashboard/requisiciones/requisiciones/nuevo", color: "from-emerald-500 to-emerald-600" },
@@ -38,3 +38,4 @@ export default function RequisicionesPage() {
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { DollarSign, Calendar, Gift, FileHeart } from "lucide-react";
+import { DollarSign, Calendar, Gift, FileHeart, ArrowLeft } from "lucide-react";
 
 const submodulos = [
   { titulo: "Préstamos", descripcion: "Control de préstamos y descuentos", href: "/dashboard/talento/prestaciones/prestamos", icono: DollarSign, color: "from-blue-500 to-cyan-500" },
@@ -30,3 +30,4 @@ export default function PrestacionesPage() {
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Package, Search, Plus, Edit2, Save, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, Search, Plus, Edit2, Save, X, Filter, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 interface Product {
   id: number;
@@ -130,3 +131,4 @@ export default function ProductosPage() {
     </div>
   );
 }
+

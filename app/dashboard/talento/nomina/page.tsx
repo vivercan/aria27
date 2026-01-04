@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Calendar, Download, Save, Send, ChevronLeft, ChevronRight, FileSpreadsheet, History, Users, DollarSign, Building2, Check, X, RefreshCw, Eye } from "lucide-react";
+import { Calendar, Download, Save, Send, ChevronLeft, ChevronRight, FileSpreadsheet, History, Users, DollarSign, Building2, Check, X, RefreshCw, Eye, ArrowLeft } from "lucide-react";
 
 interface EmpleadoNomina {
   id: string;
@@ -291,3 +292,4 @@ export default function NominaPage() {
     </div>
   );
 }
+

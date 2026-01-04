@@ -1,8 +1,9 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle, XCircle, MessageSquare, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
 
 type Requisition = {
   id: number;
@@ -167,3 +168,4 @@ export default function AuthorizeRequisicionesPage() {
     </div>
   );
 }
+

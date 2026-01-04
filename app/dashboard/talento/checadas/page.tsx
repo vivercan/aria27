@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Clock, MapPin, Download, Calendar, Search, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Clock, MapPin, Download, Calendar, Search, CheckCircle, XCircle, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface Asistencia {
@@ -210,3 +210,4 @@ export default function ClockInPage() {
     </div>
   );
 }
+

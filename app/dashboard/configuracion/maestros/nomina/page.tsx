@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Save, DollarSign } from "lucide-react";
+import { Save, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface ConfiguraciónItem {
@@ -98,3 +98,4 @@ export default function NóminaConfiguraciónPage() {
     </div>
   );
 }
+

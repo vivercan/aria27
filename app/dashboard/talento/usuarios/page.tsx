@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft } from "lucide-react";
 
 interface User {
   id: string;
@@ -128,3 +129,4 @@ export default function UsuariosPage() {
     </div>
   );
 }
+

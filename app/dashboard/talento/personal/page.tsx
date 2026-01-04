@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, UserPlus, Trash2, Edit, Shield, X, Save, Phone, Building2, Clock, CreditCard } from "lucide-react";
+import { Search, UserPlus, Trash2, Edit, Shield, X, Save, Phone, Building2, Clock, CreditCard, ArrowLeft } from "lucide-react";
 
 interface Employee {
   id: string;
@@ -351,3 +351,4 @@ export default function HRPersonalPage() {
     </div>
   );
 }
+

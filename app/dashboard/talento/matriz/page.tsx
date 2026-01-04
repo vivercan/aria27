@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { DollarSign, Users, Building, TrendingUp } from "lucide-react";
+import { DollarSign, Users, Building, TrendingUp, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface Empleado {
@@ -120,3 +120,4 @@ export default function MatrizPage() {
     </div>
   );
 }
+

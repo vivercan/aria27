@@ -1,8 +1,9 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Building2, Plus, Trash2, Save, X, Phone, Globe, MessageCircle, CreditCard } from "lucide-react";
+import { Building2, Plus, Trash2, Save, X, Phone, Globe, MessageCircle, CreditCard, ArrowLeft } from "lucide-react";
 
 type Supplier = {
   id: number;
@@ -216,3 +217,4 @@ export default function ProveedoresPage() {
     </div>
   );
 }
+
