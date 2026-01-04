@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const subModules = [
   {
-    title: "HR Personal",
+    title: "Personal",
     description: "Expedientes de colaboradores.",
     href: "/dashboard/talento/personal",
     icon: Users,
@@ -32,21 +32,21 @@ const subModules = [
     gradient: "from-rose-500 to-pink-600"
   },
   {
-    title: "Legal HR",
+    title: "Documentos Legales",
     description: "Contratos y documentos legales.",
     href: "/dashboard/talento/legales",
     icon: FileText,
     gradient: "from-purple-500 to-purple-600"
   },
   {
-    title: "Salary Matrix",
+    title: "Matriz Salarial",
     description: "Tabulador de sueldos.",
     href: "/dashboard/talento/matriz",
     icon: BarChart3,
     gradient: "from-cyan-500 to-cyan-600"
   },
   {
-    title: "User Access",
+    title: "Usuarios del Sistema",
     description: "Usuarios del sistema.",
     href: "/dashboard/talento/usuarios",
     icon: UserCog,
@@ -95,3 +95,4 @@ export default function TalentoPage() {
     </div>
   );
 }
+
