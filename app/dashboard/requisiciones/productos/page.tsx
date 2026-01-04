@@ -88,7 +88,7 @@ export default function ProductosPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
+              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                 <tr className="bg-white/[0.02] border-b border-white/[0.06]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">SKU</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Producto</th>

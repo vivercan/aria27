@@ -150,7 +150,7 @@ export default function ClockInPage() {
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold">
+            <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold sticky top-0 bg-[#0a1628] z-10">
               <tr>
                 <th className="px-4 py-4">Empleado</th>
                 <th className="px-4 py-4">Nombre</th>

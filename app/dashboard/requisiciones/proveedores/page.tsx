@@ -115,7 +115,7 @@ export default function ProveedoresPage() {
         ) : (
           <div className="overflow-auto">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                 <tr className="border-b border-white/10 text-left text-xs uppercase text-white/50">
                   <th className="pb-3 pr-4">Folio</th>
                   <th className="pb-3 pr-4">Nombre</th>

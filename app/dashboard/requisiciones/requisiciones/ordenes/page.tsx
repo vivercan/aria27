@@ -302,7 +302,7 @@ export default function OrdersPage() {
                   <div className="rounded-xl bg-white/5 p-4">
                     <div className="text-xs text-white/50 mb-2">Materiales</div>
                     <table className="w-full text-sm">
-                      <thead>
+                      <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
                         <tr className="border-b border-white/10 text-xs text-white/50">
                           <th className="text-left pb-2">Producto</th>
                           <th className="text-center pb-2">Cantidad</th>
