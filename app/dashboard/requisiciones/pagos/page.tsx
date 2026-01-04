@@ -13,8 +13,8 @@ export default function SubModulePage() {
         onClick={() => router.back()} 
         className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors group"
       >
-        <div className="p-2 rounded-full bg-white/5 group-hover:bg-blue-600 group-hover:text-white transition-all">
-          <ArrowLeft size={16} />
+        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
         </div>
         <span className="text-sm font-medium">Regresar al Panel</span>
       </button>
@@ -42,3 +42,4 @@ export default function SubModulePage() {
     </div>
   );
 }
+
