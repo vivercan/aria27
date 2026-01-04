@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Plus, DollarSign, Calendar, User, X } from "lucide-react";
+import { Plus, DollarSign, Calendar, User, X , ArrowLeft } from "lucide-react";
 
 interface Prestamo {
   id: string;
@@ -68,6 +69,12 @@ export default function PrestamosPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Flecha de regreso */}
+      <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
+        <ArrowLeft className="w-5 h-5" />
+        <span>Regresar</span>
+      </Link>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
@@ -160,3 +167,4 @@ export default function PrestamosPage() {
     </div>
   );
 }
+

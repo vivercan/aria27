@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Calculator, CheckCircle, Clock, DollarSign, Users, FileText, Send } from "lucide-react";
+import { Calculator, CheckCircle, Clock, DollarSign, Users, FileText, Send , ArrowLeft } from "lucide-react";
 
 interface Empleado {
   id: string;
@@ -142,6 +143,12 @@ export default function PreNominaPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Flecha de regreso */}
+      <Link href="/dashboard/talento/nomina" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
+        <ArrowLeft className="w-5 h-5" />
+        <span>Regresar</span>
+      </Link>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Pre-Nómina Semanal</h1>
@@ -238,3 +245,4 @@ export default function PreNominaPage() {
     </div>
   );
 }
+

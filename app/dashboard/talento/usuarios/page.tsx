@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp } from "lucide-react";
 
 interface User {
   id: string;
@@ -11,13 +11,26 @@ interface User {
   role: string;
   phone: string;
   active: boolean;
+  permissions?: Record<string, string[]>;
 }
+
+const MODULOS = [
+  { id: "obras", nombre: "Obras", subs: ["pipeline", "licitaciones", "presupuestos", "expedientes", "contratos", "siroc"] },
+  { id: "talento", nombre: "Talento", subs: ["personal", "checadas", "nomina", "incidencias", "legales", "matriz", "prestaciones"] },
+  { id: "requisiciones", nombre: "Requisiciones", subs: ["productos", "proveedores", "nueva", "estatus", "tramite", "autorizar", "ordenes", "compras"] },
+  { id: "finanzas", nombre: "Finanzas", subs: ["gastos-obra", "costeo", "facturacion", "caja", "bancos", "por-pagar", "cobranza"] },
+  { id: "activos", nombre: "Activos", subs: ["catalogo", "asignacion", "mantenimiento", "estado"] },
+  { id: "plantillas", nombre: "Plantillas", subs: ["biblioteca", "documentos", "propuestas", "ordenes"] },
+  { id: "configuracion", nombre: "Configuración", subs: ["maestros", "accesos", "alertas", "correo", "integraciones"] },
+];
 
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
+  const [editPermissions, setEditPermissions] = useState<Record<string, string[]>>({});
+  const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -30,22 +43,62 @@ export default function UsuariosPage() {
   const startEdit = (user: User) => {
     setEditingId(user.id);
     setEditRole(user.role);
+    setEditPermissions(user.permissions || {});
+    setExpandedModules([]);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setEditRole("");
+    setEditPermissions({});
+    setExpandedModules([]);
   };
 
-  const saveRole = async (id: string) => {
-    await supabase.from("users").update({ role: editRole }).eq("id", id);
+  const saveUser = async (id: string) => {
+    await supabase.from("users").update({ 
+      role: editRole,
+      permissions: editPermissions 
+    }).eq("id", id);
     setEditingId(null);
     loadUsers();
   };
 
-  const toggleActive = async (user: User) => {
-    await supabase.from("users").update({ active: !user.active }).eq("id", user.id);
-    loadUsers();
+  const toggleModule = (modId: string) => {
+    setExpandedModules(prev => 
+      prev.includes(modId) ? prev.filter(m => m !== modId) : [...prev, modId]
+    );
+  };
+
+  const toggleModulePermission = (modId: string) => {
+    const mod = MODULOS.find(m => m.id === modId);
+    if (!mod) return;
+    
+    const currentSubs = editPermissions[modId] || [];
+    if (currentSubs.length === mod.subs.length) {
+      // Quitar todos
+      const newPerms = { ...editPermissions };
+      delete newPerms[modId];
+      setEditPermissions(newPerms);
+    } else {
+      // Seleccionar todos
+      setEditPermissions({ ...editPermissions, [modId]: [...mod.subs] });
+    }
+  };
+
+  const toggleSubPermission = (modId: string, subId: string) => {
+    const currentSubs = editPermissions[modId] || [];
+    if (currentSubs.includes(subId)) {
+      const newSubs = currentSubs.filter(s => s !== subId);
+      if (newSubs.length === 0) {
+        const newPerms = { ...editPermissions };
+        delete newPerms[modId];
+        setEditPermissions(newPerms);
+      } else {
+        setEditPermissions({ ...editPermissions, [modId]: newSubs });
+      }
+    } else {
+      setEditPermissions({ ...editPermissions, [modId]: [...currentSubs, subId] });
+    }
   };
 
   const getRoleColor = (role: string) => {
@@ -53,73 +106,172 @@ export default function UsuariosPage() {
       case "admin": return "bg-purple-500/20 text-purple-400";
       case "validador": return "bg-blue-500/20 text-blue-400";
       case "compras": return "bg-emerald-500/20 text-emerald-400";
+      case "operador": return "bg-orange-500/20 text-orange-400";
       default: return "bg-slate-500/20 text-slate-400";
     }
   };
 
+  const countPermissions = (perms?: Record<string, string[]>) => {
+    if (!perms) return 0;
+    return Object.values(perms).reduce((acc, subs) => acc + subs.length, 0);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-          <Users className="w-7 h-7 text-purple-400" />
-          Usuarios del Sistema
-        </h1>
-        <p className="text-slate-400 mt-1">{users.length} usuarios registrados</p>
+      {/* Header con flecha */}
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Users className="w-7 h-7 text-purple-400" />
+            Usuarios del Sistema
+          </h1>
+          <p className="text-slate-400 mt-1">{users.length} usuarios registrados</p>
+        </div>
       </div>
 
       <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div></div>
-        ) : users.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">No hay usuarios registrados</div>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
             <table className="w-full">
               <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
-                <tr className="bg-white/[0.02] border-b border-white/[0.06]">
+                <tr className="bg-white/[0.02]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Nombre</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Teléfono</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Rol</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Permisos</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Estado</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">{u.name}</td>
-                    <td className="px-4 py-3 text-slate-300"><Mail className="w-4 h-4 text-slate-500 inline mr-2" />{u.email}</td>
-                    <td className="px-4 py-3 text-slate-300"><Phone className="w-4 h-4 text-slate-500 inline mr-2" />{u.phone || "-"}</td>
-                    <td className="px-4 py-3 text-center">
-                      {editingId === u.id ? (
-                        <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="bg-slate-700 text-white text-xs rounded px-2 py-1">
-                          <option value="admin">admin</option>
-                          <option value="validador">validador</option>
-                          <option value="compras">compras</option>
-                          <option value="operador">operador</option>
-                          <option value="viewer">viewer</option>
-                        </select>
-                      ) : (
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>{u.role}</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button onClick={() => toggleActive(u)} className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-                        {u.active ? "Activo" : "Inactivo"}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {editingId === u.id ? (
-                        <div className="flex justify-center gap-2">
-                          <button onClick={() => saveRole(u.id)} className="p-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"><Save className="w-4 h-4" /></button>
-                          <button onClick={cancelEdit} className="p-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><X className="w-4 h-4" /></button>
-                        </div>
-                      ) : (
-                        <button onClick={() => startEdit(u)} className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white"><Edit2 className="w-4 h-4" /></button>
-                      )}
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={u.id} className="hover:bg-white/[0.02]">
+                      <td className="px-4 py-3 text-white font-medium">{u.name}</td>
+                      <td className="px-4 py-3 text-slate-300 text-sm">
+                        <Mail className="w-4 h-4 text-slate-500 inline mr-2" />{u.email}
+                      </td>
+                      <td className="px-4 py-3 text-slate-300 text-sm">
+                        <Phone className="w-4 h-4 text-slate-500 inline mr-2" />{u.phone || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {editingId === u.id ? (
+                          <select 
+                            value={editRole} 
+                            onChange={(e) => setEditRole(e.target.value)} 
+                            className="bg-slate-700 text-white text-xs rounded px-2 py-1"
+                          >
+                            <option value="admin">admin</option>
+                            <option value="validador">validador</option>
+                            <option value="compras">compras</option>
+                            <option value="operador">operador</option>
+                            <option value="viewer">viewer</option>
+                          </select>
+                        ) : (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>
+                            {u.role}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="px-2 py-1 rounded bg-slate-500/20 text-slate-400 text-xs">
+                          <Shield className="w-3 h-3 inline mr-1" />
+                          {countPermissions(u.permissions)} accesos
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                          {u.active ? "Activo" : "Inactivo"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {editingId === u.id ? (
+                          <div className="flex justify-center gap-2">
+                            <button onClick={() => saveUser(u.id)} className="p-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">
+                              <Save className="w-4 h-4" />
+                            </button>
+                            <button onClick={cancelEdit} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => startEdit(u)} className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white">
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                    {/* Panel de permisos expandible */}
+                    {editingId === u.id && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-4 bg-slate-900/50">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm font-medium text-white">
+                              <Shield className="w-4 h-4 text-purple-400" />
+                              Permisos por Módulo
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                              {MODULOS.map(mod => {
+                                const currentSubs = editPermissions[mod.id] || [];
+                                const allSelected = currentSubs.length === mod.subs.length;
+                                const someSelected = currentSubs.length > 0 && !allSelected;
+                                const isExpanded = expandedModules.includes(mod.id);
+                                
+                                return (
+                                  <div key={mod.id} className="rounded-lg bg-white/[0.03] border border-white/[0.08] overflow-hidden">
+                                    <div 
+                                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/[0.05]"
+                                      onClick={() => toggleModule(mod.id)}
+                                    >
+                                      <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={allSelected}
+                                          ref={el => { if (el) el.indeterminate = someSelected; }}
+                                          onChange={() => toggleModulePermission(mod.id)}
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
+                                        />
+                                        <span className="text-sm text-white font-medium">{mod.nombre}</span>
+                                      </label>
+                                      {isExpanded ? (
+                                        <ChevronUp className="w-4 h-4 text-slate-400" />
+                                      ) : (
+                                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                                      )}
+                                    </div>
+                                    {isExpanded && (
+                                      <div className="px-2 pb-2 space-y-1 border-t border-white/[0.06] pt-2">
+                                        {mod.subs.map(sub => (
+                                          <label key={sub} className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.03] p-1 rounded">
+                                            <input
+                                              type="checkbox"
+                                              checked={currentSubs.includes(sub)}
+                                              onChange={() => toggleSubPermission(mod.id, sub)}
+                                              className="w-3 h-3 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
+                                            />
+                                            <span className="text-xs text-slate-300 capitalize">{sub.replace("-", " ")}</span>
+                                          </label>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 ))}
               </tbody>
             </table>
@@ -129,4 +281,3 @@ export default function UsuariosPage() {
     </div>
   );
 }
-

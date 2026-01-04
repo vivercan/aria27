@@ -20,7 +20,7 @@ import {
   CreditCard,
   ChevronDown,
   Users
-} from "lucide-react";
+, ArrowLeft } from "lucide-react";
 
 type Requisition = {
   id: number;
@@ -274,6 +274,12 @@ export default function ComprasPage() {
 
   return (
     <div className="min-h-[calc(100vh-120px)]">
+      {/* Flecha de regreso */}
+      <Link href="/dashboard/requisiciones/requisiciones" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
+        <ArrowLeft className="w-5 h-5" />
+        <span>Regresar</span>
+      </Link>
+
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
@@ -399,6 +405,12 @@ export default function ComprasPage() {
                       
                       return (
                         <div key={item.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
+      {/* Flecha de regreso */}
+      <Link href="/dashboard/requisiciones/requisiciones" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
+        <ArrowLeft className="w-5 h-5" />
+        <span>Regresar</span>
+      </Link>
+
                           {/* Producto */}
                           <div className="flex items-start gap-3 mb-3">
                             <span className="w-6 h-6 flex items-center justify-center rounded-full bg-[#38BDF8]/20 text-[#38BDF8] text-xs font-bold flex-shrink-0">
@@ -536,4 +548,5 @@ export default function ComprasPage() {
     </div>
   );
 }
+
 

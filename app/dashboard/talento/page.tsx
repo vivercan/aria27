@@ -44,13 +44,6 @@ const subModules = [
     href: "/dashboard/talento/matriz",
     icon: BarChart3,
     gradient: "from-cyan-500 to-cyan-600"
-  },
-  {
-    title: "Usuarios del Sistema",
-    description: "Usuarios del sistema.",
-    href: "/dashboard/talento/usuarios",
-    icon: UserCog,
-    gradient: "from-indigo-500 to-indigo-600"
   }
 ];
 
@@ -95,4 +88,5 @@ export default function TalentoPage() {
     </div>
   );
 }
+
 

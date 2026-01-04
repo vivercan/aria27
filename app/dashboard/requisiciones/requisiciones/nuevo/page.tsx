@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart , ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -107,6 +108,12 @@ export default function NewRequisitionPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full">
+      {/* Flecha de regreso */}
+      <Link href="/dashboard/requisiciones/requisiciones" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-4">
+        <ArrowLeft className="w-5 h-5" />
+        <span>Regresar</span>
+      </Link>
+
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
       </div>
@@ -215,3 +222,4 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
