@@ -1,75 +1,105 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
+import { simpleParser } from "mailparser";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, folder = "INBOX", limit = 25 } = await req.json();
+    const { email, password, folder = "INBOX", limit = 30 } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Credenciales requeridas" }, { status: 400 });
+      return NextResponse.json({ error: "Email y password requeridos" }, { status: 400 });
     }
 
     const emails = await new Promise<any[]>((resolve, reject) => {
-      const imap = new Imap({
+      const imapConfig = {
         user: email,
         password: password,
         host: "imappro.zoho.com",
         port: 993,
         tls: true,
         tlsOptions: { rejectUnauthorized: false },
-        connTimeout: 15000,
+        connTimeout: 20000,
         authTimeout: 15000,
-      });
+      };
 
-      const messages: any[] = [];
+      const imap: any = new Imap(imapConfig);
+      const results: any[] = [];
 
       imap.once("ready", () => {
-        imap.openBox(folder, true, (err, box) => {
-          if (err) { imap.end(); reject(err); return; }
-          const total = box.messages.total;
-          if (total === 0) { imap.end(); resolve([]); return; }
+        imap.openBox(folder, true, (err: any) => {
+          if (err) {
+            imap.end();
+            return reject(err);
+          }
 
-          const start = Math.max(1, total - limit + 1);
-          const fetch = imap.seq.fetch(`${start}:${total}`, {
-            bodies: ["HEADER.FIELDS (FROM TO SUBJECT DATE)"],
-            struct: true,
-          });
+          imap.search(["ALL"], (err: any, uids: number[]) => {
+            if (err) {
+              imap.end();
+              return reject(err);
+            }
 
-          fetch.on("message", (msg, seqno) => {
-            const emailData: any = { seqno };
-            msg.on("body", (stream) => {
-              let buffer = "";
-              stream.on("data", (chunk) => { buffer += chunk.toString("utf8"); });
-              stream.on("end", () => {
-                const lines = buffer.split("\r\n");
-                lines.forEach((line) => {
-                  if (line.toLowerCase().startsWith("from:")) emailData.from = line.substring(5).trim();
-                  if (line.toLowerCase().startsWith("to:")) emailData.to = line.substring(3).trim();
-                  if (line.toLowerCase().startsWith("subject:")) emailData.subject = line.substring(8).trim();
-                  if (line.toLowerCase().startsWith("date:")) emailData.date = line.substring(5).trim();
+            if (!uids || uids.length === 0) {
+              imap.end();
+              return resolve([]);
+            }
+
+            const latest = uids.slice(-limit).reverse();
+            const f = imap.fetch(latest, { bodies: "", struct: true });
+
+            f.on("message", (msg: any, seqno: number) => {
+              const emailData: any = { seqno };
+              
+              msg.on("body", (stream: any) => {
+                let buffer = "";
+                stream.on("data", (chunk: any) => buffer += chunk.toString("utf8"));
+                stream.on("end", async () => {
+                  try {
+                    const parsed: any = await simpleParser(buffer);
+                    emailData.from = parsed.from?.text || "";
+                    emailData.to = Array.isArray(parsed.to) ? parsed.to.map((t: any) => t.text).join(", ") : parsed.to?.text || "";
+                    emailData.subject = parsed.subject || "(Sin asunto)";
+                    emailData.date = parsed.date?.toISOString() || "";
+                    emailData.body = parsed.text || "";
+                    emailData.html = parsed.html || "";
+                    emailData.hasAttachment = (parsed.attachments?.length || 0) > 0;
+                  } catch (e) {
+                    console.error("Parse error:", e);
+                  }
                 });
               });
-            });
-            msg.once("attributes", (attrs) => {
-              emailData.uid = attrs.uid;
-              emailData.flags = attrs.flags;
-              emailData.seen = attrs.flags?.includes("\\Seen");
-            });
-            msg.once("end", () => { messages.push(emailData); });
-          });
 
-          fetch.once("error", (err) => { imap.end(); reject(err); });
-          fetch.once("end", () => { imap.end(); resolve(messages.reverse()); });
+              msg.once("attributes", (attrs: any) => {
+                emailData.uid = attrs.uid;
+                emailData.flags = attrs.flags || [];
+                emailData.seen = attrs.flags?.includes("\\Seen") || false;
+              });
+
+              msg.once("end", () => {
+                if (emailData.from || emailData.uid) results.push(emailData);
+              });
+            });
+
+            f.once("error", (err: any) => {
+              imap.end();
+              reject(err);
+            });
+
+            f.once("end", () => {
+              imap.end();
+              results.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+              resolve(results);
+            });
+          });
         });
       });
 
-      imap.once("error", (err) => reject(err));
+      imap.once("error", (err: any) => reject(err));
       imap.connect();
     });
 
     return NextResponse.json({ emails, count: emails.length });
   } catch (error: any) {
     console.error("IMAP Error:", error);
-    return NextResponse.json({ error: error.message || "Error al conectar con Zoho" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Error de conexión" }, { status: 500 });
   }
 }
