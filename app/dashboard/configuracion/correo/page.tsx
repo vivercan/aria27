@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Mail, Inbox, Send, Trash2, RefreshCw, Star, Edit3 } from "lucide-react";
+import { ArrowLeft, Mail, Inbox, Send, Trash2, RefreshCw, Edit3, X } from "lucide-react";
 
 interface Email {
   seqno: number;
@@ -71,6 +71,16 @@ export default function CorreoPage() {
     return match ? match[1].trim().replace(/"/g, "") : from.split("@")[0];
   };
 
+  const decodeSubject = (subject: string) => {
+    if (!subject) return "(Sin asunto)";
+    // Decodificar UTF-8 básico
+    return subject
+      .replace(/=\?utf-8\?[BQ]\?([^?]+)\?=/gi, (_, encoded) => {
+        try { return atob(encoded); } catch { return encoded; }
+      })
+      .replace(/=([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  };
+
   const folders = [
     { name: "INBOX", label: "Entrada", icon: Inbox, color: "text-blue-400" },
     { name: "Sent", label: "Enviados", icon: Send, color: "text-green-400" },
@@ -99,7 +109,7 @@ export default function CorreoPage() {
       {/* Content */}
       <div className="flex-1 flex min-h-0">
         {/* Sidebar carpetas */}
-        <div className="w-52 border-r border-white/10 p-3 flex flex-col">
+        <div className="w-52 border-r border-white/10 p-3 flex flex-col flex-shrink-0">
           <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-4">
             <Edit3 className="w-4 h-4" />
             Redactar
@@ -107,7 +117,7 @@ export default function CorreoPage() {
           
           <div className="space-y-1">
             {folders.map((f) => (
-              <button key={f.name} onClick={() => setFolder(f.name)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${folder === f.name ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-300"}`}>
+              <button key={f.name} onClick={() => { setFolder(f.name); setSelectedEmail(null); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${folder === f.name ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-300"}`}>
                 <f.icon className={`w-4 h-4 ${folder === f.name ? f.color : ""}`} />
                 {f.label}
                 {f.name === "INBOX" && emails.filter(e => !e.seen).length > 0 && (
@@ -121,7 +131,7 @@ export default function CorreoPage() {
         </div>
 
         {/* Lista de correos */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
           {error ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center p-6 rounded-2xl bg-red-500/10 border border-red-500/20 max-w-md">
@@ -145,23 +155,34 @@ export default function CorreoPage() {
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto">
-              {emails.map((email) => (
-                <div key={email.uid || email.seqno} onClick={() => setSelectedEmail(email)} className={`flex items-center gap-3 px-4 py-3 border-b border-white/5 cursor-pointer transition-colors ${selectedEmail?.uid === email.uid ? "bg-blue-500/10 border-l-2 border-l-blue-500" : "hover:bg-white/[0.03]"} ${!email.seen ? "bg-white/[0.02]" : ""}`}>
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm">
+              {emails.map((email, idx) => (
+                <div 
+                  key={email.uid || idx} 
+                  onClick={() => setSelectedEmail(email)} 
+                  className={`group flex items-center gap-3 px-4 py-3 border-b border-white/10 cursor-pointer transition-all ${selectedEmail?.uid === email.uid ? "bg-blue-500/20 border-l-4 border-l-blue-500" : "hover:bg-white/5"} ${!email.seen ? "bg-slate-800/50" : "bg-transparent"}`}
+                >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
                     {extractName(email.from).charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className={`text-sm truncate ${!email.seen ? "font-semibold text-white" : "text-slate-300"}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-sm truncate max-w-[200px] ${!email.seen ? "font-bold text-white" : "font-medium text-slate-200"}`}>
                         {extractName(email.from)}
                       </span>
-                      <span className="text-xs text-slate-500 ml-2 flex-shrink-0">{formatDate(email.date)}</span>
+                      <span className="text-xs text-slate-400 ml-2 flex-shrink-0 font-medium">{formatDate(email.date)}</span>
                     </div>
-                    <p className={`text-sm truncate ${!email.seen ? "text-slate-200" : "text-slate-400"}`}>
-                      {email.subject || "(Sin asunto)"}
+                    <p className={`text-sm truncate ${!email.seen ? "text-white font-medium" : "text-slate-300"}`}>
+                      {decodeSubject(email.subject)}
                     </p>
                   </div>
-                  {!email.seen && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
+                  {!email.seen && <div className="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0 shadow-lg shadow-blue-500/50" />}
+                  {/* Botón borrar */}
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); alert("Para borrar correos, usa Zoho Mail directamente por seguridad."); }}
+                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-500/20 transition-all"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
                 </div>
               ))}
             </div>
@@ -170,32 +191,46 @@ export default function CorreoPage() {
 
         {/* Preview panel */}
         {selectedEmail && (
-          <div className="w-[400px] border-l border-white/10 flex flex-col">
+          <div className="w-[420px] border-l border-white/10 flex flex-col flex-shrink-0 bg-slate-900/50">
             <div className="p-4 border-b border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-3">{selectedEmail.subject || "(Sin asunto)"}</h2>
+              <div className="flex items-start justify-between mb-3">
+                <h2 className="text-lg font-bold text-white pr-4">{decodeSubject(selectedEmail.subject)}</h2>
+                <button onClick={() => setSelectedEmail(null)} className="p-1 rounded hover:bg-white/10">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold shadow-lg">
                   {extractName(selectedEmail.from).charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{extractName(selectedEmail.from)}</p>
-                  <p className="text-xs text-slate-500 truncate">{selectedEmail.from}</p>
+                  <p className="text-sm text-white font-semibold truncate">{extractName(selectedEmail.from)}</p>
+                  <p className="text-xs text-slate-400 truncate">{selectedEmail.from}</p>
                 </div>
               </div>
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
-              <div className="text-sm text-slate-400 space-y-2">
-                <p><span className="text-slate-500">Para:</span> {selectedEmail.to}</p>
-                <p><span className="text-slate-500">Fecha:</span> {selectedEmail.date}</p>
+              <div className="text-sm space-y-2 mb-4">
+                <p className="text-slate-300"><span className="text-slate-500 font-medium">Para:</span> {selectedEmail.to}</p>
+                <p className="text-slate-300"><span className="text-slate-500 font-medium">Fecha:</span> {selectedEmail.date}</p>
               </div>
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-slate-300 text-sm">
-                  Para ver el contenido completo del correo, abre Zoho Mail directamente.
+              <div className="pt-4 border-t border-white/10">
+                <p className="text-slate-300 text-sm mb-4">
+                  Para ver el contenido completo del correo, abre Zoho Mail.
                 </p>
-                <a href="https://mail.zoho.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors text-sm">
-                  <Mail className="w-4 h-4" />
-                  Abrir en Zoho Mail
-                </a>
+                <div className="flex gap-2">
+                  <a href="https://mail.zoho.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium">
+                    <Mail className="w-4 h-4" />
+                    Abrir en Zoho
+                  </a>
+                  <button 
+                    onClick={() => alert("Para borrar correos, usa Zoho Mail directamente por seguridad.")}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors text-sm font-medium"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
