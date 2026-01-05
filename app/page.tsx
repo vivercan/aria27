@@ -9,11 +9,23 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (email.trim() === 'recursos.humanos@gcuavante.com' && pass.trim() === 'cVfo1fk@') {
-      router.push('/dashboard/requisiciones')
-    } else {
-      alert('Credenciales incorrectas. Verifica mayusculas y espacios.')
-    }
+    // Validar que exista en users de Supabase
+    fetch('https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?email=eq.' + encodeURIComponent(email.trim().toLowerCase()), {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo'
+      }
+    })
+    .then(r => r.json())
+    .then(users => {
+      if (users && users.length > 0) {
+        localStorage.setItem('userEmail', email.trim().toLowerCase())
+        sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
+        router.push('/dashboard/requisiciones')
+      } else {
+        alert('Usuario no registrado en ARIA')
+      }
+    })
+    .catch(() => alert('Error de conexión'))
   }
 
   return (
@@ -26,44 +38,44 @@ export default function LoginPage() {
           letter-spacing: 0.15em;
         }
       `}</style>
-      
+
       <div className="relative min-h-screen w-full overflow-hidden">
-        
+
         {/* CAPA 1: Degradado base - oscuro arriba-izquierda, azul brillante abajo-derecha */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'linear-gradient(135deg, #020617 0%, #020617 35%, #0a1628 50%, #0052CC 85%, #0066FF 100%)',
           }}
         />
-        
+
         {/* CAPA 2: Halo radial brillante en zona derecha-baja */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(0,102,255,0.5) 0%, rgba(0,82,204,0.3) 30%, transparent 60%)',
           }}
         />
-        
+
         {/* CAPA 3: Segundo halo más intenso y concentrado */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'radial-gradient(circle at 70% 65%, rgba(37,99,235,0.4) 0%, transparent 40%)',
           }}
         />
-        
+
         {/* CAPA 4: Glow difuso adicional */}
-        <div 
+        <div
           className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none"
           style={{
             background: 'radial-gradient(circle, rgba(0,102,255,0.35) 0%, transparent 60%)',
             filter: 'blur(60px)',
           }}
         />
-        
+
         {/* CAPA 5: Noise/textura sutil */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
@@ -79,10 +91,10 @@ export default function LoginPage() {
 
         {/* Contenedor principal */}
         <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
-          
+
           {/* Card de login - izquierda baja */}
           <div className="relative flex-shrink-0">
-            <div 
+            <div
               className="relative overflow-hidden backdrop-blur-2xl rounded-2xl"
               style={{
                 background: 'rgba(15,23,42,0.65)',
@@ -92,13 +104,13 @@ export default function LoginPage() {
               }}
             >
               {/* Barra superior brillante */}
-              <div 
+              <div
                 className="h-[2px] w-full"
                 style={{
                   background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 30%, #60a5fa 50%, #3b82f6 70%, #1e40af 100%)',
                 }}
               />
-              
+
               {/* Contenido del card */}
               <div style={{ padding: '22px 18px 18px 18px' }}>
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -108,8 +120,8 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500"
-                    style={{ 
-                      padding: '8px 12px', 
+                    style={{
+                      padding: '8px 12px',
                       fontSize: '13px',
                       height: '36px',
                       background: 'rgba(15,23,42,0.8)',
@@ -124,8 +136,8 @@ export default function LoginPage() {
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
                     className="password-input w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400"
-                    style={{ 
-                      padding: '8px 12px', 
+                    style={{
+                      padding: '8px 12px',
                       fontSize: '16px',
                       height: '36px',
                       background: 'rgba(15,23,42,0.8)',
@@ -140,7 +152,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     className="w-full text-white font-semibold rounded-xl transition-all duration-200 uppercase tracking-wider hover:-translate-y-[2px] hover:scale-[1.01] active:translate-y-0 active:scale-100"
-                    style={{ 
+                    style={{
                       padding: '0',
                       height: '36px',
                       fontSize: '13px',
@@ -168,7 +180,7 @@ export default function LoginPage() {
           {/* ARIA + Infinity Loop - derecha */}
           <div className="hidden md:flex items-center justify-center relative mr-12 lg:mr-20 overflow-visible">
             {/* Simbolo infinito como luz de fondo */}
-            <div 
+            <div
               className="absolute pointer-events-none"
               style={{
                 width: '550px',
@@ -198,8 +210,8 @@ export default function LoginPage() {
 
             {/* Texto ARIA */}
             <div className="relative flex flex-col items-end" style={{ paddingRight: '20px' }}>
-              <h1 
-                style={{ 
+              <h1
+                style={{
                   fontFamily: '"Arial Black", "Helvetica Neue", Arial, sans-serif',
                   fontSize: '200px',
                   fontWeight: 900,
@@ -214,18 +226,18 @@ export default function LoginPage() {
               >
                 ARIA
               </h1>
-              
+
               {/* Tagline con icono infinito */}
-              <div 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   marginTop: '14px',
                   paddingRight: '15px',
                   whiteSpace: 'nowrap',
                 }}
               >
-                <span 
+                <span
                   style={{
                     fontSize: '16px',
                     color: 'rgba(255,255,255,0.7)',
@@ -234,7 +246,7 @@ export default function LoginPage() {
                 >
                   ∞
                 </span>
-                <p 
+                <p
                   style={{
                     fontSize: '12px',
                     fontWeight: 600,
