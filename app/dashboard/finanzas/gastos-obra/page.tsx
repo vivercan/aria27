@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { DollarSign, Search, Download, Calendar, Building2, Filter, X, ArrowLeft, Loader2, TrendingUp } from "lucide-react";
+import { DollarSign, Search, Download, Calendar, Building2, Filter, X, ArrowLeft, Loader2, TrendingUp, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 
 interface Gasto {
@@ -19,6 +19,7 @@ interface Gasto {
 export default function GastosObraPage() {
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportando, setExportando] = useState(false);
   const [filtros, setFiltros] = useState({ buscar: "", obra: "", semana: "", fechaInicio: "", fechaFin: "" });
   const [obras, setObras] = useState<string[]>([]);
   const [semanas, setSemanas] = useState<number[]>([]);
@@ -49,31 +50,35 @@ export default function GastosObraPage() {
   const limpiarFiltros = () => setFiltros({ buscar: "", obra: "", semana: "", fechaInicio: "", fechaFin: "" });
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
 
-  // Resumen por obra
   const resumenObras = Object.entries(gastosFiltrados.reduce((acc, g) => {
     const obra = g.obra || "Sin asignar";
     acc[obra] = (acc[obra] || 0) + (g.monto || 0);
     return acc;
   }, {} as Record<string, number>)).map(([nombre, total]) => ({ nombre, total })).sort((a, b) => b.total - a.total).slice(0, 6);
 
-  const exportarCSV = () => {
-    let csv = "\uFEFF";
-    csv += "Fecha,Semana,Obra,Solicitante,Descripcion,Proveedor,Monto\n";
-    gastosFiltrados.forEach(g => {
-      csv += `${g.fecha || ""},${g.semana || ""},"${g.obra || ""}","${g.solicitante || ""}","${g.descripcion || ""}","${g.proveedor || ""}",${g.monto || 0}\n`;
-    });
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Gastos_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
+  const exportarExcel = async () => {
+    setExportando(true);
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: "gastos", filtros: { obra: filtros.obra, semana: filtros.semana, fechaInicio: filtros.fechaInicio, fechaFin: filtros.fechaFin } })
+      });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Gastos_ARIA_${new Date().toISOString().split("T")[0]}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (e) { console.error(e); }
+    setExportando(false);
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /><span className="ml-3 text-white/60">Cargando gastos...</span></div>;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/finanzas" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
@@ -87,12 +92,12 @@ export default function GastosObraPage() {
             <p className="text-slate-400 text-sm">{gastos.length} registros históricos cargados</p>
           </div>
         </div>
-        <button onClick={exportarCSV} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 transition-all">
-          <Download className="w-4 h-4" />Exportar CSV
+        <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 transition-all disabled:opacity-50">
+          {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+          {exportando ? "Generando..." : "Exportar Excel"}
         </button>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20 backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-3">
@@ -124,7 +129,6 @@ export default function GastosObraPage() {
         </div>
       </div>
 
-      {/* Filtros */}
       <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px]">
@@ -150,13 +154,10 @@ export default function GastosObraPage() {
         </div>
       </div>
 
-      {/* Content Grid */}
       <div className="grid grid-cols-3 gap-6">
-        {/* Tabla principal */}
         <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-emerald-400" />
-            Detalle de Gastos
+            <DollarSign className="w-5 h-5 text-emerald-400" />Detalle de Gastos
           </h2>
           <div className="max-h-[450px] overflow-y-auto rounded-xl">
             <table className="w-full text-sm">
@@ -174,30 +175,22 @@ export default function GastosObraPage() {
                 {gastosFiltrados.slice(0, 150).map((g, idx) => (
                   <tr key={g.id} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors`}>
                     <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{g.fecha || "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-medium">{g.semana || "—"}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span>
-                    </td>
+                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-medium">{g.semana || "—"}</span></td>
+                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
                     <td className="px-4 py-3 text-slate-400 truncate max-w-[120px]">{g.proveedor || "—"}</td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span>
-                    </td>
+                    <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {gastosFiltrados.length > 150 && <p className="text-center text-slate-500 text-xs mt-4 py-2 bg-white/5 rounded-lg">Mostrando 150 de {gastosFiltrados.length} registros</p>}
+          {gastosFiltrados.length > 150 && <p className="text-center text-slate-500 text-xs mt-4 py-2 bg-white/5 rounded-lg">Mostrando 150 de {gastosFiltrados.length}</p>}
         </div>
 
-        {/* Resumen por Obra */}
         <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-amber-400" />
-            Top Obras
+            <TrendingUp className="w-5 h-5 text-amber-400" />Top Obras
           </h2>
           <div className="space-y-3">
             {resumenObras.map((o, i) => (
