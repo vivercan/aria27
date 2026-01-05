@@ -175,7 +175,7 @@ export default function NominaPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h-[calc(100vh-64px)] flex flex-col p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
@@ -201,7 +201,7 @@ export default function NominaPage() {
         </div>
       )}
 
-      <div className="grid gap-3">
+      <div className="flex-1 overflow-y-auto min-h-0"><div className="grid gap-3">
         {loading ? (
           <div className="text-center py-8 text-slate-400">Cargando...</div>
         ) : (
@@ -241,7 +241,7 @@ export default function NominaPage() {
         )}
       </div>
 
-      {selectedNomina && (
+      </div>{selectedNomina && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             <div className="p-4 border-b border-white/10 flex justify-between items-center">
@@ -293,3 +293,4 @@ export default function NominaPage() {
     </div>
   );
 }
+

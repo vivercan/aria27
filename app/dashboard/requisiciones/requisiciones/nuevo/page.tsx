@@ -107,7 +107,7 @@ export default function NewRequisitionPage() {
   const isCartEmpty = materials.length === 0;
 
   return (
-    <div className="flex flex-col gap-4 p-6 h-full">
+    <div className="flex flex-col gap-4 p-6 h-[calc(100vh-64px)]">
       {/* Flecha de regreso */}
               <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -221,5 +221,6 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
 
 
