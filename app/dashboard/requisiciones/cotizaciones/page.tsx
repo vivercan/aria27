@@ -206,7 +206,7 @@ export default function CotizacionesPage() {
 
         <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full">
-            <thead>
+            <thead className="sticky top-0 bg-[#0a1628] z-10">
               <tr className="border-b border-white/10">
                 <th className="text-left py-3 px-4 text-slate-400 text-sm font-medium">Material</th>
                 <th className="text-center py-3 px-4 text-slate-400 text-sm font-medium">Cant.</th>
@@ -298,5 +298,6 @@ export default function CotizacionesPage() {
     </div>
   );
 }
+
 
 

@@ -114,7 +114,7 @@ export default function WorkCentersPage() {
 
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
         <table className="w-full">
-          <thead>
+          <thead className="sticky top-0 bg-[#0a1628] z-10">
             <tr className="bg-slate-900/50 text-slate-400 text-sm">
               <th className="p-4 text-left">Nombre</th>
               <th className="p-4 text-left">Direccion</th>
@@ -198,6 +198,7 @@ export default function WorkCentersPage() {
     </div>
   );
 }
+
 
 
 

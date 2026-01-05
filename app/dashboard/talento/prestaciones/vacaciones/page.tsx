@@ -86,7 +86,7 @@ export default function VacacionesPage() {
       {tab === "saldos" && (
         <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full">
-            <thead className="bg-white/5">
+            <thead className="sticky top-0 bg-[#0a1628] z-10">
               <tr className="text-left text-slate-400 text-sm">
                 <th className="p-3">Empleado</th>
                 <th className="p-3">Antigüedad</th>
@@ -130,7 +130,7 @@ export default function VacacionesPage() {
       {tab === "solicitudes" && (
         <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full">
-            <thead className="bg-white/5">
+            <thead className="sticky top-0 bg-[#0a1628] z-10">
               <tr className="text-left text-slate-400 text-sm">
                 <th className="p-3">Empleado</th>
                 <th className="p-3">Fecha Inicio</th>
@@ -173,6 +173,7 @@ export default function VacacionesPage() {
     </div>
   );
 }
+
 
 
 
