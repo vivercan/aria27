@@ -1,0 +1,101 @@
+****INICIO HARDCODEO - SISTEMA ASISTENCIAS ARIA27****
+Fecha: 2026-01-06
+Version: 1.0
+
+=== FLUJO DE ASISTENCIA POR WHATSAPP ===
+
+1. ENTRADA:
+   - Empleado envia ubicacion GPS al numero de ARIA (+52 1 81 2623 2738)
+   - Sistema busca empleado por campo "whatsapp" en tabla "Personal"
+   - Si no encuentra -> "Tu numero no esta registrado. Contacta a Recursos Humanos."
+   - Si encuentra -> Calcula distancia al centro de trabajo mas cercano
+   - Si distancia <= radio_metros -> DENTRO de geocerca
+   - Si distancia > radio_metros -> FUERA de geocerca (registra pero con alerta)
+   - Guarda en tabla "asistencias": employee_id, fecha, hora_entrada, latitud, longitud, dentro_geocerca_entrada
+
+2. SALIDA:
+   - Mismo empleado envia SEGUNDA ubicacion el mismo dia
+   - Sistema detecta que ya hay entrada sin salida
+   - Calcula horas trabajadas = hora_salida - hora_entrada
+   - Guarda hora_salida, latitud_salida, longitud_salida, dentro_geocerca_salida, horas_trabajadas
+
+3. YA REGISTRADO:
+   - Si empleado envia TERCERA ubicacion el mismo dia
+   - Sistema responde: "Ya registraste asistencia hoy. Entrada: HH:MM, Salida: HH:MM"
+
+=== TABLAS INVOLUCRADAS ===
+
+Personal:
+- id (uuid) - PK
+- full_name (text) - Nombre del empleado
+- whatsapp (varchar) - Numero de WhatsApp (10 digitos sin 52)
+- status (varchar) - ACTIVO/BAJA
+- obra (text) - Centro de trabajo asignado
+
+work_centers:
+- id (uuid) - PK
+- name (text) - Nombre del centro
+- latitude (numeric) - Coordenada GPS
+- longitude (numeric) - Coordenada GPS
+- radius_meters (int) - Radio de la geocerca en metros
+- active (boolean) - Si esta activo
+
+asistencias:
+- id (uuid) - PK
+- employee_id (uuid) - FK a Personal.id
+- fecha (date) - Fecha del registro
+- hora_entrada (time) - Hora de entrada
+- hora_salida (time) - Hora de salida
+- latitud_entrada/salida (numeric) - Coordenadas GPS
+- longitud_entrada/salida (numeric) - Coordenadas GPS
+- dentro_geocerca_entrada/salida (boolean) - Si estaba dentro del radio
+- horas_trabajadas (numeric) - Total de horas
+- retardo (boolean) - Si llego tarde
+- notas (text) - Observaciones
+
+=== CENTROS DE TRABAJO CONFIGURADOS ===
+1. Oficina Central
+   - Direccion: Granate 138, Reserva Marina 1, La Perla Norte, 20126 Aguascalientes
+   - Coordenadas: 21.94983500, -102.28302500
+   - Radio: 1000 metros
+
+=== EMPLEADO DE PRUEBA ===
+- Nombre: Jessica Gallardo Acosta
+- ID: 8afb5ebd-e23a-4800-a5c1-7703ebf076f1
+- WhatsApp: 8112392266
+- Status: ACTIVO
+
+=== WEBHOOK META ===
+- URL: https://aria.jjcrm27.com/api/webhook/attendance
+- Verify Token: aria27_webhook_token
+- Phone ID: 8699404528744744 (o el configurado en .env)
+
+=== RESPUESTAS WHATSAPP ===
+
+Entrada OK (dentro):
+"✅ ENTRADA REGISTRADA
+[Nombre]
+📍 [Centro]
+🕐 [HH:MM]
+¡Excelente día!"
+
+Entrada ALERTA (fuera):
+"⚠️ ENTRADA REGISTRADA
+(Fuera de zona: [X]m)
+[Nombre]
+📍 [Centro cercano]
+🕐 [HH:MM]"
+
+Salida OK:
+"✅ SALIDA REGISTRADA
+[Nombre]
+📍 [Centro]
+🕐 Entrada: [HH:MM]
+🕐 Salida: [HH:MM]
+⏱️ Horas: [X.X]h
+¡Hasta mañana!"
+
+No registrado:
+"Tu numero no esta registrado. Contacta a Recursos Humanos."
+
+****FIN HARDCODEO - SISTEMA ASISTENCIAS ARIA27****
