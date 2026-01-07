@@ -29,6 +29,8 @@ export default function UsuariosPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
   const [editPermissions, setEditPermissions] = useState<Record<string, string[]>>({});
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
@@ -45,6 +47,8 @@ export default function UsuariosPage() {
   const startEdit = (user: User) => {
     setEditingId(user.id);
     setEditRole(user.role);
+    setEditEmail(user.email);
+    setEditPhone(user.phone || "");
     setEditPermissions(user.permissions || {});
     setExpandedModules([]);
   };
@@ -52,6 +56,8 @@ export default function UsuariosPage() {
   const cancelEdit = () => {
     setEditingId(null);
     setEditRole("");
+    setEditEmail("");
+    setEditPhone("");
     setEditPermissions({});
     setExpandedModules([]);
   };
@@ -59,6 +65,8 @@ export default function UsuariosPage() {
   const saveUser = async (id: string) => {
     await supabase.from("users").update({
       role: editRole,
+      email: editEmail,
+      phone: editPhone,
       permissions: editPermissions
     }).eq("id", id);
     setEditingId(null);
@@ -147,17 +155,14 @@ export default function UsuariosPage() {
                 <p className="text-sm text-slate-400">Esta acción no se puede deshacer</p>
               </div>
             </div>
-            
             <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
               <p className="text-sm text-slate-300 mb-1">Usuario a eliminar:</p>
               <p className="text-white font-medium">{deletingUser.name}</p>
               <p className="text-slate-400 text-sm">{deletingUser.email}</p>
             </div>
-
             <p className="text-sm text-slate-300 mb-3">
               Para confirmar, escribe <span className="text-red-400 font-mono font-bold">delete</span> en minúsculas:
             </p>
-            
             <input
               type="text"
               value={deleteConfirmText}
@@ -166,22 +171,14 @@ export default function UsuariosPage() {
               className="w-full px-4 py-2 bg-slate-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
               autoFocus
             />
-
             <div className="flex gap-3">
-              <button
-                onClick={closeDeleteModal}
-                className="flex-1 px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors"
-              >
+              <button onClick={closeDeleteModal} className="flex-1 px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors">
                 Cancelar
               </button>
               <button
                 onClick={confirmDelete}
                 disabled={deleteConfirmText !== "delete"}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  deleteConfirmText === "delete"
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : "bg-slate-700 text-slate-500 cursor-not-allowed"
-                }`}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${deleteConfirmText === "delete" ? "bg-red-500 text-white hover:bg-red-600" : "bg-slate-700 text-slate-500 cursor-not-allowed"}`}
               >
                 Eliminar
               </button>
@@ -229,18 +226,33 @@ export default function UsuariosPage() {
                     <tr key={u.id} className="hover:bg-white/[0.02]">
                       <td className="px-4 py-3 text-white font-medium">{u.name}</td>
                       <td className="px-4 py-3 text-slate-300 text-sm">
-                        <Mail className="w-4 h-4 text-slate-500 inline mr-2" />{u.email}
+                        {editingId === u.id ? (
+                          <input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            className="bg-slate-700 text-white text-sm rounded px-2 py-1 w-full max-w-[200px]"
+                          />
+                        ) : (
+                          <><Mail className="w-4 h-4 text-slate-500 inline mr-2" />{u.email}</>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-slate-300 text-sm">
-                        <Phone className="w-4 h-4 text-slate-500 inline mr-2" />{u.phone || "-"}
+                        {editingId === u.id ? (
+                          <input
+                            type="tel"
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                            className="bg-slate-700 text-white text-sm rounded px-2 py-1 w-full max-w-[140px]"
+                            placeholder="10 dígitos"
+                          />
+                        ) : (
+                          <><Phone className="w-4 h-4 text-slate-500 inline mr-2" />{u.phone || "-"}</>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {editingId === u.id ? (
-                          <select
-                            value={editRole}
-                            onChange={(e) => setEditRole(e.target.value)}
-                            className="bg-slate-700 text-white text-xs rounded px-2 py-1"
-                          >
+                          <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="bg-slate-700 text-white text-xs rounded px-2 py-1">
                             <option value="admin">admin</option>
                             <option value="validador">validador</option>
                             <option value="compras">compras</option>
@@ -248,15 +260,12 @@ export default function UsuariosPage() {
                             <option value="viewer">viewer</option>
                           </select>
                         ) : (
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>
-                            {u.role}
-                          </span>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>{u.role}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="px-2 py-1 rounded bg-slate-500/20 text-slate-400 text-xs">
-                          <Shield className="w-3 h-3 inline mr-1" />
-                          {countPermissions(u.permissions)} accesos
+                          <Shield className="w-3 h-3 inline mr-1" />{countPermissions(u.permissions)} accesos
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -267,10 +276,10 @@ export default function UsuariosPage() {
                       <td className="px-4 py-3 text-center">
                         {editingId === u.id ? (
                           <div className="flex justify-center gap-2">
-                            <button onClick={() => saveUser(u.id)} className="p-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">
+                            <button onClick={() => saveUser(u.id)} className="p-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" title="Guardar">
                               <Save className="w-4 h-4" />
                             </button>
-                            <button onClick={cancelEdit} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30">
+                            <button onClick={cancelEdit} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30" title="Cancelar">
                               <X className="w-4 h-4" />
                             </button>
                           </div>
