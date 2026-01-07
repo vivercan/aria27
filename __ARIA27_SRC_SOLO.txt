@@ -1,0 +1,17 @@
+ARCHIVOS SOLO EN src/
+======================
+src\app\dashboard\layout.tsx
+src\app\dashboard\supply-desk\requisition\page.tsx
+src\components\CargaMasivaBtn.tsx
+src\components\dashboard\index.ts
+src\components\dashboard\ModuleCard.tsx
+src\components\dashboard\ModuleGrid.tsx
+src\components\dashboard\ModuleHeader.tsx
+src\components\dashboard\Sidebar.tsx
+src\components\dashboard\SubModuleCard.tsx
+src\hooks\useProducts.ts
+src\lib\supabase-browser.ts
+src\lib\supabase.ts
+src\lib\whatsapp.ts
+src\lib\whatsapp.ts.bak
+src\lib\whatsapp.ts.bak_fix_wa

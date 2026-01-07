@@ -1,0 +1,3 @@
+COMPONENTES USADOS
+==================
+components\dashboard\Sidebar.tsx

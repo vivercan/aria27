@@ -1,0 +1,4 @@
+=== MAPA REAL DE MODULOS (SEGUN RUTAS) ===
+src\app\dashboard
+src\app\dashboard\supply-desk
+src\app\dashboard\supply-desk\requisition

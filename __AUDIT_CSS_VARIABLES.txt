@@ -1,0 +1,18 @@
+=== :root TOKENS (globals.css y scripts) ===
+D:\aria27\aria27-timonfx-compras.ps1:13 :root {
+D:\aria27\aria27-timonfx-compras.ps1:15   --aria-blue-core: #003DA5;
+D:\aria27\aria27-timonfx-compras.ps1:16   --aria-blue-soft: #0D3F8D;
+D:\aria27\aria27-timonfx-compras.ps1:17   --aria-blue-glow: #38BDF8;
+D:\aria27\aria27-timonfx-compras.ps1:18   --aria-blue-accent: #2563EB;
+D:\aria27\aria27-timonfx-compras.ps1:21   --aria-deep-navy: #020712;
+D:\aria27\aria27-timonfx-compras.ps1:22   --aria-card-bg: rgba(8, 16, 30, 0.85);
+D:\aria27\aria27-timonfx-compras.ps1:23   --aria-card-bg-hover: rgba(12, 22, 40, 0.90);
+D:\aria27\aria27-timonfx-compras.ps1:26   --aria-border-subtle: rgba(255, 255, 255, 0.04);
+D:\aria27\aria27-timonfx-compras.ps1:27   --aria-border-hover: rgba(56, 189, 248, 0.40);
+D:\aria27\aria27-timonfx-compras.ps1:30   --aria-card-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+D:\aria27\aria27-timonfx-compras.ps1:31   --aria-card-shadow-hover: 0 24px 50px rgba(0, 0, 0, 0.65);
+D:\aria27\aria27-timonfx-compras.ps1:32   --aria-glow-blue: 0 0 18px rgba(0, 125, 255, 0.35);
+D:\aria27\aria27-timonfx-compras.ps1:35   --aria-card-radius: 20px;
+D:\aria27\aria27-timonfx-compras.ps1:36   --aria-badge-radius: 999px;
+D:\aria27\aria27-timonfx-compras.ps1:39   --aria-card-gap: 24px;
+D:\aria27\aria27-timonfx-compras.ps1:40   --aria-card-padding: 16px 20px;
