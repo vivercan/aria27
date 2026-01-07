@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 
 interface User {
   id: string;
@@ -31,6 +31,8 @@ export default function UsuariosPage() {
   const [editRole, setEditRole] = useState("");
   const [editPermissions, setEditPermissions] = useState<Record<string, string[]>>({});
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -55,16 +57,33 @@ export default function UsuariosPage() {
   };
 
   const saveUser = async (id: string) => {
-    await supabase.from("users").update({ 
+    await supabase.from("users").update({
       role: editRole,
-      permissions: editPermissions 
+      permissions: editPermissions
     }).eq("id", id);
     setEditingId(null);
     loadUsers();
   };
 
+  const openDeleteModal = (user: User) => {
+    setDeletingUser(user);
+    setDeleteConfirmText("");
+  };
+
+  const closeDeleteModal = () => {
+    setDeletingUser(null);
+    setDeleteConfirmText("");
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirmText !== "delete" || !deletingUser) return;
+    await supabase.from("users").delete().eq("id", deletingUser.id);
+    closeDeleteModal();
+    loadUsers();
+  };
+
   const toggleModule = (modId: string) => {
-    setExpandedModules(prev => 
+    setExpandedModules(prev =>
       prev.includes(modId) ? prev.filter(m => m !== modId) : [...prev, modId]
     );
   };
@@ -72,15 +91,12 @@ export default function UsuariosPage() {
   const toggleModulePermission = (modId: string) => {
     const mod = MODULOS.find(m => m.id === modId);
     if (!mod) return;
-    
     const currentSubs = editPermissions[modId] || [];
     if (currentSubs.length === mod.subs.length) {
-      // Quitar todos
       const newPerms = { ...editPermissions };
       delete newPerms[modId];
       setEditPermissions(newPerms);
     } else {
-      // Seleccionar todos
       setEditPermissions({ ...editPermissions, [modId]: [...mod.subs] });
     }
   };
@@ -118,7 +134,63 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header con flecha */}
+      {/* Modal de confirmación de borrado */}
+      {deletingUser && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full mx-4 border border-white/10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 rounded-full bg-red-500/20">
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Eliminar Usuario</h3>
+                <p className="text-sm text-slate-400">Esta acción no se puede deshacer</p>
+              </div>
+            </div>
+            
+            <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
+              <p className="text-sm text-slate-300 mb-1">Usuario a eliminar:</p>
+              <p className="text-white font-medium">{deletingUser.name}</p>
+              <p className="text-slate-400 text-sm">{deletingUser.email}</p>
+            </div>
+
+            <p className="text-sm text-slate-300 mb-3">
+              Para confirmar, escribe <span className="text-red-400 font-mono font-bold">delete</span> en minúsculas:
+            </p>
+            
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Escribe delete para confirmar"
+              className="w-full px-4 py-2 bg-slate-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
+              autoFocus
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={closeDeleteModal}
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleteConfirmText !== "delete"}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  deleteConfirmText === "delete"
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                }`}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -164,9 +236,9 @@ export default function UsuariosPage() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         {editingId === u.id ? (
-                          <select 
-                            value={editRole} 
-                            onChange={(e) => setEditRole(e.target.value)} 
+                          <select
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
                             className="bg-slate-700 text-white text-xs rounded px-2 py-1"
                           >
                             <option value="admin">admin</option>
@@ -203,13 +275,17 @@ export default function UsuariosPage() {
                             </button>
                           </div>
                         ) : (
-                          <button onClick={() => startEdit(u)} className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white">
-                            <Edit2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex justify-center gap-2">
+                            <button onClick={() => startEdit(u)} className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white" title="Editar">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => openDeleteModal(u)} className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
-                    {/* Panel de permisos expandible */}
                     {editingId === u.id && (
                       <tr>
                         <td colSpan={7} className="px-4 py-4 bg-slate-900/50">
@@ -224,40 +300,20 @@ export default function UsuariosPage() {
                                 const allSelected = currentSubs.length === mod.subs.length;
                                 const someSelected = currentSubs.length > 0 && !allSelected;
                                 const isExpanded = expandedModules.includes(mod.id);
-                                
                                 return (
                                   <div key={mod.id} className="rounded-lg bg-white/[0.03] border border-white/[0.08] overflow-hidden">
-                                    <div 
-                                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/[0.05]"
-                                      onClick={() => toggleModule(mod.id)}
-                                    >
+                                    <div className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/[0.05]" onClick={() => toggleModule(mod.id)}>
                                       <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={allSelected}
-                                          ref={el => { if (el) el.indeterminate = someSelected; }}
-                                          onChange={() => toggleModulePermission(mod.id)}
-                                          onClick={(e) => e.stopPropagation()}
-                                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
-                                        />
+                                        <input type="checkbox" checked={allSelected} ref={el => { if (el) el.indeterminate = someSelected; }} onChange={() => toggleModulePermission(mod.id)} onClick={(e) => e.stopPropagation()} className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500" />
                                         <span className="text-sm text-white font-medium">{mod.nombre}</span>
                                       </label>
-                                      {isExpanded ? (
-                                        <ChevronUp className="w-4 h-4 text-slate-400" />
-                                      ) : (
-                                        <ChevronDown className="w-4 h-4 text-slate-400" />
-                                      )}
+                                      {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                                     </div>
                                     {isExpanded && (
                                       <div className="px-2 pb-2 space-y-1 border-t border-white/[0.06] pt-2">
                                         {mod.subs.map(sub => (
                                           <label key={sub} className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.03] p-1 rounded">
-                                            <input
-                                              type="checkbox"
-                                              checked={currentSubs.includes(sub)}
-                                              onChange={() => toggleSubPermission(mod.id, sub)}
-                                              className="w-3 h-3 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
-                                            />
+                                            <input type="checkbox" checked={currentSubs.includes(sub)} onChange={() => toggleSubPermission(mod.id, sub)} className="w-3 h-3 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500" />
                                             <span className="text-xs text-slate-300 capitalize">{sub.replace("-", " ")}</span>
                                           </label>
                                         ))}
