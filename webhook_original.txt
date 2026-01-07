@@ -64,18 +64,18 @@ async function extractGastoFromImage(imageUrl: string, mediaType: string): Promi
             },
             {
               type: "text",
-              text: `Analiza este ticket/recibo y extrae la información en formato JSON.
+              text: `Analiza este ticket/recibo y extrae la informaci├│n en formato JSON.
               
 Responde SOLO con el JSON, sin explicaciones ni markdown:
 {
   "proveedor": "nombre del negocio/tienda",
   "monto": 123.45,
   "fecha": "2025-01-04",
-  "descripcion": "descripción breve de la compra",
+  "descripcion": "descripci├│n breve de la compra",
   "categoria": "una de: MATERIAL, GASOLINA, COMIDA, HERRAMIENTA, SERVICIO, OTRO"
 }
 
-Si no puedes leer algo, pon null en ese campo. El monto debe ser número sin signo de pesos.`
+Si no puedes leer algo, pon null en ese campo. El monto debe ser n├║mero sin signo de pesos.`
             }
           ]
         }]
@@ -111,13 +111,13 @@ async function extractGastoFromText(text: string): Promise<any> {
         max_tokens: 500,
         messages: [{
           role: "user",
-          content: `Extrae información de gasto de este mensaje: "${text}"
+          content: `Extrae informaci├│n de gasto de este mensaje: "${text}"
           
 Responde SOLO con JSON, sin explicaciones:
 {
   "proveedor": "nombre si lo menciona o null",
   "monto": 123.45,
-  "descripcion": "qué compró",
+  "descripcion": "qu├® compr├│",
   "categoria": "una de: MATERIAL, GASOLINA, COMIDA, HERRAMIENTA, SERVICIO, OTRO",
   "obra": "nombre de obra si la menciona o null"
 }
@@ -187,7 +187,7 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
   const fecha = gastoData.fecha || today.toISOString().split("T")[0];
   const semana = getWeekNumber(today);
 
-  // Buscar quién envió
+  // Buscar qui├®n envi├│
   const solicitante = await findSolicitante(phone10, from);
   const nombreSolicitante = solicitante?.nombre || `WhatsApp ${phone10}`;
   const obraDefault = solicitante?.obra || gastoData.obra || "PENDIENTE";
@@ -198,7 +198,7 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
     semana: semana,
     obra: obraDefault,
     solicitante: nombreSolicitante,
-    descripcion: gastoData.descripcion || "Sin descripción",
+    descripcion: gastoData.descripcion || "Sin descripci├│n",
     proveedor: gastoData.proveedor || "No especificado",
     razon: gastoData.descripcion,
     monto: gastoData.monto || 0,
@@ -212,27 +212,27 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
 
   if (error) {
     console.error("Error guardando gasto:", error);
-    await sendWhatsApp(from, "❌ Error al guardar el gasto. Intenta de nuevo.");
+    await sendWhatsApp(from, "ÔØî Error al guardar el gasto. Intenta de nuevo.");
     return;
   }
 
   // Confirmar por WhatsApp
   const monto = gastoData.monto ? `$${gastoData.monto.toLocaleString()}` : "Sin monto";
-  const msg = `✅ GASTO REGISTRADO
+  const msg = `Ô£à GASTO REGISTRADO
 
-📋 ${gastoData.descripcion || "Sin descripción"}
-💰 ${monto}
-🏪 ${gastoData.proveedor || "No especificado"}
-🏗️ ${obraDefault}
-👤 ${nombreSolicitante}
-📅 Semana ${semana}
+­ƒôï ${gastoData.descripcion || "Sin descripci├│n"}
+­ƒÆ░ ${monto}
+­ƒÅ¬ ${gastoData.proveedor || "No especificado"}
+­ƒÅù´©Å ${obraDefault}
+­ƒæñ ${nombreSolicitante}
+­ƒôà Semana ${semana}
 
-Estatus: PENDIENTE de aprobación`;
+Estatus: PENDIENTE de aprobaci├│n`;
 
   await sendWhatsApp(from, msg);
 }
 
-// ============== MANEJAR ASISTENCIA (código original) ==============
+// ============== MANEJAR ASISTENCIA (c├│digo original) ==============
 async function handleAsistencia(from: string, phone10: string, lat: number, lng: number) {
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
 
@@ -296,8 +296,8 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     });
 
     const msg = isValid
-      ? `✅ ENTRADA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 ${hora}\n\n¡Excelente día!`
-      : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 ${hora}`;
+      ? `Ô£à ENTRADA REGISTRADA\n\n${emp.full_name}\n­ƒôì ${workCenter.name}\n­ƒòÉ ${hora}\n\n┬íExcelente d├¡a!`
+      : `ÔÜá´©Å ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n­ƒôì ${workCenter.name}\n­ƒòÉ ${hora}`;
     await sendWhatsApp(from, msg);
 
   } else if (!asist.hora_salida) {
@@ -317,14 +317,14 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     const horasStr = horas > 0 ? horas.toFixed(1) : "0";
 
     const msg = isValid
-      ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h\n\n¡Hasta mañana!`
-      : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h`;
+      ? `Ô£à SALIDA REGISTRADA\n\n${emp.full_name}\n­ƒôì ${workCenter.name}\n­ƒòÉ Entrada: ${horaE}\n­ƒòÉ Salida: ${hora}\nÔÅ▒´©Å Horas: ${horasStr}h\n\n┬íHasta ma├▒ana!`
+      : `ÔÜá´©Å SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n­ƒòÉ Entrada: ${horaE}\n­ƒòÉ Salida: ${hora}\nÔÅ▒´©Å Horas: ${horasStr}h`;
     await sendWhatsApp(from, msg);
 
   } else {
     const horaE = asist.hora_entrada.substring(0, 5);
     const horaS = asist.hora_salida ? asist.hora_salida.substring(0, 5) : "N/A";
-    await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\n🕐 Entrada: ${horaE}\n🕐 Salida: ${horaS}`);
+    await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\n­ƒòÉ Entrada: ${horaE}\n­ƒòÉ Salida: ${horaS}`);
   }
 }
 
@@ -345,9 +345,9 @@ export async function POST(request: NextRequest) {
 
     const from = message.from;
     const phone10 = from.replace(/^521/, "").replace(/^52/, "");
-    console.log("📱 Mensaje de:", from, "Tipo:", message.type);
+    console.log("­ƒô▒ Mensaje de:", from, "Tipo:", message.type);
 
-    // ====== UBICACIÓN = ASISTENCIA ======
+    // ====== UBICACI├ôN = ASISTENCIA ======
     if (message.type === "location") {
       const lat = message.location.latitude;
       const lng = message.location.longitude;
@@ -357,21 +357,21 @@ export async function POST(request: NextRequest) {
 
     // ====== IMAGEN = GASTO CON TICKET ======
     if (message.type === "image") {
-      console.log("📷 Procesando imagen como gasto...");
+      console.log("­ƒôÀ Procesando imagen como gasto...");
       const mediaId = message.image.id;
       const mediaInfo = await getMediaUrl(mediaId);
       
       if (!mediaInfo) {
-        await sendWhatsApp(from, "❌ No pude obtener la imagen. Intenta de nuevo.");
+        await sendWhatsApp(from, "ÔØî No pude obtener la imagen. Intenta de nuevo.");
         return NextResponse.json({ status: "media error" });
       }
 
-      await sendWhatsApp(from, "🔍 Analizando ticket... espera un momento.");
+      await sendWhatsApp(from, "­ƒöì Analizando ticket... espera un momento.");
       
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
       
       if (!gastoData || gastoData.monto === null) {
-        await sendWhatsApp(from, "❌ No pude leer el ticket. Envía el gasto por texto:\n\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
+        await sendWhatsApp(from, "ÔØî No pude leer el ticket. Env├¡a el gasto por texto:\n\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
         return NextResponse.json({ status: "extraction failed" });
       }
 
@@ -385,14 +385,14 @@ export async function POST(request: NextRequest) {
       
       // Detectar si es un gasto
       const esGasto = texto.includes("gasto") || 
-                      texto.includes("compré") || 
+                      texto.includes("compr├®") || 
                       texto.includes("compre") ||
-                      texto.includes("pagué") ||
+                      texto.includes("pagu├®") ||
                       texto.includes("pague") ||
                       /\$?\d+/.test(texto);
 
       if (esGasto) {
-        console.log("💬 Procesando texto como posible gasto...");
+        console.log("­ƒÆ¼ Procesando texto como posible gasto...");
         const gastoData = await extractGastoFromText(message.text.body);
         
         if (gastoData && gastoData.esGasto !== false && gastoData.monto) {
@@ -401,17 +401,17 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Si no es gasto, mostrar menú de ayuda
-      await sendWhatsApp(from, `📱 *ARIA27*
+      // Si no es gasto, mostrar men├║ de ayuda
+      await sendWhatsApp(from, `­ƒô▒ *ARIA27*
 
 Para registrar *ASISTENCIA*:
-📎 > Ubicación > Enviar ubicación actual
+­ƒôÄ > Ubicaci├│n > Enviar ubicaci├│n actual
 
 Para registrar *GASTO*:
-📷 Envía foto del ticket
-💬 O escribe: "Gasto 500 OXXO gasolina"
+­ƒôÀ Env├¡a foto del ticket
+­ƒÆ¼ O escribe: "Gasto 500 OXXO gasolina"
 
-¿En qué te ayudo?`);
+┬┐En qu├® te ayudo?`);
       return NextResponse.json({ status: "help sent" });
     }
 
