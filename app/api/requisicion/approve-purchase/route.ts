@@ -1,10 +1,21 @@
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
+import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const COMPRAS_EMAIL = "timonfx@hotmail.com";
-const AUTORIZADOR_EMAIL = "juanviverosv@gmail.com";
+const BASE_URL = "https://aria.jjcrm27.com";
+
+// Obtener usuario por ROL (dinamico)
+async function getUserByRole(role: string) {
+  const { data } = await supabase.from("users").select("*").eq("role", role).single();
+  return data;
+}
+
+async function getNextOCFolio(): Promise<string> {
+  const { data } = await supabase.from("sequences").select("current_value").eq("id", "OC").single();
+  const next = (data?.current_value || 0) + 1;
+  await supabase.from("sequences").upsert({ id: "OC", current_value: next });
+  return `OC-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
+}
 
 export async function GET(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -12,62 +23,81 @@ export async function GET(request: Request) {
   const token = searchParams.get("token");
   const action = searchParams.get("action");
 
-  if (!token) return new Response("<h1>Token invalido</h1>", { headers: { "Content-Type": "text/html" } });
+  if (!token || !action) {
+    return new Response("Parametros invalidos", { status: 400 });
+  }
 
-  const { data: req, error } = await supabase.from("Requisiciones").select("*").eq("authorization_comments", token).single();
-  if (error || !req) return new Response("<h1>Requisicion no encontrada</h1>", { headers: { "Content-Type": "text/html" } });
+  const { data: req, error } = await supabase
+    .from("requisiciones")
+    .select("*")
+    .eq("authorization_comments", token)
+    .single();
 
-  const { data: comprasUser } = await supabase.from("Users").select("*").eq("email", COMPRAS_EMAIL).single();
+  if (error || !req) {
+    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Token Invalido</h1><p style="color:#64748b">Esta solicitud ya fue procesada o el enlace expiro.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+  }
 
-  if (action === "AUTORIZAR") {
-    const { data: lastOC } = await supabase.from("purchase_orders").select("folio").order("created_at", { ascending: false }).limit(1);
-    const nextNum = lastOC?.length ? parseInt(lastOC[0].folio.split("-")[2]) + 1 : 1;
-    const ocFolio = `OC-${new Date().getFullYear()}-${String(nextNum).padStart(5, "0")}`;
+  if (req.status !== "EN_AUTORIZACION") {
+    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fefce8"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">⚠️</div><h1 style="color:#f59e0b">Ya Procesada</h1><p style="color:#64748b">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+  }
 
-    const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
-    const total = (items || []).reduce((sum, i) => sum + ((i.selected_price || 0) * i.quantity), 0);
+  // Obtener compras dinamicamente por ROL
+  const comprasUser = await getUserByRole("compras");
 
-    await supabase.from("purchase_orders").insert({
-      folio: ocFolio, requisition_id: req.id, total, status: "AUTORIZADA",
-      authorized_by: AUTORIZADOR_EMAIL, authorized_at: new Date().toISOString()
-    });
+  if (action === "AUTORIZADA") {
+    const ocFolio = await getNextOCFolio();
+    const cotizacion = req.cotizacion_data;
+    const total = cotizacion?.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0) || 0;
 
-    await supabase.from("Requisiciones").update({
-      status: "OC_GENERADA", purchase_status: "AUTORIZADA",
-      authorized_by: AUTORIZADOR_EMAIL, authorized_at: new Date().toISOString()
+    await supabase.from("requisiciones").update({
+      status: "OC_GENERADA",
+      authorization_comments: null,
+      oc_folio: ocFolio
     }).eq("id", req.id);
 
     const daysUntil = Math.ceil((new Date(req.required_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
-    const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
-    const fechaReq = new Date(req.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
-    const itemsHtml = (items || []).map((i: any) => `<tr><td style="padding:8px;border:1px solid #e2e8f0">${i.product_name}</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center">${i.quantity} ${i.unit}</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:right">$${((i.selected_price || 0) * i.quantity).toLocaleString()}</td></tr>`).join("");
+    if (comprasUser) {
+      await resend.emails.send({
+        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
+        subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisicion: ${req.folio}</div></div><div style="background:#f8fafc;border-radius:8px;padding:20px"><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Proveedor:</strong> ${cotizacion?.supplier_name || 'N/A'}</p><p><strong>Total:</strong> $${total.toLocaleString()} MXN</p></div><div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/ordenes" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">VER ORDENES</a></div></div></div>`
+      });
 
-    await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>", to: COMPRAS_EMAIL,
-      subject: `✅ AUTORIZADA: ${ocFolio} - $${total.toLocaleString()} MXN`,
-      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">COMPRA AUTORIZADA</h1><p style="font-size:24px;font-weight:bold;margin:5px 0">${ocFolio}</p></div><div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div><div>${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><table style="width:100%"><tr><td style="color:#64748b">Requisición:</td><td style="font-weight:bold">${req.folio}</td></tr><tr><td style="color:#64748b">OC:</td><td style="font-weight:bold;color:#10b981;font-size:18px">${ocFolio}</td></tr><tr><td style="color:#64748b">Obra:</td><td style="font-weight:bold">${req.cost_center_name}</td></tr><tr><td style="color:#64748b">Total:</td><td style="font-weight:bold;font-size:20px">$${total.toLocaleString()} MXN</td></tr></table></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:10px;text-align:left">Material</th><th style="padding:10px">Cantidad</th><th style="padding:10px;text-align:right">Subtotal</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="margin-top:30px;padding:20px;background:#d1fae5;border-radius:8px;text-align:center"><p style="margin:0;color:#065f46;font-weight:bold">Proceder con la compra</p></div></div></div>`
-    });
-
-    if (comprasUser?.phone) {
-      await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name, total.toLocaleString(), urgencyText], comprasUser.phone);
+      if (comprasUser.phone) {
+        await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name, total.toLocaleString(), urgencyText], comprasUser.phone);
+      }
     }
 
-    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="color:#1e3a5f;font-size:24px;font-weight:bold">${ocFolio}</p><p style="color:#64748b">Requisición: ${req.folio}</p><p style="color:#64748b">Total: $${total.toLocaleString()} MXN</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
-
-  } else if (action === "RECHAZAR") {
-    await supabase.from("Requisiciones").update({ status: "COMPRA_RECHAZADA", purchase_status: "RECHAZADA" }).eq("id", req.id);
-
     await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>", to: COMPRAS_EMAIL,
-      subject: `❌ RECHAZADA: ${req.folio}`,
-      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">COMPRA RECHAZADA</h1></div><div style="padding:25px"><p>La compra para <strong>${req.folio}</strong> fue rechazada.</p></div></div>`
+      from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
+      subject: `Tu requisicion ${req.folio} fue autorizada - ${ocFolio}`,
+      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Autorizada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido autorizada.</p><p>Se genero la Orden de Compra: <strong>${ocFolio}</strong></p></div></div>`
     });
 
-    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Compra Rechazada</h1><p>${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#64748b">Requisicion: ${req.folio}</p><p>Se notifico a Compras (${comprasUser?.email || 'N/A'})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+
+  } else {
+    await supabase.from("requisiciones").update({
+      status: "RECHAZADA_DIRECCION",
+      authorization_comments: null
+    }).eq("id", req.id);
+
+    if (comprasUser) {
+      await resend.emails.send({
+        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
+        subject: `RECHAZADA: ${req.folio}`,
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>`
+      });
+    }
+
+    await resend.emails.send({
+      from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
+      subject: `Requisicion ${req.folio} rechazada por Direccion`,
+      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>`
+    });
+
+    return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
-
-  return new Response("<h1>Accion no valida</h1>", { headers: { "Content-Type": "text/html" } });
 }
-

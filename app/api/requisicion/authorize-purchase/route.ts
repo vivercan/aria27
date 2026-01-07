@@ -4,40 +4,104 @@ import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
 const BASE_URL = "https://aria.jjcrm27.com";
-const AUTORIZADOR_EMAIL = "juanviverosv@gmail.com";
+
+// Obtener usuario por ROL (dinamico)
+async function getUserByRole(role: string) {
+  const { data } = await supabase.from("users").select("*").eq("role", role).single();
+  return data;
+}
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
+
   try {
-    const { requisition, items, Proveedores, total, token, daysUntil } = await request.json();
+    const { requisitionId, cotizacion } = await request.json();
 
-    const { data: autorizadorUser } = await supabase.from("Users").select("*").eq("email", AUTORIZADOR_EMAIL).single();
+    const { data: req, error } = await supabase
+      .from("requisiciones")
+      .select("*")
+      .eq("id", requisitionId)
+      .single();
 
-    const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
-    const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
-    const fechaReq = new Date(requisition.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-
-    const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZAR`;
-    const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZAR`;
-
-    const itemsHtml = items.map((item: any) => {
-      const subtotal = (item.selected_price || 0) * item.quantity;
-      return `<tr><td style="padding:10px;border:1px solid #e2e8f0">${item.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${item.quantity} ${item.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${subtotal.toLocaleString()}</td></tr>`;
-    }).join("");
-
-    await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>", to: AUTORIZADOR_EMAIL,
-      subject: `💰 AUTORIZAR: ${requisition.folio} - $${total.toLocaleString()} MXN`,
-      html: `<div style="font-family:Arial;max-width:700px;margin:0 auto"><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:30px;text-align:center"><h1 style="margin:0">AUTORIZACIÓN DE COMPRA</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>${fechaReq}</div></div><div style="padding:25px"><table style="width:100%;margin-bottom:20px"><tr><td style="padding:8px;background:#f1f5f9;border-radius:4px"><div style="color:#64748b;font-size:12px">FOLIO</div><div style="font-weight:bold;font-size:18px">${requisition.folio}</div></td><td style="padding:8px;background:#f1f5f9;border-radius:4px"><div style="color:#64748b;font-size:12px">OBRA</div><div style="font-weight:bold">${requisition.cost_center_name}</div></td><td style="padding:8px;background:#10b981;border-radius:4px;text-align:center"><div style="color:white;font-size:12px">TOTAL</div><div style="font-weight:bold;font-size:24px;color:white">$${total.toLocaleString()}</div></td></tr></table><table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:right">Subtotal</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="text-align:center;margin:30px 0"><a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:18px 50px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:18px;margin:10px">✅ AUTORIZAR</a><a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:18px 50px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:18px;margin:10px">❌ RECHAZAR</a></div></div></div>`
-    });
-
-    if (autorizadorUser?.phone) {
-      await sendWhatsAppTemplate("compra_autorizar", [requisition.folio, requisition.created_by, requisition.cost_center_name, total.toLocaleString(), urgencyText, token], autorizadorUser.phone);
+    if (error || !req) {
+      return NextResponse.json({ error: "Requisicion no encontrada" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
+    const token = crypto.randomUUID();
+    const total = cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
+
+    await supabase.from("requisiciones").update({
+      status: "EN_AUTORIZACION",
+      authorization_comments: token,
+      cotizacion_data: cotizacion
+    }).eq("id", requisitionId);
+
+    // Obtener direccion (autorizador) dinamicamente por ROL
+    const autorizadorUser = await getUserByRole("direccion");
+
+    const daysUntil = Math.ceil((new Date(req.required_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
+    const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
+
+    const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`;
+    const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`;
+
+    const itemsHtml = cotizacion.items.map((item: any) => 
+      `<tr><td style="padding:10px;border:1px solid #e2e8f0">${item.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${item.quantity} ${item.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${item.unit_price.toLocaleString()}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${(item.quantity * item.unit_price).toLocaleString()}</td></tr>`
+    ).join("");
+
+    if (autorizadorUser) {
+      await resend.emails.send({
+        from: "ARIA27 <noreply@mail.jjcrm27.com>",
+        to: autorizadorUser.email,
+        subject: `AUTORIZAR: ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">
+          <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:25px;text-align:center">
+            <h1 style="margin:0">Solicitud de Autorizacion</h1>
+          </div>
+          <div style="background:${urgencyColor};color:white;padding:15px;text-align:center">
+            <div style="font-size:28px;font-weight:bold">${urgencyText} - $${total.toLocaleString()} MXN</div>
+          </div>
+          <div style="padding:25px">
+            <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px">
+              <p><strong>Folio:</strong> ${req.folio}</p>
+              <p><strong>Obra:</strong> ${req.cost_center_name}</p>
+              <p><strong>Solicitante:</strong> ${req.created_by}</p>
+              <p><strong>Proveedor:</strong> ${cotizacion.supplier_name}</p>
+            </div>
+            <table style="width:100%;border-collapse:collapse;margin:20px 0">
+              <thead><tr style="background:#1e3a5f;color:white">
+                <th style="padding:12px;text-align:left">Material</th>
+                <th style="padding:12px">Cantidad</th>
+                <th style="padding:12px;text-align:right">P.U.</th>
+                <th style="padding:12px;text-align:right">Importe</th>
+              </tr></thead>
+              <tbody>${itemsHtml}</tbody>
+              <tfoot><tr style="background:#f1f5f9;font-weight:bold">
+                <td colspan="3" style="padding:12px;text-align:right">TOTAL:</td>
+                <td style="padding:12px;text-align:right">$${total.toLocaleString()}</td>
+              </tr></tfoot>
+            </table>
+            <div style="text-align:center;margin:30px 0">
+              <a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a>
+              <a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a>
+            </div>
+          </div>
+        </div>`
+      });
+
+      if (autorizadorUser.phone) {
+        await sendWhatsAppTemplate("compra_autorizar", [req.folio, req.cost_center_name, total.toLocaleString(), urgencyText, token], autorizadorUser.phone, token);
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Enviado a autorizacion: ${autorizadorUser?.email || 'N/A'}`,
+      total 
+    });
+
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
