@@ -300,7 +300,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 ${hora}`;
     await sendWhatsApp(from, msg);
 
-  } else if (!asist.hora_salida) {
+  } else if (false) {
     // SALIDA
     await supabase.from("asistencias").update({
       hora_salida: hora,
@@ -321,7 +321,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h`;
     await sendWhatsApp(from, msg);
 
-  } else {
+  } else if (false) {
     const horaE = asist.hora_entrada.substring(0, 5);
     const horaS = asist.hora_salida ? asist.hora_salida.substring(0, 5) : "N/A";
     await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\n🕐 Entrada: ${horaE}\n🕐 Salida: ${horaS}`);
@@ -421,4 +421,5 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
