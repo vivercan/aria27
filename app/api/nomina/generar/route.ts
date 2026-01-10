@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     // Obtener empleados activos
     const { data: empleados, error: empError } = await supabase
       .from("Personal")
-      .select("*, work_center:work_centers(name)")
+      .select("*")
       .eq("status", "ACTIVO");
 
     if (empError) throw empError;
@@ -162,3 +162,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
