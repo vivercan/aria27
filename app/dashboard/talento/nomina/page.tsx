@@ -1,203 +1,298 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { DollarSign, Search, Download, Calendar, Users, Filter, X, ArrowLeft, Loader2, FileSpreadsheet, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { DollarSign, Calculator, History, Download, Users, CreditCard, Banknote, ArrowLeft, Loader2, ChevronRight, Calendar, Clock } from "lucide-react";
 
-interface NominaHist {
+interface Empleado {
   id: string;
-  semana: number;
-  nombre: string;
-  puesto: string;
-  salario_mensual: number;
-  salario_semanal: number;
-  sueldo_total: number;
+  employee_number: string;
+  full_name: string;
+  position: string;
+  project_site: string;
+  salario_diario: number;
+  minimo_tarjeta: number;
+}
+
+interface DetalleNomina {
+  empleado: Empleado;
+  dias_trabajados: number;
+  salario_base: number;
+  horas_extra: number;
+  pago_horas_extra: number;
+  total_percepciones: number;
+  deducciones: number;
+  sueldo_neto: number;
+  pago_tarjeta: number;
+  pago_efectivo: number;
+}
+
+function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diffToThursday = day >= 4 ? day - 4 : day + 3;
+  const jueves = new Date(d);
+  jueves.setDate(d.getDate() - diffToThursday);
+  const miercoles = new Date(jueves);
+  miercoles.setDate(jueves.getDate() + 6);
+  const tempDate = new Date(jueves);
+  tempDate.setHours(0, 0, 0, 0);
+  tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7));
+  const yearStart = new Date(tempDate.getFullYear(), 0, 1);
+  const semana = Math.ceil((((tempDate.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return { inicio: jueves, fin: miercoles, semana };
 }
 
 export default function NominaPage() {
-  const [registros, setRegistros] = useState<NominaHist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generando, setGenerando] = useState(false);
   const [exportando, setExportando] = useState(false);
-  const [filtros, setFiltros] = useState({ buscar: "", semana: "", empleado: "" });
-  const [semanas, setSemanas] = useState<number[]>([]);
-  const [empleados, setEmpleados] = useState<string[]>([]);
+  const [detalles, setDetalles] = useState<DetalleNomina[]>([]);
+  const [semanaInfo, setSemanaInfo] = useState({ inicio: "", fin: "", semana: 0, anio: 2026 });
+  const [totales, setTotales] = useState({ bruto: 0, deducciones: 0, neto: 0, tarjeta: 0, efectivo: 0, empleados: 0 });
+  const [nominaExiste, setNominaExiste] = useState(false);
+  const [mensaje, setMensaje] = useState<{tipo: "success" | "error" | "info"; texto: string} | null>(null);
 
-  useEffect(() => { cargarDatos(); }, []);
+  useEffect(() => {
+    const hoy = new Date();
+    const { inicio, fin, semana } = getWeekRange(hoy);
+    setSemanaInfo({
+      inicio: inicio.toISOString().split("T")[0],
+      fin: fin.toISOString().split("T")[0],
+      semana,
+      anio: inicio.getFullYear()
+    });
+  }, []);
 
-  const cargarDatos = async () => {
+  useEffect(() => {
+    if (semanaInfo.inicio) verificarYCargar();
+  }, [semanaInfo]);
+
+  const verificarYCargar = async () => {
     setLoading(true);
-    const { data } = await supabase.from("nomina_historico").select("*").order("semana", { ascending: false });
-    if (data) {
-      setRegistros(data);
-      setSemanas([...new Set(data.map(r => r.semana).filter(Boolean))].sort((a,b) => b - a));
-      setEmpleados([...new Set(data.map(r => r.nombre).filter(Boolean))].sort());
+    // Verificar si ya existe nómina para esta semana
+    const { data: existente } = await supabase
+      .from("nomina_historico")
+      .select("*")
+      .eq("semana", semanaInfo.semana)
+      .eq("anio", semanaInfo.anio);
+
+    if (existente && existente.length > 0) {
+      setNominaExiste(true);
+      // Cargar desde histórico
+      const totalBruto = existente.reduce((s, n) => s + (n.total_percepciones || 0), 0);
+      const totalDeducciones = existente.reduce((s, n) => s + (n.total_deducciones || 0), 0);
+      const totalNeto = existente.reduce((s, n) => s + (n.sueldo_neto || 0), 0);
+      const totalTarjeta = existente.reduce((s, n) => s + (n.pago_tarjeta || 0), 0);
+      const totalEfectivo = existente.reduce((s, n) => s + (n.pago_efectivo || 0), 0);
+      setTotales({ bruto: totalBruto, deducciones: totalDeducciones, neto: totalNeto, tarjeta: totalTarjeta, efectivo: totalEfectivo, empleados: existente.length });
+      
+      // Mapear a detalles para mostrar
+      const detallesCargados = existente.map(n => ({
+        empleado: { id: n.employee_id, employee_number: "", full_name: n.nombre, position: n.puesto, project_site: n.obra, salario_diario: n.salario_diario, minimo_tarjeta: 0 },
+        dias_trabajados: n.dias_trabajados,
+        salario_base: n.salario_base,
+        horas_extra: n.horas_extra,
+        pago_horas_extra: n.pago_horas_extra,
+        total_percepciones: n.total_percepciones,
+        deducciones: n.total_deducciones,
+        sueldo_neto: n.sueldo_neto,
+        pago_tarjeta: n.pago_tarjeta,
+        pago_efectivo: n.pago_efectivo
+      }));
+      setDetalles(detallesCargados);
+    } else {
+      setNominaExiste(false);
+      setDetalles([]);
+      setTotales({ bruto: 0, deducciones: 0, neto: 0, tarjeta: 0, efectivo: 0, empleados: 0 });
     }
     setLoading(false);
   };
 
-  const registrosFiltrados = registros.filter(r => {
-    if (filtros.buscar && !r.nombre?.toLowerCase().includes(filtros.buscar.toLowerCase()) && !r.puesto?.toLowerCase().includes(filtros.buscar.toLowerCase())) return false;
-    if (filtros.semana && r.semana !== parseInt(filtros.semana)) return false;
-    if (filtros.empleado && r.nombre !== filtros.empleado) return false;
-    return true;
-  });
+  const generarPreNomina = async () => {
+    if (nominaExiste) {
+      setMensaje({ tipo: "info", texto: "Ya existe nómina para esta semana. Ve al histórico para consultarla." });
+      return;
+    }
+    
+    const confirmar = window.confirm(`¿Generar pre-nómina para Semana ${semanaInfo.semana}?\n\nPeríodo: ${formatDate(semanaInfo.inicio)} - ${formatDate(semanaInfo.fin)}`);
+    if (!confirmar) return;
 
-  const totalFiltrado = registrosFiltrados.reduce((s, r) => s + (r.sueldo_total || 0), 0);
-  const limpiarFiltros = () => setFiltros({ buscar: "", semana: "", empleado: "" });
-  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
-
-  const resumenSemanas = semanas.map(sem => {
-    const regs = registros.filter(r => r.semana === sem);
-    return { semana: sem, empleados: regs.length, total: regs.reduce((s, r) => s + (r.sueldo_total || 0), 0) };
-  });
+    setGenerando(true);
+    setMensaje(null);
+    try {
+      const res = await fetch("/api/nomina/generar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fechaReferencia: semanaInfo.inicio })
+      });
+      const data = await res.json();
+      if (data.error) {
+        setMensaje({ tipo: "error", texto: data.error });
+      } else {
+        setMensaje({ tipo: "success", texto: `✅ Nómina generada: ${data.registros} empleados | Neto: $${data.totales.neto.toLocaleString("es-MX", {minimumFractionDigits: 2})}` });
+        await verificarYCargar();
+      }
+    } catch (e: any) {
+      setMensaje({ tipo: "error", texto: e.message });
+    }
+    setGenerando(false);
+  };
 
   const exportarExcel = async () => {
     setExportando(true);
     try {
-      const res = await fetch("/api/export", {
+      const res = await fetch("/api/nomina/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: "nomina", filtros: { semana: filtros.semana, empleado: filtros.empleado } })
+        body: JSON.stringify({ semana: semanaInfo.semana, anio: semanaInfo.anio })
       });
+      if (!res.ok) throw new Error("Error al exportar");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Nomina_ARIA_${new Date().toISOString().split("T")[0]}.xlsx`;
+      link.download = `Nomina_Sem${semanaInfo.semana}_${semanaInfo.anio}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch (e) { console.error(e); }
+    } catch (e: any) {
+      setMensaje({ tipo: "error", texto: "Error al exportar: " + e.message });
+    }
     setExportando(false);
   };
+
+  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatDate = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
 
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /><span className="ml-3 text-white/60">Cargando nómina...</span></div>;
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/talento" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-violet-500/20 border border-purple-500/20">
-            <DollarSign className="w-7 h-7 text-purple-400" />
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/20">
+            <DollarSign className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Nómina Histórica</h1>
-            <p className="text-slate-400 text-sm">{registros.length} registros | {empleados.length} empleados | {semanas.length} semanas</p>
+            <h1 className="text-2xl font-bold text-white">Nómina</h1>
+            <p className="text-slate-400 text-sm">Semana {semanaInfo.semana} | {formatDate(semanaInfo.inicio)} - {formatDate(semanaInfo.fin)}</p>
           </div>
         </div>
-        <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 border border-purple-500/30 text-purple-300 hover:from-purple-500/30 hover:to-violet-500/30 transition-all disabled:opacity-50">
-          {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
-          {exportando ? "Generando..." : "Exportar Excel"}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20 backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-emerald-500/20"><DollarSign className="w-5 h-5 text-emerald-400" /></div>
-            <span className="text-slate-400 text-sm">Total Filtrado</span>
-          </div>
-          <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-blue-500/20"><Filter className="w-5 h-5 text-blue-400" /></div>
-            <span className="text-slate-400 text-sm">Registros</span>
-          </div>
-          <p className="text-2xl font-bold text-blue-400">{registrosFiltrados.length}</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-amber-500/20"><Users className="w-5 h-5 text-amber-400" /></div>
-            <span className="text-slate-400 text-sm">Empleados</span>
-          </div>
-          <p className="text-2xl font-bold text-amber-400">{empleados.length}</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-purple-500/20"><Calendar className="w-5 h-5 text-purple-400" /></div>
-            <span className="text-slate-400 text-sm">Semanas</span>
-          </div>
-          <p className="text-2xl font-bold text-purple-400">{semanas.length}</p>
+        <div className="flex gap-3">
+          <Link href="/dashboard/talento/nomina/historico" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-all">
+            <History className="w-4 h-4" />
+            Histórico
+          </Link>
+          {nominaExiste ? (
+            <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 border border-purple-500/30 text-purple-300 hover:from-purple-500/30 hover:to-violet-500/30 transition-all disabled:opacity-50">
+              {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {exportando ? "Exportando..." : "Descargar Excel"}
+            </button>
+          ) : (
+            <button onClick={generarPreNomina} disabled={generando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50">
+              {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
+              {generando ? "Generando..." : "Generar Pre-nómina"}
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input type="text" placeholder="Buscar nombre, puesto..." value={filtros.buscar} onChange={e => setFiltros({...filtros, buscar: e.target.value})} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:border-purple-500/50 focus:outline-none transition-all" />
-          </div>
-          <select value={filtros.semana} onChange={e => setFiltros({...filtros, semana: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-purple-500/50 focus:outline-none">
-            <option value="">📅 Todas las semanas</option>
-            {semanas.map(s => <option key={s} value={s}>Semana {s}</option>)}
-          </select>
-          <select value={filtros.empleado} onChange={e => setFiltros({...filtros, empleado: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-purple-500/50 focus:outline-none">
-            <option value="">👤 Todos los empleados</option>
-            {empleados.map(e => <option key={e} value={e}>{e}</option>)}
-          </select>
-          <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all" title="Limpiar filtros">
-            <X className="w-4 h-4" />
-          </button>
+      {/* Mensaje */}
+      {mensaje && (
+        <div className={`p-4 rounded-xl border ${mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : mensaje.tipo === "error" ? "bg-red-500/10 border-red-500/30 text-red-300" : "bg-blue-500/10 border-blue-500/30 text-blue-300"}`}>
+          {mensaje.texto}
         </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Users className="w-5 h-5 text-purple-400" />Detalle por Empleado
-          </h2>
-          <div className="max-h-[450px] overflow-y-auto rounded-xl">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-slate-800/90 backdrop-blur-sm">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider rounded-tl-lg">Sem</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Nombre</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Puesto</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Sal. Semanal</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider rounded-tr-lg">Sueldo Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {registrosFiltrados.slice(0, 150).map((r, idx) => (
-                  <tr key={r.id} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors`}>
-                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-medium">{r.semana}</span></td>
-                    <td className="px-4 py-3 text-white">{r.nombre || "—"}</td>
-                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-xs font-medium">{r.puesto || "—"}</span></td>
-                    <td className="px-4 py-3 text-right text-slate-400">{formatMoney(r.salario_semanal)}</td>
-                    <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(r.sueldo_total)}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {registrosFiltrados.length > 150 && <p className="text-center text-slate-500 text-xs mt-4 py-2 bg-white/5 rounded-lg">Mostrando 150 de {registrosFiltrados.length}</p>}
+      {/* Si no hay nómina */}
+      {!nominaExiste && !generando && (
+        <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
+          <Calendar className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">No hay nómina generada para esta semana</h3>
+          <p className="text-slate-400 mb-4">Presiona "Generar Pre-nómina" para calcular los pagos basados en las asistencias registradas.</p>
         </div>
+      )}
 
-        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-400" />Resumen por Semana
-          </h2>
-          <div className="space-y-3 max-h-[450px] overflow-y-auto">
-            {resumenSemanas.map(s => (
-              <div key={s.semana} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/5 hover:border-purple-500/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, semana: s.semana.toString()})}>
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold text-purple-400">{s.semana}</span>
-                    <span className="text-xs text-slate-400 bg-white/5 px-2 py-1 rounded">{s.empleados} emp</span>
-                  </div>
-                  <span className="text-emerald-400 font-bold">{formatMoney(s.total)}</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all" style={{width: `${Math.min((s.total / (resumenSemanas[0]?.total || 1)) * 100, 100)}%`}}/>
-                </div>
+      {/* Si hay nómina */}
+      {nominaExiste && (
+        <>
+          {/* Totales */}
+          <div className="grid grid-cols-5 gap-4">
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-2"><Users className="w-4 h-4 text-blue-400" /><span className="text-slate-400 text-xs">Empleados</span></div>
+              <p className="text-2xl font-bold text-white">{totales.empleados}</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20">
+              <div className="flex items-center gap-2 mb-2"><DollarSign className="w-4 h-4 text-emerald-400" /><span className="text-slate-400 text-xs">Total Bruto</span></div>
+              <p className="text-2xl font-bold text-emerald-400">{formatMoney(totales.bruto)}</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-red-500/10 to-orange-500/5 border border-red-500/20">
+              <div className="flex items-center gap-2 mb-2"><DollarSign className="w-4 h-4 text-red-400" /><span className="text-slate-400 text-xs">Deducciones</span></div>
+              <p className="text-2xl font-bold text-red-400">{formatMoney(totales.deducciones)}</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-2"><CreditCard className="w-4 h-4 text-purple-400" /><span className="text-slate-400 text-xs">Transferencia</span></div>
+              <p className="text-2xl font-bold text-purple-400">{formatMoney(totales.tarjeta)}</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
+              <div className="flex items-center gap-2 mb-2"><Banknote className="w-4 h-4 text-amber-400" /><span className="text-slate-400 text-xs">Efectivo</span></div>
+              <p className="text-2xl font-bold text-amber-400">{formatMoney(totales.efectivo)}</p>
+            </div>
+          </div>
+
+          {/* Gran total */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-green-500/10 border border-emerald-500/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-300 text-sm mb-1">TOTAL NETO A PAGAR</p>
+                <p className="text-4xl font-bold text-white">{formatMoney(totales.neto)}</p>
               </div>
-            ))}
+              <div className="text-right">
+                <p className="text-slate-400 text-sm">Pago: Jueves {new Date(semanaInfo.fin + "T12:00:00").getDate() + 1} {new Date(semanaInfo.fin + "T12:00:00").toLocaleDateString("es-MX", {month: "short"})}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+
+          {/* Tabla de empleados */}
+          <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
+            <div className="p-4 border-b border-white/10">
+              <h3 className="text-white font-medium">Detalle por Empleado</h3>
+            </div>
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="w-full">
+                <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm">
+                  <tr className="border-b border-white/10">
+                    <th className="text-left p-4 text-slate-400 font-medium text-sm">Empleado</th>
+                    <th className="text-left p-4 text-slate-400 font-medium text-sm">Puesto</th>
+                    <th className="text-center p-4 text-slate-400 font-medium text-sm">Días</th>
+                    <th className="text-right p-4 text-slate-400 font-medium text-sm">Base</th>
+                    <th className="text-right p-4 text-slate-400 font-medium text-sm">Neto</th>
+                    <th className="text-right p-4 text-slate-400 font-medium text-sm">Tarjeta</th>
+                    <th className="text-right p-4 text-slate-400 font-medium text-sm">Efectivo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detalles.map((d, i) => (
+                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="p-4"><span className="text-white font-medium">{d.empleado.full_name}</span></td>
+                      <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{d.empleado.position}</span></td>
+                      <td className="p-4 text-center"><span className="text-emerald-400 font-bold">{d.dias_trabajados}</span></td>
+                      <td className="p-4 text-right text-white">{formatMoney(d.salario_base)}</td>
+                      <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(d.sueldo_neto)}</td>
+                      <td className="p-4 text-right text-purple-400">{formatMoney(d.pago_tarjeta)}</td>
+                      <td className="p-4 text-right text-amber-400">{formatMoney(d.pago_efectivo)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
