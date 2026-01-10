@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { DollarSign, Calculator, History, Download, Users, CreditCard, Banknote, ArrowLeft, Loader2, ChevronRight, Calendar, Clock } from "lucide-react";
+import { DollarSign, Edit3, Calculator, History, Download, Users, CreditCard, Banknote, ArrowLeft, Loader2, ChevronRight, Calendar, Clock } from "lucide-react";
 
 interface Empleado {
   id: string;
@@ -183,6 +183,10 @@ export default function NominaPage() {
           </div>
         </div>
         <div className="flex gap-3">
+          <Link href="/dashboard/talento/nomina/manual" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 hover:from-amber-500/30 hover:to-orange-500/30 transition-all">
+            <Edit3 className="w-4 h-4" />
+            Nómina Manual
+          </Link>
           <Link href="/dashboard/talento/nomina/historico" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-all">
             <History className="w-4 h-4" />
             Histórico
@@ -296,3 +300,4 @@ export default function NominaPage() {
     </div>
   );
 }
+
