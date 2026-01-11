@@ -26,7 +26,8 @@ export default function CorreoPage() {
   const [folder, setFolder] = useState("INBOX");
   const [userEmail, setUserEmail] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const [deleting, setDeleting] = useState(false);
+
   const [showCompose, setShowCompose] = useState(false);
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
@@ -72,6 +73,37 @@ export default function CorreoPage() {
     setEmails(prev => prev.map(e => e.uid === uid ? { ...e, seen: !e.seen } : e));
     if (selectedEmail?.uid === uid) {
       setSelectedEmail(prev => prev ? { ...prev, seen: !prev.seen } : null);
+    }
+  };
+
+  const deleteEmails = async (uids: number[]) => {
+    if (uids.length === 0) return;
+    if (!confirm(`¿Eliminar ${uids.length} correo(s)?`)) return;
+    
+    setDeleting(true);
+    try {
+      const creds = sessionStorage.getItem("zohoCreds");
+      if (!creds) throw new Error("Sesión expirada");
+      const { e, p } = JSON.parse(atob(creds));
+      
+      const res = await fetch("/api/mail/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: e, password: p, uids, folder }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      // Remover de la lista local
+      setEmails(prev => prev.filter(em => !uids.includes(em.uid)));
+      setSelectedIds([]);
+      if (selectedEmail && uids.includes(selectedEmail.uid)) {
+        setSelectedEmail(null);
+      }
+    } catch (err: any) {
+      alert("Error al eliminar: " + (err.message || "Error desconocido"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -173,7 +205,7 @@ export default function CorreoPage() {
             <Edit3 className="w-4 h-4" />
             Redactar
           </button>
-          
+
           <div className="space-y-1">
             {folders.map((f) => (
               <button key={f.name} onClick={() => { setFolder(f.name); setSelectedEmail(null); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${folder === f.name ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50"}`}>
@@ -200,7 +232,7 @@ export default function CorreoPage() {
                 <Square className="w-4 h-4 text-slate-500" />
               )}
             </button>
-            
+
             <div className="flex-1 relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
@@ -213,9 +245,20 @@ export default function CorreoPage() {
             </div>
 
             {selectedIds.length > 0 && (
-              <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leído">
-                <MailOpen className="w-4 h-4" />
-              </button>
+              <>
+                <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leído">
+                  <MailOpen className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => deleteEmails(selectedIds)} 
+                  disabled={deleting}
+                  className="p-1.5 text-red-400 hover:bg-red-500/20 rounded disabled:opacity-50" 
+                  title="Eliminar seleccionados"
+                >
+                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                </button>
+                <span className="text-xs text-slate-400">{selectedIds.length} sel.</span>
+              </>
             )}
           </div>
 
@@ -238,8 +281,8 @@ export default function CorreoPage() {
           ) : (
             <div className="flex-1 overflow-y-auto">
               {filteredEmails.map((email, idx) => (
-                <div 
-                  key={email.uid || idx} 
+                <div
+                  key={email.uid || idx}
                   onClick={() => { setSelectedEmail(email); toggleRead(email.uid); }}
                   className={`flex items-center gap-2 px-3 py-2.5 border-b border-slate-700/30 cursor-pointer transition-colors ${
                     selectedEmail?.uid === email.uid ? "bg-blue-600/20 border-l-2 border-l-blue-500" : "hover:bg-slate-800/50"
@@ -276,10 +319,9 @@ export default function CorreoPage() {
           )}
         </div>
 
-        {/* Panel de lectura - AMPLIADO */}
+        {/* Panel de lectura */}
         {selectedEmail && (
           <div className="flex-1 flex flex-col overflow-hidden bg-white/95">
-            {/* Header del correo */}
             <div className="p-6 border-b border-slate-200 flex-shrink-0 bg-white">
               <div className="flex items-start justify-between mb-4">
                 <h2 className="text-xl font-semibold text-slate-900 pr-4">{selectedEmail.subject || "(Sin asunto)"}</h2>
@@ -287,7 +329,7 @@ export default function CorreoPage() {
                   <X className="w-5 h-5 text-slate-500" />
                 </button>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium flex-shrink-0">
                   {extractName(selectedEmail.from).charAt(0).toUpperCase()}
@@ -299,24 +341,17 @@ export default function CorreoPage() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-slate-500 text-sm">{formatDate(selectedEmail.date)}</p>
-                  <button 
-                    onClick={() => toggleRead(selectedEmail.uid)}
-                    className="text-xs text-blue-600 hover:underline mt-1"
-                  >
+                  <button onClick={() => toggleRead(selectedEmail.uid)} className="text-xs text-blue-600 hover:underline mt-1">
                     {selectedEmail.seen ? "Marcar no leído" : "Marcar leído"}
                   </button>
                 </div>
               </div>
             </div>
-            
-            {/* Cuerpo del correo */}
+
             <div className="flex-1 overflow-y-auto p-6 bg-white">
               <div className="prose prose-slate max-w-none">
                 {selectedEmail.html ? (
-                  <div 
-                    className="text-slate-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.html }} 
-                  />
+                  <div className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
                 ) : (
                   <pre className="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed text-sm">
                     {selectedEmail.body || "Este correo no tiene contenido de texto."}
@@ -325,7 +360,6 @@ export default function CorreoPage() {
               </div>
             </div>
 
-            {/* Acciones */}
             <div className="p-4 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50">
               <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                 <Mail className="w-4 h-4" />
@@ -334,8 +368,13 @@ export default function CorreoPage() {
               <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">
                 Reenviar
               </button>
-              <button className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm">
-                <Trash2 className="w-4 h-4" />
+              <button 
+                onClick={() => deleteEmails([selectedEmail.uid])}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+              >
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                Eliminar
               </button>
             </div>
           </div>
