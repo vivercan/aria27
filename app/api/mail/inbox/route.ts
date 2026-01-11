@@ -18,24 +18,28 @@ export async function POST(req: NextRequest) {
         port: 993,
         tls: true,
         tlsOptions: { rejectUnauthorized: false },
-        connTimeout: 20000,
-        authTimeout: 15000,
+        connTimeout: 30000,
+        authTimeout: 20000,
+        debug: console.log,
       };
 
       const imap: any = new Imap(imapConfig);
       const results: any[] = [];
 
       imap.once("ready", () => {
+        console.log("IMAP conectado correctamente");
         imap.openBox(folder, true, (err: any) => {
           if (err) {
+            console.error("Error abriendo carpeta:", err);
             imap.end();
-            return reject(err);
+            return reject(new Error(`Error abriendo carpeta: ${err.message}`));
           }
 
           imap.search(["ALL"], (err: any, uids: number[]) => {
             if (err) {
+              console.error("Error en búsqueda:", err);
               imap.end();
-              return reject(err);
+              return reject(new Error(`Error en búsqueda: ${err.message}`));
             }
 
             if (!uids || uids.length === 0) {
@@ -48,7 +52,7 @@ export async function POST(req: NextRequest) {
 
             f.on("message", (msg: any, seqno: number) => {
               const emailData: any = { seqno };
-              
+
               msg.on("body", (stream: any) => {
                 let buffer = "";
                 stream.on("data", (chunk: any) => buffer += chunk.toString("utf8"));
@@ -80,8 +84,9 @@ export async function POST(req: NextRequest) {
             });
 
             f.once("error", (err: any) => {
+              console.error("Fetch error:", err);
               imap.end();
-              reject(err);
+              reject(new Error(`Error obteniendo correos: ${err.message}`));
             });
 
             f.once("end", () => {
@@ -93,13 +98,32 @@ export async function POST(req: NextRequest) {
         });
       });
 
-      imap.once("error", (err: any) => reject(err));
+      imap.once("error", (err: any) => {
+        console.error("IMAP Error completo:", err);
+        const errorMsg = err.textCode || err.message || "Error de conexión IMAP";
+        
+        // Mensajes específicos para errores comunes de Zoho
+        if (errorMsg.includes("AUTHENTICATIONFAILED") || errorMsg.includes("Invalid credentials")) {
+          reject(new Error("Credenciales inválidas. Verifica que IMAP esté habilitado en Zoho: Settings → Mail → IMAP Access"));
+        } else if (errorMsg.includes("UNAVAILABLE")) {
+          reject(new Error("Servidor no disponible. Intenta de nuevo en unos minutos."));
+        } else {
+          reject(new Error(errorMsg));
+        }
+      });
+
+      imap.once("close", (hadError: boolean) => {
+        if (hadError) {
+          console.log("Conexión cerrada con error");
+        }
+      });
+
       imap.connect();
     });
 
     return NextResponse.json({ emails, count: emails.length });
   } catch (error: any) {
-    console.error("IMAP Error:", error);
+    console.error("Error final:", error);
     return NextResponse.json({ error: error.message || "Error de conexión" }, { status: 500 });
   }
 }
