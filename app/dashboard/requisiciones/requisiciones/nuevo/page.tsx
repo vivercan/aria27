@@ -25,6 +25,8 @@ export default function NewRequisitionPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const qtyInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
     const loadCenters = async () => {
@@ -32,6 +34,15 @@ export default function NewRequisitionPage() {
       if (data) setCostCenters(data);
     };
     loadCenters();
+    // Cargar usuario logueado
+    const storedEmail = localStorage.getItem("userEmail") || "";
+    setUserEmail(storedEmail);
+    if (storedEmail) {
+      supabase.from("users").select("display_name, name").eq("email", storedEmail).single()
+        .then(({ data }) => {
+          if (data) setUserName(data.display_name || data.name || "");
+        });
+    }
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
@@ -81,7 +92,7 @@ export default function NewRequisitionPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario: { nombre: "Usuario ARIA27", email: "recursos.humanos@gcuavante.com" },
+          usuario: { nombre: userName || "Usuario ARIA27", email: userEmail || "" },
           obra: center.name,
           comentarios: generalComments,
           materiales: materials.map(m => ({ id: m.id, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations })),
@@ -221,6 +232,8 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
+
 
 
 
