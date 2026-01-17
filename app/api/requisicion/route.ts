@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const isAdmin = creatorUser?.role === "admin";
 
     // Guardar requisicion
-    const { data: req, error: reqErr } = await supabase.from("requisiciones").insert({
+    const { data: req, error: reqErr } = await supabase.from("Requisiciones").insert({
       folio, cost_center_id: costCenterId, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate,
       status: isValidador ? "APROBADA" : "PENDIENTE",
@@ -132,3 +132,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

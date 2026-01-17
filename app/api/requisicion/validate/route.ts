@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   }
 
   const { data: req, error } = await supabase
-    .from("requisiciones")
+    .from("Requisiciones")
     .select("*")
     .eq("authorization_comments", token)
     .single();
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fefce8"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">⚠️</div><h1 style="color:#f59e0b">Ya Procesada</h1><p style="color:#64748b">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
 
-  await supabase.from("requisiciones").update({ status: action, authorization_comments: null }).eq("id", req.id);
+  await supabase.from("Requisiciones").update({ status: action, authorization_comments: null }).eq("id", req.id);
 
   if (action === "APROBADA") {
     // Obtener compras dinamicamente por ROL
@@ -71,3 +71,4 @@ export async function GET(request: Request) {
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
 }
+

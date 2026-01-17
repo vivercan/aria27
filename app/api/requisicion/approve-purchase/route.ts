@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   }
 
   const { data: req, error } = await supabase
-    .from("requisiciones")
+    .from("Requisiciones")
     .select("*")
     .eq("authorization_comments", token)
     .single();
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     const cotizacion = req.cotizacion_data;
     const total = cotizacion?.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0) || 0;
 
-    await supabase.from("requisiciones").update({
+    await supabase.from("Requisiciones").update({
       status: "OC_GENERADA",
       authorization_comments: null,
       oc_folio: ocFolio
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#64748b">Requisicion: ${req.folio}</p><p>Se notifico a Compras (${comprasUser?.email || 'N/A'})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
   } else {
-    await supabase.from("requisiciones").update({
+    await supabase.from("Requisiciones").update({
       status: "RECHAZADA_DIRECCION",
       authorization_comments: null
     }).eq("id", req.id);
@@ -101,3 +101,4 @@ export async function GET(request: Request) {
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
 }
+

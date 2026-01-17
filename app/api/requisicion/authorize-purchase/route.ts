@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const { requisitionId, cotizacion } = await request.json();
 
     const { data: req, error } = await supabase
-      .from("requisiciones")
+      .from("Requisiciones")
       .select("*")
       .eq("id", requisitionId)
       .single();
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const token = crypto.randomUUID();
     const total = cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
 
-    await supabase.from("requisiciones").update({
+    await supabase.from("Requisiciones").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
       cotizacion_data: cotizacion
@@ -105,3 +105,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
