@@ -18,7 +18,7 @@ const TEMPLATE_CONFIG: Record<string, {
     // {{1}}=Folio, {{2}}=Solicitante, {{3}}=Obra, {{4}}=Fecha
   },
   requisicion_validar: { 
-    language: "es_MX", 
+    language: "en", 
     hasButton: true, 
     buttonCount: 2, 
     paramCount: 5,
@@ -27,7 +27,7 @@ const TEMPLATE_CONFIG: Record<string, {
     // Botones: Aprobar, Rechazar
   },
   requisicion_compras: { 
-    language: "es_MX", 
+    language: "en", 
     paramCount: 3,
     description: "Notificar a compras"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia
@@ -187,3 +187,4 @@ export async function sendWhatsAppToMultiple(
   console.log("[WhatsApp] 📊 Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
+
