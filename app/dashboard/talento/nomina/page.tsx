@@ -191,11 +191,21 @@ export default function NominaPage() {
             <History className="w-4 h-4" />
             Histórico
           </Link>
+          <Link href="/dashboard/talento/checadas/incompletas" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 transition-all">
+            <Clock className="w-4 h-4" />
+            Revisar Incompletas
+          </Link>
           {nominaExiste ? (
+            <>
+            <button onClick={() => { if(confirm("¿Regenerar nómina? Esto recalculará basado en asistencias completas.")) { fetch("/api/nomina/generar", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ fechaReferencia: semanaInfo.inicio, forzar: true }) }).then(() => verificarYCargar()).then(() => setMensaje({tipo: "success", texto: "Nómina regenerada correctamente"})); }}} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 transition-all">
+              <Calculator className="w-4 h-4" />
+              Regenerar
+            </button>
             <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 border border-purple-500/30 text-purple-300 hover:from-purple-500/30 hover:to-violet-500/30 transition-all disabled:opacity-50">
               {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {exportando ? "Exportando..." : "Descargar Excel"}
             </button>
+            </>
           ) : (
             <button onClick={generarPreNomina} disabled={generando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50">
               {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
