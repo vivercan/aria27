@@ -273,10 +273,13 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     .eq("employee_id", emp.id)
     .eq("fecha", today)
     .limit(1);
-  const asist: any = null; // MODO PRUEBA - siempre nueva entrada
+  const asist = asistData?.[0] || null;
   const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
 
-  if (!asist) {
+  const horaActual = new Date().getHours();
+  const esSalida = horaActual >= 11;
+
+  if (!asist && !esSalida) {
     // ENTRADA
     await supabase.from("asistencias").insert({
       employee_id: emp.id,
@@ -293,7 +296,32 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}`;
     await sendWhatsApp(from, msg);
 
-  } else if (!asist.hora_salida) {
+  } else if (esSalida) {
+    // Si no hay registro hoy pero es >= 11am, crear entrada+salida juntas
+  const horaActual = new Date().getHours();
+  const esSalida = horaActual >= 11;
+
+  if (!asist && !esSalida) {
+      await supabase.from("asistencias").insert({
+        employee_id: emp.id,
+        fecha: today,
+        hora_entrada: "08:00",
+        hora_salida: hora,
+        latitud_entrada: lat,
+        longitud_entrada: lng,
+        latitud_salida: lat,
+        longitud_salida: lng,
+        dentro_geocerca_entrada: isValid,
+        dentro_geocerca_salida: isValid,
+        notas: `${workCenter.nombre} - Salida directa (sin entrada registrada)`
+      });
+      const msg = isValid
+        ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n⚠️ No se registró entrada hoy\n\n¡Hasta mañana!`
+        : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}`;
+      await sendWhatsApp(from, msg);
+      return;
+    }
+    // SALIDA normal (ya tiene entrada)
     // SALIDA
     await supabase.from("asistencias").update({
       hora_salida: hora,
@@ -410,6 +438,7 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
 
 
