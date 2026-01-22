@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "963627606824867";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
 const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -247,7 +247,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   }
 
   // Buscar centro mas cercano
-  const { data: centers } = await supabase.from("work_centers").select("*").eq("active", true);
+  const { data: centers } = await supabase.from("centros_trabajo").select("*").eq("activo", true);
   if (!centers || centers.length === 0) {
     await sendWhatsApp(from, "No hay centros de trabajo configurados. Contacta a RH.");
     return;
@@ -256,14 +256,14 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   let workCenter = centers[0];
   let minDist = Infinity;
   for (const c of centers) {
-    if (c.latitude && c.longitude) {
-      const d = getDistance(lat, lng, c.latitude, c.longitude);
+    if (c.latitud && c.longitud) {
+      const d = getDistance(lat, lng, c.latitud, c.longitud);
       if (d < minDist) { minDist = d; workCenter = c; }
     }
   }
 
   const distance = minDist;
-  const radius = workCenter.radius_meters || 500;
+  const radius = workCenter.radio_metros || 500;
   const isValid = distance <= radius;
 
   // Buscar asistencia de hoy
@@ -285,12 +285,12 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       latitud_entrada: lat,
       longitud_entrada: lng,
       dentro_geocerca_entrada: isValid,
-      notas: `${workCenter.name} - ${Math.round(distance)}m`
+      notas: `${workCenter.nombre} - ${Math.round(distance)}m`
     });
 
     const msg = isValid
-      ? `✅ ENTRADA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 ${hora}\n\n¡Excelente día!`
-      : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 ${hora}`;
+      ? `✅ ENTRADA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Excelente día!`
+      : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}`;
     await sendWhatsApp(from, msg);
 
   } else if (!asist.hora_salida) {
@@ -300,7 +300,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       latitud_salida: lat,
       longitud_salida: lng,
       dentro_geocerca_salida: isValid,
-      notas: asist.notas + ` | Salida: ${workCenter.name} - ${Math.round(distance)}m`
+      notas: asist.notas + ` | Salida: ${workCenter.nombre} - ${Math.round(distance)}m`
     }).eq("id", asist.id);
 
     const horaE = asist.hora_entrada.substring(0, 5);
@@ -310,7 +310,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     const horasStr = horas > 0 ? horas.toFixed(1) : "0";
 
     const msg = isValid
-      ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h\n\n¡Hasta mañana!`
+      ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h\n\n¡Hasta mañana!`
       : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h`;
     await sendWhatsApp(from, msg);
 
@@ -410,6 +410,9 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
+
+
 
 
 

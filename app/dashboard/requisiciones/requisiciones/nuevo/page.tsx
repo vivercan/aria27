@@ -43,6 +43,7 @@ export default function NewRequisitionPage() {
           if (data) setUserName(data.display_name || data.name || "");
         });
     }
+    
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
@@ -232,6 +233,8 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
+
 
 
 
