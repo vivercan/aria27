@@ -6,7 +6,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Obtener número de semana del año (Jueves a Miércoles)
 function getWeekNumber(date: Date): number {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -15,18 +14,14 @@ function getWeekNumber(date: Date): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-// Obtener rango de fechas de la semana (Jueves a Miércoles)
 function getWeekRange(date: Date): { inicio: string; fin: string } {
   const d = new Date(date);
   const day = d.getDay();
-  // Ajustar al jueves anterior
   const diffToThursday = day >= 4 ? day - 4 : day + 3;
   const jueves = new Date(d);
   jueves.setDate(d.getDate() - diffToThursday);
-  // Miércoles es 6 días después del jueves
   const miercoles = new Date(jueves);
   miercoles.setDate(jueves.getDate() + 6);
-  
   return {
     inicio: jueves.toISOString().split("T")[0],
     fin: miercoles.toISOString().split("T")[0]
@@ -35,25 +30,34 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 
 export async function POST(req: NextRequest) {
   try {
-    const { fechaReferencia } = await req.json();
+    const { fechaReferencia, forzar } = await req.json();
     const fecha = fechaReferencia ? new Date(fechaReferencia) : new Date();
     const semana = getWeekNumber(fecha);
     const anio = fecha.getFullYear();
     const { inicio, fin } = getWeekRange(fecha);
 
-    // Verificar si ya existe nómina para esta semana
-    const { data: existente } = await supabase
-      .from("nomina_historico")
-      .select("id")
-      .eq("semana", semana)
-      .eq("anio", anio)
-      .limit(1);
+    // Si forzar=true, eliminar nómina existente para regenerar
+    if (forzar) {
+      await supabase
+        .from("nomina_historico")
+        .delete()
+        .eq("semana", semana)
+        .eq("anio", anio);
+    } else {
+      // Verificar si ya existe
+      const { data: existente } = await supabase
+        .from("nomina_historico")
+        .select("id")
+        .eq("semana", semana)
+        .eq("anio", anio)
+        .limit(1);
 
-    if (existente && existente.length > 0) {
-      return NextResponse.json({ 
-        error: `Ya existe nómina para semana ${semana} del ${anio}`,
-        semana, anio, inicio, fin
-      }, { status: 400 });
+      if (existente && existente.length > 0) {
+        return NextResponse.json({
+          error: `Ya existe nómina para semana ${semana} del ${anio}. Use forzar=true para regenerar.`,
+          semana, anio, inicio, fin
+        }, { status: 400 });
+      }
     }
 
     // Obtener empleados activos
@@ -63,6 +67,17 @@ export async function POST(req: NextRequest) {
       .eq("status", "ACTIVO");
 
     if (empError) throw empError;
+
+    // Obtener TODAS las asistencias del periodo para detectar incompletas
+    const { data: todasAsistencias } = await supabase
+      .from("asistencias")
+      .select("*, employee:employee_id(full_name)")
+      .gte("fecha", inicio)
+      .lte("fecha", fin);
+
+    // Separar completas e incompletas
+    const asistenciasIncompletas = todasAsistencias?.filter(a => !a.hora_salida) || [];
+    const asistenciasCompletas = todasAsistencias?.filter(a => a.hora_entrada && a.hora_salida) || [];
 
     // Obtener configuración
     const { data: config } = await supabase.from("configuracion_nomina").select("*");
@@ -76,13 +91,8 @@ export async function POST(req: NextRequest) {
     const nominasGeneradas = [];
 
     for (const emp of empleados || []) {
-      // Obtener asistencias de la semana
-      const { data: asistencias } = await supabase
-        .from("asistencias")
-        .select("*")
-        .eq("employee_id", emp.id)
-        .gte("fecha", inicio)
-        .lte("fecha", fin);
+      // Solo contar asistencias COMPLETAS (con entrada Y salida)
+      const asistenciasEmp = asistenciasCompletas.filter(a => a.employee_id === emp.id);
 
       // Obtener préstamos activos
       const { data: prestamos } = await supabase
@@ -91,8 +101,8 @@ export async function POST(req: NextRequest) {
         .eq("employee_id", emp.id)
         .eq("status", "ACTIVO");
 
-      const diasTrabajados = asistencias?.length || 0;
-      const horasExtra = asistencias?.reduce((sum, a) => sum + (a.horas_extra || 0), 0) || 0;
+      const diasTrabajados = asistenciasEmp.length; // Solo días COMPLETOS
+      const horasExtra = asistenciasEmp.reduce((sum, a) => sum + (a.horas_extra || 0), 0);
       const salarioDiario = emp.salario_diario || 0;
       const salarioBase = salarioDiario * diasTrabajados;
       const pagoHorasExtra = horasExtra * (salarioDiario / 8) * factorDoble;
@@ -154,7 +164,15 @@ export async function POST(req: NextRequest) {
       anio,
       periodo: `${inicio} al ${fin}`,
       totales,
-      registros: nominasGeneradas.length
+      registros: nominasGeneradas.length,
+      advertencia: asistenciasIncompletas.length > 0 ? {
+        mensaje: `Hay ${asistenciasIncompletas.length} asistencia(s) sin salida que NO se contaron`,
+        incompletas: asistenciasIncompletas.map(a => ({
+          empleado: a.employee?.full_name || "Desconocido",
+          fecha: a.fecha,
+          entrada: a.hora_entrada
+        }))
+      } : null
     });
 
   } catch (error: any) {
@@ -162,4 +180,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
