@@ -100,7 +100,7 @@ export default function NominaPage() {
         pago_tarjeta: n.pago_tarjeta,
         pago_efectivo: n.pago_efectivo
       }));
-      setDetalles(detallesCargados);
+      setDetalles(detallesCargados.filter(d => d.sueldo_neto > 0));
     } else {
       setNominaExiste(false);
       setDetalles([]);
