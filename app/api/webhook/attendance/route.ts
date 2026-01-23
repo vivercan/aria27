@@ -19,7 +19,7 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
 
 async function sendWhatsApp(phone: string, message: string) {
   try {
-    const res = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+    await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } })
@@ -36,14 +36,12 @@ function getWeekNumber(date: Date): number {
 // ============== CLAUDE API PARA EXTRAER DATOS DE TICKET ==============
 async function extractGastoFromImage(imageUrl: string, mediaType: string): Promise<any> {
   try {
-    // Descargar imagen de WhatsApp
     const imageResponse = await fetch(imageUrl, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
     });
     const imageBuffer = await imageResponse.arrayBuffer();
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
-    // Llamar a Claude para extraer datos
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -57,14 +55,8 @@ async function extractGastoFromImage(imageUrl: string, mediaType: string): Promi
         messages: [{
           role: "user",
           content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType, data: base64Image }
-            },
-            {
-              type: "text",
-              text: `Analiza este ticket/recibo y extrae la información en formato JSON.
-              
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Image } },
+            { type: "text", text: `Analiza este ticket/recibo y extrae la información en formato JSON.
 Responde SOLO con el JSON, sin explicaciones ni markdown:
 {
   "proveedor": "nombre del negocio/tienda",
@@ -73,9 +65,7 @@ Responde SOLO con el JSON, sin explicaciones ni markdown:
   "descripcion": "descripción breve de la compra",
   "categoria": "una de: MATERIAL, GASOLINA, COMIDA, HERRAMIENTA, SERVICIO, OTRO"
 }
-
-Si no puedes leer algo, pon null en ese campo. El monto debe ser número sin signo de pesos.`
-            }
+Si no puedes leer algo, pon null en ese campo.` }
           ]
         }]
       })
@@ -83,13 +73,8 @@ Si no puedes leer algo, pon null en ese campo. El monto debe ser número sin sig
 
     const result = await response.json();
     const text = result.content?.[0]?.text || "{}";
-    
-    // Limpiar el JSON de posibles caracteres extra
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    return null;
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
   } catch (error) {
     return null;
   }
@@ -110,8 +95,7 @@ async function extractGastoFromText(text: string): Promise<any> {
         messages: [{
           role: "user",
           content: `Extrae información de gasto de este mensaje: "${text}"
-          
-Responde SOLO con JSON, sin explicaciones:
+Responde SOLO con JSON:
 {
   "proveedor": "nombre si lo menciona o null",
   "monto": 123.45,
@@ -119,7 +103,6 @@ Responde SOLO con JSON, sin explicaciones:
   "categoria": "una de: MATERIAL, GASOLINA, COMIDA, HERRAMIENTA, SERVICIO, OTRO",
   "obra": "nombre de obra si la menciona o null"
 }
-
 Si no parece ser un gasto, responde: {"esGasto": false}`
         }]
       })
@@ -128,16 +111,12 @@ Si no parece ser un gasto, responde: {"esGasto": false}`
     const result = await response.json();
     const responseText = result.content?.[0]?.text || "{}";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    return null;
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
   } catch (error) {
     return null;
   }
 }
 
-// ============== OBTENER MEDIA URL DE WHATSAPP ==============
 async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: string} | null> {
   try {
     const response = await fetch(`https://graph.facebook.com/v22.0/${mediaId}`, {
@@ -150,31 +129,17 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
   }
 }
 
-// ============== BUSCAR EMPLEADO/SOLICITANTE ==============
-async function findSolicitante(phone10: string, fullPhone: string) {
-  // Buscar en Personal (empleados)
-  const { data: empData } = await supabase
-    .from("Personal")
-    .select("id, full_name, obra")
+// ============== BUSCAR EMPLEADO ==============
+async function findEmpleado(phone10: string, fullPhone: string) {
+  // Buscar en employees (tabla principal)
+  const { data } = await supabase
+    .from("employees")
+    .select("id, employee_number, full_name, centro_trabajo_id, centro_trabajo:centros_trabajo(nombre)")
     .or(`whatsapp.eq.${phone10},whatsapp.eq.${fullPhone}`)
-    .limit(1);
-  
-  if (empData?.[0]) {
-    return { nombre: empData[0].full_name, obra: empData[0].obra, tipo: "empleado" };
-  }
-
-  // Buscar en users
-  const { data: userData } = await supabase
-    .from("users")
-    .select("id, name, display_name")
-    .or(`phone.eq.${phone10},phone.eq.${fullPhone}`)
+    .eq("status", "ACTIVO")
     .limit(1);
 
-  if (userData?.[0]) {
-    return { nombre: userData[0].display_name || userData[0].name, obra: null, tipo: "usuario" };
-  }
-
-  return null;
+  return data?.[0] || null;
 }
 
 // ============== MANEJAR GASTO ==============
@@ -183,13 +148,11 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
   const fecha = gastoData.fecha || today.toISOString().split("T")[0];
   const semana = getWeekNumber(today);
 
-  // Buscar quién envió
-  const solicitante = await findSolicitante(phone10, from);
-  const nombreSolicitante = solicitante?.nombre || `WhatsApp ${phone10}`;
-  const obraDefault = solicitante?.obra || gastoData.obra || "PENDIENTE";
+  const emp = await findEmpleado(phone10, from);
+  const nombreSolicitante = emp?.full_name || `WhatsApp ${phone10}`;
+  const obraDefault = ((emp?.centro_trabajo as any)?.[0]?.nombre ?? (emp?.centro_trabajo as any)?.nombre) || gastoData.obra || "PENDIENTE";
 
-  // Guardar en BD
-  const { data, error } = await supabase.from("gastos").insert({
+  const { error } = await supabase.from("gastos").insert({
     fecha: fecha,
     semana: semana,
     obra: obraDefault,
@@ -204,16 +167,15 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
     imagen_url: imageUrl || null,
     whatsapp_from: from,
     datos_extraidos: gastoData
-  }).select().single();
+  });
 
   if (error) {
     await sendWhatsApp(from, "❌ Error al guardar el gasto. Intenta de nuevo.");
     return;
   }
 
-  // Confirmar por WhatsApp
   const monto = gastoData.monto ? `$${gastoData.monto.toLocaleString()}` : "Sin monto";
-  const msg = `✅ GASTO REGISTRADO
+  await sendWhatsApp(from, `✅ GASTO REGISTRADO
 
 📋 ${gastoData.descripcion || "Sin descripción"}
 💰 ${monto}
@@ -222,34 +184,32 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
 👤 ${nombreSolicitante}
 📅 Semana ${semana}
 
-Estatus: PENDIENTE de aprobación`;
-
-  await sendWhatsApp(from, msg);
+Estatus: PENDIENTE de aprobación`);
 }
 
-// ============== MANEJAR ASISTENCIA (código original) ==============
+// ============== MANEJAR ASISTENCIA (CORREGIDO) ==============
 async function handleAsistencia(from: string, phone10: string, lat: number, lng: number) {
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+  const hora = new Date().toLocaleTimeString("es-MX", { 
+    hour: "2-digit", 
+    minute: "2-digit", 
+    hour12: false, 
+    timeZone: "America/Mexico_City" 
+  });
 
-  // Buscar empleado
-  const { data, error: empErr } = await supabase
-    .from("Personal")
-    .select("*")
-    .or(`whatsapp.eq.${phone10},whatsapp.eq.${from}`)
-    .eq("status", "ACTIVO")
-    .limit(1);
-
-  const emp = data?.[0];
+  // 1. Buscar empleado en tabla employees
+  const emp = await findEmpleado(phone10, from);
 
   if (!emp) {
-    await sendWhatsApp(from, "Tu numero no esta registrado. Contacta a Recursos Humanos.");
+    await sendWhatsApp(from, "❌ Tu número no está registrado.\n\nContacta a Recursos Humanos para darte de alta en el sistema.");
     return;
   }
 
-  // Buscar centro mas cercano
+  // 2. Buscar centro de trabajo más cercano
   const { data: centers } = await supabase.from("centros_trabajo").select("*").eq("activo", true);
+  
   if (!centers || centers.length === 0) {
-    await sendWhatsApp(from, "No hay centros de trabajo configurados. Contacta a RH.");
+    await sendWhatsApp(from, "⚠️ No hay centros de trabajo configurados.\n\nContacta a RH.");
     return;
   }
 
@@ -258,94 +218,94 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   for (const c of centers) {
     if (c.latitud && c.longitud) {
       const d = getDistance(lat, lng, c.latitud, c.longitud);
-      if (d < minDist) { minDist = d; workCenter = c; }
+      if (d < minDist) { 
+        minDist = d; 
+        workCenter = c; 
+      }
     }
   }
 
   const distance = minDist;
   const radius = workCenter.radio_metros || 500;
-  const isValid = distance <= radius;
+  const dentroGeocerca = distance <= radius;
 
-  // Buscar asistencia de hoy
+  // 3. Buscar si ya tiene asistencia HOY
   const { data: asistData } = await supabase
     .from("asistencias")
     .select("*")
     .eq("employee_id", emp.id)
     .eq("fecha", today)
     .limit(1);
-  const asist = asistData?.[0] || null;
-  const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
 
-  const horaActual = new Date().getHours();
-  const esSalida = horaActual >= 11;
+  const asistenciaHoy = asistData?.[0] || null;
 
-  if (!asist && !esSalida) {
-    // ENTRADA
+  // ========== LÓGICA CORREGIDA ==========
+  // CASO 1: No tiene registro hoy → ENTRADA
+  if (!asistenciaHoy) {
     await supabase.from("asistencias").insert({
       employee_id: emp.id,
       fecha: today,
       hora_entrada: hora,
       latitud_entrada: lat,
       longitud_entrada: lng,
-      dentro_geocerca_entrada: isValid,
-      notas: `${workCenter.nombre} - ${Math.round(distance)}m`
+      dentro_geocerca_entrada: dentroGeocerca,
+      notas: `Entrada: ${workCenter.nombre} - ${Math.round(distance)}m`
     });
 
-    const msg = isValid
-      ? `✅ ENTRADA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Excelente día!`
-      : `⚠️ ENTRADA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}`;
-    await sendWhatsApp(from, msg);
+    const geoIcon = dentroGeocerca ? "✅" : "⚠️";
+    const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
+    
+    await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${geoMsg}
 
-  } else if (esSalida) {
-    // Si no hay registro hoy pero es >= 11am, crear entrada+salida juntas
-  const horaActual = new Date().getHours();
-  const esSalida = horaActual >= 11;
+👤 ${emp.full_name}
+📍 ${workCenter.nombre}
+🕐 ${hora}
 
-  if (!asist && !esSalida) {
-      await supabase.from("asistencias").insert({
-        employee_id: emp.id,
-        fecha: today,
-        hora_entrada: "08:00",
-        hora_salida: hora,
-        latitud_entrada: lat,
-        longitud_entrada: lng,
-        latitud_salida: lat,
-        longitud_salida: lng,
-        dentro_geocerca_entrada: isValid,
-        dentro_geocerca_salida: isValid,
-        notas: `${workCenter.nombre} - Salida directa (sin entrada registrada)`
-      });
-      const msg = isValid
-        ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n⚠️ No se registró entrada hoy\n\n¡Hasta mañana!`
-        : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}`;
-      await sendWhatsApp(from, msg);
-      return;
-    }
-    // SALIDA normal (ya tiene entrada)
-    // SALIDA
+¡Excelente día!`);
+    return;
+  }
+
+  // CASO 2: Tiene registro SIN salida → SALIDA
+  if (asistenciaHoy && !asistenciaHoy.hora_salida) {
     await supabase.from("asistencias").update({
       hora_salida: hora,
       latitud_salida: lat,
       longitud_salida: lng,
-      dentro_geocerca_salida: isValid,
-      notas: asist.notas + ` | Salida: ${workCenter.nombre} - ${Math.round(distance)}m`
-    }).eq("id", asist.id);
+      dentro_geocerca_salida: dentroGeocerca,
+      notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${Math.round(distance)}m`
+    }).eq("id", asistenciaHoy.id);
 
-    const horaE = asist.hora_entrada.substring(0, 5);
-    const [hE, mE] = asist.hora_entrada.split(":").map(Number);
+    // Calcular horas trabajadas
+    const [hE, mE] = asistenciaHoy.hora_entrada.split(":").map(Number);
     const [hS, mS] = hora.split(":").map(Number);
-    const horas = ((hS * 60 + mS) - (hE * 60 + mE)) / 60;
-    const horasStr = horas > 0 ? horas.toFixed(1) : "0";
+    const totalMins = (hS * 60 + mS) - (hE * 60 + mE);
+    const horasStr = totalMins > 0 ? `${Math.floor(totalMins/60)}h ${totalMins%60}m` : "0h";
 
-    const msg = isValid
-      ? `✅ SALIDA REGISTRADA\n\n${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h\n\n¡Hasta mañana!`
-      : `⚠️ SALIDA REGISTRADA\n(Fuera de zona: ${distance.toFixed(0)}m)\n\n${emp.full_name}\n🕐 Entrada: ${horaE}\n🕐 Salida: ${hora}\n⏱️ Horas: ${horasStr}h`;
-    await sendWhatsApp(from, msg);
+    const geoIcon = dentroGeocerca ? "✅" : "⚠️";
+    const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
 
-  } else {
-    const horaE = asist.hora_entrada.substring(0, 5);
-    const horaS = asist.hora_salida ? asist.hora_salida.substring(0, 5) : "N/A";
-    await sendWhatsApp(from, `Ya registraste asistencia hoy.\n\n🕐 Entrada: ${horaE}\n🕐 Salida: ${horaS}`);
+    await sendWhatsApp(from, `${geoIcon} SALIDA REGISTRADA${geoMsg}
+
+👤 ${emp.full_name}
+📍 ${workCenter.nombre}
+🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}
+🕐 Salida: ${hora}
+⏱️ Total: ${horasStr}
+
+¡Hasta mañana!`);
+    return;
+  }
+
+  // CASO 3: Ya tiene entrada Y salida → Ya completó
+  if (asistenciaHoy && asistenciaHoy.hora_salida) {
+    await sendWhatsApp(from, `ℹ️ Ya registraste tu asistencia completa hoy.
+
+👤 ${emp.full_name}
+🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}
+🕐 Salida: ${asistenciaHoy.hora_salida.substring(0,5)}
+
+Si necesitas corregir algo, contacta a RH.`);
+    return;
   }
 }
 
@@ -379,18 +339,17 @@ export async function POST(request: NextRequest) {
     if (message.type === "image") {
       const mediaId = message.image.id;
       const mediaInfo = await getMediaUrl(mediaId);
-      
+
       if (!mediaInfo) {
         await sendWhatsApp(from, "❌ No pude obtener la imagen. Intenta de nuevo.");
         return NextResponse.json({ status: "media error" });
       }
 
       await sendWhatsApp(from, "🔍 Analizando ticket... espera un momento.");
-      
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
-      
+
       if (!gastoData || gastoData.monto === null) {
-        await sendWhatsApp(from, "❌ No pude leer el ticket. Envía el gasto por texto:\n\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
+        await sendWhatsApp(from, "❌ No pude leer el ticket.\n\nEnvía el gasto por texto:\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
         return NextResponse.json({ status: "extraction failed" });
       }
 
@@ -401,10 +360,9 @@ export async function POST(request: NextRequest) {
     // ====== TEXTO = POSIBLE GASTO ======
     if (message.type === "text") {
       const texto = message.text.body.toLowerCase();
-      
-      // Detectar si es un gasto
-      const esGasto = texto.includes("gasto") || 
-                      texto.includes("compré") || 
+
+      const esGasto = texto.includes("gasto") ||
+                      texto.includes("compré") ||
                       texto.includes("compre") ||
                       texto.includes("pagué") ||
                       texto.includes("pague") ||
@@ -412,14 +370,12 @@ export async function POST(request: NextRequest) {
 
       if (esGasto) {
         const gastoData = await extractGastoFromText(message.text.body);
-        
         if (gastoData && gastoData.esGasto !== false && gastoData.monto) {
           await handleGasto(from, phone10, gastoData);
           return NextResponse.json({ status: "gasto text processed" });
         }
       }
 
-      // Si no es gasto, mostrar menú de ayuda
       await sendWhatsApp(from, `📱 *ARIA27*
 
 Para registrar *ASISTENCIA*:
@@ -435,14 +391,7 @@ Para registrar *GASTO*:
 
     return NextResponse.json({ status: "unhandled type" });
   } catch (error) {
+    console.error("Webhook error:", error);
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
-
-
-
-
-
-
-
-
