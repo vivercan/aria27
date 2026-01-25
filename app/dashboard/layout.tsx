@@ -1,241 +1,197 @@
 "use client";
 import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  HardHat,
-  Users,
-  ShoppingCart,
-  Wallet,
-  Box,
-  FileText,
-  Settings,
-  Search,
-  LogOut,
-  ChevronRight,
-  Menu,
-  X,
+  Building2, Users, ShoppingCart, Wallet, Warehouse,
+  FileText, Settings, ChevronRight, Search, LogOut, Bell, MessageCircle
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const PulsoMessenger = dynamic(() => import("@/components/pulso/PulsoMessenger"), { ssr: false });
 
 const menuItems = [
-  { name: "Obras", path: "/dashboard/obras", icon: HardHat },
-  { name: "Talento", path: "/dashboard/talento", icon: Users },
-  { name: "Requisiciones", path: "/dashboard/requisiciones", icon: ShoppingCart },
-  { name: "Finanzas", path: "/dashboard/finanzas", icon: Wallet },
-  { name: "Activos", path: "/dashboard/activos", icon: Box },
-  { name: "Plantillas", path: "/dashboard/plantillas", icon: FileText },
-  { name: "Configuración", path: "/dashboard/configuracion", icon: Settings },
+  { icon: Building2, label: "Obras", href: "/dashboard/obras" },
+  { icon: Users, label: "Talento", href: "/dashboard/talento" },
+  { icon: ShoppingCart, label: "Requisiciones", href: "/dashboard/requisiciones" },
+  { icon: Wallet, label: "Finanzas", href: "/dashboard/finanzas" },
+  { icon: Warehouse, label: "Activos", href: "/dashboard/activos" },
+  { icon: FileText, label: "Plantillas", href: "/dashboard/plantillas" },
+  { icon: Settings, label: "Configuración", href: "/dashboard/configuracion", hasSubmenu: true },
 ];
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "Administrador",
-  validador: "Validador", 
-  compras: "Compras",
-  operacion: "Operación",
-  user: "Usuario",
-};
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [currentDate, setCurrentDate] = useState({ day: "", full: "" });
-  const [userName, setUserName] = useState("Cargando...");
+  const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
-  const [userInitial, setUserInitial] = useState("?");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [currentDate, setCurrentDate] = useState("");
+  const [showPulso, setShowPulso] = useState(false);
+  const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
 
   useEffect(() => {
-    // Fecha
-    const now = new Date();
-    const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-    const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-    setCurrentDate({
-      day: days[now.getDay()].toUpperCase(),
-      full: `${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}`,
-    });
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      router.push("/");
+      return;
+    }
+    setUserEmail(email);
 
-    // Obtener usuario de localStorage
-    const loadUser = async () => {
-      const storedEmail = localStorage.getItem("userEmail");
-      if (storedEmail) {
-        const { data: user } = await supabase
-          .from("Users")
-          .select("display_name, name, role")
-          .eq("email", storedEmail)
-          .single();
-        
-        if (user) {
-          const displayName = user.display_name || user.name || "Usuario";
-          setUserName(displayName);
-          setUserRole(ROLE_LABELS[user.role] || user.role);
-          setUserInitial(displayName.charAt(0).toUpperCase());
+    fetch(`https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
+      headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo" }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data?.[0]) {
+          setUserName(data[0].display_name || data[0].name || "");
+          setUserRole(data[0].role || "user");
         }
-      } else {
-        // Si no hay email, usar default para demo
-        setUserName("Deya Montalvo");
-        setUserRole("Administrador");
-        setUserInitial("D");
-      }
+      });
+
+    setCurrentDate(new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+
+    // Verificar mensajes no leídos
+    const checkMensajes = async () => {
+      try {
+        const res = await fetch(`/api/pulso?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        const total = (data.conversaciones || []).reduce((sum: number, c: any) => sum + (c.noLeidos || 0), 0);
+        setMensajesNoLeidos(total);
+      } catch {}
     };
-    loadUser();
-  }, []);
+    checkMensajes();
+    const interval = setInterval(checkMensajes, 5000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
+    sessionStorage.removeItem("zohoCreds");
     router.push("/");
   };
 
+  const getRoleLabel = (role: string) => {
+    const roles: Record<string, string> = {
+      admin: "Administrador", validador: "Validador", compras: "Compras", direccion: "Dirección", user: "Usuario"
+    };
+    return roles[role] || role;
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0f1a]">
-      {/* ===== FONDO AZUL BRILLANTE ===== */}
-      <div className="fixed inset-0 z-0 bg-[#0a0f1a]" />
-      <div
-        className="fixed z-0 pointer-events-none"
-        style={{
-          width: '100%',
-          height: '100%',
-          top: 0,
-          right: 0,
-          background: 'linear-gradient(135deg, #0a0f1a 0%, #0a0f1a 30%, #0066CC 70%, #0055BB 100%)',
-        }}
-      />
-      <div
-        className="fixed z-0 pointer-events-none"
-        style={{
-          width: '60%',
-          height: '100%',
-          top: 0,
-          right: 0,
-          background: 'linear-gradient(90deg, transparent 0%, #0066DD 60%, #0077EE 100%)',
-          opacity: 0.8,
-        }}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 h-full w-[220px] bg-slate-900/80 backdrop-blur-xl border-r border-slate-700/50 flex flex-col z-40">
+        {/* Logo */}
+        <div className="p-5 border-b border-slate-700/50">
+          <Link href="/dashboard" className="block">
+            <h1 className="text-2xl font-black text-white tracking-tight">ARIA</h1>
+            <p className="text-[10px] text-cyan-400 tracking-widest uppercase">Infinity Loop</p>
+          </Link>
+        </div>
 
-      {/* ===== CONTENIDO z-10 ===== */}
-      <div className="relative z-10 flex min-h-screen">
-        {/* MOBILE MENU */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 text-white shadow-lg"
-        >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        {/* Menu */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {menuItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                  isActive ? "bg-blue-600/20 text-blue-400 border border-blue-500/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                }`}
+              >
+                <item.icon className="w-5 h-5" strokeWidth={1.5} />
+                <span className="text-sm font-medium">{item.label}</span>
+                {item.hasSubmenu && <ChevronRight className="w-4 h-4 ml-auto" />}
+              </Link>
+            );
+          })}
 
-        {/* ===== SIDEBAR OSCURO ===== */}
-        <aside className={`
-          fixed left-0 top-0 bottom-0 w-64 flex flex-col
-          bg-[#0a0f1a]/98 backdrop-blur-2xl
-          border-r border-white/[0.06]
-          transition-transform duration-300 z-40
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}>
-          {/* LOGO */}
-          <div className="flex items-center gap-4 px-6 py-7 border-b border-white/[0.06]">
-            <div>
-              <h1 className="text-4xl font-black text-white tracking-tight" style={{textShadow: '0 0 20px rgba(34,211,238,0.6), 0 0 40px rgba(34,211,238,0.3)'}}>
-                ARIA
-              </h1>
-              <p className="text-[10px] text-white/90 tracking-[0.15em] font-medium mt-0.5" style={{textShadow: '0 0 10px rgba(255,255,255,0.5)'}}>INFINITY LOOP</p>
+          {/* ARIA Pulso */}
+          <button
+            onClick={() => setShowPulso(true)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-400 hover:bg-slate-800/50 hover:text-white relative"
+          >
+            <MessageCircle className="w-5 h-5" strokeWidth={1.5} />
+            <span className="text-sm font-medium">ARIA Pulso</span>
+            {mensajesNoLeidos > 0 && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {mensajesNoLeidos}
+              </span>
+            )}
+          </button>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-700/50">
+          <p className="text-[10px] text-slate-500">ARIA v2025.1 · Production</p>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="ml-[220px] min-h-screen">
+        {/* Header */}
+        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+          <div className="flex items-center justify-between px-6 py-3">
+            {/* Search */}
+            <div className="relative w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Buscar módulos, documentos..."
+                className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+              />
             </div>
-          </div>
 
-          {/* Menu */}
-          <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
-            {menuItems.map((item) => {
-              const isActive = pathname.startsWith(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    group relative flex items-center gap-3 px-4 py-3
-                    text-sm font-medium rounded-xl
-                    transition-all duration-300
-                    outline-none
-                    focus-visible:ring-2 focus-visible:ring-blue-500/50
-                    ${isActive
-                      ? "bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-                      : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
-                    }
-                  `}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                  )}
-                  <item.icon className={`relative z-10 w-5 h-5 ${isActive ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300"}`} strokeWidth={1.75} />
-                  <span className="relative z-10 flex-1">{item.name}</span>
-                  {isActive && <ChevronRight className="relative z-10 w-4 h-4 text-slate-500" />}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Footer */}
-          <div className="px-4 py-4 border-t border-white/[0.06]">
-            <div className="flex items-center gap-2 justify-center">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-              <p className="text-[10px] text-slate-500 tracking-wide">ARIA v2025.1 · Production</p>
-            </div>
-          </div>
-        </aside>
-
-        {/* OVERLAY */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-        )}
-
-        {/* ===== MAIN ===== */}
-        <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-          {/* ===== TOPBAR ===== */}
-          <header className="sticky top-0 z-20 px-4 lg:px-6 py-4">
-            <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl bg-[#0a0f1a]/90 backdrop-blur-xl border border-white/[0.10] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-              {/* Search */}
-              <div className="relative flex-1 max-w-md ml-10 lg:ml-0">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar módulos, documentos..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/[0.06] border border-white/[0.10] rounded-xl text-sm text-white placeholder-slate-400 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all"
-                />
+            {/* Right */}
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-xs text-slate-400 uppercase">{currentDate.split(",")[0]}</p>
+                <p className="text-sm text-white">{currentDate.split(",").slice(1).join(",")}</p>
               </div>
 
-              {/* Date */}
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-[11px] font-semibold text-white tracking-wider">{currentDate.day}</span>
-                <span className="text-[11px] text-slate-300">{currentDate.full}</span>
-              </div>
+              <div className="h-8 w-px bg-slate-700" />
 
-              <div className="hidden md:block w-px h-8 bg-white/15" />
+              <button onClick={() => setShowPulso(true)} className="relative p-2 hover:bg-slate-800 rounded-lg transition-colors">
+                <MessageCircle className="w-5 h-5 text-slate-400" />
+                {mensajesNoLeidos > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                    {mensajesNoLeidos}
+                  </span>
+                )}
+              </button>
 
-              {/* User */}
+              <div className="h-8 w-px bg-slate-700" />
+
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-sm font-medium text-white">{userName}</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-                    <span className="text-[11px] text-slate-300">{userRole}</span>
-                  </div>
+                <div className="text-right">
+                  <p className="text-sm text-white font-medium">{userName}</p>
+                  <p className="text-xs text-green-400 flex items-center justify-end gap-1">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                    {getRoleLabel(userRole)}
+                  </p>
                 </div>
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400/30 to-blue-600/30 border border-white/15 text-white text-sm font-semibold">
-                  {userInitial}
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-semibold">
+                  {userName?.[0]?.toUpperCase() || "?"}
                 </div>
-                <button onClick={handleLogout} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all" title="Cerrar sesión">
-                  <LogOut className="w-5 h-5" />
+                <button onClick={handleLogout} className="p-2 hover:bg-slate-800 rounded-lg transition-colors" title="Cerrar sesión">
+                  <LogOut className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
             </div>
-          </header>
+          </div>
+        </header>
 
-          {/* PAGE CONTENT */}
-          <main className="flex-1 px-4 lg:px-6 pb-8">
-            {children}
-          </main>
-        </div>
-      </div>
+        {/* Page Content */}
+        <div className="p-6">{children}</div>
+      </main>
+
+      {/* Pulso Messenger Flotante */}
+      {showPulso && userEmail && (
+        <PulsoMessenger userEmail={userEmail} onClose={() => setShowPulso(false)} />
+      )}
     </div>
   );
 }
-
-
