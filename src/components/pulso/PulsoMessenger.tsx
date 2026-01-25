@@ -1,12 +1,14 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { X, Send, MessageCircle, Minus, Users, Circle } from "lucide-react";
+import { X, Send, MessageCircle, Minus, Users, Circle, Smile, Clock, Coffee, Moon } from "lucide-react";
 
 interface Usuario {
   email: string;
   name: string;
   display_name: string;
-  lastSeen?: string;
+  last_seen?: string;
+  status?: string;
+  status_message?: string;
 }
 
 interface Mensaje {
@@ -24,20 +26,31 @@ interface Conversacion {
   noLeidos: number;
 }
 
+const EMOJIS = ["😊", "😂", "❤️", "👍", "🎉", "🔥", "😎", "🤔", "😢", "😡", "👋", "🙏", "💪", "✅", "❌", "⭐"];
+
+const SONIDO_MSN = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrtnAAAAAAD/+9DEAAAIAANIAAAAIAAANIAAAAQAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7UMQbg8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==";
+
 export default function PulsoMessenger({ userEmail, onClose }: { userEmail: string; onClose: () => void }) {
-  const [vista, setVista] = useState<"contactos" | "chat">("contactos");
+  const [vista, setVista] = useState<"contactos" | "chat" | "estado">("contactos");
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
   const [convActiva, setConvActiva] = useState<Conversacion | null>(null);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMsg, setNuevoMsg] = useState("");
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [minimizado, setMinimizado] = useState(false);
+  const [miEstado, setMiEstado] = useState("disponible");
+  const [miMensaje, setMiMensaje] = useState("");
+  const [escribiendo, setEscribiendo] = useState<string[]>([]);
+  const [showEmojis, setShowEmojis] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastMsgCount = useRef(0);
 
-  // Sonido MSN
   useEffect(() => {
-    audioRef.current = new Audio("data:audio/wav;base64,UklGRl9vT19teleGVzdBQFVF");
+    audioRef.current = new Audio(SONIDO_MSN);
+    actualizarMiEstado();
+    const interval = setInterval(actualizarMiEstado, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -50,7 +63,10 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   useEffect(() => {
     if (convActiva) {
       cargarMensajes(convActiva.id);
-      const interval = setInterval(() => cargarMensajes(convActiva.id), 2000);
+      const interval = setInterval(() => {
+        cargarMensajes(convActiva.id);
+        verificarEscribiendo(convActiva.id);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [convActiva?.id]);
@@ -58,6 +74,16 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
+
+  const actualizarMiEstado = async () => {
+    try {
+      await fetch("/api/pulso/estado", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
+      });
+    } catch (e) { console.error(e); }
+  };
 
   const cargarConversaciones = async () => {
     try {
@@ -69,11 +95,9 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   const cargarUsuarios = async () => {
     try {
-      const res = await fetch("https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?select=email,name,display_name", {
-        headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo" }
-      });
+      const res = await fetch("/api/pulso/estado");
       const data = await res.json();
-      setUsuarios(data.filter((u: Usuario) => u.email !== userEmail));
+      setUsuarios((data.usuarios || []).filter((u: Usuario) => u.email !== userEmail));
     } catch (e) { console.error(e); }
   };
 
@@ -82,13 +106,34 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso/mensajes?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       const nuevosMsgs = data.mensajes || [];
-      if (mensajes.length > 0 && nuevosMsgs.length > mensajes.length) {
+      
+      if (lastMsgCount.current > 0 && nuevosMsgs.length > lastMsgCount.current) {
         const ultimo = nuevosMsgs[nuevosMsgs.length - 1];
         if (ultimo.sender_email !== userEmail) {
           audioRef.current?.play().catch(() => {});
         }
       }
+      lastMsgCount.current = nuevosMsgs.length;
       setMensajes(nuevosMsgs);
+    } catch (e) { console.error(e); }
+  };
+
+  const verificarEscribiendo = async (convId: string) => {
+    try {
+      const res = await fetch(`/api/pulso/escribiendo?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
+      const data = await res.json();
+      setEscribiendo(data.escribiendo || []);
+    } catch (e) { console.error(e); }
+  };
+
+  const notificarEscribiendo = async (escribiendoAhora: boolean) => {
+    if (!convActiva) return;
+    try {
+      await fetch("/api/pulso/escribiendo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversacion_id: convActiva.id, user_email: userEmail, escribiendo: escribiendoAhora })
+      });
     } catch (e) { console.error(e); }
   };
 
@@ -104,6 +149,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const conv = { id: data.conversacion_id, participantes: [userEmail, otroEmail], noLeidos: 0 };
       setConvActiva(conv as Conversacion);
       setVista("chat");
+      lastMsgCount.current = 0;
     } catch (e) { console.error(e); }
   };
 
@@ -116,8 +162,14 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         body: JSON.stringify({ conversacion_id: convActiva.id, sender_email: userEmail, contenido: nuevoMsg.trim(), tipo: "texto" })
       });
       setNuevoMsg("");
+      notificarEscribiendo(false);
       cargarMensajes(convActiva.id);
     } catch (e) { console.error(e); }
+  };
+
+  const handleInputChange = (value: string) => {
+    setNuevoMsg(value);
+    notificarEscribiendo(value.length > 0);
   };
 
   const getNombre = (email: string) => {
@@ -132,42 +184,71 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   };
 
   const formatTime = (d: string) => new Date(d).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-  
-  const isOnline = () => true; // Simular que todos están en línea
+
+  const isOnline = (u: Usuario) => {
+    if (!u.last_seen) return false;
+    const diff = Date.now() - new Date(u.last_seen).getTime();
+    return diff < 60000; // 1 minuto
+  };
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case "disponible": return "#00cc00";
+      case "ocupado": return "#ff0000";
+      case "ausente": return "#ffaa00";
+      case "no_molestar": return "#cc0000";
+      default: return "#888888";
+    }
+  };
+
+  const getStatusText = (u: Usuario) => {
+    if (!isOnline(u)) return "Desconectado";
+    if (u.status_message) return u.status_message;
+    switch (u.status) {
+      case "disponible": return "Disponible";
+      case "ocupado": return "Ocupado";
+      case "ausente": return "Ausente";
+      case "no_molestar": return "No molestar";
+      default: return "En línea";
+    }
+  };
+
+  const cambiarEstado = (nuevoEstado: string) => {
+    setMiEstado(nuevoEstado);
+    setTimeout(actualizarMiEstado, 100);
+    setVista("contactos");
+  };
 
   if (minimizado) {
     return (
       <div onClick={() => setMinimizado(false)} style={{
-        position: "fixed", bottom: "20px", right: "20px", width: "200px", height: "36px",
-        background: "linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)",
+        position: "fixed", bottom: "20px", right: "20px", width: "200px", height: "32px",
+        background: "linear-gradient(180deg, #0078d7 0%, #0063b1 100%)",
         borderRadius: "4px 4px 0 0", cursor: "pointer", display: "flex", alignItems: "center",
         padding: "0 10px", gap: "8px", boxShadow: "0 -2px 10px rgba(0,0,0,0.3)", zIndex: 9999
       }}>
-        <MessageCircle size={16} color="white" />
-        <span style={{ color: "white", fontSize: "12px", fontWeight: 500 }}>ARIA Pulso</span>
+        <Circle size={8} fill={getStatusColor(miEstado)} color={getStatusColor(miEstado)} />
+        <span style={{ color: "white", fontSize: "11px", fontWeight: 500 }}>ARIA Pulso</span>
       </div>
     );
   }
 
   return (
     <div style={{
-      position: "fixed", bottom: "20px", right: "20px", width: "280px", height: "420px",
+      position: "fixed", bottom: "20px", right: "20px", width: "300px", height: "450px",
       background: "#f0f0f0", borderRadius: "8px 8px 0 0",
       boxShadow: "0 0 20px rgba(0,0,0,0.3)", border: "1px solid #0078d7",
       display: "flex", flexDirection: "column", overflow: "hidden", zIndex: 9999,
       fontFamily: "Segoe UI, Tahoma, sans-serif"
     }}>
-      {/* BARRA DE TÍTULO MSN */}
-      <div style={{
-        background: "linear-gradient(180deg, #0078d7 0%, #0063b1 100%)",
-        padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "space-between"
-      }}>
+      {/* BARRA DE TÍTULO */}
+      <div style={{ background: "linear-gradient(180deg, #0078d7 0%, #0063b1 100%)", padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <MessageCircle size={14} color="white" />
           <span style={{ color: "white", fontSize: "12px", fontWeight: 600 }}>ARIA Pulso</span>
         </div>
         <div style={{ display: "flex", gap: "2px" }}>
-          <button onClick={() => setMinimizado(true)} style={{ width: "20px", height: "20px", background: "#0078d7", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <button onClick={() => setMinimizado(true)} style={{ width: "20px", height: "20px", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Minus size={10} color="white" />
           </button>
           <button onClick={onClose} style={{ width: "20px", height: "20px", background: "#c42b1c", border: "none", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -177,69 +258,102 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       </div>
 
       {/* MI PERFIL */}
-      <div style={{ background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", padding: "10px", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "10px" }}>
+      <div onClick={() => setVista("estado")} style={{ background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", padding: "10px", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
         <div style={{ position: "relative" }}>
           <div style={{ width: "40px", height: "40px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "16px", border: "2px solid white", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>
             {userEmail?.[0]?.toUpperCase()}
           </div>
-          <Circle size={10} fill="#00cc00" color="#00cc00" style={{ position: "absolute", bottom: "-2px", right: "-2px" }} />
+          <Circle size={12} fill={getStatusColor(miEstado)} color={getStatusColor(miEstado)} style={{ position: "absolute", bottom: "-2px", right: "-2px", border: "2px solid white", borderRadius: "50%" }} />
         </div>
-        <div>
+        <div style={{ flex: 1 }}>
           <p style={{ margin: 0, fontSize: "13px", fontWeight: 600, color: "#333" }}>{getNombre(userEmail) || userEmail?.split("@")[0]}</p>
-          <p style={{ margin: 0, fontSize: "11px", color: "#0078d7" }}>🟢 Disponible</p>
+          <p style={{ margin: 0, fontSize: "11px", color: getStatusColor(miEstado) }}>
+            {miMensaje || (miEstado === "disponible" ? "Disponible" : miEstado === "ocupado" ? "Ocupado" : miEstado === "ausente" ? "Ausente" : "No molestar")}
+          </p>
         </div>
+        <span style={{ fontSize: "10px", color: "#666" }}>▼</span>
       </div>
 
       {/* CONTENIDO */}
       <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", background: "white" }}>
         
+        {/* CAMBIAR ESTADO */}
+        {vista === "estado" && (
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <div style={{ padding: "10px 12px", borderBottom: "1px solid #e0e0e0" }}>
+              <p style={{ margin: "0 0 10px", fontSize: "12px", fontWeight: 600, color: "#333" }}>Cambiar estado</p>
+              {[
+                { id: "disponible", icon: Circle, color: "#00cc00", label: "Disponible" },
+                { id: "ocupado", icon: Clock, color: "#ff0000", label: "Ocupado" },
+                { id: "ausente", icon: Coffee, color: "#ffaa00", label: "Ausente" },
+                { id: "no_molestar", icon: Moon, color: "#cc0000", label: "No molestar" },
+              ].map(s => (
+                <div key={s.id} onClick={() => cambiarEstado(s.id)} style={{ padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderRadius: "4px", background: miEstado === s.id ? "#e8f4fd" : "transparent" }}>
+                  <Circle size={10} fill={s.color} color={s.color} />
+                  <span style={{ fontSize: "12px", color: "#333" }}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "10px 12px" }}>
+              <p style={{ margin: "0 0 8px", fontSize: "11px", color: "#666" }}>Mensaje personal:</p>
+              <input type="text" value={miMensaje} onChange={e => setMiMensaje(e.target.value)} onBlur={actualizarMiEstado} placeholder="¿Qué estás pensando?" style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px" }} />
+            </div>
+            <button onClick={() => setVista("contactos")} style={{ margin: "10px 12px", padding: "8px", background: "#0078d7", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Volver a contactos</button>
+          </div>
+        )}
+
         {/* LISTA DE CONTACTOS */}
         {vista === "contactos" && (
           <div style={{ flex: 1, overflowY: "auto" }}>
-            {/* Sección: En línea */}
             <div style={{ padding: "8px 12px", background: "#f5f5f5", borderBottom: "1px solid #e0e0e0" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Users size={12} color="#666" />
-                <span style={{ fontSize: "11px", color: "#666", fontWeight: 600 }}>Contactos ({usuarios.length})</span>
-              </div>
+              <span style={{ fontSize: "11px", color: "#666", fontWeight: 600 }}>
+                <Users size={12} style={{ verticalAlign: "middle", marginRight: "6px" }} />
+                Contactos ({usuarios.filter(u => isOnline(u)).length}/{usuarios.length} en línea)
+              </span>
             </div>
             
             {usuarios.length === 0 ? (
               <div style={{ padding: "30px 20px", textAlign: "center", color: "#888" }}>
-                <p style={{ fontSize: "12px" }}>No hay contactos disponibles</p>
+                <p style={{ fontSize: "12px" }}>No hay contactos</p>
               </div>
             ) : (
-              usuarios.map(u => {
-                const conv = conversaciones.find(c => c.participantes?.includes(u.email));
-                const noLeidos = conv?.noLeidos || 0;
-                return (
-                  <div key={u.email} onClick={() => abrirChat(u.email)} style={{
-                    padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px",
-                    borderBottom: "1px solid #f0f0f0", background: noLeidos > 0 ? "#fff8dc" : "white"
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "#e8f4fd")}
-                  onMouseLeave={e => (e.currentTarget.style.background = noLeidos > 0 ? "#fff8dc" : "white")}
-                  >
+              <>
+                {/* En línea */}
+                {usuarios.filter(u => isOnline(u)).map(u => {
+                  const conv = conversaciones.find(c => c.participantes?.includes(u.email));
+                  const noLeidos = conv?.noLeidos || 0;
+                  return (
+                    <div key={u.email} onClick={() => abrirChat(u.email)} style={{ padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #f0f0f0", background: noLeidos > 0 ? "#fff8dc" : "white" }}>
+                      <div style={{ position: "relative" }}>
+                        <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
+                          {(u.display_name || u.name)?.[0]?.toUpperCase()}
+                        </div>
+                        <Circle size={8} fill={getStatusColor(u.status)} color={getStatusColor(u.status)} style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#333" }}>{u.display_name || u.name}</p>
+                        <p style={{ margin: 0, fontSize: "10px", color: getStatusColor(u.status) }}>{getStatusText(u)}</p>
+                      </div>
+                      {noLeidos > 0 && <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#ff6600", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ color: "white", fontSize: "10px", fontWeight: 700 }}>{noLeidos}</span></div>}
+                    </div>
+                  );
+                })}
+                {/* Desconectados */}
+                {usuarios.filter(u => !isOnline(u)).map(u => (
+                  <div key={u.email} onClick={() => abrirChat(u.email)} style={{ padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #f0f0f0", opacity: 0.6 }}>
                     <div style={{ position: "relative" }}>
-                      <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "linear-gradient(135deg, #6b7280, #9ca3af)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "#888", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
                         {(u.display_name || u.name)?.[0]?.toUpperCase()}
                       </div>
-                      <Circle size={8} fill={isOnline() ? "#00cc00" : "#888"} color={isOnline() ? "#00cc00" : "#888"} style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
+                      <Circle size={8} fill="#888" color="#888" style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#333" }}>{u.display_name || u.name}</p>
-                      <p style={{ margin: 0, fontSize: "10px", color: isOnline() ? "#00aa00" : "#888" }}>
-                        {isOnline() ? "En línea" : "Desconectado"}
-                      </p>
+                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#666" }}>{u.display_name || u.name}</p>
+                      <p style={{ margin: 0, fontSize: "10px", color: "#888" }}>Desconectado</p>
                     </div>
-                    {noLeidos > 0 && (
-                      <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#ff6600", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ color: "white", fontSize: "10px", fontWeight: 700 }}>{noLeidos}</span>
-                      </div>
-                    )}
                   </div>
-                );
-              })
+                ))}
+              </>
             )}
           </div>
         )}
@@ -247,19 +361,21 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         {/* VENTANA DE CHAT */}
         {vista === "chat" && convActiva && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            {/* Header del chat */}
             <div style={{ padding: "8px 10px", background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "8px" }}>
-              <button onClick={() => { setConvActiva(null); setVista("contactos"); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#0078d7" }}>◀</button>
+              <button onClick={() => { setConvActiva(null); setVista("contactos"); notificarEscribiendo(false); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#0078d7" }}>◀</button>
               <div style={{ width: "28px", height: "28px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "12px" }}>
                 {getConvNombre(convActiva)?.[0]?.toUpperCase()}
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: "12px", fontWeight: 600, color: "#333" }}>{getConvNombre(convActiva)}</p>
-                <p style={{ margin: 0, fontSize: "10px", color: "#00aa00" }}>En línea</p>
+                {escribiendo.length > 0 ? (
+                  <p style={{ margin: 0, fontSize: "10px", color: "#0078d7", fontStyle: "italic" }}>Escribiendo...</p>
+                ) : (
+                  <p style={{ margin: 0, fontSize: "10px", color: "#00aa00" }}>En línea</p>
+                )}
               </div>
             </div>
 
-            {/* Mensajes */}
             <div style={{ flex: 1, overflowY: "auto", padding: "10px", background: "#ffffff" }}>
               {mensajes.map(msg => (
                 <div key={msg.id} style={{ marginBottom: "8px" }}>
@@ -281,22 +397,22 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
+            {/* Emojis */}
+            {showEmojis && (
+              <div style={{ padding: "8px", background: "#f5f5f5", borderTop: "1px solid #ddd", display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                {EMOJIS.map(e => (
+                  <button key={e} onClick={() => { setNuevoMsg(nuevoMsg + e); setShowEmojis(false); }} style={{ padding: "4px 8px", background: "white", border: "1px solid #ddd", borderRadius: "4px", cursor: "pointer", fontSize: "16px" }}>{e}</button>
+                ))}
+              </div>
+            )}
+
             <div style={{ padding: "8px", borderTop: "1px solid #ddd", background: "#f5f5f5" }}>
               <div style={{ display: "flex", gap: "6px" }}>
-                <input
-                  type="text"
-                  value={nuevoMsg}
-                  onChange={e => setNuevoMsg(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && enviarMensaje()}
-                  placeholder="Escribe un mensaje..."
-                  style={{ flex: 1, padding: "8px 10px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px", outline: "none" }}
-                />
-                <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{
-                  padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc",
-                  border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default",
-                  display: "flex", alignItems: "center", justifyContent: "center"
-                }}>
+                <button onClick={() => setShowEmojis(!showEmojis)} style={{ padding: "8px", background: "white", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}>
+                  <Smile size={16} color="#666" />
+                </button>
+                <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px", outline: "none" }} />
+                <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{ padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc", border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default" }}>
                   <Send size={14} color="white" />
                 </button>
               </div>
@@ -305,9 +421,8 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         )}
       </div>
 
-      {/* FOOTER MSN */}
       <div style={{ padding: "4px 8px", background: "linear-gradient(180deg, #e0e0e0, #c0c0c0)", borderTop: "1px solid #aaa", display: "flex", justifyContent: "center" }}>
-        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v1.0 · Grupo Cuavante</span>
+        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v2.0 · Grupo Cuavante</span>
       </div>
     </div>
   );
