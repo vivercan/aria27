@@ -189,12 +189,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
 
       {/* Pulso Messenger Flotante */}
-      {showPulso && userEmail && (
+      {(() => { console.log("RENDER CHECK: showPulso=", showPulso, "userEmail=", userEmail); return showPulso && userEmail; })() && (
         <PulsoMessenger userEmail={userEmail} onClose={() => setShowPulso(false)} />
       )}
     </div>
   );
 }
+
 
 
 
