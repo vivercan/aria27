@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* ARIA Pulso */}
           <button
-            onClick={() => setShowPulso(true)}
+            onClick={() => { console.log("PULSO CLICKED, showPulso antes:", false); setShowPulso(true); console.log("showPulso después: true"); }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-slate-400 hover:bg-slate-800/50 hover:text-white relative"
           >
             <MessageCircle className="w-5 h-5" strokeWidth={1.5} />
@@ -154,7 +154,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <div className="h-8 w-px bg-slate-700" />
 
-              <button onClick={() => setShowPulso(true)} className="relative p-2 hover:bg-slate-800 rounded-lg transition-colors">
+              <button onClick={() => { console.log("PULSO CLICKED, showPulso antes:", false); setShowPulso(true); console.log("showPulso después: true"); }} className="relative p-2 hover:bg-slate-800 rounded-lg transition-colors">
                 <MessageCircle className="w-5 h-5 text-slate-400" />
                 {mensajesNoLeidos > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
@@ -195,4 +195,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
 
