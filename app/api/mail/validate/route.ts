@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Imap from "imap";
+import nodemailer from "nodemailer";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,38 +16,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, error: "Dominio no autorizado" }, { status: 401 });
     }
 
+    // Validar contra Zoho SMTP
     const isValid = await new Promise<boolean>((resolve) => {
-      const imap = new Imap({
-        user: email,
-        password: password,
-        host: "imappro.zoho.com",
-        port: 993,
-        tls: true,
-        tlsOptions: { rejectUnauthorized: false },
-        connTimeout: 10000,
-        authTimeout: 10000,
+      const transporter = nodemailer.createTransport({
+        host: "smtppro.zoho.com",
+        port: 465,
+        secure: true,
+        auth: { user: email, pass: password },
+        connectionTimeout: 10000,
       });
 
-      imap.once("ready", () => {
-        imap.end();
-        resolve(true);
+      transporter.verify((error) => {
+        transporter.close();
+        resolve(!error);
       });
 
-      imap.once("error", () => {
-        imap.end();
-        resolve(false);
-      });
-
-      imap.connect();
+      setTimeout(() => resolve(false), 15000);
     });
 
     if (!isValid) {
-      return NextResponse.json({ valid: false, error: "Credenciales inválidas" }, { status: 401 });
+      return NextResponse.json({ valid: false, error: "Contraseña incorrecta" }, { status: 401 });
     }
 
-    const response = NextResponse.json({ valid: true });
-    return response;
+    return NextResponse.json({ valid: true });
   } catch (error: any) {
-    return NextResponse.json({ valid: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ valid: false, error: "Error de validación" }, { status: 500 });
   }
 }
