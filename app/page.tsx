@@ -168,7 +168,7 @@ export default function LoginPage() {
                 {/* Texto inferior del card con LED verde */}
                 <div className="mt-4 text-center">
                   <p className="text-[9px] text-slate-500 tracking-wider uppercase flex items-center justify-center gap-1">
-                    <span>Acceso exclusivo · GC Avante · Ambiente</span>
+                    <span>Acceso exclusivo · GCUAVANTE · Ambiente</span>
                     <span style={{ color: '#22C55E', fontSize: '8px' }}>●</span>
                     <span style={{ color: '#22C55E' }}>PROD</span>
                   </p>
