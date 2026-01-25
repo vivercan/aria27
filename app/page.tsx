@@ -5,27 +5,53 @@ import { useRouter } from 'next/navigation'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Validar que exista en users de Supabase
-    fetch('https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?email=eq.' + encodeURIComponent(email.trim().toLowerCase()), {
-      headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo'
+    setError('')
+    setLoading(true)
+
+    try {
+      // 1. Verificar que el usuario exista en Supabase
+      const userRes = await fetch('https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?email=eq.' + encodeURIComponent(email.trim().toLowerCase()), {
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo'
+        }
+      })
+      const users = await userRes.json()
+
+      if (!users || users.length === 0) {
+        setError('Usuario no registrado en ARIA')
+        setLoading(false)
+        return
       }
-    })
-    .then(r => r.json())
-    .then(users => {
-      if (users && users.length > 0) {
-        localStorage.setItem('userEmail', email.trim().toLowerCase())
-        sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
-        router.push('/dashboard/requisiciones')
-      } else {
-        alert('Usuario no registrado en ARIA')
+
+      // 2. Validar credenciales contra Zoho IMAP
+      const validateRes = await fetch('/api/mail/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password: pass })
+      })
+      const validateData = await validateRes.json()
+
+      if (!validateData.valid) {
+        setError(validateData.error || 'Contraseña incorrecta')
+        setLoading(false)
+        return
       }
-    })
-    .catch(() => alert('Error de conexión'))
+
+      // 3. Login exitoso - guardar sesión
+      localStorage.setItem('userEmail', email.trim().toLowerCase())
+      sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
+      router.push('/dashboard/requisiciones')
+
+    } catch (err: any) {
+      setError('Error de conexión. Intenta de nuevo.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -41,7 +67,7 @@ export default function LoginPage() {
 
       <div className="relative min-h-screen w-full overflow-hidden">
 
-        {/* CAPA 1: Degradado base - oscuro arriba-izquierda, azul brillante abajo-derecha */}
+        {/* CAPA 1: Degradado base */}
         <div
           className="absolute inset-0"
           style={{
@@ -49,7 +75,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* CAPA 2: Halo radial brillante en zona derecha-baja */}
+        {/* CAPA 2: Halo radial */}
         <div
           className="absolute inset-0"
           style={{
@@ -57,7 +83,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* CAPA 3: Segundo halo más intenso y concentrado */}
+        {/* CAPA 3: Segundo halo */}
         <div
           className="absolute inset-0"
           style={{
@@ -65,7 +91,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* CAPA 4: Glow difuso adicional */}
+        {/* CAPA 4: Glow difuso */}
         <div
           className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none"
           style={{
@@ -74,7 +100,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* CAPA 5: Noise/textura sutil */}
+        {/* CAPA 5: Noise/textura */}
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
           style={{
@@ -82,7 +108,7 @@ export default function LoginPage() {
           }}
         />
 
-        {/* Version tag - esquina superior derecha */}
+        {/* Version tag */}
         <div className="absolute top-6 right-8 z-20">
           <p className="text-[10px] text-slate-500 tracking-widest uppercase">
             ARIA v2025.1 · Secure Access
@@ -92,7 +118,7 @@ export default function LoginPage() {
         {/* Contenedor principal */}
         <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
 
-          {/* Card de login - izquierda baja */}
+          {/* Card de login */}
           <div className="relative flex-shrink-0">
             <div
               className="relative overflow-hidden backdrop-blur-2xl rounded-2xl"
@@ -103,7 +129,7 @@ export default function LoginPage() {
                 width: '300px',
               }}
             >
-              {/* Barra superior brillante */}
+              {/* Barra superior */}
               <div
                 className="h-[2px] w-full"
                 style={{
@@ -111,7 +137,7 @@ export default function LoginPage() {
                 }}
               />
 
-              {/* Contenido del card */}
+              {/* Contenido */}
               <div style={{ padding: '22px 18px 18px 18px' }}>
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {/* Input email */}
@@ -119,7 +145,8 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500"
+                    disabled={loading}
+                    className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500 disabled:opacity-50"
                     style={{
                       padding: '8px 12px',
                       fontSize: '13px',
@@ -130,12 +157,13 @@ export default function LoginPage() {
                     placeholder="usuario@gcuavante.com"
                   />
 
-                  {/* Input password - bullets mas impactantes */}
+                  {/* Input password */}
                   <input
                     type="password"
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
-                    className="password-input w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400"
+                    disabled={loading}
+                    className="password-input w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-400 disabled:opacity-50"
                     style={{
                       padding: '8px 12px',
                       fontSize: '16px',
@@ -148,10 +176,16 @@ export default function LoginPage() {
                     placeholder="••••••••"
                   />
 
-                  {/* Boton premium con gradiente */}
+                  {/* Mensaje de error */}
+                  {error && (
+                    <p className="text-red-400 text-xs text-center py-1">{error}</p>
+                  )}
+
+                  {/* Boton */}
                   <button
                     type="submit"
-                    className="w-full text-white font-semibold rounded-xl transition-all duration-200 uppercase tracking-wider hover:-translate-y-[2px] hover:scale-[1.01] active:translate-y-0 active:scale-100"
+                    disabled={loading}
+                    className="w-full text-white font-semibold rounded-xl transition-all duration-200 uppercase tracking-wider hover:-translate-y-[2px] hover:scale-[1.01] active:translate-y-0 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                     style={{
                       padding: '0',
                       height: '36px',
@@ -161,11 +195,19 @@ export default function LoginPage() {
                       boxShadow: '0 15px 40px rgba(37,99,235,0.45), 0 0 0 1px rgba(59,130,246,0.4)',
                     }}
                   >
-                    Entrar
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Validando...
+                      </span>
+                    ) : 'Entrar'}
                   </button>
                 </form>
 
-                {/* Texto inferior del card con LED verde */}
+                {/* Texto inferior */}
                 <div className="mt-4 text-center">
                   <p className="text-[9px] text-slate-500 tracking-wider uppercase flex items-center justify-center gap-1">
                     <span>Acceso exclusivo · GCUAVANTE · Ambiente</span>
@@ -177,9 +219,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ARIA + Infinity Loop - derecha */}
+          {/* ARIA + Infinity Loop */}
           <div className="hidden md:flex items-center justify-center relative mr-12 lg:mr-20 overflow-visible">
-            {/* Simbolo infinito como luz de fondo */}
             <div
               className="absolute pointer-events-none"
               style={{
@@ -208,7 +249,6 @@ export default function LoginPage() {
               </svg>
             </div>
 
-            {/* Texto ARIA */}
             <div className="relative flex flex-col items-end" style={{ paddingRight: '20px' }}>
               <h1
                 style={{
@@ -227,7 +267,6 @@ export default function LoginPage() {
                 ARIA
               </h1>
 
-              {/* Tagline con icono infinito */}
               <div
                 style={{
                   display: 'flex',
