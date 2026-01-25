@@ -29,6 +29,7 @@ interface Usuario {
 }
 
 export default function PulsoMessenger({ userEmail, onClose }: { userEmail: string; onClose: () => void }) {
+  console.log(">>> PULSO COMPONENT MOUNTED, userEmail:", userEmail);
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
   const [convActiva, setConvActiva] = useState<Conversacion | null>(null);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
@@ -330,3 +331,4 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
     </div>
   );
 }
+
