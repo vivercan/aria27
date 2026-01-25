@@ -48,9 +48,6 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   useEffect(() => {
     audioRef.current = new Audio(SONIDO_MSN);
-    actualizarMiEstado();
-    const interval = setInterval(actualizarMiEstado, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -74,16 +71,6 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
-
-  const actualizarMiEstado = async () => {
-    try {
-      await fetch("/api/pulso/estado", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
-      });
-    } catch (e) { console.error(e); }
-  };
 
   const cargarConversaciones = async () => {
     try {
@@ -185,27 +172,41 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   const formatTime = (d: string) => new Date(d).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
+  // ESTADO REAL: Online si last_seen es menor a 60 segundos
   const isOnline = (u: Usuario) => {
     if (!u.last_seen) return false;
     const diff = Date.now() - new Date(u.last_seen).getTime();
-    return diff < 60000; // 1 minuto
+    return diff < 60000; // 60 segundos
   };
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
+  const getLastSeenText = (u: Usuario) => {
+    if (!u.last_seen) return "Nunca conectado";
+    const diff = Date.now() - new Date(u.last_seen).getTime();
+    if (diff < 60000) return null; // Online
+    if (diff < 3600000) return `Hace ${Math.floor(diff / 60000)} min`;
+    if (diff < 86400000) return `Hace ${Math.floor(diff / 3600000)} hrs`;
+    return `Hace ${Math.floor(diff / 86400000)} días`;
+  };
+
+  const getStatusColor = (u: Usuario) => {
+    if (!isOnline(u)) return "#888888";
+    switch (u.status) {
       case "disponible": return "#00cc00";
       case "ocupado": return "#ff0000";
       case "ausente": return "#ffaa00";
       case "no_molestar": return "#cc0000";
-      default: return "#888888";
+      default: return "#00cc00";
     }
   };
 
   const getStatusText = (u: Usuario) => {
-    if (!isOnline(u)) return "Desconectado";
+    if (!isOnline(u)) {
+      const lastSeen = getLastSeenText(u);
+      return lastSeen || "Desconectado";
+    }
     if (u.status_message) return u.status_message;
     switch (u.status) {
-      case "disponible": return "Disponible";
+      case "disponible": return "En línea";
       case "ocupado": return "Ocupado";
       case "ausente": return "Ausente";
       case "no_molestar": return "No molestar";
@@ -213,11 +214,40 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
     }
   };
 
-  const cambiarEstado = (nuevoEstado: string) => {
+  const cambiarEstado = async (nuevoEstado: string) => {
     setMiEstado(nuevoEstado);
-    setTimeout(actualizarMiEstado, 100);
+    try {
+      await fetch("/api/pulso/estado", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail, status: nuevoEstado, status_message: miMensaje })
+      });
+    } catch (e) { console.error(e); }
     setVista("contactos");
   };
+
+  const guardarMensaje = async () => {
+    try {
+      await fetch("/api/pulso/estado", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  // Ordenar: online primero, luego por último visto
+  const usuariosOrdenados = [...usuarios].sort((a, b) => {
+    const aOnline = isOnline(a);
+    const bOnline = isOnline(b);
+    if (aOnline && !bOnline) return -1;
+    if (!aOnline && bOnline) return 1;
+    const aTime = a.last_seen ? new Date(a.last_seen).getTime() : 0;
+    const bTime = b.last_seen ? new Date(b.last_seen).getTime() : 0;
+    return bTime - aTime;
+  });
+
+  const onlineCount = usuarios.filter(u => isOnline(u)).length;
 
   if (minimizado) {
     return (
@@ -227,8 +257,8 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         borderRadius: "4px 4px 0 0", cursor: "pointer", display: "flex", alignItems: "center",
         padding: "0 10px", gap: "8px", boxShadow: "0 -2px 10px rgba(0,0,0,0.3)", zIndex: 9999
       }}>
-        <Circle size={8} fill={getStatusColor(miEstado)} color={getStatusColor(miEstado)} />
-        <span style={{ color: "white", fontSize: "11px", fontWeight: 500 }}>ARIA Pulso</span>
+        <Circle size={8} fill="#00cc00" color="#00cc00" />
+        <span style={{ color: "white", fontSize: "11px", fontWeight: 500 }}>ARIA Pulso ({onlineCount} en línea)</span>
       </div>
     );
   }
@@ -263,12 +293,12 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
           <div style={{ width: "40px", height: "40px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "16px", border: "2px solid white", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>
             {userEmail?.[0]?.toUpperCase()}
           </div>
-          <Circle size={12} fill={getStatusColor(miEstado)} color={getStatusColor(miEstado)} style={{ position: "absolute", bottom: "-2px", right: "-2px", border: "2px solid white", borderRadius: "50%" }} />
+          <Circle size={12} fill="#00cc00" color="#00cc00" style={{ position: "absolute", bottom: "-2px", right: "-2px", border: "2px solid white", borderRadius: "50%" }} />
         </div>
         <div style={{ flex: 1 }}>
           <p style={{ margin: 0, fontSize: "13px", fontWeight: 600, color: "#333" }}>{getNombre(userEmail) || userEmail?.split("@")[0]}</p>
-          <p style={{ margin: 0, fontSize: "11px", color: getStatusColor(miEstado) }}>
-            {miMensaje || (miEstado === "disponible" ? "Disponible" : miEstado === "ocupado" ? "Ocupado" : miEstado === "ausente" ? "Ausente" : "No molestar")}
+          <p style={{ margin: 0, fontSize: "11px", color: "#00cc00" }}>
+            {miMensaje || (miEstado === "disponible" ? "En línea" : miEstado === "ocupado" ? "Ocupado" : miEstado === "ausente" ? "Ausente" : "No molestar")}
           </p>
         </div>
         <span style={{ fontSize: "10px", color: "#666" }}>▼</span>
@@ -281,24 +311,25 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         {vista === "estado" && (
           <div style={{ flex: 1, overflowY: "auto" }}>
             <div style={{ padding: "10px 12px", borderBottom: "1px solid #e0e0e0" }}>
-              <p style={{ margin: "0 0 10px", fontSize: "12px", fontWeight: 600, color: "#333" }}>Cambiar estado</p>
+              <p style={{ margin: "0 0 10px", fontSize: "12px", fontWeight: 600, color: "#333" }}>Cambiar mi estado</p>
               {[
-                { id: "disponible", icon: Circle, color: "#00cc00", label: "Disponible" },
-                { id: "ocupado", icon: Clock, color: "#ff0000", label: "Ocupado" },
-                { id: "ausente", icon: Coffee, color: "#ffaa00", label: "Ausente" },
-                { id: "no_molestar", icon: Moon, color: "#cc0000", label: "No molestar" },
+                { id: "disponible", color: "#00cc00", label: "En línea" },
+                { id: "ocupado", color: "#ff0000", label: "Ocupado" },
+                { id: "ausente", color: "#ffaa00", label: "Ausente" },
+                { id: "no_molestar", color: "#cc0000", label: "No molestar" },
               ].map(s => (
                 <div key={s.id} onClick={() => cambiarEstado(s.id)} style={{ padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderRadius: "4px", background: miEstado === s.id ? "#e8f4fd" : "transparent" }}>
                   <Circle size={10} fill={s.color} color={s.color} />
                   <span style={{ fontSize: "12px", color: "#333" }}>{s.label}</span>
+                  {miEstado === s.id && <span style={{ marginLeft: "auto", fontSize: "10px", color: "#0078d7" }}>✓</span>}
                 </div>
               ))}
             </div>
             <div style={{ padding: "10px 12px" }}>
               <p style={{ margin: "0 0 8px", fontSize: "11px", color: "#666" }}>Mensaje personal:</p>
-              <input type="text" value={miMensaje} onChange={e => setMiMensaje(e.target.value)} onBlur={actualizarMiEstado} placeholder="¿Qué estás pensando?" style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px" }} />
+              <input type="text" value={miMensaje} onChange={e => setMiMensaje(e.target.value)} onBlur={guardarMensaje} placeholder="¿Qué estás haciendo?" maxLength={50} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px" }} />
             </div>
-            <button onClick={() => setVista("contactos")} style={{ margin: "10px 12px", padding: "8px", background: "#0078d7", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Volver a contactos</button>
+            <button onClick={() => setVista("contactos")} style={{ margin: "10px 12px", padding: "8px 16px", background: "#0078d7", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>← Volver</button>
           </div>
         )}
 
@@ -308,7 +339,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
             <div style={{ padding: "8px 12px", background: "#f5f5f5", borderBottom: "1px solid #e0e0e0" }}>
               <span style={{ fontSize: "11px", color: "#666", fontWeight: 600 }}>
                 <Users size={12} style={{ verticalAlign: "middle", marginRight: "6px" }} />
-                Contactos ({usuarios.filter(u => isOnline(u)).length}/{usuarios.length} en línea)
+                {onlineCount}/{usuarios.length} en línea
               </span>
             </div>
             
@@ -317,43 +348,36 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
                 <p style={{ fontSize: "12px" }}>No hay contactos</p>
               </div>
             ) : (
-              <>
-                {/* En línea */}
-                {usuarios.filter(u => isOnline(u)).map(u => {
-                  const conv = conversaciones.find(c => c.participantes?.includes(u.email));
-                  const noLeidos = conv?.noLeidos || 0;
-                  return (
-                    <div key={u.email} onClick={() => abrirChat(u.email)} style={{ padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #f0f0f0", background: noLeidos > 0 ? "#fff8dc" : "white" }}>
-                      <div style={{ position: "relative" }}>
-                        <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
-                          {(u.display_name || u.name)?.[0]?.toUpperCase()}
-                        </div>
-                        <Circle size={8} fill={getStatusColor(u.status)} color={getStatusColor(u.status)} style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#333" }}>{u.display_name || u.name}</p>
-                        <p style={{ margin: 0, fontSize: "10px", color: getStatusColor(u.status) }}>{getStatusText(u)}</p>
-                      </div>
-                      {noLeidos > 0 && <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#ff6600", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ color: "white", fontSize: "10px", fontWeight: 700 }}>{noLeidos}</span></div>}
-                    </div>
-                  );
-                })}
-                {/* Desconectados */}
-                {usuarios.filter(u => !isOnline(u)).map(u => (
-                  <div key={u.email} onClick={() => abrirChat(u.email)} style={{ padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #f0f0f0", opacity: 0.6 }}>
+              usuariosOrdenados.map(u => {
+                const conv = conversaciones.find(c => c.participantes?.includes(u.email));
+                const noLeidos = conv?.noLeidos || 0;
+                const online = isOnline(u);
+                return (
+                  <div key={u.email} onClick={() => abrirChat(u.email)} style={{ 
+                    padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", 
+                    borderBottom: "1px solid #f0f0f0", 
+                    background: noLeidos > 0 ? "#fff8dc" : "white",
+                    opacity: online ? 1 : 0.6
+                  }}>
                     <div style={{ position: "relative" }}>
-                      <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "#888", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
+                      <div style={{ 
+                        width: "32px", height: "32px", borderRadius: "4px", 
+                        background: online ? "linear-gradient(135deg, #0078d7, #00bcf2)" : "#888", 
+                        display: "flex", alignItems: "center", justifyContent: "center", 
+                        color: "white", fontWeight: 600, fontSize: "13px" 
+                      }}>
                         {(u.display_name || u.name)?.[0]?.toUpperCase()}
                       </div>
-                      <Circle size={8} fill="#888" color="#888" style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
+                      <Circle size={8} fill={getStatusColor(u)} color={getStatusColor(u)} style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#666" }}>{u.display_name || u.name}</p>
-                      <p style={{ margin: 0, fontSize: "10px", color: "#888" }}>Desconectado</p>
+                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: online ? "#333" : "#666" }}>{u.display_name || u.name}</p>
+                      <p style={{ margin: 0, fontSize: "10px", color: getStatusColor(u) }}>{getStatusText(u)}</p>
                     </div>
+                    {noLeidos > 0 && <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#ff6600", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ color: "white", fontSize: "10px", fontWeight: 700 }}>{noLeidos}</span></div>}
                   </div>
-                ))}
-              </>
+                );
+              })
             )}
           </div>
         )}
@@ -371,12 +395,17 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
                 {escribiendo.length > 0 ? (
                   <p style={{ margin: 0, fontSize: "10px", color: "#0078d7", fontStyle: "italic" }}>Escribiendo...</p>
                 ) : (
-                  <p style={{ margin: 0, fontSize: "10px", color: "#00aa00" }}>En línea</p>
+                  <p style={{ margin: 0, fontSize: "10px", color: "#666" }}>Chat</p>
                 )}
               </div>
             </div>
 
             <div style={{ flex: 1, overflowY: "auto", padding: "10px", background: "#ffffff" }}>
+              {mensajes.length === 0 && (
+                <div style={{ textAlign: "center", padding: "20px", color: "#888", fontSize: "12px" }}>
+                  Inicia la conversación 👋
+                </div>
+              )}
               {mensajes.map(msg => (
                 <div key={msg.id} style={{ marginBottom: "8px" }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", flexDirection: msg.sender_email === userEmail ? "row-reverse" : "row" }}>
@@ -397,7 +426,6 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Emojis */}
             {showEmojis && (
               <div style={{ padding: "8px", background: "#f5f5f5", borderTop: "1px solid #ddd", display: "flex", flexWrap: "wrap", gap: "4px" }}>
                 {EMOJIS.map(e => (
@@ -422,7 +450,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       </div>
 
       <div style={{ padding: "4px 8px", background: "linear-gradient(180deg, #e0e0e0, #c0c0c0)", borderTop: "1px solid #aaa", display: "flex", justifyContent: "center" }}>
-        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v2.0 · Grupo Cuavante</span>
+        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v2.1 · Grupo Cuavante</span>
       </div>
     </div>
   );
