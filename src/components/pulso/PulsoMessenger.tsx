@@ -1,11 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
-import { X, Send, MessageCircle, Plus, Search } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Send, MessageCircle, Minus, Users, Circle } from "lucide-react";
 
 interface Usuario {
   email: string;
   name: string;
   display_name: string;
+  lastSeen?: string;
 }
 
 interface Mensaje {
@@ -24,28 +25,39 @@ interface Conversacion {
 }
 
 export default function PulsoMessenger({ userEmail, onClose }: { userEmail: string; onClose: () => void }) {
-  const [vista, setVista] = useState<"lista" | "chat" | "nuevo">("lista");
+  const [vista, setVista] = useState<"contactos" | "chat">("contactos");
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
   const [convActiva, setConvActiva] = useState<Conversacion | null>(null);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMsg, setNuevoMsg] = useState("");
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [searchUser, setSearchUser] = useState("");
+  const [minimizado, setMinimizado] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Sonido MSN
+  useEffect(() => {
+    audioRef.current = new Audio("data:audio/wav;base64,UklGRl9vT19teleGVzdBQFVF");
+  }, []);
 
   useEffect(() => {
     cargarConversaciones();
     cargarUsuarios();
-    const interval = setInterval(cargarConversaciones, 5000);
+    const interval = setInterval(() => { cargarConversaciones(); cargarUsuarios(); }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     if (convActiva) {
       cargarMensajes(convActiva.id);
-      const interval = setInterval(() => cargarMensajes(convActiva.id), 3000);
+      const interval = setInterval(() => cargarMensajes(convActiva.id), 2000);
       return () => clearInterval(interval);
     }
   }, [convActiva?.id]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes]);
 
   const cargarConversaciones = async () => {
     try {
@@ -69,11 +81,18 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
     try {
       const res = await fetch(`/api/pulso/mensajes?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
-      setMensajes(data.mensajes || []);
+      const nuevosMsgs = data.mensajes || [];
+      if (mensajes.length > 0 && nuevosMsgs.length > mensajes.length) {
+        const ultimo = nuevosMsgs[nuevosMsgs.length - 1];
+        if (ultimo.sender_email !== userEmail) {
+          audioRef.current?.play().catch(() => {});
+        }
+      }
+      setMensajes(nuevosMsgs);
     } catch (e) { console.error(e); }
   };
 
-  const crearChat = async (otroEmail: string) => {
+  const abrirChat = async (otroEmail: string) => {
     try {
       const res = await fetch("/api/pulso", {
         method: "POST",
@@ -101,133 +120,194 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
     } catch (e) { console.error(e); }
   };
 
-  const getNombre = (conv: Conversacion) => {
+  const getNombre = (email: string) => {
+    const u = usuarios.find(usr => usr.email === email);
+    return u?.display_name || u?.name || email?.split("@")[0] || "Usuario";
+  };
+
+  const getConvNombre = (conv: Conversacion) => {
     if (conv.nombre) return conv.nombre;
     const otro = conv.participantes?.find(p => p !== userEmail);
-    const u = usuarios.find(usr => usr.email === otro);
-    return u?.display_name || u?.name || otro?.split("@")[0] || "Chat";
+    return getNombre(otro || "");
   };
 
   const formatTime = (d: string) => new Date(d).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+  
+  const isOnline = () => true; // Simular que todos están en línea
+
+  if (minimizado) {
+    return (
+      <div onClick={() => setMinimizado(false)} style={{
+        position: "fixed", bottom: "20px", right: "20px", width: "200px", height: "36px",
+        background: "linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)",
+        borderRadius: "4px 4px 0 0", cursor: "pointer", display: "flex", alignItems: "center",
+        padding: "0 10px", gap: "8px", boxShadow: "0 -2px 10px rgba(0,0,0,0.3)", zIndex: 9999
+      }}>
+        <MessageCircle size={16} color="white" />
+        <span style={{ color: "white", fontSize: "12px", fontWeight: 500 }}>ARIA Pulso</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{
-      position: "fixed",
-      bottom: "20px",
-      right: "20px",
-      width: "360px",
-      height: "480px",
-      backgroundColor: "#1e293b",
-      borderRadius: "16px",
-      boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
-      border: "1px solid #334155",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      zIndex: 9999
+      position: "fixed", bottom: "20px", right: "20px", width: "280px", height: "420px",
+      background: "#f0f0f0", borderRadius: "8px 8px 0 0",
+      boxShadow: "0 0 20px rgba(0,0,0,0.3)", border: "1px solid #0078d7",
+      display: "flex", flexDirection: "column", overflow: "hidden", zIndex: 9999,
+      fontFamily: "Segoe UI, Tahoma, sans-serif"
     }}>
-      {/* HEADER */}
-      <div style={{ background: "linear-gradient(90deg, #2563eb, #06b6d4)", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <MessageCircle size={20} color="white" />
-          <span style={{ color: "white", fontWeight: 600 }}>ARIA Pulso</span>
+      {/* BARRA DE TÍTULO MSN */}
+      <div style={{
+        background: "linear-gradient(180deg, #0078d7 0%, #0063b1 100%)",
+        padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "space-between"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <MessageCircle size={14} color="white" />
+          <span style={{ color: "white", fontSize: "12px", fontWeight: 600 }}>ARIA Pulso</span>
         </div>
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button onClick={() => setVista("nuevo")} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "6px", padding: "6px", cursor: "pointer" }}>
-            <Plus size={16} color="white" />
+        <div style={{ display: "flex", gap: "2px" }}>
+          <button onClick={() => setMinimizado(true)} style={{ width: "20px", height: "20px", background: "#0078d7", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Minus size={10} color="white" />
           </button>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "6px", padding: "6px", cursor: "pointer" }}>
-            <X size={16} color="white" />
+          <button onClick={onClose} style={{ width: "20px", height: "20px", background: "#c42b1c", border: "none", borderRadius: "2px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <X size={10} color="white" />
           </button>
         </div>
       </div>
 
+      {/* MI PERFIL */}
+      <div style={{ background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", padding: "10px", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ position: "relative" }}>
+          <div style={{ width: "40px", height: "40px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: "16px", border: "2px solid white", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>
+            {userEmail?.[0]?.toUpperCase()}
+          </div>
+          <Circle size={10} fill="#00cc00" color="#00cc00" style={{ position: "absolute", bottom: "-2px", right: "-2px" }} />
+        </div>
+        <div>
+          <p style={{ margin: 0, fontSize: "13px", fontWeight: 600, color: "#333" }}>{getNombre(userEmail) || userEmail?.split("@")[0]}</p>
+          <p style={{ margin: 0, fontSize: "11px", color: "#0078d7" }}>🟢 Disponible</p>
+        </div>
+      </div>
+
       {/* CONTENIDO */}
-      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", background: "white" }}>
         
-        {/* LISTA DE CONVERSACIONES */}
-        {vista === "lista" && (
+        {/* LISTA DE CONTACTOS */}
+        {vista === "contactos" && (
           <div style={{ flex: 1, overflowY: "auto" }}>
-            {conversaciones.length === 0 ? (
-              <div style={{ padding: "40px 20px", textAlign: "center", color: "#94a3b8" }}>
-                <MessageCircle size={40} style={{ opacity: 0.5, marginBottom: "12px" }} />
-                <p>No hay conversaciones</p>
-                <button onClick={() => setVista("nuevo")} style={{ marginTop: "12px", color: "#3b82f6", background: "none", border: "none", cursor: "pointer" }}>
-                  Iniciar nuevo chat
-                </button>
+            {/* Sección: En línea */}
+            <div style={{ padding: "8px 12px", background: "#f5f5f5", borderBottom: "1px solid #e0e0e0" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Users size={12} color="#666" />
+                <span style={{ fontSize: "11px", color: "#666", fontWeight: 600 }}>Contactos ({usuarios.length})</span>
+              </div>
+            </div>
+            
+            {usuarios.length === 0 ? (
+              <div style={{ padding: "30px 20px", textAlign: "center", color: "#888" }}>
+                <p style={{ fontSize: "12px" }}>No hay contactos disponibles</p>
               </div>
             ) : (
-              conversaciones.map(conv => (
-                <div key={conv.id} onClick={() => { setConvActiva(conv); setVista("chat"); }} style={{ padding: "12px 16px", borderBottom: "1px solid #334155", cursor: "pointer", display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600 }}>
-                    {getNombre(conv)?.[0]?.toUpperCase()}
+              usuarios.map(u => {
+                const conv = conversaciones.find(c => c.participantes?.includes(u.email));
+                const noLeidos = conv?.noLeidos || 0;
+                return (
+                  <div key={u.email} onClick={() => abrirChat(u.email)} style={{
+                    padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px",
+                    borderBottom: "1px solid #f0f0f0", background: noLeidos > 0 ? "#fff8dc" : "white"
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#e8f4fd")}
+                  onMouseLeave={e => (e.currentTarget.style.background = noLeidos > 0 ? "#fff8dc" : "white")}
+                  >
+                    <div style={{ position: "relative" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "linear-gradient(135deg, #6b7280, #9ca3af)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "13px" }}>
+                        {(u.display_name || u.name)?.[0]?.toUpperCase()}
+                      </div>
+                      <Circle size={8} fill={isOnline() ? "#00cc00" : "#888"} color={isOnline() ? "#00cc00" : "#888"} style={{ position: "absolute", bottom: "-1px", right: "-1px" }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 500, color: "#333" }}>{u.display_name || u.name}</p>
+                      <p style={{ margin: 0, fontSize: "10px", color: isOnline() ? "#00aa00" : "#888" }}>
+                        {isOnline() ? "En línea" : "Desconectado"}
+                      </p>
+                    </div>
+                    {noLeidos > 0 && (
+                      <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#ff6600", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ color: "white", fontSize: "10px", fontWeight: 700 }}>{noLeidos}</span>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ color: "white", fontWeight: 500, margin: 0 }}>{getNombre(conv)}</p>
-                    <p style={{ color: "#94a3b8", fontSize: "12px", margin: 0 }}>{conv.ultimoMensaje?.contenido || "Sin mensajes"}</p>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}
 
-        {/* NUEVO CHAT */}
-        {vista === "nuevo" && (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "12px", borderBottom: "1px solid #334155" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-                <span style={{ color: "white", fontWeight: 500 }}>Nuevo Chat</span>
-                <button onClick={() => setVista("lista")} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer" }}>
-                  <X size={16} />
-                </button>
-              </div>
-              <input type="text" placeholder="Buscar usuario..." value={searchUser} onChange={e => setSearchUser(e.target.value)} style={{ width: "100%", padding: "8px 12px", background: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "white", outline: "none" }} />
-            </div>
-            <div style={{ flex: 1, overflowY: "auto" }}>
-              {usuarios.filter(u => u.email.includes(searchUser.toLowerCase()) || u.display_name?.toLowerCase().includes(searchUser.toLowerCase())).map(u => (
-                <div key={u.email} onClick={() => crearChat(u.email)} style={{ padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid #1e293b" }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600 }}>
-                    {(u.display_name || u.name)?.[0]?.toUpperCase()}
-                  </div>
-                  <div>
-                    <p style={{ color: "white", fontWeight: 500, margin: 0 }}>{u.display_name || u.name}</p>
-                    <p style={{ color: "#94a3b8", fontSize: "12px", margin: 0 }}>{u.email}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CHAT ACTIVO */}
+        {/* VENTANA DE CHAT */}
         {vista === "chat" && convActiva && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "10px 16px", borderBottom: "1px solid #334155", display: "flex", alignItems: "center", gap: "12px" }}>
-              <button onClick={() => { setConvActiva(null); setVista("lista"); }} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "18px" }}>←</button>
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "14px" }}>
-                {getNombre(convActiva)?.[0]?.toUpperCase()}
+            {/* Header del chat */}
+            <div style={{ padding: "8px 10px", background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "8px" }}>
+              <button onClick={() => { setConvActiva(null); setVista("contactos"); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#0078d7" }}>◀</button>
+              <div style={{ width: "28px", height: "28px", borderRadius: "4px", background: "linear-gradient(135deg, #0078d7, #00bcf2)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 600, fontSize: "12px" }}>
+                {getConvNombre(convActiva)?.[0]?.toUpperCase()}
               </div>
-              <span style={{ color: "white", fontWeight: 500 }}>{getNombre(convActiva)}</span>
+              <div>
+                <p style={{ margin: 0, fontSize: "12px", fontWeight: 600, color: "#333" }}>{getConvNombre(convActiva)}</p>
+                <p style={{ margin: 0, fontSize: "10px", color: "#00aa00" }}>En línea</p>
+              </div>
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
+
+            {/* Mensajes */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px", background: "#ffffff" }}>
               {mensajes.map(msg => (
-                <div key={msg.id} style={{ display: "flex", justifyContent: msg.sender_email === userEmail ? "flex-end" : "flex-start", marginBottom: "8px" }}>
-                  <div style={{ maxWidth: "75%", padding: "8px 12px", borderRadius: "12px", background: msg.sender_email === userEmail ? "#2563eb" : "#334155", color: "white" }}>
-                    <p style={{ margin: 0, fontSize: "14px" }}>{msg.contenido}</p>
-                    <p style={{ margin: "4px 0 0", fontSize: "10px", opacity: 0.7, textAlign: "right" }}>{formatTime(msg.created_at)}</p>
+                <div key={msg.id} style={{ marginBottom: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", flexDirection: msg.sender_email === userEmail ? "row-reverse" : "row" }}>
+                    <div style={{ width: "24px", height: "24px", borderRadius: "3px", background: msg.sender_email === userEmail ? "#0078d7" : "#6b7280", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "10px", fontWeight: 600, flexShrink: 0 }}>
+                      {getNombre(msg.sender_email)?.[0]?.toUpperCase()}
+                    </div>
+                    <div style={{ maxWidth: "70%" }}>
+                      <p style={{ margin: "0 0 2px", fontSize: "10px", color: msg.sender_email === userEmail ? "#0078d7" : "#666", fontWeight: 600 }}>
+                        {msg.sender_email === userEmail ? "Yo" : getNombre(msg.sender_email)} <span style={{ fontWeight: 400, color: "#999" }}>{formatTime(msg.created_at)}</span>
+                      </p>
+                      <div style={{ padding: "6px 10px", borderRadius: "4px", background: msg.sender_email === userEmail ? "#cce5ff" : "#f0f0f0", border: msg.sender_email === userEmail ? "1px solid #99caff" : "1px solid #ddd" }}>
+                        <p style={{ margin: 0, fontSize: "12px", color: "#333" }}>{msg.contenido}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
-            <div style={{ padding: "12px", borderTop: "1px solid #334155", display: "flex", gap: "8px" }}>
-              <input type="text" value={nuevoMsg} onChange={e => setNuevoMsg(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "10px 14px", background: "#0f172a", border: "1px solid #334155", borderRadius: "20px", color: "white", outline: "none" }} />
-              <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{ padding: "10px", background: "#2563eb", border: "none", borderRadius: "50%", cursor: "pointer", opacity: nuevoMsg.trim() ? 1 : 0.5 }}>
-                <Send size={18} color="white" />
-              </button>
+
+            {/* Input */}
+            <div style={{ padding: "8px", borderTop: "1px solid #ddd", background: "#f5f5f5" }}>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <input
+                  type="text"
+                  value={nuevoMsg}
+                  onChange={e => setNuevoMsg(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && enviarMensaje()}
+                  placeholder="Escribe un mensaje..."
+                  style={{ flex: 1, padding: "8px 10px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px", outline: "none" }}
+                />
+                <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{
+                  padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc",
+                  border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                  <Send size={14} color="white" />
+                </button>
+              </div>
             </div>
           </div>
         )}
+      </div>
+
+      {/* FOOTER MSN */}
+      <div style={{ padding: "4px 8px", background: "linear-gradient(180deg, #e0e0e0, #c0c0c0)", borderTop: "1px solid #aaa", display: "flex", justifyContent: "center" }}>
+        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v1.0 · Grupo Cuavante</span>
       </div>
     </div>
   );
