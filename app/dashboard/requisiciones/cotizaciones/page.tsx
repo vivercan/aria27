@@ -2,302 +2,302 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { 
-  ArrowLeft, Building2, CreditCard, Clock, DollarSign, 
-  CheckCircle2, Truck, Phone, Mail, MapPin, Star,
-  FileText, TrendingUp, Percent
-} from "lucide-react";
+import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2 } from "lucide-react";
 
-type Supplier = {
-  id: number;
-  name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  payment_method: string;
-  credit_days: number;
-  bank_name: string;
-  categories: string[];
-  Productos_offered: string;
-};
+interface Requisicion {
+  id: string;
+  folio: string;
+  cost_center_name: string;
+  urgency: string;
+  status: string;
+  materials: any[];
+  created_at: string;
+}
 
-type QuoteItem = {
-  supplier_id: number;
-  supplier_name: string;
-  unit_price: number;
-  includes_iva: boolean;
-  delivery_days: number;
-  payment_method: string;
-  credit_days: number;
-  notes: string;
-};
+interface ProveedorInterno {
+  id: string;
+  nombre: string;
+  compatibilidad: string;
+  razon: string;
+}
 
-export default function CotizacionesPage() {
+interface ProveedorWeb {
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  sitio_web: string;
+  productos_relacionados: string;
+  fuente: string;
+}
+
+interface ResultadoBusqueda {
+  success: boolean;
+  analisis: string;
+  categoria_principal: string;
+  proveedores_internos: ProveedorInterno[];
+  proveedores_web: ProveedorWeb[];
+  recomendacion: string;
+  proveedores_bd: any[];
+}
+
+export default function CotizacionesIAPage() {
   const router = useRouter();
-  const [Proveedores, setProveedores] = useState<Supplier[]>([]);
+  const [requisiciones, setRequisiciones] = useState<Requisicion[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
+  const [selectedReq, setSelectedReq] = useState<Requisicion | null>(null);
+  const [buscando, setBuscando] = useState(false);
+  const [resultado, setResultado] = useState<ResultadoBusqueda | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadProveedores();
+    loadRequisiciones();
   }, []);
 
-  const loadProveedores = async () => {
+  const loadRequisiciones = async () => {
+    // Cargar requisiciones validadas pendientes de cotizar
     const { data } = await supabase
-      .from("Proveedores")
+      .from("requisitions")
       .select("*")
-      .eq("active", true)
-      .order("name");
-    setProveedores((data || []) as Supplier[]);
+      .in("status", ["VALIDADA", "EN_COTIZACION"])
+      .order("created_at", { ascending: false });
+    setRequisiciones(data || []);
     setLoading(false);
   };
 
-  const getPaymentColor = (method: string) => {
-    if (method.includes("EFECTIVO")) return "from-green-500 to-emerald-600";
-    if (method.includes("TRANSFERENCIA")) return "from-blue-500 to-cyan-600";
-    return "from-purple-500 to-violet-600";
-  };
+  const buscarProveedores = async (req: Requisicion) => {
+    setSelectedReq(req);
+    setBuscando(true);
+    setError("");
+    setResultado(null);
 
-  const getCreditBadge = (days: number) => {
-    if (days === 0) return { text: "CONTADO", color: "bg-green-500/20 text-green-400 border-green-500/30" };
-    if (days <= 15) return { text: `${days} días crédito`, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" };
-    return { text: `${days} días crédito`, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
-  };
+    try {
+      const res = await fetch("/api/proveedores/buscar-inteligente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productos: req.materials,
+          requisicion_id: req.id
+        })
+      });
 
-  // Cotizaciones de ejemplo para demostración
-  const demoCotizaciones = [
-    {
-      product: "Cemento Gris 50kg",
-      unit: "SACO",
-      quantity: 100,
-      Cotizaciones: [
-        { supplier_id: 1, price: 185, iva: true, delivery: 1 },
-        { supplier_id: 2, price: 178, iva: true, delivery: 2 },
-        { supplier_id: 3, price: 182, iva: false, delivery: 1 },
-      ]
-    },
-    {
-      product: "Varilla 3/8 Corrugada",
-      unit: "PIEZA",
-      quantity: 200,
-      Cotizaciones: [
-        { supplier_id: 1, price: 89, iva: true, delivery: 3 },
-        { supplier_id: 2, price: 92, iva: true, delivery: 1 },
-        { supplier_id: 3, price: 85, iva: false, delivery: 2 },
-      ]
+      const data = await res.json();
+      
+      if (data.success) {
+        setResultado(data);
+      } else {
+        setError(data.error || "Error en la búsqueda");
+      }
+    } catch (e: any) {
+      setError(e.message || "Error de conexión");
+    } finally {
+      setBuscando(false);
     }
-  ];
+  };
+
+  const getUrgencyColor = (u: string) => {
+    if (u === "critico") return "bg-red-500";
+    if (u === "urgente") return "bg-amber-500";
+    return "bg-green-500";
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Comparador de Cotizaciones</h1>
-            <p className="text-slate-400 text-sm">Compara precios y condiciones de pago entre proveedores</p>
-          </div>
+      <div className="flex items-center gap-4">
+        <button onClick={() => router.back()} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </button>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-amber-400" />
+            Búsqueda Inteligente de Proveedores
+          </h1>
+          <p className="text-slate-400 text-sm">IA analiza productos y encuentra proveedores en Aguascalientes</p>
         </div>
       </div>
 
-      {/* Proveedores Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {loading ? (
-          <div className="col-span-3 text-center py-20 text-slate-400">Cargando proveedores...</div>
-        ) : Proveedores.length === 0 ? (
-          <div className="col-span-3 text-center py-20 text-slate-400">No hay proveedores registrados</div>
-        ) : (
-          Proveedores.map((supplier, index) => {
-            const creditBadge = getCreditBadge(supplier.credit_days);
-            const isSelected = selectedSupplier === supplier.id;
-            
-            return (
-              <div
-                key={supplier.id}
-                onClick={() => setSelectedSupplier(isSelected ? null : supplier.id)}
-                className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 ${
-                  isSelected 
-                    ? "bg-blue-500/10 border-blue-500/50 scale-[1.02]" 
-                    : "bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15]"
-                }`}
-              >
-                {/* Ranking Badge */}
-                <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  index === 0 ? "bg-yellow-500 text-black" : 
-                  index === 1 ? "bg-slate-400 text-black" : 
-                  "bg-orange-600 text-white"
-                }`}>
-                  {index + 1}
-                </div>
-
-                {/* Header */}
-                <div className="flex items-start gap-3 mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${getPaymentColor(supplier.payment_method)}`}>
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white truncate">{supplier.name}</h3>
-                    <p className="text-xs text-slate-400">{supplier.contact_name}</p>
-                  </div>
-                </div>
-
-                {/* Badges */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${creditBadge.color}`}>
-                    {creditBadge.text}
-                  </span>
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-slate-300 border border-white/10">
-                    {supplier.payment_method}
-                  </span>
-                </div>
-
-                {/* Info Grid */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>{supplier.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span className="truncate">{supplier.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <CreditCard className="w-3.5 h-3.5" />
-                    <span>{supplier.bank_name}</span>
-                  </div>
-                </div>
-
-                {/* Productos */}
-                <div className="mt-4 pt-4 border-t border-white/10">
-                  <p className="text-xs text-slate-500 mb-1">Productos:</p>
-                  <p className="text-sm text-slate-300 line-clamp-2">{supplier.Productos_offered}</p>
-                </div>
-
-                {/* Selection indicator */}
-                {isSelected && (
-                  <div className="absolute top-3 left-3">
-                    <CheckCircle2 className="w-5 h-5 text-blue-400" />
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Tabla Comparativa Demo */}
-      <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-purple-500/20">
-            <TrendingUp className="w-5 h-5 text-purple-400" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Comparativa de Precios</h2>
-            <p className="text-xs text-slate-400">Ejemplo de cotización para materiales</p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
-          <table className="w-full">
-            <thead className="sticky top-0 bg-[#0a1628] z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left py-3 px-4 text-slate-400 text-sm font-medium">Material</th>
-                <th className="text-center py-3 px-4 text-slate-400 text-sm font-medium">Cant.</th>
-                {Proveedores.slice(0, 3).map((s) => (
-                  <th key={s.id} className="text-center py-3 px-4 text-slate-400 text-sm font-medium min-w-[150px]">
-                    <div className="truncate">{s.name.split(" ")[0]}</div>
-                    <div className="text-xs text-slate-500">{getCreditBadge(s.credit_days).text}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {demoCotizaciones.map((item, idx) => (
-                <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02]">
-                  <td className="py-4 px-4">
-                    <div className="font-medium text-white">{item.product}</div>
-                    <div className="text-xs text-slate-500">{item.unit}</div>
-                  </td>
-                  <td className="text-center py-4 px-4 text-slate-300">{item.quantity}</td>
-                  {item.Cotizaciones.map((quote, qIdx) => {
-                    const supplier = Proveedores.find(s => s.id === quote.supplier_id) || Proveedores[qIdx];
-                    const total = quote.price * item.quantity;
-                    const totalWithIva = quote.iva ? total : total * 1.16;
-                    const isLowest = quote.price === Math.min(...item.Cotizaciones.map(q => q.price));
-                    
-                    return (
-                      <td key={qIdx} className={`text-center py-4 px-4 ${isLowest ? "bg-green-500/10" : ""}`}>
-                        <div className={`text-lg font-bold ${isLowest ? "text-green-400" : "text-white"}`}>
-                          ${quote.price.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-slate-400">
-                          {quote.iva ? (
-                            <span className="text-green-400">✓ IVA incluido</span>
-                          ) : (
-                            <span className="text-yellow-400">+ IVA</span>
-                          )}
-                        </div>
-                        <div className="text-xs text-slate-500 mt-1">
-                          <Truck className="w-3 h-3 inline mr-1" />
-                          {quote.delivery} día{quote.delivery > 1 ? "s" : ""}
-                        </div>
-                        <div className="text-sm font-medium text-slate-300 mt-2">
-                          Total: ${totalWithIva.toLocaleString()}
-                        </div>
-                        {isLowest && (
-                          <div className="mt-2">
-                            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
-                              ★ Mejor precio
-                            </span>
-                          </div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Resumen */}
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          {Proveedores.slice(0, 3).map((supplier, idx) => {
-            const creditBadge = getCreditBadge(supplier.credit_days);
-            return (
-              <div key={supplier.id} className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <div className="text-sm font-medium text-white mb-2">{supplier.name.split(" ").slice(0, 2).join(" ")}</div>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Pago:</span>
-                    <span className="text-slate-300">{supplier.payment_method}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Crédito:</span>
-                    <span className={supplier.credit_days > 0 ? "text-blue-400" : "text-green-400"}>
-                      {supplier.credit_days === 0 ? "Contado" : `${supplier.credit_days} días`}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Lista de Requisiciones */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-white">Requisiciones Pendientes de Cotizar</h2>
+          
+          {loading ? (
+            <div className="text-center py-10 text-slate-400">Cargando...</div>
+          ) : requisiciones.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 bg-white/5 rounded-xl">
+              No hay requisiciones pendientes
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+              {requisiciones.map(req => (
+                <div 
+                  key={req.id} 
+                  onClick={() => buscarProveedores(req)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    selectedReq?.id === req.id 
+                      ? "bg-blue-500/20 border-blue-500" 
+                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <span className="font-mono text-sm text-blue-400">{req.folio}</span>
+                      <p className="text-white font-medium">{req.cost_center_name}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs text-white ${getUrgencyColor(req.urgency)}`}>
+                      {req.urgency?.toUpperCase()}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Banco:</span>
-                    <span className="text-slate-300">{supplier.bank_name}</span>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Package className="w-4 h-4" />
+                    {req.materials?.length || 0} productos
+                  </div>
+                  {selectedReq?.id === req.id && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); buscarProveedores(req); }}
+                      disabled={buscando}
+                      className="mt-3 w-full py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium flex items-center justify-center gap-2"
+                    >
+                      {buscando ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Buscando con IA...</>
+                      ) : (
+                        <><Sparkles className="w-4 h-4" /> Buscar Proveedores</>
+                      )}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Resultados de IA */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-white">Proveedores Sugeridos</h2>
+          
+          {!selectedReq ? (
+            <div className="text-center py-20 text-slate-400 bg-white/5 rounded-xl border border-dashed border-white/20">
+              <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>Selecciona una requisición para buscar proveedores</p>
+            </div>
+          ) : buscando ? (
+            <div className="text-center py-20 bg-white/5 rounded-xl">
+              <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-amber-400" />
+              <p className="text-white font-medium">Analizando productos...</p>
+              <p className="text-slate-400 text-sm">Buscando proveedores en Aguascalientes</p>
+            </div>
+          ) : error ? (
+            <div className="p-6 bg-red-500/20 rounded-xl border border-red-500/50 text-center">
+              <p className="text-red-400">{error}</p>
+              <button onClick={() => buscarProveedores(selectedReq)} className="mt-3 text-sm text-white underline">
+                Reintentar
+              </button>
+            </div>
+          ) : resultado ? (
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+              {/* Análisis */}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+                <h3 className="text-amber-400 font-medium mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> Análisis IA
+                </h3>
+                <p className="text-white text-sm">{resultado.analisis}</p>
+                <p className="text-slate-400 text-xs mt-2">Categoría: {resultado.categoria_principal}</p>
+              </div>
+
+              {/* Recomendación */}
+              {resultado.recomendacion && (
+                <div className="p-3 rounded-lg bg-green-500/20 border border-green-500/30">
+                  <p className="text-green-400 text-sm">💡 {resultado.recomendacion}</p>
+                </div>
+              )}
+
+              {/* Proveedores Internos */}
+              {resultado.proveedores_internos?.length > 0 && (
+                <div>
+                  <h3 className="text-white font-medium mb-2 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    Proveedores Registrados
+                  </h3>
+                  <div className="space-y-2">
+                    {resultado.proveedores_internos.map((p, i) => (
+                      <div key={i} className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium">{p.nombre}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs ${
+                            p.compatibilidad === "alta" ? "bg-green-500 text-white" :
+                            p.compatibilidad === "media" ? "bg-amber-500 text-white" :
+                            "bg-slate-500 text-white"
+                          }`}>
+                            {p.compatibilidad}
+                          </span>
+                        </div>
+                        <p className="text-slate-400 text-xs mt-1">{p.razon}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
+              )}
+
+              {/* Proveedores Web */}
+              {resultado.proveedores_web?.length > 0 && (
+                <div>
+                  <h3 className="text-white font-medium mb-2 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-blue-400" />
+                    Encontrados en Internet (Aguascalientes)
+                  </h3>
+                  <div className="space-y-3">
+                    {resultado.proveedores_web.map((p, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                        <h4 className="text-white font-medium flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-blue-400" />
+                          {p.nombre}
+                        </h4>
+                        <div className="mt-2 space-y-1 text-sm">
+                          {p.direccion && (
+                            <div className="flex items-center gap-2 text-slate-400">
+                              <MapPin className="w-3 h-3" />
+                              <span>{p.direccion}</span>
+                            </div>
+                          )}
+                          {p.telefono && (
+                            <div className="flex items-center gap-2 text-slate-400">
+                              <Phone className="w-3 h-3" />
+                              <a href={`tel:${p.telefono}`} className="hover:text-white">{p.telefono}</a>
+                            </div>
+                          )}
+                          {p.sitio_web && (
+                            <div className="flex items-center gap-2 text-blue-400">
+                              <ExternalLink className="w-3 h-3" />
+                              <a href={p.sitio_web} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
+                                {p.sitio_web}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                        {p.productos_relacionados && (
+                          <p className="mt-2 text-xs text-slate-500">
+                            Productos: {p.productos_relacionados}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Lista de productos de la requisición */}
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <h3 className="text-slate-400 text-sm mb-2">Productos solicitados:</h3>
+                <ul className="text-xs text-slate-500 space-y-1">
+                  {selectedReq.materials?.map((m: any, i: number) => (
+                    <li key={i}>• {m.product_name || m.nombre} ({m.quantity || m.cantidad} {m.unit || m.unidad || 'pzas'})</li>
+                  ))}
+                </ul>
               </div>
-            );
-          })}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
-
-
-
