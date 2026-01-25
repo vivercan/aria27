@@ -6,9 +6,9 @@ import {
   Building2, Users, ShoppingCart, Wallet, Warehouse,
   FileText, Settings, ChevronRight, Search, LogOut, Bell, MessageCircle
 } from "lucide-react";
-import dynamic from "next/dynamic";
 
-const PulsoMessenger = dynamic(() => import("@/components/pulso/PulsoMessenger"), { ssr: false });
+
+import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 
 const menuItems = [
   { icon: Building2, label: "Obras", href: "/dashboard/obras" },
@@ -195,5 +195,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
 
 
