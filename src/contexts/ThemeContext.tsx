@@ -52,114 +52,121 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       bgGradient: "from-[#2d1025] to-[#4a1942]",
       sidebar: "#1a0a14",
       card: "rgba(236,72,153,0.1)",
-      cardBorder: "rgba(236,72,153,0.2)",
+      cardBorder: "rgba(236,72,153,0.3)",
       text: "#ffffff",
       textMuted: "#f9a8d4",
       accent: "#ec4899",
-      accentBg: "rgba(236,72,153,0.15)",
+      accentBg: "rgba(236,72,153,0.2)",
     },
     halloween: {
       bg: "#0d0d0d",
       bgGradient: "from-[#1a1a1a] to-[#2d1f00]",
       sidebar: "#0d0d0d",
       card: "rgba(249,115,22,0.1)",
-      cardBorder: "rgba(249,115,22,0.2)",
+      cardBorder: "rgba(249,115,22,0.3)",
       text: "#ffffff",
       textMuted: "#fdba74",
       accent: "#f97316",
-      accentBg: "rgba(249,115,22,0.15)",
+      accentBg: "rgba(249,115,22,0.2)",
     },
     christmas: {
       bg: "#0a1a0a",
       bgGradient: "from-[#0f2f0f] to-[#1a0f0f]",
       sidebar: "#0a1a0a",
       card: "rgba(34,197,94,0.1)",
-      cardBorder: "rgba(34,197,94,0.2)",
+      cardBorder: "rgba(34,197,94,0.3)",
       text: "#ffffff",
       textMuted: "#86efac",
       accent: "#ef4444",
-      accentBg: "rgba(239,68,68,0.15)",
+      accentBg: "rgba(239,68,68,0.2)",
     },
     diademuertos: {
       bg: "#1a0a1a",
       bgGradient: "from-[#2d1f3d] to-[#1a1a00]",
       sidebar: "#1a0a1a",
       card: "rgba(168,85,247,0.1)",
-      cardBorder: "rgba(168,85,247,0.2)",
+      cardBorder: "rgba(168,85,247,0.3)",
       text: "#ffffff",
       textMuted: "#c4b5fd",
       accent: "#f97316",
-      accentBg: "rgba(168,85,247,0.15)",
+      accentBg: "rgba(168,85,247,0.2)",
     },
   },
   light: {
     normal: {
-      bg: "#f1f5f9",
+      bg: "#e2e8f0",
       bgGradient: "from-[#e2e8f0] to-[#cbd5e1]",
-      sidebar: "#ffffff",
+      sidebar: "#f8fafc",
       card: "#ffffff",
-      cardBorder: "#cbd5e1",
-      text: "#1e293b",
-      textMuted: "#64748b",
+      cardBorder: "#94a3b8",
+      text: "#0f172a",
+      textMuted: "#475569",
       accent: "#0891b2",
-      accentBg: "rgba(8,145,178,0.1)",
+      accentBg: "rgba(8,145,178,0.15)",
     },
     valentine: {
       bg: "#fce7f3",
-      bgGradient: "from-[#fbcfe8] to-[#fda4af]",
-      sidebar: "#ffffff",
+      bgGradient: "from-[#fce7f3] to-[#fbcfe8]",
+      sidebar: "#fff1f2",
       card: "#ffffff",
-      cardBorder: "#f9a8d4",
-      text: "#1e293b",
-      textMuted: "#be185d",
+      cardBorder: "#f472b6",
+      text: "#0f172a",
+      textMuted: "#9d174d",
       accent: "#db2777",
-      accentBg: "rgba(219,39,119,0.1)",
+      accentBg: "rgba(219,39,119,0.15)",
     },
     halloween: {
       bg: "#fef3c7",
-      bgGradient: "from-[#fde68a] to-[#fdba74]",
-      sidebar: "#ffffff",
+      bgGradient: "from-[#fef3c7] to-[#fed7aa]",
+      sidebar: "#fffbeb",
       card: "#ffffff",
-      cardBorder: "#f97316",
-      text: "#1e293b",
-      textMuted: "#c2410c",
+      cardBorder: "#fb923c",
+      text: "#0f172a",
+      textMuted: "#9a3412",
       accent: "#ea580c",
-      accentBg: "rgba(234,88,12,0.1)",
+      accentBg: "rgba(234,88,12,0.15)",
     },
     christmas: {
       bg: "#dcfce7",
-      bgGradient: "from-[#bbf7d0] to-[#fecaca]",
-      sidebar: "#ffffff",
+      bgGradient: "from-[#dcfce7] to-[#d1fae5]",
+      sidebar: "#f0fdf4",
       card: "#ffffff",
-      cardBorder: "#22c55e",
-      text: "#1e293b",
+      cardBorder: "#4ade80",
+      text: "#0f172a",
       textMuted: "#166534",
       accent: "#dc2626",
-      accentBg: "rgba(220,38,38,0.1)",
+      accentBg: "rgba(220,38,38,0.15)",
     },
     diademuertos: {
       bg: "#f3e8ff",
-      bgGradient: "from-[#e9d5ff] to-[#fed7aa]",
-      sidebar: "#ffffff",
+      bgGradient: "from-[#f3e8ff] to-[#e9d5ff]",
+      sidebar: "#faf5ff",
       card: "#ffffff",
-      cardBorder: "#a855f7",
-      text: "#1e293b",
-      textMuted: "#7c3aed",
+      cardBorder: "#c084fc",
+      text: "#0f172a",
+      textMuted: "#6b21a8",
       accent: "#ea580c",
-      accentBg: "rgba(168,85,247,0.1)",
+      accentBg: "rgba(168,85,247,0.15)",
     },
   },
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  // SIEMPRE inicia en dark + normal por defecto
   const [theme, setThemeState] = useState<Theme>("dark");
   const [season, setSeasonState] = useState<Season>("normal");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("aria-theme") as Theme;
-    const savedSeason = localStorage.getItem("aria-season") as Season;
-    if (savedTheme && (savedTheme === "dark" || savedTheme === "light")) setThemeState(savedTheme);
-    if (savedSeason) setSeasonState(savedSeason);
+    // Solo carga preferencias SI ya existen (no es primera vez)
+    const savedTheme = localStorage.getItem("aria-theme") as Theme | null;
+    const savedSeason = localStorage.getItem("aria-season") as Season | null;
+    
+    if (savedTheme === "dark" || savedTheme === "light") {
+      setThemeState(savedTheme);
+    }
+    if (savedSeason && ["normal", "valentine", "halloween", "christmas", "diademuertos"].includes(savedSeason)) {
+      setSeasonState(savedSeason);
+    }
   }, []);
 
   const setTheme = (t: Theme) => {

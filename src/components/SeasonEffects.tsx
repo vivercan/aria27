@@ -12,12 +12,13 @@ const SeasonEffects = () => {
       return;
     }
     
-    const newParticles = Array.from({ length: 25 }, (_, i) => ({
+    // 20 partículas más grandes
+    const newParticles = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      delay: Math.random() * 5,
-      size: 12 + Math.random() * 16,
+      delay: Math.random() * 8,
+      size: 28 + Math.random() * 24, // 28px a 52px
     }));
     setParticles(newParticles);
   }, [season]);
@@ -26,10 +27,10 @@ const SeasonEffects = () => {
 
   const getEmoji = () => {
     switch (season) {
-      case "valentine": return ["💕", "❤️", "💗", "💖", "🌹"];
-      case "halloween": return ["👻", "🎃", "🦇", "💀", "🕷️"];
-      case "christmas": return ["❄️", "🎄", "⭐", "🎅", "🎁"];
-      case "diademuertos": return ["💀", "🌺", "🕯️", "💐", "✨"];
+      case "valentine": return ["💕", "❤️", "💗", "💖", "🌹", "💘"];
+      case "halloween": return ["👻", "🎃", "🦇", "💀", "🕷️", "🕸️"];
+      case "christmas": return ["❄️", "🎄", "⭐", "🎅", "🎁", "☃️"];
+      case "diademuertos": return ["💀", "🌺", "🕯️", "💐", "✨", "🦋"];
       default: return [];
     }
   };
@@ -41,13 +42,14 @@ const SeasonEffects = () => {
       {particles.map((p) => (
         <div
           key={p.id}
-          className="absolute animate-float opacity-30"
+          className="absolute animate-float"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
             fontSize: `${p.size}px`,
             animationDelay: `${p.delay}s`,
-            animationDuration: `${8 + Math.random() * 4}s`,
+            animationDuration: `${10 + Math.random() * 5}s`,
+            opacity: 0.4,
           }}
         >
           {emojis[p.id % emojis.length]}
