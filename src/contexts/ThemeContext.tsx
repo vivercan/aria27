@@ -4,149 +4,149 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 type Theme = "dark" | "light";
 type Season = "normal" | "valentine" | "halloween" | "christmas" | "diademuertos";
 
+interface ThemeColors {
+  bg: string;
+  bgGradient: string;
+  sidebar: string;
+  card: string;
+  cardBorder: string;
+  text: string;
+  textMuted: string;
+  accent: string;
+  accentBg: string;
+}
+
 interface ThemeContextType {
   theme: Theme;
   season: Season;
   setTheme: (theme: Theme) => void;
   setSeason: (season: Season) => void;
-  colors: {
-    bg: string;
-    bgGradient: string;
-    sidebar: string;
-    card: string;
-    cardHover: string;
-    border: string;
-    text: string;
-    textMuted: string;
-    accent: string;
-  };
+  colors: ThemeColors;
 }
 
-const defaultColors = {
-  bg: "bg-[#0a1628]",
+const defaultColors: ThemeColors = {
+  bg: "#0a1628",
   bgGradient: "from-[#0f172a] to-[#1e3a5a]",
-  sidebar: "bg-[#0a1628]",
-  card: "bg-white/5",
-  cardHover: "hover:bg-white/10",
-  border: "border-white/10",
-  text: "text-white",
-  textMuted: "text-slate-400",
-  accent: "text-cyan-400",
+  sidebar: "#0a1628",
+  card: "rgba(255,255,255,0.05)",
+  cardBorder: "rgba(255,255,255,0.1)",
+  text: "#ffffff",
+  textMuted: "#94a3b8",
+  accent: "#22d3ee",
+  accentBg: "rgba(34,211,238,0.1)",
 };
 
-const defaultContext: ThemeContextType = {
+const ThemeContext = createContext<ThemeContextType>({
   theme: "dark",
   season: "normal",
   setTheme: () => {},
   setSeason: () => {},
   colors: defaultColors,
-};
+});
 
-const ThemeContext = createContext<ThemeContextType>(defaultContext);
-
-const themes = {
+const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
   dark: {
     normal: defaultColors,
     valentine: {
-      bg: "bg-[#1a0a14]",
-      bgGradient: "from-[#2d1f3d] to-[#4a1942]",
-      sidebar: "bg-[#1a0a14]",
-      card: "bg-pink-500/10",
-      cardHover: "hover:bg-pink-500/20",
-      border: "border-pink-500/20",
-      text: "text-white",
-      textMuted: "text-pink-200",
-      accent: "text-pink-400",
+      bg: "#1a0a14",
+      bgGradient: "from-[#2d1025] to-[#4a1942]",
+      sidebar: "#1a0a14",
+      card: "rgba(236,72,153,0.1)",
+      cardBorder: "rgba(236,72,153,0.2)",
+      text: "#ffffff",
+      textMuted: "#f9a8d4",
+      accent: "#ec4899",
+      accentBg: "rgba(236,72,153,0.15)",
     },
     halloween: {
-      bg: "bg-[#0d0d0d]",
+      bg: "#0d0d0d",
       bgGradient: "from-[#1a1a1a] to-[#2d1f00]",
-      sidebar: "bg-[#0d0d0d]",
-      card: "bg-orange-500/10",
-      cardHover: "hover:bg-orange-500/20",
-      border: "border-orange-500/20",
-      text: "text-white",
-      textMuted: "text-orange-200",
-      accent: "text-orange-400",
+      sidebar: "#0d0d0d",
+      card: "rgba(249,115,22,0.1)",
+      cardBorder: "rgba(249,115,22,0.2)",
+      text: "#ffffff",
+      textMuted: "#fdba74",
+      accent: "#f97316",
+      accentBg: "rgba(249,115,22,0.15)",
     },
     christmas: {
-      bg: "bg-[#0a1a0a]",
-      bgGradient: "from-[#1a2f1a] to-[#2d1f1f]",
-      sidebar: "bg-[#0a1a0a]",
-      card: "bg-green-500/10",
-      cardHover: "hover:bg-green-500/20",
-      border: "border-green-500/20",
-      text: "text-white",
-      textMuted: "text-green-200",
-      accent: "text-red-400",
+      bg: "#0a1a0a",
+      bgGradient: "from-[#0f2f0f] to-[#1a0f0f]",
+      sidebar: "#0a1a0a",
+      card: "rgba(34,197,94,0.1)",
+      cardBorder: "rgba(34,197,94,0.2)",
+      text: "#ffffff",
+      textMuted: "#86efac",
+      accent: "#ef4444",
+      accentBg: "rgba(239,68,68,0.15)",
     },
     diademuertos: {
-      bg: "bg-[#1a0a1a]",
+      bg: "#1a0a1a",
       bgGradient: "from-[#2d1f3d] to-[#1a1a00]",
-      sidebar: "bg-[#1a0a1a]",
-      card: "bg-purple-500/10",
-      cardHover: "hover:bg-purple-500/20",
-      border: "border-purple-500/20",
-      text: "text-white",
-      textMuted: "text-purple-200",
-      accent: "text-orange-400",
+      sidebar: "#1a0a1a",
+      card: "rgba(168,85,247,0.1)",
+      cardBorder: "rgba(168,85,247,0.2)",
+      text: "#ffffff",
+      textMuted: "#c4b5fd",
+      accent: "#f97316",
+      accentBg: "rgba(168,85,247,0.15)",
     },
   },
   light: {
     normal: {
-      bg: "bg-slate-100",
-      bgGradient: "from-slate-50 to-slate-200",
-      sidebar: "bg-white",
-      card: "bg-white",
-      cardHover: "hover:bg-slate-50",
-      border: "border-slate-200",
-      text: "text-slate-900",
-      textMuted: "text-slate-500",
-      accent: "text-cyan-600",
+      bg: "#f1f5f9",
+      bgGradient: "from-[#e2e8f0] to-[#cbd5e1]",
+      sidebar: "#ffffff",
+      card: "#ffffff",
+      cardBorder: "#cbd5e1",
+      text: "#1e293b",
+      textMuted: "#64748b",
+      accent: "#0891b2",
+      accentBg: "rgba(8,145,178,0.1)",
     },
     valentine: {
-      bg: "bg-pink-50",
-      bgGradient: "from-pink-50 to-rose-100",
-      sidebar: "bg-white",
-      card: "bg-white",
-      cardHover: "hover:bg-pink-50",
-      border: "border-pink-200",
-      text: "text-slate-900",
-      textMuted: "text-pink-600",
-      accent: "text-pink-500",
+      bg: "#fce7f3",
+      bgGradient: "from-[#fbcfe8] to-[#fda4af]",
+      sidebar: "#ffffff",
+      card: "#ffffff",
+      cardBorder: "#f9a8d4",
+      text: "#1e293b",
+      textMuted: "#be185d",
+      accent: "#db2777",
+      accentBg: "rgba(219,39,119,0.1)",
     },
     halloween: {
-      bg: "bg-orange-50",
-      bgGradient: "from-orange-50 to-amber-100",
-      sidebar: "bg-white",
-      card: "bg-white",
-      cardHover: "hover:bg-orange-50",
-      border: "border-orange-200",
-      text: "text-slate-900",
-      textMuted: "text-orange-600",
-      accent: "text-orange-500",
+      bg: "#fef3c7",
+      bgGradient: "from-[#fde68a] to-[#fdba74]",
+      sidebar: "#ffffff",
+      card: "#ffffff",
+      cardBorder: "#f97316",
+      text: "#1e293b",
+      textMuted: "#c2410c",
+      accent: "#ea580c",
+      accentBg: "rgba(234,88,12,0.1)",
     },
     christmas: {
-      bg: "bg-green-50",
-      bgGradient: "from-green-50 to-red-50",
-      sidebar: "bg-white",
-      card: "bg-white",
-      cardHover: "hover:bg-green-50",
-      border: "border-green-200",
-      text: "text-slate-900",
-      textMuted: "text-green-600",
-      accent: "text-red-500",
+      bg: "#dcfce7",
+      bgGradient: "from-[#bbf7d0] to-[#fecaca]",
+      sidebar: "#ffffff",
+      card: "#ffffff",
+      cardBorder: "#22c55e",
+      text: "#1e293b",
+      textMuted: "#166534",
+      accent: "#dc2626",
+      accentBg: "rgba(220,38,38,0.1)",
     },
     diademuertos: {
-      bg: "bg-purple-50",
-      bgGradient: "from-purple-50 to-orange-50",
-      sidebar: "bg-white",
-      card: "bg-white",
-      cardHover: "hover:bg-purple-50",
-      border: "border-purple-200",
-      text: "text-slate-900",
-      textMuted: "text-purple-600",
-      accent: "text-orange-500",
+      bg: "#f3e8ff",
+      bgGradient: "from-[#e9d5ff] to-[#fed7aa]",
+      sidebar: "#ffffff",
+      card: "#ffffff",
+      cardBorder: "#a855f7",
+      text: "#1e293b",
+      textMuted: "#7c3aed",
+      accent: "#ea580c",
+      accentBg: "rgba(168,85,247,0.1)",
     },
   },
 };
@@ -154,14 +154,12 @@ const themes = {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
   const [season, setSeasonState] = useState<Season>("normal");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("aria-theme") as Theme;
     const savedSeason = localStorage.getItem("aria-season") as Season;
-    if (savedTheme) setThemeState(savedTheme);
+    if (savedTheme && (savedTheme === "dark" || savedTheme === "light")) setThemeState(savedTheme);
     if (savedSeason) setSeasonState(savedSeason);
-    setMounted(true);
   }, []);
 
   const setTheme = (t: Theme) => {
@@ -174,7 +172,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("aria-season", s);
   };
 
-  const colors = themes[theme][season];
+  const colors = themeColors[theme][season];
 
   return (
     <ThemeContext.Provider value={{ theme, season, setTheme, setSeason, colors }}>
@@ -183,6 +181,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export const useTheme = () => {
-  return useContext(ThemeContext);
-};
+export const useTheme = () => useContext(ThemeContext);

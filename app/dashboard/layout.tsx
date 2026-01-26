@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
+import SeasonEffects from "@/components/SeasonEffects";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
   ChevronRight, LogOut, MessageCircle, Moon, Sun
@@ -25,7 +26,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+      className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "bg-white/10 hover:bg-white/20" : "bg-slate-200 hover:bg-slate-300"}`}
       title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
     >
       {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
@@ -34,7 +35,7 @@ function ThemeToggle() {
 }
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
-  const { theme, colors } = useTheme();
+  const { theme, season, colors } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [userEmail, setUserEmail] = useState("");
@@ -62,18 +63,26 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
-  const isLight = theme === "light";
+  const isDark = theme === "dark";
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${colors.bgGradient}`}>
+    <div className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} relative`}>
+      <SeasonEffects />
+      
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-[180px] ${isLight ? "bg-white border-r border-slate-200" : "bg-[#0a1628] border-r border-white/10"} flex flex-col z-40`}>
-        <div className="p-4 border-b border-white/10">
+      <aside 
+        className="fixed left-0 top-0 h-full w-[180px] flex flex-col z-40 border-r"
+        style={{ 
+          backgroundColor: colors.sidebar,
+          borderColor: colors.cardBorder 
+        }}
+      >
+        <div className="p-4" style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
           <Link href="/dashboard">
             <h1 className="text-2xl font-black">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">ARIA</span>
+              <span style={{ color: colors.accent }}>ARIA</span>
             </h1>
-            <p className={`text-[10px] uppercase tracking-wider ${isLight ? "text-slate-400" : "text-slate-500"}`}>Infinity Loop</p>
+            <p className="text-[10px] uppercase tracking-wider" style={{ color: colors.textMuted }}>Infinity Loop</p>
           </Link>
         </div>
 
@@ -85,7 +94,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             if (isPulso) {
               return (
                 <button key={item.name} onClick={() => setShowPulso(!showPulso)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${showPulso ? (isLight ? "bg-cyan-50 text-cyan-600" : "bg-cyan-500/20 text-cyan-400") : (isLight ? "text-slate-600 hover:bg-slate-100" : "text-slate-400 hover:bg-white/5")}`}>
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                  style={{ 
+                    backgroundColor: showPulso ? colors.accentBg : "transparent",
+                    color: showPulso ? colors.accent : colors.textMuted 
+                  }}>
                   <item.icon className="w-5 h-5" />
                   <span>{item.name}</span>
                 </button>
@@ -94,7 +107,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
             return (
               <Link key={item.name} href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${isActive ? (isLight ? "bg-cyan-50 text-cyan-600" : "bg-white/10 text-white") : (isLight ? "text-slate-600 hover:bg-slate-100" : "text-slate-400 hover:bg-white/5")}`}>
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                style={{ 
+                  backgroundColor: isActive ? colors.accentBg : "transparent",
+                  color: isActive ? colors.accent : colors.textMuted 
+                }}>
                 <item.icon className="w-5 h-5" />
                 <span>{item.name}</span>
                 {item.hasSubmenu && <ChevronRight className="w-4 h-4 ml-auto" />}
@@ -103,40 +120,57 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className={`p-3 border-t ${isLight ? "border-slate-200" : "border-white/10"} text-xs ${isLight ? "text-slate-400" : "text-slate-500"}`}>
+        <div className="p-3 text-xs" style={{ borderTop: `1px solid ${colors.cardBorder}`, color: colors.textMuted }}>
           ARIA v2025.1 - Production
         </div>
       </aside>
 
       {/* Main */}
-      <main className="ml-[180px]">
+      <main className="ml-[180px] relative z-10">
         {/* Header */}
-        <header className={`sticky top-0 z-30 ${isLight ? "bg-white/80 border-b border-slate-200" : "bg-[#0a1628]/80 border-b border-white/10"} backdrop-blur-md`}>
+        <header 
+          className="sticky top-0 z-30 backdrop-blur-md border-b"
+          style={{ 
+            backgroundColor: isDark ? "rgba(10,22,40,0.8)" : "rgba(255,255,255,0.9)",
+            borderColor: colors.cardBorder 
+          }}
+        >
           <div className="flex items-center justify-between px-6 py-3">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isLight ? "bg-slate-100" : "bg-white/5"} w-80`}>
-              <Search className={`w-4 h-4 ${isLight ? "text-slate-400" : "text-slate-500"}`} />
-              <input type="text" placeholder="Buscar módulos, documentos..." className={`bg-transparent outline-none text-sm ${isLight ? "text-slate-700 placeholder:text-slate-400" : "text-white placeholder:text-slate-500"} w-full`} />
+            <div 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg w-80"
+              style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : colors.card }}
+            >
+              <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
+              <input 
+                type="text" 
+                placeholder="Buscar módulos, documentos..." 
+                className="bg-transparent outline-none text-sm w-full"
+                style={{ color: colors.text }}
+              />
             </div>
 
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <div className="text-right">
-                <p className={`text-xs ${isLight ? "text-slate-400" : "text-slate-500"} uppercase`}>
+                <p className="text-xs uppercase" style={{ color: colors.textMuted }}>
                   {new Date().toLocaleDateString("es-MX", { weekday: "long" }).toUpperCase()}
                 </p>
-                <p className={`text-sm ${isLight ? "text-slate-700" : "text-white"}`}>
+                <p className="text-sm" style={{ color: colors.text }}>
                   {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className={`text-sm font-medium ${isLight ? "text-slate-700" : "text-white"}`}>{userName}</p>
-                  <p className={`text-xs ${colors.accent}`}>● {userRole === "admin" ? "Administrador" : "Usuario"}</p>
+                  <p className="text-sm font-medium" style={{ color: colors.text }}>{userName}</p>
+                  <p className="text-xs" style={{ color: colors.accent }}>● {userRole === "admin" ? "Administrador" : "Usuario"}</p>
                 </div>
-                <div className={`w-10 h-10 rounded-full ${isLight ? "bg-cyan-100 text-cyan-600" : "bg-cyan-500/20 text-cyan-400"} flex items-center justify-center font-bold`}>
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
+                  style={{ backgroundColor: colors.accentBg, color: colors.accent }}
+                >
                   {userName.charAt(0).toUpperCase()}
                 </div>
-                <button onClick={handleLogout} className={`p-2 rounded-lg ${isLight ? "hover:bg-slate-100 text-slate-500" : "hover:bg-white/10 text-slate-400"}`}>
+                <button onClick={handleLogout} className="p-2 rounded-lg hover:opacity-80" style={{ color: colors.textMuted }}>
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
@@ -150,12 +184,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       {/* Pulso Modal */}
       {showPulso && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className={`w-[400px] h-[600px] ${isLight ? "bg-white" : "bg-[#0a1628]"} rounded-2xl shadow-2xl p-4`}>
+          <div 
+            className="w-[400px] h-[600px] rounded-2xl shadow-2xl p-4"
+            style={{ backgroundColor: colors.sidebar }}
+          >
             <div className="flex justify-between items-center mb-4">
-              <h2 className={`font-bold ${isLight ? "text-slate-700" : "text-white"}`}>ARIA Pulso</h2>
-              <button onClick={() => setShowPulso(false)} className={`${isLight ? "text-slate-500" : "text-slate-400"}`}>✕</button>
+              <h2 className="font-bold" style={{ color: colors.text }}>ARIA Pulso</h2>
+              <button onClick={() => setShowPulso(false)} style={{ color: colors.textMuted }}>✕</button>
             </div>
-            <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>Chat interno del equipo</p>
+            <p className="text-sm" style={{ color: colors.textMuted }}>Chat interno del equipo</p>
           </div>
         </div>
       )}
