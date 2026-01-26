@@ -24,7 +24,8 @@ interface ThemeContextType {
   colors: ThemeColors;
 }
 
-const defaultColors: ThemeColors = {
+// COLOR ORIGINAL DE ARIA27
+const originalDarkColors: ThemeColors = {
   bg: "#0a1628",
   bgGradient: "from-[#0f172a] to-[#1e3a5a]",
   sidebar: "#0a1628",
@@ -41,12 +42,13 @@ const ThemeContext = createContext<ThemeContextType>({
   season: "normal",
   setTheme: () => {},
   setSeason: () => {},
-  colors: defaultColors,
+  colors: originalDarkColors,
 });
 
 const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
   dark: {
-    normal: defaultColors,
+    // NORMAL = COLOR ORIGINAL DE ARIA
+    normal: originalDarkColors,
     valentine: {
       bg: "#1a0a14",
       bgGradient: "from-[#2d1025] to-[#4a1942]",
@@ -152,21 +154,14 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // SIEMPRE inicia en dark + normal por defecto
   const [theme, setThemeState] = useState<Theme>("dark");
   const [season, setSeasonState] = useState<Season>("normal");
 
   useEffect(() => {
-    // Solo carga preferencias SI ya existen (no es primera vez)
     const savedTheme = localStorage.getItem("aria-theme") as Theme | null;
     const savedSeason = localStorage.getItem("aria-season") as Season | null;
-    
-    if (savedTheme === "dark" || savedTheme === "light") {
-      setThemeState(savedTheme);
-    }
-    if (savedSeason && ["normal", "valentine", "halloween", "christmas", "diademuertos"].includes(savedSeason)) {
-      setSeasonState(savedSeason);
-    }
+    if (savedTheme === "dark" || savedTheme === "light") setThemeState(savedTheme);
+    if (savedSeason && ["normal", "valentine", "halloween", "christmas", "diademuertos"].includes(savedSeason)) setSeasonState(savedSeason);
   }, []);
 
   const setTheme = (t: Theme) => {

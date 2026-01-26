@@ -39,6 +39,8 @@ export default function ConfigGeneralPage() {
   const handleReset = () => {
     setTheme("dark");
     setSeason("normal");
+    localStorage.removeItem("aria-theme");
+    localStorage.removeItem("aria-season");
     showSaved();
   };
 
@@ -61,13 +63,7 @@ export default function ConfigGeneralPage() {
             <p style={{ color: colors.textMuted }}>Parámetros y apariencia del sistema</p>
           </div>
         </div>
-        
-        {/* Botón Restablecer */}
-        <button
-          onClick={handleReset}
-          className="px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-all hover:opacity-80"
-          style={{ backgroundColor: colors.accentBg, color: colors.accent }}
-        >
+        <button onClick={handleReset} className="px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-all hover:opacity-80" style={{ backgroundColor: colors.accentBg, color: colors.accent }}>
           <RotateCcw className="w-4 h-4" />
           Restablecer Original
         </button>
@@ -86,34 +82,19 @@ export default function ConfigGeneralPage() {
           <Palette className="w-5 h-5" style={{ color: colors.accent }} />
           Modo de Color
         </h2>
-        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>
-          Elige tu preferencia. También usa el botón ☀️/🌙 en el header.
-        </p>
+        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>Elige tu preferencia. También usa el botón ☀️/🌙 en el header.</p>
         
         <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => { setTheme("dark"); showSaved(); }}
-            className="p-4 rounded-xl border-2 transition-all"
-            style={{ 
-              borderColor: isDark ? colors.accent : colors.cardBorder,
-              backgroundColor: isDark ? colors.accentBg : "transparent"
-            }}
-          >
-            <div className="w-full h-16 rounded-lg bg-gradient-to-br from-[#0f172a] to-[#1e3a5a] mb-3 border border-white/20"></div>
+          <button onClick={() => { setTheme("dark"); showSaved(); }} className="p-4 rounded-xl border-2 transition-all" style={{ borderColor: isDark ? colors.accent : colors.cardBorder, backgroundColor: isDark ? colors.accentBg : "transparent" }}>
+            {/* Preview del gradiente ORIGINAL */}
+            <div className="w-full h-16 rounded-lg mb-3 border border-white/20" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5a 100%)" }}></div>
             <p className="font-medium" style={{ color: colors.text }}>Oscuro</p>
             <p className="text-xs" style={{ color: colors.textMuted }}>Tema predeterminado</p>
             {isDark && <Check className="w-5 h-5 mt-2" style={{ color: colors.accent }} />}
           </button>
           
-          <button
-            onClick={() => { setTheme("light"); showSaved(); }}
-            className="p-4 rounded-xl border-2 transition-all"
-            style={{ 
-              borderColor: !isDark ? colors.accent : colors.cardBorder,
-              backgroundColor: !isDark ? colors.accentBg : "transparent"
-            }}
-          >
-            <div className="w-full h-16 rounded-lg bg-gradient-to-br from-slate-100 to-slate-300 mb-3 border border-slate-300"></div>
+          <button onClick={() => { setTheme("light"); showSaved(); }} className="p-4 rounded-xl border-2 transition-all" style={{ borderColor: !isDark ? colors.accent : colors.cardBorder, backgroundColor: !isDark ? colors.accentBg : "transparent" }}>
+            <div className="w-full h-16 rounded-lg mb-3 border border-slate-300" style={{ background: "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)" }}></div>
             <p className="font-medium" style={{ color: colors.text }}>Claro</p>
             <p className="text-xs" style={{ color: colors.textMuted }}>Ambientes iluminados</p>
             {!isDark && <Check className="w-5 h-5 mt-2" style={{ color: colors.accent }} />}
@@ -134,36 +115,17 @@ export default function ConfigGeneralPage() {
             </span>
           )}
         </div>
-        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>
-          {canEditSeasons 
-            ? "Elige el tema de temporada para todo el sistema." 
-            : "El tema es configurado por Recursos Humanos."}
-        </p>
+        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>{canEditSeasons ? "Elige el tema de temporada para todo el sistema." : "El tema es configurado por Recursos Humanos."}</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {seasons.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => handleSeasonChange(s.id)}
-              disabled={!canEditSeasons}
-              className="p-4 rounded-xl border-2 text-left transition-all"
-              style={{ 
-                borderColor: season === s.id ? colors.accent : colors.cardBorder,
-                backgroundColor: season === s.id ? colors.accentBg : "transparent",
-                opacity: canEditSeasons ? 1 : 0.6,
-                cursor: canEditSeasons ? "pointer" : "not-allowed"
-              }}
-            >
+            <button key={s.id} onClick={() => handleSeasonChange(s.id)} disabled={!canEditSeasons} className="p-4 rounded-xl border-2 text-left transition-all" style={{ borderColor: season === s.id ? colors.accent : colors.cardBorder, backgroundColor: season === s.id ? colors.accentBg : "transparent", opacity: canEditSeasons ? 1 : 0.6, cursor: canEditSeasons ? "pointer" : "not-allowed" }}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">{s.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-medium" style={{ color: colors.text }}>{s.name}</p>
-                    {s.isDefault && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: colors.accentBg, color: colors.accent }}>
-                        DEFAULT
-                      </span>
-                    )}
+                    {s.isDefault && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: colors.accentBg, color: colors.accent }}>DEFAULT</span>}
                   </div>
                   <p className="text-xs" style={{ color: colors.textMuted }}>{s.colors}</p>
                 </div>
