@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import SeasonEffects from "@/components/SeasonEffects";
+import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
   ChevronRight, LogOut, MessageCircle, Moon, Sun
@@ -50,6 +51,29 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     setUserEmail(email);
     loadUser(email);
   }, [router]);
+
+  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
+  useEffect(() => {
+    if (!userEmail) return;
+    
+    const actualizarPresencia = async () => {
+      try {
+        await fetch("/api/pulso/estado", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: userEmail })
+        });
+      } catch (e) { console.error("Error heartbeat:", e); }
+    };
+
+    // Actualizar inmediatamente al cargar
+    actualizarPresencia();
+    
+    // Luego cada 30 segundos
+    const interval = setInterval(actualizarPresencia, 30000);
+    
+    return () => clearInterval(interval);
+  }, [userEmail]);
 
   const loadUser = async (email: string) => {
     const { data } = await supabase.from("users").select("*").eq("email", email).single();
