@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft, Printer, Trash2, Loader2, XCircle, Eye } from "lucide-react";
+import { ArrowLeft, Trash2, Loader2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import RequisicionPrint from "@/components/RequisicionPrint";
+import RequisicionPrintButtons from "@/components/RequisicionPrint";
 
 interface Requisition {
   id: string;
@@ -43,7 +43,6 @@ export default function RequisicionesStatusPage() {
   const [itemsCache, setItemsCache] = useState<Record<string, ReqItem[]>>({});
   const [loadingItems, setLoadingItems] = useState<string | null>(null);
 
-  // RH (admin) puede ver todas y eliminar
   const isAdmin = userRole === "admin" || userEmail === "recursos.humanos@gcuavante.com";
   const canDelete = isAdmin;
 
@@ -63,7 +62,6 @@ export default function RequisicionesStatusPage() {
     setLoading(true);
     const currentEmail = email || userEmail;
     
-    // Si es admin/RH, carga todas. Si no, solo las del usuario
     let query = supabase.from("Requisiciones").select("*").order("created_at", { ascending: false });
     
     const { data: userData } = await supabase.from("users").select("role").eq("email", currentEmail).single();
@@ -78,7 +76,7 @@ export default function RequisicionesStatusPage() {
     setLoading(false);
   }
 
-  async function loadItemsForPrint(reqId: string): Promise<ReqItem[]> {
+  async function loadItemsForReq(reqId: string): Promise<ReqItem[]> {
     if (itemsCache[reqId]) return itemsCache[reqId];
     setLoadingItems(reqId);
     const { data } = await supabase.from("requisition_items").select("id, product_name, unit, quantity, comments").eq("requisition_id", reqId);
@@ -115,7 +113,7 @@ export default function RequisicionesStatusPage() {
       await supabase.from("Requisiciones").update({ status: "CANCELADA" }).eq("id", cancelId);
       setShowCancelModal(false);
       loadData();
-    } catch (e) {
+    } catch {
       alert("Error al cancelar");
     }
     setCanceling(false);
@@ -161,7 +159,6 @@ export default function RequisicionesStatusPage() {
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
 
-  // El usuario puede cancelar SI es el creador Y el status es PENDIENTE o APROBADA (antes de compras)
   const canCancel = (req: Requisition) => {
     const isCreator = req.user_email === userEmail;
     const isBeforeCompras = ["PENDIENTE", "APROBADA"].includes(req.status);
@@ -209,39 +206,26 @@ export default function RequisicionesStatusPage() {
                 <th className="p-3">Solicitante</th>
                 <th className="p-3">F. Requerida</th>
                 <th className="p-3">Estado</th>
-                <th className="p-3 w-32 text-center">Acciones</th>
+                <th className="p-3 w-40 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {requisiciones.map((req) => (
-                <tr key={req.id} className="border-t border-white/5 hover:bg-white/5">
-                  {canDelete && <td className="p-3"><input type="checkbox" checked={selectedIds.includes(req.id)} onChange={(e) => handleSelect(req.id, e.target.checked)} className="rounded" /></td>}
-                  <td className="p-3"><span className="font-mono text-cyan-400 text-sm">{req.folio}</span></td>
-                  <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
-                  <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
-                  <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
-                  <td className="p-3"><span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(req.status)}`}>{req.status}</span></td>
-                  <td className="p-3">
-                    <div className="flex items-center justify-center gap-1">
-                      {/* Botón Imprimir */}
-                      <PrintButton req={req} loadItems={() => loadItemsForPrint(req.id)} itemsCache={itemsCache} loadingItems={loadingItems} />
-                      
-                      {/* Botón Cancelar (solo creador, antes de compras) */}
-                      {canCancel(req) && (
-                        <button onClick={() => openCancelModal(req.id, req.folio)} className="p-2 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400" title="Cancelar requisición">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                      
-                      {/* Botón Eliminar (solo admin) */}
-                      {canDelete && (
-                        <button onClick={() => openDeleteModal("single", req.id)} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                <RequisicionRow 
+                  key={req.id} 
+                  req={req} 
+                  canDelete={canDelete}
+                  canCancel={canCancel(req)}
+                  selectedIds={selectedIds}
+                  onSelect={handleSelect}
+                  onDelete={() => openDeleteModal("single", req.id)}
+                  onCancel={() => openCancelModal(req.id, req.folio)}
+                  loadItems={() => loadItemsForReq(req.id)}
+                  itemsCache={itemsCache}
+                  loadingItems={loadingItems}
+                  formatDate={formatDate}
+                  getStatusColor={getStatusColor}
+                />
               ))}
             </tbody>
           </table>
@@ -254,7 +238,7 @@ export default function RequisicionesStatusPage() {
           <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
             <h3 className="text-lg font-bold text-white mb-4">⚠️ Cancelar Requisición</h3>
             <p className="text-slate-400 text-sm mb-4">¿Estás seguro de cancelar <strong className="text-amber-400">{cancelFolio}</strong>?</p>
-            <p className="text-slate-500 text-xs mb-4">Esta acción no se puede deshacer. La requisición quedará con estado CANCELADA.</p>
+            <p className="text-slate-500 text-xs mb-4">Esta acción no se puede deshacer.</p>
             <div className="flex gap-2">
               <button onClick={() => setShowCancelModal(false)} className="flex-1 py-2 rounded bg-white/10 text-white hover:bg-white/20">No, volver</button>
               <button onClick={handleCancel} disabled={canceling} className="flex-1 py-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50">{canceling ? "Cancelando..." : "Sí, cancelar"}</button>
@@ -282,38 +266,84 @@ export default function RequisicionesStatusPage() {
   );
 }
 
-function PrintButton({ req, loadItems, itemsCache, loadingItems }: { req: Requisition; loadItems: () => Promise<ReqItem[]>; itemsCache: Record<string, ReqItem[]>; loadingItems: string | null }) {
+// Componente de fila con carga de items para impresión
+function RequisicionRow({ 
+  req, canDelete, canCancel, selectedIds, onSelect, onDelete, onCancel, loadItems, itemsCache, loadingItems, formatDate, getStatusColor 
+}: { 
+  req: Requisition; 
+  canDelete: boolean;
+  canCancel: boolean;
+  selectedIds: string[];
+  onSelect: (id: string, checked: boolean) => void;
+  onDelete: () => void;
+  onCancel: () => void;
+  loadItems: () => Promise<ReqItem[]>;
+  itemsCache: Record<string, ReqItem[]>;
+  loadingItems: string | null;
+  formatDate: (d: string) => string;
+  getStatusColor: (s: string) => string;
+}) {
   const [items, setItems] = useState<ReqItem[]>([]);
-  const [ready, setReady] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  const handleClick = async () => {
-    if (!itemsCache[req.id]) {
-      const loadedItems = await loadItems();
-      setItems(loadedItems);
-    } else {
+  // Cargar items cuando el componente se monta
+  useEffect(() => {
+    if (itemsCache[req.id]) {
       setItems(itemsCache[req.id]);
+      setLoaded(true);
+    } else {
+      loadItems().then(data => {
+        setItems(data);
+        setLoaded(true);
+      });
     }
-    setReady(true);
-  };
-
-  if (ready && items.length > 0) {
-    return (
-      <RequisicionPrint
-        folio={req.folio}
-        fechaCreacion={req.created_at}
-        fechaRequerida={req.required_date}
-        solicitante={req.created_by}
-        obra={req.cost_center_name}
-        materiales={items.map(i => ({ name: i.product_name, unit: i.unit, quantity: i.quantity, comments: i.comments }))}
-        comentarios={req.instructions}
-        status={req.status}
-      />
-    );
-  }
+  }, [req.id, itemsCache, loadItems]);
 
   return (
-    <button onClick={handleClick} disabled={loadingItems === req.id} className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all disabled:opacity-50" title="Imprimir requisición">
-      {loadingItems === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-    </button>
+    <tr className="border-t border-white/5 hover:bg-white/5">
+      {canDelete && (
+        <td className="p-3">
+          <input type="checkbox" checked={selectedIds.includes(req.id)} onChange={(e) => onSelect(req.id, e.target.checked)} className="rounded" />
+        </td>
+      )}
+      <td className="p-3"><span className="font-mono text-cyan-400 text-sm">{req.folio}</span></td>
+      <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
+      <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
+      <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
+      <td className="p-3"><span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(req.status)}`}>{req.status}</span></td>
+      <td className="p-3">
+        <div className="flex items-center justify-center gap-1">
+          {/* Botones Imprimir y PDF */}
+          {loaded && items.length > 0 ? (
+            <RequisicionPrintButtons
+              folio={req.folio}
+              fechaCreacion={req.created_at}
+              fechaRequerida={req.required_date}
+              solicitante={req.created_by}
+              obra={req.cost_center_name}
+              materiales={items.map(i => ({ name: i.product_name, unit: i.unit, quantity: i.quantity, comments: i.comments }))}
+              comentarios={req.instructions}
+              status={req.status}
+            />
+          ) : (
+            <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+          )}
+          
+          {/* Botón Cancelar */}
+          {canCancel && (
+            <button onClick={onCancel} className="p-2 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400" title="Cancelar">
+              <XCircle className="w-4 h-4" />
+            </button>
+          )}
+          
+          {/* Botón Eliminar */}
+          {canDelete && (
+            <button onClick={onDelete} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
   );
 }
