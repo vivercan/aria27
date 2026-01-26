@@ -3,8 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ShoppingCart, Clock, Building2, AlertCircle, FileText, ChevronRight, Package, X, DollarSign,
-  Send, Loader2, Phone, Mail, CreditCard, Users, ArrowLeft, Sparkles, Globe, ExternalLink, Check
+  ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, ArrowLeft, Sparkles, ExternalLink
 } from "lucide-react";
 
 type Requisition = {
@@ -12,10 +11,7 @@ type Requisition = {
   folio: string;
   cost_center_name: string;
   required_date: string;
-  created_at: string;
-  created_by: string;
   user_email: string;
-  purchase_status: string;
   status: string;
   authorization_comments: string;
 };
@@ -42,9 +38,9 @@ type RequisitionItem = {
 
 type ProveedorIA = {
   nombre: string;
-  direccion?: string;
   telefono?: string;
   sitio_web?: string;
+  especialidad?: string;
 };
 
 export default function ComprasTramitePage() {
@@ -57,10 +53,8 @@ export default function ComprasTramitePage() {
   const [sending, setSending] = useState(false);
   const [prices, setPrices] = useState<Record<number, { price: number; supplier: string }>>({});
   
-  // IA
   const [buscandoIA, setBuscandoIA] = useState(false);
   const [proveedoresIA, setProveedoresIA] = useState<ProveedorIA[]>([]);
-  const [analisisIA, setAnalisisIA] = useState("");
 
   useEffect(() => { loadData(); }, []);
 
@@ -72,7 +66,6 @@ export default function ComprasTramitePage() {
       .order("required_date", { ascending: true });
     setRequisiciones((reqs || []) as Requisition[]);
     
-    // Cargar TODOS los proveedores activos
     const { data: suppliers } = await supabase
       .from("suppliers")
       .select("id, name, phone, email, categories, credit_days, website")
@@ -85,6 +78,7 @@ export default function ComprasTramitePage() {
 
   const loadItems = async (reqId: number) => {
     setLoadingItems(true);
+    setProveedoresIA([]);
     const { data } = await supabase
       .from("requisition_items")
       .select("*")
@@ -99,68 +93,121 @@ export default function ComprasTramitePage() {
     setLoadingItems(false);
   };
 
-  // Obtener proveedores relevantes del catálogo
-  const getRelevantSuppliers = (): Supplier[] => {
-    const categories = new Set<string>();
-    items.forEach(item => {
-      const cat = item.category?.toUpperCase();
-      if (cat?.includes("ACERO") || cat?.includes("METAL")) categories.add("ACEROS");
-      if (cat?.includes("COMBUSTIBLE") || cat?.includes("DIESEL") || cat?.includes("LUBRICANTE")) categories.add("COMBUSTIBLES");
-      if (cat?.includes("CONCRETO")) categories.add("CONCRETOS");
-      if (cat?.includes("AGREGADO")) categories.add("AGREGADOS");
-      if (cat?.includes("ELECTRIC")) categories.add("ELECTRICO");
-      if (cat?.includes("FERRETER")) categories.add("FERRETERIA");
-      if (cat?.includes("TUBERI") || cat?.includes("PLOMER")) categories.add("TUBERIAS");
-    });
-    
-    if (categories.size === 0) return allSuppliers.slice(0, 10);
-    
-    const relevant = allSuppliers.filter(s => 
-      s.categories?.some(c => categories.has(c))
-    );
-    
-    if (relevant.length < 5) {
-      const others = allSuppliers.filter(s => !relevant.includes(s)).slice(0, 10 - relevant.length);
-      return [...relevant, ...others];
+  // MAPEO INTELIGENTE DE CATEGORÍAS
+  const getCategoriesFromProduct = (productName: string, category: string): string[] => {
+    const name = productName.toLowerCase();
+    const cat = category?.toLowerCase() || "";
+    const matches: string[] = [];
+
+    // Eléctrico
+    if (name.includes("centro carga") || name.includes("interruptor") || name.includes("cable") || 
+        name.includes("foco") || name.includes("lamp") || name.includes("electric") || 
+        name.includes("contacto") || name.includes("apagador") || cat.includes("electric")) {
+      matches.push("ELECTRICO");
     }
-    
-    return relevant.slice(0, 10);
+    // Combustibles y lubricantes
+    if (name.includes("diesel") || name.includes("gasolina") || name.includes("aceite") || 
+        name.includes("lubricante") || name.includes("15w") || name.includes("filtro") ||
+        cat.includes("combustible") || cat.includes("lubricante")) {
+      matches.push("COMBUSTIBLES");
+    }
+    // Acero
+    if (name.includes("acero") || name.includes("varilla") || name.includes("perfil") || 
+        name.includes("angulo") || name.includes("ptf") || name.includes("solera") ||
+        cat.includes("acero") || cat.includes("metal")) {
+      matches.push("ACEROS");
+    }
+    // Concreto
+    if (name.includes("cemento") || name.includes("concreto") || name.includes("block") || 
+        name.includes("tabique") || cat.includes("concreto")) {
+      matches.push("CONCRETOS");
+    }
+    // Agregados
+    if (name.includes("grava") || name.includes("arena") || name.includes("tepetate") || 
+        cat.includes("agregado")) {
+      matches.push("AGREGADOS");
+    }
+    // Tuberías
+    if (name.includes("tubo") || name.includes("tuberia") || name.includes("pvc") || 
+        name.includes("codo") || name.includes("valvula") || cat.includes("tuberi") || cat.includes("plomer")) {
+      matches.push("TUBERIAS");
+    }
+    // Ferretería
+    if (name.includes("tornillo") || name.includes("clavo") || name.includes("herramienta") || 
+        name.includes("broca") || name.includes("disco") || cat.includes("ferreter")) {
+      matches.push("FERRETERIA");
+    }
+    // EPP
+    if (name.includes("casco") || name.includes("guante") || name.includes("lente") || 
+        name.includes("chaleco") || name.includes("bota") || cat.includes("epp") || cat.includes("seguridad")) {
+      matches.push("EPP");
+    }
+
+    return matches;
   };
 
-  // Filtrar proveedores IA para no repetir los del catálogo
-  const getProveedoresIAFiltrados = (): ProveedorIA[] => {
-    const catalogNames = allSuppliers.map(s => s.name.toLowerCase().trim());
+  // OBTENER PROVEEDORES RELEVANTES POR PRODUCTO
+  const getRelevantSuppliers = (): Supplier[] => {
+    const allCategories = new Set<string>();
     
-    return proveedoresIA.filter(p => {
-      const nombreIA = p.nombre.toLowerCase().trim();
-      // No incluir si el nombre coincide o es muy similar a alguno del catálogo
-      return !catalogNames.some(catName => 
-        catName.includes(nombreIA) || 
-        nombreIA.includes(catName) ||
-        catName === nombreIA
-      );
-    }).slice(0, 10);
+    items.forEach(item => {
+      const cats = getCategoriesFromProduct(item.product_name, item.category);
+      cats.forEach(c => allCategories.add(c));
+    });
+
+    if (allCategories.size === 0) {
+      return allSuppliers.slice(0, 10);
+    }
+
+    // Filtrar proveedores que tengan alguna categoría relevante
+    const relevant = allSuppliers.filter(s => 
+      s.categories?.some(c => allCategories.has(c.toUpperCase()))
+    );
+
+    if (relevant.length >= 5) {
+      return relevant.slice(0, 10);
+    }
+
+    // Si hay pocos, agregar otros
+    const others = allSuppliers.filter(s => !relevant.includes(s)).slice(0, 10 - relevant.length);
+    return [...relevant, ...others].slice(0, 10);
   };
 
-  const buscarConIA = async () => {
+  // BÚSQUEDA ARIA RÁPIDA (sin web_search)
+  const buscarConARIA = async () => {
     if (!selectedReq || items.length === 0) return;
     setBuscandoIA(true);
     setProveedoresIA([]);
-    setAnalisisIA("");
 
     try {
-      const res = await fetch("/api/proveedores/buscar-inteligente", {
+      const productosTexto = items.map(i => `${i.product_name} (${i.quantity} ${i.unit})`).join(", ");
+      const proveedoresExistentes = allSuppliers.map(s => s.name).join(", ");
+
+      const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productos: items.map(i => ({ nombre: i.product_name, cantidad: i.quantity, unidad: i.unit, categoria: i.category })),
-          requisicion_id: selectedReq.id
+          prompt: `Soy una constructora en Aguascalientes, México. Necesito comprar: ${productosTexto}.
+
+Ya tengo estos proveedores: ${proveedoresExistentes}
+
+Dame 5 proveedores ADICIONALES en Aguascalientes que vendan estos productos. NO repitas los que ya tengo.
+Responde SOLO con JSON así:
+[{"nombre":"Nombre","telefono":"(449) XXX-XXXX","especialidad":"qué venden"}]`
         })
       });
+
       const data = await res.json();
-      if (data.success) {
-        setProveedoresIA(data.proveedores_web || []);
-        setAnalisisIA(data.analisis || "");
+      if (data.response) {
+        try {
+          const match = data.response.match(/\[[\s\S]*\]/);
+          if (match) {
+            const parsed = JSON.parse(match[0]);
+            setProveedoresIA(parsed.slice(0, 5));
+          }
+        } catch (e) {
+          console.error("Error parsing:", e);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -192,7 +239,7 @@ export default function ComprasTramitePage() {
       }
       await supabase.from("requisitions").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
 
-      const response = await fetch("/api/requisicion/autorizar-purchase", {
+      await fetch("/api/requisicion/autorizar-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -203,13 +250,11 @@ export default function ComprasTramitePage() {
         })
       });
 
-      if (response.ok) {
-        alert("✅ Enviado a autorización");
-        setSelectedReq(null);
-        setItems([]);
-        setProveedoresIA([]);
-        loadData();
-      }
+      alert("✅ Enviado a autorización");
+      setSelectedReq(null);
+      setItems([]);
+      setProveedoresIA([]);
+      loadData();
     } catch (e) {
       alert("Error al enviar");
     } finally {
@@ -225,7 +270,7 @@ export default function ComprasTramitePage() {
     return { text: `${days}d`, color: "bg-emerald-500" };
   };
 
-  // === LISTA DE REQUISICIONES ===
+  // === LISTA ===
   if (!selectedReq) {
     return (
       <div className="space-y-4">
@@ -235,7 +280,7 @@ export default function ComprasTramitePage() {
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
-            <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones pendientes</p>
+            <p className="text-slate-500 text-sm">{requisiciones.length} pendientes</p>
           </div>
         </div>
 
@@ -247,13 +292,12 @@ export default function ComprasTramitePage() {
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {requisiciones.map(req => (
               <button key={req.id} onClick={() => { setSelectedReq(req); loadItems(req.id); }}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 text-left group">
+                className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 text-left">
                 <div className="flex justify-between mb-2">
                   <span className="font-mono text-cyan-400 text-sm">{req.folio}</span>
                   <span className={`px-2 py-0.5 rounded text-xs text-white ${getUrgencyBadge(req.required_date).color}`}>{getUrgencyBadge(req.required_date).text}</span>
                 </div>
                 <p className="text-white font-medium text-sm">{req.cost_center_name}</p>
-                <p className="text-slate-500 text-xs truncate">{req.user_email}</p>
               </button>
             ))}
           </div>
@@ -262,27 +306,20 @@ export default function ComprasTramitePage() {
     );
   }
 
-  // === DETALLE COMPACTO ===
+  // === DETALLE ===
   const relevantSuppliers = getRelevantSuppliers();
-  const proveedoresIAFiltrados = getProveedoresIAFiltrados();
   const urgency = getUrgencyBadge(selectedReq.required_date);
 
   return (
     <div className="space-y-3 text-sm">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
           <ArrowLeft className="w-4 h-4 text-slate-400" />
         </button>
-        <div className="flex-1 flex items-center gap-3">
-          <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
-          <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
-          <span className="text-slate-400">{selectedReq.cost_center_name}</span>
-        </div>
-        <div className="text-right">
-          <span className="text-slate-500 text-xs">Total: </span>
-          <span className="text-emerald-400 font-bold text-lg">${calculateTotal().toLocaleString()}</span>
-        </div>
+        <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
+        <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
+        <span className="text-slate-400 flex-1">{selectedReq.cost_center_name}</span>
+        <span className="text-emerald-400 font-bold text-lg">${calculateTotal().toLocaleString()}</span>
       </div>
 
       {loadingItems ? (
@@ -294,51 +331,39 @@ export default function ComprasTramitePage() {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-cyan-400" />
-                Proveedores del Catálogo ({relevantSuppliers.length})
+                Proveedores Relevantes ({relevantSuppliers.length})
               </h3>
-              <button onClick={buscarConIA} disabled={buscandoIA}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-medium flex items-center gap-1.5 hover:opacity-90 transition-opacity">
+              <button onClick={buscarConARIA} disabled={buscandoIA}
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-medium flex items-center gap-1.5">
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                {buscandoIA ? "Buscando..." : "Buscar + con ARIA"}
+                {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
             </div>
 
-            {/* Análisis ARIA */}
-            {analisisIA && (
-              <p className="text-cyan-400/80 text-xs mb-3 p-2 rounded bg-cyan-500/10 border border-cyan-500/20">{analisisIA}</p>
-            )}
-
-            {/* LÍNEA 1: Proveedores del Catálogo */}
-            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2 mb-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
               {relevantSuppliers.map(s => (
-                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-cyan-500/50">
+                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/10">
                   <p className="text-white font-medium text-xs truncate" title={s.name}>{s.name}</p>
                   <p className="text-slate-500 text-[10px]">{s.categories?.[0] || "General"}</p>
-                  {s.phone && <p className="text-slate-400 text-[10px] flex items-center gap-1"><Phone className="w-2.5 h-2.5" />{s.phone}</p>}
-                  {s.credit_days ? <p className="text-cyan-400 text-[10px]">{s.credit_days}d créd</p> : <p className="text-slate-500 text-[10px]">Contado</p>}
+                  {s.phone && <p className="text-slate-400 text-[10px]">{s.phone}</p>}
+                  <p className="text-cyan-400 text-[10px]">{s.credit_days ? `${s.credit_days}d` : "Contado"}</p>
                 </div>
               ))}
             </div>
 
-            {/* LÍNEA 2: Proveedores encontrados por ARIA (sin repetir) */}
-            {proveedoresIAFiltrados.length > 0 && (
+            {proveedoresIA.length > 0 && (
               <>
                 <div className="flex items-center gap-2 my-2">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
-                  <span className="text-cyan-400 text-[10px] font-medium flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> Sugeridos por ARIA ({proveedoresIAFiltrados.length})
-                  </span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+                  <div className="flex-1 h-px bg-cyan-500/30"></div>
+                  <span className="text-cyan-400 text-[10px]"><Sparkles className="w-3 h-3 inline" /> ARIA ({proveedoresIA.length})</span>
+                  <div className="flex-1 h-px bg-cyan-500/30"></div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
-                  {proveedoresIAFiltrados.map((p, i) => (
-                    <div key={`ia-${i}`} className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 hover:border-cyan-500/50">
-                      <p className="text-cyan-400 font-medium text-xs truncate flex items-center gap-1" title={p.nombre}>
-                        <Sparkles className="w-2.5 h-2.5 flex-shrink-0" />{p.nombre}
-                      </p>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {proveedoresIA.map((p, i) => (
+                    <div key={i} className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                      <p className="text-cyan-400 font-medium text-xs truncate">{p.nombre}</p>
                       {p.telefono && <p className="text-slate-400 text-[10px]">{p.telefono}</p>}
-                      {p.sitio_web && <a href={p.sitio_web} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-[10px] flex items-center gap-1 hover:underline"><ExternalLink className="w-2.5 h-2.5" />Web</a>}
-                      {!p.telefono && !p.sitio_web && <p className="text-slate-500 text-[10px]">Aguascalientes</p>}
+                      {p.especialidad && <p className="text-slate-500 text-[10px]">{p.especialidad}</p>}
                     </div>
                   ))}
                 </div>
@@ -346,7 +371,7 @@ export default function ComprasTramitePage() {
             )}
           </div>
 
-          {/* Artículos - Tabla compacta */}
+          {/* Tabla */}
           <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
             <table className="w-full">
               <thead className="bg-white/5">
@@ -355,55 +380,40 @@ export default function ComprasTramitePage() {
                   <th className="p-2">Producto</th>
                   <th className="p-2 w-24">Cant.</th>
                   <th className="p-2">Proveedor</th>
-                  <th className="p-2 w-28">Precio Unit.</th>
+                  <th className="p-2 w-28">Precio</th>
                   <th className="p-2 w-24 text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, idx) => (
-                  <tr key={item.id} className="border-t border-white/5 hover:bg-white/5">
+                  <tr key={item.id} className="border-t border-white/5">
                     <td className="p-2 text-cyan-400 font-bold text-xs">{idx + 1}</td>
                     <td className="p-2">
-                      <p className="text-white text-xs font-medium">{item.product_name}</p>
+                      <p className="text-white text-xs">{item.product_name}</p>
                       <p className="text-slate-500 text-[10px]">{item.category}</p>
                     </td>
                     <td className="p-2 text-white text-xs">{item.quantity} {item.unit}</td>
                     <td className="p-2">
-                      <select
-                        value={prices[item.id]?.supplier || ""}
-                        onChange={(e) => selectSupplier(item.id, e.target.value)}
-                        className="w-full px-2 py-1.5 rounded bg-black/30 border border-white/10 text-white text-xs focus:border-cyan-500 outline-none"
-                      >
+                      <select value={prices[item.id]?.supplier || ""} onChange={(e) => selectSupplier(item.id, e.target.value)}
+                        className="w-full px-2 py-1 rounded bg-black/30 border border-white/10 text-white text-xs">
                         <option value="">Seleccionar...</option>
                         <optgroup label="📦 Catálogo">
-                          {relevantSuppliers.map(s => (
-                            <option key={s.id} value={s.name}>{s.name}</option>
-                          ))}
+                          {relevantSuppliers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                         </optgroup>
-                        {proveedoresIAFiltrados.length > 0 && (
-                          <optgroup label="✨ Sugeridos por ARIA">
-                            {proveedoresIAFiltrados.map((p, i) => (
-                              <option key={`ia-${i}`} value={p.nombre}>{p.nombre}</option>
-                            ))}
+                        {proveedoresIA.length > 0 && (
+                          <optgroup label="✨ ARIA">
+                            {proveedoresIA.map((p, i) => <option key={i} value={p.nombre}>{p.nombre}</option>)}
                           </optgroup>
                         )}
                       </select>
                     </td>
                     <td className="p-2">
-                      <input
-                        type="number"
-                        placeholder="$0.00"
-                        value={prices[item.id]?.price || ""}
+                      <input type="number" placeholder="$0" value={prices[item.id]?.price || ""}
                         onChange={(e) => updatePrice(item.id, parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1.5 rounded bg-black/30 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none"
-                      />
+                        className="w-full px-2 py-1 rounded bg-black/30 border border-white/10 text-white text-xs text-right" />
                     </td>
-                    <td className="p-2 text-right">
-                      {prices[item.id]?.price > 0 && (
-                        <span className="text-emerald-400 font-bold text-xs">
-                          ${((prices[item.id]?.price || 0) * item.quantity).toLocaleString()}
-                        </span>
-                      )}
+                    <td className="p-2 text-right text-emerald-400 font-bold text-xs">
+                      {prices[item.id]?.price > 0 ? `$${((prices[item.id]?.price || 0) * item.quantity).toLocaleString()}` : ""}
                     </td>
                   </tr>
                 ))}
@@ -413,23 +423,14 @@ export default function ComprasTramitePage() {
 
           {/* Footer */}
           <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-            <div className="flex items-center gap-4">
-              {!allComplete() && <span className="text-amber-400 text-xs">⚠️ Completa todos los campos</span>}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <span className="text-slate-400 text-xs">Total: </span>
-                <span className="text-emerald-400 font-bold text-xl">${calculateTotal().toLocaleString()}</span>
-              </div>
-              <button
-                onClick={saveAndSend}
-                disabled={!allComplete() || sending}
-                className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium text-sm flex items-center gap-2 disabled:opacity-50"
-              >
-                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Enviar a Autorización
-              </button>
-            </div>
+            {!allComplete() && <span className="text-amber-400 text-xs">⚠️ Completa todos</span>}
+            <div className="flex-1"></div>
+            <span className="text-emerald-400 font-bold text-xl mr-4">${calculateTotal().toLocaleString()}</span>
+            <button onClick={saveAndSend} disabled={!allComplete() || sending}
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Enviar
+            </button>
           </div>
         </>
       )}
