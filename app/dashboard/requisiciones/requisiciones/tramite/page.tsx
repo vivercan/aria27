@@ -91,7 +91,6 @@ export default function ComprasTramitePage() {
       .eq("requisition_id", reqId);
     setItems((data || []) as RequisitionItem[]);
     
-    // Inicializar precios
     const init: Record<number, { price: number; supplier: string }> = {};
     (data || []).forEach((item: any) => {
       init[item.id] = { price: item.selected_price || 0, supplier: item.selected_supplier || "" };
@@ -100,7 +99,7 @@ export default function ComprasTramitePage() {
     setLoadingItems(false);
   };
 
-  // Obtener proveedores relevantes para los items (por categoría)
+  // Obtener proveedores relevantes del catálogo
   const getRelevantSuppliers = (): Supplier[] => {
     const categories = new Set<string>();
     items.forEach(item => {
@@ -120,13 +119,27 @@ export default function ComprasTramitePage() {
       s.categories?.some(c => categories.has(c))
     );
     
-    // Si hay pocos, agregar más
     if (relevant.length < 5) {
       const others = allSuppliers.filter(s => !relevant.includes(s)).slice(0, 10 - relevant.length);
       return [...relevant, ...others];
     }
     
     return relevant.slice(0, 10);
+  };
+
+  // Filtrar proveedores IA para no repetir los del catálogo
+  const getProveedoresIAFiltrados = (): ProveedorIA[] => {
+    const catalogNames = allSuppliers.map(s => s.name.toLowerCase().trim());
+    
+    return proveedoresIA.filter(p => {
+      const nombreIA = p.nombre.toLowerCase().trim();
+      // No incluir si el nombre coincide o es muy similar a alguno del catálogo
+      return !catalogNames.some(catName => 
+        catName.includes(nombreIA) || 
+        nombreIA.includes(catName) ||
+        catName === nombreIA
+      );
+    }).slice(0, 10);
   };
 
   const buscarConIA = async () => {
@@ -194,6 +207,7 @@ export default function ComprasTramitePage() {
         alert("✅ Enviado a autorización");
         setSelectedReq(null);
         setItems([]);
+        setProveedoresIA([]);
         loadData();
       }
     } catch (e) {
@@ -250,6 +264,7 @@ export default function ComprasTramitePage() {
 
   // === DETALLE COMPACTO ===
   const relevantSuppliers = getRelevantSuppliers();
+  const proveedoresIAFiltrados = getProveedoresIAFiltrados();
   const urgency = getUrgencyBadge(selectedReq.required_date);
 
   return (
@@ -274,48 +289,61 @@ export default function ComprasTramitePage() {
         <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-cyan-400" /></div>
       ) : (
         <>
-          {/* Proveedores del Catálogo + IA */}
+          {/* Proveedores */}
           <div className="p-3 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-cyan-400" />
-                Proveedores Disponibles ({relevantSuppliers.length + proveedoresIA.length})
+                Proveedores del Catálogo ({relevantSuppliers.length})
               </h3>
               <button onClick={buscarConIA} disabled={buscandoIA}
-                className="px-3 py-1 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-medium flex items-center gap-1 hover:bg-amber-500/30">
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-medium flex items-center gap-1.5 hover:opacity-90 transition-opacity">
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                {buscandoIA ? "Buscando..." : "Buscar más con IA"}
+                {buscandoIA ? "Buscando..." : "Buscar + con ARIA"}
               </button>
             </div>
 
-            {/* Análisis IA */}
+            {/* Análisis ARIA */}
             {analisisIA && (
-              <p className="text-amber-400/80 text-xs mb-2 p-2 rounded bg-amber-500/10">{analisisIA}</p>
+              <p className="text-cyan-400/80 text-xs mb-3 p-2 rounded bg-cyan-500/10 border border-cyan-500/20">{analisisIA}</p>
             )}
 
-            {/* Grid de proveedores compacto */}
-            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
-              {/* Proveedores del catálogo */}
+            {/* LÍNEA 1: Proveedores del Catálogo */}
+            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2 mb-2">
               {relevantSuppliers.map(s => (
-                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-cyan-500/50 cursor-default">
+                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/10 hover:border-cyan-500/50">
                   <p className="text-white font-medium text-xs truncate" title={s.name}>{s.name}</p>
                   <p className="text-slate-500 text-[10px]">{s.categories?.[0] || "General"}</p>
                   {s.phone && <p className="text-slate-400 text-[10px] flex items-center gap-1"><Phone className="w-2.5 h-2.5" />{s.phone}</p>}
                   {s.credit_days ? <p className="text-cyan-400 text-[10px]">{s.credit_days}d créd</p> : <p className="text-slate-500 text-[10px]">Contado</p>}
                 </div>
               ))}
-              {/* Proveedores IA */}
-              {proveedoresIA.slice(0, 10 - relevantSuppliers.length).map((p, i) => (
-                <div key={`ia-${i}`} className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                  <p className="text-amber-400 font-medium text-xs truncate flex items-center gap-1" title={p.nombre}>
-                    <Sparkles className="w-2.5 h-2.5 flex-shrink-0" />{p.nombre}
-                  </p>
-                  <p className="text-slate-500 text-[10px]">IA</p>
-                  {p.telefono && <p className="text-slate-400 text-[10px]">{p.telefono}</p>}
-                  {p.sitio_web && <a href={p.sitio_web} target="_blank" className="text-cyan-400 text-[10px] flex items-center gap-1"><ExternalLink className="w-2.5 h-2.5" />Web</a>}
-                </div>
-              ))}
             </div>
+
+            {/* LÍNEA 2: Proveedores encontrados por ARIA (sin repetir) */}
+            {proveedoresIAFiltrados.length > 0 && (
+              <>
+                <div className="flex items-center gap-2 my-2">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+                  <span className="text-cyan-400 text-[10px] font-medium flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" /> Sugeridos por ARIA ({proveedoresIAFiltrados.length})
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
+                  {proveedoresIAFiltrados.map((p, i) => (
+                    <div key={`ia-${i}`} className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 hover:border-cyan-500/50">
+                      <p className="text-cyan-400 font-medium text-xs truncate flex items-center gap-1" title={p.nombre}>
+                        <Sparkles className="w-2.5 h-2.5 flex-shrink-0" />{p.nombre}
+                      </p>
+                      {p.telefono && <p className="text-slate-400 text-[10px]">{p.telefono}</p>}
+                      {p.sitio_web && <a href={p.sitio_web} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-[10px] flex items-center gap-1 hover:underline"><ExternalLink className="w-2.5 h-2.5" />Web</a>}
+                      {!p.telefono && !p.sitio_web && <p className="text-slate-500 text-[10px]">Aguascalientes</p>}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Artículos - Tabla compacta */}
@@ -325,7 +353,7 @@ export default function ComprasTramitePage() {
                 <tr className="text-left text-slate-400 text-xs">
                   <th className="p-2 w-8">#</th>
                   <th className="p-2">Producto</th>
-                  <th className="p-2 w-20">Cant.</th>
+                  <th className="p-2 w-24">Cant.</th>
                   <th className="p-2">Proveedor</th>
                   <th className="p-2 w-28">Precio Unit.</th>
                   <th className="p-2 w-24 text-right">Subtotal</th>
@@ -344,15 +372,21 @@ export default function ComprasTramitePage() {
                       <select
                         value={prices[item.id]?.supplier || ""}
                         onChange={(e) => selectSupplier(item.id, e.target.value)}
-                        className="w-full px-2 py-1 rounded bg-black/30 border border-white/10 text-white text-xs focus:border-cyan-500 outline-none"
+                        className="w-full px-2 py-1.5 rounded bg-black/30 border border-white/10 text-white text-xs focus:border-cyan-500 outline-none"
                       >
                         <option value="">Seleccionar...</option>
-                        {relevantSuppliers.map(s => (
-                          <option key={s.id} value={s.name}>{s.name}</option>
-                        ))}
-                        {proveedoresIA.map((p, i) => (
-                          <option key={`ia-${i}`} value={p.nombre}>⭐ {p.nombre}</option>
-                        ))}
+                        <optgroup label="📦 Catálogo">
+                          {relevantSuppliers.map(s => (
+                            <option key={s.id} value={s.name}>{s.name}</option>
+                          ))}
+                        </optgroup>
+                        {proveedoresIAFiltrados.length > 0 && (
+                          <optgroup label="✨ Sugeridos por ARIA">
+                            {proveedoresIAFiltrados.map((p, i) => (
+                              <option key={`ia-${i}`} value={p.nombre}>{p.nombre}</option>
+                            ))}
+                          </optgroup>
+                        )}
                       </select>
                     </td>
                     <td className="p-2">
@@ -361,7 +395,7 @@ export default function ComprasTramitePage() {
                         placeholder="$0.00"
                         value={prices[item.id]?.price || ""}
                         onChange={(e) => updatePrice(item.id, parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 rounded bg-black/30 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none"
+                        className="w-full px-2 py-1.5 rounded bg-black/30 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none"
                       />
                     </td>
                     <td className="p-2 text-right">
@@ -377,7 +411,7 @@ export default function ComprasTramitePage() {
             </table>
           </div>
 
-          {/* Footer con total y enviar */}
+          {/* Footer */}
           <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
             <div className="flex items-center gap-4">
               {!allComplete() && <span className="text-amber-400 text-xs">⚠️ Completa todos los campos</span>}
