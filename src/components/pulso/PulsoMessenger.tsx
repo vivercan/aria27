@@ -504,7 +504,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
                   <Paperclip size={16} color="#28a745" />
                   <input type="file" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && alert("Archivo: " + e.target.files[0].name)} />
                 </label>
-                <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "2px solid #0078d7", borderRadius: "4px", fontSize: "12px", outline: "none", background: "#fff" }} />
+                <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "2px solid #0078d7", borderRadius: "4px", fontSize: "12px", outline: "none", background: "#fff", color: "#333" }} />
                 <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{ padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc", border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default" }}>
                   <Send size={14} color="white" />
                 </button>
