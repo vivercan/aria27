@@ -494,10 +494,17 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
             <div style={{ padding: "8px", borderTop: "1px solid #ddd", background: "#f5f5f5" }}>
               <div style={{ display: "flex", gap: "6px" }}>
-                <button onClick={() => setShowEmojis(!showEmojis)} style={{ padding: "8px", background: "white", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}>
-                  <Smile size={16} color="#666" />
+                <button onClick={() => setShowEmojis(!showEmojis)} style={{ padding: "8px", background: "#e8f4fd", border: "1px solid #0078d7", borderRadius: "4px", cursor: "pointer" }} title="Emojis">
+                  <Smile size={16} color="#0078d7" />
                 </button>
-                <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "12px", outline: "none" }} />
+                <button onClick={enviarNudge} style={{ padding: "8px", background: "#fff3cd", border: "1px solid #ffc107", borderRadius: "4px", cursor: "pointer" }} title="Zumbido">
+                  <Phone size={16} color="#d39e00" />
+                </button>
+                <label style={{ padding: "8px", background: "#d4edda", border: "1px solid #28a745", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center" }} title="Adjuntar archivo">
+                  <Paperclip size={16} color="#28a745" />
+                  <input type="file" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && alert("Archivo: " + e.target.files[0].name)} />
+                </label>
+                <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "2px solid #0078d7", borderRadius: "4px", fontSize: "12px", outline: "none", background: "#fff" }} />
                 <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{ padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc", border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default" }}>
                   <Send size={14} color="white" />
                 </button>
