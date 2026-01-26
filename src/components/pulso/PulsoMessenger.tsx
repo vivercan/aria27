@@ -175,13 +175,13 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   // ESTADO REAL: Online si last_seen es menor a 60 segundos
   const isOnline = (u: Usuario) => {
     if (!u.last_seen) return false;
-    const diff = Date.now() - new Date(u.last_seen).getTime();
+    const lastSeenUTC = u.last_seen.includes("Z") || u.last_seen.includes("+") ? u.last_seen : u.last_seen.replace(" ", "T") + "Z"; const diff = Date.now() - new Date(lastSeenUTC).getTime();
     return diff < 60000; // 60 segundos
   };
 
   const getLastSeenText = (u: Usuario) => {
     if (!u.last_seen) return "Nunca conectado";
-    const diff = Date.now() - new Date(u.last_seen).getTime();
+    const lastSeenUTC = u.last_seen.includes("Z") || u.last_seen.includes("+") ? u.last_seen : u.last_seen.replace(" ", "T") + "Z"; const diff = Date.now() - new Date(lastSeenUTC).getTime();
     if (diff < 60000) return null; // Online
     if (diff < 3600000) return `Hace ${Math.floor(diff / 60000)} min`;
     if (diff < 86400000) return `Hace ${Math.floor(diff / 3600000)} hrs`;
