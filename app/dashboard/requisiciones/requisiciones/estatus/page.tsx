@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft, Printer, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, Trash2, Loader2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import RequisicionPrint from "@/components/RequisicionPrint";
@@ -29,26 +29,51 @@ export default function RequisicionesStatusPage() {
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelId, setCancelId] = useState("");
+  const [cancelFolio, setCancelFolio] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [canceling, setCanceling] = useState(false);
   const [deleteType, setDeleteType] = useState<"single" | "selected" | "all">("single");
   const [singleDeleteId, setSingleDeleteId] = useState<string>("");
   const [itemsCache, setItemsCache] = useState<Record<string, ReqItem[]>>({});
   const [loadingItems, setLoadingItems] = useState<string | null>(null);
 
-  const canDelete = userEmail === "recursos.humanos@gcuavante.com";
+  // RH (admin) puede ver todas y eliminar
+  const isAdmin = userRole === "admin" || userEmail === "recursos.humanos@gcuavante.com";
+  const canDelete = isAdmin;
 
   useEffect(() => {
-    loadData();
     const email = localStorage.getItem("userEmail") || "";
     setUserEmail(email);
+    loadUserRole(email);
+    loadData(email);
   }, []);
 
-  async function loadData() {
+  async function loadUserRole(email: string) {
+    const { data } = await supabase.from("users").select("role").eq("email", email).single();
+    if (data) setUserRole(data.role || "");
+  }
+
+  async function loadData(email?: string) {
     setLoading(true);
-    const { data } = await supabase.from("Requisiciones").select("*").order("created_at", { ascending: false });
+    const currentEmail = email || userEmail;
+    
+    // Si es admin/RH, carga todas. Si no, solo las del usuario
+    let query = supabase.from("Requisiciones").select("*").order("created_at", { ascending: false });
+    
+    const { data: userData } = await supabase.from("users").select("role").eq("email", currentEmail).single();
+    const isAdminUser = userData?.role === "admin" || currentEmail === "recursos.humanos@gcuavante.com";
+    
+    if (!isAdminUser && currentEmail) {
+      query = query.eq("user_email", currentEmail);
+    }
+    
+    const { data } = await query;
     setRequisiciones((data || []) as Requisition[]);
     setLoading(false);
   }
@@ -76,6 +101,24 @@ export default function RequisicionesStatusPage() {
     setSingleDeleteId(singleId || "");
     setDeleteConfirmation("");
     setShowDeleteModal(true);
+  }
+
+  function openCancelModal(id: string, folio: string) {
+    setCancelId(id);
+    setCancelFolio(folio);
+    setShowCancelModal(true);
+  }
+
+  async function handleCancel() {
+    setCanceling(true);
+    try {
+      await supabase.from("Requisiciones").update({ status: "CANCELADA" }).eq("id", cancelId);
+      setShowCancelModal(false);
+      loadData();
+    } catch (e) {
+      alert("Error al cancelar");
+    }
+    setCanceling(false);
   }
 
   async function handleDelete() {
@@ -108,13 +151,22 @@ export default function RequisicionesStatusPage() {
   }
 
   const getStatusColor = (status: string) => {
-    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-emerald-500/20 text-emerald-400";
+    if (status?.includes("FINALIZADA")) return "bg-emerald-500/20 text-emerald-400";
+    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-blue-500/20 text-blue-400";
     if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
-    if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
+    if (status?.includes("CANCELADA") || status?.includes("RECHAZADA")) return "bg-red-500/20 text-red-400";
+    if (status?.includes("COTIZA")) return "bg-purple-500/20 text-purple-400";
     return "bg-slate-500/20 text-slate-400";
   };
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+
+  // El usuario puede cancelar SI es el creador Y el status es PENDIENTE o APROBADA (antes de compras)
+  const canCancel = (req: Requisition) => {
+    const isCreator = req.user_email === userEmail;
+    const isBeforeCompras = ["PENDIENTE", "APROBADA"].includes(req.status);
+    return isCreator && isBeforeCompras;
+  };
 
   return (
     <div className="space-y-4">
@@ -125,7 +177,9 @@ export default function RequisicionesStatusPage() {
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Estatus de Requisiciones</h1>
-            <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>
+            <p className="text-slate-500 text-sm">
+              {isAdmin ? `Todas las requisiciones (${requisiciones.length})` : `Mis requisiciones (${requisiciones.length})`}
+            </p>
           </div>
         </div>
         {canDelete && selectedIds.length > 0 && (
@@ -138,6 +192,12 @@ export default function RequisicionesStatusPage() {
 
       {loading ? (
         <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-cyan-400" /></div>
+      ) : requisiciones.length === 0 ? (
+        <div className="text-center py-20 text-slate-500">
+          <Eye className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>No hay requisiciones</p>
+          <Link href="/dashboard/requisiciones/requisiciones/nuevo" className="text-cyan-400 hover:underline mt-2 inline-block">Crear una nueva</Link>
+        </div>
       ) : (
         <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
           <table className="w-full">
@@ -149,7 +209,7 @@ export default function RequisicionesStatusPage() {
                 <th className="p-3">Solicitante</th>
                 <th className="p-3">F. Requerida</th>
                 <th className="p-3">Estado</th>
-                <th className="p-3 w-24 text-center">Acciones</th>
+                <th className="p-3 w-32 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -162,9 +222,23 @@ export default function RequisicionesStatusPage() {
                   <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
                   <td className="p-3"><span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(req.status)}`}>{req.status}</span></td>
                   <td className="p-3">
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-1">
+                      {/* Botón Imprimir */}
                       <PrintButton req={req} loadItems={() => loadItemsForPrint(req.id)} itemsCache={itemsCache} loadingItems={loadingItems} />
-                      {canDelete && <button onClick={() => openDeleteModal("single", req.id)} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>}
+                      
+                      {/* Botón Cancelar (solo creador, antes de compras) */}
+                      {canCancel(req) && (
+                        <button onClick={() => openCancelModal(req.id, req.folio)} className="p-2 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400" title="Cancelar requisición">
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      )}
+                      
+                      {/* Botón Eliminar (solo admin) */}
+                      {canDelete && (
+                        <button onClick={() => openDeleteModal("single", req.id)} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -174,10 +248,26 @@ export default function RequisicionesStatusPage() {
         </div>
       )}
 
+      {/* Modal Cancelar */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
+            <h3 className="text-lg font-bold text-white mb-4">⚠️ Cancelar Requisición</h3>
+            <p className="text-slate-400 text-sm mb-4">¿Estás seguro de cancelar <strong className="text-amber-400">{cancelFolio}</strong>?</p>
+            <p className="text-slate-500 text-xs mb-4">Esta acción no se puede deshacer. La requisición quedará con estado CANCELADA.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowCancelModal(false)} className="flex-1 py-2 rounded bg-white/10 text-white hover:bg-white/20">No, volver</button>
+              <button onClick={handleCancel} disabled={canceling} className="flex-1 py-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50">{canceling ? "Cancelando..." : "Sí, cancelar"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Eliminar */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
-            <h3 className="text-lg font-bold text-white mb-4">⚠️ Confirmar Eliminación</h3>
+            <h3 className="text-lg font-bold text-white mb-4">🗑️ Confirmar Eliminación</h3>
             <p className="text-slate-400 text-sm mb-4">{deleteType === "single" ? "¿Eliminar esta requisición?" : `¿Eliminar ${deleteType === "all" ? "TODAS" : selectedIds.length} requisiciones?`}</p>
             <p className="text-slate-500 text-xs mb-2">Escribe DELETE para confirmar:</p>
             <input type="text" value={deleteConfirmation} onChange={(e) => setDeleteConfirmation(e.target.value)} placeholder="DELETE" className="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white mb-4" />
@@ -222,7 +312,7 @@ function PrintButton({ req, loadItems, itemsCache, loadingItems }: { req: Requis
   }
 
   return (
-    <button onClick={handleClick} disabled={loadingItems === req.id} className="p-2 rounded-lg bg-white/5 hover:bg-white/20 text-slate-400 hover:text-white transition-all disabled:opacity-50" title="Imprimir requisición">
+    <button onClick={handleClick} disabled={loadingItems === req.id} className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all disabled:opacity-50" title="Imprimir requisición">
       {loadingItems === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
     </button>
   );
