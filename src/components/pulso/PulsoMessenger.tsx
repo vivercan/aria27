@@ -173,21 +173,22 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   const formatTime = (d: string) => new Date(d).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
   // ESTADO REAL: Online si last_seen es menor a 60 segundos
+  // ESTADO REAL: Online si last_seen es menor a 60 segundos
   const isOnline = (u: Usuario) => {
     if (!u.last_seen) return false;
-    const lastSeenUTC = u.last_seen.includes("Z") || u.last_seen.includes("+") ? u.last_seen : u.last_seen.replace(" ", "T") + "Z"; const diff = Date.now() - new Date(lastSeenUTC).getTime();
-    return diff < 60000; // 60 segundos
+    const ts = u.last_seen.replace(" ", "T") + "Z";
+    const diff = Date.now() - new Date(ts).getTime();
+    return diff < 60000;
   };
-
   const getLastSeenText = (u: Usuario) => {
     if (!u.last_seen) return "Nunca conectado";
-    const lastSeenUTC = u.last_seen.includes("Z") || u.last_seen.includes("+") ? u.last_seen : u.last_seen.replace(" ", "T") + "Z"; const diff = Date.now() - new Date(lastSeenUTC).getTime();
-    if (diff < 60000) return null; // Online
+    const ts = u.last_seen.replace(" ", "T") + "Z";
+    const diff = Date.now() - new Date(ts).getTime();
+    if (diff < 60000) return null;
     if (diff < 3600000) return `Hace ${Math.floor(diff / 60000)} min`;
     if (diff < 86400000) return `Hace ${Math.floor(diff / 3600000)} hrs`;
     return `Hace ${Math.floor(diff / 86400000)} días`;
   };
-
   const getStatusColor = (u: Usuario) => {
     if (!isOnline(u)) return "#888888";
     switch (u.status) {
