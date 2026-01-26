@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Filter, Edit2, Trash2, Eye } from "lucide-react";
+import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check } from "lucide-react";
 
 interface Activo {
   id: string;
@@ -19,73 +19,174 @@ interface Activo {
   combustible: string;
 }
 
+interface Asignacion {
+  id: string;
+  activo_id: string;
+  empleado_id: string;
+  obra_nombre: string;
+  fecha_asignacion: string;
+  fecha_devolucion: string | null;
+  observaciones: string;
+  activa: boolean;
+  activo?: Activo;
+  empleado?: { full_name: string };
+}
+
+interface Mantenimiento {
+  id: string;
+  activo_id: string;
+  tipo: string;
+  fecha: string;
+  kilometraje: number;
+  horas_uso: number;
+  descripcion: string;
+  costo: number;
+  proveedor: string;
+  proximo_servicio: string;
+  proximo_km: number;
+  activo?: Activo;
+}
+
 const TIPOS = ["TODOS", "VEHICULO", "MAQUINARIA", "HERRAMIENTA", "EQUIPO"];
 const ESTADOS = { DISPONIBLE: "bg-emerald-500", EN_USO: "bg-blue-500", MANTENIMIENTO: "bg-amber-500", BAJA: "bg-red-500" };
 
 export default function ActivosCatalogoPage() {
+  const [tab, setTab] = useState<"inventario" | "asignaciones" | "mantenimiento">("inventario");
   const [activos, setActivos] = useState<Activo[]>([]);
+  const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
+  const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
+  const [empleados, setEmpleados] = useState<{id: string; full_name: string}[]>([]);
+  const [obras, setObras] = useState<{id: number; name: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("TODOS");
-  const [showModal, setShowModal] = useState(false);
+  
+  // Modales
+  const [showModalActivo, setShowModalActivo] = useState(false);
+  const [showModalAsignacion, setShowModalAsignacion] = useState(false);
+  const [showModalMantenimiento, setShowModalMantenimiento] = useState(false);
   const [editando, setEditando] = useState<Activo | null>(null);
-  const [form, setForm] = useState({
+  
+  // Forms
+  const [formActivo, setFormActivo] = useState({
     codigo: "", nombre: "", tipo: "VEHICULO", marca: "", modelo: "", anio: new Date().getFullYear(),
     placas: "", estado: "DISPONIBLE", ubicacion_actual: "", kilometraje: 0, combustible: "GASOLINA"
   });
+  const [formAsignacion, setFormAsignacion] = useState({
+    activo_id: "", empleado_id: "", obra_nombre: "", fecha_asignacion: new Date().toISOString().split("T")[0], observaciones: ""
+  });
+  const [formMantenimiento, setFormMantenimiento] = useState({
+    activo_id: "", tipo: "PREVENTIVO", fecha: new Date().toISOString().split("T")[0], kilometraje: 0,
+    descripcion: "", costo: 0, proveedor: "", proximo_servicio: "", proximo_km: 0
+  });
 
-  useEffect(() => { cargarActivos(); }, []);
+  useEffect(() => { cargarDatos(); }, []);
 
-  const cargarActivos = async () => {
-    const { data } = await supabase.from("activos").select("*").eq("activo", true).order("codigo");
-    if (data) setActivos(data);
+  const cargarDatos = async () => {
+    const { data: act } = await supabase.from("activos").select("*").eq("activo", true).order("codigo");
+    if (act) setActivos(act);
+
+    const { data: asig } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:employees(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
+    if (asig) setAsignaciones(asig);
+
+    const { data: mant } = await supabase.from("activos_mantenimiento").select("*, activo:activos(*)").order("fecha", { ascending: false });
+    if (mant) setMantenimientos(mant);
+
+    const { data: emps } = await supabase.from("employees").select("id, full_name").eq("status", "ACTIVO").order("full_name");
+    if (emps) setEmpleados(emps);
+
+    const { data: obr } = await supabase.from("cost_centers").select("id, name").eq("active", true);
+    if (obr) setObras(obr);
+
     setLoading(false);
   };
 
+  // === CRUD ACTIVOS ===
   const guardarActivo = async () => {
-    if (!form.codigo || !form.nombre) return alert("Código y nombre son requeridos");
-    
+    if (!formActivo.codigo || !formActivo.nombre) return alert("Código y nombre son requeridos");
     if (editando) {
-      await supabase.from("activos").update(form).eq("id", editando.id);
+      await supabase.from("activos").update(formActivo).eq("id", editando.id);
     } else {
-      await supabase.from("activos").insert(form);
+      await supabase.from("activos").insert(formActivo);
     }
-    setShowModal(false);
+    setShowModalActivo(false);
     setEditando(null);
-    setForm({ codigo: "", nombre: "", tipo: "VEHICULO", marca: "", modelo: "", anio: new Date().getFullYear(), placas: "", estado: "DISPONIBLE", ubicacion_actual: "", kilometraje: 0, combustible: "GASOLINA" });
-    cargarActivos();
+    resetFormActivo();
+    cargarDatos();
   };
 
   const eliminarActivo = async (id: string) => {
     if (!confirm("¿Eliminar este activo?")) return;
     await supabase.from("activos").update({ activo: false }).eq("id", id);
-    cargarActivos();
+    cargarDatos();
   };
 
-  const abrirEditar = (activo: Activo) => {
+  const abrirEditarActivo = (activo: Activo) => {
     setEditando(activo);
-    setForm({
+    setFormActivo({
       codigo: activo.codigo, nombre: activo.nombre, tipo: activo.tipo, marca: activo.marca || "",
       modelo: activo.modelo || "", anio: activo.anio || new Date().getFullYear(), placas: activo.placas || "",
       estado: activo.estado, ubicacion_actual: activo.ubicacion_actual || "", kilometraje: activo.kilometraje || 0,
       combustible: activo.combustible || "GASOLINA"
     });
-    setShowModal(true);
+    setShowModalActivo(true);
   };
 
+  const resetFormActivo = () => {
+    setFormActivo({ codigo: "", nombre: "", tipo: "VEHICULO", marca: "", modelo: "", anio: new Date().getFullYear(), placas: "", estado: "DISPONIBLE", ubicacion_actual: "", kilometraje: 0, combustible: "GASOLINA" });
+  };
+
+  // === CRUD ASIGNACIONES ===
+  const guardarAsignacion = async () => {
+    if (!formAsignacion.activo_id || !formAsignacion.empleado_id) return alert("Selecciona activo y empleado");
+    await supabase.from("activos_asignaciones").insert(formAsignacion);
+    await supabase.from("activos").update({ estado: "EN_USO" }).eq("id", formAsignacion.activo_id);
+    setShowModalAsignacion(false);
+    setFormAsignacion({ activo_id: "", empleado_id: "", obra_nombre: "", fecha_asignacion: new Date().toISOString().split("T")[0], observaciones: "" });
+    cargarDatos();
+  };
+
+  const devolverActivo = async (asig: Asignacion) => {
+    if (!confirm("¿Registrar devolución de este activo?")) return;
+    await supabase.from("activos_asignaciones").update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] }).eq("id", asig.id);
+    await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", asig.activo_id);
+    cargarDatos();
+  };
+
+  // === CRUD MANTENIMIENTO ===
+  const guardarMantenimiento = async () => {
+    if (!formMantenimiento.activo_id || !formMantenimiento.descripcion) return alert("Selecciona activo y descripción");
+    await supabase.from("activos_mantenimiento").insert(formMantenimiento);
+    if (formMantenimiento.tipo === "CORRECTIVO") {
+      await supabase.from("activos").update({ estado: "MANTENIMIENTO" }).eq("id", formMantenimiento.activo_id);
+    }
+    setShowModalMantenimiento(false);
+    setFormMantenimiento({ activo_id: "", tipo: "PREVENTIVO", fecha: new Date().toISOString().split("T")[0], kilometraje: 0, descripcion: "", costo: 0, proveedor: "", proximo_servicio: "", proximo_km: 0 });
+    cargarDatos();
+  };
+
+  // Filtros
   const activosFiltrados = activos.filter(a => {
-    const matchBusqueda = a.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-                          a.codigo.toLowerCase().includes(busqueda.toLowerCase()) ||
-                          (a.placas && a.placas.toLowerCase().includes(busqueda.toLowerCase()));
+    const matchBusqueda = a.nombre.toLowerCase().includes(busqueda.toLowerCase()) || a.codigo.toLowerCase().includes(busqueda.toLowerCase()) || (a.placas && a.placas.toLowerCase().includes(busqueda.toLowerCase()));
     const matchTipo = tipoFiltro === "TODOS" || a.tipo === tipoFiltro;
     return matchBusqueda && matchTipo;
   });
+
+  const activosDisponibles = activos.filter(a => a.estado === "DISPONIBLE");
 
   const getIcono = (tipo: string) => {
     if (tipo === "VEHICULO") return <Truck className="w-5 h-5" />;
     if (tipo === "MAQUINARIA") return <Wrench className="w-5 h-5" />;
     return <Package className="w-5 h-5" />;
   };
+
+  const proximosMantenimientos = mantenimientos.filter(m => {
+    if (!m.proximo_servicio) return false;
+    const prox = new Date(m.proximo_servicio);
+    const hoy = new Date();
+    const diff = (prox.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24);
+    return diff <= 30 && diff >= 0;
+  });
 
   return (
     <div className="space-y-6">
@@ -96,170 +197,272 @@ export default function ActivosCatalogoPage() {
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Catálogo de Activos</h1>
-            <p className="text-slate-400 text-sm">{activos.length} activos registrados</p>
+            <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
+            <p className="text-slate-400 text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
           </div>
         </div>
-        <button onClick={() => { setEditando(null); setShowModal(true); }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium">
-          <Plus className="w-4 h-4" /> Nuevo Activo
-        </button>
       </div>
 
-      {/* Filtros */}
-      <div className="flex gap-4 flex-wrap">
-        <div className="relative flex-1 min-w-[250px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Buscar por nombre, código o placas..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none" />
-        </div>
-        <div className="flex gap-2">
-          {TIPOS.map(tipo => (
-            <button key={tipo} onClick={() => setTipoFiltro(tipo)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${tipoFiltro === tipo ? "bg-emerald-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
-              {tipo}
-            </button>
-          ))}
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-white/10 pb-2">
+        {[
+          { id: "inventario", label: "Inventario", icon: Package, count: activos.length },
+          { id: "asignaciones", label: "Asignaciones", icon: Users, count: asignaciones.length },
+          { id: "mantenimiento", label: "Mantenimiento", icon: Settings, count: mantenimientos.length }
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id as typeof tab)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${tab === t.id ? "bg-emerald-600 text-white" : "text-slate-400 hover:bg-white/5"}`}>
+            <t.icon className="w-4 h-4" /> {t.label} <span className="text-xs opacity-70">({t.count})</span>
+          </button>
+        ))}
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-white/5 sticky top-0">
-              <tr className="text-left text-xs text-slate-400 uppercase">
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Activo</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Marca/Modelo</th>
-                <th className="px-4 py-3">Placas</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Km</th>
-                <th className="px-4 py-3">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">Cargando...</td></tr>
-              ) : activosFiltrados.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">No hay activos</td></tr>
-              ) : activosFiltrados.map(activo => (
-                <tr key={activo.id} className="hover:bg-white/5">
-                  <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">{getIcono(activo.tipo)}</div>
-                      <span className="text-white font-medium">{activo.nombre}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 text-sm">{activo.tipo}</td>
-                  <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo}</td>
-                  <td className="px-4 py-3 text-slate-400 text-sm">{activo.placas || "-"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs font-medium text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-gray-500"}`}>
-                      {activo.estado}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => abrirEditar(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {loading ? <div className="text-center text-slate-400 py-8">Cargando...</div> : (
+        <>
+          {/* ==================== TAB INVENTARIO ==================== */}
+          {tab === "inventario" && (
+            <>
+              <div className="flex justify-between items-center gap-4 flex-wrap">
+                <div className="relative flex-1 min-w-[250px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input type="text" placeholder="Buscar..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-500" />
+                </div>
+                <div className="flex gap-2">
+                  {TIPOS.map(tipo => (
+                    <button key={tipo} onClick={() => setTipoFiltro(tipo)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium ${tipoFiltro === tipo ? "bg-emerald-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+                      {tipo}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => { setEditando(null); resetFormActivo(); setShowModalActivo(true); }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium">
+                  <Plus className="w-4 h-4" /> Nuevo
+                </button>
+              </div>
 
-      {/* Modal */}
-      {showModal && (
+              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto max-h-[60vh]">
+                  <table className="w-full">
+                    <thead className="bg-white/5 sticky top-0">
+                      <tr className="text-left text-xs text-slate-400 uppercase">
+                        <th className="px-4 py-3">Código</th>
+                        <th className="px-4 py-3">Activo</th>
+                        <th className="px-4 py-3">Tipo</th>
+                        <th className="px-4 py-3">Marca/Modelo</th>
+                        <th className="px-4 py-3">Placas</th>
+                        <th className="px-4 py-3">Estado</th>
+                        <th className="px-4 py-3">Km/Hrs</th>
+                        <th className="px-4 py-3">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {activosFiltrados.map(activo => (
+                        <tr key={activo.id} className="hover:bg-white/5">
+                          <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">{getIcono(activo.tipo)}</div>
+                              <span className="text-white font-medium">{activo.nombre}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.tipo}</td>
+                          <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo}</td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.placas || "-"}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded text-xs font-medium text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-gray-500"}`}>{activo.estado}</span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ==================== TAB ASIGNACIONES ==================== */}
+          {tab === "asignaciones" && (
+            <>
+              <div className="flex justify-between items-center">
+                <p className="text-slate-400">{activosDisponibles.length} activos disponibles para asignar</p>
+                <button onClick={() => setShowModalAsignacion(true)} disabled={activosDisponibles.length === 0}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 rounded-lg text-white font-medium">
+                  <Plus className="w-4 h-4" /> Nueva Asignación
+                </button>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-white/5">
+                    <tr className="text-left text-xs text-slate-400 uppercase">
+                      <th className="px-4 py-3">Activo</th>
+                      <th className="px-4 py-3">Asignado a</th>
+                      <th className="px-4 py-3">Obra</th>
+                      <th className="px-4 py-3">Desde</th>
+                      <th className="px-4 py-3">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {asignaciones.length === 0 ? (
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No hay asignaciones activas</td></tr>
+                    ) : asignaciones.map(asig => (
+                      <tr key={asig.id} className="hover:bg-white/5">
+                        <td className="px-4 py-3">
+                          <div className="text-white font-medium">{asig.activo?.codigo}</div>
+                          <div className="text-slate-400 text-sm">{asig.activo?.nombre}</div>
+                        </td>
+                        <td className="px-4 py-3 text-white">{asig.empleado?.full_name}</td>
+                        <td className="px-4 py-3 text-slate-400">{asig.obra_nombre || "-"}</td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{asig.fecha_asignacion}</td>
+                        <td className="px-4 py-3">
+                          <button onClick={() => devolverActivo(asig)} className="px-3 py-1.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm">
+                            Devolver
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* ==================== TAB MANTENIMIENTO ==================== */}
+          {tab === "mantenimiento" && (
+            <>
+              {proximosMantenimientos.length > 0 && (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                  <div className="flex items-center gap-2 text-amber-400 font-medium mb-2">
+                    <AlertTriangle className="w-5 h-5" /> Mantenimientos próximos (30 días)
+                  </div>
+                  <div className="space-y-1">
+                    {proximosMantenimientos.map(m => (
+                      <div key={m.id} className="text-sm text-slate-300">
+                        {m.activo?.codigo} - {m.activo?.nombre}: <span className="text-amber-400">{m.proximo_servicio}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <button onClick={() => setShowModalMantenimiento(true)} className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium">
+                  <Plus className="w-4 h-4" /> Registrar Servicio
+                </button>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-white/5">
+                    <tr className="text-left text-xs text-slate-400 uppercase">
+                      <th className="px-4 py-3">Activo</th>
+                      <th className="px-4 py-3">Tipo</th>
+                      <th className="px-4 py-3">Fecha</th>
+                      <th className="px-4 py-3">Descripción</th>
+                      <th className="px-4 py-3">Costo</th>
+                      <th className="px-4 py-3">Próximo</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {mantenimientos.length === 0 ? (
+                      <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No hay registros de mantenimiento</td></tr>
+                    ) : mantenimientos.map(mant => (
+                      <tr key={mant.id} className="hover:bg-white/5">
+                        <td className="px-4 py-3">
+                          <div className="text-white font-medium">{mant.activo?.codigo}</div>
+                          <div className="text-slate-400 text-sm">{mant.activo?.nombre}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                            {mant.tipo}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.fecha}</td>
+                        <td className="px-4 py-3 text-slate-300 text-sm">{mant.descripcion}</td>
+                        <td className="px-4 py-3 text-emerald-400">${mant.costo?.toLocaleString() || 0}</td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.proximo_servicio || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {/* ==================== MODAL ACTIVO ==================== */}
+      {showModalActivo && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Código *</label>
-                <input type="text" value={form.codigo} onChange={e => setForm({...form, codigo: e.target.value.toUpperCase()})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="VEH-001" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Tipo</label>
-                <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
-                  <option value="VEHICULO">Vehículo</option>
-                  <option value="MAQUINARIA">Maquinaria</option>
-                  <option value="HERRAMIENTA">Herramienta</option>
-                  <option value="EQUIPO">Equipo</option>
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm text-slate-400 mb-1">Nombre *</label>
-                <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Camioneta Nissan NP300" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Marca</label>
-                <input type="text" value={form.marca} onChange={e => setForm({...form, marca: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Nissan" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Modelo</label>
-                <input type="text" value={form.modelo} onChange={e => setForm({...form, modelo: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="NP300" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Año</label>
-                <input type="number" value={form.anio} onChange={e => setForm({...form, anio: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Placas</label>
-                <input type="text" value={form.placas} onChange={e => setForm({...form, placas: e.target.value.toUpperCase()})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="AGS-123-A" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Estado</label>
-                <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
-                  <option value="DISPONIBLE">Disponible</option>
-                  <option value="EN_USO">En Uso</option>
-                  <option value="MANTENIMIENTO">Mantenimiento</option>
-                  <option value="BAJA">Baja</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Combustible</label>
-                <select value={form.combustible} onChange={e => setForm({...form, combustible: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
-                  <option value="GASOLINA">Gasolina</option>
-                  <option value="DIESEL">Diésel</option>
-                  <option value="ELECTRICO">Eléctrico</option>
-                  <option value="NA">N/A</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Kilometraje</label>
-                <input type="number" value={form.kilometraje} onChange={e => setForm({...form, kilometraje: parseInt(e.target.value) || 0})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Ubicación</label>
-                <input type="text" value={form.ubicacion_actual} onChange={e => setForm({...form, ubicacion_actual: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Obra Miravalle" />
-              </div>
+              <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
+              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Modelo</label><input type="text" value={formActivo.modelo} onChange={e => setFormActivo({...formActivo, modelo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Año</label><input type="number" value={formActivo.anio} onChange={e => setFormActivo({...formActivo, anio: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Placas</label><input type="text" value={formActivo.placas} onChange={e => setFormActivo({...formActivo, placas: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Estado</label><select value={formActivo.estado} onChange={e => setFormActivo({...formActivo, estado: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="DISPONIBLE">Disponible</option><option value="EN_USO">En Uso</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="BAJA">Baja</option></select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Combustible</label><select value={formActivo.combustible} onChange={e => setFormActivo({...formActivo, combustible: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="GASOLINA">Gasolina</option><option value="DIESEL">Diésel</option><option value="ELECTRICO">Eléctrico</option><option value="NA">N/A</option></select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" value={formActivo.kilometraje} onChange={e => setFormActivo({...formActivo, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Ubicación</label><input type="text" value={formActivo.ubicacion_actual} onChange={e => setFormActivo({...formActivo, ubicacion_actual: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => { setShowModal(false); setEditando(null); }} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarActivo} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium">
-                {editando ? "Guardar Cambios" : "Crear Activo"}
-              </button>
+              <button onClick={() => { setShowModalActivo(false); setEditando(null); }} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={guardarActivo} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium">{editando ? "Guardar" : "Crear"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL ASIGNACION ==================== */}
+      {showModalAsignacion && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-white mb-4">Nueva Asignación</h2>
+            <div className="space-y-4">
+              <div><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Empleado *</label><select value={formAsignacion.empleado_id} onChange={e => setFormAsignacion({...formAsignacion, empleado_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Obra</label><select value={formAsignacion.obra_nombre} onChange={e => setFormAsignacion({...formAsignacion, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formAsignacion.fecha_asignacion} onChange={e => setFormAsignacion({...formAsignacion, fecha_asignacion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Observaciones</label><input type="text" value={formAsignacion.observaciones} onChange={e => setFormAsignacion({...formAsignacion, observaciones: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={guardarAsignacion} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium">Asignar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL MANTENIMIENTO ==================== */}
+      {showModalMantenimiento && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formMantenimiento.tipo} onChange={e => setFormMantenimiento({...formMantenimiento, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="PREVENTIVO">Preventivo</option><option value="CORRECTIVO">Correctivo</option><option value="REVISION">Revisión</option></select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formMantenimiento.fecha} onChange={e => setFormMantenimiento({...formMantenimiento, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Descripción *</label><input type="text" value={formMantenimiento.descripcion} onChange={e => setFormMantenimiento({...formMantenimiento, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Cambio de aceite, afinación..." /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" value={formMantenimiento.kilometraje} onChange={e => setFormMantenimiento({...formMantenimiento, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Costo $</label><input type="number" value={formMantenimiento.costo} onChange={e => setFormMantenimiento({...formMantenimiento, costo: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Proveedor/Taller</label><input type="text" value={formMantenimiento.proveedor} onChange={e => setFormMantenimiento({...formMantenimiento, proveedor: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Próximo Servicio</label><input type="date" value={formMantenimiento.proximo_servicio} onChange={e => setFormMantenimiento({...formMantenimiento, proximo_servicio: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowModalMantenimiento(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={guardarMantenimiento} className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium">Registrar</button>
             </div>
           </div>
         </div>
