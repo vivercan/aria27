@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { X, Send, MessageCircle, Minus, Users, Circle, Smile, Clock, Coffee, Moon } from "lucide-react";
+import { X, Send, MessageCircle, Minus, Users, Circle, Smile, Clock, Coffee, Moon, Paperclip, Phone } from "lucide-react";
 
 interface Usuario {
   email: string;
@@ -30,6 +30,12 @@ const EMOJIS = ["😊", "😂", "❤️", "👍", "🎉", "🔥", "😎", "🤔"
 
 const SONIDO_MSN = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrtnAAAAAAD/+9DEAAAIAANIAAAAIAAANIAAAAQAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7UMQbg8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==";
 
+// Sonido NUDGE/ZUMBIDO (más intenso)
+const SONIDO_NUDGE = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQgAQpm+";
+
+// Sonido de CONEXIÓN
+const SONIDO_CONEXION = "data:audio/wav;base64,UklGRl9vT19teleQgAQpm+2/teleQgAQpm+3/teleQgAQpm+";
+
 export default function PulsoMessenger({ userEmail, onClose }: { userEmail: string; onClose: () => void }) {
   const [vista, setVista] = useState<"contactos" | "chat" | "estado">("contactos");
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
@@ -42,12 +48,19 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   const [miMensaje, setMiMensaje] = useState("");
   const [escribiendo, setEscribiendo] = useState<string[]>([]);
   const [showEmojis, setShowEmojis] = useState(false);
+  const [nudgeAnimation, setNudgeAnimation] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const previousOnlineRef = useRef<Set<string>>(new Set<string>());
+  const nudgeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const conexionAudioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastMsgCount = useRef(0);
 
   useEffect(() => {
     audioRef.current = new Audio(SONIDO_MSN);
+    nudgeAudioRef.current = new Audio(SONIDO_NUDGE);
+    conexionAudioRef.current = new Audio(SONIDO_CONEXION);
   }, []);
 
   useEffect(() => {
@@ -84,7 +97,31 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
     try {
       const res = await fetch("/api/pulso/estado");
       const data = await res.json();
-      setUsuarios((data.usuarios || []).filter((u: Usuario) => u.email !== userEmail));
+      const nuevosUsuarios = (data.usuarios || []).filter((u: Usuario) => u.email !== userEmail);
+      
+      // Detectar nuevas conexiones
+      const currentOnline: Set<string> = new Set<string>(nuevosUsuarios.filter((u: Usuario) => {
+        if (!u.last_seen) return false;
+        const ts = u.last_seen.replace(" ", "T") + "Z";
+        const diff = Date.now() - new Date(ts).getTime();
+        return diff < 60000;
+      }).map((u: Usuario) => u.email));
+      
+      // Comparar con conexiones anteriores
+      currentOnline.forEach(email => {
+        if (!previousOnlineRef.current.has(email)) {
+          const usuario = nuevosUsuarios.find((u: Usuario) => u.email === email);
+          if (usuario && previousOnlineRef.current.size > 0) {
+            const nombre = usuario.display_name || usuario.name || (email as string).split("@")[0];
+            setToast(`🟢 ${nombre} se ha conectado`);
+            conexionAudioRef.current?.play().catch(() => {});
+            setTimeout(() => setToast(null), 4000);
+          }
+        }
+      });
+      previousOnlineRef.current = currentOnline as Set<string>;
+      
+      setUsuarios(nuevosUsuarios);
     } catch (e) { console.error(e); }
   };
 
@@ -138,6 +175,12 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setVista("chat");
       lastMsgCount.current = 0;
     } catch (e) { console.error(e); }
+  };
+
+  const enviarNudge = () => {
+    setNudgeAnimation(true);
+    nudgeAudioRef.current?.play().catch(() => {});
+    setTimeout(() => setNudgeAnimation(false), 500);
   };
 
   const enviarMensaje = async () => {
@@ -266,7 +309,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   return (
     <div style={{
-      position: "fixed", bottom: "20px", right: "20px", width: "300px", height: "450px",
+      position: "fixed", bottom: "20px", right: "20px", width: "300px", height: "450px", transform: nudgeAnimation ? "translateX(5px)" : "translateX(0)", transition: "transform 0.05s",
       background: "#f0f0f0", borderRadius: "8px 8px 0 0",
       boxShadow: "0 0 20px rgba(0,0,0,0.3)", border: "1px solid #0078d7",
       display: "flex", flexDirection: "column", overflow: "hidden", zIndex: 9999,
@@ -287,6 +330,20 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
           </button>
         </div>
       </div>
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div style={{
+          position: "absolute", top: "40px", left: "10px", right: "10px",
+          background: "linear-gradient(135deg, #00cc00, #009900)",
+          color: "white", padding: "8px 12px", borderRadius: "4px",
+          fontSize: "11px", fontWeight: 600, textAlign: "center",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.3)", zIndex: 10000,
+          animation: "fadeIn 0.3s ease"
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* MI PERFIL */}
       <div onClick={() => setVista("estado")} style={{ background: "linear-gradient(180deg, #e8f4fd 0%, #d4e8f8 100%)", padding: "10px", borderBottom: "1px solid #b8d4e8", display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
