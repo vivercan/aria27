@@ -79,7 +79,7 @@ export default function AlertasGlobales() {
     return (
       <button
         onClick={() => setMinimizado(false)}
-        className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 text-white shadow-lg hover:bg-amber-600 transition-all animate-pulse"
+        className="fixed bottom-[560px] left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 text-white shadow-lg hover:bg-amber-600 transition-all animate-pulse"
       >
         <AlertTriangle className="w-5 h-5" />
         <span className="font-bold">{totalAlertas}</span>
@@ -89,7 +89,7 @@ export default function AlertasGlobales() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-96 max-h-[400px] overflow-hidden rounded-xl bg-[#0a1628] border border-amber-500/30 shadow-2xl">
+    <div className="fixed bottom-[560px] left-4 z-50 w-96 max-h-[400px] overflow-hidden rounded-xl bg-[#0a1628] border border-amber-500/30 shadow-2xl">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-amber-500/10 border-b border-amber-500/20">
         <div className="flex items-center gap-2">

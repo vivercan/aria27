@@ -296,7 +296,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   if (minimizado) {
     return (
       <div onClick={() => setMinimizado(false)} style={{
-        position: "fixed", bottom: "20px", right: "20px", width: "200px", height: "32px",
+        position: "fixed", bottom: "20px", right: "10px", width: "200px", height: "32px",
         background: "linear-gradient(180deg, #0078d7 0%, #0063b1 100%)",
         borderRadius: "4px 4px 0 0", cursor: "pointer", display: "flex", alignItems: "center",
         padding: "0 10px", gap: "8px", boxShadow: "0 -2px 10px rgba(0,0,0,0.3)", zIndex: 9999
@@ -309,7 +309,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   return (
     <div style={{
-      position: "fixed", bottom: "20px", right: "20px", width: "300px", height: "450px", transform: nudgeAnimation ? "translateX(5px)" : "translateX(0)", transition: "transform 0.05s",
+      position: "fixed", bottom: "20px", right: "10px", width: "320px", height: "450px", transform: nudgeAnimation ? "translateX(5px)" : "translateX(0)", transition: "transform 0.05s",
       background: "#f0f0f0", borderRadius: "8px 8px 0 0",
       boxShadow: "0 0 20px rgba(0,0,0,0.3)", border: "1px solid #0078d7",
       display: "flex", flexDirection: "column", overflow: "hidden", zIndex: 9999,
