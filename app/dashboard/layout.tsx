@@ -206,21 +206,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <div className="p-6">{children}</div>
       </main>
 
-      {/* Pulso Modal */}
+      {/* ARIA Pulso Messenger */}
       <AlertasGlobales />
-      {showPulso && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div 
-            className="w-[400px] h-[600px] rounded-2xl shadow-2xl p-4"
-            style={{ backgroundColor: colors.sidebar }}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold" style={{ color: colors.text }}>ARIA Pulso</h2>
-              <button onClick={() => setShowPulso(false)} style={{ color: colors.textMuted }}>✕</button>
-            </div>
-            <p className="text-sm" style={{ color: colors.textMuted }}>Chat interno del equipo</p>
-          </div>
-        </div>
+      {showPulso && userEmail && (
+        <PulsoMessenger userEmail={userEmail} onClose={() => setShowPulso(false)} />
       )}
     </div>
   );
