@@ -1,4 +1,5 @@
 "use client";
+import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -182,6 +183,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Pulso Modal */}
+      <AlertasGlobales />
       {showPulso && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div 
@@ -207,3 +209,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </ThemeProvider>
   );
 }
+
