@@ -4,9 +4,13 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
 const BASE_URL = "https://aria.jjcrm27.com";
 
-// Obtener usuario por ROL (dinamico)
 async function getUserByRole(role: string) {
   const { data } = await supabase.from("users").select("*").eq("role", role).single();
+  return data;
+}
+
+async function getUserByEmail(email: string) {
+  const { data } = await supabase.from("users").select("*").eq("email", email).single();
   return data;
 }
 
@@ -37,7 +41,6 @@ export async function GET(request: Request) {
   await supabase.from("Requisiciones").update({ status: action, authorization_comments: null }).eq("id", req.id);
 
   if (action === "APROBADA") {
-    // Obtener compras dinamicamente por ROL
     const comprasUser = await getUserByRole("compras");
 
     const daysUntil = Math.ceil((new Date(req.required_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -56,20 +59,26 @@ export async function GET(request: Request) {
         html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
       });
       if (comprasUser.phone) {
-        await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.created_by, req.cost_center_name, urgencyText], comprasUser.phone);
+        await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.cost_center_name, urgencyText], comprasUser.phone);
       }
     }
 
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Requisicion Validada</h1><p style="color:#64748b">${req.folio}</p><p>Se notifico a Compras (${comprasUser?.email || 'N/A'})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   } else {
+    // RECHAZADA - Notificar al creador por EMAIL + WHATSAPP
+    const creatorUser = await getUserByEmail(req.user_email);
+    
     await resend.emails.send({
       from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
       subject: `Requisicion ${req.folio} rechazada`,
-      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`
+      html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada por el validador.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`
     });
+
+    // WhatsApp al creador
+    if (creatorUser?.phone) {
+      await sendWhatsAppTemplate("requisicion_rechazada", [req.folio, req.cost_center_name, "RECHAZADA", "Por validador"], creatorUser.phone);
+    }
 
     return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
 }
-
-

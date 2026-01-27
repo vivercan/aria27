@@ -47,6 +47,12 @@ const TEMPLATE_CONFIG: Record<string, {
     description: "Notificar OC generada"
     // {{1}}=Requisición, {{2}}=OC, {{3}}=Obra, {{4}}=Total, {{5}}=Urgencia
   },
+  requisicion_rechazada: { 
+    language: "es_MX", 
+    paramCount: 4,
+    description: "Notificar rechazo al creador"
+    // {{1}}=Folio, {{2}}=Obra, {{3}}=Estado, {{4}}=Motivo
+  },
 };
 
 /**
@@ -78,7 +84,6 @@ export async function sendWhatsAppTemplate(
   if (formattedPhone.length === 10) {
     formattedPhone = "52" + formattedPhone;
   } else if (formattedPhone.startsWith("521") && formattedPhone.length === 13) {
-    // Quitar el 1 después del 52
     formattedPhone = "52" + formattedPhone.slice(3);
   }
 
@@ -95,7 +100,6 @@ export async function sendWhatsAppTemplate(
 
   // Button parameters (si la plantilla tiene botones)
   if (config.hasButton && buttonToken) {
-    // Botón 0: Aprobar/Autorizar
     components.push({
       type: "button",
       sub_type: "url",
@@ -103,7 +107,6 @@ export async function sendWhatsAppTemplate(
       parameters: [{ type: "text", text: `${buttonToken}&action=APROBADA` }],
     });
     
-    // Botón 1: Rechazar (si tiene 2 botones)
     if (config.buttonCount === 2) {
       components.push({
         type: "button",
@@ -180,11 +183,9 @@ export async function sendWhatsAppToMultiple(
       results.errors.push(`${phone}: ${result.error}`);
     }
     
-    // Pausa para evitar rate limits de Meta
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
   console.log("[WhatsApp] 📊 Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
-
