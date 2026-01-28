@@ -22,6 +22,7 @@ export default function CorreoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [loadingContent, setLoadingContent] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [folder, setFolder] = useState("INBOX");
   const [userEmail, setUserEmail] = useState("");
@@ -68,6 +69,29 @@ export default function CorreoPage() {
   };
 
   useEffect(() => { loadEmails(); }, [folder]);
+
+  const fetchEmailContent = async (email: Email) => {
+    setSelectedEmail(email);
+    setLoadingContent(true);
+    try {
+      const creds = sessionStorage.getItem("zohoCreds");
+      if (!creds) return;
+      const { e, p } = JSON.parse(atob(creds));
+      const res = await fetch("/api/mail/fetch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: e, password: p, uid: email.uid, folder }),
+      });
+      const data = await res.json();
+      if (data.html || data.body) {
+        setSelectedEmail({ ...email, html: data.html, body: data.body });
+      }
+    } catch (err) {
+      console.error("Error fetching content:", err);
+    }
+    setLoadingContent(false);
+  };
+
 
   const toggleRead = (uid: number) => {
     setEmails(prev => prev.map(e => e.uid === uid ? { ...e, seen: !e.seen } : e));
@@ -283,7 +307,7 @@ export default function CorreoPage() {
               {filteredEmails.map((email, idx) => (
                 <div
                   key={email.uid || idx}
-                  onClick={() => { setSelectedEmail(email); toggleRead(email.uid); }}
+                  onClick={() => { fetchEmailContent(email); toggleRead(email.uid); }}
                   className={`flex items-center gap-2 px-3 py-2.5 border-b border-slate-700/30 cursor-pointer transition-colors ${
                     selectedEmail?.uid === email.uid ? "bg-blue-600/20 border-l-2 border-l-blue-500" : "hover:bg-slate-800/50"
                   }`}
@@ -350,7 +374,12 @@ export default function CorreoPage() {
 
             <div className="flex-1 overflow-y-auto p-6 bg-white">
               <div className="prose prose-slate max-w-none">
-                {selectedEmail.html ? (
+                {loadingContent ? (
+                    <div className="flex items-center justify-center py-20">
+                      <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="ml-3 text-slate-500">Cargando contenido...</span>
+                    </div>
+                  ) : selectedEmail.html ? (
                   <div className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
                 ) : (
                   <pre className="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed text-sm">
@@ -426,3 +455,6 @@ export default function CorreoPage() {
     </div>
   );
 }
+
+
+
