@@ -2,20 +2,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { DollarSign, FileText, Edit3, Calculator, History, Download, Users, CreditCard, Banknote, ArrowLeft, Loader2, ChevronRight, Calendar, Clock } from "lucide-react";
-
-interface Empleado {
-  id: string;
-  employee_number: string;
-  full_name: string;
-  position: string;
-  project_site: string;
-  salario_diario: number;
-  minimo_tarjeta: number;
-}
+import { DollarSign, FileText, Edit3, Calculator, History, Download, Users, CreditCard, Banknote, ArrowLeft, Loader2, ChevronRight, Calendar, Clock, AlertTriangle, Settings, ToggleLeft, ToggleRight, X } from "lucide-react";
 
 interface DetalleNomina {
-  empleado: Empleado;
+  empleado: { id: string; employee_number: string; full_name: string; position: string; project_site: string; salario_diario: number; minimo_tarjeta: number };
   dias_trabajados: number;
   salario_base: number;
   horas_extra: number;
@@ -25,6 +15,14 @@ interface DetalleNomina {
   sueldo_neto: number;
   pago_tarjeta: number;
   pago_efectivo: number;
+}
+
+interface Incidencia {
+  empleado: string;
+  diasCompletos: number;
+  diasIncompletos: number;
+  diasSinRegistro: number;
+  detalle: { fecha: string; entrada: string; salida: string }[];
 }
 
 function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
@@ -52,8 +50,24 @@ export default function NominaPage() {
   const [totales, setTotales] = useState({ bruto: 0, deducciones: 0, neto: 0, tarjeta: 0, efectivo: 0, empleados: 0 });
   const [nominaExiste, setNominaExiste] = useState(false);
   const [mensaje, setMensaje] = useState<{tipo: "success" | "error" | "info"; texto: string} | null>(null);
+  
+  // Nuevos estados
+  const [modoNomina, setModoNomina] = useState<"ONBOARDING" | "ESTRICTO">("ONBOARDING");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showIncidenciasModal, setShowIncidenciasModal] = useState(false);
+  const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
+  const [cargandoIncidencias, setCargandoIncidencias] = useState(false);
 
   useEffect(() => {
+    // Verificar si es admin
+    const email = localStorage.getItem("userEmail");
+    if (email === "recursos.humanos@gcuavante.com") {
+      setIsAdmin(true);
+    }
+    
+    // Cargar modo actual
+    cargarModo();
+    
     const hoy = new Date();
     const { inicio, fin, semana } = getWeekRange(hoy);
     setSemanaInfo({
@@ -68,9 +82,35 @@ export default function NominaPage() {
     if (semanaInfo.inicio) verificarYCargar();
   }, [semanaInfo]);
 
+  const cargarModo = async () => {
+    const { data } = await supabase
+      .from("configuracion_nomina")
+      .select("valor")
+      .eq("clave", "modo_nomina")
+      .single();
+    if (data) setModoNomina(data.valor as "ONBOARDING" | "ESTRICTO");
+  };
+
+  const cambiarModo = async () => {
+    const nuevoModo = modoNomina === "ONBOARDING" ? "ESTRICTO" : "ONBOARDING";
+    const confirmar = window.confirm(
+      nuevoModo === "ESTRICTO" 
+        ? "⚠️ MODO ESTRICTO\n\nEsto descontará faltas del salario semanal.\n\n¿Está seguro de activar este modo?"
+        : "✅ MODO ONBOARDING\n\nEsto pagará el salario semanal completo sin importar asistencias.\n\n¿Cambiar a modo onboarding?"
+    );
+    if (!confirmar) return;
+
+    await supabase
+      .from("configuracion_nomina")
+      .update({ valor: nuevoModo })
+      .eq("clave", "modo_nomina");
+    
+    setModoNomina(nuevoModo);
+    setMensaje({ tipo: "success", texto: `Modo cambiado a ${nuevoModo}` });
+  };
+
   const verificarYCargar = async () => {
     setLoading(true);
-    // Verificar si ya existe nómina para esta semana
     const { data: existente } = await supabase
       .from("nomina_historico")
       .select("*")
@@ -79,15 +119,13 @@ export default function NominaPage() {
 
     if (existente && existente.length > 0) {
       setNominaExiste(true);
-      // Cargar desde histórico
       const totalBruto = existente.reduce((s, n) => s + (n.total_percepciones || 0), 0);
       const totalDeducciones = existente.reduce((s, n) => s + (n.total_deducciones || 0), 0);
       const totalNeto = existente.reduce((s, n) => s + (n.sueldo_neto || 0), 0);
       const totalTarjeta = existente.reduce((s, n) => s + (n.pago_tarjeta || 0), 0);
       const totalEfectivo = existente.reduce((s, n) => s + (n.pago_efectivo || 0), 0);
       setTotales({ bruto: totalBruto, deducciones: totalDeducciones, neto: totalNeto, tarjeta: totalTarjeta, efectivo: totalEfectivo, empleados: existente.length });
-      
-      // Mapear a detalles para mostrar
+
       const detallesCargados = existente.map(n => ({
         empleado: { id: n.employee_id, employee_number: "", full_name: n.nombre, position: n.puesto, project_site: n.obra, salario_diario: n.salario_diario, minimo_tarjeta: 0 },
         dias_trabajados: n.dias_trabajados,
@@ -109,34 +147,53 @@ export default function NominaPage() {
     setLoading(false);
   };
 
-  const generarPreNomina = async () => {
-    if (nominaExiste) {
-      setMensaje({ tipo: "info", texto: "Ya existe nómina para esta semana. Ve al histórico para consultarla." });
-      return;
+  const consultarIncidencias = async () => {
+    setCargandoIncidencias(true);
+    try {
+      const res = await fetch(`/api/nomina/generar?fecha=${semanaInfo.inicio}`);
+      const data = await res.json();
+      setIncidencias(data.incidencias || []);
+      setShowIncidenciasModal(true);
+    } catch (e) {
+      setMensaje({ tipo: "error", texto: "Error al consultar incidencias" });
     }
-    
-    const confirmar = window.confirm(`¿Generar pre-nómina para Semana ${semanaInfo.semana}?\n\nPeríodo: ${formatDate(semanaInfo.inicio)} - ${formatDate(semanaInfo.fin)}`);
-    if (!confirmar) return;
+    setCargandoIncidencias(false);
+  };
 
+  const generarPreNomina = async (forzar = false) => {
+    setShowIncidenciasModal(false);
     setGenerando(true);
     setMensaje(null);
     try {
       const res = await fetch("/api/nomina/generar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fechaReferencia: semanaInfo.inicio })
+        body: JSON.stringify({ fechaReferencia: semanaInfo.inicio, forzar })
       });
       const data = await res.json();
       if (data.error) {
         setMensaje({ tipo: "error", texto: data.error });
       } else {
-        setMensaje({ tipo: "success", texto: `✅ Nómina generada: ${data.registros} empleados | Neto: $${data.totales.neto.toLocaleString("es-MX", {minimumFractionDigits: 2})}` });
+        let msg = `✅ Nómina generada: ${data.registros} empleados | Neto: $${data.totales.neto.toLocaleString("es-MX", {minimumFractionDigits: 2})}`;
+        if (data.incidencias) {
+          msg += ` | ⚠️ ${data.incidencias.total} con incidencias`;
+        }
+        setMensaje({ tipo: "success", texto: msg });
         await verificarYCargar();
       }
     } catch (e: any) {
       setMensaje({ tipo: "error", texto: e.message });
     }
     setGenerando(false);
+  };
+
+  const handleGenerarClick = async () => {
+    if (nominaExiste) {
+      setMensaje({ tipo: "info", texto: "Ya existe nómina para esta semana. Use Regenerar si necesita recalcular." });
+      return;
+    }
+    // Primero consultar incidencias
+    await consultarIncidencias();
   };
 
   const exportarExcel = async () => {
@@ -182,10 +239,10 @@ export default function NominaPage() {
             <p className="text-slate-400 text-sm">Semana {semanaInfo.semana} | {formatDate(semanaInfo.inicio)} - {formatDate(semanaInfo.fin)}</p>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap justify-end">
           <Link href="/dashboard/talento/nomina/manual" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 hover:from-amber-500/30 hover:to-orange-500/30 transition-all">
             <Edit3 className="w-4 h-4" />
-            Nómina Manual
+            Manual
           </Link>
           <Link href="/dashboard/talento/nomina/recibos" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 text-violet-300 hover:from-violet-500/30 hover:to-purple-500/30 transition-all">
             <FileText className="w-4 h-4" />
@@ -197,11 +254,46 @@ export default function NominaPage() {
           </Link>
           <Link href="/dashboard/talento/checadas/incompletas" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 transition-all">
             <Clock className="w-4 h-4" />
-            Revisar Incompletas
+            Incompletas
           </Link>
-          {nominaExiste ? (
-            <>
-            <button onClick={() => { if(confirm("¿Regenerar nómina? Esto recalculará basado en asistencias completas.")) { fetch("/api/nomina/generar", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ fechaReferencia: semanaInfo.inicio, forzar: true }) }).then(() => verificarYCargar()).then(() => setMensaje({tipo: "success", texto: "Nómina regenerada correctamente"})); }}} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 transition-all">
+        </div>
+      </div>
+
+      {/* Switch de modo (solo admin) */}
+      {isAdmin && (
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Settings className="w-5 h-5 text-slate-400" />
+            <div>
+              <p className="text-white font-medium">Modo de Nómina</p>
+              <p className="text-slate-400 text-xs">
+                {modoNomina === "ONBOARDING" 
+                  ? "Paga salario semanal completo (sin descontar faltas)" 
+                  : "Descuenta faltas del salario semanal"}
+              </p>
+            </div>
+          </div>
+          <button onClick={cambiarModo} className="flex items-center gap-2">
+            {modoNomina === "ONBOARDING" ? (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30">
+                <ToggleLeft className="w-6 h-6 text-emerald-400" />
+                <span className="text-emerald-300 font-medium">ONBOARDING</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30">
+                <ToggleRight className="w-6 h-6 text-red-400" />
+                <span className="text-red-300 font-medium">ESTRICTO</span>
+              </div>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Botones de acción */}
+      <div className="flex gap-3 justify-end">
+        {nominaExiste ? (
+          <>
+            <button onClick={() => generarPreNomina(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 transition-all">
               <Calculator className="w-4 h-4" />
               Regenerar
             </button>
@@ -209,14 +301,13 @@ export default function NominaPage() {
               {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {exportando ? "Exportando..." : "Descargar Excel"}
             </button>
-            </>
-          ) : (
-            <button onClick={generarPreNomina} disabled={generando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50">
-              {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
-              {generando ? "Generando..." : "Generar Pre-nómina"}
-            </button>
-          )}
-        </div>
+          </>
+        ) : (
+          <button onClick={handleGenerarClick} disabled={generando || cargandoIncidencias} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50">
+            {(generando || cargandoIncidencias) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
+            {cargandoIncidencias ? "Consultando..." : generando ? "Generando..." : "Generar Pre-nómina"}
+          </button>
+        )}
       </div>
 
       {/* Mensaje */}
@@ -231,14 +322,14 @@ export default function NominaPage() {
         <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
           <Calendar className="w-12 h-12 text-slate-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No hay nómina generada para esta semana</h3>
-          <p className="text-slate-400 mb-4">Presiona "Generar Pre-nómina" para calcular los pagos basados en las asistencias registradas.</p>
+          <p className="text-slate-400 mb-4">Presiona "Generar Pre-nómina" para calcular los pagos.</p>
+          <p className="text-xs text-slate-500">Modo actual: <span className={modoNomina === "ONBOARDING" ? "text-emerald-400" : "text-red-400"}>{modoNomina}</span></p>
         </div>
       )}
 
-      {/* Si hay nómina */}
+      {/* Si hay nómina - Totales y tabla */}
       {nominaExiste && (
         <>
-          {/* Totales */}
           <div className="grid grid-cols-5 gap-4">
             <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
               <div className="flex items-center gap-2 mb-2"><Users className="w-4 h-4 text-blue-400" /><span className="text-slate-400 text-xs">Empleados</span></div>
@@ -262,7 +353,6 @@ export default function NominaPage() {
             </div>
           </div>
 
-          {/* Gran total */}
           <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-green-500/10 border border-emerald-500/30">
             <div className="flex items-center justify-between">
               <div>
@@ -275,7 +365,6 @@ export default function NominaPage() {
             </div>
           </div>
 
-          {/* Tabla de empleados */}
           <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
             <div className="p-4 border-b border-white/10">
               <h3 className="text-white font-medium">Detalle por Empleado</h3>
@@ -311,9 +400,65 @@ export default function NominaPage() {
           </div>
         </>
       )}
+
+      {/* Modal de Incidencias */}
+      {showIncidenciasModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-5 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-6 h-6 text-amber-400" />
+                <h2 className="text-xl font-bold text-white">Incidencias Detectadas</h2>
+              </div>
+              <button onClick={() => setShowIncidenciasModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto max-h-[50vh]">
+              {incidencias.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-emerald-400 text-lg">✅ No hay incidencias</p>
+                  <p className="text-slate-400 mt-2">Todos los empleados tienen sus asistencias completas.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-amber-300 mb-4">⚠️ {incidencias.length} empleado(s) con incidencias esta semana:</p>
+                  {incidencias.map((inc, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-amber-500/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white font-medium">{inc.empleado}</span>
+                        <div className="flex gap-2">
+                          <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs">{inc.diasCompletos} completos</span>
+                          {inc.diasIncompletos > 0 && <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 text-xs">{inc.diasIncompletos} incompletos</span>}
+                          {inc.diasSinRegistro > 0 && <span className="px-2 py-1 rounded bg-red-500/20 text-red-300 text-xs">{inc.diasSinRegistro} sin registro</span>}
+                        </div>
+                      </div>
+                      {inc.detalle.length > 0 && (
+                        <div className="text-xs text-slate-400 mt-2">
+                          {inc.detalle.map((d, j) => (
+                            <p key={j}>{d.fecha}: Entrada {d.entrada} | Salida {d.salida}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-5 border-t border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setShowIncidenciasModal(false)} className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-all">
+                Cancelar
+              </button>
+              <Link href="/dashboard/talento/checadas/incompletas" className="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 transition-all">
+                Corregir Manualmente
+              </Link>
+              <button onClick={() => generarPreNomina(false)} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all">
+                Generar Así
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
