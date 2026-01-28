@@ -36,6 +36,15 @@ export async function POST(req: NextRequest) {
     const anio = fecha.getFullYear();
     const { inicio, fin } = getWeekRange(fecha);
 
+    // Obtener modo de nómina
+    const { data: configModo } = await supabase
+      .from("configuracion_nomina")
+      .select("valor")
+      .eq("clave", "modo_nomina")
+      .single();
+    
+    const modoNomina = configModo?.valor || "ONBOARDING";
+
     // Si forzar=true, eliminar nómina existente para regenerar
     if (forzar) {
       await supabase
@@ -44,7 +53,6 @@ export async function POST(req: NextRequest) {
         .eq("semana", semana)
         .eq("anio", anio);
     } else {
-      // Verificar si ya existe
       const { data: existente } = await supabase
         .from("nomina_historico")
         .select("id")
@@ -60,7 +68,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Obtener empleados activos
+    // Obtener empleados activos de Personal (sincronizado con employees)
     const { data: empleados, error: empError } = await supabase
       .from("Personal")
       .select("*")
@@ -68,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     if (empError) throw empError;
 
-    // Obtener TODAS las asistencias del periodo para detectar incompletas
+    // Obtener TODAS las asistencias del periodo
     const { data: todasAsistencias } = await supabase
       .from("asistencias")
       .select("*, employee:employee_id(full_name)")
@@ -76,7 +84,7 @@ export async function POST(req: NextRequest) {
       .lte("fecha", fin);
 
     // Separar completas e incompletas
-    const asistenciasIncompletas = todasAsistencias?.filter(a => !a.hora_salida) || [];
+    const asistenciasIncompletas = todasAsistencias?.filter(a => !a.hora_salida || !a.hora_entrada) || [];
     const asistenciasCompletas = todasAsistencias?.filter(a => a.hora_entrada && a.hora_salida) || [];
 
     // Obtener configuración
@@ -87,13 +95,15 @@ export async function POST(req: NextRequest) {
     };
     const factorDoble = getConfig("factor_hora_extra_doble", 2);
     const minimoTarjeta = getConfig("minimo_tarjeta_default", 1096);
+    const diasLaborables = 6; // Lunes a Sábado
 
     const nominasGeneradas = [];
+    const incidenciasPorEmpleado: any[] = [];
 
     for (const emp of empleados || []) {
-      // Solo contar asistencias COMPLETAS (con entrada Y salida)
       const asistenciasEmp = asistenciasCompletas.filter(a => a.employee_id === emp.id);
-
+      const incompletasEmp = asistenciasIncompletas.filter(a => a.employee_id === emp.id);
+      
       // Obtener préstamos activos
       const { data: prestamos } = await supabase
         .from("prestamos")
@@ -101,10 +111,25 @@ export async function POST(req: NextRequest) {
         .eq("employee_id", emp.id)
         .eq("status", "ACTIVO");
 
-      const diasTrabajados = asistenciasEmp.length; // Solo días COMPLETOS
+      const diasTrabajados = asistenciasEmp.length;
+      const diasIncompletos = incompletasEmp.length;
       const horasExtra = asistenciasEmp.reduce((sum, a) => sum + (a.horas_extra || 0), 0);
       const salarioDiario = emp.salario_diario || 0;
-      const salarioBase = salarioDiario * diasTrabajados;
+      const salarioSemanal = emp.salario_semanal || (salarioDiario * 7);
+      
+      // LÓGICA DE PAGO SEGÚN MODO
+      let salarioBase: number;
+      let diasFalta = 0;
+      
+      if (modoNomina === "ONBOARDING") {
+        // ONBOARDING: Paga salario semanal completo sin importar faltas
+        salarioBase = salarioSemanal;
+      } else {
+        // ESTRICTO: Descuenta faltas
+        diasFalta = Math.max(0, diasLaborables - diasTrabajados);
+        salarioBase = salarioSemanal - (salarioDiario * diasFalta);
+      }
+
       const pagoHorasExtra = horasExtra * (salarioDiario / 8) * factorDoble;
       const totalPercepciones = salarioBase + pagoHorasExtra;
       const prestamoDescuento = prestamos?.reduce((sum, p) => sum + (p.descuento_semanal || 0), 0) || 0;
@@ -113,6 +138,17 @@ export async function POST(req: NextRequest) {
       const pagoTarjetaEmp = emp.minimo_tarjeta || minimoTarjeta;
       const pagoTarjeta = Math.min(sueldoNeto, pagoTarjetaEmp);
       const pagoEfectivo = Math.max(0, sueldoNeto - pagoTarjeta);
+
+      // Registrar incidencias
+      if (diasIncompletos > 0 || diasTrabajados < diasLaborables) {
+        incidenciasPorEmpleado.push({
+          empleado: emp.full_name,
+          diasTrabajados,
+          diasIncompletos,
+          diasFalta: diasLaborables - diasTrabajados - diasIncompletos,
+          detalle: incompletasEmp.map(a => ({ fecha: a.fecha, entrada: a.hora_entrada, salida: a.hora_salida }))
+        });
+      }
 
       const nomina = {
         employee_id: emp.id,
@@ -124,8 +160,11 @@ export async function POST(req: NextRequest) {
         puesto: emp.position,
         obra: emp.project_site || emp.work_center?.name || "Sin asignar",
         dias_trabajados: diasTrabajados,
+        dias_incompletos: diasIncompletos,
+        dias_falta: diasFalta,
         horas_extra: horasExtra,
         salario_diario: salarioDiario,
+        salario_semanal: salarioSemanal,
         salario_base: salarioBase,
         pago_horas_extra: pagoHorasExtra,
         bonos: 0,
@@ -136,7 +175,8 @@ export async function POST(req: NextRequest) {
         sueldo_neto: sueldoNeto,
         pago_tarjeta: pagoTarjeta,
         pago_efectivo: pagoEfectivo,
-        status: "GENERADA"
+        status: "GENERADA",
+        modo_calculo: modoNomina
       };
 
       nominasGeneradas.push(nomina);
@@ -163,20 +203,85 @@ export async function POST(req: NextRequest) {
       semana,
       anio,
       periodo: `${inicio} al ${fin}`,
+      modoNomina,
       totales,
       registros: nominasGeneradas.length,
-      advertencia: asistenciasIncompletas.length > 0 ? {
-        mensaje: `Hay ${asistenciasIncompletas.length} asistencia(s) sin salida que NO se contaron`,
-        incompletas: asistenciasIncompletas.map(a => ({
-          empleado: a.employee?.full_name || "Desconocido",
-          fecha: a.fecha,
-          entrada: a.hora_entrada
-        }))
+      incidencias: incidenciasPorEmpleado.length > 0 ? {
+        total: incidenciasPorEmpleado.length,
+        detalle: incidenciasPorEmpleado
       } : null
     });
 
   } catch (error: any) {
     console.error("Error generando nómina:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// GET para consultar incidencias sin generar
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const fechaRef = searchParams.get("fecha");
+    const fecha = fechaRef ? new Date(fechaRef) : new Date();
+    const semana = getWeekNumber(fecha);
+    const anio = fecha.getFullYear();
+    const { inicio, fin } = getWeekRange(fecha);
+
+    // Obtener modo
+    const { data: configModo } = await supabase
+      .from("configuracion_nomina")
+      .select("valor")
+      .eq("clave", "modo_nomina")
+      .single();
+
+    // Obtener empleados
+    const { data: empleados } = await supabase
+      .from("Personal")
+      .select("id, full_name")
+      .eq("status", "ACTIVO");
+
+    // Obtener asistencias
+    const { data: asistencias } = await supabase
+      .from("asistencias")
+      .select("employee_id, fecha, hora_entrada, hora_salida")
+      .gte("fecha", inicio)
+      .lte("fecha", fin);
+
+    const diasLaborables = 6;
+    const incidencias: any[] = [];
+
+    for (const emp of empleados || []) {
+      const asistEmp = asistencias?.filter(a => a.employee_id === emp.id) || [];
+      const completas = asistEmp.filter(a => a.hora_entrada && a.hora_salida);
+      const incompletas = asistEmp.filter(a => !a.hora_entrada || !a.hora_salida);
+      
+      if (incompletas.length > 0 || completas.length < diasLaborables) {
+        incidencias.push({
+          empleado: emp.full_name,
+          diasCompletos: completas.length,
+          diasIncompletos: incompletas.length,
+          diasSinRegistro: diasLaborables - completas.length - incompletas.length,
+          detalle: incompletas.map(a => ({
+            fecha: a.fecha,
+            entrada: a.hora_entrada || "SIN ENTRADA",
+            salida: a.hora_salida || "SIN SALIDA"
+          }))
+        });
+      }
+    }
+
+    return NextResponse.json({
+      semana,
+      anio,
+      periodo: `${inicio} al ${fin}`,
+      modoNomina: configModo?.valor || "ONBOARDING",
+      totalEmpleados: empleados?.length || 0,
+      empleadosConIncidencias: incidencias.length,
+      incidencias
+    });
+
+  } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
