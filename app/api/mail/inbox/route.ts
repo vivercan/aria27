@@ -4,7 +4,7 @@ import { simpleParser } from "mailparser";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, folder = "INBOX", limit = 25 } = await req.json();
+    const { email, password, folder = "INBOX", limit = 20 } = await req.json();
     if (!email || !password) {
       return NextResponse.json({ error: "Credenciales requeridas" }, { status: 400 });
     }
@@ -126,4 +126,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message || "Error al conectar con Zoho" }, { status: 500 });
   }
 }
+
 
