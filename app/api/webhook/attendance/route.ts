@@ -134,7 +134,7 @@ async function findEmpleado(phone10: string, fullPhone: string) {
   // Buscar en employees (tabla principal)
   const { data } = await supabase
     .from("employees")
-    .select("id, employee_number, full_name, centro_trabajo_id, centro_trabajo:centros_trabajo(nombre)")
+    .select("id, employee_number, full_name, centro_trabajo_id, geocerca_libre, centro_trabajo:centros_trabajo(nombre)")
     .or(`whatsapp.eq.${phone10},whatsapp.eq.${fullPhone}`)
     .eq("status", "ACTIVO")
     .limit(1);
@@ -227,7 +227,8 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
 
   const distance = minDist;
   const radius = workCenter.radio_metros || 500;
-  const dentroGeocerca = distance <= radius;
+  // Si el empleado tiene geocerca_libre, siempre está dentro
+  const dentroGeocerca = emp.geocerca_libre === true ? true : distance <= radius;
 
   // 3. Buscar si ya tiene asistencia HOY
   const { data: asistData } = await supabase
@@ -395,3 +396,4 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
