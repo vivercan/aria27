@@ -127,11 +127,12 @@ export async function POST(request: Request) {
       notificados.push(`Compras: ${comprasUser.email} (${comprasUser.phone})`);
     }
 
-    return NextResponse.json({ success: true, folio, notificados });
+    return NextResponse.json({ success: true, folio, notificados, debug: { creador: usuario.email, creadorRole: creatorUser?.role, isValidador, validadorEmail: validadorUser?.email } });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 
 
