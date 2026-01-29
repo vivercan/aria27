@@ -25,12 +25,13 @@ export async function POST(req: NextRequest) {
         imap.openBox(folder, true, (err) => {
           if (err) { imap.end(); reject(err); return; }
 
-          const f = imap.seq.fetch(uid, { bodies: "" });
+          // @ts-ignore - fetch exists on imap
+          const f = imap.fetch([uid], { bodies: "" });
           let buffer = Buffer.alloc(0);
 
-          f.on("message", (msg) => {
-            msg.on("body", (stream) => {
-              stream.on("data", (chunk) => {
+          f.on("message", (msg: any) => {
+            msg.on("body", (stream: any) => {
+              stream.on("data", (chunk: Buffer) => {
                 buffer = Buffer.concat([buffer, chunk]);
               });
             });
@@ -49,11 +50,14 @@ export async function POST(req: NextRequest) {
             });
           });
 
-          f.once("error", (err) => { imap.end(); reject(err); });
+          f.once("error", (fetchErr: Error) => { 
+            imap.end(); 
+            reject(fetchErr); 
+          });
         });
       });
 
-      imap.once("error", (err) => reject(err));
+      imap.once("error", (err: Error) => reject(err));
       imap.connect();
     });
 
