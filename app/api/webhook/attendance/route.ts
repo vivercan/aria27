@@ -297,8 +297,46 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     return;
   }
 
-  // CASO 3: Ya tiene entrada Y salida → Ya completó
+  // CASO 3: Ya tiene entrada Y salida
   if (asistenciaHoy && asistenciaHoy.hora_salida) {
+    // Si fue registro automático (MANUAL o con notas de corrección), permitir sobrescribir
+    const esAutomatico = asistenciaHoy.tipo_registro === "MANUAL" || 
+                         (asistenciaHoy.notas && (
+                           asistenciaHoy.notas.includes("automatica") || 
+                           asistenciaHoy.notas.includes("masiva") ||
+                           asistenciaHoy.notas.includes("Correccion")
+                         ));
+    
+    if (esAutomatico) {
+      // Sobrescribir: eliminar el registro automático y crear uno real
+      await supabase.from("asistencias").delete().eq("id", asistenciaHoy.id);
+      
+      await supabase.from("asistencias").insert({
+        employee_id: emp.id,
+        fecha: today,
+        hora_entrada: hora,
+        latitud_entrada: lat,
+        longitud_entrada: lng,
+        dentro_geocerca_entrada: dentroGeocerca,
+        tipo_registro: "WHATSAPP",
+        notas: `Entrada: ${workCenter.nombre} - ${Math.round(distance)}m (reemplazó registro automático)`
+      });
+
+      const geoIcon = dentroGeocerca ? "✅" : "⚠️";
+      const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
+
+      await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${geoMsg}
+
+👤 ${emp.full_name}
+📍 ${workCenter.nombre}
+🕐 ${hora}
+
+(Se actualizó tu registro del día)
+¡Excelente día!`);
+      return;
+    }
+    
+    // Si fue registro real del empleado, no permitir cambios
     await sendWhatsApp(from, `ℹ️ Ya registraste tu asistencia completa hoy.
 
 👤 ${emp.full_name}
@@ -396,4 +434,5 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
