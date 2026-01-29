@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Mail, Inbox, Send, Trash2, RefreshCw, Edit3, X, Search, CheckSquare, Square, Paperclip, Loader2, MailOpen, Circle } from "lucide-react";
+import { ArrowLeft, Mail, Inbox, Send, Trash2, RefreshCw, Edit3, X, Search, CheckSquare, Square, Paperclip, Loader2, MailOpen, Circle, AlertCircle } from "lucide-react";
 
 interface Email {
   seqno: number;
@@ -455,6 +455,7 @@ export default function CorreoPage() {
     </div>
   );
 }
+
 
 
 
