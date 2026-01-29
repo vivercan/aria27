@@ -203,6 +203,7 @@ export default function CorreoPage() {
     { name: "INBOX", label: "Entrada", icon: Inbox },
     { name: "Sent", label: "Enviados", icon: Send },
     { name: "Trash", label: "Papelera", icon: Trash2 },
+    { name: "Spam", label: "Spam", icon: AlertCircle },
   ];
 
   return (
