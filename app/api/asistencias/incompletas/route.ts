@@ -6,31 +6,39 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Misma función que usa nómina: Jueves a Miércoles
+function getWeekRange(date: Date): { inicio: string; fin: string } {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diffToThursday = day >= 4 ? day - 4 : day + 3;
+  const jueves = new Date(d);
+  jueves.setDate(d.getDate() - diffToThursday);
+  const miercoles = new Date(jueves);
+  miercoles.setDate(jueves.getDate() + 6);
+  return {
+    inicio: jueves.toISOString().split("T")[0],
+    fin: miercoles.toISOString().split("T")[0]
+  };
+}
+
 // GET: Obtener asistencias incompletas Y días sin registro
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const inicio = searchParams.get("inicio");
-    const fin = searchParams.get("fin");
+    const fechaRef = searchParams.get("fecha");
+    const fecha = fechaRef ? new Date(fechaRef) : new Date();
+    const { inicio, fin } = getWeekRange(fecha);
     
-    // Calcular semana actual si no se especifica
     const hoy = new Date();
-    const diaSemana = hoy.getDay();
-    const inicioSemana = new Date(hoy);
-    inicioSemana.setDate(hoy.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-    const finSemana = new Date(inicioSemana);
-    finSemana.setDate(inicioSemana.getDate() + 5); // Lunes a Sábado
-    
-    const fechaInicio = inicio || inicioSemana.toISOString().split("T")[0];
-    const fechaFin = fin || finSemana.toISOString().split("T")[0];
+    hoy.setHours(23, 59, 59, 999);
     
     // 1. Obtener asistencias sin hora de salida
     const { data: incompletas, error: errInc } = await supabase
       .from("asistencias")
       .select("*, employee:employee_id(full_name, employee_number)")
       .is("hora_salida", null)
-      .gte("fecha", fechaInicio)
-      .lte("fecha", fechaFin)
+      .gte("fecha", inicio)
+      .lte("fecha", fin)
       .order("fecha", { ascending: false });
     
     if (errInc) throw errInc;
@@ -47,21 +55,22 @@ export async function GET(req: NextRequest) {
     const { data: todasAsistencias, error: errTodas } = await supabase
       .from("asistencias")
       .select("employee_id, fecha")
-      .gte("fecha", fechaInicio)
-      .lte("fecha", fechaFin);
+      .gte("fecha", inicio)
+      .lte("fecha", fin);
     
     if (errTodas) throw errTodas;
     
-    // 4. Generar lista de días laborables (Lunes a Sábado)
+    // 4. Generar lista de días laborables (Lunes a Sábado) dentro del rango
     const diasLaborables: string[] = [];
-    const fecha = new Date(fechaInicio);
-    const fechaFinDate = new Date(fechaFin);
-    while (fecha <= fechaFinDate) {
-      const diaSem = fecha.getDay();
-      if (diaSem >= 1 && diaSem <= 6) { // Lunes(1) a Sábado(6)
-        diasLaborables.push(fecha.toISOString().split("T")[0]);
+    const fechaActual = new Date(inicio);
+    const fechaFinDate = new Date(fin);
+    while (fechaActual <= fechaFinDate) {
+      const diaSem = fechaActual.getDay();
+      // Solo Lunes(1) a Sábado(6), y que ya hayan pasado
+      if (diaSem >= 1 && diaSem <= 6 && fechaActual <= hoy) {
+        diasLaborables.push(fechaActual.toISOString().split("T")[0]);
       }
-      fecha.setDate(fecha.getDate() + 1);
+      fechaActual.setDate(fechaActual.getDate() + 1);
     }
     
     // 5. Detectar días sin registro por empleado
@@ -71,8 +80,7 @@ export async function GET(req: NextRequest) {
       const diasConRegistro = asistenciasEmp.map(a => a.fecha);
       
       for (const dia of diasLaborables) {
-        // Solo incluir días que ya pasaron (no futuros)
-        if (new Date(dia) <= hoy && !diasConRegistro.includes(dia)) {
+        if (!diasConRegistro.includes(dia)) {
           sinRegistro.push({
             employee_id: emp.id,
             empleado: emp.full_name,
@@ -85,7 +93,7 @@ export async function GET(req: NextRequest) {
     }
     
     return NextResponse.json({
-      periodo: { inicio: fechaInicio, fin: fechaFin },
+      periodo: { inicio, fin },
       incompletas: incompletas?.map(a => ({
         id: a.id,
         employee_id: a.employee_id,
@@ -122,7 +130,9 @@ export async function POST(req: NextRequest) {
       .update({
         hora_salida,
         notas: notas || "Salida registrada manualmente",
-        dentro_geocerca_salida: true
+        dentro_geocerca_salida: true,
+        correccion_manual: true,
+        fecha_correccion: new Date().toISOString()
       })
       .eq("id", asistencia_id)
       .select()
@@ -159,7 +169,9 @@ export async function PUT(req: NextRequest) {
         tipo_registro: "MANUAL",
         notas: "Asistencia creada manualmente - día sin registro",
         dentro_geocerca: true,
-        dentro_geocerca_salida: true
+        dentro_geocerca_salida: true,
+        correccion_manual: true,
+        fecha_correccion: new Date().toISOString()
       })
       .select()
       .single();
