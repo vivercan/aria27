@@ -152,7 +152,14 @@ export default function NominaPage() {
     try {
       const res = await fetch(`/api/nomina/generar?fecha=${semanaInfo.inicio}`);
       const data = await res.json();
-      setIncidencias(data.incidencias || []);
+      const inc = data.incidencias || [];
+      setIncidencias(inc);
+      // Si no hay incidencias, generar directo sin mostrar modal
+      if (inc.length === 0) {
+        setCargandoIncidencias(false);
+        await generarPreNomina(false);
+        return;
+      }
       setShowIncidenciasModal(true);
     } catch (e) {
       setMensaje({ tipo: "error", texto: "Error al consultar incidencias" });
@@ -462,4 +469,5 @@ export default function NominaPage() {
     </div>
   );
 }
+
 
