@@ -73,3 +73,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message || "Error al conectar con Zoho" }, { status: 500 });
   }
 }
+
