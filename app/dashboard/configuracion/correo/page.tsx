@@ -204,6 +204,7 @@ export default function CorreoPage() {
     { name: "Sent", label: "Enviados", icon: Send },
     { name: "Trash", label: "Papelera", icon: Trash2 },
     { name: "Spam", label: "Spam", icon: AlertCircle },
+    { name: "Notification", label: "ARIA27 Notificaciones", icon: Bell },
   ];
 
   return (
