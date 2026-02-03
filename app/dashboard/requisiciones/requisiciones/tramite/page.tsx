@@ -54,6 +54,8 @@ export default function ComprasTramitePage() {
   const [prices, setPrices] = useState<Record<number, { price: number; supplier: string }>>({});
   
   const [buscandoIA, setBuscandoIA] = useState(false);
+  const [solicitando, setSolicitando] = useState(false);
+  const [resultadoSolicitud, setResultadoSolicitud] = useState<any>(null);
   const [proveedoresIA, setProveedoresIA] = useState<ProveedorIA[]>([]);
 
   useEffect(() => { loadData(); }, []);
@@ -216,6 +218,32 @@ Responde SOLO con JSON así:
     }
   };
 
+  const solicitarCotizacion = async () => {
+    if (!selectedReq || items.length === 0) return;
+    setSolicitando(true);
+    setResultadoSolicitud(null);
+    try {
+      const provs = getRelevantSuppliers().map(s => ({ name: s.name, email: s.email, phone: s.phone }));
+      const res = await fetch("/api/requisicion/solicitar-cotizacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folio: selectedReq.folio,
+          obra: selectedReq.cost_center_name,
+          fecha_requerida: selectedReq.required_date,
+          items: items.map(i => ({ product_name: i.product_name, unit: i.unit, quantity: i.quantity })),
+          proveedores: provs,
+        }),
+      });
+      const data = await res.json();
+      setResultadoSolicitud(data);
+    } catch (e) {
+      setResultadoSolicitud({ error: "Error de conexion" });
+    } finally {
+      setSolicitando(false);
+    }
+  };
+
   const selectSupplier = (itemId: number, supplierName: string) => {
     setPrices(prev => ({ ...prev, [itemId]: { ...prev[itemId], supplier: supplierName } }));
   };
@@ -338,6 +366,11 @@ Responde SOLO con JSON así:
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                 {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
+              <button onClick={solicitarCotizacion} disabled={solicitando || items.length === 0}
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-medium flex items-center gap-1.5 disabled:opacity-50">
+                {solicitando ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                {solicitando ? "Enviando..." : "Solicitar Cotizacion"}
+              </button>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
@@ -370,6 +403,23 @@ Responde SOLO con JSON así:
               </>
             )}
           </div>
+
+          {/* Resultado solicitud */}
+          {resultadoSolicitud && (
+            <div className={"p-3 rounded-xl border " + (resultadoSolicitud.error ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30")}>
+              {resultadoSolicitud.error ? (
+                <p className="text-red-400 text-xs">{resultadoSolicitud.error}</p>
+              ) : (
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-emerald-400 font-medium">Solicitud enviada</span>
+                  <span className="text-white">Emails: {resultadoSolicitud.emailsSent}</span>
+                  <span className="text-white">WhatsApp: {resultadoSolicitud.whatsappSent}</span>
+                  <span className="text-slate-400">de {resultadoSolicitud.totalProveedores} proveedores</span>
+                  {resultadoSolicitud.errors && <span className="text-amber-400">{resultadoSolicitud.errors.length} errores</span>}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Tabla */}
           <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
