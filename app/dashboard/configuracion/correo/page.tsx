@@ -332,12 +332,12 @@ export default function CorreoPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className={`text-sm truncate ${!email.seen ? "text-white font-medium" : "text-slate-300"}`}>
+                      <span className={`text-sm truncate ${folder === "Notification" ? "text-orange-400 font-semibold" : (!email.seen ? "text-white font-medium" : "text-slate-300")}`}>
                         {extractName(email.from)}
                       </span>
                       <span className="text-xs text-slate-500 ml-2">{formatShortDate(email.date)}</span>
                     </div>
-                    <p className={`text-xs truncate ${!email.seen ? "text-slate-200" : "text-slate-500"}`}>
+                    <p className={`text-xs truncate ${folder === "Notification" ? "text-orange-300/70" : (!email.seen ? "text-slate-200" : "text-slate-500")}`}>
                       {email.subject || "(Sin asunto)"}
                     </p>
                   </div>
