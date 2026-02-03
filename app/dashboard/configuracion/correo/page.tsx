@@ -238,7 +238,7 @@ export default function CorreoPage() {
 
           <div className="space-y-1">
             {folders.map((f) => (
-              <button key={f.name} onClick={() => { setFolder(f.name); setSelectedEmail(null); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${folder === f.name ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50"}`}>
+              <button key={f.name} onClick={() => { setFolder(f.name); setSelectedEmail(null); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${f.name === "Notification" ? (folder === f.name ? "bg-orange-500/20 text-orange-300" : "text-orange-400 hover:bg-orange-500/10") : (folder === f.name ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50")}`}>
                 <f.icon className="w-4 h-4" />
                 {f.label}
                 {f.name === "INBOX" && emails.filter(e => !e.seen).length > 0 && (
@@ -315,7 +315,7 @@ export default function CorreoPage() {
                   key={email.uid || idx}
                   onClick={() => { fetchEmailContent(email); toggleRead(email.uid); }}
                   className={`flex items-center gap-2 px-3 py-2.5 border-b border-slate-700/30 cursor-pointer transition-colors ${
-                    selectedEmail?.uid === email.uid ? "bg-blue-600/20 border-l-2 border-l-blue-500" : "hover:bg-slate-800/50"
+                    selectedEmail?.uid === email.uid ? (folder === "Notification" ? "bg-orange-500/15 border-l-2 border-l-orange-400" : "bg-blue-600/20 border-l-2 border-l-blue-500") : (folder === "Notification" ? "hover:bg-orange-500/5" : "hover:bg-slate-800/50")
                   }`}
                 >
                   <button onClick={(e) => { e.stopPropagation(); toggleSelect(email.uid); }} className="p-0.5">
