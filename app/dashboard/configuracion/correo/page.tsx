@@ -194,6 +194,10 @@ export default function CorreoPage() {
   };
 
   const filteredEmails = emails.filter(e => {
+    if (folder === "Notification") {
+      const fa = e.from ? e.from.toLowerCase() : "";
+      if (!fa.includes("aria") && !fa.includes("jjcrm27") && !fa.includes("noreply@mail")) return false;
+    }
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return e.from?.toLowerCase().includes(term) || e.subject?.toLowerCase().includes(term);
