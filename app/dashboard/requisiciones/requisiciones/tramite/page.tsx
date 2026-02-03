@@ -60,7 +60,7 @@ export default function ComprasTramitePage() {
 
   const loadData = async () => {
     const { data: reqs } = await supabase
-      .from("requisitions")
+      .from("Requisiciones")
       .select("*")
       .eq("status", "APROBADA")
       .order("required_date", { ascending: true });
@@ -237,7 +237,7 @@ Responde SOLO con JSON así:
           selected_supplier: prices[item.id]?.supplier || ""
         }).eq("id", item.id);
       }
-      await supabase.from("requisitions").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
+      await supabase.from("Requisiciones").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
 
       await fetch("/api/requisicion/autorizar-purchase", {
         method: "POST",

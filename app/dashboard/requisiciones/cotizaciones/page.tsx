@@ -56,7 +56,7 @@ export default function CotizacionesIAPage() {
   const loadRequisiciones = async () => {
     // Cargar requisiciones validadas pendientes de cotizar
     const { data } = await supabase
-      .from("requisitions")
+      .from("Requisiciones")
       .select("*")
       .in("status", ["VALIDADA", "EN_COTIZACION"])
       .order("created_at", { ascending: false });
