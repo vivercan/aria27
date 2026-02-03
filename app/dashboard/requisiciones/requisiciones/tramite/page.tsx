@@ -267,7 +267,7 @@ Responde SOLO con JSON así:
       }
       await supabase.from("Requisiciones").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
 
-      await fetch("/api/requisicion/autorizar-purchase", {
+      await fetch("/api/requisicion/authorize-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
