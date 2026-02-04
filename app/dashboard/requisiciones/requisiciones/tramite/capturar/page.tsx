@@ -5,8 +5,9 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Building2, Plus, Save, Send, Trash2, Loader2,
-  CheckCircle2, Package, Clock, CreditCard, FileText, X
+  ArrowLeft, Plus, Save, Send, Trash2, Loader2,
+  Package, Clock, CreditCard, FileText, X,
+  Banknote, Receipt, Truck
 } from "lucide-react";
 
 type ReqItem = {
@@ -22,6 +23,9 @@ type QuoteRow = {
   supplier_name: string;
   dias_credito: number;
   dias_entrega: number;
+  forma_pago: string;
+  tipo_credito: string;
+  emite_factura: boolean;
   notes: string;
   total: number;
   created_at: string;
@@ -40,10 +44,13 @@ function CapturarContent() {
   const [enviando, setEnviando] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
-  // Form
+  // Form fields
   const [supplierName, setSupplierName] = useState("");
   const [diasCredito, setDiasCredito] = useState(0);
   const [diasEntrega, setDiasEntrega] = useState(0);
+  const [formaPago, setFormaPago] = useState("TRANSFERENCIA");
+  const [tipoCredito, setTipoCredito] = useState("CONTADO");
+  const [emiteFactura, setEmiteFactura] = useState(true);
   const [notas, setNotas] = useState("");
   const [itemPrices, setItemPrices] = useState<Record<number, number>>({});
 
@@ -72,6 +79,9 @@ function CapturarContent() {
     setSupplierName("");
     setDiasCredito(0);
     setDiasEntrega(0);
+    setFormaPago("TRANSFERENCIA");
+    setTipoCredito("CONTADO");
+    setEmiteFactura(true);
     setNotas("");
     setItemPrices({});
     setShowForm(false);
@@ -84,8 +94,11 @@ function CapturarContent() {
       const { data: quote, error: qErr } = await supabase.from("quotations").insert({
         requisition_id: Number(reqId),
         supplier_name: supplierName.trim(),
-        dias_credito: diasCredito,
+        dias_credito: tipoCredito === "CREDITO" ? diasCredito : 0,
         dias_entrega: diasEntrega,
+        forma_pago: formaPago,
+        tipo_credito: tipoCredito,
+        emite_factura: emiteFactura,
         notes: notas,
         total: formTotal(),
         created_by: "compras"
@@ -116,10 +129,14 @@ function CapturarContent() {
     }
   };
 
-  const eliminarCotizacion = async (quoteId: number, supplierName: string) => {
-    if (!confirm("Eliminar cotizacion de " + supplierName + "?")) return;
+  const eliminarCotizacion = async (quoteId: number, sName: string) => {
+    if (!confirm("Eliminar cotizacion de " + sName + "?")) return;
     await supabase.from("quotations").delete().eq("id", quoteId);
-    await supabase.from("requisition_item_quotes").delete().eq("requisition_item_id", items.map(i => i.id)[0]).eq("supplier_name", supplierName);
+    for (const item of items) {
+      await supabase.from("requisition_item_quotes").delete()
+        .eq("requisition_item_id", item.id)
+        .eq("supplier_name", sName);
+    }
     await loadAll();
   };
 
@@ -139,6 +156,9 @@ function CapturarContent() {
             total: q.total,
             credito: q.dias_credito,
             entrega: q.dias_entrega,
+            forma_pago: q.forma_pago,
+            tipo_credito: q.tipo_credito,
+            emite_factura: q.emite_factura,
             notas: q.notes
           })),
           items: items.map(i => i.product_name)
@@ -160,6 +180,9 @@ function CapturarContent() {
   };
 
   const bestPrice = quotes.length > 0 ? Math.min(...quotes.map(q => q.total)) : 0;
+
+  const pagoLabel = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
+  const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
   if (!requisition) return <div className="text-center py-20 text-slate-400">Requisicion no encontrada</div>;
@@ -217,12 +240,18 @@ function CapturarContent() {
                 <p className={`text-xl font-bold ${q.total === bestPrice ? "text-emerald-400" : "text-white"}`}>
                   ${q.total.toLocaleString()}
                 </p>
-                <div className="flex gap-4 mt-2 text-[10px]">
+                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px]">
                   <span className="text-slate-400 flex items-center gap-1">
-                    <CreditCard className="w-3 h-3" /> {q.dias_credito}d credito
+                    <Truck className="w-3 h-3" /> {q.dias_entrega}d entrega
                   </span>
                   <span className="text-slate-400 flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {q.dias_entrega}d entrega
+                    <CreditCard className="w-3 h-3" /> {creditoLabel(q.tipo_credito, q.dias_credito)}
+                  </span>
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <Banknote className="w-3 h-3" /> {pagoLabel(q.forma_pago)}
+                  </span>
+                  <span className={`flex items-center gap-1 ${q.emite_factura ? "text-emerald-400" : "text-amber-400"}`}>
+                    <Receipt className="w-3 h-3" /> {q.emite_factura ? "Factura" : "Nota"}
                   </span>
                 </div>
                 {q.notes && <p className="text-slate-500 text-[10px] mt-1 truncate">{q.notes}</p>}
@@ -255,7 +284,7 @@ function CapturarContent() {
 
           {/* Proveedor */}
           <div>
-            <label className="text-slate-400 text-xs block mb-1">Proveedor</label>
+            <label className="text-slate-400 text-xs block mb-1">Proveedor *</label>
             <input
               list="suppliers-list"
               value={supplierName}
@@ -268,23 +297,71 @@ function CapturarContent() {
             </datalist>
           </div>
 
-          {/* Credito y Entrega */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* ===== NUEVOS CAMPOS ===== */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Forma de Pago */}
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Dias de credito</label>
-              <input type="number" value={diasCredito} onChange={(e) => setDiasCredito(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+              <label className="text-slate-400 text-xs block mb-1">Forma de pago</label>
+              <select value={formaPago} onChange={(e) => setFormaPago(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none">
+                <option value="TRANSFERENCIA">Transferencia</option>
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="CHEQUE">Cheque</option>
+              </select>
             </div>
+
+            {/* Tipo Credito */}
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Dias de entrega</label>
+              <label className="text-slate-400 text-xs block mb-1">Condiciones</label>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => { setTipoCredito("CONTADO"); setDiasCredito(0); }}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CONTADO" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  Contado
+                </button>
+                <button type="button" onClick={() => setTipoCredito("CREDITO")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CREDITO" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  Crédito
+                </button>
+              </div>
+            </div>
+
+            {/* Factura / Nota */}
+            <div>
+              <label className="text-slate-400 text-xs block mb-1">Documento</label>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => setEmiteFactura(true)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${emiteFactura ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  Factura
+                </button>
+                <button type="button" onClick={() => setEmiteFactura(false)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${!emiteFactura ? "bg-amber-500/20 text-amber-400 border border-amber-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  Nota
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Dias credito y entrega */}
+          <div className="grid grid-cols-2 gap-4">
+            {tipoCredito === "CREDITO" && (
+              <div>
+                <label className="text-slate-400 text-xs block mb-1">Días de crédito</label>
+                <input type="number" value={diasCredito} onChange={(e) => setDiasCredito(parseInt(e.target.value) || 0)}
+                  placeholder="15, 30, 60..."
+                  className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+              </div>
+            )}
+            <div className={tipoCredito === "CONTADO" ? "col-span-2" : ""}>
+              <label className="text-slate-400 text-xs block mb-1">Días de entrega</label>
               <input type="number" value={diasEntrega} onChange={(e) => setDiasEntrega(parseInt(e.target.value) || 0)}
+                placeholder="1, 3, 5..."
                 className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
             </div>
           </div>
 
           {/* Precios por item */}
           <div>
-            <label className="text-slate-400 text-xs block mb-2">Precios unitarios</label>
+            <label className="text-slate-400 text-xs block mb-2">Precios unitarios *</label>
             <div className="rounded-lg bg-black/30 border border-white/10 overflow-hidden">
               <table className="w-full">
                 <thead className="bg-white/5">
@@ -301,7 +378,7 @@ function CapturarContent() {
                       <td className="p-2 text-white text-xs">{item.product_name}</td>
                       <td className="p-2 text-slate-400 text-xs">{item.quantity} {item.unit}</td>
                       <td className="p-2">
-                        <input type="number" placeholder="$0"
+                        <input type="number" placeholder="$0" step="0.01"
                           value={itemPrices[item.id] || ""}
                           onChange={(e) => setItemPrices(prev => ({ ...prev, [item.id]: parseFloat(e.target.value) || 0 }))}
                           className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none" />
@@ -323,6 +400,18 @@ function CapturarContent() {
               className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
           </div>
 
+          {/* Resumen */}
+          <div className="p-3 rounded-lg bg-black/30 border border-white/10">
+            <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+              <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {formaPago === "TRANSFERENCIA" ? "Transferencia" : formaPago === "EFECTIVO" ? "Efectivo" : "Cheque"}</span>
+              <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> {tipoCredito === "CONTADO" ? "Contado" : `${diasCredito}d crédito`}</span>
+              <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> {diasEntrega}d entrega</span>
+              <span className={`flex items-center gap-1 ${emiteFactura ? "text-emerald-400" : "text-amber-400"}`}>
+                <Receipt className="w-3 h-3" /> {emiteFactura ? "Factura (IVA)" : "Nota (sin IVA)"}
+              </span>
+            </div>
+          </div>
+
           {/* Footer formulario */}
           <div className="flex items-center justify-between pt-2 border-t border-white/10">
             <span className="text-emerald-400 font-bold text-lg">${formTotal().toLocaleString()}</span>
@@ -340,12 +429,12 @@ function CapturarContent() {
         <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
-            <p className="text-slate-400 text-xs">{quotes.length} cotizaciones capturadas &middot; Mejor: ${bestPrice.toLocaleString()}</p>
+            <p className="text-slate-400 text-xs">{quotes.length} cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
           </div>
           <button onClick={enviarComparativa} disabled={enviando}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">
             {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            Enviar Comparativa a Direccion
+            Enviar a Dirección
           </button>
         </div>
       )}
