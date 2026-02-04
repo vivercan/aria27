@@ -64,7 +64,7 @@ export default function ComprasTramitePage() {
     const { data: reqs } = await supabase
       .from("Requisiciones")
       .select("*")
-      .eq("status", "APROBADA")
+      .in("status", ["APROBADA", "EN_COTIZACION"])
       .order("required_date", { ascending: true });
     setRequisiciones((reqs || []) as Requisition[]);
     
@@ -366,6 +366,11 @@ Responde SOLO con JSON así:
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                 {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
+              <Link href={`/dashboard/requisiciones/requisiciones/tramite/capturar?req=${selectedReq.id}`}
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-medium flex items-center gap-1.5">
+                <ShoppingCart className="w-3 h-3" />
+                Capturar Cotizaciones
+              </Link>
               <button onClick={solicitarCotizacion} disabled={solicitando || items.length === 0}
                 className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-medium flex items-center gap-1.5 disabled:opacity-50">
                 {solicitando ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
@@ -487,3 +492,4 @@ Responde SOLO con JSON así:
     </div>
   );
 }
+
