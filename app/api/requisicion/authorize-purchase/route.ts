@@ -109,7 +109,8 @@ export async function POST(request: Request) {
       });
 
       if (autorizadorUser.phone) {
-        await sendWhatsAppTemplate("compra_autorizar", [req.folio, req.cost_center_name, total.toLocaleString(), urgencyText, token], autorizadorUser.phone, token);
+        const materialesList = cotizacion.items.map((item: any) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
+        await sendWhatsAppTemplate("compra_autorizar", [req.folio, req.cost_center_name, req.created_by || "N/A", urgencyText, materialesList, total.toLocaleString()], autorizadorUser.phone);
       }
     }
 
@@ -123,6 +124,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 
 

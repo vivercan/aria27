@@ -189,3 +189,4 @@ export async function sendWhatsAppToMultiple(
   console.log("[WhatsApp] 📊 Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
+
