@@ -351,7 +351,7 @@ export default function CorreoPage() {
 
         {/* Panel de lectura */}
         {selectedEmail && (
-          <div className="flex-1 flex flex-col overflow-hidden bg-white/95">
+          <div className="flex-1 flex flex-col bg-white/95" style={{maxHeight:"calc(100vh - 80px)"}}>
             <div className="p-6 border-b border-slate-200 flex-shrink-0 bg-white">
               <div className="flex items-start justify-between mb-4">
                 <h2 className="text-xl font-semibold text-slate-900 pr-4">{selectedEmail.subject || "(Sin asunto)"}</h2>
@@ -395,7 +395,7 @@ export default function CorreoPage() {
               </div>
             </div>
 
-            <div className="p-3 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50 sticky bottom-0 z-10">
+            <div className="p-3 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50">
               <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                 <Mail className="w-4 h-4" />
                 Responder
@@ -461,6 +461,7 @@ export default function CorreoPage() {
     </div>
   );
 }
+
 
 
 
