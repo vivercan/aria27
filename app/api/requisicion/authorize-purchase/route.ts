@@ -15,12 +15,30 @@ export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
 
   try {
-    const { requisitionId, cotizacion } = await request.json();
+    const body = await request.json();
+
+    // Soportar AMBOS formatos:
+    // Formato A (tramite): { requisition, items, total, token }
+    // Formato B (capturar): { requisitionId, cotizacion }
+    const reqId = body.requisitionId || body.requisition?.id;
+    const cotizacion = body.cotizacion || {
+      supplier_name: body.items?.[0]?.selected_supplier || "Varios",
+      items: (body.items || []).map((item: any) => ({
+        product_name: item.product_name || item.name || item.nombre,
+        quantity: item.quantity || item.cantidad || 1,
+        unit: item.unit || item.unidad || "PZA",
+        unit_price: item.selected_price || item.unit_price || 0
+      }))
+    };
+
+    if (!reqId) {
+      return NextResponse.json({ error: "Falta requisitionId o requisition" }, { status: 400 });
+    }
 
     const { data: req, error } = await supabase
       .from("Requisiciones")
       .select("*")
-      .eq("id", requisitionId)
+      .eq("id", reqId)
       .single();
 
     if (error || !req) {
@@ -28,13 +46,13 @@ export async function POST(request: Request) {
     }
 
     const token = crypto.randomUUID();
-    const total = cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
+    const total = body.total || cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
 
     await supabase.from("Requisiciones").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
       cotizacion_data: cotizacion
-    }).eq("id", requisitionId);
+    }).eq("id", reqId);
 
     // Obtener direccion (autorizador) dinamicamente por ROL
     const autorizadorUser = await getUserByRole("direccion");
@@ -105,5 +123,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
 
 
