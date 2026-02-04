@@ -395,7 +395,7 @@ export default function CorreoPage() {
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50">
+            <div className="p-3 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50 sticky bottom-0 z-10">
               <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                 <Mail className="w-4 h-4" />
                 Responder
@@ -461,6 +461,7 @@ export default function CorreoPage() {
     </div>
   );
 }
+
 
 
 
