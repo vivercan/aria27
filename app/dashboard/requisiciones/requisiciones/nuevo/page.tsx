@@ -206,27 +206,27 @@ export default function NewRequisitionPage() {
             {searching && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
           <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-            <div className="grid grid-cols-[70px_1fr_70px_50px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
-              <div>Categoría</div><div>Descripción</div><div>Unidad</div><div></div>
+            <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div>Categoría</div><div>Descripción</div><div className="text-right">Unidad</div>
             </div>
             {searchResults.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-white/40">
                 {searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}
               </div>
-            ) : searchResults.map(p => (
-              <div key={p.id} className="grid grid-cols-[70px_1fr_70px_50px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
-                <div className="text-cyan-400/80 text-[10px] truncate">{shortCategory(p.category)}</div>
-                <div className="truncate">{p.name}</div>
-                <div className="text-white/60 truncate">{p.unit}</div>
-                <button 
-                  onClick={() => addMaterial(p)} 
-                  disabled={addedIds.has(p.id)} 
-                  className={`rounded-full p-1.5 ${addedIds.has(p.id) ? "bg-gray-500" : "bg-emerald-500 hover:bg-emerald-400"}`}
+            ) : searchResults.map(p => {
+              const isSelected = materials.some(m => m.id === p.id);
+              return (
+                <div 
+                  key={p.id} 
+                  onClick={() => isSelected ? removeMaterial(p.id) : addMaterial(p)}
+                  className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSelected ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/5 border-l-2 border-transparent"}`}
                 >
-                  {addedIds.has(p.id) ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-                </button>
-              </div>
-            ))}
+                  <div className="text-cyan-400/80 text-[10px] truncate">{shortCategory(p.category)}</div>
+                  <div className={`truncate ${isSelected ? "text-emerald-300 font-medium" : ""}`}>{p.name}</div>
+                  <div className="text-white/60 truncate text-right">{p.unit}</div>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
@@ -286,4 +286,5 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
 
