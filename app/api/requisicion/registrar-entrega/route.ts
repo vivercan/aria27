@@ -26,10 +26,59 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e) { console.error("Error email:", e); }
 }
 
+async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]) {
+  for (const mat of materiales) {
+    const productoNombre = mat.product_name || mat.producto || "";
+    const cantidad = mat.quantity || mat.cantidad_recibida || 0;
+    const unidad = mat.unit || mat.unidad || "PZA";
+    
+    if (!productoNombre || cantidad <= 0) continue;
+
+    // Buscar si ya existe en inventario
+    const { data: existe } = await supabase
+      .from("inventario_obra")
+      .select("*")
+      .eq("obra_id", obraId)
+      .eq("producto_nombre", productoNombre)
+      .single();
+
+    if (existe) {
+      // Actualizar cantidad
+      await supabase
+        .from("inventario_obra")
+        .update({
+          cantidad_disponible: (existe.cantidad_disponible || 0) + cantidad,
+          ultimo_movimiento: new Date().toISOString(),
+        })
+        .eq("id", existe.id);
+    } else {
+      // Crear nuevo registro
+      await supabase.from("inventario_obra").insert({
+        obra_id: obraId,
+        obra_nombre: obraNombre,
+        producto_nombre: productoNombre,
+        unidad: unidad,
+        cantidad_disponible: cantidad,
+        cantidad_usada: 0,
+        ultimo_movimiento: new Date().toISOString(),
+      });
+    }
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { purchase_order_id, purchase_order_folio, supplier_name, obra_nombre, materiales, requisition_id, solicitante_email, solicitante_phone } = body;
+    const { 
+      purchase_order_id, 
+      purchase_order_folio, 
+      supplier_name, 
+      obra_nombre, 
+      materiales, 
+      requisition_id, 
+      solicitante_email, 
+      solicitante_phone 
+    } = body;
 
     // Generar folio de entrega
     const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
@@ -54,8 +103,21 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
+    // Obtener obra_id desde cost_centers
+    const { data: obraData } = await supabase
+      .from("cost_centers")
+      .select("id")
+      .eq("name", obra_nombre)
+      .single();
+
+    // Actualizar inventario si tenemos la obra
+    if (obraData && materiales && materiales.length > 0) {
+      await actualizarInventario(obraData.id, obra_nombre, materiales);
+      console.log(`Inventario actualizado para obra ${obra_nombre}`);
+    }
+
     // Notificar al solicitante
-    const mensaje = `✅ *MATERIAL RECIBIDO*\n\nTu material de la OC *${purchase_order_folio}* ha llegado.\n\n📍 Obra: ${obra_nombre}\n📦 Proveedor: ${supplier_name}\n🎫 Entrega: ${folioEntrega}\n\nPuedes pasar a recogerlo o coordinar su uso.`;
+    const mensaje = `✅ *MATERIAL RECIBIDO*\n\nTu material de la OC *${purchase_order_folio}* ha llegado.\n\n📍 Obra: ${obra_nombre}\n📦 Proveedor: ${supplier_name}\n🎫 Entrega: ${folioEntrega}\n📦 Inventario actualizado automáticamente\n\nPuedes pasar a recogerlo o coordinar su uso.`;
 
     // WhatsApp al solicitante
     if (solicitante_phone) {
@@ -74,15 +136,21 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Obra:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${obra_nombre}</strong></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Proveedor:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${supplier_name}</strong></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Entrega:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${folioEntrega}</strong></td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">Actualizado ✓</strong></td></tr>
           </table>
-          <p style="color:#666;font-size:14px;">Puedes pasar a recogerlo o coordinar su uso con el equipo de obra.</p>
+          <p style="color:#666;font-size:14px;">El inventario de la obra ha sido actualizado automáticamente con los materiales recibidos.</p>
           <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
           <p style="color:#999;font-size:12px;">ARIA27 - Grupo Constructor Urbano Avante</p>
         </div>`
       );
     }
 
-    return NextResponse.json({ success: true, entrega, folio: folioEntrega });
+    return NextResponse.json({ 
+      success: true, 
+      entrega, 
+      folio: folioEntrega,
+      inventario_actualizado: !!obraData 
+    });
   } catch (error: any) {
     console.error("Error registrar entrega:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
