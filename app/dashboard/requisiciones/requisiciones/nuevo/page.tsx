@@ -36,52 +36,37 @@ export default function NewRequisitionPage() {
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
 
-  // ========== BÚSQUEDA MEJORADA ==========
+  // ========== BÚSQUEDA INTELIGENTE (2 consultas) ==========
   const handleSearch = async (term: string) => {
     setSearchTerm(term);
     if (term.trim().length < 2) { setSearchResults([]); return; }
     setSearching(true);
     
-    const searchTermLower = term.trim().toLowerCase();
+    const t = term.trim().toLowerCase();
     
-    const { data, error } = await supabase
+    // CONSULTA 1: Productos que EMPIEZAN con el término (prioridad alta)
+    const { data: startsWithData } = await supabase
       .from("products")
       .select("id, sku, name, unit, category, description")
-      .or(`name.ilike.%${searchTermLower}%,description.ilike.%${searchTermLower}%,sku.ilike.%${searchTermLower}%`)
+      .ilike("name", `${t}%`)
       .order("name")
-      .limit(50);
+      .limit(15);
     
-    if (error) {
-      console.error("Error buscando productos:", error);
-      setSearchResults([]);
-      setSearching(false);
-      return;
-    }
+    // CONSULTA 2: Productos que CONTIENEN el término (en nombre, descripción o SKU)
+    const { data: containsData } = await supabase
+      .from("products")
+      .select("id, sku, name, unit, category, description")
+      .or(`name.ilike.%${t}%,description.ilike.%${t}%,sku.ilike.%${t}%`)
+      .order("name")
+      .limit(30);
     
-    // ORDENAMIENTO INTELIGENTE
-    const sorted = (data || []).sort((a, b) => {
-      const aName = (a.name || "").toLowerCase();
-      const bName = (b.name || "").toLowerCase();
-      
-      // Prioridad 1: Empieza con el término
-      const aStartsWith = aName.startsWith(searchTermLower);
-      const bStartsWith = bName.startsWith(searchTermLower);
-      if (aStartsWith && !bStartsWith) return -1;
-      if (!aStartsWith && bStartsWith) return 1;
-      
-      // Prioridad 2: Alguna palabra empieza con el término
-      const aWords: string[] = aName.split(/\s+/);
-      const bWords: string[] = bName.split(/\s+/);
-      const aWordStarts = aWords.some((w: string) => w.startsWith(searchTermLower));
-      const bWordStarts = bWords.some((w: string) => w.startsWith(searchTermLower));
-      if (aWordStarts && !bWordStarts) return -1;
-      if (!aWordStarts && bWordStarts) return 1;
-      
-      // Prioridad 3: Orden alfabético
-      return aName.localeCompare(bName);
-    });
+    // Combinar: primero los que empiezan, luego los que contienen (sin duplicados)
+    const startsWithIds = new Set((startsWithData || []).map(p => p.id));
+    const containsFiltered = (containsData || []).filter(p => !startsWithIds.has(p.id));
     
-    setSearchResults(sorted.slice(0, 20) as Product[]);
+    const combined = [...(startsWithData || []), ...containsFiltered].slice(0, 20);
+    
+    setSearchResults(combined as Product[]);
     setSearching(false);
   };
 
@@ -301,3 +286,4 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
