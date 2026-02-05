@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft, Printer, FileDown, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, FileDown, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -251,15 +251,7 @@ export default function RequisicionesStatusPage() {
             <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>
           </div>
         </div>
-        {isAdmin && selectedIds.length > 0 && (
-          <button
-            onClick={() => openDeleteModal("selected")}
-            className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center gap-2"
-          >
-            <Trash2 className="w-4 h-4" />
-            Eliminar ({selectedIds.length})
-          </button>
-        )}
+        
       </div>
 
       {loading ? (
@@ -346,16 +338,7 @@ export default function RequisicionesStatusPage() {
                           </button>
                           {/* Cancelar */}
                           
-                          {/* Eliminar (solo admin) */}
-                          {isAdmin && (
-                            <button
-                              onClick={() => openDeleteModal("single", req.id)}
-                              className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
-                              title="Eliminar"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
+                          
                         </div>
                       </td>
                     </tr>
@@ -406,5 +389,6 @@ export default function RequisicionesStatusPage() {
     </div>
   );
 }
+
 
 
