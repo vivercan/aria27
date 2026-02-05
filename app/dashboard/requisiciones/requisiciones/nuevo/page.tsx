@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-
 import { useEffect, useState, useRef } from "react";
 import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -43,29 +42,46 @@ export default function NewRequisitionPage() {
     if (term.trim().length < 2) { setSearchResults([]); return; }
     setSearching(true);
     
-    const searchTerm = term.trim().toLowerCase();
+    const searchTermLower = term.trim().toLowerCase();
     
-    // Buscar en nombre, descripción Y código (sku)
-    const { data } = await supabase
-      .from("Productos")
+    const { data, error } = await supabase
+      .from("products")
       .select("id, sku, name, unit, category, description")
-      .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%`)
+      .or(`name.ilike.%${searchTermLower}%,description.ilike.%${searchTermLower}%,sku.ilike.%${searchTermLower}%`)
       .order("name")
-      .limit(20);
+      .limit(50);
     
-    // Ordenar: primero los que EMPIEZAN con el término, luego el resto
+    if (error) {
+      console.error("Error buscando productos:", error);
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
+    
+    // ORDENAMIENTO INTELIGENTE
     const sorted = (data || []).sort((a, b) => {
       const aName = (a.name || "").toLowerCase();
       const bName = (b.name || "").toLowerCase();
-      const aStartsWith = aName.startsWith(searchTerm);
-      const bStartsWith = bName.startsWith(searchTerm);
       
+      // Prioridad 1: Empieza con el término
+      const aStartsWith = aName.startsWith(searchTermLower);
+      const bStartsWith = bName.startsWith(searchTermLower);
       if (aStartsWith && !bStartsWith) return -1;
       if (!aStartsWith && bStartsWith) return 1;
+      
+      // Prioridad 2: Alguna palabra empieza con el término
+      const aWords: string[] = aName.split(/\s+/);
+      const bWords: string[] = bName.split(/\s+/);
+      const aWordStarts = aWords.some((w: string) => w.startsWith(searchTermLower));
+      const bWordStarts = bWords.some((w: string) => w.startsWith(searchTermLower));
+      if (aWordStarts && !bWordStarts) return -1;
+      if (!aWordStarts && bWordStarts) return 1;
+      
+      // Prioridad 3: Orden alfabético
       return aName.localeCompare(bName);
     });
     
-    setSearchResults(sorted as Product[]);
+    setSearchResults(sorted.slice(0, 20) as Product[]);
     setSearching(false);
   };
 
@@ -90,10 +106,8 @@ export default function NewRequisitionPage() {
     if (!selectedCostCenterId) { setErrorMsg("Selecciona un centro de costo."); return; }
     if (!requiredDate) { setErrorMsg("Selecciona la fecha requerida."); return; }
     if (materials.length === 0) { setErrorMsg("Agrega al menos un material."); return; }
-
     const center = costCenters.find(c => c.id === selectedCostCenterId);
     if (!center) return;
-
     setSending(true);
     try {
       const res = await fetch("/api/requisicion", {
@@ -108,16 +122,15 @@ export default function NewRequisitionPage() {
           costCenterId: center.id
         })
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
-      setMessage(`✅ Requisición ${data.folio} generada exitosamente. Se enviaron notificaciones por email.`);
+      setMessage("✅ Requisición " + data.folio + " generada exitosamente. Se enviaron notificaciones por email.");
       setMaterials([]);
       setGeneralComments("");
-      setTimeout(() => router.push("/dashboard/requisiciones/Requisiciones/estatus"), 3000);
-    } catch (err: any) {
-      setErrorMsg(err?.message || "Error al generar la requisición.");
+      setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error al generar la requisición.";
+      setErrorMsg(errorMessage);
     } finally {
       setSending(false);
     }
@@ -125,7 +138,6 @@ export default function NewRequisitionPage() {
 
   const isCartEmpty = materials.length === 0;
 
-  // Función para acortar categoría
   const shortCategory = (cat: string | null) => {
     if (!cat) return "";
     const map: Record<string, string> = {
@@ -140,6 +152,10 @@ export default function NewRequisitionPage() {
       "Miscelaneos de obra": "Misceláneo",
       "Servicios y rentas": "Servicios",
       "Tuberias y conexiones": "Tubería",
+      "Limpieza": "Limpieza",
+      "Papeleria": "Papelería",
+      "Cafeteria": "Cafetería",
+      "Mobiliario oficina": "Mobiliario",
     };
     return map[cat] || cat.split(" ")[0];
   };
@@ -196,7 +212,12 @@ export default function NewRequisitionPage() {
           <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
           <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2 mb-3">
             <Search className="h-4 w-4 opacity-70" />
-            <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={(e) => handleSearch(e.target.value)} />
+            <input 
+              className="w-full bg-transparent text-sm outline-none" 
+              placeholder="Buscar por nombre, código o descripción..." 
+              value={searchTerm} 
+              onChange={(e) => handleSearch(e.target.value)} 
+            />
             {searching && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
           <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
@@ -204,13 +225,19 @@ export default function NewRequisitionPage() {
               <div>Categoría</div><div>Descripción</div><div>Unidad</div><div></div>
             </div>
             {searchResults.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-white/40">{searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}</div>
+              <div className="px-3 py-4 text-center text-xs text-white/40">
+                {searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}
+              </div>
             ) : searchResults.map(p => (
               <div key={p.id} className="grid grid-cols-[70px_1fr_70px_50px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
                 <div className="text-cyan-400/80 text-[10px] truncate">{shortCategory(p.category)}</div>
                 <div className="truncate">{p.name}</div>
                 <div className="text-white/60 truncate">{p.unit}</div>
-                <button onClick={() => addMaterial(p)} disabled={addedIds.has(p.id)} className={`rounded-full p-1.5 ${addedIds.has(p.id) ? "bg-gray-500" : "bg-emerald-500 hover:bg-emerald-400"}`}>
+                <button 
+                  onClick={() => addMaterial(p)} 
+                  disabled={addedIds.has(p.id)} 
+                  className={`rounded-full p-1.5 ${addedIds.has(p.id) ? "bg-gray-500" : "bg-emerald-500 hover:bg-emerald-400"}`}
+                >
                   {addedIds.has(p.id) ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
                 </button>
               </div>
@@ -240,14 +267,33 @@ export default function NewRequisitionPage() {
             <div key={m.id} className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 items-center px-3 py-2 text-xs">
               <div className="truncate font-medium">{m.name}</div>
               <div className="text-white/60">{m.unit}</div>
-              <input ref={el => { if (el) qtyInputRefs.current.set(m.id, el); }} type="number" min={1} className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => updateQty(m.id, Number(e.target.value))} />
-              <input type="text" className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => updateObs(m.id, e.target.value)} />
-              <button onClick={() => removeMaterial(m.id)} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
+              <input 
+                ref={el => { if (el) qtyInputRefs.current.set(m.id, el); }} 
+                type="number" 
+                min={1} 
+                className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" 
+                value={m.qty} 
+                onChange={e => updateQty(m.id, Number(e.target.value))} 
+              />
+              <input 
+                type="text" 
+                className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" 
+                placeholder="Opcional..." 
+                value={m.observations} 
+                onChange={e => updateObs(m.id, e.target.value)} 
+              />
+              <button onClick={() => removeMaterial(m.id)} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500">
+                <Trash2 className="h-3 w-3" />
+              </button>
             </div>
           ))}
         </div>
         <div className="mt-4 flex justify-end">
-          <button onClick={handleSubmit} disabled={sending || isCartEmpty} className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isCartEmpty ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
+          <button 
+            onClick={handleSubmit} 
+            disabled={sending || isCartEmpty} 
+            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isCartEmpty ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}
+          >
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" />Generar Requisición</>}
           </button>
         </div>
