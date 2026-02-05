@@ -1,359 +1,205 @@
 "use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, UserPlus, Trash2, Edit, Shield, X, Save, Phone, Building2, Clock, CreditCard, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Search, Edit2, Trash2, Phone, Mail, Building2, User, Save, X } from "lucide-react";
+import Link from "next/link";
 
-interface Employee {
+interface Empleado {
   id: string;
   employee_number: string;
   full_name: string;
   position: string;
   department: string;
-  salario_semanal: number;
-  salario_diario: number;
-  email: string;
   status: string;
-  whatsapp: string;
-  hora_entrada: string;
-  hora_salida: string;
-  centro_trabajo_id: string;
-  fecha_ingreso: string;
-  nss: string;
-  curp: string;
-  rfc: string;
-  minimo_tarjeta: number;
-  centro_trabajo?: { nombre: string };
+  whatsapp: string | null;
+  email: string | null;
+  centro_trabajo_id: string | null;
+  salario_diario: number | null;
+  fecha_ingreso: string | null;
 }
 
-export default function HRPersonalPage() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [centros, setCentros] = useState<any[]>([]);
+export default function PersonalPage() {
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("general");
-  const [viewTab, setViewTab] = useState<"activos" | "bajas">("activos");
+  const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [editando, setEditando] = useState<Empleado | null>(null);
+  const [form, setForm] = useState({ full_name: "", position: "", department: "", whatsapp: "", email: "", salario_diario: "" });
 
-  const [form, setForm] = useState({
-    employee_number: "",
-    full_name: "",
-    position: "",
-    department: "",
-    salario_semanal: "",
-    email: "",
-    status: "ACTIVO",
-    whatsapp: "",
-    hora_entrada: "08:30",
-    hora_salida: "17:30",
-    centro_trabajo_id: "",
-    fecha_ingreso: "",
-    nss: "",
-    curp: "",
-    rfc: "",
-    minimo_tarjeta: "1096"
-  });
+  useEffect(() => { cargarEmpleados(); }, []);
 
-  useEffect(() => { fetchData(); }, []);
-
-  async function fetchData() {
-    setLoading(true);
-    const [empRes, centrosRes] = await Promise.all([
-      supabase.from("employees").select("*, centro_trabajo:centros_trabajo(nombre)").order("employee_number"),
-      supabase.from("centros_trabajo").select("id, codigo, nombre")
-    ]);
-    if (empRes.data) setEmployees(empRes.data);
-    if (centrosRes.data) setCentros(centrosRes.data);
+  const cargarEmpleados = async () => {
+    const { data } = await supabase.from("employees").select("*").order("employee_number");
+    if (data) setEmpleados(data);
     setLoading(false);
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const salarioSemanal = parseFloat(form.salario_semanal) || 0;
-    const payload = {
-      employee_number: form.employee_number.toUpperCase(),
-      full_name: form.full_name,
-      position: form.position,
-      department: form.department,
-      salario_semanal: salarioSemanal,
-      salario_diario: Math.round((salarioSemanal / 7) * 100) / 100,
-      email: form.email,
-      status: form.status,
-      whatsapp: form.whatsapp.replace(/\D/g, ""),
-      hora_entrada: form.hora_entrada,
-      hora_salida: form.hora_salida,
-      centro_trabajo_id: form.centro_trabajo_id || null,
-      fecha_ingreso: form.fecha_ingreso || null,
-      nss: form.nss,
-      curp: form.curp.toUpperCase(),
-      rfc: form.rfc.toUpperCase(),
-      minimo_tarjeta: parseFloat(form.minimo_tarjeta) || 1096
-    };
-
-    if (editingId) {
-      await supabase.from("employees").update(payload).eq("id", editingId);
-    } else {
-      await supabase.from("employees").insert(payload);
-    }
-    resetForm();
-    fetchData();
-  }
-
-  function resetForm() {
-    setForm({
-      employee_number: "", full_name: "", position: "", department: "",
-      salario_semanal: "", email: "", status: "ACTIVO", whatsapp: "",
-      hora_entrada: "08:30", hora_salida: "17:30", centro_trabajo_id: "",
-      fecha_ingreso: "", nss: "", curp: "", rfc: "", minimo_tarjeta: "1096"
-    });
-    setShowForm(false);
-    setEditingId(null);
-    setActiveTab("general");
-  }
-
-  function handleEdit(emp: Employee) {
-    setForm({
-      employee_number: emp.employee_number || "",
-      full_name: emp.full_name || "",
-      position: emp.position || "",
-      department: emp.department || "",
-      salario_semanal: emp.salario_semanal?.toString() || "",
-      email: emp.email || "",
-      status: emp.status || "ACTIVO",
-      whatsapp: emp.whatsapp || "",
-      hora_entrada: emp.hora_entrada || "08:30",
-      hora_salida: emp.hora_salida || "17:30",
-      centro_trabajo_id: emp.centro_trabajo_id || "",
-      fecha_ingreso: emp.fecha_ingreso || "",
-      nss: emp.nss || "",
-      curp: emp.curp || "",
-      rfc: emp.rfc || "",
-      minimo_tarjeta: emp.minimo_tarjeta?.toString() || "1096"
-    });
-    setEditingId(emp.id);
-    setShowForm(true);
-  }
-
-  async function handleDelete(id: string) {
-    if (confirm("¿Eliminar este colaborador?")) {
-      await supabase.from("employees").delete().eq("id", id);
-      fetchData();
-    }
-  }
-
-  const activos = employees.filter(e => e.status === "ACTIVO");
-  const bajas = employees.filter(e => e.status === "BAJA");
-  const currentList = viewTab === "activos" ? activos : bajas;
-
-  const filtered = currentList.filter(e =>
-    e.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.employee_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.whatsapp?.includes(searchTerm)
+  const filtrados = empleados.filter(e => 
+    e.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+    e.employee_number?.toLowerCase().includes(search.toLowerCase()) ||
+    e.position?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const formatMoney = (n: number) => n ? `$${n.toLocaleString("es-MX")}` : "-";
+  const abrirModal = (emp?: Empleado) => {
+    if (emp) {
+      setEditando(emp);
+      setForm({ 
+        full_name: emp.full_name || "", 
+        position: emp.position || "", 
+        department: emp.department || "",
+        whatsapp: emp.whatsapp || "",
+        email: emp.email || "",
+        salario_diario: emp.salario_diario?.toString() || ""
+      });
+    } else {
+      setEditando(null);
+      setForm({ full_name: "", position: "", department: "", whatsapp: "", email: "", salario_diario: "" });
+    }
+    setShowModal(true);
+  };
+
+  const guardar = async () => {
+    if (!form.full_name.trim()) return alert("Nombre requerido");
+    
+    const datos = {
+      full_name: form.full_name.trim(),
+      position: form.position.trim(),
+      department: form.department.trim(),
+      whatsapp: form.whatsapp.trim() || null,
+      email: form.email.trim() || null,
+      salario_diario: form.salario_diario ? parseFloat(form.salario_diario) : null
+    };
+
+    if (editando) {
+      await supabase.from("employees").update(datos).eq("id", editando.id);
+    } else {
+      const nextNum = empleados.length + 1;
+      await supabase.from("employees").insert({ ...datos, employee_number: `EMP-${String(nextNum).padStart(3, "0")}`, status: "ACTIVO" });
+    }
+    setShowModal(false);
+    cargarEmpleados();
+  };
+
+  const eliminar = async (id: string) => {
+    if (!confirm("¿Eliminar este empleado?")) return;
+    await supabase.from("employees").delete().eq("id", id);
+    cargarEmpleados();
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b border-white/10">
+        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+          <ArrowLeft className="w-4 h-4" /> Talento
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Catálogo de Colaboradores</h1>
-          <p className="text-slate-400 text-sm">{activos.length} activos, {bajas.length} bajas</p>
-        </div></div>
-        <div className="flex gap-2">
-          <Link href="/dashboard/talento/usuarios" className="inline-flex items-center gap-2 rounded-full bg-purple-500/80 px-4 py-2 text-sm font-medium hover:bg-purple-500">
-            <Shield className="h-4 w-4" />Users
-          </Link>
-          <button onClick={() => { setShowForm(true); setEditingId(null); }} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">
-            <UserPlus size={16} /> Nuevo
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Personal</h1>
+            <p className="text-slate-400">{empleados.length} empleados registrados</p>
+          </div>
+          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+            <Plus className="w-4 h-4" /> Nuevo Empleado
           </button>
         </div>
+        <div className="mt-4 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input type="text" placeholder="Buscar por nombre, código o puesto..." value={search} onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
+        </div>
       </div>
 
-      {/* Tabs Activos/Bajas */}
-      <div className="flex gap-2">
-        <button onClick={() => setViewTab("activos")} className={`px-4 py-2 rounded-lg text-sm font-medium ${viewTab === "activos" ? "bg-emerald-600 text-white" : "bg-white/10 text-slate-300"}`}>
-          Activos ({activos.length})
-        </button>
-        <button onClick={() => setViewTab("bajas")} className={`px-4 py-2 rounded-lg text-sm font-medium ${viewTab === "bajas" ? "bg-rose-600 text-white" : "bg-white/10 text-slate-300"}`}>
-          Bajas ({bajas.length})
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-white">{editingId ? "Editar Colaborador" : "Nuevo Colaborador"}</h2>
-            <button onClick={resetForm} className="text-slate-400 hover:text-white"><X size={20} /></button>
-          </div>
-
-          <div className="flex gap-1 mb-6 bg-black/20 p-1 rounded-lg w-fit">
-            {[
-              { id: "general", label: "General", icon: UserPlus },
-              { id: "horario", label: "Horario", icon: Clock },
-              { id: "nomina", label: "Nómina", icon: CreditCard },
-              { id: "documentos", label: "Documentos", icon: Shield }
-            ].map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-all ${activeTab === tab.id ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}>
-                <tab.icon size={16} /> {tab.label}
-              </button>
+      <div className="flex-1 overflow-auto p-6">
+        {loading ? (
+          <div className="text-center py-12 text-slate-400">Cargando...</div>
+        ) : (
+          <div className="grid gap-4">
+            {filtrados.map(emp => (
+              <div key={emp.id} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <User className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded text-slate-400">{emp.employee_number}</span>
+                        <h3 className="font-semibold text-white">{emp.full_name}</h3>
+                        <span className={`text-xs px-2 py-0.5 rounded ${emp.status === "ACTIVO" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                          {emp.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-400">{emp.position} • {emp.department}</p>
+                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
+                        {emp.whatsapp && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{emp.whatsapp}</span>}
+                        {emp.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{emp.email}</span>}
+                        {emp.salario_diario && <span>${emp.salario_diario.toFixed(2)}/día</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => abrirModal(emp)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => eliminar(emp.id)} className="p-2 hover:bg-red-500/20 rounded-lg text-slate-400 hover:text-red-400">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
+        )}
+      </div>
 
-          <form onSubmit={handleSubmit}>
-            {activeTab === "general" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">{editando ? "Editar" : "Nuevo"} Empleado</h2>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-slate-400">Nombre completo *</label>
+                <input type="text" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">No. Empleado *</label>
-                  <input type="text" value={form.employee_number} onChange={(e) => setForm({ ...form, employee_number: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="EMP-001" required />
-                </div>
-                <div className="lg:col-span-2">
-                  <label className="block text-sm text-slate-400 mb-1">Nombre Completo *</label>
-                  <input type="text" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" required />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Puesto</label>
-                  <input type="text" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">WhatsApp</label>
-                  <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="4491234567" />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Estatus</label>
-                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white">
-                    <option value="ACTIVO">Activo</option>
-                    <option value="BAJA">Baja</option>
-                  </select>
+                  <label className="text-sm text-slate-400">Puesto</label>
+                  <input type="text" value={form.position} onChange={e => setForm({...form, position: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Fecha Ingreso</label>
-                  <input type="date" value={form.fecha_ingreso} onChange={(e) => setForm({ ...form, fecha_ingreso: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" />
+                  <label className="text-sm text-slate-400">Departamento</label>
+                  <input type="text" value={form.department} onChange={e => setForm({...form, department: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
                 </div>
               </div>
-            )}
-
-            {activeTab === "horario" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Centro de Trabajo</label>
-                  <select value={form.centro_trabajo_id} onChange={(e) => setForm({ ...form, centro_trabajo_id: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white">
-                    <option value="">-- Seleccionar --</option>
-                    {centros.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                  </select>
+                  <label className="text-sm text-slate-400">WhatsApp</label>
+                  <input type="text" value={form.whatsapp} onChange={e => setForm({...form, whatsapp: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="10 dígitos" />
                 </div>
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Hora Entrada</label>
-                  <input type="time" value={form.hora_entrada} onChange={(e) => setForm({ ...form, hora_entrada: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Hora Salida</label>
-                  <input type="time" value={form.hora_salida} onChange={(e) => setForm({ ...form, hora_salida: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" />
+                  <label className="text-sm text-slate-400">Salario diario</label>
+                  <input type="number" value={form.salario_diario} onChange={e => setForm({...form, salario_diario: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
                 </div>
               </div>
-            )}
-
-            {activeTab === "nomina" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Salario Semanal *</label>
-                  <input type="number" value={form.salario_semanal} onChange={(e) => setForm({ ...form, salario_semanal: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="3000" />
-                  {form.salario_semanal && <p className="text-xs text-emerald-400 mt-1">Diario: ${(parseFloat(form.salario_semanal) / 7).toFixed(2)}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Mínimo Tarjeta</label>
-                  <input type="number" value={form.minimo_tarjeta} onChange={(e) => setForm({ ...form, minimo_tarjeta: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white" placeholder="1096" />
-                </div>
+              <div>
+                <label className="text-sm text-slate-400">Email</label>
+                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
               </div>
-            )}
-
-            {activeTab === "documentos" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">CURP</label>
-                  <input type="text" value={form.curp} onChange={(e) => setForm({ ...form, curp: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white font-mono uppercase" maxLength={18} />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">RFC</label>
-                  <input type="text" value={form.rfc} onChange={(e) => setForm({ ...form, rfc: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white font-mono uppercase" maxLength={13} />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">NSS (IMSS)</label>
-                  <input type="text" value={form.nss} onChange={(e) => setForm({ ...form, nss: e.target.value })} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white font-mono" maxLength={11} />
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-white/10">
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
-              <button type="submit" className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg">
-                <Save size={16} /> {editingId ? "Actualizar" : "Guardar"}
+              <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
+                <Save className="w-4 h-4" /> Guardar
               </button>
             </div>
-          </form>
+          </div>
         </div>
       )}
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input type="text" placeholder="Buscar por nombre, número o WhatsApp..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 text-white" onChange={(e) => setSearchTerm(e.target.value)} />
-      </div>
-
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md max-h-[calc(100vh-280px)] overflow-y-auto">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-white/5 text-slate-100 uppercase text-xs font-bold sticky top-0 bg-[#0a1628] z-10">
-            <tr>
-              <th className="px-4 py-4">No.</th>
-              <th className="px-4 py-4">Nombre</th>
-              <th className="px-4 py-4">Puesto</th>
-              <th className="px-4 py-4">WhatsApp</th>
-              <th className="px-4 py-4">Centro</th>
-              <th className="px-4 py-4">Salario Sem</th>
-              <th className="px-4 py-4">Estatus</th>
-              <th className="px-4 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {loading ? (
-              <tr><td colSpan={8} className="px-6 py-8 text-center">Cargando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={8} className="px-6 py-8 text-center text-slate-500">No hay colaboradores</td></tr>
-            ) : filtered.map((emp) => (
-              <tr key={emp.id} className="hover:bg-white/5">
-                <td className="px-4 py-3 text-blue-300 font-mono text-xs">{emp.employee_number}</td>
-                <td className="px-4 py-3 text-white">{emp.full_name}</td>
-                <td className="px-4 py-3">{emp.position || "-"}</td>
-                <td className="px-4 py-3">
-                  {emp.whatsapp ? (
-                    <a href={`https://wa.me/52${emp.whatsapp}`} target="_blank" className="flex items-center gap-1 text-emerald-400 hover:underline">
-                      <Phone size={12} /> {emp.whatsapp}
-                    </a>
-                  ) : "-"}
-                </td>
-                <td className="px-4 py-3 text-xs">{emp.centro_trabajo?.nombre || "-"}</td>
-                <td className="px-4 py-3 text-emerald-400">{formatMoney(emp.salario_semanal)}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded text-xs ${emp.status === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"}`}>
-                    {emp.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button onClick={() => handleEdit(emp)} className="p-2 hover:bg-white/10 rounded-lg text-blue-400"><Edit size={16} /></button>
-                  <button onClick={() => handleDelete(emp.id)} className="p-2 hover:bg-white/10 rounded-lg text-rose-400"><Trash2 size={16} /></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
-
-
-

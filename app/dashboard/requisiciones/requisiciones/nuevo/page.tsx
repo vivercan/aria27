@@ -1,245 +1,204 @@
 "use client";
-import Link from "next/link";
-
-import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart , ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Plus, Trash2, Send, Package, Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-type CostCenter = { id: number; code: string; name: string };
-type Product = { id: number; name: string | null; unit: string | null; category: string | null; description: string | null };
-type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string };
+interface Producto { id: string; codigo: string; nombre: string; unidad: string; }
+interface Material { producto_id: string; codigo: string; nombre: string; unidad: string; cantidad: number; notas: string; }
+interface Centro { id: string; name: string; }
 
-export default function NewRequisitionPage() {
+export default function NuevaRequisicionPage() {
   const router = useRouter();
-  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
-  const [selectedCostCenterId, setSelectedCostCenterId] = useState<number | null>(null);
-  const [requiredDate, setRequiredDate] = useState("");
-  const [generalComments, setGeneralComments] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [materials, setMaterials] = useState<MaterialRow[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
-  const qtyInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
-  const [userEmail, setUserEmail] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
+  const [centros, setCentros] = useState<Centro[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [materiales, setMateriales] = useState<Material[]>([]);
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [form, setForm] = useState({ cost_center_id: "", urgency: "normal", required_date: "", notes: "" });
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    const loadCenters = async () => {
-      const { data } = await supabase.from("cost_centers").select("id, code, name").order("name");
-      if (data) setCostCenters(data);
+    const cargar = async () => {
+      const { data: c } = await supabase.from("cost_centers").select("id, name").eq("active", true);
+      if (c) setCentros(c);
+      const { data: p } = await supabase.from("products").select("id, codigo, nombre, unidad").eq("activo", true).limit(500);
+      if (p) setProductos(p);
     };
-    loadCenters();
-    // Cargar usuario logueado
-    const storedEmail = localStorage.getItem("userEmail") || "";
-    setUserEmail(storedEmail);
-    if (storedEmail) {
-      supabase.from("users").select("display_name, name").eq("email", storedEmail).single()
-        .then(({ data }) => {
-          if (data) setUserName(data.display_name || data.name || "");
-        });
-    }
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    setRequiredDate(tomorrow.toISOString().split("T")[0]);
+    cargar();
   }, []);
 
-  const handleSearch = async (term: string) => {
-    setSearchTerm(term);
-    if (term.trim().length < 2) { setSearchResults([]); return; }
-    setSearching(true);
-    const { data } = await supabase
-      .from("Productos")
-      .select("id, name, unit, category, description")
-      .or(`name.ilike.%${term}%,description.ilike.%${term}%`)
-      .limit(15);
-    setSearchResults((data || []) as Product[]);
-    setSearching(false);
+  const filtrados = productos.filter(p => 
+    p.nombre?.toLowerCase().includes(search.toLowerCase()) || 
+    p.codigo?.toLowerCase().includes(search.toLowerCase())
+  ).slice(0, 10);
+
+  const agregarMaterial = (p: Producto) => {
+    if (materiales.find(m => m.producto_id === p.id)) return;
+    setMateriales([...materiales, { producto_id: p.id, codigo: p.codigo, nombre: p.nombre, unidad: p.unidad, cantidad: 1, notas: "" }]);
+    setSearch("");
+    setShowSearch(false);
   };
 
-  const addMaterial = (product: Product) => {
-    if (!product.id || !product.name) return;
-    setAddedIds(prev => new Set(prev).add(product.id));
-    setTimeout(() => setAddedIds(prev => { const n = new Set(prev); n.delete(product.id); return n; }), 2000);
-    setMaterials(prev => {
-      const exists = prev.find(m => m.id === product.id);
-      if (exists) return prev.map(m => m.id === product.id ? { ...m, qty: m.qty + 1 } : m);
-      setTimeout(() => qtyInputRefs.current.get(product.id)?.focus(), 100);
-      return [...prev, { id: product.id, name: product.name ?? "", unit: product.unit || "", qty: 1, observations: "" }];
-    });
+  const actualizarCantidad = (idx: number, cant: number) => {
+    const nuevo = [...materiales];
+    nuevo[idx].cantidad = cant;
+    setMateriales(nuevo);
   };
 
-  const removeMaterial = (id: number) => setMaterials(prev => prev.filter(m => m.id !== id));
-  const updateQty = (id: number, v: number) => setMaterials(prev => prev.map(m => m.id === id ? { ...m, qty: Math.max(1, v) } : m));
-  const updateObs = (id: number, v: string) => setMaterials(prev => prev.map(m => m.id === id ? { ...m, observations: v } : m));
+  const quitarMaterial = (idx: number) => {
+    setMateriales(materiales.filter((_, i) => i !== idx));
+  };
 
-  const handleSubmit = async () => {
-    setErrorMsg(null); setMessage(null);
-    if (!selectedCostCenterId) { setErrorMsg("Selecciona un centro de costo."); return; }
-    if (!requiredDate) { setErrorMsg("Selecciona la fecha requerida."); return; }
-    if (materials.length === 0) { setErrorMsg("Agrega al menos un material."); return; }
-
-    const center = costCenters.find(c => c.id === selectedCostCenterId);
-    if (!center) return;
-
-    setSending(true);
+  const enviar = async () => {
+    if (!form.cost_center_id) return alert("Selecciona una obra");
+    if (materiales.length === 0) return alert("Agrega al menos un material");
+    
+    setEnviando(true);
     try {
+      const userEmail = localStorage.getItem("userEmail");
+      const centro = centros.find(c => c.id === form.cost_center_id);
+      
       const res = await fetch("/api/requisicion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario: { nombre: userName || "Usuario ARIA27", email: userEmail || "" },
-          obra: center.name,
-          comentarios: generalComments,
-          materiales: materials.map(m => ({ id: m.id, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations })),
-          requiredDate,
-          costCenterId: center.id
+          user_email: userEmail,
+          cost_center_id: form.cost_center_id,
+          cost_center_name: centro?.name,
+          urgency: form.urgency,
+          required_date: form.required_date || null,
+          notes: form.notes,
+          materials: materiales.map(m => ({ product_id: m.producto_id, product_name: m.nombre, unit: m.unidad, quantity: m.cantidad, notes: m.notas }))
         })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      setMessage(`✅ Requisición ${data.folio} generada exitosamente. Se enviaron notificaciones por email.`);
-      setMaterials([]);
-      setGeneralComments("");
-      setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
-    } catch (err: any) {
-      setErrorMsg(err?.message || "Error al generar la requisición.");
-    } finally {
-      setSending(false);
+      
+      if (res.ok) {
+        alert("✅ Requisición creada exitosamente");
+        router.push("/dashboard/requisiciones");
+      } else {
+        const err = await res.json();
+        alert("Error: " + (err.error || "No se pudo crear"));
+      }
+    } catch (e) {
+      alert("Error de conexión");
     }
+    setEnviando(false);
   };
 
-  const isCartEmpty = materials.length === 0;
-
   return (
-    <div className="flex flex-col gap-4 p-6 h-[calc(100vh-64px)]">
-      {/* Flecha de regreso */}
-              <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b border-white/10">
+        <Link href="/dashboard/requisiciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+          <ArrowLeft className="w-4 h-4" /> Requisiciones
         </Link>
-
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Nueva Requisición</h1>
+        <h1 className="text-2xl font-bold text-white">Nueva Requisición</h1>
+        <p className="text-slate-400">Solicitar materiales o servicios</p>
       </div>
 
-      {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
-      {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
-          <h2 className="mb-4 text-lg font-semibold">1. Configuración</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Obra / Centro de Costos</label>
-              <select
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-                value={selectedCostCenterId ?? ""}
-                onChange={(e) => setSelectedCostCenterId(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">Seleccione...</option>
-                {costCenters.map((c, i) => (
-                  <option key={c.id} value={c.id}>{i + 1}. {c.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Fecha Requerida</label>
-              <input
-                type="date"
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-                value={requiredDate}
-                onChange={(e) => setRequiredDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-              />
-            </div>
-          </div>
-          <div className="mt-4 space-y-1">
-            <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
-            <textarea
-              className="h-20 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-              placeholder="Instrucciones de entrega, horarios, etc."
-              value={generalComments}
-              onChange={(e) => setGeneralComments(e.target.value)}
-            />
-          </div>
-        </section>
-
-        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
-          <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
-          <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2 mb-3">
-            <Search className="h-4 w-4 opacity-70" />
-            <input className="w-full bg-transparent text-sm outline-none" placeholder="Escribe al menos 2 letras..." value={searchTerm} onChange={(e) => handleSearch(e.target.value)} />
-            {searching && <Loader2 className="h-4 w-4 animate-spin" />}
-          </div>
-          <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-            <div className="grid grid-cols-[1fr_80px_50px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70">
-              <div>Descripción</div><div>Unidad</div><div></div>
-            </div>
-            {searchResults.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-white/40">{searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}</div>
-            ) : searchResults.map(p => (
-              <div key={p.id} className="grid grid-cols-[1fr_80px_50px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
-                <div className="truncate">{p.name}</div>
-                <div className="text-white/60 truncate">{p.unit}</div>
-                <button onClick={() => addMaterial(p)} disabled={addedIds.has(p.id)} className={`rounded-full p-1.5 ${addedIds.has(p.id) ? "bg-gray-500" : "bg-emerald-500 hover:bg-emerald-400"}`}>
-                  {addedIds.has(p.id) ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-                </button>
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-4xl space-y-6">
+          {/* Datos generales */}
+          <div className="p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+            <h2 className="text-lg font-semibold text-white">Datos Generales</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm text-slate-400">Obra / Centro de Costo *</label>
+                <select value={form.cost_center_id} onChange={e => setForm({...form, cost_center_id: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                  <option value="">Seleccionar...</option>
+                  {centros.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
               </div>
-            ))}
+              <div>
+                <label className="text-sm text-slate-400">Urgencia</label>
+                <select value={form.urgency} onChange={e => setForm({...form, urgency: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                  <option value="normal">Normal</option>
+                  <option value="urgente">Urgente</option>
+                  <option value="critico">Crítico</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Fecha requerida</label>
+                <input type="date" value={form.required_date} onChange={e => setForm({...form, required_date: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm text-slate-400">Notas</label>
+              <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2}
+                className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Observaciones generales..." />
+            </div>
           </div>
-        </section>
-      </div>
 
-      <section className="flex-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-emerald-400" />
-            <h2 className="text-lg font-semibold">3. PARTIDAS DE LA REQUISICIÓN</h2>
-          </div>
-          <span className="text-xs text-white/50">{materials.length} partidas</span>
-        </div>
-        <div className="flex-1 overflow-auto rounded-xl border border-white/10 bg-black/20">
-          <div className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
-            <div>Descripción</div><div>Unidad</div><div>Cantidad</div><div>Observaciones</div><div></div>
-          </div>
-          {isCartEmpty ? (
-            <div className="px-3 py-8 text-center text-sm text-white/40">
-              <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              Requisición vacía. Busca y agrega materiales arriba.
+          {/* Materiales */}
+          <div className="p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">Materiales ({materiales.length})</h2>
+              <div className="relative">
+                <button onClick={() => setShowSearch(!showSearch)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                  <Plus className="w-4 h-4" /> Agregar
+                </button>
+                {showSearch && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-slate-900 border border-white/10 rounded-xl shadow-xl z-10">
+                    <div className="p-3 border-b border-white/10">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input type="text" placeholder="Buscar producto..." value={search} onChange={e => setSearch(e.target.value)} autoFocus
+                          className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                      </div>
+                    </div>
+                    <div className="max-h-60 overflow-auto">
+                      {filtrados.map(p => (
+                        <button key={p.id} onClick={() => agregarMaterial(p)}
+                          className="w-full p-3 text-left hover:bg-white/5 border-b border-white/5">
+                          <p className="text-white text-sm">{p.nombre}</p>
+                          <p className="text-xs text-slate-400">{p.codigo} • {p.unidad}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          ) : materials.map(m => (
-            <div key={m.id} className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 items-center px-3 py-2 text-xs">
-              <div className="truncate font-medium">{m.name}</div>
-              <div className="text-white/60">{m.unit}</div>
-              <input ref={el => { if (el) qtyInputRefs.current.set(m.id, el); }} type="number" min={1} className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => updateQty(m.id, Number(e.target.value))} />
-              <input type="text" className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => updateObs(m.id, e.target.value)} />
-              <button onClick={() => removeMaterial(m.id)} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 flex justify-end">
-          <button onClick={handleSubmit} disabled={sending || isCartEmpty} className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isCartEmpty ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
-            {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" />Generar Requisición</>}
+
+            {materiales.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="w-12 h-12 mx-auto text-slate-600 mb-2" />
+                <p className="text-slate-400">Agrega materiales a la requisición</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {materiales.map((m, idx) => (
+                  <div key={idx} className="flex items-center gap-4 p-3 bg-white/5 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-white text-sm">{m.nombre}</p>
+                      <p className="text-xs text-slate-400">{m.codigo}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="number" min="1" value={m.cantidad} onChange={e => actualizarCantidad(idx, parseInt(e.target.value) || 1)}
+                        className="w-20 p-2 bg-white/5 border border-white/10 rounded text-white text-center" />
+                      <span className="text-slate-400 text-sm w-16">{m.unidad}</span>
+                    </div>
+                    <button onClick={() => quitarMaterial(idx)} className="p-2 hover:bg-red-500/20 rounded text-slate-400 hover:text-red-400">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Botón enviar */}
+          <button onClick={enviar} disabled={enviando || materiales.length === 0}
+            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 text-white rounded-xl font-semibold flex items-center justify-center gap-2">
+            <Send className="w-5 h-5" />
+            {enviando ? "Enviando..." : "Crear Requisición"}
           </button>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-

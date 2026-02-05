@@ -1,140 +1,95 @@
 "use client";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Package, Search, Plus, Edit2, Save, X, Filter, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search, Package, Filter } from "lucide-react";
+import Link from "next/link";
 
-interface Product {
-  id: number;
-  sku: string;
-  name: string;
-  description: string;
-  unit: string;
-  category: string;
-  subcategory: string;
-  type: string;
+interface Producto {
+  id: string;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  unidad: string;
+  categoria: string | null;
+  precio_referencia: number | null;
+  activo: boolean;
 }
 
 export default function ProductosPage() {
-  const [productos, setProductos] = useState<Product[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [categorias, setCategorias] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const pageSize = 25;
 
-  useEffect(() => { loadCategorias(); }, []);
-  useEffect(() => { loadProductos(); }, [search, categoria, page]);
+  useEffect(() => {
+    const cargar = async () => {
+      const { data, count } = await supabase.from("products").select("*", { count: "exact" }).order("nombre").limit(200);
+      if (data) setProductos(data);
+      setLoading(false);
+    };
+    cargar();
+  }, []);
 
-  const loadCategorias = async () => {
-    const { data } = await supabase.from("products").select("category").not("category", "is", null);
-    if (data) {
-      const unique = [...new Set(data.map(p => p.category).filter(Boolean))].sort();
-      setCategorias(unique);
-    }
-  };
+  const categorias = [...new Set(productos.map(p => p.categoria).filter(Boolean))];
 
-  const loadProductos = async () => {
-    setLoading(true);
-    let query = supabase.from("products").select("*", { count: "exact" });
-    if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%,description.ilike.%${search}%`);
-    if (categoria) query = query.eq("category", categoria);
-    const from = (page - 1) * pageSize;
-    const { data, count } = await query.order("category").order("name").range(from, from + pageSize - 1);
-    if (data) { setProductos(data); setTotal(count || 0); }
-    setLoading(false);
-  };
-
-  const totalPages = Math.ceil(total / pageSize);
+  const filtrados = productos.filter(p => {
+    const matchSearch = p.nombre?.toLowerCase().includes(search.toLowerCase()) || p.codigo?.toLowerCase().includes(search.toLowerCase());
+    const matchCat = !categoria || p.categoria === categoria;
+    return matchSearch && matchCat;
+  });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-        <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b border-white/10">
+        <Link href="/dashboard/requisiciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+          <ArrowLeft className="w-4 h-4" /> Requisiciones
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Package className="w-7 h-7 text-cyan-400" />
-            Catálogo de Productos
-          </h1>
-          <p className="text-slate-400 mt-1">{total.toLocaleString()} productos registrados</p>
-        </div></div>
-      </div>
-
-      <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-wrap gap-4">
-        <div className="flex-1 min-w-[250px]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input type="text" placeholder="Buscar por nombre, SKU o descripción..." value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500" />
-          </div>
+          <h1 className="text-2xl font-bold text-white">Catálogo de Productos</h1>
+          <p className="text-slate-400">2,483+ productos disponibles</p>
         </div>
-        <div className="min-w-[200px]">
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <select value={categoria} onChange={(e) => { setCategoria(e.target.value); setPage(1); }}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white focus:outline-none focus:border-cyan-500 appearance-none">
-              <option value="">Todas las categorías</option>
-              {categorias.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
-            </select>
+        <div className="mt-4 flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input type="text" placeholder="Buscar por nombre o código..." value={search} onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
           </div>
+          <select value={categoria} onChange={e => setCategoria(e.target.value)}
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
+            <option value="">Todas las categorías</option>
+            {categorias.map(c => <option key={c} value={c!}>{c}</option>)}
+          </select>
         </div>
       </div>
 
-      <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
+      <div className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div></div>
+          <div className="text-center py-12 text-slate-400">Cargando...</div>
         ) : (
-          <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
-                <tr className="bg-white/[0.02] border-b border-white/[0.06]">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">SKU</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Producto</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Categoría</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Unidad</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">Tipo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {productos.map((p) => (
-                  <tr key={p.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3"><span className="text-cyan-400 font-mono text-sm">{p.sku}</span></td>
-                    <td className="px-4 py-3">
-                      <p className="text-white font-medium">{p.name}</p>
-                      {p.description && <p className="text-xs text-slate-400 truncate max-w-xs">{p.description}</p>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-1 rounded-lg bg-white/[0.05] text-xs text-slate-300">{p.category}</span>
-                      {p.subcategory && <span className="ml-2 text-xs text-slate-500">{p.subcategory}</span>}
-                    </td>
-                    <td className="px-4 py-3 text-center text-slate-300">{p.unit}</td>
-                    <td className="px-4 py-3 text-center"><span className="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-xs">{p.type}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {totalPages > 1 && (
-          <div className="p-4 border-t border-white/[0.06] flex items-center justify-between">
-            <p className="text-sm text-slate-400">Mostrando {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, total)} de {total}</p>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-50"><ChevronLeft className="w-5 h-5 text-white" /></button>
-              <span className="text-white px-3">Página {page} de {totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-50"><ChevronRight className="w-5 h-5 text-white" /></button>
+          <div className="grid gap-2">
+            <div className="grid grid-cols-12 gap-4 px-4 py-2 text-xs text-slate-400 font-medium sticky top-0 bg-slate-900">
+              <div className="col-span-2">CÓDIGO</div>
+              <div className="col-span-5">NOMBRE</div>
+              <div className="col-span-2">CATEGORÍA</div>
+              <div className="col-span-1">UNIDAD</div>
+              <div className="col-span-2 text-right">PRECIO REF.</div>
             </div>
+            {filtrados.map(p => (
+              <div key={p.id} className="grid grid-cols-12 gap-4 px-4 py-3 bg-white/5 hover:bg-white/10 rounded-lg items-center">
+                <div className="col-span-2 text-sm text-slate-400 font-mono">{p.codigo}</div>
+                <div className="col-span-5 text-white">{p.nombre}</div>
+                <div className="col-span-2">
+                  {p.categoria && <span className="text-xs px-2 py-1 bg-white/10 rounded text-slate-300">{p.categoria}</span>}
+                </div>
+                <div className="col-span-1 text-sm text-slate-400">{p.unidad}</div>
+                <div className="col-span-2 text-right text-sm text-slate-300">
+                  {p.precio_referencia ? `$${p.precio_referencia.toFixed(2)}` : "-"}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
     </div>
   );
 }
-
-
-

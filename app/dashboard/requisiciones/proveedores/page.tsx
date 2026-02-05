@@ -1,224 +1,110 @@
 "use client";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Plus, Search, Edit2, Phone, Mail, Building2, MapPin, Star } from "lucide-react";
 import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { Building2, Plus, Trash2, Save, X, Phone, Globe, MessageCircle, CreditCard, ArrowLeft } from "lucide-react";
-
-type Supplier = {
-  id: number;
-  folio: string;
-  name: string;
-  status: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  whatsapp: string;
-  address: string;
-  website: string;
-  payment_method: string;
-  credit_days: number;
-  bank_name: string;
-  bank_account: string;
-  bank_clabe: string;
-  categories: string[];
-  Productos_offered: string;
-  active: boolean;
-};
+interface Proveedor {
+  id: string;
+  nombre: string;
+  rfc: string | null;
+  telefono: string | null;
+  email: string | null;
+  direccion: string | null;
+  categoria: string | null;
+  contacto_nombre: string | null;
+  dias_credito: number | null;
+  activo: boolean;
+}
 
 export default function ProveedoresPage() {
-  const [Proveedores, setProveedores] = useState<Supplier[]>([]);
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [form, setForm] = useState({
-    name: "", status: "ACTIVO", contact_name: "", email: "", phone: "", whatsapp: "",
-    address: "", website: "", payment_method: "transferencia", credit_days: 0,
-    bank_name: "", bank_account: "", bank_clabe: "", categories: "", Productos_offered: ""
-  });
+  const [search, setSearch] = useState("");
 
-  useEffect(() => { loadProveedores(); }, []);
-
-  const loadProveedores = async () => {
-    const { data } = await supabase.from("suppliers").select("*").order("name");
-    setProveedores((data || []) as Supplier[]);
-    setLoading(false);
-  };
-
-  const openNew = () => {
-    setEditingSupplier(null);
-    setForm({ name: "", status: "ACTIVO", contact_name: "", email: "", phone: "", whatsapp: "",
-      address: "", website: "", payment_method: "transferencia", credit_days: 0,
-      bank_name: "", bank_account: "", bank_clabe: "", categories: "", Productos_offered: "" });
-    setShowModal(true);
-  };
-
-  const openEdit = (s: Supplier) => {
-    setEditingSupplier(s);
-    setForm({
-      name: s.name || "", status: s.status || "ACTIVO", contact_name: s.contact_name || "",
-      email: s.email || "", phone: s.phone || "", whatsapp: s.whatsapp || "",
-      address: s.address || "", website: s.website || "", payment_method: s.payment_method || "transferencia",
-      credit_days: s.credit_days || 0, bank_name: s.bank_name || "", bank_account: s.bank_account || "",
-      bank_clabe: s.bank_clabe || "", categories: (s.categories || []).join(", "), Productos_offered: s.Productos_offered || ""
-    });
-    setShowModal(true);
-  };
-
-  const handleSave = async () => {
-    if (!form.name) return;
-    const nextFolio = `PROV-${String((Proveedores.length || 0) + 1).padStart(3, "0")}`;
-    const data = {
-      name: form.name, status: form.status, contact_name: form.contact_name, email: form.email,
-      phone: form.phone, whatsapp: form.whatsapp, address: form.address, website: form.website,
-      payment_method: form.payment_method, credit_days: form.credit_days, bank_name: form.bank_name,
-      bank_account: form.bank_account, bank_clabe: form.bank_clabe,
-      categories: form.categories.split(",").map(c => c.trim()).filter(Boolean),
-      Productos_offered: form.Productos_offered, active: form.status === "ACTIVO",
-      folio: editingSupplier?.folio || nextFolio
+  useEffect(() => {
+    const cargar = async () => {
+      const { data } = await supabase.from("proveedores").select("*").order("nombre");
+      if (data) setProveedores(data);
+      setLoading(false);
     };
-    if (editingSupplier) {
-      await supabase.from("suppliers").update(data).eq("id", editingSupplier.id);
-    } else {
-      await supabase.from("suppliers").insert(data);
-    }
-    setShowModal(false);
-    loadProveedores();
-  };
+    cargar();
+  }, []);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("¿Eliminar este proveedor?")) return;
-    await supabase.from("suppliers").delete().eq("id", id);
-    loadProveedores();
-  };
+  const filtrados = proveedores.filter(p =>
+    p.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+    p.categoria?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const categorias = [...new Set(proveedores.map(p => p.categoria).filter(Boolean))];
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b border-white/10">
+        <Link href="/dashboard/requisiciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+          <ArrowLeft className="w-4 h-4" /> Requisiciones
+        </Link>
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Building2 className="h-6 w-6 text-emerald-400" />
-              Proveedores
-            </h1>
-            <p className="text-white/60 text-sm">Gestión de proveedores y condiciones comerciales.</p>
+            <h1 className="text-2xl font-bold text-white">Proveedores</h1>
+            <p className="text-slate-400">{proveedores.length} proveedores • {categorias.length} categorías</p>
           </div>
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+            <Plus className="w-4 h-4" /> Nuevo Proveedor
+          </button>
         </div>
-        <button onClick={openNew} className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400">
-          <Plus className="h-4 w-4" /> Nuevo Proveedor
-        </button>
+        <div className="mt-4 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input type="text" placeholder="Buscar por nombre o categoría..." value={search} onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
+        </div>
       </div>
 
-      <div className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+      <div className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="text-center py-8 text-white/50">Cargando...</div>
-        ) : Proveedores.length === 0 ? (
-          <div className="text-center py-8 text-white/50">No hay proveedores registrados.</div>
+          <div className="text-center py-12 text-slate-400">Cargando...</div>
+        ) : filtrados.length === 0 ? (
+          <div className="text-center py-12">
+            <Building2 className="w-12 h-12 mx-auto text-slate-600 mb-4" />
+            <p className="text-slate-400">No hay proveedores registrados</p>
+          </div>
         ) : (
-          <div className="overflow-auto max-h-[calc(100vh-280px)] overflow-y-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
-                <tr className="border-b border-white/10 text-left text-xs uppercase text-white/50">
-                  <th className="pb-3 pr-4">Folio</th>
-                  <th className="pb-3 pr-4">Nombre</th>
-                  <th className="pb-3 pr-4">Contacto</th>
-                  <th className="pb-3 pr-4">Teléfono</th>
-                  <th className="pb-3 pr-4">Pago</th>
-                  <th className="pb-3 pr-4">Banco</th>
-                  <th className="pb-3 pr-4">Estado</th>
-                  <th className="pb-3">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {Proveedores.map((s) => (
-                  <tr key={s.id} className="hover:bg-white/5">
-                    <td className="py-3 pr-4 font-mono text-xs text-blue-400">{s.folio}</td>
-                    <td className="py-3 pr-4 font-medium">{s.name}</td>
-                    <td className="py-3 pr-4 text-white/70">{s.contact_name}</td>
-                    <td className="py-3 pr-4 text-white/70">
-                      <div>{s.phone}</div>
-                      {s.whatsapp && <div className="text-xs text-emerald-400 flex items-center gap-1"><MessageCircle className="h-3 w-3" />{s.whatsapp}</div>}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <span className={`text-xs px-2 py-1 rounded ${s.payment_method === "credito" ? "bg-emerald-500/20 text-emerald-400" : s.payment_method === "efectivo" ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"}`}>
-                        {s.payment_method}{s.credit_days > 0 ? ` ${s.credit_days}d` : ""}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4 text-xs">
-                      {s.bank_name === "PAGO EN EFECTIVO" ? <span className="text-amber-400">Efectivo</span> : s.bank_name ? (
-                        <div><div className="text-white/70">{s.bank_name}</div><div className="text-white/50">{s.bank_clabe}</div></div>
-                      ) : <span className="text-white/30">Sin datos</span>}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <span className={`text-xs px-2 py-1 rounded ${s.status === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>{s.status}</span>
-                    </td>
-                    <td className="py-3">
-                      <div className="flex gap-2">
-                        <button onClick={() => openEdit(s)} className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20">Editar</button>
-                        <button onClick={() => handleDelete(s.id)} className="rounded-lg bg-red-500/20 px-2 py-1 text-red-400 hover:bg-red-500/30"><Trash2 className="h-3 w-3" /></button>
+          <div className="grid gap-4">
+            {filtrados.map(p => (
+              <div key={p.id} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-white">{p.nombre}</h3>
+                        {p.categoria && (
+                          <span className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">{p.categoria}</span>
+                        )}
+                        <span className={`text-xs px-2 py-0.5 rounded ${p.activo ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                          {p.activo ? "Activo" : "Inactivo"}
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {p.rfc && <p className="text-sm text-slate-400">RFC: {p.rfc}</p>}
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-slate-500">
+                        {p.telefono && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{p.telefono}</span>}
+                        {p.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{p.email}</span>}
+                        {p.dias_credito && <span className="flex items-center gap-1"><Star className="w-3 h-3" />{p.dias_credito} días crédito</span>}
+                      </div>
+                      {p.direccion && <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{p.direccion}</p>}
+                    </div>
+                  </div>
+                  <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 overflow-auto py-8">
-          <div className="w-full max-w-2xl rounded-2xl bg-slate-800 p-6 shadow-xl mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{editingSupplier ? "Editar Proveedor" : "Nuevo Proveedor"}</h2>
-              <button onClick={() => setShowModal(false)} className="rounded-full p-1 hover:bg-white/10"><X className="h-5 w-5" /></button>
-            </div>
-            <div className="space-y-4 max-h-[70vh] overflow-auto pr-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2"><label className="text-xs text-white/70">Nombre / Razón Social *</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} /></div>
-                <div><label className="text-xs text-white/70">Estado</label>
-                  <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.status} onChange={e => setForm(f => ({...f, status: e.target.value}))}>
-                    <option value="ACTIVO">ACTIVO</option><option value="PROSPECTO">PROSPECTO</option>
-                  </select>
-                </div>
-                <div><label className="text-xs text-white/70">Contacto</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.contact_name} onChange={e => setForm(f => ({...f, contact_name: e.target.value}))} /></div>
-                <div><label className="text-xs text-white/70">Email</label><input type="email" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} /></div>
-                <div><label className="text-xs text-white/70">Teléfono</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.phone} onChange={e => setForm(f => ({...f, phone: e.target.value}))} /></div>
-                <div><label className="text-xs text-white/70 flex items-center gap-1"><MessageCircle className="h-3 w-3" />WhatsApp</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.whatsapp} onChange={e => setForm(f => ({...f, whatsapp: e.target.value}))} /></div>
-                <div><label className="text-xs text-white/70">Sitio Web</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.website} onChange={e => setForm(f => ({...f, website: e.target.value}))} /></div>
-                <div className="col-span-2"><label className="text-xs text-white/70">Dirección</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.address} onChange={e => setForm(f => ({...f, address: e.target.value}))} /></div>
-              </div>
-
-              <div className="border-t border-white/10 pt-4">
-                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><CreditCard className="h-4 w-4" />Datos de Pago</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-xs text-white/70">Forma de Pago</label>
-                    <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.payment_method} onChange={e => setForm(f => ({...f, payment_method: e.target.value}))}>
-                      <option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option><option value="cheque">Cheque</option><option value="credito">Crédito</option>
-                    </select>
-                  </div>
-                  <div><label className="text-xs text-white/70">Días de Crédito</label><input type="number" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.credit_days} onChange={e => setForm(f => ({...f, credit_days: Number(e.target.value)}))} /></div>
-                  <div><label className="text-xs text-white/70">Banco</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" placeholder="BBVA, BANORTE, etc." value={form.bank_name} onChange={e => setForm(f => ({...f, bank_name: e.target.value}))} /></div>
-                  <div><label className="text-xs text-white/70">No. Cuenta</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" value={form.bank_account} onChange={e => setForm(f => ({...f, bank_account: e.target.value}))} /></div>
-                  <div className="col-span-2"><label className="text-xs text-white/70">CLABE Interbancaria</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm font-mono" placeholder="18 dígitos" value={form.bank_clabe} onChange={e => setForm(f => ({...f, bank_clabe: e.target.value}))} /></div>
-                </div>
-              </div>
-
-              <div className="border-t border-white/10 pt-4">
-                <div><label className="text-xs text-white/70">Categorías (separadas por coma)</label><input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" placeholder="lubricantes, aceites, filtros" value={form.categories} onChange={e => setForm(f => ({...f, categories: e.target.value}))} /></div>
-                <div className="mt-3"><label className="text-xs text-white/70">Productos/Servicios que ofrece</label><textarea className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm h-20" placeholder="Descripción de productos..." value={form.Productos_offered} onChange={e => setForm(f => ({...f, Productos_offered: e.target.value}))} /></div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-full text-sm hover:bg-white/10">Cancelar</button>
-              <button onClick={handleSave} className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400"><Save className="h-4 w-4" /> Guardar</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

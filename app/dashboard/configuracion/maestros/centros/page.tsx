@@ -1,196 +1,175 @@
 "use client";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
 import { useState, useEffect } from "react";
-import { createBrowserClient } from "@supabase/ssr";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X } from "lucide-react";
+import Link from "next/link";
 
-interface WorkCenter {
+interface Centro {
   id: string;
-  name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  radius_meters: number;
-  created_at: string;
+  codigo: string;
+  nombre: string;
+  direccion: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  radio_metros: number;
+  activo: boolean;
 }
 
-export default function WorkCentersPage() {
-  const [centers, setCenters] = useState<WorkCenter[]>([]);
+export default function CentrosPage() {
+  const [centros, setCentros] = useState<Centro[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", address: "", latitude: "", longitude: "", radius_meters: "1000" });
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editando, setEditando] = useState<Centro | null>(null);
+  const [form, setForm] = useState({ nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
 
-  const supabase = createBrowserClient(
-    "https://yhylkvpynzyorqortbkk.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo"
-  );
+  useEffect(() => { cargar(); }, []);
 
-  useEffect(() => { loadCenters(); }, []);
-
-  async function loadCenters() {
-    setLoading(true);
-    const { data, error } = await supabase.from("work_centers").select("*").order("name");
-    setCenters(data || []);
+  const cargar = async () => {
+    const { data } = await supabase.from("centros_trabajo").select("*").order("nombre");
+    if (data) setCentros(data);
     setLoading(false);
-  }
+  };
 
-  function openNew() {
-    setForm({ name: "", address: "", latitude: "", longitude: "", radius_meters: "1000" });
-    setEditingId(null);
-    setShowModal(true);
-  }
-
-  function openEdit(center: WorkCenter) {
-    setForm({
-      name: center.name,
-      address: center.address || "",
-      latitude: center.latitude.toString(),
-      longitude: center.longitude.toString(),
-      radius_meters: center.radius_meters.toString()
-    });
-    setEditingId(center.id);
-    setShowModal(true);
-  }
-
-  async function handleSave() {
-    if (!form.name || !form.latitude || !form.longitude) {
-      alert("Nombre y coordenadas son requeridos");
-      return;
+  const abrirModal = (c?: Centro) => {
+    if (c) {
+      setEditando(c);
+      setForm({ 
+        nombre: c.nombre, 
+        direccion: c.direccion || "", 
+        latitud: c.latitud?.toString() || "", 
+        longitud: c.longitud?.toString() || "",
+        radio_metros: c.radio_metros?.toString() || "100"
+      });
+    } else {
+      setEditando(null);
+      setForm({ nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
     }
+    setShowModal(true);
+  };
 
-    const data = {
-      name: form.name,
-      address: form.address,
-      latitude: parseFloat(form.latitude),
-      longitude: parseFloat(form.longitude),
-      radius_meters: parseInt(form.radius_meters) || 1000
+  const guardar = async () => {
+    if (!form.nombre.trim()) return alert("Nombre requerido");
+    
+    const datos = {
+      nombre: form.nombre.trim(),
+      direccion: form.direccion.trim() || null,
+      latitud: form.latitud ? parseFloat(form.latitud) : null,
+      longitud: form.longitud ? parseFloat(form.longitud) : null,
+      radio_metros: parseInt(form.radio_metros) || 100
     };
 
-    if (editingId) {
-      await supabase.from("work_centers").update(data).eq("id", editingId);
+    if (editando) {
+      await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
     } else {
-      await supabase.from("work_centers").insert(data);
+      const nextNum = centros.length + 1;
+      await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
     }
-
     setShowModal(false);
-    loadCenters();
-  }
-
-  async function handleDelete(id: string) {
-    await supabase.from("work_centers").delete().eq("id", id);
-    setConfirmDelete(null);
-    loadCenters();
-  }
-
-  function parseCoordinates(text: string) {
-    const match = text.match(/([-]?\d+\.?\d*)\s*,\s*([-]?\d+\.?\d*)/);
-    if (match) {
-      setForm({ ...form, latitude: match[1], longitude: match[2] });
-    }
-  }
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div></div>;
-  }
+    cargar();
+  };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-        <Link href="/dashboard/configuracion/maestros" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b border-white/10">
+        <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+          <ArrowLeft className="w-4 h-4" /> Maestros
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
-          <p className="text-slate-400 text-sm">Configuraciónura las ubicaciones y geocercas para asistencia</p>
-        </div></div>
-        <button onClick={openNew} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-all">
-          + Agregar Centro
-        </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
+            <p className="text-slate-400">Obras con coordenadas GPS para geolocalización</p>
+          </div>
+          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+            <Plus className="w-4 h-4" /> Nuevo Centro
+          </button>
+        </div>
       </div>
 
-      <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden max-h-[calc(100vh-280px)] overflow-y-auto">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-[#0a1628] z-10">
-            <tr className="bg-slate-900/50 text-slate-400 text-sm">
-              <th className="p-4 text-left">Nombre</th>
-              <th className="p-4 text-left">Direccion</th>
-              <th className="p-4 text-left">Coordenadas</th>
-              <th className="p-4 text-left">Radio (m)</th>
-              <th className="p-4 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {centers.map((c) => (
-              <tr key={c.id} className="border-t border-slate-700/50 hover:bg-slate-700/30 transition-colors">
-                <td className="p-4 text-white font-medium">{c.name}</td>
-                <td className="p-4 text-slate-300">{c.address || "-"}</td>
-                <td className="p-4 text-slate-300 font-mono text-sm">{c.latitude}, {c.longitude}</td>
-                <td className="p-4 text-slate-300">{c.radius_meters}m</td>
-                <td className="p-4 flex gap-2">
-                  <button onClick={() => openEdit(c)} className="p-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-all" title="Editar">✏️</button>
-                  <button onClick={() => setConfirmDelete(c.id)} className="p-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-all" title="Eliminar">🗑️</button>
-                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" className="p-2 bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white rounded-lg transition-all" title="Ver en Maps">🗺️</a>
-                </td>
-              </tr>
+      <div className="flex-1 overflow-auto p-6">
+        {loading ? (
+          <div className="text-center py-12 text-slate-400">Cargando...</div>
+        ) : centros.length === 0 ? (
+          <div className="text-center py-12">
+            <MapPin className="w-12 h-12 mx-auto text-slate-600 mb-4" />
+            <p className="text-slate-400 mb-4">No hay centros de trabajo</p>
+            <p className="text-sm text-slate-500">Agrega obras con coordenadas GPS para el sistema de asistencias</p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {centros.map(c => (
+              <div key={c.id} className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.latitud ? "bg-green-500/20" : "bg-amber-500/20"}`}>
+                      <MapPin className={`w-6 h-6 ${c.latitud ? "text-green-400" : "text-amber-400"}`} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded text-slate-400">{c.codigo}</span>
+                        <h3 className="font-semibold text-white">{c.nombre}</h3>
+                      </div>
+                      {c.direccion && <p className="text-sm text-slate-400">{c.direccion}</p>}
+                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
+                        {c.latitud && c.longitud ? (
+                          <>
+                            <span>📍 {c.latitud.toFixed(6)}, {c.longitud.toFixed(6)}</span>
+                            <span>Radio: {c.radio_metros}m</span>
+                          </>
+                        ) : (
+                          <span className="text-amber-400">⚠️ Sin coordenadas GPS</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => abrirModal(c)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-        {centers.length === 0 && <div className="p-8 text-center text-slate-400">No hay centros de trabajo Configuraciónurados</div>}
+          </div>
+        )}
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-lg w-full mx-4 border border-slate-700">
-            <h2 className="text-xl font-bold text-white mb-4">{editingId ? "Editar" : "Agregar"} Centro de Trabajo</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">{editando ? "Editar" : "Nuevo"} Centro</h2>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-slate-400 text-sm mb-1">Nombre *</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Oficina Central" />
+                <label className="text-sm text-slate-400">Nombre *</label>
+                <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Ej: Obra Miravalle" />
               </div>
               <div>
-                <label className="block text-slate-400 text-sm mb-1">Direccion</label>
-                <input type="text" value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" placeholder="Av. Principal #123" />
-              </div>
-              <div>
-                <label className="block text-slate-400 text-sm mb-1">Pegar coordenadas de Google Maps</label>
-                <input type="text" onChange={(e) => parseCoordinates(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-cyan-500 rounded-lg text-white" placeholder="21.8818, -102.2916" />
-                <p className="text-xs text-cyan-400 mt-1">Clic derecho en Google Maps → Copiar coordenadas</p>
+                <label className="text-sm text-slate-400">Dirección</label>
+                <input type="text" value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-400 text-sm mb-1">Latitud *</label>
-                  <input type="text" value={form.latitude} onChange={(e) => setForm({...form, latitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
+                  <label className="text-sm text-slate-400">Latitud</label>
+                  <input type="text" value={form.latitud} onChange={e => setForm({...form, latitud: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="21.8853" />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-sm mb-1">Longitud *</label>
-                  <input type="text" value={form.longitude} onChange={(e) => setForm({...form, longitude: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
+                  <label className="text-sm text-slate-400">Longitud</label>
+                  <input type="text" value={form.longitud} onChange={e => setForm({...form, longitud: e.target.value})}
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="-102.2916" />
                 </div>
               </div>
               <div>
-                <label className="block text-slate-400 text-sm mb-1">Radio de geocerca (metros)</label>
-                <input type="number" value={form.radius_meters} onChange={(e) => setForm({...form, radius_meters: e.target.value})} className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white" />
+                <label className="text-sm text-slate-400">Radio geocerca (metros)</label>
+                <input type="number" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
               </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
-              <button onClick={handleSave} className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg">Guardar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-sm w-full mx-4 border border-slate-700">
-            <h2 className="text-xl font-bold text-white mb-4">Eliminar centro?</h2>
-            <p className="text-slate-300 mb-6">Los empleados asignados quedaran sin centro.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Eliminar</button>
+              <p className="text-xs text-slate-500">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
+              <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
+                <Save className="w-4 h-4" /> Guardar
+              </button>
             </div>
           </div>
         </div>
@@ -198,7 +177,3 @@ export default function WorkCentersPage() {
     </div>
   );
 }
-
-
-
-
