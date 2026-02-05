@@ -348,6 +348,58 @@ Si necesitas corregir algo, contacta a RH.`);
   }
 }
 
+
+// ============== MANEJAR FOTO OC ==============
+async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
+  // Verificar que la OC existe
+  const { data: oc } = await supabase
+    .from("purchase_orders")
+    .select("id, supplier_name, requisition_id")
+    .eq("folio", folioOC)
+    .single();
+
+  if (!oc) {
+    await sendWhatsApp(from, `❌ No encontré la orden *${folioOC}* en el sistema.\n\nVerifica el folio e intenta de nuevo.`);
+    return;
+  }
+
+  // Buscar si ya existe entrega para esta OC
+  const { data: entregaExistente } = await supabase
+    .from("entregas")
+    .select("id, folio")
+    .eq("purchase_order_folio", folioOC)
+    .single();
+
+  if (entregaExistente) {
+    // Actualizar con foto
+    await supabase
+      .from("entregas")
+      .update({ foto_url: imageUrl })
+      .eq("id", entregaExistente.id);
+
+    await sendWhatsApp(from, `✅ *FOTO GUARDADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${entregaExistente.folio}\n📷 Evidencia actualizada\n\n¡Gracias!`);
+  } else {
+    // Crear nueva entrega con foto
+    const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
+    const nuevoFolio = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
+
+    await supabase.from("entregas").insert({
+      folio: nuevoFolio,
+      fecha_entrega: new Date().toISOString().split("T")[0],
+      hora_entrega: new Date().toTimeString().slice(0, 5),
+      proveedor_nombre: oc.supplier_name,
+      status: "COMPLETA",
+      purchase_order_id: oc.id,
+      purchase_order_folio: folioOC,
+      requisition_id: oc.requisition_id,
+      foto_url: imageUrl,
+      recibido_por_nombre: "Via WhatsApp"
+    });
+
+    await sendWhatsApp(from, `✅ *ENTREGA REGISTRADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${nuevoFolio}\n📷 Foto guardada\n🏪 ${oc.supplier_name}\n\n¡Gracias!`);
+  }
+}
+
 // ============== WEBHOOK PRINCIPAL ==============
 export async function GET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
@@ -374,9 +426,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "asistencia processed" });
     }
 
-    // ====== IMAGEN = GASTO CON TICKET ======
+    // ====== IMAGEN = FOTO OC o GASTO CON TICKET ======
     if (message.type === "image") {
       const mediaId = message.image.id;
+      const caption = message.image.caption || "";
       const mediaInfo = await getMediaUrl(mediaId);
 
       if (!mediaInfo) {
@@ -384,6 +437,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "media error" });
       }
 
+      // Detectar si es foto de OC (buscar patrón OC-YYYY-NNNNN en caption)
+      const folioOCMatch = caption.match(/OC-\d{4}-\d{5}/i);
+      if (folioOCMatch) {
+        const folioOC = folioOCMatch[0].toUpperCase();
+        await handleFotoOC(from, folioOC, mediaInfo.url);
+        return NextResponse.json({ status: "foto oc processed" });
+      }
+
+      // Si no es OC, procesar como gasto/ticket
       await sendWhatsApp(from, "🔍 Analizando ticket... espera un momento.");
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
 
@@ -424,6 +486,9 @@ Para registrar *GASTO*:
 📷 Envía foto del ticket
 💬 O escribe: "Gasto 500 OXXO gasolina"
 
+Para *FOTO de ENTREGA*:
+📷 Envía foto con caption: OC-2025-00001
+
 ¿En qué te ayudo?`);
       return NextResponse.json({ status: "help sent" });
     }
@@ -434,5 +499,6 @@ Para registrar *GASTO*:
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
+
 
 
