@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
 type CostCenter = { id: number; code: string; name: string };
-type Product = { id: number; name: string | null; unit: string | null; category: string | null; description: string | null };
+type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
 type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string };
 
 export default function NewRequisitionPage() {
@@ -37,16 +37,35 @@ export default function NewRequisitionPage() {
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
 
+  // ========== BÚSQUEDA MEJORADA ==========
   const handleSearch = async (term: string) => {
     setSearchTerm(term);
     if (term.trim().length < 2) { setSearchResults([]); return; }
     setSearching(true);
+    
+    const searchTerm = term.trim().toLowerCase();
+    
+    // Buscar en nombre, descripción Y código (sku)
     const { data } = await supabase
       .from("Productos")
-      .select("id, name, unit, category, description")
-      .or(`name.ilike.%${term}%,description.ilike.%${term}%`)
-      .limit(15);
-    setSearchResults((data || []) as Product[]);
+      .select("id, sku, name, unit, category, description")
+      .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%`)
+      .order("name")
+      .limit(20);
+    
+    // Ordenar: primero los que EMPIEZAN con el término, luego el resto
+    const sorted = (data || []).sort((a, b) => {
+      const aName = (a.name || "").toLowerCase();
+      const bName = (b.name || "").toLowerCase();
+      const aStartsWith = aName.startsWith(searchTerm);
+      const bStartsWith = bName.startsWith(searchTerm);
+      
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      return aName.localeCompare(bName);
+    });
+    
+    setSearchResults(sorted as Product[]);
     setSearching(false);
   };
 
@@ -106,6 +125,25 @@ export default function NewRequisitionPage() {
 
   const isCartEmpty = materials.length === 0;
 
+  // Función para acortar categoría
+  const shortCategory = (cat: string | null) => {
+    if (!cat) return "";
+    const map: Record<string, string> = {
+      "Acero y productos metalicos": "Acero",
+      "Agregados y materiales de banco": "Agregados",
+      "Combustibles y lubricantes": "Combustible",
+      "Concretos asfaltos y estabilizantes": "Concreto",
+      "EPP y seguridad": "EPP",
+      "Ferreteria y fijacion": "Ferretería",
+      "Herramienta y equipo": "Herramienta",
+      "Material electrico": "Eléctrico",
+      "Miscelaneos de obra": "Misceláneo",
+      "Servicios y rentas": "Servicios",
+      "Tuberias y conexiones": "Tubería",
+    };
+    return map[cat] || cat.split(" ")[0];
+  };
+
   return (
     <div className="flex flex-col gap-4 p-6 h-full">
       <div className="flex items-center justify-between">
@@ -158,17 +196,18 @@ export default function NewRequisitionPage() {
           <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
           <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/30 px-3 py-2 mb-3">
             <Search className="h-4 w-4 opacity-70" />
-            <input className="w-full bg-transparent text-sm outline-none" placeholder="Escribe al menos 2 letras..." value={searchTerm} onChange={(e) => handleSearch(e.target.value)} />
+            <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={(e) => handleSearch(e.target.value)} />
             {searching && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
           <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-            <div className="grid grid-cols-[1fr_80px_50px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70">
-              <div>Descripción</div><div>Unidad</div><div></div>
+            <div className="grid grid-cols-[70px_1fr_70px_50px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div>Categoría</div><div>Descripción</div><div>Unidad</div><div></div>
             </div>
             {searchResults.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-white/40">{searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}</div>
             ) : searchResults.map(p => (
-              <div key={p.id} className="grid grid-cols-[1fr_80px_50px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
+              <div key={p.id} className="grid grid-cols-[70px_1fr_70px_50px] gap-2 items-center px-3 py-2 text-xs hover:bg-white/5">
+                <div className="text-cyan-400/80 text-[10px] truncate">{shortCategory(p.category)}</div>
                 <div className="truncate">{p.name}</div>
                 <div className="text-white/60 truncate">{p.unit}</div>
                 <button onClick={() => addMaterial(p)} disabled={addedIds.has(p.id)} className={`rounded-full p-1.5 ${addedIds.has(p.id) ? "bg-gray-500" : "bg-emerald-500 hover:bg-emerald-400"}`}>
@@ -216,4 +255,3 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
-
