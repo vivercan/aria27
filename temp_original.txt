@@ -1,8 +1,7 @@
 "use client";
-import Link from "next/link";
 
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, ArrowLeft } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -96,7 +95,7 @@ export default function NewRequisitionPage() {
       setMessage(`✅ Requisición ${data.folio} generada exitosamente. Se enviaron notificaciones por email.`);
       setMaterials([]);
       setGeneralComments("");
-      setTimeout(() => router.push("/dashboard/requisiciones/Requisiciones/estatus"), 3000);
+      setTimeout(() => router.push("/dashboard/abasto/Requisiciones/estatus"), 3000);
     } catch (err: any) {
       setErrorMsg(err?.message || "Error al generar la requisición.");
     } finally {
@@ -216,4 +215,3 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
-
