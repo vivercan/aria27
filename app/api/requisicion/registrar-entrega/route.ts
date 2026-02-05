@@ -26,7 +26,9 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e) { console.error("Error email:", e); }
 }
 
-async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]) {
+async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {
+  let itemsActualizados = 0;
+  
   for (const mat of materiales) {
     const productoNombre = mat.product_name || mat.producto || "";
     const cantidad = mat.quantity || mat.cantidad_recibida || 0;
@@ -44,16 +46,17 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
 
     if (existe) {
       // Actualizar cantidad
-      await supabase
+      const { error } = await supabase
         .from("inventario_obra")
         .update({
           cantidad_disponible: (existe.cantidad_disponible || 0) + cantidad,
           ultimo_movimiento: new Date().toISOString(),
         })
         .eq("id", existe.id);
+      if (!error) itemsActualizados++;
     } else {
       // Crear nuevo registro
-      await supabase.from("inventario_obra").insert({
+      const { error } = await supabase.from("inventario_obra").insert({
         obra_id: obraId,
         obra_nombre: obraNombre,
         producto_nombre: productoNombre,
@@ -62,8 +65,11 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
         cantidad_usada: 0,
         ultimo_movimiento: new Date().toISOString(),
       });
+      if (!error) itemsActualizados++;
     }
   }
+  
+  return itemsActualizados;
 }
 
 export async function POST(req: NextRequest) {
@@ -73,6 +79,7 @@ export async function POST(req: NextRequest) {
       purchase_order_id, 
       purchase_order_folio, 
       supplier_name, 
+      obra_id,
       obra_nombre, 
       materiales, 
       requisition_id, 
@@ -103,21 +110,46 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
-    // Obtener obra_id desde cost_centers
-    const { data: obraData } = await supabase
-      .from("cost_centers")
-      .select("id")
-      .eq("name", obra_nombre)
-      .single();
+    // Actualizar inventario usando ID directamente si lo tenemos
+    let itemsInventario = 0;
+    let obraIdFinal = obra_id;
 
-    // Actualizar inventario si tenemos la obra
-    if (obraData && materiales && materiales.length > 0) {
-      await actualizarInventario(obraData.id, obra_nombre, materiales);
-      console.log(`Inventario actualizado para obra ${obra_nombre}`);
+    // Si no tenemos obra_id, buscarlo por nombre (fallback)
+    if (!obraIdFinal && obra_nombre) {
+      const { data: obraData } = await supabase
+        .from("cost_centers")
+        .select("id")
+        .eq("name", obra_nombre)
+        .single();
+      obraIdFinal = obraData?.id;
+      
+      if (!obraData) {
+        console.warn(`⚠️ Obra no encontrada por nombre: "${obra_nombre}"`);
+      }
     }
 
-    // Notificar al solicitante
-    const mensaje = `✅ *MATERIAL RECIBIDO*\n\nTu material de la OC *${purchase_order_folio}* ha llegado.\n\n📍 Obra: ${obra_nombre}\n📦 Proveedor: ${supplier_name}\n🎫 Entrega: ${folioEntrega}\n📦 Inventario actualizado automáticamente\n\nPuedes pasar a recogerlo o coordinar su uso.`;
+    // Actualizar inventario si tenemos la obra y materiales
+    if (obraIdFinal && materiales && materiales.length > 0) {
+      itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
+      console.log(`✅ Inventario: ${itemsInventario} items actualizados para obra ${obra_nombre} (ID: ${obraIdFinal})`);
+    } else {
+      console.warn(`⚠️ No se actualizó inventario - obra_id: ${obraIdFinal}, materiales: ${materiales?.length || 0}`);
+    }
+
+    // Construir mensaje según si se actualizó inventario o no
+    const inventarioMsg = itemsInventario > 0 
+      ? `\n📦 Inventario: ${itemsInventario} items actualizados`
+      : "";
+
+    const mensaje = `✅ *MATERIAL RECIBIDO*
+
+Tu material de la OC *${purchase_order_folio}* ha llegado.
+
+📍 Obra: ${obra_nombre}
+📦 Proveedor: ${supplier_name}
+🎫 Entrega: ${folioEntrega}${inventarioMsg}
+
+Puedes pasar a recogerlo o coordinar su uso.`;
 
     // WhatsApp al solicitante
     if (solicitante_phone) {
@@ -126,6 +158,10 @@ export async function POST(req: NextRequest) {
 
     // Email al solicitante
     if (solicitante_email) {
+      const inventarioHtml = itemsInventario > 0
+        ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">${itemsInventario} items actualizados ✓</strong></td></tr>`
+        : `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><span style="color:#f59e0b;">Pendiente de procesar</span></td></tr>`;
+
       await sendEmail(
         solicitante_email,
         `✅ Material Recibido - ${purchase_order_folio}`,
@@ -136,9 +172,8 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Obra:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${obra_nombre}</strong></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Proveedor:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${supplier_name}</strong></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Entrega:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${folioEntrega}</strong></td></tr>
-            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">Actualizado ✓</strong></td></tr>
+            ${inventarioHtml}
           </table>
-          <p style="color:#666;font-size:14px;">El inventario de la obra ha sido actualizado automáticamente con los materiales recibidos.</p>
           <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
           <p style="color:#999;font-size:12px;">ARIA27 - Grupo Constructor Urbano Avante</p>
         </div>`
@@ -149,7 +184,8 @@ export async function POST(req: NextRequest) {
       success: true, 
       entrega, 
       folio: folioEntrega,
-      inventario_actualizado: !!obraData 
+      inventario_actualizado: itemsInventario,
+      obra_id_usado: obraIdFinal
     });
   } catch (error: any) {
     console.error("Error registrar entrega:", error);

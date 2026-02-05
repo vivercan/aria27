@@ -36,6 +36,7 @@ type ReqItem = {
 type Requisicion = {
   id: number;
   folio: string;
+  cost_center_id: number;
   cost_center_name: string;
   urgency: string;
   user_email: string;
@@ -69,7 +70,7 @@ export default function OrdenesCompraPage() {
     const { data: items } = await supabase.from("requisition_items").select("*")
       .eq("requisition_id", po.requisition_id).eq("selected_supplier_name", po.supplier_name);
     setPOItems((items || []) as ReqItem[]);
-    const { data: req } = await supabase.from("Requisiciones").select("id, folio, cost_center_name, urgency, user_email")
+    const { data: req } = await supabase.from("Requisiciones").select("id, folio, cost_center_id, cost_center_name, urgency, user_email")
       .eq("id", po.requisition_id).single();
     setPOReq(req as Requisicion);
     setLoadingDetail(false);
@@ -97,7 +98,8 @@ export default function OrdenesCompraPage() {
             purchase_order_id: selectedPO.id,
             purchase_order_folio: selectedPO.folio,
             supplier_name: selectedPO.supplier_name,
-            obra_nombre: poReq.cost_center_name,
+            obra_id: poReq.cost_center_id,
+              obra_nombre: poReq.cost_center_name,
             materiales: poItems.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit: i.unit })),
             requisition_id: poReq.id,
             solicitante_email: poReq.user_email,
@@ -262,3 +264,4 @@ export default function OrdenesCompraPage() {
     </div>
   );
 }
+
