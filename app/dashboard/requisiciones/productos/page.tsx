@@ -51,7 +51,7 @@ export default function ProductosPage() {
         <div className="mt-4 flex gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input type="text" placeholder="Buscar por nombre o código..." value={search} onChange={e => setSearch(e.target.value)}
+            <input type="text" placeholder="" value={search} onChange={e => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
           </div>
           <select value={categoria} onChange={e => setCategoria(e.target.value)}

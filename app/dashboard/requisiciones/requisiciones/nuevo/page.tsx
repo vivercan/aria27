@@ -129,7 +129,7 @@ export default function NuevaRequisicionPage() {
             <div>
               <label className="text-sm text-slate-400">Notas</label>
               <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2}
-                className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Observaciones generales..." />
+                className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
             </div>
           </div>
 
@@ -146,7 +146,7 @@ export default function NuevaRequisicionPage() {
                     <div className="p-3 border-b border-white/10">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="text" placeholder="Buscar producto..." value={search} onChange={e => setSearch(e.target.value)} autoFocus
+                        <input type="text" placeholder="" value={search} onChange={e => setSearch(e.target.value)} autoFocus
                           className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
                       </div>
                     </div>

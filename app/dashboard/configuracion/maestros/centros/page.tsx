@@ -142,7 +142,7 @@ export default function CentrosPage() {
               <div>
                 <label className="text-sm text-slate-400">Nombre *</label>
                 <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Ej: Obra Miravalle" />
+                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
               </div>
               <div>
                 <label className="text-sm text-slate-400">Dirección</label>
@@ -153,12 +153,12 @@ export default function CentrosPage() {
                 <div>
                   <label className="text-sm text-slate-400">Latitud</label>
                   <input type="text" value={form.latitud} onChange={e => setForm({...form, latitud: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="21.8853" />
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
                 </div>
                 <div>
                   <label className="text-sm text-slate-400">Longitud</label>
                   <input type="text" value={form.longitud} onChange={e => setForm({...form, longitud: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="-102.2916" />
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
                 </div>
               </div>
               <div>

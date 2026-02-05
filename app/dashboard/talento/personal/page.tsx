@@ -103,7 +103,7 @@ export default function PersonalPage() {
         </div>
         <div className="mt-4 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Buscar por nombre, código o puesto..." value={search} onChange={e => setSearch(e.target.value)}
+          <input type="text" placeholder="" value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function PersonalPage() {
                 <div>
                   <label className="text-sm text-slate-400">WhatsApp</label>
                   <input type="text" value={form.whatsapp} onChange={e => setForm({...form, whatsapp: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="10 dígitos" />
+                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
                 </div>
                 <div>
                   <label className="text-sm text-slate-400">Salario diario</label>
