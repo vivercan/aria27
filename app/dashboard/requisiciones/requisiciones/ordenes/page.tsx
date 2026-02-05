@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
-  ArrowLeft, Loader2, Package, Search, Filter, ChevronDown,
-  CheckCircle2, Clock, Truck, CreditCard, Calendar, Building2,
-  FileText, DollarSign, ChevronRight, X, Download, Receipt,
+  ArrowLeft, Loader2, Package, Search, Filter,
+  CheckCircle2, Truck, CreditCard,
+  FileText, ChevronRight, Printer, FileDown,
   AlertCircle, PackageCheck, Banknote
 } from "lucide-react";
 
@@ -31,7 +32,6 @@ type ReqItem = {
   unit: string;
   selected_supplier_name: string;
   selected_price: number;
-  director_comments: string;
 };
 
 type Requisicion = {
@@ -49,7 +49,6 @@ export default function OrdenesCompraPage() {
   const [filterProveedor, setFilterProveedor] = useState<string>("TODOS");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Detalle
   const [selectedPO, setSelectedPO] = useState<PO | null>(null);
   const [poItems, setPOItems] = useState<ReqItem[]>([]);
   const [poReq, setPOReq] = useState<Requisicion | null>(null);
@@ -60,10 +59,7 @@ export default function OrdenesCompraPage() {
 
   const loadOrders = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("purchase_orders")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.from("purchase_orders").select("*").order("created_at", { ascending: false });
     setOrders((data || []) as PO[]);
     setLoading(false);
   };
@@ -71,51 +67,59 @@ export default function OrdenesCompraPage() {
   const openDetail = async (po: PO) => {
     setSelectedPO(po);
     setLoadingDetail(true);
-
-    // Cargar items de la requisición que pertenecen a este proveedor
-    const { data: items } = await supabase
-      .from("requisition_items")
-      .select("*")
-      .eq("requisition_id", po.requisition_id)
-      .eq("selected_supplier_name", po.supplier_name);
+    const { data: items } = await supabase.from("requisition_items").select("*")
+      .eq("requisition_id", po.requisition_id).eq("selected_supplier_name", po.supplier_name);
     setPOItems((items || []) as ReqItem[]);
-
-    // Cargar info de la requisición
-    const { data: req } = await supabase
-      .from("Requisiciones")
-      .select("id, folio, cost_center_name, urgency")
-      .eq("id", po.requisition_id)
-      .single();
+    const { data: req } = await supabase.from("Requisiciones").select("id, folio, cost_center_name, urgency")
+      .eq("id", po.requisition_id).single();
     setPOReq(req as Requisicion);
-
     setLoadingDetail(false);
   };
 
-  const closeDetail = () => {
-    setSelectedPO(null);
-    setPOItems([]);
-    setPOReq(null);
-  };
+  const closeDetail = () => { setSelectedPO(null); setPOItems([]); setPOReq(null); };
 
   const updateStatus = async (newStatus: string) => {
     if (!selectedPO) return;
     setUpdatingStatus(true);
-
     const updates: any = { status: newStatus };
     if (newStatus === "RECIBIDA") updates.received_at = new Date().toISOString();
-
     await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
-
-    // Actualizar local
     setSelectedPO({ ...selectedPO, ...updates });
     setOrders(prev => prev.map(o => o.id === selectedPO.id ? { ...o, ...updates } : o));
     setUpdatingStatus(false);
   };
 
-  // Proveedores únicos
-  const proveedores = [...new Set(orders.map(o => o.supplier_name))].sort();
+  const printOC = () => {
+    if (!selectedPO || !poReq) return;
+    handlePrintOC({
+      folio: selectedPO.folio,
+      fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at,
+      proveedor: selectedPO.supplier_name,
+      obraNombre: poReq.cost_center_name,
+      formaPago: selectedPO.payment_method,
+      diasCredito: selectedPO.credit_days,
+      total: selectedPO.total,
+      materiales: poItems,
+      requisicionFolio: poReq.folio,
+    });
+  };
 
-  // Filtrar
+  const downloadOC = () => {
+    if (!selectedPO || !poReq) return;
+    handleDownloadPDFOC({
+      folio: selectedPO.folio,
+      fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at,
+      proveedor: selectedPO.supplier_name,
+      obraNombre: poReq.cost_center_name,
+      formaPago: selectedPO.payment_method,
+      diasCredito: selectedPO.credit_days,
+      total: selectedPO.total,
+      materiales: poItems,
+      requisicionFolio: poReq.folio,
+    });
+  };
+
+  const proveedores = [...new Set(orders.map(o => o.supplier_name))].sort();
   const filtered = orders.filter(o => {
     if (filterStatus !== "TODOS" && o.status !== filterStatus) return false;
     if (filterProveedor !== "TODOS" && o.supplier_name !== filterProveedor) return false;
@@ -126,38 +130,30 @@ export default function OrdenesCompraPage() {
     return true;
   });
 
-  // Stats
   const stats = {
     total: orders.length,
     generadas: orders.filter(o => o.status === "GENERADA").length,
     enTransito: orders.filter(o => o.status === "EN_TRANSITO").length,
     recibidas: orders.filter(o => o.status === "RECIBIDA").length,
-    montoTotal: orders.reduce((s, o) => s + (o.total || 0), 0),
-    montoPendiente: orders.filter(o => o.status !== "RECIBIDA").reduce((s, o) => s + (o.total || 0), 0),
+    montoPendiente: orders.filter(o => o.status !== "RECIBIDA" && o.status !== "PAGADA").reduce((s, o) => s + (o.total || 0), 0),
   };
 
-  // Helpers
   const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
     GENERADA: { label: "Generada", color: "text-blue-400", bg: "bg-blue-500/20", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
     RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },
     PAGADA: { label: "Pagada", color: "text-green-400", bg: "bg-green-500/20", icon: CheckCircle2 },
   };
-
   const getStatus = (s: string) => statusConfig[s] || statusConfig.GENERADA;
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
 
-  // ==========================================
-  // DETALLE DE OC
-  // ==========================================
+  // DETALLE OC
   if (selectedPO) {
     const st = getStatus(selectedPO.status);
     const StatusIcon = st.icon;
-
     return (
       <div className="h-full flex flex-col">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <button onClick={closeDetail} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -166,19 +162,23 @@ export default function OrdenesCompraPage() {
             <h1 className="text-xl font-bold text-white">{selectedPO.folio}</h1>
             <p className="text-slate-400 text-sm truncate">{selectedPO.supplier_name}</p>
           </div>
+          <div className="flex items-center gap-2">
+            <button onClick={printOC} className="p-2 rounded-lg bg-white/5 hover:bg-white/10" title="Imprimir">
+              <Printer className="w-5 h-5 text-slate-400" />
+            </button>
+            <button onClick={downloadOC} className="p-2 rounded-lg bg-white/5 hover:bg-white/10" title="Descargar PDF">
+              <FileDown className="w-5 h-5 text-slate-400" />
+            </button>
+          </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}>
-            <StatusIcon className="w-3.5 h-3.5" />
-            {st.label}
+            <StatusIcon className="w-3.5 h-3.5" />{st.label}
           </span>
         </div>
 
         {loadingDetail ? (
-          <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
-          </div>
+          <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-cyan-400" /></div>
         ) : (
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
-            {/* Info General */}
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Requisición</p>
@@ -192,41 +192,18 @@ export default function OrdenesCompraPage() {
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Forma de Pago</p>
                 <p className="text-white font-medium text-sm flex items-center gap-1.5">
-                  <Banknote className="w-4 h-4 text-slate-400" />
-                  {selectedPO.payment_method || "Transferencia"}
+                  <Banknote className="w-4 h-4 text-slate-400" />{selectedPO.payment_method || "Transferencia"}
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Crédito</p>
                 <p className="text-white font-medium text-sm flex items-center gap-1.5">
-                  <CreditCard className="w-4 h-4 text-slate-400" />
-                  {selectedPO.credit_days > 0 ? `${selectedPO.credit_days} días` : "Contado"}
+                  <CreditCard className="w-4 h-4 text-slate-400" />{selectedPO.credit_days > 0 ? `${selectedPO.credit_days} días` : "Contado"}
                 </p>
               </div>
             </div>
-
-            {/* Fechas */}
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-              <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-2">Fechas</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Autorizada:</span>
-                  <span className="text-white">{new Date(selectedPO.authorized_at || selectedPO.created_at).toLocaleDateString("es-MX")}</span>
-                </div>
-                {selectedPO.received_at && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Recibida:</span>
-                    <span className="text-emerald-400">{new Date(selectedPO.received_at).toLocaleDateString("es-MX")}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Materiales */}
             <div className="space-y-2">
-              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                Materiales ({poItems.length})
-              </h3>
+              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Materiales ({poItems.length})</h3>
               {poItems.map(item => (
                 <div key={item.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                   <div className="flex items-start justify-between gap-2">
@@ -245,35 +222,30 @@ export default function OrdenesCompraPage() {
           </div>
         )}
 
-        {/* Footer - Cambiar Status */}
         <div className="shrink-0 border-t border-white/[0.08] bg-[#0a1628]/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
           <p className="text-slate-500 text-xs mb-2">Cambiar estado:</p>
           <div className="flex gap-2">
             {selectedPO.status === "GENERADA" && (
               <button onClick={() => updateStatus("EN_TRANSITO")} disabled={updatingStatus}
                 className="flex-1 py-3 rounded-xl bg-amber-500/20 text-amber-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-amber-500/30 transition-colors disabled:opacity-50">
-                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <Truck className="w-4 h-4" />}
-                Marcar En Tránsito
+                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <Truck className="w-4 h-4" />}Marcar En Tránsito
               </button>
             )}
             {selectedPO.status === "EN_TRANSITO" && (
               <button onClick={() => updateStatus("RECIBIDA")} disabled={updatingStatus}
                 className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-emerald-500/30 transition-colors disabled:opacity-50">
-                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <PackageCheck className="w-4 h-4" />}
-                Marcar Recibida
+                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <PackageCheck className="w-4 h-4" />}Marcar Recibida
               </button>
             )}
             {selectedPO.status === "RECIBIDA" && (
               <button onClick={() => updateStatus("PAGADA")} disabled={updatingStatus}
                 className="flex-1 py-3 rounded-xl bg-green-500/20 text-green-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-green-500/30 transition-colors disabled:opacity-50">
-                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                Marcar Pagada
+                {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}Marcar Pagada
               </button>
             )}
             {selectedPO.status === "PAGADA" && (
               <div className="flex-1 py-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 font-semibold text-sm flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                Orden Completada
+                <CheckCircle2 className="w-4 h-4" />Orden Completada
               </div>
             )}
           </div>
@@ -282,12 +254,9 @@ export default function OrdenesCompraPage() {
     );
   }
 
-  // ==========================================
-  // LISTA DE OC
-  // ==========================================
+  // LISTA OC
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -298,7 +267,6 @@ export default function OrdenesCompraPage() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
           <p className="text-blue-400 font-bold text-lg">{stats.generadas}</p>
@@ -318,17 +286,11 @@ export default function OrdenesCompraPage() {
         </div>
       </div>
 
-      {/* Search + Filters */}
       <div className="flex gap-2 mb-3 shrink-0">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar OC o proveedor..."
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-cyan-500 outline-none"
-          />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..."
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-cyan-500 outline-none" />
         </div>
         <button onClick={() => setShowFilters(!showFilters)}
           className={`px-3 rounded-xl border flex items-center gap-1.5 text-sm transition-colors ${showFilters ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-400" : "bg-white/5 border-white/10 text-slate-400"}`}>
@@ -336,7 +298,6 @@ export default function OrdenesCompraPage() {
         </button>
       </div>
 
-      {/* Filters expanded */}
       {showFilters && (
         <div className="flex gap-2 mb-3 shrink-0">
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
@@ -355,7 +316,6 @@ export default function OrdenesCompraPage() {
         </div>
       )}
 
-      {/* Lista */}
       <div className="flex-1 overflow-y-auto space-y-2">
         {filtered.length === 0 ? (
           <div className="text-center py-20">
@@ -371,8 +331,7 @@ export default function OrdenesCompraPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-white font-bold">{po.folio}</span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${st.bg} ${st.color}`}>
-                  <StatusIcon className="w-3 h-3" />
-                  {st.label}
+                  <StatusIcon className="w-3 h-3" />{st.label}
                 </span>
               </div>
               <p className="text-slate-400 text-sm">{po.supplier_name}</p>

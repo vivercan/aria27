@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft, Printer, FileDown, Trash2, Loader2, XCircle } from "lucide-react";
+import { ArrowLeft, Printer, FileDown, Trash2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -345,15 +345,7 @@ export default function RequisicionesStatusPage() {
                             <FileDown className="w-4 h-4" />
                           </button>
                           {/* Cancelar */}
-                          {canCancel && (
-                            <button
-                              onClick={() => handleCancelar(req.id)}
-                              className="p-2 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition-all"
-                              title="Cancelar requisición"
-                            >
-                              <XCircle className="w-4 h-4" />
-                            </button>
-                          )}
+                          
                           {/* Eliminar (solo admin) */}
                           {isAdmin && (
                             <button
@@ -414,3 +406,5 @@ export default function RequisicionesStatusPage() {
     </div>
   );
 }
+
+
