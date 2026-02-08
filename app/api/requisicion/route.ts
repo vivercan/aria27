@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     if (reqErr) throw reqErr;
 
     const items = materiales.map((m: any) => ({
-      requisition_id: req.id, product_name: m.name, sku: m.sku || "", unit: m.unit,
+      requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
       quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
     }));
     await supabase.from("requisition_items").insert(items);

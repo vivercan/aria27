@@ -4,14 +4,23 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2 } from "lucide-react";
 
+interface ReqItem {
+  id: string;
+  product_name: string;
+  sku: string;
+  unit: string;
+  quantity: number;
+  category: string;
+}
+
 interface Requisicion {
   id: string;
   folio: string;
   cost_center_name: string;
   urgency: string;
   status: string;
-  materials: any[];
   created_at: string;
+  items: ReqItem[];
 }
 
 interface ProveedorInterno {
@@ -54,13 +63,30 @@ export default function CotizacionesIAPage() {
   }, []);
 
   const loadRequisiciones = async () => {
-    // Cargar requisiciones validadas pendientes de cotizar
-    const { data } = await supabase
+    const { data: reqs } = await supabase
       .from("Requisiciones")
-      .select("*")
-      .in("status", ["VALIDADA", "EN_COTIZACION"])
+      .select("id, folio, cost_center_name, urgency, status, created_at")
+      .in("status", ["VALIDADA", "APROBADA", "EN_COTIZACION"])
       .order("created_at", { ascending: false });
-    setRequisiciones(data || []);
+
+    if (!reqs || reqs.length === 0) {
+      setRequisiciones([]);
+      setLoading(false);
+      return;
+    }
+
+    const reqIds = reqs.map(r => r.id);
+    const { data: allItems } = await supabase
+      .from("requisition_items")
+      .select("id, requisition_id, product_name, sku, unit, quantity, category")
+      .in("requisition_id", reqIds);
+
+    const mapped = reqs.map(r => ({
+      ...r,
+      items: (allItems || []).filter(i => i.requisition_id === r.id)
+    }));
+
+    setRequisiciones(mapped as Requisicion[]);
     setLoading(false);
   };
 
@@ -71,17 +97,24 @@ export default function CotizacionesIAPage() {
     setResultado(null);
 
     try {
+      const productos = req.items.map(i => ({
+        product_name: i.product_name,
+        quantity: i.quantity,
+        unit: i.unit,
+        category: i.category
+      }));
+
       const res = await fetch("/api/proveedores/buscar-inteligente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productos: req.materials,
+          productos,
           requisicion_id: req.id
         })
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
         setResultado(data);
       } else {
@@ -120,7 +153,7 @@ export default function CotizacionesIAPage() {
         {/* Lista de Requisiciones */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-white">Requisiciones Pendientes de Cotizar</h2>
-          
+
           {loading ? (
             <div className="text-center py-10 text-slate-400">Cargando...</div>
           ) : requisiciones.length === 0 ? (
@@ -130,12 +163,12 @@ export default function CotizacionesIAPage() {
           ) : (
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
               {requisiciones.map(req => (
-                <div 
-                  key={req.id} 
+                <div
+                  key={req.id}
                   onClick={() => buscarProveedores(req)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    selectedReq?.id === req.id 
-                      ? "bg-blue-500/20 border-blue-500" 
+                    selectedReq?.id === req.id
+                      ? "bg-blue-500/20 border-blue-500"
                       : "bg-white/5 border-white/10 hover:bg-white/10"
                   }`}
                 >
@@ -150,10 +183,10 @@ export default function CotizacionesIAPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Package className="w-4 h-4" />
-                    {req.materials?.length || 0} productos
+                    {req.items?.length || 0} productos
                   </div>
                   {selectedReq?.id === req.id && (
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); buscarProveedores(req); }}
                       disabled={buscando}
                       className="mt-3 w-full py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium flex items-center justify-center gap-2"
@@ -174,7 +207,7 @@ export default function CotizacionesIAPage() {
         {/* Resultados de IA */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-white">Proveedores Sugeridos</h2>
-          
+
           {!selectedReq ? (
             <div className="text-center py-20 text-slate-400 bg-white/5 rounded-xl border border-dashed border-white/20">
               <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -289,8 +322,8 @@ export default function CotizacionesIAPage() {
               <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                 <h3 className="text-slate-400 text-sm mb-2">Productos solicitados:</h3>
                 <ul className="text-xs text-slate-500 space-y-1">
-                  {selectedReq.materials?.map((m: any, i: number) => (
-                    <li key={i}>• {m.product_name || m.nombre} ({m.quantity || m.cantidad} {m.unit || m.unidad || 'pzas'})</li>
+                  {selectedReq.items?.map((m, i) => (
+                    <li key={i}>• {m.product_name} ({m.quantity} {m.unit})</li>
                   ))}
                 </ul>
               </div>
