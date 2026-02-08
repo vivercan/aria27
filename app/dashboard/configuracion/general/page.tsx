@@ -121,7 +121,7 @@ export default function ConfigGeneralPage() {
           {seasons.map((s) => (
             <button key={s.id} onClick={() => handleSeasonChange(s.id)} disabled={!canEditSeasons} className="p-4 rounded-xl border-2 text-left transition-all" style={{ borderColor: season === s.id ? colors.accent : colors.cardBorder, backgroundColor: season === s.id ? colors.accentBg : "transparent", opacity: canEditSeasons ? 1 : 0.6, cursor: canEditSeasons ? "pointer" : "not-allowed" }}>
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl">{s.icon}</span>
+                <span className="text-xl">{s.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-medium" style={{ color: colors.text }}>{s.name}</p>
