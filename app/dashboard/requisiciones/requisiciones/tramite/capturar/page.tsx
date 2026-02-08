@@ -364,7 +364,7 @@ function CapturarContent() {
             <label className="text-slate-400 text-xs block mb-2">Precios unitarios *</label>
             <div className="rounded-lg bg-black/30 border border-white/10 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-white/5">
+                <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                   <tr className="text-left text-slate-500 text-[10px]">
                     <th className="p-2">Producto</th>
                     <th className="p-2 w-20">Cant.</th>

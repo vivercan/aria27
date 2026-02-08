@@ -276,7 +276,7 @@ export default function InventarioObraPage() {
 
           <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-white/5">
+              <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-slate-300">Material</th>
                   <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Disponible</th>

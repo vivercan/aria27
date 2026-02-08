@@ -221,7 +221,7 @@ export default function VacacionesPage() {
           {tab === "saldos" && (
             <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
               <table className="w-full">
-                <thead className="bg-white/5">
+                <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                   <tr className="text-left text-xs text-slate-400 uppercase">
                     <th className="px-4 py-3">Empleado</th>
                     <th className="px-4 py-3">Puesto</th>

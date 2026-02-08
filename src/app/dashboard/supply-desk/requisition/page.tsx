@@ -20,7 +20,7 @@ export default function RequisitionPage() {
             <div className="mt-4 border border-gray-700 p-4 rounded-lg">
                 <h4 className="text-white text-lg mb-2">Resultados de Catálogo ({Productos.length})</h4>
                 <table className="min-w-full divide-y divide-gray-700 text-sm text-white">
-                    <thead><tr><th className="px-6 py-3 text-left text-gray-400">SKU</th><th className="px-6 py-3 text-left text-gray-400">Nombre Producto</th><th className="px-6 py-3 text-left text-gray-400">Unidad</th><th className="px-6 py-3 text-left text-gray-400">Acción</th></tr></thead>
+                    <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10"><tr><th className="px-6 py-3 text-left text-gray-400">SKU</th><th className="px-6 py-3 text-left text-gray-400">Nombre Producto</th><th className="px-6 py-3 text-left text-gray-400">Unidad</th><th className="px-6 py-3 text-left text-gray-400">Acción</th></tr></thead>
                     <tbody>
                         {Productos.slice(0, 10).map((product) => (
                             <tr key={product.id} className="hover:bg-gray-800">

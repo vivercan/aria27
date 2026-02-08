@@ -332,7 +332,7 @@ export default function NominaManualPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-900/50">
+                <thead className="bg-slate-900/50 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                   <tr className="border-b border-white/10">
                     <th className="text-left p-4 text-slate-400 font-medium text-sm">Fecha</th>
                     <th className="text-left p-4 text-slate-400 font-medium text-sm">Día</th>

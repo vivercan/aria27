@@ -429,7 +429,7 @@ Responde SOLO con JSON así:
           {/* Tabla */}
           <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-white/5">
+              <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                 <tr className="text-left text-slate-400 text-xs">
                   <th className="p-2 w-8">#</th>
                   <th className="p-2">Producto</th>
