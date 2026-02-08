@@ -108,3 +108,22 @@ banco, clabe, numero_cuenta, fecha_ingreso, fecha_baja, nss, curp, rfc, motivo_b
 
 ## DEPLOY: Vercel auto-deploy desde GitHub main, dominio aria.jjcrm27.com
 
+
+
+## DEUDA TECNICA CONOCIDA (no tocar sin autorizacion)
+- cost_centers se usa en varios archivos pero la tabla correcta es centros_trabajo
+  Archivos afectados: dashboard/page.tsx, requisiciones/nuevo, obras/expedientes, obras/inventario, activos/catalogo, entregas
+  Estado: FUNCIONAL pero inconsistente. Migracion pendiente de analisis de impacto.
+- empresa_id = NULL en todos los empleados de Personal
+  Causa: No se ha definido la asignacion AVANTE/DENIVEL/TERRACRET
+  Impacto: Filtros por empresa no funcionan
+- Tabla Personal en Supabase requiere comillas por ser palabra reservada
+
+## AUDITORIA 7 FEB 2026 COMPLETADA
+- 120 archivos escaneados, 67 paginas, 26 APIs
+- WhatsApp ID viejo eliminado de 3 archivos
+- employees migrado a Personal en 8 archivos
+- dentro_geocerca corregido a _entrada en 1 archivo
+- try/catch agregado a 6 APIs
+- sticky headers agregados a 6 tablas
+- doble titulo corregido en 1 pagina
