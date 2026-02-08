@@ -42,11 +42,22 @@ Antes de modificar CUALQUIER archivo:
 | Config nómina | configuracion_nomina | payroll_config |
 | Secuencias | sequences | - |
 
+### Columnas REALES de "Personal":
+id, employee_number, full_name, position, project_site, department,
+salary_monthly, salario_diario, salario_semanal, minimo_tarjeta,
+email, status (ACTIVO/BAJA), expediente_status, whatsapp,
+tipo_nomina, hora_entrada, hora_salida, dias_laborales,
+centro_trabajo_id (FK, actualmente NULL en todos), empresa_id (FK, NULL en todos),
+banco, clabe, numero_cuenta, fecha_ingreso, fecha_baja, nss, curp, rfc, motivo_baja
+
 ### Campos críticos (causan bugs si se confunden):
 - asistencias.dentro_geocerca_entrada (boolean) — NO "dentro_geocerca"
 - asistencias.dentro_geocerca_salida (boolean) — NO "dentro_geocerca"
 - asistencias.employee_id → FK a "Personal".id
 - "Personal".full_name — NO employees.full_name
+- "Personal".empresa_id — NO "empresa" (esa columna NO EXISTE)
+- "Personal".project_site — NO "obra", "site", "work_site"
+- "Personal".status → valores: "ACTIVO" o "BAJA"
 - requisition_items.product_id (integer) → FK a products.id
 
 ## WHATSAPP BUSINESS API
@@ -96,3 +107,4 @@ Antes de modificar CUALQUIER archivo:
 5. Jessica registra entregas → Notifica todos
 
 ## DEPLOY: Vercel auto-deploy desde GitHub main, dominio aria.jjcrm27.com
+
