@@ -9,7 +9,7 @@ interface Asistencia {
   fecha: string;
   hora_entrada: string | null;
   hora_salida: string | null;
-  dentro_geocerca: boolean;
+  dentro_geocerca_entrada: boolean;
   tipo_registro: string;
   employees: { full_name: string; employee_number: string } | null;
 }
@@ -36,7 +36,7 @@ export default function ChecadasPage() {
     total: asistencias.length,
     completas: asistencias.filter(a => a.hora_entrada && a.hora_salida).length,
     enSitio: asistencias.filter(a => a.hora_entrada && !a.hora_salida).length,
-    fueraGeocerca: asistencias.filter(a => !a.dentro_geocerca).length
+    fueraGeocerca: asistencias.filter(a => !a.dentro_geocerca_entrada).length
   };
 
   return (
@@ -111,9 +111,9 @@ export default function ChecadasPage() {
                     <p className="text-white font-medium">{a.hora_salida || "--:--"}</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <MapPin className={`w-4 h-4 ${a.dentro_geocerca ? "text-green-400" : "text-red-400"}`} />
-                    <span className={a.dentro_geocerca ? "text-green-400" : "text-red-400"}>
-                      {a.dentro_geocerca ? "OK" : "Fuera"}
+                    <MapPin className={`w-4 h-4 ${a.dentro_geocerca_entrada ? "text-green-400" : "text-red-400"}`} />
+                    <span className={a.dentro_geocerca_entrada ? "text-green-400" : "text-red-400"}>
+                      {a.dentro_geocerca_entrada ? "OK" : "Fuera"}
                     </span>
                   </div>
                 </div>
@@ -125,3 +125,5 @@ export default function ChecadasPage() {
     </div>
   );
 }
+
+
