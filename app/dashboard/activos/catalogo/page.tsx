@@ -86,13 +86,13 @@ export default function ActivosCatalogoPage() {
     const { data: act } = await supabase.from("activos").select("*").eq("activo", true).order("codigo");
     if (act) setActivos(act);
 
-    const { data: asig } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:employees(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
+    const { data: asig } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:Personal(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
     if (asig) setAsignaciones(asig);
 
     const { data: mant } = await supabase.from("activos_mantenimiento").select("*, activo:activos(*)").order("fecha", { ascending: false });
     if (mant) setMantenimientos(mant);
 
-    const { data: emps } = await supabase.from("employees").select("id, full_name").eq("status", "ACTIVO").order("full_name");
+    const { data: emps } = await supabase.from("Personal").select("id, full_name").eq("status", "ACTIVO").order("full_name");
     if (emps) setEmpleados(emps);
 
     const { data: obr } = await supabase.from("cost_centers").select("id, name").eq("active", true);

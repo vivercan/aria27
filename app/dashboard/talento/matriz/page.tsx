@@ -23,7 +23,7 @@ export default function MatrizPage() {
   useEffect(() => {
     async function fetchData() {
       const { data } = await supabase
-        .from("employees")
+        .from("Personal")
         .select("*, centro_trabajo:centros_trabajo(nombre)")
         .eq("status", "ACTIVO")
         .order("salario_semanal", { ascending: false });

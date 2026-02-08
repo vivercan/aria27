@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -131,9 +131,9 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
 
 // ============== BUSCAR EMPLEADO ==============
 async function findEmpleado(phone10: string, fullPhone: string) {
-  // Buscar en employees (tabla principal)
+  // Buscar en Personal (tabla principal)
   const { data } = await supabase
-    .from("employees")
+    .from("Personal")
     .select("id, employee_number, full_name, centro_trabajo_id, geocerca_libre, centro_trabajo:centros_trabajo(nombre)")
     .or(`whatsapp.eq.${phone10},whatsapp.eq.${fullPhone}`)
     .eq("status", "ACTIVO")
@@ -197,7 +197,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     timeZone: "America/Mexico_City" 
   });
 
-  // 1. Buscar empleado en tabla employees
+  // 1. Buscar empleado en tabla Personal
   const emp = await findEmpleado(phone10, from);
 
   if (!emp) {

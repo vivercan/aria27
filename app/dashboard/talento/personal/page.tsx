@@ -29,7 +29,7 @@ export default function PersonalPage() {
   useEffect(() => { cargarEmpleados(); }, []);
 
   const cargarEmpleados = async () => {
-    const { data } = await supabase.from("employees").select("*").order("employee_number");
+    const { data } = await supabase.from("Personal").select("*").order("employee_number");
     if (data) setEmpleados(data);
     setLoading(false);
   };
@@ -71,10 +71,10 @@ export default function PersonalPage() {
     };
 
     if (editando) {
-      await supabase.from("employees").update(datos).eq("id", editando.id);
+      await supabase.from("Personal").update(datos).eq("id", editando.id);
     } else {
       const nextNum = empleados.length + 1;
-      await supabase.from("employees").insert({ ...datos, employee_number: `EMP-${String(nextNum).padStart(3, "0")}`, status: "ACTIVO" });
+      await supabase.from("Personal").insert({ ...datos, employee_number: `EMP-${String(nextNum).padStart(3, "0")}`, status: "ACTIVO" });
     }
     setShowModal(false);
     cargarEmpleados();
@@ -82,7 +82,7 @@ export default function PersonalPage() {
 
   const eliminar = async (id: string) => {
     if (!confirm("¿Eliminar este empleado?")) return;
-    await supabase.from("employees").delete().eq("id", id);
+    await supabase.from("Personal").delete().eq("id", id);
     cargarEmpleados();
   };
 

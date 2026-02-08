@@ -30,12 +30,12 @@ export default function PrestamosPage() {
   const cargarDatos = async () => {
     const { data: pres } = await supabase
       .from("prestamos")
-      .select("*, employee:employees(full_name, position)")
+      .select("*, employee:Personal(full_name, position)")
       .order("created_at", { ascending: false });
     if (pres) setPrestamos(pres);
 
     const { data: emps } = await supabase
-      .from("employees")
+      .from("Personal")
       .select("id, full_name")
       .eq("status", "ACTIVO")
       .order("full_name");

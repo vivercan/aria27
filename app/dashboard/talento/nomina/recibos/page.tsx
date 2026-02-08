@@ -98,7 +98,7 @@ export default function RecibosNominaPage() {
       const nominasConBanco = await Promise.all(
         nominasData.map(async (n) => {
           const { data: emp } = await supabase
-            .from("employees")
+            .from("Personal")
             .select("banco, clabe, numero_cuenta")
             .eq("id", n.employee_id)
             .single();

@@ -54,7 +54,7 @@ export default function EntregasPage() {
     const { data: obrasData } = await supabase.from("cost_centers").select("id, name").eq("active", true);
     if (obrasData) setObras(obrasData);
 
-    const { data: empsData } = await supabase.from("employees").select("id, full_name").eq("status", "ACTIVO");
+    const { data: empsData } = await supabase.from("Personal").select("id, full_name").eq("status", "ACTIVO");
     if (empsData) setEmpleados(empsData);
 
     const num = (data?.length || 0) + 1;

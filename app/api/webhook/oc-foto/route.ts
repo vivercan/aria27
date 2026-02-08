@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID || "869940452874474";
+const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const VERIFY_TOKEN = "aria27_oc_foto_verify";
 
 async function sendWhatsApp(phone: string, message: string) {

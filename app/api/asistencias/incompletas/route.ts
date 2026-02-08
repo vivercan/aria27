@@ -168,7 +168,7 @@ export async function PUT(req: NextRequest) {
         hora_salida: hora_salida || "18:00:00",
         tipo_registro: "MANUAL",
         notas: "Asistencia creada manualmente - día sin registro",
-        dentro_geocerca: true,
+        dentro_geocerca_entrada: true,
         dentro_geocerca_salida: true,
         correccion_manual: true,
         fecha_correccion: new Date().toISOString()
