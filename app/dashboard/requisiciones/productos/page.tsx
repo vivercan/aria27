@@ -78,7 +78,7 @@ export default function ProductosPage() {
   useEffect(() => {
     const loadCategories = async () => {
       const { data } = await supabase
-        .from("products")
+        .from("Productos")
         .select("category")
         .not("category", "is", null)
         .order("category");
@@ -104,7 +104,7 @@ export default function ProductosPage() {
     const to = from + PAGE_SIZE - 1;
 
     let query = supabase
-      .from("products")
+      .from("Productos")
       .select("*", { count: "exact" })
       .order("name")
       .range(from, to);

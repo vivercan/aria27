@@ -65,7 +65,7 @@ export default function InventarioObraPage() {
   }, [obraSeleccionada]);
 
   const loadObras = async () => {
-    const { data } = await supabase.from("cost_centers").select("id, name").order("name");
+    const { data } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
     setObras(data || []);
     setLoading(false);
   };

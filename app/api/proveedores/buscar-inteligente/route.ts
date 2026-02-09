@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Obtener proveedores existentes de la base de datos
     const { data: proveedoresDB } = await supabase
-      .from("suppliers")
+      .from("Proveedores")
       .select("*")
       .eq("status", "ACTIVO");
 

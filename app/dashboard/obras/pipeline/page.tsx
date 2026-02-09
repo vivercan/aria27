@@ -7,14 +7,14 @@ import * as XLSX from "xlsx";
 
 interface Obra {
   id: string;
-  name: string;
-  location: string;
-  status: string;
-  budget: number;
-  start_date: string;
-  end_date: string;
-  client: string;
-  description: string;
+  nombre: string;
+  direccion: string;
+  estado: string;
+  presupuesto: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  cliente: string;
+  descripcion: string;
   created_at: string;
 }
 
@@ -28,7 +28,7 @@ const STATUS_OPTIONS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const EMPTY = { name: "", location: "", status: "ACTIVA", budget: "", start_date: "", end_date: "", client: "", description: "" };
+const EMPTY = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
 
 export default function PipelinePage() {
   const [obras, setObras] = useState<Obra[]>([]);
@@ -46,7 +46,7 @@ export default function PipelinePage() {
   useEffect(() => { cargar(); }, []);
 
   const cargar = async () => {
-    const { data } = await supabase.from("cost_centers").select("*").order("name");
+    const { data } = await supabase.from("centros_trabajo").select("*").order("nombre");
     if (data) setObras(data);
     setLoading(false);
   };
@@ -59,14 +59,14 @@ export default function PipelinePage() {
   const guardarManual = async () => {
     setGuardando(true);
     const payload: any = { ...form };
-    if (payload.budget) payload.budget = parseFloat(payload.budget);
+    if (payload.presupuesto) payload.presupuesto = parseFloat(payload.presupuesto);
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
-      const { error } = await supabase.from("cost_centers").update(payload).eq("id", editId);
+      const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
       if (error) { msg("error", error.message); } else { msg("success", "Obra actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
-      const { error } = await supabase.from("cost_centers").insert(payload);
+      const { error } = await supabase.from("centros_trabajo").insert(payload);
       if (error) { msg("error", error.message); } else { msg("success", "Obra creada"); setShowForm(false); cargar(); }
     }
     setGuardando(false);
@@ -80,9 +80,9 @@ export default function PipelinePage() {
     for (const linea of lineas) {
       const [name, location, client, budget] = linea.split("|").map(s => s.trim());
       if (!name) continue;
-      const { error } = await supabase.from("cost_centers").insert({
-        name, location: location || null, client: client || null,
-        budget: budget ? parseFloat(budget) : null, status: "ACTIVA"
+      const { error } = await supabase.from("centros_trabajo").insert({
+        nombre: name, direccion: location || null, cliente: client || null,
+        presupuesto: budget ? parseFloat(budget) : null, estado: "ACTIVA"
       });
       if (!error) ok++;
     }
@@ -99,15 +99,15 @@ export default function PipelinePage() {
     let ok = 0;
     for (const row of excelData) {
       const payload: any = {
-        name: row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null,
-        location: row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null,
-        client: row["CLIENTE"] || row["cliente"] || row["Cliente"] || null,
-        budget: parseFloat(row["PRESUPUESTO"] || row["presupuesto"] || row["Presupuesto"] || 0) || null,
-        status: "ACTIVA",
-        description: row["DESCRIPCION"] || row["descripcion"] || null,
+        nombre: row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null,
+        direccion: row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null,
+        cliente: row["CLIENTE"] || row["cliente"] || row["Cliente"] || null,
+        presupuesto: parseFloat(row["PRESUPUESTO"] || row["presupuesto"] || row["Presupuesto"] || 0) || null,
+        estado: "ACTIVA",
+        descripcion: row["DESCRIPCION"] || row["descripcion"] || null,
       };
-      if (!payload.name) continue;
-      const { error } = await supabase.from("cost_centers").insert(payload);
+      if (!payload.nombre) continue;
+      const { error } = await supabase.from("centros_trabajo").insert(payload);
       if (!error) ok++;
     }
     msg("success", `${ok} obras importadas de ${excelData.length}`);
@@ -132,13 +132,13 @@ export default function PipelinePage() {
 
   const eliminar = async (id: string) => {
     if (!confirm("¿Eliminar esta obra?")) return;
-    const { error } = await supabase.from("cost_centers").delete().eq("id", id);
+    const { error } = await supabase.from("centros_trabajo").delete().eq("id", id);
     if (error) { msg("error", error.message); } else { msg("success", "Obra eliminada"); cargar(); }
   };
 
   const editar = (o: Obra) => {
     setEditId(o.id);
-    setForm({ name: o.name || "", location: o.location || "", status: o.status || "ACTIVA", budget: o.budget || "", start_date: o.start_date || "", end_date: o.end_date || "", client: o.client || "", description: o.description || "" });
+    setForm({ nombre: o.nombre || "", direccion: o.direccion || "", estado: o.estado || "ACTIVA", presupuesto: o.presupuesto || "", fecha_inicio: o.fecha_inicio || "", fecha_fin: o.fecha_fin || "", cliente: o.cliente || "", descripcion: o.descripcion || "" });
     setModo("manual");
     setShowForm(true);
   };
@@ -201,11 +201,11 @@ export default function PipelinePage() {
               <tr><td colSpan={6} className="p-8 text-center text-slate-500 text-sm">Sin obras registradas</td></tr>
             ) : obras.map(o => (
               <tr key={o.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                <td className="p-3 text-white text-sm font-medium">{o.name}</td>
-                <td className="p-3 text-slate-400 text-sm">{o.location || "—"}</td>
-                <td className="p-3 text-slate-400 text-sm">{o.client || "—"}</td>
-                <td className="p-3 text-right text-sm text-white">{o.budget ? `$${Number(o.budget).toLocaleString()}` : "—"}</td>
-                <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(o.status)}`}>{getStatusLabel(o.status)}</span></td>
+                <td className="p-3 text-white text-sm font-medium">{o.nombre}</td>
+                <td className="p-3 text-slate-400 text-sm">{o.direccion || "—"}</td>
+                <td className="p-3 text-slate-400 text-sm">{o.cliente || "—"}</td>
+                <td className="p-3 text-right text-sm text-white">{o.presupuesto ? `$${Number(o.presupuesto).toLocaleString()}` : "—"}</td>
+                <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(o.estado)}`}>{getStatusLabel(o.estado)}</span></td>
                 <td className="p-3 text-center flex items-center justify-center gap-1">
                   <button onClick={() => editar(o)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
                   <button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>

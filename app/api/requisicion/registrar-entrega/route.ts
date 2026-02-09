@@ -101,9 +101,9 @@ export async function POST(req: NextRequest) {
 
     if (!obraIdFinal && obra_nombre) {
       const { data: obraData } = await supabase
-        .from("cost_centers")
+        .from("centros_trabajo")
         .select("id")
-        .eq("name", obra_nombre)
+        .eq("nombre", obra_nombre)
         .single();
       obraIdFinal = obraData?.id;
 

@@ -27,7 +27,7 @@ export default function NewRequisitionPage() {
 
   useEffect(() => {
     const loadCenters = async () => {
-      const { data } = await supabase.from("cost_centers").select("id, code, name").order("name");
+      const { data } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("nombre");
       if (data) setCostCenters(data);
     };
     loadCenters();
@@ -46,18 +46,18 @@ export default function NewRequisitionPage() {
     
     // CONSULTA 1: Productos que EMPIEZAN con el término (prioridad alta)
     const { data: startsWithData } = await supabase
-      .from("products")
+      .from("Productos")
       .select("id, sku, name, unit, category, description")
       .ilike("name", `${t}%`)
-      .order("name")
+      .order("nombre")
       .limit(15);
     
     // CONSULTA 2: Productos que CONTIENEN el término (en nombre, descripción o SKU)
     const { data: containsData } = await supabase
-      .from("products")
+      .from("Productos")
       .select("id, sku, name, unit, category, description")
       .or(`name.ilike.%${t}%,description.ilike.%${t}%,sku.ilike.%${t}%`)
-      .order("name")
+      .order("nombre")
       .limit(30);
     
     // Combinar: primero los que empiezan, luego los que contienen (sin duplicados)

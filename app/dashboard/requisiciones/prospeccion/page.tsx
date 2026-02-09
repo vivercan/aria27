@@ -35,7 +35,7 @@ export default function ProspeccionPage() {
     try {
       // Cargar proveedores
       const { data: provs, error } = await supabase
-        .from("suppliers")
+        .from("Proveedores")
         .select("*")
         .order("name");
 

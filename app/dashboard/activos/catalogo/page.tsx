@@ -95,7 +95,7 @@ export default function ActivosCatalogoPage() {
     const { data: emps } = await supabase.from("Personal").select("id, full_name").eq("status", "ACTIVO").order("full_name");
     if (emps) setEmpleados(emps);
 
-    const { data: obr } = await supabase.from("cost_centers").select("id, name").eq("active", true);
+    const { data: obr } = await supabase.from("centros_trabajo").select("id, name:nombre").eq("activo", true);
     if (obr) setObras(obr);
 
     setLoading(false);

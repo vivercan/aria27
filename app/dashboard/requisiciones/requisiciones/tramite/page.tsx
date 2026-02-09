@@ -69,7 +69,7 @@ export default function ComprasTramitePage() {
     setRequisiciones((reqs || []) as Requisition[]);
     
     const { data: suppliers } = await supabase
-      .from("suppliers")
+      .from("Proveedores")
       .select("id, name, phone, email, categories, credit_days, website")
       .eq("status", "ACTIVO")
       .order("name");

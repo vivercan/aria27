@@ -52,7 +52,7 @@ export default function ProveedoresPage() {
 
   const loadSuppliers = useCallback(async () => {
     const { data } = await supabase
-      .from("suppliers")
+      .from("Proveedores")
       .select("id, name, rfc, phone, email, address, categories, contact_name, credit_days, active, folio, website, whatsapp, bank_name, bank_clabe, payment_method, razon_social, zona_cobertura, calificacion, notas_comerciales")
       .order("name");
     if (data) setSuppliers(data);
@@ -106,9 +106,9 @@ export default function ProveedoresPage() {
     setSaving(true);
     try {
       if (editingId) {
-        await supabase.from("suppliers").update(form).eq("id", editingId);
+        await supabase.from("Proveedores").update(form).eq("id", editingId);
       } else {
-        await supabase.from("suppliers").insert({ ...form, active: true });
+        await supabase.from("Proveedores").insert({ ...form, active: true });
       }
       setShowModal(false);
       setEditingId(null);
@@ -123,7 +123,7 @@ export default function ProveedoresPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar proveedor "${name}"? Esta acción no se puede deshacer.`)) return;
-    await supabase.from("suppliers").delete().eq("id", id);
+    await supabase.from("Proveedores").delete().eq("id", id);
     await loadSuppliers();
   };
 

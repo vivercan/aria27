@@ -88,7 +88,7 @@ export default function DashboardPage() {
 
         // Centros de costo
         const { count: centers } = await supabase
-          .from("cost_centers")
+          .from("centros_trabajo")
           .select("*", { count: "exact", head: true });
 
         setStats({

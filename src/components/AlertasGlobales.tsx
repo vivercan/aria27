@@ -30,7 +30,7 @@ export default function AlertasGlobales() {
   async function obtenerRolUsuario(email: string) {
     try {
       const { data } = await supabase
-        .from("users")
+        .from("Users")
         .select("role")
         .eq("email", email)
         .single();
@@ -52,7 +52,7 @@ export default function AlertasGlobales() {
       // 1. Proveedores sin datos bancarios - SOLO PARA COMPRAS
       if (rol === "compras") {
         const { data: proveedores } = await supabase
-          .from("suppliers")
+          .from("Proveedores")
           .select("id, name, banco, numero_cuenta, clabe, rfc")
           .eq("active", true);
 
