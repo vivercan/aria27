@@ -34,7 +34,7 @@ export default function CosteoPage() {
       const { data: ocs } = await supabase.from("purchase_orders").select("obra_nombre, total, categoria");
 
       // Cargar gastos de obra
-      const { data: gastos } = await supabase.from("gastos_obra").select("obra_nombre, monto, categoria");
+      const { data: gastos } = await supabase.from("gastos").select("obra_nombre, monto, categoria");
 
       const obraMap: Record<string, { materiales: number; mano_obra: number; subcontratos: number; indirectos: number }> = {};
 
@@ -47,7 +47,7 @@ export default function CosteoPage() {
 
       // Sumar gastos por obra y categoría
       (gastos || []).forEach((g: any) => {
-        const key = g.obra_nombre || "Sin Obra";
+        const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         const cat = (g.categoria || "").toLowerCase();
         if (cat.includes("mano") || cat.includes("salario") || cat.includes("nomina")) {
