@@ -13,7 +13,7 @@ async function getNextFolio(): Promise<string> {
 }
 
 async function getUserByEmail(email: string) {
-  const { data } = await supabase.from("users").select("*").eq("email", email).single();
+  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
   return data;
 }
 
@@ -21,7 +21,7 @@ async function getUserByEmail(email: string) {
 async function getUserByRole(role: string) {
   try {
     const { data, error } = await supabase
-      .from("users")
+      .from("Users")
       .select("*")
       .eq("role", role)
       .eq("active", true)

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     if (status) updates.status = status;
     if (status_message !== undefined) updates.status_message = status_message;
 
-    await supabase.from("users").update(updates).eq("email", email);
+    await supabase.from("Users").update(updates).eq("email", email);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error(error);
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { data } = await supabase
-      .from("users")
+      .from("Users")
       .select("email, display_name, name, last_seen, status, status_message")
       .eq("active", true);
     return NextResponse.json({ usuarios: data || [] });

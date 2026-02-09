@@ -65,7 +65,7 @@ export default function RequisicionesStatusPage() {
   }, []);
 
   async function loadUserRole(email: string) {
-    const { data } = await supabase.from("users").select("role").eq("email", email).single();
+    const { data } = await supabase.from("Users").select("role").eq("email", email).single();
     if (data) setUserRole(data.role || "user");
   }
 

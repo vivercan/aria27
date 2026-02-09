@@ -39,7 +39,7 @@ export default function UsuariosPage() {
   useEffect(() => { loadUsers(); }, []);
 
   const loadUsers = async () => {
-    const { data } = await supabase.from("users").select("*").order("name");
+    const { data } = await supabase.from("Users").select("*").order("name");
     if (data) setUsers(data);
     setLoading(false);
   };
@@ -63,7 +63,7 @@ export default function UsuariosPage() {
   };
 
   const saveUser = async (id: string) => {
-    await supabase.from("users").update({
+    await supabase.from("Users").update({
       role: editRole,
       email: editEmail,
       phone: editPhone,
@@ -85,7 +85,7 @@ export default function UsuariosPage() {
 
   const confirmDelete = async () => {
     if (deleteConfirmText !== "delete" || !deletingUser) return;
-    await supabase.from("users").delete().eq("id", deletingUser.id);
+    await supabase.from("Users").delete().eq("id", deletingUser.id);
     closeDeleteModal();
     loadUsers();
   };

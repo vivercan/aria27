@@ -76,7 +76,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   }, [userEmail]);
 
   const loadUser = async (email: string) => {
-    const { data } = await supabase.from("users").select("*").eq("email", email).single();
+    const { data } = await supabase.from("Users").select("*").eq("email", email).single();
     if (data) {
       setUserName(data.display_name || data.name || email);
       setUserRole(data.role || "user");

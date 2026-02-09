@@ -6,12 +6,12 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 const BASE_URL = "https://aria.jjcrm27.com";
 
 async function getUserByRole(role: string) {
-  const { data } = await supabase.from("users").select("*").eq("role", role).single();
+  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
   return data;
 }
 
 async function getUserByEmail(email: string) {
-  const { data } = await supabase.from("users").select("*").eq("email", email).single();
+  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
   return data;
 }
 

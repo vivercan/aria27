@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     await supabase.from("Requisiciones").update({ status: "AUTORIZADA" }).eq("id", requisition_id);
 
     // Notify Compras
-    const { data: compras } = await supabase.from("users").select("*").eq("role", "compras").single();
+    const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
     const ocList = ocFolios.join("\n");
 
     const materialesText = selections.map((s: any) =>

@@ -87,7 +87,7 @@ export default function OrdenesCompraPage() {
       updates.received_at = new Date().toISOString();
       
       // Obtener teléfono del solicitante
-      const { data: userData } = await supabase.from("users").select("phone").eq("email", poReq.user_email).single();
+      const { data: userData } = await supabase.from("Users").select("phone").eq("email", poReq.user_email).single();
       
       // Crear entrega y notificar
       try {

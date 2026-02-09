@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
     const { requisition_id, folio, obra, quotes, items } = await req.json();
 
-    const { data: director } = await supabase.from("users").select("*").eq("role", "direccion").single();
+    const { data: director } = await supabase.from("Users").select("*").eq("role", "direccion").single();
     if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
 
     const mejor = quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]);
