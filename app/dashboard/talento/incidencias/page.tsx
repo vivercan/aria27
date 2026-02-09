@@ -33,7 +33,7 @@ export default function IncidenciasPage() {
     try {
       const { data: inc } = await supabase.from("incidencias").select("*").order("fecha", { ascending: false });
       setIncidencias(inc || []);
-      const { data: emps } = await supabase.from("employees").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
+      const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
       setEmpleados(emps || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
