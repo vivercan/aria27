@@ -127,3 +127,36 @@ banco, clabe, numero_cuenta, fecha_ingreso, fecha_baja, nss, curp, rfc, motivo_b
 - try/catch agregado a 6 APIs
 - sticky headers agregados a 6 tablas
 - doble titulo corregido en 1 pagina
+
+## TABLAS DEFINITIVAS (verificado en BD 8-feb-2026)
+### Tablas ACTIVAS — USAR ESTAS:
+- `Personal` → empleados (NO "employees")
+- `Requisiciones` → requisiciones (capital R, NO "requisitions")
+- `cost_centers` → centros de costo para requisiciones (5 registros)
+- `centros_trabajo` → ubicaciones GPS para asistencias/geocerca (9 registros)
+- `asistencias` → registros entrada/salida
+- `products` → catálogo de productos (3602)
+- `suppliers` → proveedores (101)
+- `product_suppliers` → relación producto-proveedor
+- `users` → usuarios del sistema
+- `configuracion_nomina` → parámetros nómina
+- `nomina_historico` → historial de nóminas
+- `prestamos` → préstamos empleados
+- `incidencias` → incidencias laborales
+- `purchase_orders` → órdenes de compra
+- `sequences` → folios consecutivos
+- `gastos` → gastos por obra (649 registros)
+- `pulso_conversaciones` → chat interno
+- `pulso_mensajes` → mensajes del chat
+- `pulso_participantes` → participantes chat
+
+### Tablas MUERTAS — NO USAR NUNCA:
+- `requisitions` → VIEJA (inglés), reemplazada por `Requisiciones`
+- `work_centers` → VIEJA (inglés), reemplazada por `centros_trabajo`
+- `employees` → VIEJA (inglés), reemplazada por `Personal`
+
+### DISTINCIÓN IMPORTANTE:
+- `cost_centers` ≠ `centros_trabajo`
+- `cost_centers` = a qué OBRA se carga el gasto (usado en requisiciones)
+- `centros_trabajo` = DÓNDE está el empleado físicamente (GPS, geocerca, asistencias)
+- Ambas son válidas y necesarias. NO fusionar.
