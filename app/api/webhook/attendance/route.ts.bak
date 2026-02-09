@@ -17,11 +17,6 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function formatDistance(meters: number): string {
-  if (meters < 1000) return `${Math.round(meters)}m`;
-  return `${(meters / 1000).toFixed(1)}km`;
-}
-
 async function sendWhatsApp(phone: string, message: string) {
   try {
     await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
@@ -255,16 +250,13 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       latitud_entrada: lat,
       longitud_entrada: lng,
       dentro_geocerca_entrada: dentroGeocerca,
-      distancia_entrada: Math.round(distance),
-      centro_nombre: workCenter.nombre,
-      notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)}`
+      notas: `Entrada: ${workCenter.nombre} - ${Math.round(distance)}m`
     });
 
     const geoIcon = dentroGeocerca ? "✅" : "⚠️";
-    const distText = formatDistance(distance);
-    const distLine = dentroGeocerca ? `📏 A ${distText} de ${workCenter.nombre}` : `⚠️ FUERA: ${distText} de ${workCenter.nombre}`;
+    const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
     
-    await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${distLine}
+    await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${geoMsg}
 
 👤 ${emp.full_name}
 📍 ${workCenter.nombre}
@@ -281,8 +273,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       latitud_salida: lat,
       longitud_salida: lng,
       dentro_geocerca_salida: dentroGeocerca,
-      distancia_salida: Math.round(distance),
-      notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${formatDistance(distance)}`
+      notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${Math.round(distance)}m`
     }).eq("id", asistenciaHoy.id);
 
     // Calcular horas trabajadas
@@ -292,10 +283,9 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     const horasStr = totalMins > 0 ? `${Math.floor(totalMins/60)}h ${totalMins%60}m` : "0h";
 
     const geoIcon = dentroGeocerca ? "✅" : "⚠️";
-    const distText = formatDistance(distance);
-    const distLine = dentroGeocerca ? `📏 A ${distText} de ${workCenter.nombre}` : `⚠️ FUERA: ${distText} de ${workCenter.nombre}`;
+    const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
 
-    await sendWhatsApp(from, `${geoIcon} SALIDA REGISTRADA${distLine}
+    await sendWhatsApp(from, `${geoIcon} SALIDA REGISTRADA${geoMsg}
 
 👤 ${emp.full_name}
 📍 ${workCenter.nombre}
@@ -329,16 +319,13 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
         longitud_entrada: lng,
         dentro_geocerca_entrada: dentroGeocerca,
         tipo_registro: "WHATSAPP",
-        distancia_entrada: Math.round(distance),
-        centro_nombre: workCenter.nombre,
-        notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)} (reemplazó registro automático)`
+        notas: `Entrada: ${workCenter.nombre} - ${Math.round(distance)}m (reemplazó registro automático)`
       });
 
       const geoIcon = dentroGeocerca ? "✅" : "⚠️";
-      const distText = formatDistance(distance);
-      const distLine = dentroGeocerca ? `📏 A ${distText} de ${workCenter.nombre}` : `⚠️ FUERA: ${distText} de ${workCenter.nombre}`;
+      const geoMsg = dentroGeocerca ? "" : `\n(Fuera de zona: ${Math.round(distance)}m)`;
 
-      await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${distLine}
+      await sendWhatsApp(from, `${geoIcon} ENTRADA REGISTRADA${geoMsg}
 
 👤 ${emp.full_name}
 📍 ${workCenter.nombre}
