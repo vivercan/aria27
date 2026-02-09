@@ -1,17 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-
-const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
-
-async function sendWhatsApp(phone: string, message: string) {
-  const fullPhone = phone.replace(/[^0-9]/g, "").startsWith("52") ? phone.replace(/[^0-9]/g, "") : "52" + phone.replace(/[^0-9]/g, "");
-  await fetch(`https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_ID}/messages`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ messaging_product: "whatsapp", to: fullPhone, type: "text", text: { body: message } })
-  });
-}
+import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
 export async function POST(req: Request) {
   try {
@@ -22,10 +11,6 @@ export async function POST(req: Request) {
 
     const { data: director } = await supabase.from("users").select("*").eq("role", "direccion").single();
     if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
-
-    const tabla = quotes.map((q: any, i: number) =>
-      `${i + 1}. ${q.supplier}: $${q.total.toLocaleString()} | ${q.credito}d credito | ${q.entrega}d entrega${q.notas ? " | " + q.notas : ""}`
-    ).join("\n");
 
     const mejor = quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]);
     const linkComparativa = `https://aria.jjcrm27.com/dashboard/requisiciones/requisiciones/tramite/capturar?req=${requisition_id}`;
@@ -64,8 +49,15 @@ export async function POST(req: Request) {
       `
     });
 
-    const wMsg = `📊 *COMPARATIVA* ${folio}\n📍 ${obra}\n\n${tabla}\n\n✅ *Mejor:* ${mejor.supplier} - $${mejor.total.toLocaleString()}\n\n🔗 ${linkComparativa}`;
-    if (director.phone) await sendWhatsApp(director.phone, wMsg);
+    // WhatsApp con plantilla + botón dinámico
+    if (director.phone) {
+      await sendWhatsAppTemplate(
+        "comparativa_enviar",
+        [folio, obra, `${mejor.supplier} $${mejor.total.toLocaleString()}`, String(quotes.length)],
+        director.phone,
+        requisition_id
+      );
+    }
 
     return NextResponse.json({ success: true, enviado_a: director.email });
   } catch (error: any) {

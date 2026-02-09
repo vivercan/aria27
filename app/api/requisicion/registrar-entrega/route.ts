@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-
-async function sendWhatsApp(phone: string, message: string) {
-  const fullPhone = phone.startsWith("52") ? phone : `52${phone}`;
-  try {
-    await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ messaging_product: "whatsapp", to: fullPhone, type: "text", text: { body: message } }),
-    });
-  } catch (e) { console.error("Error WA:", e); }
-}
 
 async function sendEmail(to: string, subject: string, html: string) {
   try {
@@ -28,15 +16,14 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {
   let itemsActualizados = 0;
-  
+
   for (const mat of materiales) {
     const productoNombre = mat.product_name || mat.producto || "";
     const cantidad = mat.quantity || mat.cantidad_recibida || 0;
     const unidad = mat.unit || mat.unidad || "PZA";
-    
+
     if (!productoNombre || cantidad <= 0) continue;
 
-    // Buscar si ya existe en inventario
     const { data: existe } = await supabase
       .from("inventario_obra")
       .select("*")
@@ -45,7 +32,6 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
       .single();
 
     if (existe) {
-      // Actualizar cantidad
       const { error } = await supabase
         .from("inventario_obra")
         .update({
@@ -55,7 +41,6 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
         .eq("id", existe.id);
       if (!error) itemsActualizados++;
     } else {
-      // Crear nuevo registro
       const { error } = await supabase.from("inventario_obra").insert({
         obra_id: obraId,
         obra_nombre: obraNombre,
@@ -68,23 +53,23 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
       if (!error) itemsActualizados++;
     }
   }
-  
+
   return itemsActualizados;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { 
-      purchase_order_id, 
-      purchase_order_folio, 
-      supplier_name, 
+    const {
+      purchase_order_id,
+      purchase_order_folio,
+      supplier_name,
       obra_id,
-      obra_nombre, 
-      materiales, 
-      requisition_id, 
-      solicitante_email, 
-      solicitante_phone 
+      obra_nombre,
+      materiales,
+      requisition_id,
+      solicitante_email,
+      solicitante_phone
     } = body;
 
     // Generar folio de entrega
@@ -110,11 +95,10 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
-    // Actualizar inventario usando ID directamente si lo tenemos
+    // Actualizar inventario
     let itemsInventario = 0;
     let obraIdFinal = obra_id;
 
-    // Si no tenemos obra_id, buscarlo por nombre (fallback)
     if (!obraIdFinal && obra_nombre) {
       const { data: obraData } = await supabase
         .from("cost_centers")
@@ -122,13 +106,12 @@ export async function POST(req: NextRequest) {
         .eq("name", obra_nombre)
         .single();
       obraIdFinal = obraData?.id;
-      
+
       if (!obraData) {
         console.warn(`⚠️ Obra no encontrada por nombre: "${obra_nombre}"`);
       }
     }
 
-    // Actualizar inventario si tenemos la obra y materiales
     if (obraIdFinal && materiales && materiales.length > 0) {
       itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
       console.log(`✅ Inventario: ${itemsInventario} items actualizados para obra ${obra_nombre} (ID: ${obraIdFinal})`);
@@ -136,24 +119,13 @@ export async function POST(req: NextRequest) {
       console.warn(`⚠️ No se actualizó inventario - obra_id: ${obraIdFinal}, materiales: ${materiales?.length || 0}`);
     }
 
-    // Construir mensaje según si se actualizó inventario o no
-    const inventarioMsg = itemsInventario > 0 
-      ? `\n📦 Inventario: ${itemsInventario} items actualizados`
-      : "";
-
-    const mensaje = `✅ *MATERIAL RECIBIDO*
-
-Tu material de la OC *${purchase_order_folio}* ha llegado.
-
-📍 Obra: ${obra_nombre}
-📦 Proveedor: ${supplier_name}
-🎫 Entrega: ${folioEntrega}${inventarioMsg}
-
-Puedes pasar a recogerlo o coordinar su uso.`;
-
-    // WhatsApp al solicitante
+    // WhatsApp con plantilla al solicitante
     if (solicitante_phone) {
-      await sendWhatsApp(solicitante_phone, mensaje);
+      await sendWhatsAppTemplate(
+        "entrega_material",
+        [purchase_order_folio, obra_nombre, supplier_name, folioEntrega],
+        solicitante_phone
+      );
     }
 
     // Email al solicitante
@@ -180,9 +152,9 @@ Puedes pasar a recogerlo o coordinar su uso.`;
       );
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      entrega, 
+    return NextResponse.json({
+      success: true,
+      entrega,
       folio: folioEntrega,
       inventario_actualizado: itemsInventario,
       obra_id_usado: obraIdFinal

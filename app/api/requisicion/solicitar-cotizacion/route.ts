@@ -1,33 +1,9 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
+import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const BASE_URL = "https://aria.jjcrm27.com";
-
-async function sendWhatsAppText(phone: string, message: string) {
-  const formattedPhone = phone.replace(/[^0-9]/g, "");
-  const fullPhone = formattedPhone.startsWith("52") ? formattedPhone : "52" + formattedPhone;
-  
-  const res = await fetch(
-    `https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_ID}/messages`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: fullPhone,
-        type: "text",
-        text: { body: message },
-      }),
-    }
-  );
-  return res.ok;
-}
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -41,10 +17,6 @@ export async function POST(request: Request) {
 
     const daysUntil = Math.ceil((new Date(fecha_requerida).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
-
-    const productosTexto = items.map((i: any) => `- ${i.product_name} (${i.quantity} ${i.unit})`).join("\n");
-
-    const whatsappMsg = `🏗️ *SOLICITUD DE COTIZACIÓN*\n📋 *${folio}*\n📍 Obra: ${obra}\n⏰ Entrega: ${urgencyText}\n\n*Productos:*\n${productosTexto}\n\nFavor de enviar cotización a:\n📧 compras@gcuavante.com\n📱 (449) 588-0244\n\n_Grupo Constructor Urbano Avante_`;
 
     const materialesHtml = items.map((i: any) =>
       `<tr><td style="padding:10px;border:1px solid #e2e8f0">${i.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.quantity}</td></tr>`
@@ -100,12 +72,16 @@ export async function POST(request: Request) {
         }
       }
 
-      // WhatsApp
+      // WhatsApp con plantilla
       if (prov.phone) {
         try {
-          const sent = await sendWhatsAppText(prov.phone, whatsappMsg);
-          if (sent) whatsappSent++;
-          else errors.push(`WA ${prov.name}: envio fallido`);
+          const result = await sendWhatsAppTemplate(
+            "solicitar_cotizacion",
+            [folio, obra, urgencyText],
+            prov.phone
+          );
+          if (result.success) whatsappSent++;
+          else errors.push(`WA ${prov.name}: ${result.error}`);
         } catch (e: any) {
           errors.push(`WA ${prov.name}: ${e.message}`);
         }
