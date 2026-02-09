@@ -5,12 +5,12 @@ import { LayoutDashboard, HardHat, Users, Package, Wallet, Warehouse, FileText, 
 import { useState } from "react";
 
 const menuItems = [
-  { name: "Obras", href: "/dashboard/obras", icon: HardHat },
+  // { name: "Obras", href: "/dashboard/obras", icon: HardHat }, // TODO: Activar cuando tenga funcionalidad
   { name: "Talento", href: "/dashboard/talento", icon: Users },
   { name: "Requisiciones", href: "/dashboard/requisiciones", icon: Package },
   { name: "Finanzas", href: "/dashboard/finanzas", icon: Wallet },
   { name: "Activos", href: "/dashboard/activos", icon: Warehouse },
-  { name: "Plantillas", href: "/dashboard/plantillas", icon: FileText },
+  // { name: "Plantillas", href: "/dashboard/plantillas", icon: FileText }, // TODO: Activar cuando tenga funcionalidad
   { name: "Configuración", href: "/dashboard/configuracion", icon: Settings },
 ];
 
