@@ -136,9 +136,9 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
 
 // ============== BUSCAR EMPLEADO ==============
 async function findEmpleado(phone10: string, fullPhone: string) {
-  // Buscar en Personal (tabla principal)
-  const { data } = await supabase
-    .from("Personal")
+  // Usar tabla base "employees" - PostgREST no resuelve JOINs en VIEWs
+  const { data, error } = await supabase
+    .from("employees")
     .select("id, employee_number, full_name, centro_trabajo_id, geocerca_libre, centro_trabajo:centros_trabajo(nombre)")
     .or(`whatsapp.eq.${phone10},whatsapp.eq.${fullPhone}`)
     .eq("status", "ACTIVO")
