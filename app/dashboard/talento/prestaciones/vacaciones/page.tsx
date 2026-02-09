@@ -10,7 +10,7 @@ interface Vacacion {
   anio: number;
   dias_correspondientes: number;
   dias_tomados: number;
-  dias_pendientes: number;
+  // dias_pendientes se calcula: correspondientes - tomados
   employee?: { full_name: string; position: string };
 }
 
@@ -238,8 +238,8 @@ export default function VacacionesPage() {
                       <td className="px-4 py-3 text-center text-slate-300">{v.dias_correspondientes}</td>
                       <td className="px-4 py-3 text-center text-amber-400">{v.dias_tomados}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-sm font-medium ${v.dias_pendientes > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
-                          {v.dias_pendientes}
+                        <span className={`px-2 py-1 rounded text-sm font-medium ${(v.dias_correspondientes - v.dias_tomados) > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
+                          {(v.dias_correspondientes - v.dias_tomados)}
                         </span>
                       </td>
                     </tr>
