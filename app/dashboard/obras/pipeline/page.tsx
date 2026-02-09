@@ -1,61 +1,317 @@
 "use client";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Crown, Sparkles, Lock } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Plus, Upload, Users, Edit2, Trash2, X, Save, Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
+import * as XLSX from "xlsx";
 
-export default function ModuloPremiumPage() {
+interface Obra {
+  id: string;
+  name: string;
+  location: string;
+  status: string;
+  budget: number;
+  start_date: string;
+  end_date: string;
+  client: string;
+  description: string;
+  created_at: string;
+}
+
+type Modo = "manual" | "grupo" | "excel";
+
+const STATUS_OPTIONS = [
+  { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "EN_PLANEACION", label: "En Planeación", color: "bg-blue-500/20 text-blue-400" },
+  { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
+  { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-slate-400" },
+  { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
+];
+
+const EMPTY = { name: "", location: "", status: "ACTIVA", budget: "", start_date: "", end_date: "", client: "", description: "" };
+
+export default function PipelinePage() {
+  const [obras, setObras] = useState<Obra[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [modo, setModo] = useState<Modo>("manual");
+  const [form, setForm] = useState<any>({ ...EMPTY });
+  const [editId, setEditId] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [grupoTexto, setGrupoTexto] = useState("");
+  const [excelData, setExcelData] = useState<any[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { cargar(); }, []);
+
+  const cargar = async () => {
+    const { data } = await supabase.from("cost_centers").select("*").order("name");
+    if (data) setObras(data);
+    setLoading(false);
+  };
+
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
+
+  const guardarManual = async () => {
+    setGuardando(true);
+    const payload: any = { ...form };
+    if (payload.budget) payload.budget = parseFloat(payload.budget);
+    Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
+
+    if (editId) {
+      const { error } = await supabase.from("cost_centers").update(payload).eq("id", editId);
+      if (error) { msg("error", error.message); } else { msg("success", "Obra actualizada"); setShowForm(false); setEditId(null); cargar(); }
+    } else {
+      const { error } = await supabase.from("cost_centers").insert(payload);
+      if (error) { msg("error", error.message); } else { msg("success", "Obra creada"); setShowForm(false); cargar(); }
+    }
+    setGuardando(false);
+  };
+
+  const guardarGrupo = async () => {
+    const lineas = grupoTexto.split("\n").filter(l => l.trim());
+    if (lineas.length === 0) return;
+    setGuardando(true);
+    let ok = 0;
+    for (const linea of lineas) {
+      const [name, location, client, budget] = linea.split("|").map(s => s.trim());
+      if (!name) continue;
+      const { error } = await supabase.from("cost_centers").insert({
+        name, location: location || null, client: client || null,
+        budget: budget ? parseFloat(budget) : null, status: "ACTIVA"
+      });
+      if (!error) ok++;
+    }
+    msg("success", `${ok} obras creadas de ${lineas.length}`);
+    setGuardando(false);
+    setShowForm(false);
+    setGrupoTexto("");
+    cargar();
+  };
+
+  const guardarExcel = async () => {
+    if (excelData.length === 0) return;
+    setGuardando(true);
+    let ok = 0;
+    for (const row of excelData) {
+      const payload: any = {
+        name: row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null,
+        location: row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null,
+        client: row["CLIENTE"] || row["cliente"] || row["Cliente"] || null,
+        budget: parseFloat(row["PRESUPUESTO"] || row["presupuesto"] || row["Presupuesto"] || 0) || null,
+        status: "ACTIVA",
+        description: row["DESCRIPCION"] || row["descripcion"] || null,
+      };
+      if (!payload.name) continue;
+      const { error } = await supabase.from("cost_centers").insert(payload);
+      if (!error) ok++;
+    }
+    msg("success", `${ok} obras importadas de ${excelData.length}`);
+    setGuardando(false);
+    setShowForm(false);
+    setExcelData([]);
+    cargar();
+  };
+
+  const handleExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const wb = XLSX.read(evt.target?.result, { type: "binary" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws);
+      setExcelData(data);
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const eliminar = async (id: string) => {
+    if (!confirm("¿Eliminar esta obra?")) return;
+    const { error } = await supabase.from("cost_centers").delete().eq("id", id);
+    if (error) { msg("error", error.message); } else { msg("success", "Obra eliminada"); cargar(); }
+  };
+
+  const editar = (o: Obra) => {
+    setEditId(o.id);
+    setForm({ name: o.name || "", location: o.location || "", status: o.status || "ACTIVA", budget: o.budget || "", start_date: o.start_date || "", end_date: o.end_date || "", client: o.client || "", description: o.description || "" });
+    setModo("manual");
+    setShowForm(true);
+  };
+
+  const getStatusStyle = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
+  const getStatusLabel = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.label || s;
+
+  const Field = ({ label, field, type = "text", placeholder = "", options }: any) => (
+    <div>
+      <label className="block text-xs text-slate-400 mb-1">{label}</label>
+      {options ? (
+        <select value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
+          {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+      )}
+    </div>
+  );
+
   return (
-    <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto">
-        {/* Icono Premium */}
-        <div className="relative inline-block mb-6">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center border border-amber-500/30">
-            <Crown className="w-12 h-12 text-amber-400" />
-          </div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
-            <Lock className="w-4 h-4 text-white" />
-          </div>
-        </div>
-
-        {/* Texto */}
-        <h1 className="text-2xl font-bold text-white mb-2">
-          Módulo Business
-        </h1>
-        <p className="text-slate-400 mb-6">
-          Esta funcionalidad está disponible en el plan <span className="text-amber-400 font-semibold">ARIA Business</span>
-        </p>
-
-        {/* Features */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6 text-left">
-          <div className="flex items-center gap-2 text-amber-400 text-sm font-medium mb-3">
-            <Sparkles className="w-4 h-4" />
-            Incluye:
-          </div>
-          <ul className="space-y-2 text-sm text-slate-300">
-            <li className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              Acceso completo al módulo
-            </li>
-            <li className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              Reportes avanzados
-            </li>
-            <li className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              Soporte prioritario
-            </li>
-          </ul>
-        </div>
-
-        {/* Botones */}
-        <div className="flex flex-col gap-3">
-          <button className="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 rounded-xl text-white font-semibold transition-all shadow-lg shadow-amber-500/25">
-            Actualizar a Business
-          </button>
-          <Link href="/dashboard" className="text-slate-400 hover:text-white text-sm transition-colors">
-            ← Volver al Dashboard
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </Link>
+          <div>
+            <h1 className="text-xl font-bold text-white">Pipeline de Obras</h1>
+            <p className="text-xs text-slate-400">{obras.length} obras registradas</p>
+          </div>
         </div>
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY }); setModo("manual"); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">
+          <Plus className="w-4 h-4" /> Nueva Obra
+        </button>
       </div>
+
+      {mensaje && (
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
+            <tr className="border-b border-white/10">
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Ubicación</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Cliente</th>
+              <th className="text-right p-3 text-slate-400 font-medium text-xs">Presupuesto</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Estado</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+            ) : obras.length === 0 ? (
+              <tr><td colSpan={6} className="p-8 text-center text-slate-500 text-sm">Sin obras registradas</td></tr>
+            ) : obras.map(o => (
+              <tr key={o.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                <td className="p-3 text-white text-sm font-medium">{o.name}</td>
+                <td className="p-3 text-slate-400 text-sm">{o.location || "—"}</td>
+                <td className="p-3 text-slate-400 text-sm">{o.client || "—"}</td>
+                <td className="p-3 text-right text-sm text-white">{o.budget ? `$${Number(o.budget).toLocaleString()}` : "—"}</td>
+                <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(o.status)}`}>{getStatusLabel(o.status)}</span></td>
+                <td className="p-3 text-center flex items-center justify-center gap-1">
+                  <button onClick={() => editar(o)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* MODAL: 3 modos de captura */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">{editId ? "Editar Obra" : "Agregar Obras"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+            </div>
+
+            {/* Selector de modo */}
+            {!editId && (
+              <div className="flex border-b border-white/10">
+                {[
+                  { key: "manual", label: "Manual", icon: Plus },
+                  { key: "grupo", label: "Grupo", icon: Users },
+                  { key: "excel", label: "Excel", icon: FileSpreadsheet },
+                ].map(m => (
+                  <button key={m.key} onClick={() => setModo(m.key as Modo)}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${modo === m.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"}`}>
+                    <m.icon className="w-4 h-4" />
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {/* MANUAL */}
+              {modo === "manual" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nombre de la obra" field="name" placeholder="Ej: Pinar del Lago" />
+                  <Field label="Ubicación" field="location" placeholder="Dirección o referencia" />
+                  <Field label="Cliente" field="client" placeholder="Nombre del cliente" />
+                  <Field label="Presupuesto" field="budget" type="number" placeholder="0.00" />
+                  <Field label="Estado" field="status" options={STATUS_OPTIONS} />
+                  <Field label="Fecha inicio" field="start_date" type="date" />
+                  <Field label="Fecha fin estimada" field="end_date" type="date" />
+                  <div className="col-span-2">
+                    <Field label="Descripción" field="description" placeholder="Notas adicionales" />
+                  </div>
+                </div>
+              )}
+
+              {/* GRUPO */}
+              {modo === "grupo" && (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <p className="text-blue-400 text-xs">Formato: <span className="font-mono">Nombre | Ubicación | Cliente | Presupuesto</span></p>
+                    <p className="text-blue-400/60 text-xs mt-1">Una obra por línea. Solo el nombre es obligatorio.</p>
+                  </div>
+                  <textarea value={grupoTexto} onChange={e => setGrupoTexto(e.target.value)} rows={8} placeholder={"Pinar del Lago | Ags Norte | Particular | 5000000\nMiravalle | Ags Sur | Gobierno | 8000000"} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-mono focus:border-blue-500 focus:outline-none placeholder-slate-600 resize-none" />
+                  {grupoTexto && <p className="text-xs text-slate-400">{grupoTexto.split("\n").filter(l => l.trim()).length} obras detectadas</p>}
+                </div>
+              )}
+
+              {/* EXCEL */}
+              {modo === "excel" && (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <p className="text-emerald-400 text-xs">Sube un archivo .xlsx con columnas: NOMBRE, UBICACION, CLIENTE, PRESUPUESTO, DESCRIPCION</p>
+                    <p className="text-emerald-400/60 text-xs mt-1">Los nombres de columna pueden ser en mayúsculas o minúsculas.</p>
+                  </div>
+                  <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 file:cursor-pointer" />
+                  {excelData.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-slate-400 mb-2">{excelData.length} registros encontrados. Vista previa:</p>
+                      <div className="max-h-48 overflow-y-auto rounded-lg bg-white/[0.02] border border-white/[0.06]">
+                        <table className="w-full text-xs">
+                          <thead className="sticky top-0 bg-slate-900/95">
+                            <tr>{Object.keys(excelData[0]).slice(0, 5).map(k => <th key={k} className="p-2 text-left text-slate-400">{k}</th>)}</tr>
+                          </thead>
+                          <tbody>
+                            {excelData.slice(0, 5).map((row, i) => (
+                              <tr key={i} className="border-t border-white/5">
+                                {Object.values(row).slice(0, 5).map((v: any, j) => <td key={j} className="p-2 text-slate-300">{String(v).substring(0, 30)}</td>)}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+              <button onClick={modo === "manual" ? guardarManual : modo === "grupo" ? guardarGrupo : guardarExcel} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:opacity-50">
+                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {modo === "manual" ? (editId ? "Actualizar" : "Crear Obra") : modo === "grupo" ? "Crear Todas" : `Importar ${excelData.length}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
