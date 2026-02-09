@@ -34,7 +34,7 @@ export default function CosteoPage() {
       const { data: ocs } = await supabase.from("purchase_orders").select("obra_nombre, total, categoria");
 
       // Cargar gastos de obra
-      const { data: gastos } = await supabase.from("gastos").select("obra_nombre, monto, categoria");
+      const { data: gastos } = await supabase.from("gastos").select("obra, monto, categoria");
 
       const obraMap: Record<string, { materiales: number; mano_obra: number; subcontratos: number; indirectos: number }> = {};
 
