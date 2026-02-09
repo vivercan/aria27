@@ -45,7 +45,7 @@ export default function VacacionesPage() {
     const { data: vac } = await supabase
       .from("vacaciones_empleados")
       .select("*, employee:Personal(full_name, position)")
-      .eq("anio", 2025);
+      .eq("anio", new Date().getFullYear());
     if (vac) setVacaciones(vac);
 
     const { data: sol } = await supabase
@@ -67,9 +67,9 @@ export default function VacacionesPage() {
   const aprobarSolicitud = async (id: string, employee_id: string, dias: number) => {
     await supabase.from("solicitudes_vacaciones").update({ status: "APROBADA", fecha_aprobacion: new Date().toISOString() }).eq("id", id);
     // Primero obtener el valor actual
-    const { data: vac } = await supabase.from("vacaciones_empleados").select("dias_tomados").eq("employee_id", employee_id).eq("anio", 2025).single();
+    const { data: vac } = await supabase.from("vacaciones_empleados").select("dias_tomados").eq("employee_id", employee_id).eq("anio", new Date().getFullYear()).single();
     if (vac) {
-      await supabase.from("vacaciones_empleados").update({ dias_tomados: vac.dias_tomados + dias }).eq("employee_id", employee_id).eq("anio", 2025);
+      await supabase.from("vacaciones_empleados").update({ dias_tomados: vac.dias_tomados + dias }).eq("employee_id", employee_id).eq("anio", new Date().getFullYear());
     }
     cargarDatos();
   };

@@ -1,200 +1,315 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Edit2, Trash2, Phone, Mail, Building2, User, Save, X } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2, Phone, Mail, Calendar, CreditCard, Shield, Loader2 } from "lucide-react";
 
 interface Empleado {
   id: string;
   employee_number: string;
   full_name: string;
   position: string;
+  project_site: string;
   department: string;
+  salary_monthly: number;
+  email: string;
   status: string;
-  whatsapp: string | null;
-  email: string | null;
-  centro_trabajo_id: string | null;
-  salario_diario: number | null;
-  fecha_ingreso: string | null;
+  whatsapp: string;
+  salario_diario: number;
+  salario_semanal: number;
+  minimo_tarjeta: number;
+  tipo_nomina: string;
+  hora_entrada: string;
+  hora_salida: string;
+  dias_laborales: string;
+  banco: string;
+  clabe: string;
+  numero_cuenta: string;
+  fecha_ingreso: string;
+  fecha_baja: string;
+  nss: string;
+  curp: string;
+  rfc: string;
+  empresa_id: string;
 }
+
+interface Empresa {
+  id: string;
+  nombre: string;
+}
+
+const EMPTY_FORM = {
+  full_name: "", position: "", department: "", email: "", whatsapp: "",
+  salario_diario: "", salario_semanal: "", salary_monthly: "", minimo_tarjeta: "",
+  tipo_nomina: "semanal", hora_entrada: "07:00", hora_salida: "17:00",
+  dias_laborales: "L,M,X,J,V,S", banco: "", clabe: "", numero_cuenta: "",
+  fecha_ingreso: "", nss: "", curp: "", rfc: "", empresa_id: "", project_site: ""
+};
 
 export default function PersonalPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editando, setEditando] = useState<Empleado | null>(null);
-  const [form, setForm] = useState({ full_name: "", position: "", department: "", whatsapp: "", email: "", salario_diario: "" });
+  const [guardando, setGuardando] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [editando, setEditando] = useState<string | null>(null);
+  const [form, setForm] = useState<any>({ ...EMPTY_FORM });
+  const [tab, setTab] = useState<"general" | "laboral" | "bancario" | "fiscal">("general");
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
 
-  useEffect(() => { cargarEmpleados(); }, []);
+  useEffect(() => { cargarDatos(); }, []);
 
-  const cargarEmpleados = async () => {
-    const { data } = await supabase.from("Personal").select("*").order("employee_number");
-    if (data) setEmpleados(data);
+  const cargarDatos = async () => {
+    const { data: emps } = await supabase
+      .from("Personal")
+      .select("*")
+      .eq("status", "ACTIVO")
+      .order("full_name");
+    if (emps) setEmpleados(emps);
+
+    const { data: emp } = await supabase.from("empresas").select("id, nombre").order("nombre");
+    if (emp) setEmpresas(emp);
+
     setLoading(false);
   };
 
-  const filtrados = empleados.filter(e => 
-    e.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    e.employee_number?.toLowerCase().includes(search.toLowerCase()) ||
-    e.position?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const abrirModal = (emp?: Empleado) => {
-    if (emp) {
-      setEditando(emp);
-      setForm({ 
-        full_name: emp.full_name || "", 
-        position: emp.position || "", 
-        department: emp.department || "",
-        whatsapp: emp.whatsapp || "",
-        email: emp.email || "",
-        salario_diario: emp.salario_diario?.toString() || ""
-      });
-    } else {
-      setEditando(null);
-      setForm({ full_name: "", position: "", department: "", whatsapp: "", email: "", salario_diario: "" });
-    }
-    setShowModal(true);
+  const abrirEdicion = (e: Empleado) => {
+    setEditando(e.id);
+    setForm({
+      full_name: e.full_name || "",
+      position: e.position || "",
+      department: e.department || "",
+      email: e.email || "",
+      whatsapp: e.whatsapp || "",
+      salario_diario: e.salario_diario || "",
+      salario_semanal: e.salario_semanal || "",
+      salary_monthly: e.salary_monthly || "",
+      minimo_tarjeta: e.minimo_tarjeta || "",
+      tipo_nomina: e.tipo_nomina || "semanal",
+      hora_entrada: e.hora_entrada?.substring(0, 5) || "07:00",
+      hora_salida: e.hora_salida?.substring(0, 5) || "17:00",
+      dias_laborales: e.dias_laborales || "L,M,X,J,V,S",
+      banco: e.banco || "",
+      clabe: e.clabe || "",
+      numero_cuenta: e.numero_cuenta || "",
+      fecha_ingreso: e.fecha_ingreso || "",
+      nss: e.nss || "",
+      curp: e.curp || "",
+      rfc: e.rfc || "",
+      empresa_id: e.empresa_id || "",
+      project_site: e.project_site || "",
+    });
+    setTab("general");
   };
 
   const guardar = async () => {
-    if (!form.full_name.trim()) return alert("Nombre requerido");
-    
-    const datos = {
-      full_name: form.full_name.trim(),
-      position: form.position.trim(),
-      department: form.department.trim(),
-      whatsapp: form.whatsapp.trim() || null,
-      email: form.email.trim() || null,
-      salario_diario: form.salario_diario ? parseFloat(form.salario_diario) : null
-    };
+    if (!editando) return;
+    setGuardando(true);
+    const updateData: any = { ...form };
+    // Limpiar campos vacíos para no sobreescribir con ""
+    Object.keys(updateData).forEach(k => {
+      if (updateData[k] === "") updateData[k] = null;
+    });
+    // Convertir números
+    ["salario_diario", "salario_semanal", "salary_monthly", "minimo_tarjeta"].forEach(k => {
+      if (updateData[k]) updateData[k] = parseFloat(updateData[k]);
+    });
 
-    if (editando) {
-      await supabase.from("Personal").update(datos).eq("id", editando.id);
+    const { error } = await supabase.from("Personal").update(updateData).eq("id", editando);
+    setGuardando(false);
+
+    if (error) {
+      setMensaje({ tipo: "error", texto: `Error: ${error.message}` });
     } else {
-      const nextNum = empleados.length + 1;
-      await supabase.from("Personal").insert({ ...datos, employee_number: `EMP-${String(nextNum).padStart(3, "0")}`, status: "ACTIVO" });
+      setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
+      setEditando(null);
+      cargarDatos();
     }
-    setShowModal(false);
-    cargarEmpleados();
+    setTimeout(() => setMensaje(null), 3000);
   };
 
-  const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar este empleado?")) return;
-    await supabase.from("Personal").delete().eq("id", id);
-    cargarEmpleados();
-  };
+  const empFiltrados = empleados.filter(e =>
+    e.full_name?.toLowerCase().includes(busqueda.toLowerCase()) ||
+    e.position?.toLowerCase().includes(busqueda.toLowerCase()) ||
+    e.employee_number?.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  const getEmpresaNombre = (id: string) => empresas.find(e => e.id === id)?.nombre || "—";
+
+  const Field = ({ label, field, type = "text", placeholder = "", options }: { label: string; field: string; type?: string; placeholder?: string; options?: { value: string; label: string }[] }) => (
+    <div>
+      <label className="block text-xs text-slate-400 mb-1">{label}</label>
+      {options ? (
+        <select value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
+          <option value="">— Seleccionar —</option>
+          {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+      )}
+    </div>
+  );
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-none p-6 border-b border-white/10">
-        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Talento
-        </Link>
-        <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Personal</h1>
-            <p className="text-slate-400">{empleados.length} empleados registrados</p>
+            <h1 className="text-xl font-bold text-white">Personal</h1>
+            <p className="text-xs text-slate-400">{empleados.length} empleados activos</p>
           </div>
-          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-            <Plus className="w-4 h-4" /> Nuevo Empleado
-          </button>
         </div>
-        <div className="mt-4 relative">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="" value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500" />
+          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar..." className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-blue-500 focus:outline-none placeholder-slate-600" />
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-6">
-        {loading ? (
-          <div className="text-center py-12 text-slate-400">Cargando...</div>
-        ) : (
-          <div className="grid gap-4">
-            {filtrados.map(emp => (
-              <div key={emp.id} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                      <User className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded text-slate-400">{emp.employee_number}</span>
-                        <h3 className="font-semibold text-white">{emp.full_name}</h3>
-                        <span className={`text-xs px-2 py-0.5 rounded ${emp.status === "ACTIVO" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-                          {emp.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-400">{emp.position} • {emp.department}</p>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
-                        {emp.whatsapp && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{emp.whatsapp}</span>}
-                        {emp.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{emp.email}</span>}
-                        {emp.salario_diario && <span>${emp.salario_diario.toFixed(2)}/día</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => abrirModal(emp)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white">
-                      <Edit2 className="w-4 h-4" />
+      {/* Mensaje */}
+      {mensaje && (
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
+
+      {/* Tabla */}
+      <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
+            <tr className="border-b border-white/10">
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">#</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Nombre</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Puesto</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Empresa</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">WhatsApp</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Ingreso</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Expediente</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+            ) : empFiltrados.map(e => {
+              const campos = [e.curp, e.rfc, e.nss, e.banco, e.clabe, e.fecha_ingreso, e.numero_cuenta].filter(Boolean).length;
+              return (
+                <tr key={e.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <td className="p-3 text-slate-500 text-xs">{e.employee_number}</td>
+                  <td className="p-3 text-white text-sm font-medium">{e.full_name}</td>
+                  <td className="p-3 text-slate-400 text-sm">{e.position}</td>
+                  <td className="p-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      getEmpresaNombre(e.empresa_id).includes("Avante") ? "bg-yellow-500/20 text-yellow-400" :
+                      getEmpresaNombre(e.empresa_id).includes("Denivel") ? "bg-purple-500/20 text-purple-400" :
+                      getEmpresaNombre(e.empresa_id).includes("Terracret") ? "bg-cyan-500/20 text-cyan-400" :
+                      "bg-slate-500/20 text-slate-400"
+                    }`}>{getEmpresaNombre(e.empresa_id)}</span>
+                  </td>
+                  <td className="p-3 text-slate-400 text-sm">{e.whatsapp || "—"}</td>
+                  <td className="p-3 text-center text-sm">
+                    {e.fecha_ingreso ? <span className="text-emerald-400">{e.fecha_ingreso}</span> : <span className="text-red-400/60">—</span>}
+                  </td>
+                  <td className="p-3 text-center">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${campos >= 5 ? "bg-emerald-500/20 text-emerald-400" : campos >= 2 ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
+                      {campos}/7
+                    </span>
+                  </td>
+                  <td className="p-3 text-center">
+                    <button onClick={() => abrirEdicion(e)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                      <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => eliminar(emp.id)} className="p-2 hover:bg-red-500/20 rounded-lg text-slate-400 hover:text-red-400">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">{editando ? "Editar" : "Nuevo"} Empleado</h2>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+      {/* Modal de edición */}
+      {editando && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditando(null)}>
+          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* Header modal */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">Editar Empleado</h2>
+              <button onClick={() => setEditando(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-slate-400">Nombre completo *</label>
-                <input type="text" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-slate-400">Puesto</label>
-                  <input type="text" value={form.position} onChange={e => setForm({...form, position: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+
+            {/* Tabs */}
+            <div className="flex border-b border-white/10">
+              {[
+                { key: "general", label: "General", icon: User },
+                { key: "laboral", label: "Laboral", icon: Calendar },
+                { key: "bancario", label: "Bancario", icon: CreditCard },
+                { key: "fiscal", label: "Fiscal", icon: Shield },
+              ].map(t => (
+                <button key={t.key} onClick={() => setTab(t.key as any)}
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${tab === t.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"}`}>
+                  <t.icon className="w-4 h-4" />
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Form content */}
+            <div className="p-4 overflow-y-auto max-h-[55vh]">
+              {tab === "general" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nombre completo" field="full_name" />
+                  <Field label="Puesto" field="position" />
+                  <Field label="Departamento / Obra" field="project_site" />
+                  <Field label="Email" field="email" type="email" />
+                  <Field label="WhatsApp (10 dígitos)" field="whatsapp" placeholder="4491234567" />
+                  <Field label="Empresa" field="empresa_id" options={empresas.map(e => ({ value: e.id, label: e.nombre }))} />
+                  <Field label="Fecha de ingreso" field="fecha_ingreso" type="date" />
+                  <Field label="Departamento" field="department" />
                 </div>
-                <div>
-                  <label className="text-sm text-slate-400">Departamento</label>
-                  <input type="text" value={form.department} onChange={e => setForm({...form, department: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+              )}
+              {tab === "laboral" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Salario diario" field="salario_diario" type="number" />
+                  <Field label="Salario semanal" field="salario_semanal" type="number" />
+                  <Field label="Salario mensual" field="salary_monthly" type="number" />
+                  <Field label="Mínimo tarjeta" field="minimo_tarjeta" type="number" />
+                  <Field label="Tipo nómina" field="tipo_nomina" options={[{ value: "semanal", label: "Semanal" }, { value: "quincenal", label: "Quincenal" }, { value: "mensual", label: "Mensual" }]} />
+                  <Field label="Hora entrada" field="hora_entrada" type="time" />
+                  <Field label="Hora salida" field="hora_salida" type="time" />
+                  <Field label="Días laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-slate-400">WhatsApp</label>
-                  <input type="text" value={form.whatsapp} onChange={e => setForm({...form, whatsapp: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+              )}
+              {tab === "bancario" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
+                  <Field label="CLABE (18 dígitos)" field="clabe" placeholder="012345678901234567" />
+                  <Field label="Número de cuenta" field="numero_cuenta" />
+                  <div className="col-span-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <p className="text-blue-400 text-xs">Los datos bancarios se usan para la dispersión de nómina. Verifica CLABE y banco con el empleado.</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-slate-400">Salario diario</label>
-                  <input type="number" value={form.salario_diario} onChange={e => setForm({...form, salario_diario: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+              )}
+              {tab === "fiscal" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
+                  <Field label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
+                  <Field label="NSS (11 dígitos)" field="nss" placeholder="00000000000" />
+                  <div className="col-span-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <p className="text-amber-400 text-xs">Estos datos son requeridos por el IMSS y SAT. El NSS es obligatorio para el alta ante el Seguro Social.</p>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className="text-sm text-slate-400">Email</label>
-                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
-              </div>
-              <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
-                <Save className="w-4 h-4" /> Guardar
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
+              <button onClick={() => setEditando(null)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:opacity-50">
+                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Guardar
               </button>
             </div>
           </div>
