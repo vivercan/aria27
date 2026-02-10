@@ -2,22 +2,29 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench } from "lucide-react";
+import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function EstadoActivosPage() {
   const [activos, setActivos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState("todos");
+  const [saving, setSaving] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase.from("activos").select("*").order("nombre");
-      setActivos(data || []);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
+
+  const load = async () => {
+    const { data } = await supabase.from("activos").select("*").order("nombre");
+    if (data) setActivos(data);
+    setLoading(false);
+  };
+
+  const cambiarEstado = async (id: string, nuevoEstado: string) => {
+    setSaving(id);
+    await supabase.from("activos").update({ estado: nuevoEstado }).eq("id", id);
+    setActivos(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
+    setSaving(null);
+  };
 
   const estados = activos.reduce((acc, a) => {
     const est = a.estado || "Sin estado";
@@ -28,67 +35,81 @@ export default function EstadoActivosPage() {
   const filtered = filtro === "todos" ? activos : activos.filter(a => (a.estado || "Sin estado") === filtro);
 
   const getIcon = (estado: string): React.ReactNode => {
-    if (estado?.includes("uen") || estado === "activo") return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
-    if (estado?.includes("ante") || estado?.includes("repar")) return <Wrench className="w-4 h-4 text-amber-400" />;
-    if (estado?.includes("aja") || estado?.includes("ado")) return <XCircle className="w-4 h-4 text-red-400" />;
-    return <Activity className="w-4 h-4 text-blue-400" />;
+    switch(estado?.toLowerCase()) {
+      case "bueno": case "activo": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+      case "mantenimiento": case "reparacion": return <Wrench className="w-4 h-4 text-amber-400" />;
+      case "baja": case "daÃ±ado": return <XCircle className="w-4 h-4 text-red-400" />;
+      default: return <AlertTriangle className="w-4 h-4 text-slate-400" />;
+    }
   };
 
+  const estadoOptions = ["bueno", "mantenimiento", "reparacion", "baja"];
+
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/activos" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Activos
-        </Link>
-        <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
-        <p className="text-slate-400 text-sm mt-1">Resumen de condición de equipos y herramientas</p>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
+          <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
+        </div>
       </div>
 
-      <div className="flex-shrink-0 flex gap-3 mb-6 flex-wrap">
-        <button onClick={() => setFiltro("todos")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filtro === "todos" ? "bg-blue-500 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}>
+      <div className="flex flex-wrap gap-2">
+        <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
           Todos ({activos.length})
         </button>
         {Object.entries(estados).map(([est, count]) => (
-          <button key={est} onClick={() => setFiltro(est)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${filtro === est ? "bg-blue-500 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}>
+          <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
             {getIcon(est)} {est} ({count as number})
           </button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-auto rounded-xl border border-white/10">
-        <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-slate-800 z-10">
-            <tr className="text-left text-slate-400 border-b border-white/10">
-              <th className="px-4 py-3 font-medium">Código</th>
-              <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Categoría</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Ubicación</th>
-              <th className="px-4 py-3 font-medium">Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">Cargando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No hay activos registrados</td></tr>
-            ) : filtered.map(a => (
-              <tr key={a.id} className="border-b border-white/5 hover:bg-white/5">
-                <td className="px-4 py-3 text-blue-400 font-mono text-xs">{a.codigo || "—"}</td>
-                <td className="px-4 py-3 text-white font-medium">{a.nombre}</td>
-                <td className="px-4 py-3 text-slate-300">{a.categoria || "—"}</td>
-                <td className="px-4 py-3"><span className="flex items-center gap-1.5">{getIcon(a.estado)} <span className="text-slate-300">{a.estado || "Sin estado"}</span></span></td>
-                <td className="px-4 py-3 text-slate-300">{a.ubicacion || "—"}</td>
-                <td className="px-4 py-3 text-emerald-400 font-mono">{a.valor ? `$${Number(a.valor).toLocaleString("es-MX")}` : "—"}</td>
+      {filtered.length === 0 ? (
+        <div className="text-center py-12 text-slate-400">No hay activos en esta categorÃ­a</div>
+      ) : (
+        <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 bg-slate-800/90 backdrop-blur text-slate-400 text-xs uppercase">
+              <tr>
+                <th className="text-left p-3">Activo</th>
+                <th className="text-left p-3">CategorÃ­a</th>
+                <th className="text-left p-3">UbicaciÃ³n</th>
+                <th className="text-left p-3">Estado Actual</th>
+                <th className="text-left p-3">Cambiar Estado</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filtered.map(a => (
+                <tr key={a.id} className="hover:bg-white/5">
+                  <td className="p-3 text-white font-medium">{a.nombre || a.name || "â€”"}</td>
+                  <td className="p-3 text-slate-400">{a.categoria || a.category || "â€”"}</td>
+                  <td className="p-3 text-slate-400">{a.ubicacion || a.location || "â€”"}</td>
+                  <td className="p-3">{getIcon(a.estado || "")} <span className="ml-1 text-white">{a.estado || "Sin estado"}</span></td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={a.estado || ""}
+                        onChange={(e) => cambiarEstado(a.id, e.target.value)}
+                        className="bg-slate-700 text-white text-xs rounded px-2 py-1.5 border border-white/10"
+                        disabled={saving === a.id}
+                      >
+                        <option value="">Seleccionar...</option>
+                        {estadoOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                      {saving === a.id && <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
 
