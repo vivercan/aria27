@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, DollarSign } from "lucide-react";
 
 interface ReqItem {
   id: string;
@@ -54,6 +54,9 @@ export default function CotizacionesIAPage() {
   const [requisiciones, setRequisiciones] = useState<Requisicion[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReq, setSelectedReq] = useState<Requisicion | null>(null);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [savingQuote, setSavingQuote] = useState(false);
+  const [quoteForm, setQuoteForm] = useState({ requisicion_id: "", supplier_name: "", total: "", notas: "", vigencia_dias: "15" });
   const [buscando, setBuscando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoBusqueda | null>(null);
   const [error, setError] = useState("");
@@ -125,6 +128,25 @@ export default function CotizacionesIAPage() {
     } finally {
       setBuscando(false);
     }
+  };
+
+
+  const handleSaveQuote = async () => {
+    if (!quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total) return;
+    setSavingQuote(true);
+    await supabase.from("cotizaciones").insert({
+      requisicion_id: quoteForm.requisicion_id,
+      supplier_name: quoteForm.supplier_name,
+      total: parseFloat(quoteForm.total),
+      notas: quoteForm.notas || null,
+      vigencia_dias: parseInt(quoteForm.vigencia_dias) || 15,
+      estado: "recibida",
+      fecha: new Date().toISOString().split("T")[0]
+    });
+    setSavingQuote(false);
+    setShowQuoteModal(false);
+    setQuoteForm({ requisicion_id: "", supplier_name: "", total: "", notas: "", vigencia_dias: "15" });
+    loadRequisiciones();
   };
 
   const getUrgencyColor = (u: string) => {

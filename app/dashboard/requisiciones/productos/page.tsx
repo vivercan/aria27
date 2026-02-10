@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Search, Package, ChevronDown, ChevronRight,
   Truck, Hash, Tag, Box, DollarSign, Loader2, X, ExternalLink,
-  Plus, Filter
+  Plus, Filter, Save, Edit2
 } from "lucide-react";
 import Link from "next/link";
 
@@ -62,6 +62,9 @@ export default function ProductosPage() {
   const [productSuppliers, setProductSuppliers] = useState<ProductSupplier[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [savingProd, setSavingProd] = useState(false);
+  const [prodForm, setProdForm] = useState({ sku: "", name: "", description: "", unidad: "PIEZA", category: "", precio_referencia: "" });
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchTimeout = useRef<NodeJS.Timeout>(null);
 
@@ -202,6 +205,25 @@ export default function ProductosPage() {
   };
 
   // Ordenar resultados: priorizar coincidencias al inicio
+
+  const handleSaveProduct = async () => {
+    if (!prodForm.name || !prodForm.sku) return;
+    setSavingProd(true);
+    await supabase.from("products").insert({
+      sku: prodForm.sku,
+      name: prodForm.name,
+      description: prodForm.description || null,
+      unit: prodForm.unidad,
+      category: prodForm.category || null,
+      reference_price: prodForm.precio_referencia ? parseFloat(prodForm.precio_referencia) : null,
+      active: true
+    });
+    setSavingProd(false);
+    setShowAddModal(false);
+    setProdForm({ sku: "", name: "", description: "", unidad: "PIEZA", category: "", precio_referencia: "" });
+    loadProducts(true);
+  };
+
   const sortedProducts = debouncedSearch.trim()
     ? [...products].sort((a, b) => {
         const term = debouncedSearch.toLowerCase();

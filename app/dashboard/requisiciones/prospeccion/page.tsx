@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Star, Phone, Mail, MapPin, Package, Plus, TrendingUp, Users, Building2, Filter } from "lucide-react";
+import { ArrowLeft, Search, Star, Phone, Mail, MapPin, Package, Plus, TrendingUp, Users, Building2, Filter, Save, X, Loader2 } from "lucide-react";
 
 interface Supplier {
   id: string;
@@ -23,6 +23,9 @@ export default function ProspeccionPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [savingSupp, setSavingSupp] = useState(false);
+  const [suppForm, setSuppForm] = useState({ name: "", contact_name: "", phone: "", email: "", address: "", category: "", rating: "3" });
   const [filterCategory, setFilterCategory] = useState("TODOS");
   const [categories, setCategories] = useState<string[]>([]);
   const [stats, setStats] = useState({ total: 0, conCompras: 0, sinCompras: 0, categorias: 0 });
@@ -87,6 +90,26 @@ export default function ProspeccionPage() {
       setLoading(false);
     }
   }
+
+
+  const handleSaveSupplier = async () => {
+    if (!suppForm.name) return;
+    setSavingSupp(true);
+    await supabase.from("suppliers").insert({
+      name: suppForm.name,
+      contact_name: suppForm.contact_name || null,
+      phone: suppForm.phone || null,
+      email: suppForm.email || null,
+      address: suppForm.address || null,
+      category: suppForm.category || null,
+      rating: parseInt(suppForm.rating) || 3,
+      active: true
+    });
+    setSavingSupp(false);
+    setShowAddModal(false);
+    setSuppForm({ name: "", contact_name: "", phone: "", email: "", address: "", category: "", rating: "3" });
+    loadData();
+  };
 
   const filtered = suppliers.filter(s => {
     const matchSearch = !search ||
