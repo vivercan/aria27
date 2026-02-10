@@ -57,7 +57,7 @@ const subModules = [
     href: "/dashboard/talento/legales",
     icon: FileText,
     gradient: "from-purple-500 to-purple-600",
-    active: false
+    active: true
   },
   {
     title: "Matriz Salarial",
@@ -65,7 +65,7 @@ const subModules = [
     href: "/dashboard/talento/matriz",
     icon: BarChart3,
     gradient: "from-cyan-500 to-cyan-600",
-    active: false
+    active: true
   }
 ];
 
@@ -113,3 +113,4 @@ export default function TalentoPage() {
     </div>
   );
 }
+

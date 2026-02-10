@@ -163,21 +163,21 @@ export default function DashboardPage() {
     {
       title: "Nueva Requisición",
       description: "Solicitar materiales o servicios",
-      href: "/dashboard/requisiciones/Requisiciones",
+      href: "/dashboard/requisiciones/requisiciones",
       icon: FileText,
       color: "from-blue-500 to-cyan-500",
     },
     {
       title: "Ver Empleados",
       description: "Gestionar personal y asistencias",
-      href: "/dashboard/talento/Personal",
+      href: "/dashboard/talento/personal",
       icon: Users,
       color: "from-violet-500 to-purple-500",
     },
     {
       title: "Registro de Asistencia",
       description: "Ver entradas y salidas del día",
-      href: "/dashboard/talento/Checadas",
+      href: "/dashboard/talento/checadas",
       icon: Clock,
       color: "from-emerald-500 to-green-500",
     },
@@ -288,5 +288,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+
 
 
