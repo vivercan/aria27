@@ -37,6 +37,10 @@ interface Empresa {
   id: string;
   nombre: string;
 }
+interface CentroTrabajo {
+  id: string;
+  nombre: string;
+}
 
 const EMPTY_FORM = {
   full_name: "", position: "", department: "", email: "", whatsapp: "",
@@ -49,6 +53,7 @@ const EMPTY_FORM = {
 export default function PersonalPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [centros, setCentros] = useState<CentroTrabajo[]>([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -69,6 +74,8 @@ export default function PersonalPage() {
 
     const { data: emp } = await supabase.from("empresas").select("id, nombre").order("nombre");
     if (emp) setEmpresas(emp);
+    const { data: ct } = await supabase.from("centros_trabajo").select("id, nombre").eq("activo", true).order("nombre");
+    if (ct) setCentros(ct);
 
     setLoading(false);
   };
@@ -262,7 +269,7 @@ export default function PersonalPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nombre completo" field="full_name" />
                   <Field label="Puesto" field="position" />
-                  <Field label="Departamento / Obra" field="project_site" />
+                  <Field label="Centro de Trabajo / Obra" field="project_site" options={centros.map(c => ({ value: c.nombre, label: c.nombre }))} />
                   <Field label="Email" field="email" type="email" />
                   <Field label="WhatsApp (10 dígitos)" field="whatsapp" placeholder="4491234567" />
                   <Field label="Empresa" field="empresa_id" options={empresas.map(e => ({ value: e.id, label: e.nombre }))} />
