@@ -33,7 +33,7 @@ export default function AccessGuard({ moduleKey, subKey, children }: AccessGuard
       </div>
       <h2 className="text-xl font-bold text-white mb-2">Acceso Restringido</h2>
       <p className="text-slate-400 mb-6 max-w-md">
-        No tienes permisos para acceder a este mÃ³dulo. 
+        No tienes permisos para acceder a este módulo. 
         Contacta al administrador si necesitas acceso.
       </p>
       <Link href="/dashboard" className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors flex items-center gap-2">

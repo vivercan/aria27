@@ -38,7 +38,7 @@ export default function EstadoActivosPage() {
     switch(estado?.toLowerCase()) {
       case "bueno": case "activo": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
       case "mantenimiento": case "reparacion": return <Wrench className="w-4 h-4 text-amber-400" />;
-      case "baja": case "daÃ±ado": return <XCircle className="w-4 h-4 text-red-400" />;
+      case "baja": case "dañado": return <XCircle className="w-4 h-4 text-red-400" />;
       default: return <AlertTriangle className="w-4 h-4 text-slate-400" />;
     }
   };
@@ -69,15 +69,15 @@ export default function EstadoActivosPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay activos en esta categorÃ­a</div>
+        <div className="text-center py-12 text-slate-400">No hay activos en esta categoría</div>
       ) : (
         <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-slate-800/90 backdrop-blur text-slate-400 text-xs uppercase">
               <tr>
                 <th className="text-left p-3">Activo</th>
-                <th className="text-left p-3">CategorÃ­a</th>
-                <th className="text-left p-3">UbicaciÃ³n</th>
+                <th className="text-left p-3">Categoría</th>
+                <th className="text-left p-3">Ubicación</th>
                 <th className="text-left p-3">Estado Actual</th>
                 <th className="text-left p-3">Cambiar Estado</th>
               </tr>
@@ -85,14 +85,14 @@ export default function EstadoActivosPage() {
             <tbody className="divide-y divide-white/5">
               {filtered.map(a => (
                 <tr key={a.id} className="hover:bg-white/5">
-                  <td className="p-3 text-white font-medium">{a.nombre || a.name || "â€”"}</td>
-                  <td className="p-3 text-slate-400">{a.categoria || a.category || "â€”"}</td>
-                  <td className="p-3 text-slate-400">{a.ubicacion || a.location || "â€”"}</td>
+                  <td className="p-3 text-white font-medium">{a.nombre || a.name || "—"}</td>
+                  <td className="p-3 text-slate-400">{a.categoria || a.category || "—"}</td>
+                  <td className="p-3 text-slate-400">{a.ubicacion || a.location || "—"}</td>
                   <td className="p-3">{getIcon(a.estado || "")} <span className="ml-1 text-white">{a.estado || "Sin estado"}</span></td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
                       <select
-                        value={a.estado || ""}
+                        value={a.estado || "—"}
                         onChange={(e) => cambiarEstado(a.id, e.target.value)}
                         className="bg-slate-700 text-white text-xs rounded px-2 py-1.5 border border-white/10"
                         disabled={saving === a.id}

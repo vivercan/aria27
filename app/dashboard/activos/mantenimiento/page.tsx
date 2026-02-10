@@ -66,7 +66,7 @@ export default function MantenimientoPage() {
       </div>
 
       {registros.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay registros de mantenimiento. Usa el botÃ³n "Registrar" para agregar uno.</div>
+        <div className="text-center py-12 text-slate-400">No hay registros de mantenimiento. Usa el botón "Registrar" para agregar uno.</div>
       ) : (
         <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">
@@ -75,7 +75,7 @@ export default function MantenimientoPage() {
                 <th className="text-left p-3">Fecha</th>
                 <th className="text-left p-3">Activo</th>
                 <th className="text-left p-3">Tipo</th>
-                <th className="text-left p-3">DescripciÃ³n</th>
+                <th className="text-left p-3">Descripción</th>
                 <th className="text-right p-3">Costo</th>
                 <th className="text-left p-3">Estado</th>
               </tr>
@@ -84,10 +84,10 @@ export default function MantenimientoPage() {
               {registros.map(r => (
                 <tr key={r.id} className="hover:bg-white/5">
                   <td className="p-3 text-white">{r.fecha}</td>
-                  <td className="p-3 text-slate-300">{r.activo?.nombre || r.activo?.name || "â€”"}</td>
+                  <td className="p-3 text-slate-300">{r.activo?.nombre || r.activo?.name || "—"}</td>
                   <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${r.tipo === "preventivo" ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400"}`}>{r.tipo}</span></td>
                   <td className="p-3 text-slate-300 max-w-xs truncate">{r.descripcion}</td>
-                  <td className="p-3 text-right text-emerald-400">{r.costo ? `$${Number(r.costo).toLocaleString()}` : "â€”"}</td>
+                  <td className="p-3 text-right text-emerald-400">{r.costo ? `$${Number(r.costo).toLocaleString()}` : "—"}</td>
                   <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${r.estado === "completado" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>{r.estado}</span></td>
                 </tr>
               ))}
@@ -125,8 +125,8 @@ export default function MantenimientoPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400">DescripciÃ³n *</label>
-                <textarea value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} rows={3} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="DescripciÃ³n del mantenimiento..." />
+                <label className="text-xs text-slate-400">Descripción *</label>
+                <textarea value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} rows={3} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Descripción del mantenimiento..." />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

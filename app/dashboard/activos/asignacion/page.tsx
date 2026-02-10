@@ -78,7 +78,7 @@ export default function AsignacionPage() {
         <div className="flex items-center gap-3">
           <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">AsignaciÃ³n de Activos</h1>
+            <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
             <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function AsignacionPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay asignaciones. Usa el botÃ³n "Asignar" para crear una.</div>
+        <div className="text-center py-12 text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</div>
       ) : (
         <div className="overflow-auto max-h-[60vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">
@@ -104,17 +104,17 @@ export default function AsignacionPage() {
                 <th className="text-left p-3">Fecha</th>
                 <th className="text-left p-3">Estado</th>
                 <th className="text-left p-3">Notas</th>
-                <th className="text-center p-3">AcciÃ³n</th>
+                <th className="text-center p-3">Acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(a => (
                 <tr key={a.id} className="hover:bg-white/5">
-                  <td className="p-3 text-white">{a.empleado?.full_name || "â€”"}</td>
-                  <td className="p-3 text-slate-300">{a.activo?.nombre || a.activo?.name || "â€”"}</td>
+                  <td className="p-3 text-white">{a.empleado?.full_name || "—"}</td>
+                  <td className="p-3 text-slate-300">{a.activo?.nombre || a.activo?.name || "—"}</td>
                   <td className="p-3 text-slate-400">{a.fecha_asignacion}</td>
                   <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${a.estado === "asignado" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>{a.estado}</span></td>
-                  <td className="p-3 text-slate-400 max-w-xs truncate">{a.notas || "â€”"}</td>
+                  <td className="p-3 text-slate-400 max-w-xs truncate">{a.notas || "—"}</td>
                   <td className="p-3 text-center">
                     {a.estado === "asignado" && (
                       <button onClick={() => handleDevolver(a.id)} className="flex items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs hover:bg-amber-500/30 mx-auto">
