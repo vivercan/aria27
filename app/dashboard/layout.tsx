@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import SeasonEffects from "@/components/SeasonEffects";
 import PulsoMessenger from "@/components/pulso/PulsoMessenger";
+import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
   ChevronRight, LogOut, MessageCircle, Moon, Sun
@@ -19,7 +20,7 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "ConfiguraciÃ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -43,6 +44,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [userPermissions, setUserPermissions] = useState<UserPermissions>({});
   const [showPulso, setShowPulso] = useState(false);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
+  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en lÃ­nea real
   useEffect(() => {
     if (!userEmail) return;
     
@@ -79,12 +81,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const { data } = await supabase.from("Users").select("*").eq("email", email).single();
     if (data) {
       setUserName(data.display_name || data.name || email);
-      setUserRole(data.role || "user");
+      const userRoleValue = data.role || "user";
+      setUserRole(userRoleValue);
+      const perms = data.permissions || {};
+      setUserPermissions(perms);
+      localStorage.setItem("userRole", userRoleValue);
+      localStorage.setItem("userPermissions", JSON.stringify(perms));
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userPermissions");
     router.push("/");
   };
 
@@ -112,7 +121,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-          {menuItems.map((item) => {
+          {menuItems.filter((item) => {
+            if (item.href === "#pulso") return true;
+            const moduleKey = item.href.replace("/dashboard/", "");
+            return canAccessModule(userRole, userPermissions, moduleKey);
+          }).map((item) => {
             const isActive = pathname.startsWith(item.href) && item.href !== "#pulso";
             const isPulso = item.href === "#pulso";
 
@@ -168,7 +181,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
               <input 
                 type="text" 
-                placeholder="Buscar módulos, documentos..." 
+                placeholder="Buscar mÃ³dulos, documentos..." 
                 className="bg-transparent outline-none text-sm w-full"
                 style={{ color: colors.text }}
               />
@@ -187,7 +200,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-medium" style={{ color: colors.text }}>{userName}</p>
-                  <p className="text-xs" style={{ color: colors.accent }}>● {userRole === "admin" ? "Administrador" : "Usuario"}</p>
+                  <p className="text-xs" style={{ color: colors.accent }}>â— {userRole === "admin" ? "Administrador" : "Usuario"}</p>
                 </div>
                 <div 
                   className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
@@ -222,4 +235,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </ThemeProvider>
   );
 }
+
 
