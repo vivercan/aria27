@@ -134,7 +134,7 @@ export default function CotizacionesIAPage() {
   const handleSaveQuote = async () => {
     if (!quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total) return;
     setSavingQuote(true);
-    await supabase.from("cotizaciones").insert({
+    await supabase.from("quotations").insert({
       requisicion_id: quoteForm.requisicion_id,
       supplier_name: quoteForm.supplier_name,
       total: parseFloat(quoteForm.total),
