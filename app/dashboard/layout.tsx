@@ -181,7 +181,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
               <input 
                 type="text" 
-                placeholder="Buscar mÃ³dulos, documentos..." 
+                placeholder="Buscar módulos, documentos..." 
                 className="bg-transparent outline-none text-sm w-full"
                 style={{ color: colors.text }}
               />
@@ -200,7 +200,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-medium" style={{ color: colors.text }}>{userName}</p>
-                  <p className="text-xs" style={{ color: colors.accent }}>â— {userRole === "admin" ? "Administrador" : "Usuario"}</p>
+                  <p className="text-xs" style={{ color: colors.accent }}>{userRole === "admin" ? "Administrador" : "Usuario"}</p>
                 </div>
                 <div 
                   className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
