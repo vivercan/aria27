@@ -160,3 +160,12 @@ banco, clabe, numero_cuenta, fecha_ingreso, fecha_baja, nss, curp, rfc, motivo_b
 - `cost_centers` = a qué OBRA se carga el gasto (usado en requisiciones)
 - `centros_trabajo` = DÓNDE está el empleado físicamente (GPS, geocerca, asistencias)
 - Ambas son válidas y necesarias. NO fusionar.
+
+## BASE DE DATOS - VIEWs vs Tablas Base
+- "Personal", "Productos", "Proveedores", "Users" son VIEWs (no tablas)
+- Las tablas base son: employees, products, suppliers, users
+- Para queries CON JOIN usar tabla base: from("employees").select("..., centro_trabajo:centros_trabajo(nombre)")
+- Para queries SIN JOIN se puede usar la VIEW: from("Personal").select("id, full_name")
+- PostgREST NO resuelve JOINs a través de VIEWs
+- La columna geocerca_libre EXISTE en employees (para Daisy = true)
+- WhatsApp WABA: SOLO JJCRM27 (Phone ID en env var WHATSAPP_PHONE_ID)

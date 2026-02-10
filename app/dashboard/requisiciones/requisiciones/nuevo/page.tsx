@@ -27,7 +27,7 @@ export default function NewRequisitionPage() {
 
   useEffect(() => {
     const loadCenters = async () => {
-      const { data } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("nombre");
+      const { data } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("name");
       if (data) setCostCenters(data);
     };
     loadCenters();
@@ -49,7 +49,7 @@ export default function NewRequisitionPage() {
       .from("Productos")
       .select("id, sku, name, unit, category, description")
       .ilike("name", `${t}%`)
-      .order("nombre")
+      .order("name")
       .limit(15);
     
     // CONSULTA 2: Productos que CONTIENEN el término (en nombre, descripción o SKU)
@@ -57,7 +57,7 @@ export default function NewRequisitionPage() {
       .from("Productos")
       .select("id, sku, name, unit, category, description")
       .or(`name.ilike.%${t}%,description.ilike.%${t}%,sku.ilike.%${t}%`)
-      .order("nombre")
+      .order("name")
       .limit(30);
     
     // Combinar: primero los que empiezan, luego los que contienen (sin duplicados)

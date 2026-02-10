@@ -6,10 +6,10 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 const BASE_URL = "https://aria.jjcrm27.com";
 
 async function getNextFolio(): Promise<string> {
-  const { data } = await supabase.from("sequences").select("current_value").eq("id", "Requisiciones").single();
+  const { data } = await supabase.from("sequences").select("current_value").eq("id", "requisitions").single();
   const next = (data?.current_value || 0) + 1;
-  await supabase.from("sequences").update({ current_value: next }).eq("id", "Requisiciones");
-  return `REQ-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
+  await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
+  return `REQ-${String(next).padStart(4, "0")}-${new Date().getFullYear()}`;
 }
 
 async function getUserByEmail(email: string) {
