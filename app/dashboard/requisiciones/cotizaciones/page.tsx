@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, DollarSign } from "lucide-react";
+import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
 
 interface ReqItem {
   id: string;
@@ -160,6 +160,7 @@ export default function CotizacionesIAPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <button onClick={() => router.back()} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <button onClick={() => setShowQuoteModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Registrar Cotización</button>
           <ArrowLeft className="w-5 h-5 text-slate-400" />
         </button>
         <div className="flex-1">
@@ -353,6 +354,50 @@ export default function CotizacionesIAPage() {
           ) : null}
         </div>
       </div>
+
+      {showQuoteModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Registrar Cotización</h3>
+              <button onClick={() => setShowQuoteModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-slate-400">Requisición *</label>
+                <select value={quoteForm.requisicion_id} onChange={e => setQuoteForm({...quoteForm, requisicion_id: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
+                  <option value="">Seleccionar...</option>
+                  {requisiciones.map(r => <option key={r.id} value={r.id}>{r.folio}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Proveedor *</label>
+                <input type="text" value={quoteForm.supplier_name} onChange={e => setQuoteForm({...quoteForm, supplier_name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Nombre del proveedor" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-400">Total *</label>
+                  <input type="number" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400">Vigencia (días)</label>
+                  <input type="number" value={quoteForm.vigencia_dias} onChange={e => setQuoteForm({...quoteForm, vigencia_dias: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Notas</label>
+                <textarea value={quoteForm.notas} onChange={e => setQuoteForm({...quoteForm, notas: e.target.value})} rows={2} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setShowQuoteModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={handleSaveQuote} disabled={savingQuote || !quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
+                {savingQuote ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

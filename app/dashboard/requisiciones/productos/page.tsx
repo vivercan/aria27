@@ -241,7 +241,8 @@ export default function ProductosPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {/* HEADER */}
       <div className="flex-none p-6 pb-4 border-b border-white/[0.06]">
-        <Link href="/dashboard/requisiciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-3 transition-colors">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm"><Plus className="w-4 h-4" /> Nuevo</button>
+          <Link href="/dashboard/requisiciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-3 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Requisiciones
         </Link>
 

@@ -129,7 +129,8 @@ export default function ProspeccionPage() {
   return (
     <div className="space-y-6">
       <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
+        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Nuevo Proveedor</button>
+          <ArrowLeft className="w-5 h-5" /></div>
         <span className="text-sm font-medium">Regresar</span>
       </button>
 
@@ -218,6 +219,57 @@ export default function ProspeccionPage() {
           </div>
         ))}
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Nuevo Proveedor</h3>
+              <button onClick={() => setShowAddModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-slate-400">Nombre / Razón Social *</label>
+                <input type="text" value={suppForm.name} onChange={e => setSuppForm({...suppForm, name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-400">Contacto</label>
+                  <input type="text" value={suppForm.contact_name} onChange={e => setSuppForm({...suppForm, contact_name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400">Teléfono</label>
+                  <input type="text" value={suppForm.phone} onChange={e => setSuppForm({...suppForm, phone: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Email</label>
+                <input type="email" value={suppForm.email} onChange={e => setSuppForm({...suppForm, email: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Dirección</label>
+                <input type="text" value={suppForm.address} onChange={e => setSuppForm({...suppForm, address: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-400">Categoría</label>
+                  <input type="text" value={suppForm.category} onChange={e => setSuppForm({...suppForm, category: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400">Rating (1-5)</label>
+                  <input type="number" min="1" max="5" value={suppForm.rating} onChange={e => setSuppForm({...suppForm, rating: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={handleSaveSupplier} disabled={savingSupp || !suppForm.name} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
+                {savingSupp ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
