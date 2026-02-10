@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2 } from "lucide-react";
 
 interface CuentaPorPagar {
   id: string;
@@ -24,6 +24,7 @@ export default function PorPagarPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
+  const [pagando, setPagando] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -64,6 +65,17 @@ export default function PorPagarPage() {
   const diasRestantes = (fecha: string) => {
     const diff = Math.ceil((new Date(fecha).getTime() - Date.now()) / (1000*60*60*24));
     return diff;
+  };
+
+
+  const handlePago = async (id: string, total: number, pagado: number) => {
+    const monto = prompt("Monto a registrar como pago:", String(total - pagado));
+    if (!monto || isNaN(Number(monto))) return;
+    setPagando(id);
+    const nuevoPagado = pagado + Number(monto);
+    await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", id);
+    setPagando(null);
+    loadData();
   };
 
   return (

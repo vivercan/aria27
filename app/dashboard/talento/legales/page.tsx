@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, FileText, Search, Download, User } from "lucide-react";
+import { ArrowLeft, FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface Empleado {
@@ -22,6 +22,9 @@ interface Empleado {
 export default function LegalesPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ rfc: "", curp: "", nss: "", tipo_contrato: "" });
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,6 +48,25 @@ export default function LegalesPage() {
     if (e.nss) count++;
     if (e.fecha_ingreso) count++;
     return count;
+  };
+
+
+  const startEdit = (e: any) => {
+    setEditingId(e.id);
+    setEditForm({ rfc: e.rfc || "", curp: e.curp || "", nss: e.nss || "", tipo_contrato: e.tipo_contrato || "" });
+  };
+  const handleSaveLegal = async () => {
+    if (!editingId) return;
+    setSaving(true);
+    await supabase.from("Personal").update({
+      rfc: editForm.rfc || null,
+      curp: editForm.curp || null,
+      nss: editForm.nss || null,
+      tipo_contrato: editForm.tipo_contrato || null
+    }).eq("id", editingId);
+    setSaving(false);
+    setEditingId(null);
+    window.location.reload();
   };
 
   return (

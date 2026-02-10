@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, XCircle, Filter } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, XCircle, Filter, Plus, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface Asistencia {
@@ -19,7 +19,13 @@ export default function ChecadasPage() {
   const [loading, setLoading] = useState(true);
   const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
 
-  useEffect(() => { cargarAsistencias(); }, [fecha]);
+  const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [empleadosList, setEmpleadosList] = useState<any[]>([]);
+  const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
+
+  useEffect(() => { cargarAsistencias();
+    supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fecha]);
 
   const cargarAsistencias = async () => {
     setLoading(true);
@@ -37,6 +43,24 @@ export default function ChecadasPage() {
     completas: asistencias.filter(a => a.hora_entrada && a.hora_salida).length,
     enSitio: asistencias.filter(a => a.hora_entrada && !a.hora_salida).length,
     fueraGeocerca: asistencias.filter(a => !a.dentro_geocerca_entrada).length
+  };
+
+
+  const handleManual = async () => {
+    if (!formManual.employee_id) return;
+    setSaving(true);
+    await supabase.from("asistencias").insert({
+      employee_id: formManual.employee_id,
+      fecha: formManual.fecha,
+      hora_entrada: formManual.hora_entrada,
+      hora_salida: formManual.hora_salida,
+      tipo_registro: "MANUAL",
+      dentro_geocerca_entrada: true
+    });
+    setSaving(false);
+    setShowModal(false);
+    setFormManual({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
+    cargarAsistencias();
   };
 
   return (
