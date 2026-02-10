@@ -101,6 +101,7 @@ export default function LegalesPage() {
               <th className="px-4 py-3 font-medium">CURP</th>
               <th className="px-4 py-3 font-medium">NSS</th>
               <th className="px-4 py-3 font-medium text-center">Docs</th>
+                <th className="text-center p-3">Acción</th>
             </tr>
           </thead>
           <tbody>
@@ -123,6 +124,22 @@ export default function LegalesPage() {
                     {getDocsStatus(e)}/4
                   </span>
                 </td>
+                  <td className="p-3 text-center">
+                    {editingId === e.id ? (
+                      <div className="flex items-center gap-1 justify-center">
+                        <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
+                          {saving ? "..." : "Guardar"}
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs hover:bg-slate-500/30">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => startEdit(e)} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30">
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </td>
               </tr>
             ))}
           </tbody>

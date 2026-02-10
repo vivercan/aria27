@@ -146,6 +146,17 @@ export default function PorPagarPage() {
                 return (
                   <tr key={c.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${c.vencida ? "bg-red-500/[0.03]" : ""}`}>
                     <td className="p-3 text-white font-mono text-xs">{c.folio}</td>
+                  <td className="p-3 text-center">
+                    {c.saldo > 0 && (
+                      <button
+                        onClick={() => handlePago(c.id, c.total, c.monto_pagado)}
+                        disabled={pagando === c.id}
+                        className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 disabled:opacity-50"
+                      >
+                        {pagando === c.id ? "..." : "Pagar"}
+                      </button>
+                    )}
+                  </td>
                     <td className="p-3 text-white">{c.supplier_name}</td>
                     <td className="p-3 text-slate-300">{c.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-slate-300">${(c.total || 0).toLocaleString()}</td>
