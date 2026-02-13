@@ -425,11 +425,11 @@ function CapturarContent() {
       )}
 
       {/* ENVIAR COMPARATIVA */}
-      {quotes.length >= 2 && (
+      {quotes.length >= 5 && (
         <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
-            <p className="text-slate-400 text-xs">{quotes.length} cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
+            <p className="text-slate-400 text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
           </div>
           <button onClick={enviarComparativa} disabled={enviando}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">
