@@ -53,6 +53,20 @@ const TEMPLATE_CONFIG: Record<string, {
     description: "Notificar rechazo al creador"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Estado, {{4}}=Motivo
   },
+  entrega_material: {
+    language: "es_MX",
+    paramCount: 4,
+    description: "Notificar material recibido al solicitante"
+    // {{1}}=OC, {{2}}=Obra, {{3}}=Proveedor, {{4}}=Folio entrega
+  },
+  comparativa_enviar: {
+    language: "es_MX",
+    hasButton: true,
+    buttonCount: 1,
+    paramCount: 4,
+    description: "Enviar comparativa a direccion"
+    // {{1}}=Folio, {{2}}=Obra, {{3}}=Mejor precio, {{4}}=Num proveedores
+  },
 };
 
 /**
