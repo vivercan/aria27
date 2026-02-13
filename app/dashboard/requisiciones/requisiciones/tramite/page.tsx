@@ -64,7 +64,7 @@ export default function ComprasTramitePage() {
     const { data: reqs } = await supabase
       .from("Requisiciones")
       .select("*")
-      .in("status", ["APROBADA", "EN_COTIZACION"])
+      .in("status", ["PENDIENTE", "APROBADA", "EN_COTIZACION"])
       .order("required_date", { ascending: true });
     setRequisiciones((reqs || []) as Requisition[]);
     
