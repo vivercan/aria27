@@ -206,7 +206,7 @@ export default function NewRequisitionPage() {
             {searching && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
           <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-            <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+            <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-[#0a1628] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
               <div>Categoría</div><div>Descripción</div><div className="text-right">Unidad</div>
             </div>
             {searchResults.length === 0 ? (
