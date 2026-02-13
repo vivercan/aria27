@@ -54,6 +54,9 @@ export default function RequisicionesStatusPage() {
   const [singleDeleteId, setSingleDeleteId] = useState<string>("");
   const [itemsCache, setItemsCache] = useState<Record<string, ReqItem[]>>({});
   const [loadingPrint, setLoadingPrint] = useState<string | null>(null);
+  const [detailReq, setDetailReq] = useState<Requisition | null>(null);
+  const [detailItems, setDetailItems] = useState<ReqItem[]>([]);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const isAdmin = userEmail === "recursos.humanos@gcuavante.com" || userRole === "admin";
 
@@ -96,6 +99,14 @@ export default function RequisicionesStatusPage() {
     const items = (data || []) as ReqItem[];
     setItemsCache((prev) => ({ ...prev, [reqId]: items }));
     return items;
+  }
+
+  async function openDetail(req: Requisition) {
+    setDetailReq(req);
+    setLoadingDetail(true);
+    const items = await loadItemsForPrint(req.id);
+    setDetailItems(items);
+    setLoadingDetail(false);
   }
 
   async function handlePrintClick(req: Requisition) {
@@ -308,7 +319,7 @@ export default function RequisicionesStatusPage() {
                         </td>
                       )}
                       <td className="p-3">
-                        <span className="font-mono text-cyan-400 text-sm">{req.folio}</span>
+                        <button onClick={() => openDetail(req)} className="font-mono text-cyan-400 text-sm hover:text-cyan-300 hover:underline transition">{req.folio}</button>
                       </td>
                       <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
                       <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
@@ -353,6 +364,62 @@ export default function RequisicionesStatusPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Detalle */}
+      {detailReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetailReq(null)}>
+          <div className="bg-[#0a1628] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <div>
+                <h3 className="text-lg font-bold text-white">{detailReq.folio}</h3>
+                <p className="text-slate-400 text-sm">{detailReq.cost_center_name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded text-xs font-medium ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
+                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">✕</button>
+              </div>
+            </div>
+            <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Total</p><p className="text-sm text-emerald-400 font-medium">{formatCurrency(detailReq.total)}</p></div>
+              </div>
+              {detailReq.instructions && (
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Instrucciones</p><p className="text-sm text-slate-300">{detailReq.instructions}</p></div>
+              )}
+              <div>
+                <p className="text-xs font-medium text-slate-400 mb-2">MATERIALES</p>
+                {loadingDetail ? (
+                  <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-cyan-400" /></div>
+                ) : (
+                  <div className="rounded-xl border border-white/10 overflow-hidden">
+                    <table className="w-full">
+                      <thead className="bg-white/5"><tr className="text-left text-[11px] text-slate-500"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
+                      <tbody>
+                        {detailItems.map((item) => (
+                          <tr key={item.id} className="border-t border-white/5 text-sm">
+                            <td className="p-2.5 text-white">{item.product_name}</td>
+                            <td className="p-2.5 text-slate-400">{item.unit}</td>
+                            <td className="p-2.5 text-center text-white">{item.quantity}</td>
+                            <td className="p-2.5 text-right text-slate-400">{formatCurrency(item.precio_unitario)}</td>
+                            <td className="p-2.5 text-right text-emerald-400 font-medium">{formatCurrency(item.precio_total)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="p-4 border-t border-white/10 flex justify-end gap-2">
+              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-sm text-slate-300 hover:text-cyan-400 transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-sm text-slate-300 hover:text-emerald-400 transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
+            </div>
           </div>
         </div>
       )}
