@@ -5,14 +5,14 @@ import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, ArrowLeft } from "l
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-type CostCenter = { id: number; code: string; name: string };
+type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
 type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string };
 
 export default function NewRequisitionPage() {
   const router = useRouter();
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
-  const [selectedCostCenterId, setSelectedCostCenterId] = useState<number | null>(null);
+  const [selectedCostCenterId, setSelectedCostCenterId] = useState<string | null>(null);
   const [requiredDate, setRequiredDate] = useState("");
   const [generalComments, setGeneralComments] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -163,7 +163,7 @@ export default function NewRequisitionPage() {
               <select
                 className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
                 value={selectedCostCenterId ?? ""}
-                onChange={(e) => setSelectedCostCenterId(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => setSelectedCostCenterId(e.target.value || null)}
               >
                 <option value="">Seleccione...</option>
                 {costCenters.map((c, i) => (
