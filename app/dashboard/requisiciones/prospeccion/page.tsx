@@ -1,275 +1,223 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Star, Phone, Mail, MapPin, Package, Plus, TrendingUp, Users, Building2, Filter, Save, X, Loader2 } from "lucide-react";
+import {
+  ArrowLeft, Search, Loader2, Package, Globe, Phone, Mail,
+  MapPin, Plus, ExternalLink, Building2, Sparkles, X, Check
+} from "lucide-react";
+import Link from "next/link";
 
-interface Supplier {
-  id: string;
-  name: string;
-  contact_name: string;
-  phone: string;
-  email: string;
-  address: string;
-  category: string;
-  rating: number;
-  total_ocs: number;
-  total_compras: number;
-  ultimo_pedido: string;
+interface WebResult {
+  name: string; phone: string; email: string; website: string;
+  address: string; category: string; notes: string;
+}
+
+interface ExistingSupplier {
+  id: string; name: string; phone: string; email: string;
+  categories: any;
 }
 
 export default function ProspeccionPage() {
-  const router = useRouter();
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [savingSupp, setSavingSupp] = useState(false);
-  const [suppForm, setSuppForm] = useState({ name: "", contact_name: "", phone: "", email: "", address: "", category: "", rating: "3" });
-  const [filterCategory, setFilterCategory] = useState("TODOS");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [stats, setStats] = useState({ total: 0, conCompras: 0, sinCompras: 0, categorias: 0 });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [webResults, setWebResults] = useState<WebResult[]>([]);
+  const [existingMatches, setExistingMatches] = useState<ExistingSupplier[]>([]);
+  const [searchDone, setSearchDone] = useState(false);
+  const [savingIdx, setSavingIdx] = useState<number | null>(null);
+  const [savedIdxs, setSavedIdxs] = useState<number[]>([]);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    setSearching(true); setError(""); setWebResults([]); setExistingMatches([]); setSavedIdxs([]);
 
-  async function loadData() {
     try {
-      // Cargar proveedores
-      const { data: provs, error } = await supabase
+      // 1. Buscar en proveedores existentes
+      const { data: existing } = await supabase
         .from("Proveedores")
-        .select("*")
-        .order("name");
+        .select("id, name, phone, email, categories")
+        .or(`name.ilike.%${searchTerm}%,categories.cs.{${searchTerm.toUpperCase()}}`)
+        .limit(10);
+      setExistingMatches(existing || []);
 
-      if (error) throw error;
-
-      // Cargar OCs para stats por proveedor
-      const { data: ocs } = await supabase
-        .from("purchase_orders")
-        .select("supplier_name, total, created_at");
-
-      const ocsMap: Record<string, { count: number; total: number; last: string }> = {};
-      (ocs || []).forEach((oc: any) => {
-        const key = oc.supplier_name?.toLowerCase();
-        if (!key) return;
-        if (!ocsMap[key]) ocsMap[key] = { count: 0, total: 0, last: "" };
-        ocsMap[key].count++;
-        ocsMap[key].total += oc.total || 0;
-        if (oc.created_at > (ocsMap[key].last || "")) ocsMap[key].last = oc.created_at;
+      // 2. Buscar con API Anthropic
+      const res = await fetch("/api/proveedores/buscar-inteligente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: searchTerm, ciudad: "Aguascalientes" }),
       });
 
-      const enriched = (provs || []).map((p: any) => {
-        const key = p.name?.toLowerCase();
-        const ocData = ocsMap[key] || { count: 0, total: 0, last: "" };
-        return {
-          ...p,
-          total_ocs: ocData.count,
-          total_compras: ocData.total,
-          ultimo_pedido: ocData.last,
-          rating: ocData.count > 5 ? 5 : ocData.count > 2 ? 4 : ocData.count > 0 ? 3 : 0,
-        };
-      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Error ${res.status}`);
+      }
 
-      setSuppliers(enriched);
-
-      // Categorías únicas
-      const cats = [...new Set((provs || []).map((p: any) => p.category).filter(Boolean))].sort();
-      setCategories(cats as string[]);
-
-      const conCompras = enriched.filter((s: any) => s.total_ocs > 0).length;
-      setStats({
-        total: enriched.length,
-        conCompras,
-        sinCompras: enriched.length - conCompras,
-        categorias: cats.length,
-      });
-    } catch (e) {
-      console.error("Error:", e);
+      const data = await res.json();
+      setWebResults(data.proveedores || []);
+    } catch (e: any) {
+      console.error("Error buscando:", e);
+      setError(e.message || "Error en la búsqueda");
     } finally {
-      setLoading(false);
+      setSearching(false);
+      setSearchDone(true);
     }
-  }
-
-
-  const handleSaveSupplier = async () => {
-    if (!suppForm.name) return;
-    setSavingSupp(true);
-    await supabase.from("suppliers").insert({
-      name: suppForm.name,
-      contact_name: suppForm.contact_name || null,
-      phone: suppForm.phone || null,
-      email: suppForm.email || null,
-      address: suppForm.address || null,
-      category: suppForm.category || null,
-      rating: parseInt(suppForm.rating) || 3,
-      active: true
-    });
-    setSavingSupp(false);
-    setShowAddModal(false);
-    setSuppForm({ name: "", contact_name: "", phone: "", email: "", address: "", category: "", rating: "3" });
-    loadData();
   };
 
-  const filtered = suppliers.filter(s => {
-    const matchSearch = !search ||
-      s.name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.contact_name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.category?.toLowerCase().includes(search.toLowerCase());
-    const matchCat = filterCategory === "TODOS" || s.category === filterCategory;
-    return matchSearch && matchCat;
-  });
+  const saveAsSupplier = async (result: WebResult, idx: number) => {
+    setSavingIdx(idx);
+    try {
+      await supabase.from("Proveedores").insert({
+        name: result.name,
+        phone: result.phone || null,
+        email: result.email || null,
+        website: result.website || null,
+        address: result.address || null,
+        categories: result.category || null,
+        notas_comerciales: result.notes || null,
+        active: true,
+      });
+      setSavedIdxs(prev => [...prev, idx]);
+    } catch (e) {
+      console.error("Error guardando:", e);
+    } finally {
+      setSavingIdx(null);
+    }
+  };
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} className={`w-3 h-3 ${i < rating ? "text-amber-400 fill-amber-400" : "text-slate-600"}`} />
-    ));
+  const getCatDisplay = (cats: any): string[] => {
+    if (!cats) return [];
+    if (Array.isArray(cats)) return cats.filter(Boolean);
+    if (typeof cats === "string") return cats.split(",").map((c: string) => c.trim()).filter(Boolean);
+    return [];
   };
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Nuevo Proveedor</button>
-          <ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Prospección de Proveedores</h1>
-          <p className="text-slate-400 text-sm">Evalúa y encuentra proveedores por categoría y desempeño</p>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* HEADER */}
+      <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2 mb-2">
+          <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+          <h1 className="text-lg font-bold text-white flex items-center gap-2"><Sparkles className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>
         </div>
-        <button onClick={() => router.push("/dashboard/requisiciones/proveedores")}
-          className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nuevo Proveedor
-        </button>
-      </div>
+        <p className="text-xs text-slate-400 mb-2 ml-7">Busca proveedores por producto o categoría. ARIA usa inteligencia artificial para encontrar opciones en Aguascalientes y alrededores.</p>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Proveedores", value: stats.total, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
-          { label: "Con Compras", value: stats.conCompras, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-          { label: "Sin Compras", value: stats.sinCompras, icon: Building2, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Categorías", value: stats.categorias, icon: Package, color: "text-violet-400", bg: "bg-violet-500/10" },
-        ].map((s, i) => (
-          <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-            <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
-            <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+        <div className="flex gap-2 ml-7">
+          <div className="flex-1 relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"/>
+            <input type="text" placeholder='Ej: "acero corrugado", "tubería PVC", "concreto premezclado"...'
+              value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&handleSearch()}
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-violet-500/50 outline-none"/>
           </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proveedor, contacto o categoría..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          <button onClick={handleSearch} disabled={searching||!searchTerm.trim()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 disabled:opacity-40 font-medium">
+            {searching?<Loader2 className="w-3.5 h-3.5 animate-spin"/>:<Sparkles className="w-3.5 h-3.5"/>}
+            {searching?"Buscando...":"Buscar con IA"}
+          </button>
         </div>
-        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
-          className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none">
-          <option value="TODOS">Todas las categorías</option>
-          {categories.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl animate-pulse h-48" />
-          ))
-        ) : filtered.length === 0 ? (
-          <div className="col-span-3 p-10 text-center text-slate-400">No se encontraron proveedores</div>
-        ) : filtered.map(s => (
-          <div key={s.id} className="group p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] hover:border-white/[0.12] transition-all">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="text-white font-semibold group-hover:text-blue-400 transition-colors">{s.name}</h3>
-                {s.contact_name && <p className="text-xs text-slate-400">{s.contact_name}</p>}
-              </div>
-              <div className="flex">{renderStars(s.rating)}</div>
-            </div>
+      {/* RESULTADOS */}
+      <div className="flex-1 overflow-auto min-h-0 px-4 py-3">
+        {!searchDone && !searching && (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4"><Sparkles className="w-8 h-8 text-violet-400"/></div>
+            <h2 className="text-white font-semibold mb-1">Busca nuevos proveedores</h2>
+            <p className="text-slate-400 text-sm max-w-md">Escribe el producto o categoría que necesitas y ARIA buscará proveedores en la web usando inteligencia artificial.</p>
+          </div>
+        )}
 
-            {s.category && (
-              <span className="inline-block px-2 py-0.5 bg-blue-500/10 text-blue-400 text-xs rounded-full mb-3">{s.category}</span>
+        {searching && (
+          <div className="flex flex-col items-center justify-center h-full">
+            <Loader2 className="w-8 h-8 text-violet-400 animate-spin mb-3"/>
+            <p className="text-white font-medium">Buscando proveedores de "{searchTerm}"...</p>
+            <p className="text-slate-400 text-xs mt-1">Esto puede tomar unos segundos</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs mb-4">{error}</div>
+        )}
+
+        {searchDone && !searching && (
+          <div className="space-y-4">
+            {/* Existentes */}
+            {existingMatches.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Building2 className="w-3.5 h-3.5 text-emerald-400"/>Ya tienes estos proveedores ({existingMatches.length})</h3>
+                <div className="space-y-1">
+                  {existingMatches.map(s=>(
+                    <div key={s.id} className="flex items-center gap-3 px-3 py-2 bg-emerald-500/[0.05] border border-emerald-500/10 rounded-lg text-xs">
+                      <Building2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"/>
+                      <span className="text-white font-medium flex-1">{s.name}</span>
+                      {getCatDisplay(s.categories).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-400 rounded">{c}</span>)}
+                      {s.phone&&<span className="text-slate-400">{s.phone}</span>}
+                      {s.email&&<span className="text-slate-400 truncate max-w-[150px]">{s.email}</span>}
+                      <Link href="/dashboard/requisiciones/proveedores" className="text-emerald-400 hover:text-emerald-300 text-[10px]">Ver →</Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
-            <div className="space-y-1.5 text-xs text-slate-400 mb-4">
-              {s.phone && <div className="flex items-center gap-2"><Phone className="w-3 h-3" />{s.phone}</div>}
-              {s.email && <div className="flex items-center gap-2"><Mail className="w-3 h-3" />{s.email}</div>}
-              {s.address && <div className="flex items-center gap-2"><MapPin className="w-3 h-3" /><span className="truncate">{s.address}</span></div>}
-            </div>
+            {/* Web Results */}
+            {webResults.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Globe className="w-3.5 h-3.5 text-violet-400"/>Encontrados en la web ({webResults.length})</h3>
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-[10px] text-slate-500 font-semibold uppercase border-b border-white/[0.06]">
+                      <th className="text-left py-1.5 pl-2">Proveedor</th>
+                      <th className="text-left py-1.5">Teléfono</th>
+                      <th className="text-left py-1.5">Email / Web</th>
+                      <th className="text-left py-1.5">Dirección</th>
+                      <th className="text-left py-1.5">Notas</th>
+                      <th className="w-[70px]"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-xs">
+                    {webResults.map((r,idx)=>(
+                      <tr key={idx} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-colors h-[34px]">
+                        <td className="pl-2 pr-2">
+                          <p className="text-white font-medium">{r.name}</p>
+                          {r.category&&<span className="text-[9px] px-1 py-0.5 bg-violet-500/15 text-violet-400 rounded">{r.category}</span>}
+                        </td>
+                        <td className="text-slate-400">{r.phone||"—"}</td>
+                        <td className="text-slate-400">
+                          <div className="flex flex-col gap-0.5">
+                            {r.email&&<span className="truncate max-w-[150px]">{r.email}</span>}
+                            {r.website&&<a href={r.website.startsWith("http")?r.website:`https://${r.website}`} target="_blank" className="text-violet-400 hover:text-violet-300 flex items-center gap-0.5 text-[10px]"><ExternalLink className="w-2.5 h-2.5"/>Web</a>}
+                          </div>
+                        </td>
+                        <td className="text-slate-500 text-[10px] max-w-[150px] truncate">{r.address||"—"}</td>
+                        <td className="text-slate-500 text-[10px] max-w-[120px] truncate">{r.notes||""}</td>
+                        <td className="pr-2">
+                          {savedIdxs.includes(idx)?(
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-400"><Check className="w-3 h-3"/>Guardado</span>
+                          ):(
+                            <button onClick={()=>saveAsSupplier(r,idx)} disabled={savingIdx===idx}
+                              className="flex items-center gap-1 px-2 py-1 text-[10px] bg-emerald-500/20 text-emerald-400 rounded hover:bg-emerald-500/30 disabled:opacity-50">
+                              {savingIdx===idx?<Loader2 className="w-2.5 h-2.5 animate-spin"/>:<Plus className="w-2.5 h-2.5"/>}Agregar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-            <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-              <div>
-                <span className="text-slate-400">OCs: </span>
-                <span className="text-white font-medium">{s.total_ocs}</span>
+            {searchDone && !searching && webResults.length === 0 && existingMatches.length === 0 && (
+              <div className="text-center py-8">
+                <Package className="w-8 h-8 text-slate-600 mx-auto mb-2"/>
+                <p className="text-slate-400 text-sm">No se encontraron proveedores para "{searchTerm}"</p>
+                <p className="text-slate-500 text-xs mt-1">Intenta con otro término de búsqueda</p>
               </div>
-              <div>
-                <span className="text-slate-400">Compras: </span>
-                <span className="text-emerald-400 font-medium">${s.total_compras.toLocaleString()}</span>
-              </div>
-              {s.ultimo_pedido && (
-                <div className="text-slate-500">{new Date(s.ultimo_pedido).toLocaleDateString("es-MX", { month: "short", year: "2-digit" })}</div>
-              )}
-            </div>
+            )}
           </div>
-        ))}
+        )}
       </div>
-
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Nuevo Proveedor</h3>
-              <button onClick={() => setShowAddModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-slate-400">Nombre / Razón Social *</label>
-                <input type="text" value={suppForm.name} onChange={e => setSuppForm({...suppForm, name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Contacto</label>
-                  <input type="text" value={suppForm.contact_name} onChange={e => setSuppForm({...suppForm, contact_name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Teléfono</label>
-                  <input type="text" value={suppForm.phone} onChange={e => setSuppForm({...suppForm, phone: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Email</label>
-                <input type="email" value={suppForm.email} onChange={e => setSuppForm({...suppForm, email: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Dirección</label>
-                <input type="text" value={suppForm.address} onChange={e => setSuppForm({...suppForm, address: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Categoría</label>
-                  <input type="text" value={suppForm.category} onChange={e => setSuppForm({...suppForm, category: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Rating (1-5)</label>
-                  <input type="number" min="1" max="5" value={suppForm.rating} onChange={e => setSuppForm({...suppForm, rating: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
-              <button onClick={handleSaveSupplier} disabled={savingSupp || !suppForm.name} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
-                {savingSupp ? "Guardando..." : "Guardar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
