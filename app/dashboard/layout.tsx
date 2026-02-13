@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -164,7 +164,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <main className="ml-[180px] relative z-10">
+      <main className="ml-[180px] relative z-10 h-screen flex flex-col overflow-hidden">
         {/* Header */}
         <header 
           className="sticky top-0 z-30 backdrop-blur-md border-b"
@@ -216,7 +216,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="p-6">{children}</div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </main>
 
       {/* ARIA Pulso Messenger */}
@@ -235,5 +235,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </ThemeProvider>
   );
 }
+
 
 
