@@ -59,6 +59,7 @@ export default function RequisicionesStatusPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   const isAdmin = userEmail === "recursos.humanos@gcuavante.com" || userRole === "admin";
+  const isCompras = userRole === "compras";
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "";
