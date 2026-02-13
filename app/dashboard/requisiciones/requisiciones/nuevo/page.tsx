@@ -211,7 +211,7 @@ export default function NewRequisitionPage() {
             </div>
             {searchResults.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-white/40">
-                {searchTerm.length < 2 ? "Escribe para buscar..." : "Sin resultados"}
+                {searchTerm.length < 2 ? "Busca un producto del catalogo" : "Sin resultados"}
               </div>
             ) : searchResults.map(p => {
               const isSelected = materials.some(m => m.id === p.id);

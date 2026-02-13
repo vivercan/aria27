@@ -211,7 +211,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <span className="text-xs text-slate-500 ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <button onClick={()=>setShowUploadModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30" title="Subir catálogo de proveedor"><Sparkles className="w-3 h-3"/>Importar IA</button>
+            <button onClick={()=>setShowUploadModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30" title="Subir catálogo de proveedor"><Upload className="w-3 h-3"/>Importar</button>
             <div className="relative">
               <button onClick={()=>setShowExportMenu(!showExportMenu)} disabled={exporting}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-white/[0.05] border border-white/[0.08] text-slate-300 rounded-lg hover:bg-white/[0.1] disabled:opacity-50">
@@ -391,7 +391,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-white/10 flex-none">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2"><Sparkles className="w-5 h-5 text-violet-400"/>Importar Catálogo con IA</h2>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">Importar Catálogo</h2>
               <button onClick={()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setParseError("");}} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400"><X className="w-4 h-4"/></button>
             </div>
 
@@ -453,7 +453,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               {parsedProducts.length===0?(
                 <button onClick={handleUploadParse} disabled={parsing||!uploadFile||!uploadSuppId}
                   className="px-3 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1.5">
-                  {parsing?<><Loader2 className="w-3 h-3 animate-spin"/>Analizando...</>:<><Sparkles className="w-3 h-3"/>Analizar con IA</>}
+                  {parsing?<><Loader2 className="w-3 h-3 animate-spin"/>Analizando...</>:<><Upload className="w-3 h-3"/>Analizar</>}
                 </button>
               ):(
                 <button onClick={saveParsedProducts} disabled={savingParsed}
