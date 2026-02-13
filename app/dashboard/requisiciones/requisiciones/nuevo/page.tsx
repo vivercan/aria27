@@ -27,7 +27,7 @@ export default function NewRequisitionPage() {
 
   useEffect(() => {
     const loadCenters = async () => {
-      const { data } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("name");
+      const { data } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("nombre");
       if (data) setCostCenters(data);
     };
     loadCenters();
@@ -286,5 +286,6 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
+
 
 
