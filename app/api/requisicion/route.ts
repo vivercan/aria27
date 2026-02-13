@@ -114,6 +114,8 @@ export async function POST(request: Request) {
     notificados.push(`Creador: ${usuario.email}`);
 
     // 2. EMAIL AL VALIDADOR
+    const materialesResumen = materiales.map((m: any) => `${m.name} (${m.qty} ${m.unit})`).join(", ");
+
     if (!isValidador && validadorUser) {
       try {
         console.log(`Enviando email a validador: ${validadorUser.email}`);
@@ -128,7 +130,7 @@ export async function POST(request: Request) {
         logs.push(`Email validador ERROR: ${e.message}`); 
       }
       if (validadorUser.phone) {
-        await sendWhatsAppTemplate("requisicion_validar", [folio, displayName, obra, urgencyText, token], validadorUser.phone, token);
+        await sendWhatsAppTemplate("requisicion_validar", [folio, displayName, obra, urgencyText, materialesResumen], validadorUser.phone, token);
       }
       notificados.push(`Validador: ${validadorUser.email}`);
     }
