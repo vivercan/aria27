@@ -80,10 +80,10 @@ export default function RequisicionesStatusPage() {
       .from("Requisiciones")
       .select("*")
       .order("created_at", { ascending: false });
-    
-    // Si no es admin, solo ver sus propias requisiciones
-    if (email !== "recursos.humanos@gcuavante.com") {
-      query = query.eq("user_email", email);
+    // Admin y compras ven todas, los demas solo las suyas
+    const { data: uData } = await supabase.from("Users").select("role").eq("email", email).single();
+    const uRole = uData?.role || "user";
+    if (uRole !== "admin" && uRole !== "compras") {
     }
     
     const { data } = await query;
