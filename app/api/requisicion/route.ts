@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       } catch (e: any) { logs.push(`Email compras ERROR: ${e.message}`); }
 
       if (comprasUser.phone) {
-        await sendWhatsAppTemplate("requisicion_compras", [folio, obra, urgencyText], comprasUser.phone);
+        await sendWhatsAppTemplate("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone);
       }
       notificados.push(`Compras: ${comprasUser.email}`);
     }
