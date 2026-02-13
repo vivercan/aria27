@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     const isAdmin = creatorUser?.role === "admin";
 
     const { data: req, error: reqErr } = await supabase.from("Requisiciones").insert({
-      folio, cost_center_id: costCenterId, cost_center_name: obra, instructions: comentarios,
+      folio, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate, status: isValidador ? "APROBADA" : "PENDIENTE",
       created_by: displayName, user_email: usuario.email, authorization_comments: token
     }).select().single();
