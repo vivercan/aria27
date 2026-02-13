@@ -254,6 +254,13 @@ export default function RequisicionesStatusPage() {
         
       </div>
 
+      {isAdmin && selectedIds.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+          <span className="text-sm text-red-300">{selectedIds.length} seleccionadas</span>
+          <button onClick={() => openDeleteModal("selected")} className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition">Eliminar seleccionadas</button>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-10">
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-cyan-400" />
