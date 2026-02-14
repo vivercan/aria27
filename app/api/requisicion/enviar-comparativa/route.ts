@@ -70,8 +70,9 @@ export async function POST(req: Request) {
     if (director.phone) {
       await sendWhatsAppTemplate(
         "compra_autorizar",
-        [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length), token],
-        director.phone
+        [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length), "Ver comparativa"],
+        director.phone,
+        token
       );
     }
 
