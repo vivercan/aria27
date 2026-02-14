@@ -61,20 +61,20 @@ export default function ComprasTramitePage() {
   const [proveedoresIA, setProveedoresIA] = useState<ProveedorIA[]>([]);
 
   // COTIZACIONES POR MATERIAL (hasta 5 por item)
-  const [itemQuotes, setItemQuotes] = useState<Record<number, Array<{supplier: string; price: number}>>>({});
+  const [itemQuotes, setItemQuotes] = useState<Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>>>({});
 
   const initQuotes = (itemsList: any[]) => {
-    const q: Record<number, Array<{supplier: string; price: number}>> = {};
+    const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
     itemsList.forEach((item: any) => {
-      q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0}));
+      q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
     });
     setItemQuotes(q);
   };
 
-  const updateQuote = (itemId: number, idx: number, field: "supplier" | "price", value: string | number) => {
+  const updateQuote = (itemId: number, idx: number, field: "supplier" | "price" | "entrega" | "forma_pago" | "factura" | "pdf_url", value: string | number | boolean) => {
     setItemQuotes(prev => {
       const updated = {...prev};
-      if (!updated[itemId]) updated[itemId] = Array.from({length: 5}, () => ({supplier: "", price: 0}));
+      if (!updated[itemId]) updated[itemId] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
       updated[itemId] = [...updated[itemId]];
       updated[itemId][idx] = {...updated[itemId][idx], [field]: value};
       return updated;
@@ -459,7 +459,7 @@ Responde SOLO con JSON así:
           <div className="space-y-3">
             {items.map((item, idx) => {
               const filled = getFilledQuotes(item.id).length;
-              const quotes = itemQuotes[item.id] || Array.from({length: 5}, () => ({supplier: "", price: 0}));
+              const quotes = itemQuotes[item.id] || Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
               const pricesArr = quotes.filter(q => q.price > 0).map(q => q.price);
               const bestPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
               return (
