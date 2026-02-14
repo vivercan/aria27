@@ -484,9 +484,13 @@ Responde SOLO con JSON así:
                       <tr className="text-left text-slate-500 text-[10px] bg-white/[0.02]">
                         <th className="px-3 py-1.5 w-8">#</th>
                         <th className="px-3 py-1.5">Proveedor</th>
-                        <th className="px-3 py-1.5 w-32 text-right">Precio Unit.</th>
-                        <th className="px-3 py-1.5 w-28 text-right">Subtotal</th>
-                        <th className="px-3 py-1.5 w-16 text-center">Mejor</th>
+                        <th className="px-3 py-1.5 w-24 text-right">Precio U.</th>
+                        <th className="px-3 py-1.5 w-20 text-right">Subtotal</th>
+                        <th className="px-3 py-1.5 w-20">Entrega</th>
+                        <th className="px-3 py-1.5 w-24">Pago</th>
+                        <th className="px-3 py-1.5 w-14 text-center">Fact.</th>
+                        <th className="px-3 py-1.5 w-14 text-center">PDF</th>
+                        <th className="px-3 py-1.5 w-12 text-center">Mejor</th>
                       </tr>
                     </thead>
                     <tbody>
