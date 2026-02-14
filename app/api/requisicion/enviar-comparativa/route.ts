@@ -9,8 +9,13 @@ export async function POST(req: Request) {
 
     const { requisition_id, folio, obra, quotes, items } = await req.json();
 
-    const { data: director } = await supabase.from("Users").select("*").eq("role", "direccion").single();
-    if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
+    const { data: director, error: dirError } = await supabase.from("Users").select("*").eq("role", "direccion").single();
+    console.log("[COMPARATIVA] Director encontrado:", director?.email, director?.phone, "Error:", dirError?.message);
+    console.log("[COMPARATIVA] Datos recibidos - folio:", folio, "obra:", obra, "quotes:", JSON.stringify(quotes?.slice(0,2)), "items:", items);
+    if (!director) {
+      console.log("[COMPARATIVA] ERROR: No se encontro director con role=direccion");
+      return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
+    }
 
     const mejor = quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]);
     const linkComparativa = `https://aria.jjcrm27.com/dashboard/requisiciones/requisiciones/tramite/capturar?req=${requisition_id}`;
@@ -59,6 +64,7 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("[COMPARATIVA] Email y WhatsApp enviados a:", director.email, director.phone);
     return NextResponse.json({ success: true, enviado_a: director.email });
   } catch (error: any) {
     console.error("Error enviar comparativa:", error);
