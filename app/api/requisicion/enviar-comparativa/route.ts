@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         "comparativa_enviar",
         [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length)],
         director.phone,
-        requisition_id
+        token
       );
     }
 
