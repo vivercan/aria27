@@ -550,7 +550,18 @@ Responde SOLO con JSON así:
                 await fetch("/api/requisicion/enviar-comparativa", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ requisitionId: selectedReq.id, folio: selectedReq.folio, obra: selectedReq.cost_center_name, comparativa })
+                  body: JSON.stringify({
+                    requisition_id: selectedReq.id,
+                    folio: selectedReq.folio,
+                    obra: selectedReq.cost_center_name,
+                    items: items.map(i => i.product_name),
+                    quotes: items.flatMap(item => getFilledQuotes(item.id).map(q => ({
+                      supplier: q.supplier,
+                      total: q.price * item.quantity,
+                      credito: 0,
+                      entrega: 0
+                    })))
+                  })
                 });
                 alert("Comparativa enviada a Direccion");
                 setSelectedReq(null); setItems([]); loadData();
