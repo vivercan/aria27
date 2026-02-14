@@ -69,8 +69,8 @@ export async function POST(req: Request) {
     // WhatsApp
     if (director.phone) {
       await sendWhatsAppTemplate(
-        "compra_autorizar",
-        [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length), "Ver comparativa"],
+        "comparativa_enviar",
+        [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length)],
         director.phone,
         token
       );
