@@ -43,6 +43,26 @@ export async function GET(request: Request) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Token Invalido</h1><p style="color:#64748b">Esta solicitud ya fue procesada o el enlace expiro.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
+    // Si no hay action, mostrar la comparativa para decidir
+    if (!action || (action !== "AUTORIZADA" && action !== "RECHAZADA")) {
+      const cotData = req.cotizacion_data || {};
+      const quotes = cotData.quotes || [];
+      const items = cotData.items || [];
+      const mejor = quotes.length > 0 ? quotes.reduce((min: any, q: any) => (q.total || 0) < (min.total || 0) ? q : min, quotes[0]) : null;
+      const quotesHtml = quotes.map((q: any) => `
+        <tr style="border-bottom:1px solid #334155;${mejor && q.total === mejor.total ? "background:#064e3b;" : ""}">
+          <td style="padding:12px;color:white;">${q.supplier}${mejor && q.total === mejor.total ? " ★" : ""}</td>
+          <td style="padding:12px;text-align:right;color:${mejor && q.total === mejor.total ? "#34d399" : "white"};font-weight:bold;">$${q.total || 0}</td>
+        </tr>`).join("");
+      return new Response(`<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial;min-height:100vh;background:#0f172a;color:white;margin:0;padding:20px"><div style="max-width:600px;margin:0 auto">
+        <div style="text-align:center;margin-bottom:25px"><h1 style="color:#22d3ee;font-size:24px;margin:0">ARIA27</h1><p style="color:#64748b;font-size:11px;letter-spacing:2px">AUTORIZACION DE COMPRA</p></div>
+        <div style="background:#1e293b;border-radius:12px;padding:15px;margin-bottom:15px"><p style="color:#64748b;font-size:10px;margin:0">FOLIO</p><p style="color:#22d3ee;font-weight:bold;font-size:18px;margin:4px 0">${req.folio}</p><p style="color:#64748b;font-size:10px;margin:10px 0 0">OBRA</p><p style="color:white;font-weight:bold;margin:4px 0">${req.cost_center_name}</p>${items.length > 0 ? `<p style="color:#64748b;font-size:10px;margin:10px 0 0">MATERIALES</p><p style="color:#94a3b8;font-size:13px;margin:4px 0">${items.join(", ")}</p>` : ""}</div>
+        <div style="background:#1e293b;border-radius:12px;overflow:hidden;margin-bottom:15px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#0f172a"><th style="padding:10px;text-align:left;color:#64748b;font-size:11px">Proveedor</th><th style="padding:10px;text-align:right;color:#64748b;font-size:11px">Total</th></tr></thead><tbody>${quotesHtml}</tbody></table></div>
+        ${mejor ? `<div style="background:#064e3b;border:1px solid #10b981;border-radius:12px;padding:12px;text-align:center;margin-bottom:20px"><p style="color:#34d399;margin:0;font-size:12px">MEJOR PRECIO</p><p style="color:white;font-weight:bold;font-size:18px;margin:4px 0">${mejor.supplier} - $${mejor.total}</p></div>` : ""}
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a href="/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA" style="display:inline-block;padding:14px 40px;background:#10b981;color:white;text-decoration:none;border-radius:25px;font-weight:bold;font-size:15px">AUTORIZAR</a><a href="/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA" style="display:inline-block;padding:14px 40px;background:#ef4444;color:white;text-decoration:none;border-radius:25px;font-weight:bold;font-size:15px">RECHAZAR</a></div>
+        <p style="text-align:center;color:#475569;font-size:10px;margin-top:25px">ARIA27 - Grupo Cuavante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+    }
+
     if (req.status !== "EN_AUTORIZACION") {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fefce8"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">⚠️</div><h1 style="color:#f59e0b">Ya Procesada</h1><p style="color:#64748b">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
