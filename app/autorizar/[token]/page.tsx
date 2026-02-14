@@ -4,7 +4,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   const { token } = await params;
   
   const { data: req } = await supabase
-    .from("Requisiciones")
+    .from("requisitions")
     .select("*")
     .eq("authorization_comments", token)
     .single();

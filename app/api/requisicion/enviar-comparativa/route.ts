@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const token = crypto.randomUUID();
 
     // Guardar cotizaciones y token en la requisición
-    await supabase.from("Requisiciones").update({
+    await supabase.from("requisitions").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
       cotizacion_data: { quotes, items, obra, folio }
