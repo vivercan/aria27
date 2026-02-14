@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -44,6 +45,7 @@ type ProveedorIA = {
 };
 
 export default function ComprasTramitePage() {
+  const router = useRouter();
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [selectedReq, setSelectedReq] = useState<Requisition | null>(null);
   const [items, setItems] = useState<RequisitionItem[]>([]);
@@ -481,10 +483,10 @@ Responde SOLO con JSON así:
             {!allComplete() && <span className="text-amber-400 text-xs">⚠️ Completa todos</span>}
             <div className="flex-1"></div>
             <span className="text-emerald-400 font-bold text-xl mr-4">${calculateTotal().toLocaleString()}</span>
-            <button onClick={saveAndSend} disabled={!allComplete() || sending}
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Enviar
+            <button onClick={() => router.push(`/dashboard/requisiciones/requisiciones/tramite/capturar?req=${selectedReq?.id}`)} disabled={!selectedReq}
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
+              <Send className="w-4 h-4" />
+              Ir a Capturar Cotizaciones
             </button>
           </div>
         </>
