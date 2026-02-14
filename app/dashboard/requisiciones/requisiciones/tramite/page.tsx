@@ -497,8 +497,8 @@ Responde SOLO con JSON así:
                             <select value={q.supplier} onChange={(e) => updateQuote(item.id, qIdx, "supplier", e.target.value)}
                               className="w-full px-2 py-1 rounded bg-black/30 border border-white/10 text-white text-xs">
                               <option value="">Seleccionar proveedor...</option>
-                              <optgroup label="Catalogo">
-                                {relevantSuppliers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                              <optgroup label="Todos los proveedores">
+                                {allSuppliers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                               </optgroup>
                               {proveedoresIA.length > 0 && (
                                 <optgroup label="ARIA">
