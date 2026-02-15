@@ -66,14 +66,34 @@ export async function POST(req: Request) {
       `
     });
 
-    // WhatsApp
+    // WhatsApp - mensaje directo con link público
     if (director.phone) {
-      await sendWhatsAppTemplate(
-        "comparativa_enviar",
-        [folio, obra, `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}`, String(quotes.length)],
-        director.phone,
-        token
-      );
+      const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;
+      const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
+      let wp = director.phone.replace(/\D/g, "");
+      if (wp.length === 10) wp = "52" + wp;
+      await fetch(`https://graph.facebook.com/v22.0/${whatsappPhoneId}/messages`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${whatsappToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: wp,
+          type: "template",
+          template: {
+            name: "comparativa_enviar",
+            language: { code: "es_MX" },
+            components: [
+              { type: "body", parameters: [
+                { type: "text", text: folio },
+                { type: "text", text: obra },
+                { type: "text", text: `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}` },
+                { type: "text", text: String(quotes.length) }
+              ]},
+              { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] }
+            ]
+          }
+        })
+      }).then(r => r.json()).then(d => console.log("[WA]", JSON.stringify(d))).catch(e => console.error("[WA ERR]", e));
     }
 
     console.log("[COMPARATIVA] Enviado a:", director.email, director.phone);
