@@ -6,9 +6,9 @@ export function middleware(request: NextRequest) {
   
   // Capturar /d{uuid} sin slash - viene de WhatsApp Meta
   if (path.startsWith("/d") && path.length > 3 && !path.startsWith("/dashboard")) {
-    const token = path.substring(2); // quitar /d
-    const cleanToken = token.replace(/^\//, ""); // quitar slash si hay
-    return NextResponse.redirect(new URL(`/api/requisicion/approve-purchase?token=${cleanToken}`, request.url));
+    const token = path.substring(2);
+    const cleanToken = token.replace(/^\//, "");
+    return NextResponse.redirect(new URL("/api/requisicion/approve-purchase?token=" + cleanToken, request.url));
   }
   
   return NextResponse.next();
