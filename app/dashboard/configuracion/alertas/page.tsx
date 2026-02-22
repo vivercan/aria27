@@ -1,62 +1,97 @@
 "use client";
-import { useState } from "react";
-import { ArrowLeft, Bell, Mail, MessageSquare, Clock, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
-const defaultAlertas = [
-  { id: "req_creada", label: "Requisición creada", email: true, whatsapp: true, descripcion: "Cuando se crea una nueva requisición" },
-  { id: "req_validada", label: "Requisición validada", email: true, whatsapp: true, descripcion: "Cuando el validador aprueba" },
-  { id: "req_autorizada", label: "Compra autorizada", email: true, whatsapp: true, descripcion: "Cuando dirección autoriza la compra" },
-  { id: "oc_generada", label: "Orden de compra generada", email: true, whatsapp: true, descripcion: "Cuando se genera la OC" },
-  { id: "entrega_registrada", label: "Entrega registrada", email: true, whatsapp: false, descripcion: "Cuando compras registra recepción de material" },
-  { id: "asistencia_falta", label: "Falta de asistencia", email: false, whatsapp: false, descripcion: "Cuando un empleado no registra entrada" },
-  { id: "prestamo_vencido", label: "Préstamo por vencer", email: true, whatsapp: false, descripcion: "3 días antes de corte de préstamo" },
-  { id: "vacaciones_pendientes", label: "Vacaciones pendientes", email: false, whatsapp: false, descripcion: "Empleados con vacaciones acumuladas" },
-];
+interface Alerta {
+  id: string;
+  obra_id: string;
+  dias_atraso: number;
+  fecha_deteccion: string;
+  notificado: boolean;
+  residente_id: string;
+  created_at: string;
+  actividad_id?: string;
+}
 
 export default function AlertasPage() {
-  const [alertas, setAlertas] = useState(defaultAlertas);
-  const [saved, setSaved] = useState(false);
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggle = (id: string, channel: "email" | "whatsapp") => {
-    setAlertas(prev => prev.map(a => a.id === id ? { ...a, [channel]: !a[channel] } : a));
-    setSaved(false);
+  useEffect(() => {
+    supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+      setAlertas(data || []);
+      setLoading(false);
+    });
+  }, []);
+
+  const marcarNotificado = async (id: string) => {
+    await supabase.from("alertas_atraso").update({ notificado: true }).eq("id", id);
+    setAlertas(prev => prev.map(a => a.id === id ? { ...a, notificado: true } : a));
   };
 
+  const eliminar = async (id: string) => {
+    if (!confirm("¿Eliminar esta alerta?")) return;
+    await supabase.from("alertas_atraso").delete().eq("id", id);
+    setAlertas(prev => prev.filter(a => a.id !== id));
+  };
+
+  const pendientes = alertas.filter(a => !a.notificado).length;
+
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/configuracion" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Configuración
-        </Link>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Alertas y Notificaciones</h1>
-            <p className="text-slate-400 text-sm mt-1">Configura qué notificaciones envía ARIA</p>
-          </div>
-          <button onClick={() => setSaved(true)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${saved ? "bg-emerald-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
-            {saved ? <><Save className="w-4 h-4" /> Guardado</> : <><Save className="w-4 h-4" /> Guardar</>}
-          </button>
+    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <div className="flex items-center gap-3">
+        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+        <div>
+          <h1 className="text-2xl font-bold">Alertas de Atraso</h1>
+          <p className="text-sm text-slate-400">Monitoreo de actividades atrasadas en obra</p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto space-y-3">
-        {alertas.map(a => (
-          <div key={a.id} className="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-blue-400" />
-                <h3 className="font-medium text-white">{a.label}</h3>
-              </div>
-              <p className="text-xs text-slate-400 mt-1 ml-6">{a.descripcion}</p>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+          <Bell className="w-5 h-5 text-blue-400 mb-2" />
+          <p className="text-2xl font-bold">{alertas.length}</p>
+          <p className="text-xs text-slate-400">Total alertas</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+          <AlertTriangle className="w-5 h-5 text-amber-400 mb-2" />
+          <p className="text-2xl font-bold">{pendientes}</p>
+          <p className="text-xs text-slate-400">Pendientes</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-2" />
+          <p className="text-2xl font-bold">{alertas.length - pendientes}</p>
+          <p className="text-xs text-slate-400">Notificadas</p>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+        <div className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
+          <div>Obra / Actividad</div><div>Días atraso</div><div>Detectada</div><div>Estado</div><div></div>
+        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+        ) : alertas.length === 0 ? (
+          <div className="text-center py-12 text-sm text-white/40">
+            <CheckCircle2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            Sin alertas de atraso. Las alertas se generan automáticamente cuando se detectan actividades atrasadas en el Gantt de obra.
+          </div>
+        ) : alertas.map(a => (
+          <div key={a.id} className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
+            <div className="truncate">{a.obra_id || "—"}</div>
+            <div className="text-amber-400 font-medium">{a.dias_atraso} días</div>
+            <div className="text-xs text-slate-400">{a.fecha_deteccion || "—"}</div>
+            <div>
+              {a.notificado ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300">Notificado</span>
+              ) : (
+                <button onClick={() => marcarNotificado(a.id)} className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition">Marcar ✓</button>
+              )}
             </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => toggle(a.id, "email")} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${a.email ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-500 border border-white/10"}`}>
-                <Mail className="w-3.5 h-3.5" /> Email
-              </button>
-              <button onClick={() => toggle(a.id, "whatsapp")} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${a.whatsapp ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-slate-500 border border-white/10"}`}>
-                <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
-              </button>
+            <div className="text-right">
+              <button onClick={() => eliminar(a.id)} className="text-red-400/50 hover:text-red-400 text-xs">✕</button>
             </div>
           </div>
         ))}
