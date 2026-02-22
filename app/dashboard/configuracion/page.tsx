@@ -1,79 +1,35 @@
 "use client";
-import { Bell, Settings, Database, Mail, Clock } from "lucide-react";
+import { Settings, Bell, Mail, Database, BookOpen, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-const subModules = [
-  {
-    title: "Alertas",
-    description: "Configuración de alertas.",
-    href: "/dashboard/configuracion/alertas",
-    icon: Bell,
-    gradient: "from-amber-500 to-orange-500"
-  },
-  {
-    title: "General",
-    description: "Parámetros del sistema.",
-    href: "/dashboard/configuracion/general",
-    icon: Settings,
-    gradient: "from-green-500 to-emerald-600"
-  },
-  {
-    title: "Maestros",
-    description: "Catálogos maestros.",
-    href: "/dashboard/configuracion/maestros",
-    icon: Database,
-    gradient: "from-purple-500 to-purple-600"
-  },
-  {
-    title: "Correo",
-    description: "Configuración de correo.",
-    href: "/dashboard/configuracion/correo",
-    icon: Mail,
-    gradient: "from-cyan-500 to-cyan-600"
-  },
-  {
-    title: "Recordatorios",
-    description: "Recordatorios automáticos.",
-    href: "/dashboard/configuracion/recordatorios",
-    icon: Clock,
-    gradient: "from-rose-500 to-pink-600"
-  }
+const items = [
+  { title: "General", description: "Parámetros del sistema y usuarios", href: "/dashboard/configuracion/general", icon: Settings, gradient: "from-blue-500 to-blue-600" },
+  { title: "Datos Maestros", description: "Centros de trabajo y nómina", href: "/dashboard/configuracion/maestros", icon: Database, gradient: "from-violet-500 to-purple-600" },
+  { title: "Correo", description: "Configuración de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-green-600" },
+  { title: "Alertas", description: "Alertas de atrasos y vencimientos", href: "/dashboard/configuracion/alertas", icon: Bell, gradient: "from-amber-500 to-orange-500" },
+  { title: "Recordatorios", description: "Recordatorios automáticos por WhatsApp", href: "/dashboard/configuracion/recordatorios", icon: BookOpen, gradient: "from-rose-500 to-pink-500" },
 ];
 
 export default function ConfiguracionPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Configuración</h1>
-        <p className="text-slate-400 mt-1">Ajustes del sistema.</p>
+    <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
+      <div className="flex items-center gap-3">
+        <Link href="/dashboard" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+        <div>
+          <h1 className="text-2xl font-bold">Configuración</h1>
+          <p className="text-sm text-slate-400">Administra los parámetros del sistema</p>
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {subModules.map((module) => (
-          <Link
-            key={module.href}
-            href={module.href}
-            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-
-            <div className="relative p-6">
-              <div className={`inline-flex p-3.5 rounded-xl bg-gradient-to-br ${module.gradient} shadow-lg mb-4`}>
-                <module.icon className="w-6 h-6 text-white" strokeWidth={1.75} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {items.map((item, i) => (
+          <Link key={i} href={item.href} className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden">
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.gradient} opacity-[0.06] blur-2xl group-hover:opacity-[0.12] transition-opacity`} />
+            <div className="relative z-10">
+              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${item.gradient} mb-4 shadow-lg`}>
+                <item.icon className="w-5 h-5 text-white" />
               </div>
-
-              <div className="space-y-2">
-                <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
-                  {module.title}
-                </h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{module.description}</p>
-              </div>
-
-              <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+              <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
+              <p className="text-sm text-slate-400">{item.description}</p>
             </div>
           </Link>
         ))}

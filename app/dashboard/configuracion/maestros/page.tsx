@@ -1,63 +1,36 @@
 "use client";
+import { Building2, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Building2, Users, Settings, MapPin, DollarSign, Clock, ArrowLeft } from "lucide-react";
 
-const masterDataItems = [
-  {
-    title: "Centros de Trabajo",
-    description: "Obras y ubicaciones con geocerca para control de asistencia",
-    icon: Building2,
-    href: "/dashboard/configuracion/maestros/centros",
-    color: "bg-blue-500"
-  },
-  {
-    title: "Configuración Nómina",
-    description: "Parámetros de cálculo: salario mínimo, horas extra, tolerancias",
-    icon: DollarSign,
-    href: "/dashboard/configuracion/maestros/nomina",
-    color: "bg-emerald-500"
-  },
-  {
-    title: "Horarios",
-    description: "Definir horarios laborales y días de trabajo",
-    icon: Clock,
-    href: "/dashboard/configuracion/maestros/centros",
-    color: "bg-purple-500"
-  }
+const items = [
+  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-blue-500 to-cyan-500" },
+  { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-green-500" },
 ];
 
-export default function MasterDataPage() {
+export default function MaestrosPage() {
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/configuracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+    <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
+      <div className="flex items-center gap-3">
+        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Settings className="text-slate-400" />
-          Maestros
-        </h1>
-        <p className="text-slate-400 text-sm">Configuración de catálogos y parámetros del sistema</p>
-      </div></div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {masterDataItems.map((item) => (
-          <Link
-            key={item.title}
-            href={item.href}
-            className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all group"
-          >
-            <div className={`${item.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-              <item.icon className="text-white" size={24} />
+          <h1 className="text-2xl font-bold">Datos Maestros</h1>
+          <p className="text-sm text-slate-400">Configuración base del sistema</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {items.map((item, i) => (
+          <Link key={i} href={item.href} className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden">
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.gradient} opacity-[0.06] blur-2xl group-hover:opacity-[0.12] transition-opacity`} />
+            <div className="relative z-10">
+              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${item.gradient} mb-4 shadow-lg`}>
+                <item.icon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
+              <p className="text-sm text-slate-400">{item.description}</p>
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">{item.title}</h2>
-            <p className="text-sm text-slate-400">{item.description}</p>
           </Link>
         ))}
       </div>
     </div>
   );
 }
-
-
