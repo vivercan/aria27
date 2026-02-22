@@ -1,141 +1,160 @@
 "use client";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, Palette, Calendar, Check, Lock, RotateCcw } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
 
-const seasons = [
-  { id: "normal", name: "Normal", icon: "🌐", description: "Tema estándar de ARIA", colors: "Cyan/Azul", isDefault: true },
-  { id: "valentine", name: "San Valentín", icon: "💕", description: "Del 1 al 14 de Febrero", colors: "Rosa/Rojo" },
-  { id: "halloween", name: "Halloween", icon: "🎃", description: "Del 15 al 31 de Octubre", colors: "Naranja/Negro" },
-  { id: "diademuertos", name: "Día de Muertos", icon: "💀", description: "Del 1 al 2 de Noviembre", colors: "Morado/Naranja" },
-  { id: "christmas", name: "Navidad", icon: "🎄", description: "Del 15 al 31 de Diciembre", colors: "Verde/Rojo" },
-];
+interface Param { id: string; clave: string; valor: string; descripcion: string; updated_at: string; }
+interface UserInfo { id: string; name: string; email: string; role: string; phone: string; active: boolean; }
+
+const ICONS: Record<string, any> = {
+  salario: DollarSign, minimo: DollarSign, aguinaldo: Calendar, vacaciones: Calendar,
+  horario: Clock, hora: Clock, tolerancia: Clock, dia_pago: Calendar,
+  factor: Settings, modo: Settings, default: Settings
+};
+
+const getIcon = (clave: string) => {
+  for (const [key, icon] of Object.entries(ICONS)) {
+    if (clave.includes(key)) return icon;
+  }
+  return Settings;
+};
 
 export default function ConfigGeneralPage() {
-  const { theme, season, setTheme, setSeason, colors } = useTheme();
-  const [userRole, setUserRole] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [params, setParams] = useState<Param[]>([]);
+  const [users, setUsers] = useState<UserInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [edited, setEdited] = useState<Record<string, string>>({});
+  const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail");
-    if (email) {
-      if (email.includes("recursos.humanos") || email.includes("juanviverosv") || email.includes("timonfx")) {
-        setUserRole("admin");
-      } else {
-        setUserRole("user");
-      }
-    }
+    Promise.all([
+      supabase.from("configuracion_nomina").select("*").order("clave"),
+      supabase.from("users").select("*").order("name")
+    ]).then(([{ data: p }, { data: u }]) => {
+      setParams(p || []);
+      setUsers((u || []) as UserInfo[]);
+      setLoading(false);
+    });
   }, []);
 
-  const canEditSeasons = userRole === "admin";
-
-  const handleSeasonChange = (seasonId: string) => {
-    if (!canEditSeasons) return;
-    setSeason(seasonId as any);
-    showSaved();
+  const handleChange = (id: string, val: string) => {
+    setEdited(prev => ({ ...prev, [id]: val }));
   };
 
-  const handleReset = () => {
-    setTheme("dark");
-    setSeason("normal");
-    localStorage.removeItem("aria-theme");
-    localStorage.removeItem("aria-season");
-    showSaved();
+  const guardar = async (param: Param) => {
+    const newVal = edited[param.id];
+    if (newVal === undefined || newVal === param.valor) return;
+    setSaving(param.id);
+    await supabase.from("configuracion_nomina").update({ valor: newVal, updated_at: new Date().toISOString() }).eq("id", param.id);
+    setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
+    setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
+    setSaving(null);
+    setMsg(`✅ ${param.clave} actualizado`);
+    setTimeout(() => setMsg(null), 2000);
   };
 
-  const showSaved = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const guardarTodo = async () => {
+    setSaving("all");
+    for (const param of params) {
+      if (edited[param.id] !== undefined && edited[param.id] !== param.valor) {
+        await supabase.from("configuracion_nomina").update({ valor: edited[param.id], updated_at: new Date().toISOString() }).eq("id", param.id);
+      }
+    }
+    const { data } = await supabase.from("configuracion_nomina").select("*").order("clave");
+    setParams(data || []);
+    setEdited({});
+    setSaving(null);
+    setMsg("✅ Configuración guardada");
+    setTimeout(() => setMsg(null), 2000);
   };
 
-  const isDark = theme === "dark";
+  const hasChanges = Object.keys(edited).some(id => {
+    const p = params.find(x => x.id === id);
+    return p && edited[id] !== p.valor;
+  });
+
+  const roleColors: Record<string, string> = {
+    admin: "bg-red-500/20 text-red-300", direccion: "bg-amber-500/20 text-amber-300",
+    compras: "bg-blue-500/20 text-blue-300", validador: "bg-emerald-500/20 text-emerald-300",
+    usuario: "bg-gray-500/20 text-gray-300"
+  };
+
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/configuracion" className="p-2 rounded-lg hover:opacity-80" style={{ backgroundColor: colors.accentBg }}>
-            <ArrowLeft className="w-5 h-5" style={{ color: colors.accent }} />
-          </Link>
+          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: colors.text }}>General</h1>
-            <p style={{ color: colors.textMuted }}>Parámetros y apariencia del sistema</p>
+            <h1 className="text-2xl font-bold">Configuración General</h1>
+            <p className="text-sm text-slate-400">Parámetros del sistema y usuarios</p>
           </div>
         </div>
-        <button onClick={handleReset} className="px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-all hover:opacity-80" style={{ backgroundColor: colors.accentBg, color: colors.accent }}>
-          <RotateCcw className="w-4 h-4" />
-          Restablecer Original
-        </button>
+        {hasChanges && (
+          <button onClick={guardarTodo} disabled={saving === "all"} className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold hover:bg-emerald-400 transition">
+            {saving === "all" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Cambios
+          </button>
+        )}
       </div>
 
-      {saved && (
-        <div className="p-3 rounded-lg flex items-center gap-2" style={{ backgroundColor: "rgba(34,197,94,0.2)", color: "#22c55e" }}>
-          <Check className="w-4 h-4" />
-          <span className="text-sm">Cambios guardados</span>
-        </div>
-      )}
+      {msg && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{msg}</div>}
 
-      {/* Modo Claro/Oscuro */}
-      <div className="p-6 rounded-xl" style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: colors.text }}>
-          <Palette className="w-5 h-5" style={{ color: colors.accent }} />
-          Modo de Color
-        </h2>
-        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>Elige tu preferencia. También usa el botón ☀️/🌙 en el header.</p>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <button onClick={() => { setTheme("dark"); showSaved(); }} className="p-4 rounded-xl border-2 transition-all" style={{ borderColor: isDark ? colors.accent : colors.cardBorder, backgroundColor: isDark ? colors.accentBg : "transparent" }}>
-            {/* Preview del gradiente ORIGINAL */}
-            <div className="w-full h-16 rounded-lg mb-3 border border-white/20" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5a 100%)" }}></div>
-            <p className="font-medium" style={{ color: colors.text }}>Oscuro</p>
-            <p className="text-xs" style={{ color: colors.textMuted }}>Tema predeterminado</p>
-            {isDark && <Check className="w-5 h-5 mt-2" style={{ color: colors.accent }} />}
-          </button>
-          
-          <button onClick={() => { setTheme("light"); showSaved(); }} className="p-4 rounded-xl border-2 transition-all" style={{ borderColor: !isDark ? colors.accent : colors.cardBorder, backgroundColor: !isDark ? colors.accentBg : "transparent" }}>
-            <div className="w-full h-16 rounded-lg mb-3 border border-slate-300" style={{ background: "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)" }}></div>
-            <p className="font-medium" style={{ color: colors.text }}>Claro</p>
-            <p className="text-xs" style={{ color: colors.textMuted }}>Ambientes iluminados</p>
-            {!isDark && <Check className="w-5 h-5 mt-2" style={{ color: colors.accent }} />}
-          </button>
+      {/* PARAMETROS DE NOMINA */}
+      <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Settings className="w-5 h-5 text-blue-400" />
+          <h2 className="text-lg font-semibold">Parámetros de Nómina</h2>
+          <span className="text-xs text-slate-400 ml-auto">{params.length} parámetros</span>
         </div>
-      </div>
-
-      {/* Temas de Temporada */}
-      <div className="p-6 rounded-xl" style={{ backgroundColor: colors.card, border: `1px solid ${colors.cardBorder}` }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2" style={{ color: colors.text }}>
-            <Calendar className="w-5 h-5" style={{ color: colors.accent }} />
-            Tema de Temporada
-          </h2>
-          {!canEditSeasons && (
-            <span className="text-xs flex items-center gap-1" style={{ color: "#f59e0b" }}>
-              <Lock className="w-3 h-3" /> Solo RH puede modificar
-            </span>
-          )}
-        </div>
-        <p className="text-sm mb-4" style={{ color: colors.textMuted }}>{canEditSeasons ? "Elige el tema de temporada para todo el sistema." : "El tema es configurado por Recursos Humanos."}</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {seasons.map((s) => (
-            <button key={s.id} onClick={() => handleSeasonChange(s.id)} disabled={!canEditSeasons} className="p-4 rounded-xl border-2 text-left transition-all" style={{ borderColor: season === s.id ? colors.accent : colors.cardBorder, backgroundColor: season === s.id ? colors.accentBg : "transparent", opacity: canEditSeasons ? 1 : 0.6, cursor: canEditSeasons ? "pointer" : "not-allowed" }}>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-xl">{s.icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium" style={{ color: colors.text }}>{s.name}</p>
-                    {s.isDefault && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: colors.accentBg, color: colors.accent }}>DEFAULT</span>}
-                  </div>
-                  <p className="text-xs" style={{ color: colors.textMuted }}>{s.colors}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {params.map(p => {
+            const Icon = getIcon(p.clave);
+            const isEdited = edited[p.id] !== undefined && edited[p.id] !== p.valor;
+            return (
+              <div key={p.id} className={`flex items-center gap-3 rounded-xl p-3 transition ${isEdited ? "bg-amber-500/10 border border-amber-500/20" : "bg-black/20 border border-transparent"}`}>
+                <div className="p-2 rounded-lg bg-white/5">
+                  <Icon className="w-4 h-4 text-blue-400" />
                 </div>
-                {season === s.id && <Check className="w-5 h-5" style={{ color: colors.accent }} />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-400 truncate">{p.descripcion}</p>
+                  <p className="text-[10px] text-slate-500 font-mono">{p.clave}</p>
+                </div>
+                <input
+                  className={`w-28 rounded-lg px-3 py-1.5 text-sm text-right outline-none transition ${isEdited ? "bg-amber-500/20 border border-amber-500/30 text-amber-200" : "bg-black/30 border border-white/10"}`}
+                  value={edited[p.id] !== undefined ? edited[p.id] : p.valor}
+                  onChange={e => handleChange(p.id, e.target.value)}
+                  onBlur={() => guardar(p)}
+                />
               </div>
-              <p className="text-xs" style={{ color: colors.textMuted }}>{s.description}</p>
-            </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* USUARIOS */}
+      <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="w-5 h-5 text-violet-400" />
+          <h2 className="text-lg font-semibold">Usuarios del Sistema</h2>
+          <span className="text-xs text-slate-400 ml-auto">{users.length} usuarios</span>
+        </div>
+        <div className="overflow-auto rounded-xl border border-white/[0.06]">
+          <div className="grid grid-cols-[1fr_1fr_100px_100px] gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
+            <div>Nombre</div><div>Email</div><div>Rol</div><div>Estado</div>
+          </div>
+          {users.map(u => (
+            <div key={u.id} className="grid grid-cols-[1fr_1fr_100px_100px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
+              <div className="font-medium">{u.name}</div>
+              <div className="text-slate-400 text-xs truncate">{u.email}</div>
+              <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${roleColors[u.role] || roleColors.usuario}`}>{u.role}</span></div>
+              <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${u.active ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>{u.active ? "Activo" : "Inactivo"}</span></div>
+            </div>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
