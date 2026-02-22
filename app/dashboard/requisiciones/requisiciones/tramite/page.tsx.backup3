@@ -64,18 +64,6 @@ export default function ComprasTramitePage() {
   // COTIZACIONES POR MATERIAL (hasta 5 por item)
   const [itemQuotes, setItemQuotes] = useState<Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>>>({});
 
-  // META por columna de proveedor
-  const [columnMeta, setColumnMeta] = useState<Array<{rebaja_iva: boolean; observaciones: string}>>(
-    Array.from({length: 5}, () => ({rebaja_iva: false, observaciones: ""}))
-  );
-  const updateColumnMeta = (colIdx: number, field: "rebaja_iva" | "observaciones", value: boolean | string) => {
-    setColumnMeta(prev => {
-      const updated = [...prev];
-      updated[colIdx] = {...updated[colIdx], [field]: value};
-      return updated;
-    });
-  };
-
   const initQuotes = (itemsList: any[]) => {
     const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
     itemsList.forEach((item: any) => {
@@ -590,16 +578,6 @@ Responde SOLO con JSON así:
                               </label>
                             </div>
                             {isBest && <div className="text-center"><span className="text-emerald-400 text-[9px] font-bold">MEJOR PRECIO</span></div>}
-                            <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/10 text-[9px] cursor-pointer">
-                              <input type="checkbox" checked={columnMeta[colIdx]?.rebaja_iva || false}
-                                onChange={(e) => updateColumnMeta(colIdx, "rebaja_iva", e.target.checked)}
-                                className="w-3 h-3 rounded" />
-                              <span className="text-amber-400">Rebaja IVA</span>
-                            </label>
-                            <input type="text" placeholder="Observaciones..."
-                              value={columnMeta[colIdx]?.observaciones || ""}
-                              onChange={(e) => updateColumnMeta(colIdx, "observaciones", e.target.value)}
-                              className="w-full px-1.5 py-1 rounded bg-black/40 border border-white/10 text-white text-[9px] placeholder:text-slate-600" />
                           </>
                         )}
                       </div>
@@ -724,46 +702,16 @@ Responde SOLO con JSON así:
                 await fetch("/api/requisicion/enviar-comparativa", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
+                  body: JSON.stringify({
                     requisition_id: selectedReq.id,
                     folio: selectedReq.folio,
                     obra: selectedReq.cost_center_name,
-                    items_detail: items.map(item => ({
-                      product_name: item.product_name,
-                      quantity: item.quantity,
-                      unit: item.unit
-                    })),
-                    suppliers: (() => {
-                      const supMap: Record<string, {supplier: string; entrega: string; forma_pago: string; credito: string; factura: boolean; rebaja_iva: boolean; observaciones: string; items_prices: Record<string, number>}> = {};
-                      items.forEach(item => {
-                        (itemQuotes[item.id] || []).forEach((q, colIdx) => {
-                          if (q.supplier && q.price > 0) {
-                            if (!supMap[q.supplier]) {
-                              supMap[q.supplier] = {
-                                supplier: q.supplier,
-                                entrega: q.entrega || "",
-                                forma_pago: q.forma_pago || "transferencia",
-                                credito: q.pdf_url || "contado",
-                                factura: q.factura !== false,
-                                rebaja_iva: columnMeta[colIdx]?.rebaja_iva || false,
-                                observaciones: columnMeta[colIdx]?.observaciones || "",
-                                items_prices: {}
-                              };
-                            }
-                            supMap[q.supplier].items_prices[item.product_name] = q.price;
-                          }
-                        });
-                      });
-                      return Object.values(supMap);
-                    })(),
                     items: items.map(i => i.product_name),
                     quotes: items.flatMap(item => getFilledQuotes(item.id).map(q => ({
                       supplier: q.supplier,
                       total: q.price * item.quantity,
-                      credito: q.pdf_url || "contado",
-                      entrega: q.entrega || "",
-                      forma_pago: q.forma_pago || "transferencia",
-                      factura: q.factura
+                      credito: 0,
+                      entrega: 0
                     })))
                   })
                 });

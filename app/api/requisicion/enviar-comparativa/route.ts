@@ -6,149 +6,77 @@ export async function POST(req: Request) {
   try {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const { requisition_id, folio, obra, quotes, items } = await req.json();
+    const body = await req.json();
+    const { requisition_id, folio, obra, quotes, items, items_detail, suppliers } = body;
 
-    console.log("[COMPARATIVA] Recibido:", { requisition_id, folio, obra, quotesCount: quotes?.length, items });
+    console.log("[COMPARATIVA] Recibido:", { requisition_id, folio, obra, quotesCount: quotes?.length, suppliersCount: suppliers?.length });
 
     const { data: director, error: dirError } = await supabase
       .from("Users").select("*").eq("role", "direccion").single();
 
-    if (!director) {
-      console.log("[COMPARATIVA] No hay director:", dirError?.message);
-      return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
-    }
+    if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
 
-    // Obtener quien creo la requisicion
     const { data: reqData } = await supabase
       .from("requisitions").select("created_by, urgency").eq("id", requisition_id).single();
     const solicitante = reqData?.created_by || "N/A";
     const urgencia = reqData?.urgency || "normal";
-
     const token = crypto.randomUUID();
 
     await supabase.from("requisitions").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
-      cotizacion_data: { quotes, items, obra, folio }
+      cotizacion_data: { quotes, items, items_detail, suppliers, obra, folio }
     }).eq("id", requisition_id);
 
-    const mejor = quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]);
+    const supList = suppliers || [];
+    const itemsDet = items_detail || (items || []).map((name: string) => ({ product_name: name, quantity: 1, unit: "PZA" }));
+
+    const supTotals = supList.map((s: any) => {
+      const subtotal = itemsDet.reduce((sum: number, item: any) => sum + ((s.items_prices?.[item.product_name] || 0) * (item.quantity || 1)), 0);
+      const iva = subtotal * 0.16;
+      return { ...s, subtotal, iva, total: subtotal + iva };
+    });
+    const bestTot = supTotals.length > 0 ? Math.min(...supTotals.filter((s: any) => s.subtotal > 0).map((s: any) => s.total)) : 0;
+
+    const mejor = supTotals.find((s: any) => s.total === bestTot) || (quotes?.[0] ? quotes.reduce((m: any, q: any) => q.total < m.total ? q : m, quotes[0]) : { supplier: "N/A", total: 0 });
+
     const linkAutorizar = `https://aria.jjcrm27.com/autorizar/${token}`;
 
-    const urgBadge = urgencia === "critico" 
-      ? '<span style="background:#dc2626;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:1px">CRITICO</span>'
-      : urgencia === "urgente"
-      ? '<span style="background:#d97706;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:1px">URGENTE</span>'
-      : '';
+    const supH = supTotals.map((s: any) => `<th style="padding:8px;text-align:center;${s.total === bestTot && bestTot > 0 ? "background:#16a34a;color:white" : "background:#1e3a5f;color:white"};font-size:12px;border:1px solid #334155">${s.supplier}</th>`).join("");
 
-    // EMAIL estilo Tesla - azul/gris/slate
-    await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>",
-      to: director.email,
-      subject: `Autorizar: ${folio} - ${obra} (${quotes.length} cotizaciones)`,
-      html: `
-        <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:620px;margin:0 auto;background:#0f172a;border-radius:8px;overflow:hidden;">
-          
-          <div style="padding:32px 32px 24px;text-align:center;border-bottom:1px solid #1e293b;">
-            <div style="display:inline-flex;align-items:center;gap:8px;">
-              <div style="width:28px;height:2px;background:#475569;border-radius:1px;"></div>
-              <span style="color:#64748b;font-size:11px;font-weight:600;letter-spacing:3px;">ARIA27</span>
-              <div style="width:28px;height:2px;background:#475569;border-radius:1px;"></div>
-            </div>
-            <h1 style="color:#e2e8f0;font-size:20px;font-weight:700;margin:8px 0 0;letter-spacing:-0.3px;">Autorizacion de Compra</h1>
-          </div>
+    const prodRows = itemsDet.map((item: any, idx: number) => {
+      const allP = supTotals.map((s: any) => s.items_prices?.[item.product_name] || 0).filter((p: number) => p > 0);
+      const bestP = allP.length > 0 ? Math.min(...allP) : 0;
+      const cells = supTotals.map((s: any) => {
+        const p = s.items_prices?.[item.product_name] || 0;
+        const bg = p > 0 && p === bestP ? "background:#dcfce7;" : s.total === bestTot && bestTot > 0 ? "background:#f0fdf4;" : "";
+        return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${p > 0 ? "$ " + p.toLocaleString("es-MX", {minimumFractionDigits: 2}) : "-"}</td>`;
+      }).join("");
+      return `<tr><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${idx+1}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${item.product_name}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.quantity}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.unit || "PZA"}</td>${cells}</tr>`;
+    }).join("");
 
-          <div style="padding:24px 32px;">
-            <table style="width:100%;margin-bottom:20px;">
-              <tr>
-                <td style="padding:0 0 12px;">
-                  <span style="color:#475569;font-size:9px;font-weight:600;letter-spacing:2px;display:block;margin-bottom:2px;">FOLIO</span>
-                  <span style="color:#94a3b8;font-size:16px;font-weight:700;">${folio}</span>
-                </td>
-                <td style="padding:0 0 12px;text-align:right;">
-                  <span style="color:#475569;font-size:9px;font-weight:600;letter-spacing:2px;display:block;margin-bottom:2px;">OBRA</span>
-                  <span style="color:#e2e8f0;font-size:14px;font-weight:600;">${obra}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:0 0 12px;">
-                  <span style="color:#475569;font-size:9px;font-weight:600;letter-spacing:2px;display:block;margin-bottom:2px;">SOLICITANTE</span>
-                  <span style="color:#94a3b8;font-size:13px;font-weight:500;">${solicitante}</span>
-                </td>
-                <td style="padding:0 0 12px;text-align:right;">
-                  ${urgBadge}
-                </td>
-              </tr>
-            </table>
+    const mkRow = (lbl: string, fn: (s: any) => number, bold: boolean) => `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">${lbl}</td>${supTotals.map((s: any) => { const v = fn(s); const bg = s.total === bestTot && bestTot > 0 ? (bold ? "background:#16a34a;color:white;" : "background:#dcfce7;") : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;${bold?"font-weight:bold;":""}font-size:12px;${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
 
-            <div style="background:#1e293b;border-radius:6px;padding:12px 16px;margin-bottom:20px;">
-              <span style="color:#475569;font-size:9px;font-weight:600;letter-spacing:2px;">MATERIALES</span>
-              <p style="color:#94a3b8;font-size:13px;margin:4px 0 0;line-height:1.5;">${items?.join(", ") || "N/A"}</p>
-            </div>
+    const rebajaR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#7c3aed">¿REBAJAN IVA?</td>${supTotals.map((s: any) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva ? "background:#16a34a;color:white" : "background:#dc2626;color:white"}">${s.rebaja_iva ? "SI" : "NO"}</td>`).join("")}</tr>`;
+    const obsR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">OBSERVACIONES</td>${supTotals.map((s: any) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones || s.entrega || "-"}</td>`).join("")}</tr>`;
 
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-              <tr style="border-bottom:1px solid #1e293b;">
-                <td style="padding:10px 0;color:#475569;font-size:9px;font-weight:600;letter-spacing:1.5px;">PROVEEDOR</td>
-                <td style="padding:10px 0;color:#475569;font-size:9px;font-weight:600;letter-spacing:1.5px;text-align:right;">TOTAL</td>
-                <td style="padding:10px 0;color:#475569;font-size:9px;font-weight:600;letter-spacing:1.5px;text-align:center;">ENTREGA</td>
-                <td style="padding:10px 0;color:#475569;font-size:9px;font-weight:600;letter-spacing:1.5px;text-align:center;">PAGO</td>
-              </tr>
-              ${quotes.map((q: any) => `
-              <tr style="border-bottom:1px solid #1e293b;${q.total === mejor.total ? "background:#172033;" : ""}">
-                <td style="padding:12px 0;">
-                  <span style="color:#e2e8f0;font-size:13px;font-weight:600;">${q.supplier}</span>
-                  ${q.total === mejor.total ? '<span style="display:inline-block;margin-left:6px;background:#334155;color:#94a3b8;padding:2px 8px;border-radius:3px;font-size:9px;font-weight:600;letter-spacing:1px;">MEJOR</span>' : ''}
-                </td>
-                <td style="padding:12px 0;text-align:right;color:${q.total === mejor.total ? "#e2e8f0" : "#94a3b8"};font-size:14px;font-weight:${q.total === mejor.total ? "700" : "500"};">$${q.total?.toLocaleString?.() || q.total}</td>
-                <td style="padding:12px 0;text-align:center;color:#64748b;font-size:12px;">${q.entrega || q.delivery || "-"}</td>
-                <td style="padding:12px 0;text-align:center;color:#64748b;font-size:12px;">${q.forma_pago || q.payment || "-"}</td>
-              </tr>
-              `).join("")}
-            </table>
+    const emailHTML = `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${folio} ${obra}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${supH}</tr></thead><tbody>${prodRows}${mkRow("SUBTOTAL",(s: any)=>s.subtotal,false)}${mkRow("I.V.A. (16%)",(s: any)=>s.iva,false)}${mkRow("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-weight:bold">VER COMPARATIVA Y AUTORIZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 - Grupo Cuavante</p></div>`;
 
-            <div style="text-align:center;padding:20px 0;">
-              <a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#334155;color:#e2e8f0;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;letter-spacing:0.3px;">VER COMPARATIVA Y AUTORIZAR</a>
-            </div>
-          </div>
+    await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML });
 
-          <div style="padding:16px 32px;border-top:1px solid #1e293b;text-align:center;">
-            <span style="color:#334155;font-size:10px;letter-spacing:2px;">ARIA27 · GRUPO CUAVANTE</span>
-          </div>
-        </div>
-      `
-    });
-
-    // WhatsApp
     if (director.phone) {
       const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;
       const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
       let wp = director.phone.replace(/\D/g, "");
       if (wp.length === 10) wp = "52" + wp;
+      const mejorText = `${mejor.supplier} $${(mejor._total || mejor.total || mejor.subtotal || 0).toLocaleString?.() || 0}`;
       await fetch(`https://graph.facebook.com/v22.0/${whatsappPhoneId}/messages`, {
         method: "POST",
         headers: { Authorization: `Bearer ${whatsappToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to: wp,
-          type: "template",
-          template: {
-            name: "comparativa_enviar",
-            language: { code: "es_MX" },
-            components: [
-              { type: "body", parameters: [
-                { type: "text", text: folio },
-                { type: "text", text: obra },
-                { type: "text", text: `${mejor.supplier} $${mejor.total?.toLocaleString?.() || mejor.total}` },
-                { type: "text", text: String(quotes.length) }
-              ]},
-              { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] }
-            ]
-          }
-        })
+        body: JSON.stringify({ messaging_product: "whatsapp", to: wp, type: "template", template: { name: "comparativa_enviar", language: { code: "es_MX" }, components: [{ type: "body", parameters: [{ type: "text", text: folio },{ type: "text", text: obra },{ type: "text", text: mejorText },{ type: "text", text: String(supList.length || quotes?.length || 0) }]},{ type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] }] } })
       }).then(r => r.json()).then(d => console.log("[WA]", JSON.stringify(d))).catch(e => console.error("[WA ERR]", e));
     }
 
-    console.log("[COMPARATIVA] Enviado a:", director.email, director.phone);
     return NextResponse.json({ success: true, enviado_a: director.email });
   } catch (error: any) {
     console.error("[COMPARATIVA] Error:", error);
