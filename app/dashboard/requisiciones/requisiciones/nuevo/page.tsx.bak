@@ -15,10 +15,6 @@ export default function NewRequisitionPage() {
   const [selectedCostCenterId, setSelectedCostCenterId] = useState<string | null>(null);
   const [requiredDate, setRequiredDate] = useState("");
   const [generalComments, setGeneralComments] = useState("");
-  const [solicitante, setSolicitante] = useState("");
-  const [subcategoria, setSubcategoria] = useState("");
-  const [solicitantes, setSolicitantes] = useState<string[]>([]);
-  const [subcategorias, setSubcategorias] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
@@ -35,14 +31,6 @@ export default function NewRequisitionPage() {
       if (data) setCostCenters(data);
     };
     loadCenters();
-    const loadCatalogos = async () => {
-      const { data } = await supabase.from("catalogos_requisiciones").select("tipo, valor").eq("activo", true).order("valor");
-      if (data) {
-        setSolicitantes(data.filter(d => d.tipo === "SOLICITANTE").map(d => d.valor));
-        setSubcategorias(data.filter(d => d.tipo === "SUBCATEGORIA").map(d => d.valor));
-      }
-    };
-    loadCatalogos();
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
@@ -115,8 +103,6 @@ export default function NewRequisitionPage() {
           obra: center.name,
           comentarios: generalComments,
           materiales: materials.map(m => ({ id: m.id, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations })),
-          solicitante,
-          subcategoria,
           requiredDate,
           costCenterId: center.id
         })
@@ -204,34 +190,6 @@ export default function NewRequisitionPage() {
               value={generalComments}
               onChange={(e) => setGeneralComments(e.target.value)}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Solicitante</label>
-              <select
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-                value={solicitante}
-                onChange={(e) => setSolicitante(e.target.value)}
-              >
-                <option value="">Seleccione solicitante...</option>
-                {solicitantes.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Subcategoría</label>
-              <select
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400"
-                value={subcategoria}
-                onChange={(e) => setSubcategoria(e.target.value)}
-              >
-                <option value="">Seleccione tipo...</option>
-                {subcategorias.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
           </div>
         </section>
 
@@ -328,7 +286,6 @@ export default function NewRequisitionPage() {
     </div>
   );
 }
-
 
 
 

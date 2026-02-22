@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { usuario, obra, comentarios, materiales, requiredDate } = body;
+    const { usuario, obra, comentarios, materiales, requiredDate, solicitante, subcategoria } = body;
 
     const folio = await getNextFolio();
     const token = crypto.randomUUID();
@@ -50,7 +50,8 @@ export async function POST(request: Request) {
     const { data: req, error: reqErr } = await supabase.from("Requisiciones").insert({
       folio, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate, status: "PENDIENTE",
-      created_by: displayName, user_email: usuario.email, authorization_comments: token
+      created_by: solicitante || displayName, user_email: usuario.email, authorization_comments: token,
+      subcategoria: subcategoria || null, categoria: obra
     }).select().single();
 
     if (reqErr) throw reqErr;
@@ -130,3 +131,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message, logs }, { status: 500 });
   }
 }
+
