@@ -455,13 +455,12 @@ Responde SOLO con JSON así:
             </div>
           )}
 
-          {/* Tabla comparativa horizontal - Opcion A */}
+          {/* Tabla comparativa horizontal */}
           <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
             {(() => {
               const allQuotesFlat = items.flatMap(item => (itemQuotes[item.id] || []).filter(q => q.supplier && q.price > 0));
               const uniqueSuppliers = [...new Set(allQuotesFlat.map(q => q.supplier))];
               const supplierTotals: Record<string, number> = {};
-              const supplierDetails: Record<string, {entrega: string; forma_pago: string; factura: boolean}> = {};
               uniqueSuppliers.forEach(sup => {
                 let total = 0;
                 items.forEach(item => {
@@ -469,160 +468,133 @@ Responde SOLO con JSON así:
                   if (q) total += q.price * item.quantity;
                 });
                 supplierTotals[sup] = total;
-                const firstQ = allQuotesFlat.find(q => q.supplier === sup);
-                if (firstQ) supplierDetails[sup] = { entrega: firstQ.entrega, forma_pago: firstQ.forma_pago, factura: firstQ.factura };
               });
               const bestTotal = uniqueSuppliers.length > 0 ? Math.min(...Object.values(supplierTotals).filter(t => t > 0)) : 0;
-              const hasData = uniqueSuppliers.length > 0;
-              return (
-                <>
-                  <div className="p-3 bg-white/[0.03] flex items-center justify-between">
-                    <h3 className="text-white font-medium text-sm flex items-center gap-2">
-                      <ShoppingCart className="w-4 h-4 text-cyan-400" />
-                      Comparativa de Precios
-                    </h3>
-                    <span className="text-slate-400 text-xs">
-                      {uniqueSuppliers.length} proveedor{uniqueSuppliers.length !== 1 ? "es" : ""} · {items.length} producto{items.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  {!hasData ? (
-                    <div className="p-8 text-center">
-                      <p className="text-slate-500 text-sm">Sin cotizaciones capturadas</p>
-                      <p className="text-slate-600 text-xs mt-1">Usa los campos abajo o ve a Capturar Cotizaciones</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[600px]">
-                        <thead>
-                          <tr className="bg-white/[0.02]">
-                            <th className="px-3 py-2 text-left text-slate-500 text-[10px] font-semibold uppercase tracking-wider sticky left-0 bg-[#0f172a] z-10 min-w-[180px]">Producto</th>
-                            <th className="px-2 py-2 text-center text-slate-500 text-[10px] font-semibold uppercase tracking-wider w-16">Cant.</th>
-                            {uniqueSuppliers.map(sup => (
-                              <th key={sup} className={`px-3 py-2 text-center min-w-[110px] ${supplierTotals[sup] === bestTotal ? "bg-emerald-500/10" : ""}`}>
-                                <p className={`text-xs font-semibold truncate ${supplierTotals[sup] === bestTotal ? "text-emerald-400" : "text-white"}`} title={sup}>
-                                  {sup.length > 14 ? sup.substring(0, 12) + "..." : sup}
-                                </p>
-                                {supplierDetails[sup] && (
-                                  <div className="flex items-center justify-center gap-1 mt-0.5">
-                                    {supplierDetails[sup].entrega && <span className="text-slate-500 text-[9px]">{supplierDetails[sup].entrega}</span>}
-                                    <span className={`text-[9px] ${supplierDetails[sup].factura ? "text-emerald-500" : "text-amber-500"}`}>
-                                      {supplierDetails[sup].factura ? "Fact" : "Nota"}
-                                    </span>
-                                  </div>
-                                )}
-                                {supplierTotals[sup] === bestTotal && <span className="text-emerald-400 text-[9px] font-bold">MEJOR</span>}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {items.map((item, idx) => {
-                            const itemPricesArr = uniqueSuppliers.map(sup => {
-                              const q = (itemQuotes[item.id] || []).find(q => q.supplier === sup && q.price > 0);
-                              return q ? q.price : 0;
-                            }).filter(p => p > 0);
-                            const bestItemPrice = itemPricesArr.length > 0 ? Math.min(...itemPricesArr) : 0;
-                            return (
-                              <tr key={item.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                                <td className="px-3 py-2 sticky left-0 bg-[#0f172a] z-10">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-cyan-400 font-bold text-xs">{idx + 1}</span>
-                                    <div>
-                                      <p className="text-white text-xs font-medium">{item.product_name}</p>
-                                      <p className="text-slate-600 text-[9px]">{item.category}</p>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-2 py-2 text-center text-slate-400 text-xs">{item.quantity} {item.unit}</td>
-                                {uniqueSuppliers.map(sup => {
-                                  const q = (itemQuotes[item.id] || []).find(q => q.supplier === sup && q.price > 0);
-                                  const price = q ? q.price : 0;
-                                  const isBest = price > 0 && price === bestItemPrice;
-                                  const isColBest = supplierTotals[sup] === bestTotal;
-                                  return (
-                                    <td key={sup} className={`px-3 py-2 text-center ${isColBest ? "bg-emerald-500/5" : ""}`}>
-                                      {price > 0 ? (
-                                        <div>
-                                          <span className={`text-xs font-semibold ${isBest ? "text-emerald-400" : "text-white"}`}>${price.toLocaleString()}</span>
-                                          <p className="text-slate-500 text-[9px]">${(price * item.quantity).toLocaleString()}</p>
-                                        </div>
-                                      ) : <span className="text-slate-600 text-xs">—</span>}
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                        <tfoot>
-                          <tr className="border-t-2 border-white/10 bg-white/[0.03]">
-                            <td className="px-3 py-2.5 sticky left-0 bg-[#131b2e] z-10 text-white text-xs font-bold">TOTAL</td>
-                            <td className="px-2 py-2.5"></td>
+              return uniqueSuppliers.length === 0 ? (
+                <div className="p-6 text-center">
+                  <p className="text-slate-500 text-sm">Sin cotizaciones capturadas</p>
+                  <p className="text-slate-600 text-xs mt-1">Expande un producto abajo para capturar precios</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
+                    <thead>
+                      <tr className="bg-white/[0.02]">
+                        <th className="px-3 py-2 text-left text-slate-500 text-[10px] font-semibold uppercase sticky left-0 bg-[#0f172a] z-10 min-w-[180px]">Producto</th>
+                        <th className="px-2 py-2 text-center text-slate-500 text-[10px] w-16">Cant.</th>
+                        {uniqueSuppliers.map(sup => (
+                          <th key={sup} className={`px-3 py-2 text-center min-w-[100px] ${supplierTotals[sup] === bestTotal ? "bg-emerald-500/10" : ""}`}>
+                            <p className={`text-xs font-semibold truncate ${supplierTotals[sup] === bestTotal ? "text-emerald-400" : "text-white"}`} title={sup}>{sup.length > 14 ? sup.substring(0, 12) + ".." : sup}</p>
+                            {supplierTotals[sup] === bestTotal && <span className="text-emerald-400 text-[9px] font-bold">MEJOR</span>}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item, idx) => {
+                        const prArr = uniqueSuppliers.map(sup => { const q = (itemQuotes[item.id] || []).find(q => q.supplier === sup && q.price > 0); return q ? q.price : 0; }).filter(p => p > 0);
+                        const bestP = prArr.length > 0 ? Math.min(...prArr) : 0;
+                        return (
+                          <tr key={item.id} className="border-t border-white/5">
+                            <td className="px-3 py-2 sticky left-0 bg-[#0f172a] z-10">
+                              <span className="text-cyan-400 font-bold text-xs mr-2">{idx + 1}</span>
+                              <span className="text-white text-xs">{item.product_name}</span>
+                            </td>
+                            <td className="px-2 py-2 text-center text-slate-400 text-xs">{item.quantity} {item.unit}</td>
                             {uniqueSuppliers.map(sup => {
-                              const isBest = supplierTotals[sup] === bestTotal;
+                              const q = (itemQuotes[item.id] || []).find(q => q.supplier === sup && q.price > 0);
+                              const p = q ? q.price : 0;
                               return (
-                                <td key={sup} className={`px-3 py-2.5 text-center ${isBest ? "bg-emerald-500/10" : ""}`}>
-                                  <span className={`text-sm font-bold ${isBest ? "text-emerald-400" : "text-white"}`}>${supplierTotals[sup].toLocaleString()}</span>
+                                <td key={sup} className={`px-3 py-2 text-center ${supplierTotals[sup] === bestTotal ? "bg-emerald-500/5" : ""}`}>
+                                  {p > 0 ? <span className={`text-xs font-semibold ${p === bestP ? "text-emerald-400" : "text-white"}`}>${p.toLocaleString()}</span> : <span className="text-slate-600 text-xs">-</span>}
                                 </td>
                               );
                             })}
                           </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
-                </>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-white/10 bg-white/[0.03]">
+                        <td className="px-3 py-2 sticky left-0 bg-[#131b2e] z-10 text-white text-xs font-bold" colSpan={2}>TOTAL</td>
+                        {uniqueSuppliers.map(sup => (
+                          <td key={sup} className={`px-3 py-2 text-center ${supplierTotals[sup] === bestTotal ? "bg-emerald-500/10" : ""}`}>
+                            <span className={`text-sm font-bold ${supplierTotals[sup] === bestTotal ? "text-emerald-400" : "text-white"}`}>${supplierTotals[sup].toLocaleString()}</span>
+                          </td>
+                        ))}
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
               );
             })()}
           </div>
 
-          {/* Captura rapida por producto */}
+          {/* Captura por producto - expandible */}
           <div className="space-y-3">
             {items.map((item, idx) => {
               const filled = getFilledQuotes(item.id).length;
               const quotes = itemQuotes[item.id] || Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
               return (
-                <details key={item.id} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden group">
+                <details key={item.id} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                   <summary className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/[0.03] list-none">
                     <div className="flex items-center gap-3">
                       <span className="text-cyan-400 font-bold text-sm">{idx + 1}</span>
                       <span className="text-white text-sm font-medium">{item.product_name}</span>
                       <span className="text-slate-500 text-xs">{item.quantity} {item.unit}</span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${filled >= 5 ? "bg-emerald-500/20 text-emerald-400" : filled >= 3 ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400"}`}>
-                      {filled}/5
-                    </span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${filled >= 5 ? "bg-emerald-500/20 text-emerald-400" : filled >= 3 ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400"}`}>{filled}/5</span>
                   </summary>
                   <div className="p-3 pt-0 border-t border-white/5">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mt-2">
                       {quotes.map((q, qIdx) => (
-                        <div key={qIdx} className="p-2 rounded-lg bg-black/30 border border-white/10 space-y-1.5">
+                        <div key={qIdx} className={`p-2.5 rounded-lg border space-y-2 ${q.supplier && q.price > 0 ? "bg-emerald-500/5 border-emerald-500/20" : "bg-black/30 border-white/10"}`}>
                           <select value={q.supplier} onChange={(e) => updateQuote(item.id, qIdx, "supplier", e.target.value)}
-                            className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-[10px]">
+                            className="w-full px-2 py-1.5 rounded bg-black/50 border border-white/10 text-white text-[11px] font-medium">
                             <option value="">Proveedor {qIdx + 1}...</option>
                             {allSuppliers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                             {proveedoresIA.length > 0 && proveedoresIA.map((p, i) => <option key={`ia-${i}`} value={p.nombre}>{p.nombre}</option>)}
                           </select>
-                          <input type="number" placeholder="$0" value={q.price || ""}
-                            onChange={(e) => updateQuote(item.id, qIdx, "price", parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-[10px] text-right" />
-                          <div className="flex gap-1">
-                            <input placeholder="Entrega" value={q.entrega}
-                              onChange={(e) => updateQuote(item.id, qIdx, "entrega", e.target.value)}
-                              className="flex-1 px-1 py-0.5 rounded bg-black/50 border border-white/10 text-white text-[9px]" />
-                            <select value={q.forma_pago} onChange={(e) => updateQuote(item.id, qIdx, "forma_pago", e.target.value)}
-                              className="flex-1 px-1 py-0.5 rounded bg-black/50 border border-white/10 text-white text-[9px]">
-                              <option value="transferencia">Transf</option>
-                              <option value="efectivo">Efect</option>
-                              <option value="cheque">Cheque</option>
-                            </select>
+                          <div className="flex items-center gap-1">
+                            <span className="text-slate-500 text-[9px] w-6">$</span>
+                            <input type="number" placeholder="Precio unit." value={q.price || ""}
+                              onChange={(e) => updateQuote(item.id, qIdx, "price", parseFloat(e.target.value) || 0)}
+                              className="flex-1 px-2 py-1.5 rounded bg-black/50 border border-white/10 text-white text-[11px] text-right" />
                           </div>
-                          <label className="flex items-center gap-1 text-[9px] text-slate-400">
-                            <input type="checkbox" checked={q.factura}
-                              onChange={(e) => updateQuote(item.id, qIdx, "factura", e.target.checked)}
-                              className="rounded border-white/20 bg-black/50" />
-                            Factura
+                          <select value={q.entrega} onChange={(e) => updateQuote(item.id, qIdx, "entrega", e.target.value)}
+                            className="w-full px-2 py-1.5 rounded bg-black/50 border border-white/10 text-white text-[10px]">
+                            <option value="">Entrega...</option>
+                            <option value="Inmediata">Inmediata</option>
+                            <option value="1-3 dias">1-3 dias</option>
+                            <option value="4-7 dias">4-7 dias</option>
+                            <option value="8-15 dias">8-15 dias</option>
+                            <option value="+15 dias">+15 dias</option>
+                          </select>
+                          <select value={q.forma_pago} onChange={(e) => updateQuote(item.id, qIdx, "forma_pago", e.target.value)}
+                            className="w-full px-2 py-1.5 rounded bg-black/50 border border-white/10 text-white text-[10px]">
+                            <option value="transferencia">Transferencia</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="cheque">Cheque</option>
+                          </select>
+                          <select value={q.pdf_url || "contado"} onChange={(e) => updateQuote(item.id, qIdx, "pdf_url", e.target.value)}
+                            className="w-full px-2 py-1.5 rounded bg-black/50 border border-white/10 text-white text-[10px]">
+                            <option value="contado">Contado</option>
+                            <option value="15 dias credito">15 dias credito</option>
+                            <option value="30 dias credito">30 dias credito</option>
+                            <option value="45 dias credito">45 dias credito</option>
+                            <option value="60 dias credito">60 dias credito</option>
+                            <option value="90 dias credito">90 dias credito</option>
+                          </select>
+                          <label className="flex items-center gap-1.5 text-[10px] text-slate-400 cursor-pointer">
+                            <input type="checkbox" checked={q.factura} onChange={(e) => updateQuote(item.id, qIdx, "factura", e.target.checked)}
+                              className="rounded border-white/20 bg-black/50 w-3.5 h-3.5" />
+                            Emite Factura
                           </label>
+                          {q.supplier && q.price > 0 && (
+                            <div className="pt-1 border-t border-white/10 text-right">
+                              <span className="text-emerald-400 text-xs font-bold">${(q.price * item.quantity).toLocaleString()}</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -631,6 +603,7 @@ Responde SOLO con JSON así:
               );
             })}
           </div>
+
           {/* Footer */}
           <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
             <span className={`text-xs ${allItemsHaveMinQuotes() ? "text-emerald-400" : "text-amber-400"}`}>
