@@ -44,3 +44,19 @@ next-env.d.ts
 _local/
 
 .vercel
+
+# === LIMPIEZA 22-FEB-2026 ===
+__ARIA27_*.txt
+__AUDIT_*.txt
+__aria27_*.txt
+*.backup
+*.backup2
+*.backup3
+*.bak
+*.bkclean
+*.ps1
+!postcss.config.js
+audit/
+audit_*.txt
+_local/
+ARIA27_EXTRACCION_TOTAL.txt

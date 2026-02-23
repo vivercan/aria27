@@ -30,6 +30,20 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 
 export async function POST(req: NextRequest) {
   try {
+  // AUTH CHECK - agregado 22-Feb-2026
+  const supabaseAuth = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (authError || !user) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
     const { fechaReferencia, forzar } = await req.json();
     const fecha = fechaReferencia ? new Date(fechaReferencia) : new Date();
     const semana = getWeekNumber(fecha);
@@ -221,6 +235,20 @@ export async function POST(req: NextRequest) {
 // GET para consultar incidencias sin generar
 export async function GET(req: NextRequest) {
   try {
+  // AUTH CHECK - agregado 22-Feb-2026
+  const supabaseAuth = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (authError || !user) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
     const { searchParams } = new URL(req.url);
     const fechaRef = searchParams.get("fecha");
     const fecha = fechaRef ? new Date(fechaRef) : new Date();
@@ -285,3 +313,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
