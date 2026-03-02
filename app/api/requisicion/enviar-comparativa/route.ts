@@ -9,8 +9,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { requisition_id, folio, obra, quotes, items, items_detail, suppliers } = body;
 
-    console.log("[COMPARATIVA] Recibido:", { requisition_id, folio, obra, quotesCount: quotes?.length, suppliersCount: suppliers?.length });
-
     const { data: director, error: dirError } = await supabase
       .from("Users").select("*").eq("role", "direccion").single();
 
@@ -74,7 +72,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: { Authorization: `Bearer ${whatsappToken}`, "Content-Type": "application/json" },
         body: JSON.stringify({ messaging_product: "whatsapp", to: wp, type: "template", template: { name: "comparativa_enviar", language: { code: "es_MX" }, components: [{ type: "body", parameters: [{ type: "text", text: folio },{ type: "text", text: obra },{ type: "text", text: mejorText },{ type: "text", text: String(supList.length || quotes?.length || 0) }]},{ type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: token }] }] } })
-      }).then(r => r.json()).then(d => console.log("[WA]", JSON.stringify(d))).catch(e => console.error("[WA ERR]", e));
+      }).then(r => r.json()).catch(e => {});
     }
 
     return NextResponse.json({ success: true, enviado_a: director.email });

@@ -124,7 +124,6 @@ export async function POST(request: Request) {
       notificados.push(`Admin: ${adminUser.email}`);
     }
 
-    console.log(`REQUISICION ${folio} LOGS:`, logs);
     return NextResponse.json({ success: true, folio, notificados, logs });
   } catch (error: any) {
     console.error(`ERROR:`, error);

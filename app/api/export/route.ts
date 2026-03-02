@@ -110,8 +110,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      console.log("Registros de nómina:", allData?.length);
-      
       // Aplicar filtros si existen
       let filteredData = allData || [];
       if (filtros?.semana && filtros.semana !== "") {

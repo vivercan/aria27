@@ -123,15 +123,15 @@ export async function POST(req: NextRequest) {
       obraIdFinal = obraData?.id;
 
       if (!obraData) {
-        console.warn(`⚠️ Obra no encontrada por nombre: "${obra_nombre}"`);
+
       }
     }
 
     if (obraIdFinal && materiales && materiales.length > 0) {
       itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
-      console.log(`✅ Inventario: ${itemsInventario} items actualizados para obra ${obra_nombre} (ID: ${obraIdFinal})`);
+
     } else {
-      console.warn(`⚠️ No se actualizó inventario - obra_id: ${obraIdFinal}, materiales: ${materiales?.length || 0}`);
+
     }
 
     // WhatsApp con plantilla al solicitante

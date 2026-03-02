@@ -60,3 +60,8 @@ audit/
 audit_*.txt
 _local/
 ARIA27_EXTRACCION_TOTAL.txt
+
+# Environment files
+.env.local
+.env.production
+
