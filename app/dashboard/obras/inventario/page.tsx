@@ -18,13 +18,13 @@ import {
 } from "lucide-react";
 
 interface Obra {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface ItemInventario {
   id: string;
-  obra_id: number;
+  obra_id: string;
   obra_nombre: string;
   producto_nombre: string;
   unidad: string;
