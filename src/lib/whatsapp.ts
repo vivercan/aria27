@@ -118,7 +118,7 @@ export async function sendWhatsAppTemplate(
       type: "button",
       sub_type: "url",
       index: "0",
-      parameters: [{ type: "text", text: `${buttonToken}&action=APROBADA` }],
+      parameters: [{ type: "text", text: buttonToken }],
     });
     
     if (config.buttonCount === 2) {
