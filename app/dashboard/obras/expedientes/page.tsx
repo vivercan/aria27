@@ -92,7 +92,7 @@ export default function ExpedientesPage() {
     setLoading(false);
   };
 
-  const loadCarpetas = async (obraId: number) => {
+  const loadCarpetas = async (obraId: string) => {
     const { data } = await supabase
       .from("expedientes_carpetas")
       .select("*")
@@ -110,7 +110,7 @@ export default function ExpedientesPage() {
     setArchivos(data || []);
   };
 
-  const loadTareas = async (obraId: number) => {
+  const loadTareas = async (obraId: string) => {
     const { data } = await supabase
       .from("tareas_obra")
       .select("*")
