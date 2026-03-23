@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    console.error("Error en delete requisicion:", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
