@@ -12,6 +12,9 @@ type Requisition = {
   required_date: string;
   created_at: string;
   created_by: string;
+  status: string;
+  authorization_comments: string;
+  monto: number;
 };
 
 type Item = {
@@ -56,12 +59,40 @@ export default function AuthorizeRequisicionesPage() {
   const handleAction = async (action: "APROBADA" | "RECHAZADA" | "REVISION") => {
     if (!selectedReq) return;
     setProcessing(true);
-    await supabase.from("Requisiciones").update({
-      status: action,
-      authorized_by: "autorizador@gcuavante.com",
-      authorized_at: new Date().toISOString(),
-      authorization_comments: comments
-    }).eq("id", selectedReq.id);
+
+    try {
+      if (action === "REVISION") {
+        // Devolver: solo PATCH directo, no hay endpoint dedicado
+        await supabase.from("Requisiciones").update({
+          status: action,
+          authorized_by: "autorizador@gcuavante.com",
+          authorized_at: new Date().toISOString(),
+          authorization_comments: comments
+        }).eq("id", selectedReq.id);
+      } else if (selectedReq.authorization_comments && selectedReq.status === "EN_AUTORIZACION") {
+        // APROBADA o RECHAZADA con token valido: usar endpoint approve-purchase
+        const apiAction = action === "APROBADA" ? "AUTORIZADA" : "RECHAZADA";
+        const url = `/api/requisicion/approve-purchase?token=${selectedReq.authorization_comments}&action=${apiAction}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Error en approve-purchase:", text);
+          alert("Error al procesar: " + res.status);
+        }
+      } else {
+        // Fallback: PATCH directo para requisiciones sin token (PENDIENTE sin comparativa)
+        await supabase.from("Requisiciones").update({
+          status: action,
+          authorized_by: "autorizador@gcuavante.com",
+          authorized_at: new Date().toISOString(),
+          authorization_comments: comments
+        }).eq("id", selectedReq.id);
+      }
+    } catch (err: any) {
+      console.error("Error en handleAction:", err);
+      alert("Error: " + err.message);
+    }
+
     setSelectedReq(null);
     setItems([]);
     setComments("");
@@ -89,7 +120,7 @@ export default function AuthorizeRequisicionesPage() {
             {loading ? (
               <div className="text-center py-4 text-white/50">Cargando...</div>
             ) : Requisiciones.length === 0 ? (
-              <div className="text-center py-4 text-white/50">No hay requisiciones pendientes 🎉</div>
+              <div className="text-center py-4 text-white/50">No hay requisiciones pendientes</div>
             ) : (
               <div className="space-y-2 pr-2">
                 {Requisiciones.map((r) => (
@@ -111,7 +142,7 @@ export default function AuthorizeRequisicionesPage() {
         {/* Detalle */}
         <div className="lg:col-span-2 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
           {!selectedReq ? (
-            <div className="text-center py-12 text-white/50 flex-1 flex items-center justify-center">Selecciona una requisición para revisar</div>
+            <div className="text-center py-12 text-white/50 flex-1 flex items-center justify-center">Selecciona una requisicion para revisar</div>
           ) : (
             <div className="flex flex-col flex-1 min-h-0">
               <div className="flex justify-between items-start mb-4">
@@ -148,7 +179,7 @@ export default function AuthorizeRequisicionesPage() {
               </div>
 
               <div className="space-y-2 mb-4">
-                <label className="text-xs text-white/70">Comentarios de autorización</label>
+                <label className="text-xs text-white/70">Comentarios de autorizacion</label>
                 <textarea
                   className="w-full h-20 rounded-xl bg-black/30 border border-white/15 px-3 py-2 text-sm outline-none focus:border-sky-400"
                   placeholder="Opcional: agregar comentarios..."
