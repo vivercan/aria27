@@ -21,13 +21,13 @@ import {
 } from "lucide-react";
 
 interface Obra {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface Carpeta {
   id: string;
-  obra_id: number;
+  obra_id: string;
   obra_nombre: string;
   nombre: string;
   descripcion: string;
