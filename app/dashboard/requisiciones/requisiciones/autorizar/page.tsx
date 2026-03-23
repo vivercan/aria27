@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { CheckCircle, XCircle, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
@@ -39,7 +38,7 @@ export default function AuthorizeRequisicionesPage() {
     const { data } = await supabase
       .from("Requisiciones")
       .select("*")
-      .eq("status", "PENDIENTE")
+      .in("status", ["PENDIENTE", "EN AUTORIZACION"])
       .order("created_at", { ascending: true });
     setRequisiciones((data || []) as Requisition[]);
     setLoading(false);
@@ -63,7 +62,6 @@ export default function AuthorizeRequisicionesPage() {
       authorized_at: new Date().toISOString(),
       authorization_comments: comments
     }).eq("id", selectedReq.id);
-
     setSelectedReq(null);
     setItems([]);
     setComments("");
@@ -177,3 +175,4 @@ export default function AuthorizeRequisicionesPage() {
     </div>
   );
 }
+
