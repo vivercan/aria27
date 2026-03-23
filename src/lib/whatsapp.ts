@@ -1,7 +1,7 @@
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
 // ============================================
-// CONFIGURACIÓN DE PLANTILLAS APROBADAS EN META
+// CONFIGURACIÃN DE PLANTILLAS APROBADAS EN META
 // WABA: 842930185269415 | Phone: 963627606824867 (JJCRM27)
 // ============================================
 const TEMPLATE_CONFIG: Record<string, { 
@@ -14,7 +14,7 @@ const TEMPLATE_CONFIG: Record<string, {
   requisicion_creada: { 
     language: "es_MX", 
     paramCount: 4,
-    description: "Confirmar creación al usuario"
+    description: "Confirmar creaciÃ³n al usuario"
     // {{1}}=Folio, {{2}}=Solicitante, {{3}}=Obra, {{4}}=Fecha
   },
   requisicion_validar: { 
@@ -22,30 +22,30 @@ const TEMPLATE_CONFIG: Record<string, {
     hasButton: true, 
     buttonCount: 2, 
     paramCount: 5,
-    description: "Solicitar validación"
+    description: "Solicitar validaciÃ³n"
     // {{1}}=Folio, {{2}}=Solicitante, {{3}}=Obra, {{4}}=Urgencia, {{5}}=Token
     // Botones: Aprobar, Rechazar
   },
-  requisicion_compras: { 
-    language: "en", 
-    paramCount: 3,
+  requisicion_compras: {
+    language: "en",
+    paramCount: 4,
     description: "Notificar a compras"
-    // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia
+    // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia, {{4}}=Materiales
   },
-  compra_autorizar: { 
-    language: "es_MX", 
-    hasButton: true, 
-    buttonCount: 2, 
-    paramCount: 5,
-    description: "Solicitar autorización de dirección"
-    // {{1}}=Folio, {{2}}=Obra, {{3}}=Total, {{4}}=Urgencia, {{5}}=Token
-    // Botones: Autorizar, Rechazar
+  compra_autorizar: {
+    language: "es_MX",
+    hasButton: true,
+    buttonCount: 1,
+    paramCount: 6,
+    description: "Solicitar autorizaciÃ³n de direcciÃ³n"
+    // {{1}}=Folio, {{2}}=Obra, {{3}}=Solicitante, {{4}}=Urgencia, {{5}}=Materiales, {{6}}=Total
+    // BotÃ³n: Ver Cotizaciones (URL con token)
   },
-  oc_generada: { 
-    language: "es_MX", 
-    paramCount: 5,
+  oc_generada: {
+    language: "es_MX",
+    paramCount: 6,
     description: "Notificar OC generada"
-    // {{1}}=Requisición, {{2}}=OC, {{3}}=Obra, {{4}}=Total, {{5}}=Urgencia
+    // {{1}}=RequisiciÃ³n, {{2}}=OC, {{3}}=Obra, {{4}}=Proveedor, {{5}}=Total, {{6}}=Forma de pago
   },
   requisicion_rechazada: { 
     language: "es_MX", 
@@ -82,18 +82,18 @@ export async function sendWhatsAppTemplate(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
-    console.error("[WhatsApp] ❌ Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
+    console.error("[WhatsApp] â Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
   // Validar plantilla existe
   const config = TEMPLATE_CONFIG[templateName];
   if (!config) {
-    console.error("[WhatsApp] ❌ Plantilla no configurada:", templateName);
+    console.error("[WhatsApp] â Plantilla no configurada:", templateName);
     return { success: false, error: `Plantilla '${templateName}' no existe` };
   }
 
-  // Formatear teléfono mexicano (10 dígitos → 52 + 10)
+  // Formatear telÃ©fono mexicano (10 dÃ­gitos â 52 + 10)
   let formattedPhone = phone.replace(/\D/g, "");
   if (formattedPhone.length === 10) {
     formattedPhone = "52" + formattedPhone;
@@ -142,7 +142,7 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] 📤 Enviando:", templateName, "→", formattedPhone);
+  console.log("[WhatsApp] ð¤ Enviando:", templateName, "â", formattedPhone);
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
@@ -157,7 +157,7 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] ❌ Error:", data.error?.message || response.status);
+      console.error("[WhatsApp] â Error:", data.error?.message || response.status);
       return { 
         success: false, 
         error: data.error?.message || `HTTP ${response.status}` 
@@ -165,17 +165,17 @@ export async function sendWhatsAppTemplate(
     }
 
     const messageId = data.messages?.[0]?.id;
-    console.log("[WhatsApp] ✅ Enviado:", messageId);
+    console.log("[WhatsApp] â Enviado:", messageId);
     return { success: true, messageId };
 
   } catch (error: any) {
-    console.error("[WhatsApp] ❌ Exception:", error.message);
+    console.error("[WhatsApp] â Exception:", error.message);
     return { success: false, error: error.message };
   }
 }
 
 /**
- * Enviar a múltiples destinatarios
+ * Enviar a mÃºltiples destinatarios
  */
 export async function sendWhatsAppToMultiple(
   templateName: string,
@@ -200,7 +200,7 @@ export async function sendWhatsAppToMultiple(
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  console.log("[WhatsApp] 📊 Batch:", results.sent, "enviados,", results.failed, "fallidos");
+  console.log("[WhatsApp] ð Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
 
