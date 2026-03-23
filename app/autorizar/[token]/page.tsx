@@ -4,7 +4,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   const { token } = await params;
 
   const { data: req } = await supabase
-    .from("requisitions")
+    .from("Requisiciones")
     .select("*")
     .eq("authorization_comments", token)
     .single();
@@ -34,7 +34,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
         <div style={{textAlign:"center",background:"#111827",border:"1px solid #1e293b",padding:60,borderRadius:12,maxWidth:420}}>
           <div style={{width:56,height:56,borderRadius:12,background:"#1e293b",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",color:"#f59e0b",fontSize:24}}>&#x26A0;</div>
           <h1 style={{color:"#e2e8f0",fontSize:20,fontWeight:700,margin:"0 0 6px"}}>Requisicion Procesada</h1>
-          <p style={{color:"#475569",fontSize:13,margin:0}}>{req.folio} — Estado: <span style={{color:"#94a3b8"}}>{req.status}</span></p>
+          <p style={{color:"#475569",fontSize:13,margin:0}}>{req.folio} â Estado: <span style={{color:"#94a3b8"}}>{req.status}</span></p>
         </div>
       </div>
       </body></html>
@@ -182,7 +182,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
 
             {/* FOOTER */}
             <div className="fi d5" style={{textAlign:"center",marginTop:32}}>
-              <span style={{color:"#1e293b",fontSize:10,letterSpacing:2}}>ARIA27 · GRUPO CUAVANTE</span>
+              <span style={{color:"#1e293b",fontSize:10,letterSpacing:2}}>ARIA27 Â· GRUPO CUAVANTE</span>
             </div>
           </div>
         </div>
