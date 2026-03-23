@@ -105,6 +105,36 @@ export async function GET(request: Request) {
         monto: total
       }).eq("id", req.id);
 
+      // Crear registro en purchase_orders para que aparezca en Ãrdenes de Compra
+      const cotDataPO = req.cotizacion_data || {};
+      const elegidoData = cotDataPO.suppliers?.find((s: any) => s.supplier === supplierName) || {};
+      await supabase.from("purchase_orders").insert({
+        folio: ocFolio,
+        requisition_id: req.id,
+        supplier_name: supplierName,
+        total: total,
+        status: "GENERADA",
+        payment_method: elegidoData.forma_pago || "Transferencia",
+        credit_days: elegidoData.dias_credito || 0,
+        authorized_at: new Date().toISOString()
+      });
+
+      // Actualizar requisition_items con proveedor seleccionado
+      if (proveedorElegido && elegidoData.items_prices) {
+        const { data: reqItems } = await supabase.from("requisition_items").select("id, product_name").eq("requisition_id", req.id);
+        if (reqItems) {
+          for (const item of reqItems) {
+            const price = elegidoData.items_prices?.[item.product_name] || 0;
+            if (price > 0) {
+              await supabase.from("requisition_items").update({
+                selected_supplier_name: supplierName,
+                selected_price: price
+              }).eq("id", item.id);
+            }
+          }
+        }
+      }
+
       if (comprasUser) {
         await resend.emails.send({
           from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
@@ -151,4 +181,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
-
