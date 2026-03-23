@@ -70,7 +70,7 @@ export default function InventarioObraPage() {
     setLoading(false);
   };
 
-  const loadInventario = async (obraId: number) => {
+  const loadInventario = async (obraId: string) => {
     const { data } = await supabase
       .from("inventario_obra")
       .select("*")
