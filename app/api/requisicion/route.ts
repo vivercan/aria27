@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       folio, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate, status: "PENDIENTE",
       created_by: solicitante || displayName, user_email: usuario.email, authorization_comments: token,
-      subcategoria: subcategoria || null, categoria: obra
+      subcategoria: subcategoria || null
     }).select().single();
 
     if (reqErr) throw reqErr;
