@@ -38,7 +38,7 @@ export default function AuthorizeRequisicionesPage() {
     const { data } = await supabase
       .from("Requisiciones")
       .select("*")
-      .in("status", ["PENDIENTE", "EN AUTORIZACION"])
+      .in("status", ["PENDIENTE", "EN_AUTORIZACION"])
       .order("created_at", { ascending: true });
     setRequisiciones((data || []) as Requisition[]);
     setLoading(false);
