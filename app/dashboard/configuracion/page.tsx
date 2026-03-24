@@ -5,7 +5,7 @@ import Link from "next/link";
 const items = [
   { title: "General", description: "ParÃ¡metros del sistema y usuarios", href: "/dashboard/configuracion/general", icon: Settings, gradient: "from-blue-500 to-blue-600" },
   { title: "Datos Maestros", description: "Centros de trabajo y nÃ³mina", href: "/dashboard/configuracion/maestros", icon: Database, gradient: "from-violet-500 to-purple-600" },
-  { title: "Correo", description: "ConfiguraciÃ³n de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-green-600" },
+  { title: "Correo", descripcion: "ConfiguraciÃ³n de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-green-600" },
   { title: "Alertas", description: "Alertas de atrasos y vencimientos", href: "/dashboard/configuracion/alertas", icon: Bell, gradient: "from-amber-500 to-orange-500" },
   { title: "Recordatorios", description: "Recordatorios automÃ¡ticos por WhatsApp", href: "/dashboard/configuracion/recordatorios", icon: BookOpen, gradient: "from-rose-500 to-pink-500" },
 ];
