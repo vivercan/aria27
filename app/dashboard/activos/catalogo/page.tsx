@@ -401,7 +401,7 @@ export default function ActivosCatalogoPage() {
 
       {/* ==================== MODAL ACTIVO ==================== */}
       {showModalActivo && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -427,7 +427,7 @@ export default function ActivosCatalogoPage() {
 
       {/* ==================== MODAL ASIGNACION ==================== */}
       {showModalAsignacion && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Asignación</h2>
             <div className="space-y-4">
@@ -447,7 +447,7 @@ export default function ActivosCatalogoPage() {
 
       {/* ==================== MODAL MANTENIMIENTO ==================== */}
       {showModalMantenimiento && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
             <div className="grid grid-cols-2 gap-4">
