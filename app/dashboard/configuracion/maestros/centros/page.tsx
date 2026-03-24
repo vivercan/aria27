@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "A/lib/supabase";
 import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X } from "lucide-react";
 import Link from "next/link";
 
@@ -25,7 +25,8 @@ export default function CentrosPage() {
   useEffect(() => { cargar(); }, []);
 
   const cargar = async () => {
-    const { data } = await supabase.from("centros_trabajo").select("*").order("nombre");
+    const { data, error } = await supabase.from("centros_trabajo").select("*").order("nombre");
+    if (error) { console.error("Error loading centros:", error.message); setLoading(false); return; }
     if (data) setCentros(data);
     setLoading(false);
   };
@@ -49,7 +50,7 @@ export default function CentrosPage() {
 
   const guardar = async () => {
     if (!form.nombre.trim()) return alert("Nombre requerido");
-    
+
     const datos = {
       nombre: form.nombre.trim(),
       direccion: form.direccion.trim() || null,
@@ -59,10 +60,12 @@ export default function CentrosPage() {
     };
 
     if (editando) {
-      await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
+      const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
+      if (error) { console.error("Error updating centro:", error.message); alert("Error: " + error.message); return; }
     } else {
       const nextNum = centros.length + 1;
-      await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
+      const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
+      if (error) { console.error("Error creating centro:", error.message); alert("Error: " + error.message); return; }
     }
     setShowModal(false);
     cargar();
@@ -77,7 +80,7 @@ export default function CentrosPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
-            <p className="text-slate-400">Obras con coordenadas GPS para geolocalización</p>
+            <p className="text-slate-400">Obras con coordenadas GPS para geolocalizaciÃ³n</p>
           </div>
           <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
             <Plus className="w-4 h-4" /> Nuevo Centro
@@ -112,11 +115,11 @@ export default function CentrosPage() {
                       <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
                         {c.latitud && c.longitud ? (
                           <>
-                            <span>📍 {c.latitud.toFixed(6)}, {c.longitud.toFixed(6)}</span>
+                            <span>ð {c.latitud.toFixed(6)}, {c.longitud.toFixed(6)}</span>
                             <span>Radio: {c.radio_metros}m</span>
                           </>
                         ) : (
-                          <span className="text-amber-400">⚠️ Sin coordenadas GPS</span>
+                          <span className="text-amber-400">â ï¸ Sin coordenadas GPS</span>
                         )}
                       </div>
                     </div>
@@ -145,7 +148,7 @@ export default function CentrosPage() {
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
               </div>
               <div>
-                <label className="text-sm text-slate-400">Dirección</label>
+                <label className="text-sm text-slate-400">DirecciÃ³n</label>
                 <input type="text" value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
               </div>
@@ -166,7 +169,7 @@ export default function CentrosPage() {
                 <input type="number" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
               </div>
-              <p className="text-xs text-slate-500">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
+              <p className="text-xs text-slate-500">ð¡ Tip: Abre Google Maps, haz clic derecho en la ubicaciÃ³n y copia las coordenadas</p>
               <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
                 <Save className="w-4 h-4" /> Guardar
               </button>
