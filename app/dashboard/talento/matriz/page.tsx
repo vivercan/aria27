@@ -80,10 +80,10 @@ export default function MatrizSalarialPage() {
 
       <div className="flex-1 overflow-auto space-y-4">
         {loading ? <p className="text-slate-400 text-center py-8">Cargando...</p> :
-          Object.entries(groups).sort(([a], ["]) => a.localeCompare(b)).map(([group, emps]) => (
+          Object.entries(groups).sort(([a], ["b]) => a.localeCompare(b)).map(([group, emps]) => (
             <div key={group} className="rounded-xl border border-white/10 overflow-hidden">
               <div className="px-4 py-3 bg-white/5 flex items-center justify-between">
-                <h3 className="font-semibold text-white">{group}</h3>
+                <h3 className="font-semibold text-white">{group}</h>
                 <span className="text-xs text-slate-400">{emps.length} empleados | ${emps.reduce((s, e) => s + (e.salario_diario || 0), 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}/dÃ­a</span>
               </div>
               <table className="w-full text-sm">
