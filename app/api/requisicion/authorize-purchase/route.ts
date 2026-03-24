@@ -7,7 +7,8 @@ const BASE_URL = "https://aria.jjcrm27.com";
 
 // Obtener usuario por ROL (dinamico)
 async function getUserByRole(role: string) {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
+  const { data, error } = await supabase.from("Users").select("*").eq("role", role).single();
+  if (error) { console.error("getUserByRole error:", error.message); return null; }
   return data;
 }
 
@@ -48,11 +49,12 @@ export async function POST(request: Request) {
     const token = crypto.randomUUID();
     const total = body.total || cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
 
-    await supabase.from("Requisiciones").update({
+    const { error: updateError } = await supabase.from("Requisiciones").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
       cotizacion_data: cotizacion
     }).eq("id", reqId);
+    if (updateError) throw updateError;
 
     // Obtener direccion (autorizador) dinamicamente por ROL
     const autorizadorUser = await getUserByRole("direccion");
@@ -129,4 +131,3 @@ export async function POST(request: Request) {
 
 
 
-// error handling added
