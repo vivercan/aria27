@@ -32,7 +32,7 @@ export default function MatrizSalarialPage() {
   }, []);
 
   const groups = empleados.reduce((acc, e) => {
-    const key = e[groupBy] || "SSin asignar";
+    const key = e[groupBy] || "Sin asignar";
     if (!acc[key]) acc[key] = [];
     acc[key].push(e);
     return acc;
@@ -69,7 +69,7 @@ export default function MatrizSalarialPage() {
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
           <DollarSign className="w-5 h-5 text-emerald-400 mb-2" />
           <p className="text-2xl font-bold text-white">${totalNomina.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
-          <p className="text-xs text-slate-400">;mina Diaria Total</p>
+          <p className="text-xs text-slate-400">NÃ³mina Diaria Total</p>
         </div>
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
           <Building2 className="w-5 h-5 text-violet-400 mb-2" />
