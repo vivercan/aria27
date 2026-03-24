@@ -17,18 +17,47 @@ export default function AsignacionPage() {
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    const [{ data: asig }, { data: acts }, { data: emps }] = await Promise.all([
+    const [{ data: asig, error: asigError }, { data: acts, error: actsError }, { data: emps, error: empsError }] = await Promise.all([
       supabase.from("activos_asignaciones").select("*").order("fecha_asignacion", { ascending: false }),
       supabase.from("activos").select("id, nombre, name").order("nombre"),
       supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name")
     ]);
+
+    if (asigError) {
+      console.error("Error loading activos_asignaciones:", asigError.message);
+      setLoading(false);
+      return;
+    }
+    if (actsError) {
+      console.error("Error loading activos:", actsError.message);
+      setLoading(false);
+      return;
+    }
+    if (empsError) {
+      console.error("Error loading empleados:", empsError.message);
+      setLoading(false);
+      return;
+    }
+
     if (asig && asig.length > 0) {
       const empIds = [...new Set(asig.map((a: any) => a.empleado_id).filter(Boolean))];
       const actIds = [...new Set(asig.map((a: any) => a.activo_id).filter(Boolean))];
-      const [{ data: empData }, { data: actData }] = await Promise.all([
+      const [{ data: empData, error: empDataError }, { data: actData, error: actDataError }] = await Promise.all([
         supabase.from("Personal").select("id, full_name, employee_number").in("id", empIds),
         supabase.from("activos").select("id, nombre, name").in("id", actIds)
       ]);
+
+      if (empDataError) {
+        console.error("Error loading empleado details:", empDataError.message);
+        setLoading(false);
+        return;
+      }
+      if (actDataError) {
+        console.error("Error loading activo details:", actDataError.message);
+        setLoading(false);
+        return;
+      }
+
       const empMap = Object.fromEntries((empData || []).map((e: any) => [e.id, e]));
       const actMap = Object.fromEntries((actData || []).map((a: any) => [a.id, a]));
       setAsignaciones(asig.map((a: any) => ({ ...a, empleado: empMap[a.empleado_id], activo: actMap[a.activo_id] })));
@@ -43,13 +72,20 @@ export default function AsignacionPage() {
   const handleAsignar = async () => {
     if (!form.activo_id || !form.empleado_id) return;
     setSaving(true);
-    await supabase.from("activos_asignaciones").insert({
+    const { error } = await supabase.from("activos_asignaciones").insert({
       activo_id: form.activo_id,
       empleado_id: form.empleado_id,
       fecha_asignacion: new Date().toISOString().split("T")[0],
       estado: "asignado",
       notas: form.notas
     });
+
+    if (error) {
+      console.error("Error creating asignacion:", error.message);
+      setSaving(false);
+      return;
+    }
+
     setShowModal(false);
     setForm({ activo_id: "", empleado_id: "", notas: "" });
     setSaving(false);
@@ -57,10 +93,16 @@ export default function AsignacionPage() {
   };
 
   const handleDevolver = async (id: string) => {
-    await supabase.from("activos_asignaciones").update({
+    const { error } = await supabase.from("activos_asignaciones").update({
       estado: "devuelto",
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id);
+
+    if (error) {
+      console.error("Error updating asignacion estado:", error.message);
+      return;
+    }
+
     load();
   };
 
@@ -168,4 +210,3 @@ export default function AsignacionPage() {
     </div>
   );
 }
-
