@@ -458,7 +458,7 @@ export default function ExpedientesPage() {
 
       {/* Modal: Nueva Carpeta */}
       {showNuevaCarpeta && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Nueva Carpeta</h3>
@@ -487,7 +487,7 @@ export default function ExpedientesPage() {
 
       {/* Modal: Nueva Tarea */}
       {showNuevaTarea && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Nueva Tarea</h3>
