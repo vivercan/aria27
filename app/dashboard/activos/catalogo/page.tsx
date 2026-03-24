@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "A/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check } from "lucide-react";
 
 interface Activo {
@@ -134,7 +134,7 @@ export default function ActivosCatalogoPage() {
       const { error } = await supabase.from("activos").insert(formActivo);
       if (error) {
         console.error("Error inserting activo:", error.message);
-        return,
+        return;
       }
     }
     setShowModalActivo(false);
@@ -157,7 +157,7 @@ export default function ActivosCatalogoPage() {
     setEditando(activo);
     setFormActivo({
       codigo: activo.codigo, nombre: activo.nombre, tipo: activo.tipo, marca: activo.marca || "",
-      modello: activo.modelo || "", anio: activo.anio || new Date().getFullYear(), placas: activo.placas || "",
+      modelo: activo.modelo || "", anio: activo.anio || new Date().getFullYear(), placas: activo.placas || "",
       estado: activo.estado, ubicacion_actual: activo.ubicacion_actual || "", kilometraje: activo.kilometraje || 0,
       combustible: activo.combustible || "GASOLINA"
     });
@@ -165,10 +165,10 @@ export default function ActivosCatalogoPage() {
   };
 
   const resetFormActivo = () => {
-    setFormActivo({ codigo: "", nombre: "", tipo: "VEBICULO", marca: "", modelo: "", anio: new Date().getFullYear(), placas: "", estado: "DISPONIBLE", ubicacion_actual: "", kilometraje: 0, combustible: "GASOLINA" });
+    setFormActivo({ codigo: "", nombre: "", tipo: "VEHICULO", marca: "", modelo: "", anio: new Date().getFullYear(), placas: "", estado: "DISPONIBLE", ubicacion_actual: "", kilometraje: 0, combustible: "GASOLINA" });
   };
 
-  // === CRUD AGIGNACIONES ===
+  // === CRUD ASIGNACIONES ===
   const guardarAsignacion = async () => {
     if (!formAsignacion.activo_id || !formAsignacion.empleado_id) return alert("Selecciona activo y empleado");
 
@@ -200,7 +200,7 @@ export default function ActivosCatalogoPage() {
 
     const { error: updateActivoError } = await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", asig.activo_id);
     if (updateActivoError) {
-      console.error("Error updating activo estado: ", updateActivoError.message);
+      console.error("Error updating activo estado:", updateActivoError.message);
       return;
     }
 
@@ -241,7 +241,7 @@ export default function ActivosCatalogoPage() {
 
   const getIcono = (tipo: string) => {
     if (tipo === "VEHICULO") return <Truck className="w-5 h-5" />;
-    if (tipo === "MAQUIM9ARIA") return <Wrench className="w-5 h-5" />;
+    if (tipo === "MAQUINARIA") return <Wrench className="w-5 h-5" />;
     return <Package className="w-5 h-5" />;
   };
 
@@ -255,15 +255,15 @@ export default function ActivosCatalogoPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header"*/}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Gestión'se Activos</h1>
-            <p className="text-slate-400 text-sm">{activos.length} activos | {asignaciones.length} asignados | {proximosMantenimientos.length} próximos</p>
+            <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
+            <p className="text-slate-400 text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
           </div>
         </div>
       </div>
@@ -320,33 +320,33 @@ export default function ActivosCatalogoPage() {
                         <th className="px-4 py-3">Km/Hrs</th>
                         <th className="px-4 py-3">Acciones</th>
                       </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {activosFiltrados.map(activo => (
-                          <tr key={activo.id} className="hover:bg-white/5">
-                            <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo} </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">{gid	cono(activo.tipo)}</div>
-                                <span className="text-white font-medium">{activo.nombre}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-slate-400 text-sm">{activo.tipo}</td>
-                            <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo=</td>
-                            <td className="px-4 py-3 text-slate-400 text-sm">{\activo.placas || "-"}</td>
-                            <td className="px-4 py-3">
-                              <span className={`px-2 py-1 rounded text-xs font-medium text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-gray-500"}`}>{activo.estado}</span>
-                            </td>
-                            <td className="px-4 py-3 text-slate-400 text-sm">{\activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
-                            <td className="px-4 py-3">
-                              <div className="flex gap-2">
-                                <button onClick={() => abrirEditarActivo(activo,} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-50/30"><Edit2 className="w-4 h-4" /></button>
-                                <button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30" ><Trash2 className="w-4 h-4" /></button>
-                              </div>
-                           </td>
-                          </tr>
-                       ))}
-                      </tbody>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {activosFiltrados.map(activo => (
+                        <tr key={activo.id} className="hover:bg-white/5">
+                          <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">{getIcono(activo.tipo)}</div>
+                              <span className="text-white font-medium">{activo.nombre}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.tipo}</td>
+                          <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo}</td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.placas || "-"}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded text-xs font-medium text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-gray-500"}`}>{activo.estado}</span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
               </div>
@@ -381,21 +381,21 @@ export default function ActivosCatalogoPage() {
                     ) : asignaciones.map(asig => (
                       <tr key={asig.id} className="hover:bg-white/5">
                         <td className="px-4 py-3">
-                          <div className="text-white font-medium">{\asig.activa?.codigo}</div>
-                          <div className="text-slate-400 text-sm">{\�sig.activo?.nombre}</div>
+                          <div className="text-white font-medium">{asig.activo?.codigo}</div>
+                          <div className="text-slate-400 text-sm">{asig.activo?.nombre}</div>
                         </td>
-                        <td className="px-4 py-3 text-white">{Zasig.empleado?.full_name}</td>
-                        <td className="px-4 py-3 text-slate-400">{\asig.obra_nombre || "-"}</td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{\asig.fecha_asignacion}</td>
+                        <td className="px-4 py-3 text-white">{asig.empleado?.full_name}</td>
+                        <td className="px-4 py-3 text-slate-400">{asig.obra_nombre || "-"}</td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{asig.fecha_asignacion}</td>
                         <td className="px-4 py-3">
-                          <button onClick={() => devolverActivo(asig)} className="px-3 py-1.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-50/30 text-sm">
+                          <button onClick={() => devolverActivo(asig)} className="px-3 py-1.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm">
                             Devolver
                           </button>
                         </td>
                       </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </>
           )}
@@ -411,7 +411,7 @@ export default function ActivosCatalogoPage() {
                   <div className="space-y-1">
                     {proximosMantenimientos.map(m => (
                       <div key={m.id} className="text-sm text-slate-300">
-                        {\m.activo?.codigo} - {m.activo?.nombre}: <span className="text-amber-400">{Zm.proximo_servicio}</span>
+                        {m.activo?.codigo} - {m.activo?.nombre}: <span className="text-amber-400">{m.proximo_servicio}</span>
                       </div>
                     ))}
                   </div>
@@ -442,18 +442,18 @@ export default function ActivosCatalogoPage() {
                     ) : mantenimientos.map(mant => (
                       <tr key={mant.id} className="hover:bg-white/5">
                         <td className="px-4 py-3">
-                          <div className="text-white font-medium">{\mant.activo?.codi�o=</div>
-                          <div className="text-slate-400 text-sm">{\mant.activo?.nombre}</div>
+                          <div className="text-white font-medium">{mant.activo?.codigo}</div>
+                          <div className="text-slate-400 text-sm">{mant.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                             {mant.tipo}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{\mant.fecha}</td>
-                        <td className="px-4 py-3 text-slate-300 text-sm">{\mant.descripcion}</td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.fecha}</td>
+                        <td className="px-4 py-3 text-slate-300 text-sm">{mant.descripcion}</td>
                         <td className="px-4 py-3 text-emerald-400">${mant.costo?.toLocaleString() || 0}</td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{\mant.proximo_servicio || "-"}</td>
+                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.proximo_servicio || "-"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -473,14 +473,14 @@ export default function ActivosCatalogoPage() {
               <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
               <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: etarget.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Modelo</label><input type="text" value={formActivo.modelo} onChange={e => setFormActivo({...formActivo, modelo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Año</label><input type="number" value={formActivo.anio} onChange={e => setFormActivo({...formActivo, anio: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Placas</label><input type="text" value={formActivo.placas} onChange={e => setFormActivo({...formActivo, placas: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Estado</label><select value={formActivo.estado} onChange={e => setFormActivo({...formActivo, estado: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="DISPONIBLE">Disponible</option><option value="EN_USO">En Uso</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="BAJA">Baja</option></select></div>
               <div><label className="block text-sm text-slate-400 mb-1">Combustible</label><select value={formActivo.combustible} onChange={e => setFormActivo({...formActivo, combustible: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="GASOLINA">Gasolina</option><option value="DIESEL">Diésel</option><option value="ELECTRICO">Eléctrico</option><option value="NA">N/A</option></select></div>
               <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" value={formActivo.kilometraje} onChange={e => setFormActivo({...formActivo, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Ubicación</label><input type="text" value={formActivo.ubicacion_actual} onChange={e => setFormActivo({...formActivo, ubicacion_actual: e.target.value})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Ubicación</label><input type="text" value={formActivo.ubicacion_actual} onChange={e => setFormActivo({...formActivo, ubicacion_actual: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => { setShowModalActivo(false); setEditando(null); }} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
@@ -496,31 +496,31 @@ export default function ActivosCatalogoPage() {
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Asignación</h2>
             <div className="space-y-4">
-              <div><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{\a.codi�o} - {a.nombre}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Empleado *</label><select value={formAsignacion.empleado_id} onChange={e => setFormAsignacion({...formAsignacion, empleado_id: e.target.value})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{\empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Obra</label><select value={formAsignacion.obra_nombre} onChange={e => setFormAsignacion({...formAsignacion, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{\obras.map(o => <option key={o.id} value={o.name}>{\o.name}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Empleado *</label><select value={formAsignacion.empleado_id} onChange={e => setFormAsignacion({...formAsignacion, empleado_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Obra</label><select value={formAsignacion.obra_nombre} onChange={e => setFormAsignacion({...formAsignacion, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}</select></div>
               <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formAsignacion.fecha_asignacion} onChange={e => setFormAsignacion({...formAsignacion, fecha_asignacion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Observaciones</label><input type="text" value={formAsignacion.observaciones} onChange={e => setFormAsignacion({...formAsignacion, observaciones: e.target.value})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Observaciones</label><input type="text" value={formAsignacion.observaciones} onChange={e => setFormAsignacion({...formAsignacion, observaciones: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
               <button onClick={guardarAsignacion} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium">Asignar</button>
             </div>
           </div>
-          </div>
+        </div>
       )}
 
-      {/* ==================== MODAL LMANTENIMIENTO ==================== */}
+      {/* ==================== MODAL MANTENIMIENTO ==================== */}
       {showModalMantenimiento && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{\activos.map(a => <option key={a.id} value={a.id}>{\a.codi�o} - {a.nombre}</option>)}</select></div>
+              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
               <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formMantenimiento.tipo} onChange={e => setFormMantenimiento({...formMantenimiento, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="PREVENTIVO">Preventivo</option><option value="CORRECTIVO">Correctivo</option><option value="REVISION">Revisión</option></select></div>
               <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formMantenimiento.fecha} onChange={e => setFormMantenimiento({...formMantenimiento, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Descripción *</label><input type="text" value={formMantenimiento.descripcion} onChange={e => setFormMantenimiento({...formMantenimiento, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Cambio de aceite, afinación...." /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" value={formMantenimiento.kilometraje} onChange={e => setFormMantenimiento({...formMantenimiento, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white-5 border border-white/10 rounded-lg text-white" /></div>
+              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Descripción *</label><input type="text" value={formMantenimiento.descripcion} onChange={e => setFormMantenimiento({...formMantenimiento, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Cambio de aceite, afinación..." /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" value={formMantenimiento.kilometraje} onChange={e => setFormMantenimiento({...formMantenimiento, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Costo $</label><input type="number" value={formMantenimiento.costo} onChange={e => setFormMantenimiento({...formMantenimiento, costo: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Proveedor/Taller</label><input type="text" value={formMantenimiento.proveedor} onChange={e => setFormMantenimiento({...formMantenimiento, proveedor: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Próximo Servicio</label><input type="date" value={formMantenimiento.proximo_servicio} onChange={e => setFormMantenimiento({...formMantenimiento, proximo_servicio: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
@@ -531,7 +531,7 @@ export default function ActivosCatalogoPage() {
             </div>
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }
