@@ -452,7 +452,7 @@ export default function RecibosNominaPage() {
 
       {/* Modal Desbloquear */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 no-print">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 no-print">
           <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-amber-500/20 rounded-xl">
