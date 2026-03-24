@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X } from "lucide-react";
 
 interface PurchaseOrder {
   id: string;
@@ -24,6 +24,11 @@ export default function PagosPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("TODOS");
   const [stats, setStats] = useState({ total: 0, pagado: 0, pendiente: 0, ordenes: 0 });
+  const [pagoModal, setPagoModal] = useState<{ ocId: string; saldo: number } | null>(null);
+  const [pagoMonto, setPagoMonto] = useState("");
+  const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
+  const [pagoReferencia, setPagoReferencia] = useState("");
+  const [pagoSaving, setPagoSaving] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -65,17 +70,23 @@ export default function PagosPage() {
     }
   }
 
-  async function registrarPago(ocId: string) {
-    const montoStr = prompt("Monto del pago:");
-    if (!montoStr) return;
-    const monto = parseFloat(montoStr);
-    if (isNaN(monto) || monto <= 0) { alert("Monto invÃ¡lido"); return; }
-
-    const metodo = prompt("MÃ©todo de pago (Transferencia / Cheque / Efectivo):", "Transferencia");
-    const referencia = prompt("Referencia bancaria (opcional):", "");
-
+  function abrirPagoModal(ocId: string) {
     const oc = orders.find(o => o.id === ocId);
     if (!oc) return;
+    setPagoModal({ ocId, saldo: oc.saldo });
+    setPagoMonto(String(oc.saldo));
+    setPagoMetodo("Transferencia");
+    setPagoReferencia("");
+  }
+
+  async function confirmarPago() {
+    if (!pagoModal) return;
+    const monto = parseFloat(pagoMonto);
+    if (isNaN(monto) || monto <= 0) return;
+
+    setPagoSaving(true);
+    const oc = orders.find(o => o.id === pagoModal.ocId);
+    if (!oc) { setPagoSaving(false); return; }
 
     const nuevoPagado = (oc.pagado || 0) + monto;
     const nuevoStatus = nuevoPagado >= oc.total ? "PAGADA" : "PAGO_PARCIAL";
@@ -86,15 +97,14 @@ export default function PagosPage() {
         monto_pagado: nuevoPagado,
         status: nuevoStatus,
         ultimo_pago_fecha: new Date().toISOString(),
-        ultimo_pago_metodo: metodo,
-        ultimo_pago_referencia: referencia,
+        ultimo_pago_metodo: pagoMetodo,
+        ultimo_pago_referencia: pagoReferencia,
       })
-      .eq("id", ocId);
+      .eq("id", pagoModal.ocId);
 
-    if (error) {
-      alert("Error: " + error.message);
-    } else {
-      alert(`â Pago de $${monto.toLocaleString()} registrado`);
+    setPagoSaving(false);
+    if (!error) {
+      setPagoModal(null);
       loadData();
     }
   }
@@ -128,7 +138,7 @@ export default function PagosPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-white">Control de Pagos</h1>
-        <p className="text-slate-400 text-sm">Seguimiento de pagos a proveedores por Ã³rdenes de compra</p>
+        <p className="text-slate-400 text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
       </div>
 
       {/* Stats */}
@@ -137,7 +147,7 @@ export default function PagosPage() {
           { label: "Total OCs", value: `$${stats.total.toLocaleString()}`, icon: DollarSign, color: "text-blue-400", bg: "bg-blue-500/10" },
           { label: "Pagado", value: `$${stats.pagado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Pendiente", value: `$${stats.pendiente.toLocaleString()}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Ãrdenes", value: stats.ordenes, icon: Hash, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Órdenes", value: stats.ordenes, icon: Hash, color: "text-violet-400", bg: "bg-violet-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
@@ -177,14 +187,14 @@ export default function PagosPage() {
                 <th className="text-right p-3">Pagado</th>
                 <th className="text-right p-3">Saldo</th>
                 <th className="text-center p-3">Estado</th>
-                <th className="text-center p-3">AcciÃ³n</th>
+                <th className="text-center p-3">Acción</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">No hay Ã³rdenes de compra</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400">No hay Órdenes de compra</td></tr>
               ) : filtered.map(oc => {
                 const badge = getStatusBadge(oc);
                 return (
@@ -198,7 +208,7 @@ export default function PagosPage() {
                     <td className="p-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>{badge.label}</span></td>
                     <td className="p-3 text-center">
                       {badge.label !== "PAGADA" && (
-                        <button onClick={() => registrarPago(oc.id)}
+                        <button onClick={() => abrirPagoModal(oc.id)}
                           className="px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-medium hover:bg-blue-500/30 transition-colors">
                           <CreditCard className="w-3 h-3 inline mr-1" />Pagar
                         </button>
@@ -211,7 +221,47 @@ export default function PagosPage() {
           </table>
         </div>
       </div>
+
+      {/* Modal Registrar Pago */}
+      {pagoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-white">Registrar Pago</h3>
+              <button onClick={() => setPagoModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
+                <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Método de pago</label>
+                <select value={pagoMetodo} onChange={e => setPagoMetodo(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Efectivo">Efectivo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Referencia bancaria (opcional)</label>
+                <input type="text" value={pagoReferencia} onChange={e => setPagoReferencia(e.target.value)} placeholder="No. de referencia"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
+              <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || parseFloat(pagoMonto) <= 0}
+                className="flex-1 py-2.5 bg-blue-600 rounded-xl text-white text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                {pagoSaving ? "Guardando..." : "Confirmar Pago"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
