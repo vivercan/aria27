@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -24,15 +25,12 @@ export default function LoginPage() {
     // PASO 1: Verificar usuario en Supabase
     let userExists = false
     try {
-      const userRes = await fetch(
-        'https://yhylkvpynzyorqortbkk.supabase.co/rest/v1/users?email=eq.' + encodeURIComponent(emailLower),
-        {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeWxrdnB5bnp5b3Jxb3J0YmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNjgzOTYsImV4cCI6MjA4MDc0NDM5Nn0.j6R9UeyxJvGUiI5OGSgULYU559dt9lkTeIAxbkeLkIo'
-          }
-        }
-      )
-      const users = await userRes.json()
+      const { data: users, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', emailLower)
+        .limit(1)
+      if (userError) throw userError
       userExists = Array.isArray(users) && users.length > 0
     } catch {
       setError('Error de conexión')
