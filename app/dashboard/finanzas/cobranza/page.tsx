@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X } from "lucide-react";
 
 interface Estimacion {
   id: string;
@@ -25,6 +25,9 @@ export default function CobranzaPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
+  const [cobroModal, setCobroModal] = useState<{ id: string; monto: number } | null>(null);
+  const [cobroMonto, setCobroMonto] = useState("");
+  const [cobroSaving, setCobroSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 });
 
@@ -60,17 +63,23 @@ export default function CobranzaPage() {
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 }); loadData(); }
   }
 
-  async function marcarCobrada(id: string, monto: number) {
-    const montoStr = prompt(`Monto cobrado (estimado: $${monto.toLocaleString()}):`, String(monto));
-    if (!montoStr) return;
-    const montoCobrado = parseFloat(montoStr);
-    if (isNaN(montoCobrado)) return;
+  function abrirCobroModal(id: string, monto: number) {
+    setCobroModal({ id, monto });
+    setCobroMonto(String(monto));
+  }
 
+  async function confirmarCobro() {
+    if (!cobroModal) return;
+    const montoCobrado = parseFloat(cobroMonto);
+    if (isNaN(montoCobrado) || montoCobrado <= 0) return;
+    setCobroSaving(true);
     await supabase.from("estimaciones").update({
       monto_cobrado: montoCobrado,
       status: "COBRADA",
       fecha_cobro: new Date().toISOString().split("T")[0],
-    }).eq("id", id);
+    }).eq("id", cobroModal.id);
+    setCobroSaving(false);
+    setCobroModal(null);
     loadData();
   }
 
@@ -205,7 +214,7 @@ export default function CobranzaPage() {
                   </td>
                   <td className="p-3 text-center">
                     {e.status !== "COBRADA" && (
-                      <button onClick={() => marcarCobrada(e.id, e.monto_estimado - (e.retencion_fondo || 0))}
+                      <button onClick={() => abrirCobroModal(e.id, e.monto_estimado - (e.retencion_fondo || 0))}
                         className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/30">
                         Cobrar
                       </button>
@@ -217,6 +226,30 @@ export default function CobranzaPage() {
           </table>
         </div>
       </div>
+
+      {cobroModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-white">Registrar Cobro</h3>
+              <button onClick={() => setCobroModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Monto cobrado</label>
+              <input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+              <p className="text-xs text-slate-500 mt-1">{`Estimado: $${cobroModal.monto.toLocaleString()}`}</p>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setCobroModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
+              <button onClick={confirmarCobro} disabled={cobroSaving || !cobroMonto || parseFloat(cobroMonto) <= 0}
+                className="flex-1 py-2.5 bg-emerald-600 rounded-xl text-white text-sm font-medium hover:bg-emerald-500 disabled:opacity-50">
+                {cobroSaving ? "Guardando..." : "Confirmar Cobro"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
