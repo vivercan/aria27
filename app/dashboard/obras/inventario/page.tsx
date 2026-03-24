@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "A/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft,
   Package,
@@ -147,6 +147,7 @@ export default function InventarioObraPage() {
           console.error("Error inserting new inventory item:", errorInsert.message);
         }
       }
+    }
 
     loadInventario(obraSeleccionada.id);
     alert("Materiales importados al inventario");
@@ -280,7 +281,7 @@ export default function InventarioObraPage() {
             <AlertTriangle className="w-8 h-8 text-amber-400" />
             <div>
               <p className="text-2xl font-bold text-white">{itemsBajos}</p>
-              <p className="text-sm text-slate-400">Stock bajo (â¤5)</p>
+              <p className="text-sm text-slate-400">Stock bajo (≤5)</p>
             </div>
           </div>
         </div>
@@ -319,7 +320,7 @@ export default function InventarioObraPage() {
                     <td className="px-4 py-3">
                       <p className="text-white font-medium">{item.producto_nombre}</p>
                       <p className="text-xs text-slate-400">
-                        Ãltimo mov: {new Date(item.ultimo_movimiento).toLocaleDateString()}
+                        Último mov: {new Date(item.ultimo_movimiento).toLocaleDateString()}
                       </p>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -404,7 +405,7 @@ export default function InventarioObraPage() {
           <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
             <h3 className="text-lg font-semibold text-white mb-4">Ajustar Inventario</h3>
             <p className="text-slate-300 mb-4">{showAjuste.producto_nombre}</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 mb-4">
               Disponible actual: <span className="text-white font-bold">{showAjuste.cantidad_disponible}</span> {showAjuste.unidad}
             </p>
 
@@ -462,6 +463,5 @@ export default function InventarioObraPage() {
         </div>
       )}
     </div>
-  
-  
-  CRrECTION: LoadInventario should accept {number} instead of {string}
+  );
+}
