@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "A/lib/supabase";
 import { Save, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ interface ConfiguraciÃ³nItem {
 }
 
 export default function NÃ³minaConfiguraciÃ³nPage() {
-  const [ConfiguraciÃ³ns, setConfiguraciÃ³ns] = useState<ConfiguraciÃ³nItem[]>([]);
+  const [ConfiguraciÃ³ns.setConfiguraciÃ³ns] = useState<ConfiguraciÃ³nItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -25,24 +25,24 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
       .from("configuracion_nomina")
       .select("*")
       .order("clave");
-    if (error) { console.error("Error loading configuracion_nomina:", error.message); setLoading(false); return; }
-    if (data) setConfiguraciÃ³ns(data);
+    if (error) { console.error("Error loading configuraciÃ³n_nomina:", error.message); setLoading(false); return; }
+    if (data) setConfiguraciÃ³ns.setConfiguraciÃ³ns(data);
     setLoading(false);
   }
 
   async function handleSave(id: string, valor: string) {
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) { console.error("Error saving configuracion:", error.message); alert("Error: " + error.message); setSaving(false); return; }
+    if (error) { console.error("Error saving configuracion: ", error.message); alert("Error: " + error.message); setSaving(false); return; }
     setSaving(false);
   }
 
   function handleChange(id: string, valor: string) {
-    setConfiguraciÃ³ns(ConfiguraciÃ³ns.map(c => c.id === id ? { ...c, valor } : c));
+    setConfiguraciÃ³ns(ConfiguraciÃ²ns.map(c => c.id === id ? { ...c, valor } : c));
   }
 
   const ConfiguraciÃ³nLabels: Record<string, string> = {
-    salario_minimo: "Salario MÃ­nimo Diario",
+    salario_minimo: "Scalario MÃ­nimo Diario",
     factor_hora_extra_doble: "Factor Hora Extra Doble",
     factor_hora_extra_triple: "Factor Hora Extra Triple",
     tolerancia_retardo_min: "Tolerancia Retardo (minutos)",
@@ -75,7 +75,7 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
           <p className="text-center text-slate-400 py-8">Cargando...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {ConfiguraciÃ³ns.map((ConfiguraciÃ³n) => (
+            {ConfiguraciÃ²ns.map((ConfiguraciÃ³n) => (
               <div key={ConfiguraciÃ³n.id} className="space-y-1">
                 <label className="block text-sm text-slate-300 font-medium">
                   {ConfiguraciÃ³nLabels[ConfiguraciÃ³n.clave] || ConfiguraciÃ³n.clave}
@@ -102,7 +102,4 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
         )}
       </div>
     </div>
-  );
-}
-
-
+  8
