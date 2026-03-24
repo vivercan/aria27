@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "A/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
@@ -22,7 +22,7 @@ interface Licitacion {
   created_at: string;
 }
 
-const STATUT_COLORS: Record<string, string> = {
+const STATUS_COLORS: Record<string, string> = {
   EN_PROCESO: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   ENVIADA: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
@@ -142,7 +142,7 @@ export default function LicitacionesPage() {
       <div className="grid grid-cols-4 gap-3">
         {[
           { label: "Total", value: stats.total, icon: FileText, color: "blue" },
-          { label: "En Proceso(� value: stats.enProceso, icon: Clock, color: "amber" },
+          { label: "En Proceso", value: stats.enProceso, icon: Clock, color: "amber" },
           { label: "Ganadas", value: stats.ganadas, icon: CheckCircle2, color: "emerald" },
           { label: "Perdidas", value: stats.perdidas, icon: AlertTriangle, color: "red" },
         ].map((s, i) => (
@@ -187,7 +187,7 @@ export default function LicitacionesPage() {
             <div className="text-slate-400 text-xs">{l.numero_licitacion || "—"}</div>
             <div className="text-slate-400 text-xs">{l.fecha_apertura || "—"}</div>
             <div className="text-slate-300 text-xs">{l.monto_estimado ? fmt(l.monto_estimado) : "—"}</div>
-            <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[l.status] || STATUS_COLORS.EN_PROCESO=`}>{l.status?.replace("_"," ")}</span></div>
+            <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[l.status] || STATUS_COLORS.EN_PROCESO}`}>{l.status?.replace("_"," ")}</span></div>
             <div className="text-right">
               <button onClick={(e) => { e.stopPropagation(); eliminar(l.id); }} className="text-red-400/50 hover:text-red-400 text-xs">✕</button>
             </div>
@@ -213,7 +213,7 @@ export default function LicitacionesPage() {
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.dependencia} onChange={e => setForm({...form, dependencia: e.target.value})} />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-white-60">No. Licitación</label>
+                <label className="text-xs text-white/60">No. Licitación</label>
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.numero_licitacion} onChange={e => setForm({...form, numero_licitacion: e.target.value})} />
               </div>
               <div className="space-y-1">
