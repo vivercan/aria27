@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2 } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X } from "lucide-react";
 
 interface CuentaPorPagar {
   id: string;
@@ -25,6 +25,9 @@ export default function PorPagarPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
   const [pagando, setPagando] = useState<string | null>(null);
+  const [pagoModal, setPagoModal] = useState<{ id: string; saldo: number } | null>(null);
+  const [pagoMonto, setPagoMonto] = useState("");
+  const [pagoSaving, setPagoSaving] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
@@ -68,15 +71,24 @@ export default function PorPagarPage() {
   };
 
 
-  const handlePago = async (id: string, total: number, pagado: number) => {
-    const monto = prompt("Monto a registrar como pago:", String(total - pagado));
-    if (!monto || isNaN(Number(monto))) return;
-    setPagando(id);
-    const nuevoPagado = pagado + Number(monto);
-    await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", id);
-    setPagando(null);
+  function abrirPagoModal(id: string, total: number, pagado: number) {
+    setPagoModal({ id, saldo: total - pagado });
+    setPagoMonto(String(total - pagado));
+  }
+
+  async function confirmarPago() {
+    if (!pagoModal) return;
+    const monto = Number(pagoMonto);
+    if (isNaN(monto) || monto <= 0) return;
+    setPagoSaving(true);
+    const cuenta = cuentas.find(c => c.id === pagoModal.id);
+    if (!cuenta) { setPagoSaving(false); return; }
+    const nuevoPagado = cuenta.monto_pagado + monto;
+    await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", pagoModal.id);
+    setPagoSaving(false);
+    setPagoModal(null);
     loadData();
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -149,7 +161,7 @@ export default function PorPagarPage() {
                   <td className="p-3 text-center">
                     {c.saldo > 0 && (
                       <button
-                        onClick={() => handlePago(c.id, c.total, c.monto_pagado)}
+                        onClick={() => abrirPagoModal(c.id, c.total, c.monto_pagado)}
                         disabled={pagando === c.id}
                         className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 disabled:opacity-50"
                       >
@@ -181,6 +193,30 @@ export default function PorPagarPage() {
           </table>
         </div>
       </div>
+
+      {pagoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-white">Registrar Pago</h3>
+              <button onClick={() => setPagoModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
+              <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+              <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
+              <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || Number(pagoMonto) <= 0}
+                className="flex-1 py-2.5 bg-blue-600 rounded-xl text-white text-sm font-medium hover:bg-blue-500 disabled:opacity-50">
+                {pagoSaving ? "Guardando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
