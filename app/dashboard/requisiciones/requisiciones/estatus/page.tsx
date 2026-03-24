@@ -428,7 +428,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Modal Eliminar */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
             <h3 className="text-lg font-bold text-white mb-4">â ï¸ Confirmar EliminaciÃ³n</h3>
             <p className="text-slate-400 text-sm mb-4">
