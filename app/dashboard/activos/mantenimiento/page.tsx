@@ -15,13 +15,36 @@ export default function MantenimientoPage() {
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    const [{ data: mant }, { data: acts }] = await Promise.all([
+    const [mant_result, acts_result] = await Promise.all([
       supabase.from("activos_mantenimiento").select("*").order("fecha", { ascending: false }),
       supabase.from("activos").select("id, nombre, name").order("nombre")
     ]);
+
+    const { data: mant, error: mant_error } = mant_result;
+    const { data: acts, error: acts_error } = acts_result;
+
+    if (mant_error) {
+      console.error("Error loading maintenance records:", mant_error.message);
+      setLoading(false);
+      return;
+    }
+
+    if (acts_error) {
+      console.error("Error loading assets:", acts_error.message);
+      setLoading(false);
+      return;
+    }
+
     if (mant && mant.length > 0) {
       const actIds = [...new Set(mant.map((r: any) => r.activo_id).filter(Boolean))];
-      const { data: actData } = await supabase.from("activos").select("id, nombre, name").in("id", actIds);
+      const { data: actData, error: actData_error } = await supabase.from("activos").select("id, nombre, name").in("id", actIds);
+
+      if (actData_error) {
+        console.error("Error loading asset details:", actData_error.message);
+        setLoading(false);
+        return;
+      }
+
       const actMap = Object.fromEntries((actData || []).map((a: any) => [a.id, a]));
       setRegistros(mant.map((r: any) => ({ ...r, activo: actMap[r.activo_id] })));
     } else {
@@ -34,7 +57,8 @@ export default function MantenimientoPage() {
   const handleSave = async () => {
     if (!form.activo_id || !form.descripcion) return;
     setSaving(true);
-    await supabase.from("activos_mantenimiento").insert({
+
+    const { error } = await supabase.from("activos_mantenimiento").insert({
       activo_id: form.activo_id,
       tipo: form.tipo,
       descripcion: form.descripcion,
@@ -42,6 +66,13 @@ export default function MantenimientoPage() {
       fecha: form.fecha,
       estado: form.estado
     });
+
+    if (error) {
+      console.error("Error saving maintenance record:", error.message);
+      setSaving(false);
+      return;
+    }
+
     setShowModal(false);
     setForm({ activo_id: "", tipo: "preventivo", descripcion: "", costo: "", fecha: new Date().toISOString().split("T")[0], estado: "completado" });
     setSaving(false);
@@ -117,41 +148,40 @@ export default function MantenimientoPage() {
                   <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
                     <option value="preventivo">Preventivo</option>
                     <option value="correctivo">Correctivo</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Fecha</label>
-                  <input type="date" value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
-                </div>
+                </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400">Descripción *</label>
-                <textarea value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} rows={3} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Descripción del mantenimiento..." />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400">Costo</label>
-                  <input type="number" value={form.costo} onChange={e => setForm({...form, costo: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400">Estado</label>
-                  <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
-                    <option value="completado">Completado</option>
-                    <option value="pendiente">Pendiente</option>
-                  </select>
-                </div>
+                <label className="text-xs text-slate-400">Fecha</label>
+                <input type="date" value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
               </div>
             </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
-              <button onClick={handleSave} disabled={saving || !form.activo_id || !form.descripcion} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar
-              </button>
+            <div>
+              <label className="text-xs text-slate-400">Descripción *</label>
+              <textarea value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} rows={3} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Descripción del mantenimiento..." />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-400">Costo</label>
+                <input type="number" value={form.costo} onChange={e => setForm({...form, costo: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Estado</label>
+                <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
+                  <option value="completado">Completado</option>
+                  <option value="pendiente">Pendiente</option>
+                </select>
+              </div>
             </div>
           </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+            <button onClick={handleSave} disabled={saving || !form.activo_id || !form.descripcion} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar
+            </button>
+          </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
   );
 }
-
