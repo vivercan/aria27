@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase } from "A/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X } from "lucide-react";
 import Link from "next/link";
 
