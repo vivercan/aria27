@@ -351,12 +351,12 @@ export default function CorreoPage() {
 
         {/* Panel de lectura */}
         {selectedEmail && (
-          <div className="flex-1 flex flex-col bg-white/95" style={{maxHeight:"calc(100vh - 80px)"}}>
-            <div className="p-6 border-b border-slate-200 flex-shrink-0 bg-white">
+          <div className="flex-1 flex flex-col bg-slate-900" style={{maxHeight:"calc(100vh - 80px)"}}>
+            <div className="p-6 border-b border-slate-700/50 flex-shrink-0 bg-slate-900">
               <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-semibold text-slate-900 pr-4">{selectedEmail.subject || "(Sin asunto)"}</h2>
-                <button onClick={() => setSelectedEmail(null)} className="p-2 rounded-lg hover:bg-slate-100">
-                  <X className="w-5 h-5 text-slate-500" />
+                <h2 className="text-xl font-semibold text-white pr-4">{selectedEmail.subject || "(Sin asunto)"}</h2>
+                <button onClick={() => setSelectedEmail(null)} className="p-2 rounded-lg hover:bg-slate-800">
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
@@ -365,42 +365,42 @@ export default function CorreoPage() {
                   {extractName(selectedEmail.from).charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-slate-900 font-medium">{extractName(selectedEmail.from)}</p>
-                  <p className="text-slate-500 text-sm truncate">{selectedEmail.from}</p>
-                  <p className="text-slate-400 text-xs mt-1">Para: {selectedEmail.to}</p>
+                  <p className="text-white font-medium">{extractName(selectedEmail.from)}</p>
+                  <p className="text-slate-400 text-sm truncate">{selectedEmail.from}</p>
+                  <p className="text-slate-500 text-xs mt-1">Para: {selectedEmail.to}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-slate-500 text-sm">{formatDate(selectedEmail.date)}</p>
-                  <button onClick={() => toggleRead(selectedEmail.uid)} className="text-xs text-blue-600 hover:underline mt-1">
+                  <p className="text-slate-400 text-sm">{formatDate(selectedEmail.date)}</p>
+                  <button onClick={() => toggleRead(selectedEmail.uid)} className="text-xs text-blue-400 hover:underline mt-1">
                     {selectedEmail.seen ? "Marcar no leído" : "Marcar leído"}
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-white">
-              <div className="prose prose-slate max-w-none">
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-900">
+              <div className="prose prose-invert max-w-none">
                 {loadingContent ? (
                     <div className="flex items-center justify-center py-20">
                       <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                       <span className="ml-3 text-slate-500">Cargando contenido...</span>
                     </div>
                   ) : selectedEmail.html ? (
-                  <div className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
+                  <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
                 ) : (
-                  <pre className="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed text-sm">
+                  <pre className="whitespace-pre-wrap font-sans text-slate-300 leading-relaxed text-sm">
                     {selectedEmail.body || "Este correo no tiene contenido de texto."}
                   </pre>
                 )}
               </div>
             </div>
 
-            <div className="p-3 border-t border-slate-200 flex gap-2 flex-shrink-0 bg-slate-50">
+            <div className="p-3 border-t border-slate-700/50 flex gap-2 flex-shrink-0 bg-slate-800/50">
               <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                 <Mail className="w-4 h-4" />
                 Responder
               </button>
-              <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">
+              <button className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 text-sm font-medium">
                 Reenviar
               </button>
               <button 
@@ -419,37 +419,37 @@ export default function CorreoPage() {
       {/* Modal Redactar */}
       {showCompose && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">Nuevo Correo</h3>
-              <button onClick={() => setShowCompose(false)} className="p-1.5 rounded hover:bg-slate-100">
-                <X className="w-5 h-5 text-slate-500" />
+          <div className="bg-slate-900 border border-white/10 rounded-xl w-full max-w-2xl shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/50">
+              <h3 className="text-lg font-semibold text-white">Nuevo Correo</h3>
+              <button onClick={() => setShowCompose(false)} className="p-1.5 rounded hover:bg-slate-800">
+                <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Para:</label>
-                <input type="email" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="destinatario@email.com" className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm" />
+                <label className="block text-sm font-medium text-slate-400 mb-1.5">Para:</label>
+                <input type="email" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="destinatario@email.com" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Asunto:</label>
-                <input type="text" value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Asunto del correo" className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm" />
+                <label className="block text-sm font-medium text-slate-400 mb-1.5">Asunto:</label>
+                <input type="text" value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Asunto del correo" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Mensaje:</label>
-                <textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} placeholder="Escribe tu mensaje..." rows={10} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm resize-none" />
+                <label className="block text-sm font-medium text-slate-400 mb-1.5">Mensaje:</label>
+                <textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} placeholder="Escribe tu mensaje..." rows={10} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm resize-none" />
               </div>
               <div>
                 <input type="file" ref={fileInputRef} multiple onChange={(e) => setAttachments(Array.from(e.target.files || []))} className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 px-3 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-200 text-sm">
+                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:bg-white/10 text-sm">
                   <Paperclip className="w-4 h-4" />
                   Adjuntar archivos
                 </button>
-                {attachments.length > 0 && <span className="ml-3 text-sm text-blue-600">{attachments.length} archivo(s)</span>}
+                {attachments.length > 0 && <span className="ml-3 text-sm text-blue-400">{attachments.length} archivo(s)</span>}
               </div>
             </div>
-            <div className="flex justify-end gap-2 px-5 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl">
-              <button onClick={() => setShowCompose(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg text-sm font-medium">Cancelar</button>
+            <div className="flex justify-end gap-2 px-5 py-4 border-t border-slate-700/50 bg-slate-800/50 rounded-b-xl">
+              <button onClick={() => setShowCompose(false)} className="px-4 py-2 text-slate-400 hover:bg-white/10 rounded-lg text-sm font-medium">Cancelar</button>
               <button onClick={sendEmail} disabled={sending} className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {sending ? "Enviando..." : "Enviar"}
@@ -461,11 +461,3 @@ export default function CorreoPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
