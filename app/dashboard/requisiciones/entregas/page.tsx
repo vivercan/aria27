@@ -214,7 +214,7 @@ export default function EntregasPage() {
 
       {/* Modal Nueva Entrega */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Entrega de Material</h2>
             <div className="text-blue-400 font-mono mb-4">Folio: {folio}</div>
@@ -285,7 +285,7 @@ export default function EntregasPage() {
 
       {/* Modal Detalle */}
       {showDetalle && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Detalle de Entrega</h2>
