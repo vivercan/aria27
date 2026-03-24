@@ -13,29 +13,6 @@ async function getUserByEmail(email: string) {
   const { data } = await supabase.from("Users").select("*").eq("email", email).single();
   return data;
 }
-import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
-
-const BASE_URL = "https://aria.jjcrm27.com";
-
-async function getUserByRole(role: string) {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
-  return data;
-import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
-
-const BASE_URL = "https://aria.jjcrm27.com";
-
-async function getUserByRole(role: string) {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
-  return data;
-}
-async function getUserByEmail(email: string) {
-  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
-  return data;
-}
 async function getNextOCFolio(): Promise<string> {
   const { data } = await supabase.from("sequences").select("current_value").eq("id", "OC").single();
   const next = (data?.current_value || 0) + 1;
@@ -204,3 +181,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
+
