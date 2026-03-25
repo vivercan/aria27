@@ -68,7 +68,7 @@ export default function BibliotecaPage() {
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Download className="w-4 h-4 text-amber-400" /></div>
-          <p className="text-xl font-bold text-white">—</p>
+          <p className="text-xl font-bold text-white">0</p>
           <p className="text-xs text-slate-400">Descargas este mes</p>
         </div>
       </div>
@@ -102,8 +102,8 @@ export default function BibliotecaPage() {
                 <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{p.nombre}</td>
                   <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-300">{p.categoria || "General"}</span></td>
-                  <td className="p-3 text-slate-400 text-xs truncate max-w-[200px]">{p.descripcion || "—"}</td>
-                  <td className="p-3 text-slate-400 text-xs">{p.updated_at ? new Date(p.updated_at).toLocaleDateString("es-MX") : "—"}</td>
+                  <td className="p-3 text-slate-400 text-xs truncate max-w-[200px]">{p.descripcion || "\u2014"}</td>
+                  <td className="p-3 text-slate-400 text-xs">{p.updated_at ? new Date(p.updated_at).toLocaleDateString("es-MX") : "\u2014"}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
