@@ -54,7 +54,7 @@ export default function ConfigGeneralPage() {
     setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
     setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
     setSaving(null);
-    setMsg(`â ${param.clave} actualizado`);
+    setMsg(`✅ ${param.clave} actualizado`);
     setTimeout(() => setMsg(null), 2000);
   };
 
@@ -71,7 +71,7 @@ export default function ConfigGeneralPage() {
     setParams(data || []);
     setEdited({});
     setSaving(null);
-    setMsg("â ConfiguraciÃ³n guardada");
+    setMsg("✅ Configuración guardada");
     setTimeout(() => setMsg(null), 2000);
   };
 
@@ -94,8 +94,8 @@ export default function ConfigGeneralPage() {
         <div className="flex items-center gap-3">
           <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
-            <h1 className="text-2xl font-bold">ConfiguraciÃ³n General</h1>
-            <p className="text-sm text-slate-400">ParÃ¡metros del sistema y usuarios</p>
+            <h1 className="text-2xl font-bold">Configuración General</h1>
+            <p className="text-sm text-slate-400">Parámetros del sistema y usuarios</p>
           </div>
         </div>
         {hasChanges && (
@@ -111,8 +111,8 @@ export default function ConfigGeneralPage() {
       <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5">
         <div className="flex items-center gap-2 mb-4">
           <Settings className="w-5 h-5 text-blue-400" />
-          <h2 className="text-lg font-semibold">ParÃ¡metros de NÃ³mina</h2>
-          <span className="text-xs text-slate-400 ml-auto">{params.length} parÃ¡metros</span>
+          <h2 className="text-lg font-semibold">Parámetros de Nómina</h2>
+          <span className="text-xs text-slate-400 ml-auto">{params.length} parámetros</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {params.map(p => {
