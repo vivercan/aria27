@@ -26,6 +26,11 @@ export async function GET(request: Request) {
       return new Response("Parametros invalidos", { status: 400 });
     }
 
+    const ALLOWED_ACTIONS = ["APROBADA", "RECHAZADA"];
+    if (!ALLOWED_ACTIONS.includes(action)) {
+      return new Response("Accion no permitida", { status: 403 });
+    }
+
     const { data: req, error } = await supabase
       .from("Requisiciones")
       .select("*")
