@@ -80,6 +80,11 @@ export async function GET(request: Request) {
       return new Response(buildComparativaHTML(req, token), { headers: { "Content-Type": "text/html" } });
     }
 
+    const ALLOWED_ACTIONS = ["AUTORIZADA", "RECHAZADA"];
+    if (!ALLOWED_ACTIONS.includes(action)) {
+      return new Response("Accion no permitida", { status: 403 });
+    }
+
     if (req.status !== "EN_AUTORIZACION") {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x26A0;</div><h1 style="color:#f59e0b">Ya Procesada</h1><p style="color:#94a3b8">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
@@ -181,4 +186,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
-
