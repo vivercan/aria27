@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "A/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, TrendingUp, Pencil, Trash2 } from "lucide-react";
 
 interface CuentaBancaria {
@@ -96,7 +96,7 @@ export default function BancosPage() {
               <div key={f.key}>
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
                 <input value={(form as any)[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
-                  className="v-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
               </div>
             ))}
             <div>
@@ -159,4 +159,5 @@ export default function BancosPage() {
         </div>
       </div>
     </div>
-   >
+  );
+}
