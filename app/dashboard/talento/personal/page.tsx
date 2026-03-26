@@ -2,7 +2,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2, Phone, Mail, Calendar, CreditCard, Shield, Loader2 } from "lucide-react";
+import {
+  ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2,
+  Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus
+} from "lucide-react";
 
 interface Empleado {
   id: string;
@@ -37,17 +40,35 @@ interface Empresa {
   id: string;
   nombre: string;
 }
+
 interface CentroTrabajo {
   id: string;
   nombre: string;
 }
 
 const EMPTY_FORM = {
-  full_name: "", position: "", department: "", email: "", whatsapp: "",
-  salario_diario: "", salario_semanal: "", salary_monthly: "", minimo_tarjeta: "",
-  tipo_nomina: "semanal", hora_entrada: "07:00", hora_salida: "17:00",
-  dias_laborales: "L,M,X,J,V,S", banco: "", clabe: "", numero_cuenta: "",
-  fecha_ingreso: "", nss: "", curp: "", rfc: "", empresa_id: "", project_site: ""
+  full_name: "",
+  position: "",
+  department: "",
+  email: "",
+  whatsapp: "",
+  salario_diario: "",
+  salario_semanal: "",
+  salary_monthly: "",
+  minimo_tarjeta: "",
+  tipo_nomina: "semanal",
+  hora_entrada: "07:00",
+  hora_salida: "17:00",
+  dias_laborales: "L,M,X,J,V,S",
+  banco: "",
+  clabe: "",
+  numero_cuenta: "",
+  fecha_ingreso: "",
+  nss: "",
+  curp: "",
+  rfc: "",
+  empresa_id: "",
+  project_site: ""
 };
 
 export default function PersonalPage() {
@@ -62,7 +83,9 @@ export default function PersonalPage() {
   const [tab, setTab] = useState<"general" | "laboral" | "bancario" | "fiscal">("general");
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
 
-  useEffect(() => { cargarDatos(); }, []);
+  useEffect(() => {
+    cargarDatos();
+  }, []);
 
   const cargarDatos = async () => {
     const { data: emps } = await supabase
@@ -74,10 +97,17 @@ export default function PersonalPage() {
 
     const { data: emp } = await supabase.from("empresas").select("id, nombre").order("nombre");
     if (emp) setEmpresas(emp);
+
     const { data: ct } = await supabase.from("centros_trabajo").select("id, nombre").eq("activo", true).order("nombre");
     if (ct) setCentros(ct);
 
     setLoading(false);
+  };
+
+  const nuevoEmpleado = () => {
+    setEditando("nuevo");
+    setForm({ ...EMPTY_FORM, fecha_ingreso: new Date().toISOString().split("T")[0] });
+    setTab("general");
   };
 
   const abrirEdicion = (e: Empleado) => {
@@ -109,29 +139,70 @@ export default function PersonalPage() {
     setTab("general");
   };
 
+  const generarNumeroEmpleado = (): string => {
+    const nums = empleados
+      .map(e => {
+        const m = e.employee_number?.match(/EMP-(\d+)/);
+        return m ? parseInt(m[1], 10) : 0;
+      })
+      .filter(n => n > 0);
+    const maxNum = nums.length > 0 ? Math.max(...nums) : 0;
+    const next = maxNum + 1;
+    return "EMP-" + String(next).padStart(3, "0");
+  };
+
   const guardar = async () => {
     if (!editando) return;
-    setGuardando(true);
-    const updateData: any = { ...form };
-    // Limpiar campos vacíos para no sobreescribir con ""
-    Object.keys(updateData).forEach(k => {
-      if (updateData[k] === "") updateData[k] = null;
-    });
-    // Convertir números
-    ["salario_diario", "salario_semanal", "salary_monthly", "minimo_tarjeta"].forEach(k => {
-      if (updateData[k]) updateData[k] = parseFloat(updateData[k]);
-    });
 
-    const { error } = await supabase.from("Personal").update(updateData).eq("id", editando);
-    setGuardando(false);
-
-    if (error) {
-      setMensaje({ tipo: "error", texto: `Error: ${error.message}` });
-    } else {
-      setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
-      setEditando(null);
-      cargarDatos();
+    if (!form.full_name?.trim()) {
+      setMensaje({ tipo: "error", texto: "El nombre es obligatorio" });
+      setTimeout(() => setMensaje(null), 3000);
+      return;
     }
+
+    setGuardando(true);
+
+    const saveData: any = { ...form };
+    Object.keys(saveData).forEach(k => {
+      if (saveData[k] === "") saveData[k] = null;
+    });
+    ["salario_diario", "salario_semanal", "salary_monthly", "minimo_tarjeta"].forEach(k => {
+      if (saveData[k]) saveData[k] = parseFloat(saveData[k]);
+    });
+
+    if (editando === "nuevo") {
+      // INSERT into base table employees
+      const empNumber = generarNumeroEmpleado();
+      const insertData = {
+        ...saveData,
+        employee_number: empNumber,
+        status: "ACTIVO",
+      };
+
+      const { error } = await supabase.from("employees").insert(insertData);
+      setGuardando(false);
+
+      if (error) {
+        setMensaje({ tipo: "error", texto: "Error al crear: " + error.message });
+      } else {
+        setMensaje({ tipo: "success", texto: "Empleado " + empNumber + " creado correctamente" });
+        setEditando(null);
+        cargarDatos();
+      }
+    } else {
+      // UPDATE existing
+      const { error } = await supabase.from("employees").update(saveData).eq("id", editando);
+      setGuardando(false);
+
+      if (error) {
+        setMensaje({ tipo: "error", texto: "Error: " + error.message });
+      } else {
+        setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
+        setEditando(null);
+        cargarDatos();
+      }
+    }
+
     setTimeout(() => setMensaje(null), 3000);
   };
 
@@ -141,18 +212,30 @@ export default function PersonalPage() {
     e.employee_number?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const getEmpresaNombre = (id: string) => empresas.find(e => e.id === id)?.nombre || "—";
+  const getEmpresaNombre = (id: string) => empresas.find(e => e.id === id)?.nombre || "\u2014";
 
-  const Field = ({ label, field, type = "text", placeholder = "", options }: { label: string; field: string; type?: string; placeholder?: string; options?: { value: string; label: string }[] }) => (
+  const Field = ({ label, field, type = "text", placeholder = "", options }: {
+    label: string; field: string; type?: string; placeholder?: string;
+    options?: { value: string; label: string }[];
+  }) => (
     <div>
       <label className="block text-xs text-slate-400 mb-1">{label}</label>
       {options ? (
-        <select value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
-          <option value="">— Seleccionar —</option>
+        <select
+          value={form[field] || ""}
+          onChange={e => setForm({ ...form, [field]: e.target.value })}
+          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
+          <option value="">{"\u2014 Seleccionar \u2014"}</option>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
-        <input type={type} value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+        <input
+          type={type}
+          value={form[field] || ""}
+          onChange={e => setForm({ ...form, [field]: e.target.value })}
+          placeholder={placeholder}
+          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600"
+        />
       )}
     </div>
   );
@@ -162,7 +245,8 @@ export default function PersonalPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <Link href="/dashboard/talento"
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
@@ -170,15 +254,30 @@ export default function PersonalPage() {
             <p className="text-xs text-slate-400">{empleados.length} empleados activos</p>
           </div>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar..." className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={nuevoEmpleado}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-medium">
+            <UserPlus className="w-4 h-4" />
+            Nuevo Empleado
+          </button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              placeholder="Buscar..."
+              className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-blue-500 focus:outline-none placeholder-slate-600"
+            />
+          </div>
         </div>
       </div>
 
       {/* Mensaje */}
       {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${
+          mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
+        }`}>
           {mensaje.texto}
         </div>
       )}
@@ -201,6 +300,10 @@ export default function PersonalPage() {
           <tbody>
             {loading ? (
               <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+            ) : empFiltrados.length === 0 ? (
+              <tr><td colSpan={8} className="p-8 text-center text-slate-500 text-sm">
+                {busqueda ? "Sin resultados para la b\u00fasqueda" : "No hay empleados registrados"}
+              </td></tr>
             ) : empFiltrados.map(e => {
               const campos = [e.curp, e.rfc, e.nss, e.banco, e.clabe, e.fecha_ingreso, e.numero_cuenta].filter(Boolean).length;
               return (
@@ -216,17 +319,22 @@ export default function PersonalPage() {
                       "bg-slate-500/20 text-slate-400"
                     }`}>{getEmpresaNombre(e.empresa_id)}</span>
                   </td>
-                  <td className="p-3 text-slate-400 text-sm">{e.whatsapp || "—"}</td>
+                  <td className="p-3 text-slate-400 text-sm">{e.whatsapp || "\u2014"}</td>
                   <td className="p-3 text-center text-sm">
-                    {e.fecha_ingreso ? <span className="text-emerald-400">{e.fecha_ingreso}</span> : <span className="text-red-400/60">—</span>}
+                    {e.fecha_ingreso
+                      ? <span className="text-emerald-400">{e.fecha_ingreso}</span>
+                      : <span className="text-red-400/60">{"\u2014"}</span>}
                   </td>
                   <td className="p-3 text-center">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${campos >= 5 ? "bg-emerald-500/20 text-emerald-400" : campos >= 2 ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
-                      {campos}/7
-                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      campos >= 5 ? "bg-emerald-500/20 text-emerald-400" :
+                      campos >= 2 ? "bg-amber-500/20 text-amber-400" :
+                      "bg-red-500/20 text-red-400"
+                    }`}>{campos}/7</span>
                   </td>
                   <td className="p-3 text-center">
-                    <button onClick={() => abrirEdicion(e)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                    <button onClick={() => abrirEdicion(e)}
+                      className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                   </td>
@@ -237,14 +345,26 @@ export default function PersonalPage() {
         </table>
       </div>
 
-      {/* Modal de edición */}
+      {/* Modal de edicion / alta */}
       {editando && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditando(null)}>
-          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setEditando(null)}>
+          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
+            onClick={e => e.stopPropagation()}>
             {/* Header modal */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h2 className="text-lg font-bold text-white">Editar Empleado</h2>
-              <button onClick={() => setEditando(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+              <div className="flex items-center gap-3">
+                {editando === "nuevo"
+                  ? <UserPlus className="w-5 h-5 text-emerald-400" />
+                  : <Edit2 className="w-5 h-5 text-blue-400" />}
+                <h2 className="text-lg font-bold text-white">
+                  {editando === "nuevo" ? "Nuevo Empleado" : "Editar Empleado"}
+                </h2>
+              </div>
+              <button onClick={() => setEditando(null)}
+                className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Tabs */}
@@ -256,7 +376,9 @@ export default function PersonalPage() {
                 { key: "fiscal", label: "Fiscal", icon: Shield },
               ].map(t => (
                 <button key={t.key} onClick={() => setTab(t.key as any)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${tab === t.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"}`}>
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                    tab === t.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"
+                  }`}>
                   <t.icon className="w-4 h-4" />
                   {t.label}
                 </button>
@@ -267,12 +389,14 @@ export default function PersonalPage() {
             <div className="p-4 overflow-y-auto max-h-[55vh]">
               {tab === "general" && (
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nombre completo" field="full_name" />
+                  <Field label="Nombre completo *" field="full_name" />
                   <Field label="Puesto" field="position" />
-                  <Field label="Centro de Trabajo / Obra" field="project_site" options={centros.map(c => ({ value: c.nombre, label: c.nombre }))} />
+                  <Field label="Centro de Trabajo / Obra" field="project_site"
+                    options={centros.map(c => ({ value: c.nombre, label: c.nombre }))} />
                   <Field label="Email" field="email" type="email" />
-                  <Field label="WhatsApp (10 dígitos)" field="whatsapp" placeholder="4491234567" />
-                  <Field label="Empresa" field="empresa_id" options={empresas.map(e => ({ value: e.id, label: e.nombre }))} />
+                  <Field label={"WhatsApp (10 d\u00edgitos)"} field="whatsapp" placeholder="4491234567" />
+                  <Field label="Empresa" field="empresa_id"
+                    options={empresas.map(e => ({ value: e.id, label: e.nombre }))} />
                   <Field label="Fecha de ingreso" field="fecha_ingreso" type="date" />
                   <Field label="Departamento" field="department" />
                 </div>
@@ -282,20 +406,27 @@ export default function PersonalPage() {
                   <Field label="Salario diario" field="salario_diario" type="number" />
                   <Field label="Salario semanal" field="salario_semanal" type="number" />
                   <Field label="Salario mensual" field="salary_monthly" type="number" />
-                  <Field label="Mínimo tarjeta" field="minimo_tarjeta" type="number" />
-                  <Field label="Tipo nómina" field="tipo_nomina" options={[{ value: "semanal", label: "Semanal" }, { value: "quincenal", label: "Quincenal" }, { value: "mensual", label: "Mensual" }]} />
+                  <Field label={"M\u00ednimo tarjeta"} field="minimo_tarjeta" type="number" />
+                  <Field label={"Tipo n\u00f3mina"} field="tipo_nomina"
+                    options={[
+                      { value: "semanal", label: "Semanal" },
+                      { value: "quincenal", label: "Quincenal" },
+                      { value: "mensual", label: "Mensual" }
+                    ]} />
                   <Field label="Hora entrada" field="hora_entrada" type="time" />
                   <Field label="Hora salida" field="hora_salida" type="time" />
-                  <Field label="Días laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
+                  <Field label="D\u00edas laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
                 </div>
               )}
               {tab === "bancario" && (
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
-                  <Field label="CLABE (18 dígitos)" field="clabe" placeholder="012345678901234567" />
-                  <Field label="Número de cuenta" field="numero_cuenta" />
+                  <Field label={"CLABE (18 d\u00edgitos)"} field="clabe" placeholder="012345678901234567" />
+                  <Field label={"N\u00famero de cuenta"} field="numero_cuenta" />
                   <div className="col-span-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <p className="text-blue-400 text-xs">Los datos bancarios se usan para la dispersión de nómina. Verifica CLABE y banco con el empleado.</p>
+                    <p className="text-blue-400 text-xs">
+                      {"Los datos bancarios se usan para la dispersi\u00f3n de n\u00f3mina. Verifica CLABE y banco con el empleado."}
+                    </p>
                   </div>
                 </div>
               )}
@@ -303,21 +434,44 @@ export default function PersonalPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
                   <Field label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
-                  <Field label="NSS (11 dígitos)" field="nss" placeholder="00000000000" />
+                  <Field label={"NSS (11 d\u00edgitos)"} field="nss" placeholder="00000000000" />
                   <div className="col-span-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <p className="text-amber-400 text-xs">Estos datos son requeridos por el IMSS y SAT. El NSS es obligatorio para el alta ante el Seguro Social.</p>
+                    <p className="text-amber-400 text-xs">
+                      {"Estos datos son requeridos por el IMSS y SAT. El NSS es obligatorio para el alta ante el Seguro Social."}
+                    </p>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
-              <button onClick={() => setEditando(null)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
-              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:opacity-50">
-                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Guardar
-              </button>
+            <div className="flex items-center justify-between p-4 border-t border-white/10">
+              <div>
+                {editando === "nuevo" && (
+                  <p className="text-xs text-slate-500">
+                    {"Se asignar\u00e1 n\u00famero autom\u00e1ticamente"}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setEditando(null)}
+                  className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">
+                  Cancelar
+                </button>
+                <button onClick={guardar} disabled={guardando}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm disabled:opacity-50 ${
+                    editando === "nuevo"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}>
+                  {guardando
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : editando === "nuevo"
+                      ? <UserPlus className="w-4 h-4" />
+                      : <Save className="w-4 h-4" />}
+                  {editando === "nuevo" ? "Crear Empleado" : "Guardar"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
