@@ -6,32 +6,47 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 const BASE_URL = "https://aria.jjcrm27.com";
 
 async function getNextFolio(): Promise<string> {
-  // Usar RPC atómico si existe, sino fallback con retry para evitar race conditions
+  const year = new Date().getFullYear();
+  const prefix = `REQ-${year}-`;
+
+  // Estrategia 1: RPC atÃ³mico (ideal)
   try {
     const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "requisitions" });
     if (!rpcError && rpcData !== null) {
       const next = typeof rpcData === "number" ? rpcData : rpcData.current_value;
-      return `REQ-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
+      return `${prefix}${String(next).padStart(5, "0")}`;
     }
   } catch {}
 
-  // Fallback: leer + incrementar con verificación de unicidad
-  const year = new Date().getFullYear();
-  const { data } = await supabase.from("sequences").select("current_value").eq("id", "requisitions").single();
-  const next = (data?.current_value || 0) + 1;
-  await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
-  const folio = `REQ-${year}-${String(next).padStart(5, "0")}`;
+  // Estrategia 2: Leer MAX folio real de la tabla (evita race condition del sequence)
+  const { data: maxFolioData } = await supabase
+    .from("Requisiciones")
+    .select("folio")
+    .like("folio", `${prefix}%`)
+    .order("folio", { ascending: false })
+    .limit(1);
 
-  // Verificar que el folio no exista ya (protección extra contra duplicados)
-  const { data: existing } = await supabase.from("Requisiciones").select("id").eq("folio", folio).limit(1);
-  if (existing && existing.length > 0) {
-    // Si ya existe, forzar el siguiente número
-    const next2 = next + 1;
-    await supabase.from("sequences").update({ current_value: next2 }).eq("id", "requisitions");
-    return `REQ-${year}-${String(next2).padStart(5, "0")}`;
+  let maxNum = 0;
+  if (maxFolioData && maxFolioData.length > 0) {
+    const parts = maxFolioData[0].folio.split("-");
+    maxNum = parseInt(parts[2], 10) || 0;
   }
 
-  return folio;
+  // TambiÃ©n leer sequence por si estÃ¡ mÃ¡s adelante
+  const { data: seqData } = await supabase
+    .from("sequences")
+    .select("current_value")
+    .eq("id", "requisitions")
+    .single();
+  const seqNum = seqData?.current_value || 0;
+
+  // Usar el mayor entre ambos + 1
+  const next = Math.max(maxNum, seqNum) + 1;
+
+  // Actualizar sequence para mantenerlo sincronizado
+  await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
+
+  return `${prefix}${String(next).padStart(5, "0")}`;
 }
 
 async function getUserByEmail(email: string) {
