@@ -45,7 +45,7 @@ export default function CosteoPage() {
         obraMap[key].materiales += oc.total || 0;
       });
 
-      // Sumar gastos por obra y categorÃ­a
+      // Sumar gastos por obra y categoría
       (gastos || []).forEach((g: any) => {
         const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
@@ -106,7 +106,7 @@ export default function CosteoPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-white">Costeo por Obra</h1>
-        <p className="text-slate-400 text-sm">Presupuesto vs costo real â materiales, mano de obra, subcontratos e indirectos</p>
+        <p className="text-slate-400 text-sm">Presupuesto vs costo real — materiales, mano de obra, subcontratos e indirectos</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -179,7 +179,7 @@ export default function CosteoPage() {
       {/* Leyenda */}
       <div className="flex gap-6 text-xs text-slate-400">
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500" /> Dentro de presupuesto</div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /> Cerca del lÃ­mite (&gt;85%)</div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /> Cerca del límite (&gt;85%)</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500" /> Sobrepasado</div>
       </div>
     </div>
