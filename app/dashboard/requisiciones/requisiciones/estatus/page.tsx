@@ -186,7 +186,7 @@ export default function RequisicionesStatusPage() {
   }
 
   async function handleCancelar(reqId: string) {
-    if (!confirm("Â¿Cancelar esta requisiciÃ³n?")) return;
+    if (!confirm("¿Cancelar esta requisición?")) return;
     await supabase.from("Requisiciones").update({ status: "CANCELADA" }).eq("id", reqId);
     loadData(userEmail);
   }
@@ -381,14 +381,14 @@ export default function RequisicionesStatusPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded text-xs font-medium ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
-                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">â</button>
+                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">✕</button>
               </div>
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha CreaciÃ³n</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
+                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
                 <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Total</p><p className="text-sm text-emerald-400 font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
@@ -430,11 +430,11 @@ export default function RequisicionesStatusPage() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
-            <h3 className="text-lg font-bold text-white mb-4">â ï¸ Confirmar EliminaciÃ³n</h3>
+            <h3 className="text-lg font-bold text-white mb-4">⚠️ Confirmar Eliminación</h3>
             <p className="text-slate-400 text-sm mb-4">
               {deleteType === "single"
-                ? "Â¿Eliminar esta requisiciÃ³n?"
-                : `Â¿Eliminar ${deleteType === "all" ? "TODAS" : selectedIds.length} requisiciones?`}
+                ? "¿Eliminar esta requisición?"
+                : `¿Eliminar ${deleteType === "all" ? "TODAS" : selectedIds.length} requisiciones?`}
             </p>
             <p className="text-slate-500 text-xs mb-2">Escribe DELETE para confirmar:</p>
             <input
