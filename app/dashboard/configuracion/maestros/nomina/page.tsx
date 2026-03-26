@@ -4,29 +4,29 @@ import { supabase } from "@/lib/supabase";
 import { Save, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-interface ConfiguraciÃ³nItem {
+interface ConfigItem {
   id: string;
   clave: string;
   valor: string;
   descripcion: string;
 }
 
-export default function NÃ³minaConfiguraciÃ³nPage() {
-  const [ConfiguraciÃ³ns, setConfiguraciÃ³ns] = useState<ConfiguraciÃ³nItem[]>([]);
+export default function NominaConfigPage() {
+  const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchConfiguraciÃ³ns();
+    fetchConfigs();
   }, []);
 
-  async function fetchConfiguraciÃ³ns() {
+  async function fetchConfigs() {
     const { data, error } = await supabase
       .from("configuracion_nomina")
       .select("*")
       .order("clave");
     if (error) { console.error("Error loading configuracion_nomina:", error.message); setLoading(false); return; }
-    if (data) setConfiguraciÃ³ns(data);
+    if (data) setConfigs(data);
     setLoading(false);
   }
 
@@ -38,24 +38,24 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
   }
 
   function handleChange(id: string, valor: string) {
-    setConfiguraciÃ³ns(ConfiguraciÃ³ns.map(c => c.id === id ? { ...c, valor } : c));
+    setConfigs(configs.map(c => c.id === id ? { ...c, valor } : c));
   }
 
-  const ConfiguraciÃ³nLabels: Record<string, string> = {
-    aguinaldo_dias: "DÃ­as de Aguinaldo",
-    dia_pago_semanal: "DÃ­a de Pago Semanal",
+  const configLabels: Record<string, string> = {
+    aguinaldo_dias: "D\u00edas de Aguinaldo",
+    dia_pago_semanal: "D\u00eda de Pago Semanal",
     factor_hora_extra_doble: "Factor Hora Extra Doble",
     factor_hora_extra_triple: "Factor Hora Extra Triple",
     horario_entrada_default: "Horario Entrada (L-V)",
-    horario_sabado_entrada: "Horario Entrada SÃ¡bado",
-    horario_sabado_salida: "Horario Salida SÃ¡bado",
+    horario_sabado_entrada: "Horario Entrada S\u00e1bado",
+    horario_sabado_salida: "Horario Salida S\u00e1bado",
     horario_salida_default: "Horario Salida (L-V)",
     horas_jornada_diaria: "Horas Jornada Diaria",
-    minimo_tarjeta_default: "MÃ­nimo Pago por Tarjeta",
-    modo_nomina: "Modo de NÃ³mina",
-    salario_minimo: `Salario MÃ­nimo Diario ${new Date().getFullYear()}`,
+    minimo_tarjeta_default: "M\u00ednimo Pago por Tarjeta",
+    modo_nomina: "Modo de N\u00f3mina",
+    salario_minimo: `Salario M\u00ednimo Diario ${new Date().getFullYear()}`,
     tolerancia_retardo_min: "Tolerancia Retardo (minutos)",
-    vacaciones_anio_1: "Vacaciones Primer AÃ±o (dÃ­as)"
+    vacaciones_anio_1: "Vacaciones Primer A\u00f1o (d\u00edas)"
   };
 
   return (
@@ -63,7 +63,7 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
       <div className="flex items-center gap-2 text-sm text-slate-400">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>
-        <span className="text-white">ConfiguraciÃ³n NÃ³mina</span>
+        <span className="text-white">Configuraci\u00f3n N\u00f3mina</span>
       </div>
 
       <div className="flex items-center gap-4">
@@ -73,9 +73,9 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
-          ConfiguraciÃ³n de NÃ³mina
+          Configuraci\u00f3n de N\u00f3mina
         </h1>
-        <p className="text-slate-400 text-sm">ParÃ¡metros para cÃ¡lculo de nÃ³mina y asistencias</p>
+        <p className="text-slate-400 text-sm">Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias</p>
       </div></div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
@@ -83,27 +83,27 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
           <p className="text-center text-slate-400 py-8">Cargando...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {ConfiguraciÃ³ns.map((ConfiguraciÃ³n) => (
-              <div key={ConfiguraciÃ³n.id} className="space-y-1">
+            {configs.map((cfg) => (
+              <div key={cfg.id} className="space-y-1">
                 <label className="block text-sm text-slate-300 font-medium">
-                  {ConfiguraciÃ³nLabels[ConfiguraciÃ³n.clave] || ConfiguraciÃ³n.clave}
+                  {configLabels[cfg.clave] || cfg.clave}
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={ConfiguraciÃ³n.valor}
-                    onChange={(e) => handleChange(ConfiguraciÃ³n.id, e.target.value)}
+                    value={cfg.valor}
+                    onChange={(e) => handleChange(cfg.id, e.target.value)}
                     className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white"
                   />
                   <button
-                    onClick={() => handleSave(ConfiguraciÃ³n.id, ConfiguraciÃ³n.valor)}
+                    onClick={() => handleSave(cfg.id, cfg.valor)}
                     disabled={saving}
                     className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white"
                   >
                     <Save size={16} />
                   </button>
                 </div>
-                <p className="text-xs text-slate-500">{ConfiguraciÃ³n.descripcion}</p>
+                <p className="text-xs text-slate-500">{cfg.descripcion}</p>
               </div>
             ))}
           </div>
@@ -112,5 +112,3 @@ export default function NÃ³minaConfiguraciÃ³nPage() {
     </div>
   );
 }
-
-
