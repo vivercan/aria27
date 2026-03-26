@@ -78,15 +78,15 @@ export default function ProveedoresPage() {
   const handleSave = async()=>{
     if(!form.name.trim())return; setSaving(true);
     try{
-      if(editingId){await supabase.from("Proveedores").update(form).eq("id",editingId);}
-      else{await supabase.from("Proveedores").insert({...form,active:true});}
+      if(editingId){await supabase.from("suppliers").update(form).eq("id",editingId);}
+      else{await supabase.from("suppliers").insert({...form,active:true});}
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
     }catch(e){console.error(e);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{
     if(!confirm(`¿Eliminar "${name}"?`))return;
-    await supabase.from("Proveedores").delete().eq("id",id);await loadSuppliers();
+    await supabase.from("suppliers").delete().eq("id",id);await loadSuppliers();
   };
 
   const copyClabe = (id:string,clabe:string)=>{navigator.clipboard.writeText(clabe);setCopiedId(id);setTimeout(()=>setCopiedId(null),2000);};
