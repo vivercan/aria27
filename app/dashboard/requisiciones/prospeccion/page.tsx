@@ -83,7 +83,7 @@ export default function ProspeccionPage() {
   const saveAsSupplier = async (result: WebResult, idx: number) => {
     setSavingIdx(idx);
     try {
-      const { error: insertErr } = await supabase.from("Proveedores").insert({
+      const { error: insertErr } = await supabase.from("suppliers").insert({
         name: result.nombre,
         phone: result.telefono || null,
         website: result.sitio_web || null,
