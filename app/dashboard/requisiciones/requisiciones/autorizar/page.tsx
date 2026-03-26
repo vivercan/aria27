@@ -112,9 +112,9 @@ export default function AuthorizeRequisicionesPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0">
+      <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
         {/* Lista de pendientes */}
-        <div className="lg:col-span-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
+        <div className="lg:col-span-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col min-h-0 overflow-hidden">
           <h2 className="text-lg font-semibold mb-4">Pendientes ({Requisiciones.length})</h2>
           <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
