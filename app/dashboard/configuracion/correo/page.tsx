@@ -124,12 +124,12 @@ export default function CorreoPage() {
 
   const deleteEmails = async (uids: number[]) => {
     if (uids.length === 0) return;
-    if (!confirm(`Â¿Eliminar ${uids.length} correo(s)?`)) return;
+    if (!confirm(`¿Eliminar ${uids.length} correo(s)?`)) return;
     
     setDeleting(true);
     try {
       const creds = sessionStorage.getItem("zohoCreds");
-      if (!creds) throw new Error("SesiÃ³n expirada");
+      if (!creds) throw new Error("Sesión expirada");
       const { e, p } = JSON.parse(atob(creds));
       
       const res = await fetch("/api/mail/delete", {
@@ -161,7 +161,7 @@ export default function CorreoPage() {
     setSending(true);
     try {
       const creds = sessionStorage.getItem("zohoCreds");
-      if (!creds) throw new Error("SesiÃ³n expirada");
+      if (!creds) throw new Error("Sesión expirada");
       const { e, p } = JSON.parse(atob(creds));
       const res = await fetch("/api/mail/send", {
         method: "POST",
@@ -242,12 +242,12 @@ export default function CorreoPage() {
               <ArrowLeft className="w-5 h-5 text-slate-400" />
             </Link>
             <Mail className="w-6 h-6 text-blue-400" />
-            <h2 className="text-lg font-semibold text-white">Iniciar SesiÃ³n de Correo</h2>
+            <h2 className="text-lg font-semibold text-white">Iniciar Sesión de Correo</h2>
           </div>
           <p className="text-slate-400 text-sm mb-5">Ingresa tus credenciales de correo para acceder a la bandeja.</p>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">Correo electrÃ³nico</label>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5">Correo electrónico</label>
               <input
                 type="email"
                 value={loginEmail}
@@ -258,12 +258,12 @@ export default function CorreoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">ContraseÃ±a</label>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5">Contraseña</label>
               <input
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="ContraseÃ±a del correo"
+                placeholder="Contraseña del correo"
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
@@ -389,7 +389,7 @@ export default function CorreoPage() {
 
             {selectedIds.length > 0 && (
               <>
-                <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leÃ­do">
+                <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leído">
                   <MailOpen className="w-4 h-4" />
                 </button>
                 <button 
@@ -485,7 +485,7 @@ export default function CorreoPage() {
                 <div className="text-right flex-shrink-0">
                   <p className="text-slate-400 text-sm">{formatDate(selectedEmail.date)}</p>
                   <button onClick={() => toggleRead(selectedEmail.uid)} className="text-xs text-blue-400 hover:underline mt-1">
-                    {selectedEmail.seen ? "Marcar no leÃ­do" : "Marcar leÃ­do"}
+                    {selectedEmail.seen ? "Marcar no leído" : "Marcar leído"}
                   </button>
                 </div>
               </div>
