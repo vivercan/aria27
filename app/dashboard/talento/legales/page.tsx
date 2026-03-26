@@ -59,7 +59,7 @@ export default function LegalesPage() {
   const handleSaveLegal = async () => {
     if (!editingId) return;
     setSaving(true);
-    const { error } = await supabase.from("Personal").update({
+    const { error } = await supabase.from("employees").update({
       rfc: editForm.rfc || null,
       curp: editForm.curp || null,
       nss: editForm.nss || null,
