@@ -99,7 +99,7 @@ export default function PorPagarPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-white">Cuentas por Pagar</h1>
-        <p className="text-slate-400 text-sm">Saldos pendientes con proveedores y antigÃ¼edad</p>
+        <p className="text-slate-400 text-sm">Saldos pendientes con proveedores y antigüedad</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -146,14 +146,14 @@ export default function PorPagarPage() {
                 <th className="text-right p-3">Saldo</th>
                 <th className="text-center p-3">Vencimiento</th>
                 <th className="text-center p-3">Estado</th>
-                <th className="text-center p-3">AcciÃ³n</th>
+                <th className="text-center p-3">Acción</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Cargando...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin cuentas pendientes ð</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin cuentas pendientes 🎉</td></tr>
               ) : filtered.map(c => {
                 const dias = diasRestantes(c.fecha_vencimiento);
                 return (
