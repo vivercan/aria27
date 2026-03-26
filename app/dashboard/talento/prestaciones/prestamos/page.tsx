@@ -76,18 +76,18 @@ export default function PrestamosPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Control de PrÃ©stamos</h1>
-          <p className="text-slate-400">Gestiona prÃ©stamos y descuentos semanales</p>
+          <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
+          <p className="text-slate-400">Gestiona préstamos y descuentos semanales</p>
         </div>
         <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nuevo PrÃ©stamo
+          <Plus className="w-4 h-4" /> Nuevo Préstamo
         </button>
       </div>
 
       {/* Resumen */}
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl">
-          <p className="text-blue-400 text-sm">PrÃ©stamos Activos</p>
+          <p className="text-blue-400 text-sm">Préstamos Activos</p>
           <p className="text-2xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
         </div>
         <div className="p-4 bg-amber-500/20 border border-amber-500/30 rounded-xl">
@@ -117,7 +117,7 @@ export default function PrestamosPage() {
             {loading ? (
               <tr><td colSpan={6} className="p-8 text-center text-slate-400">Cargando...</td></tr>
             ) : prestamos.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay prÃ©stamos registrados</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay préstamos registrados</td></tr>
             ) : (
               prestamos.map((p) => (
                 <tr key={p.id} className="border-t border-white/5 hover:bg-white/5">
@@ -146,7 +146,7 @@ export default function PrestamosPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 border border-white/10 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">Nuevo PrÃ©stamo</h2>
+              <h2 className="text-xl font-bold text-white">Nuevo Préstamo</h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white"><X /></button>
             </div>
             <div className="space-y-4">
@@ -158,7 +158,7 @@ export default function PrestamosPage() {
               <input type="number" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
               <input type="number" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
-              <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear PrÃ©stamo</button>
+              <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear Préstamo</button>
             </div>
           </div>
         </div>
