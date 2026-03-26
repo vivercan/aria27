@@ -320,50 +320,6 @@ export default function CorreoPage() {
           </div>
         </div>
 
-        {/* Email list */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-[320px] bg-slate-900">
-          {/* List header */}
-          <div className="px-4 py-3 border-b border-slate-700/50 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <button onClick={selectAll} className="p-1 rounded hover:bg-slate-800">
-                {selectedIds.length === filteredEmails.length && filteredEmails.length > 0 ? (
-                  <CheckSquare className="w-4 h-4 text-blue-400" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400" />
-                )}
-              </button>
-              {selectedIds.length > 0 && (
-                <button onClick={() => deleteEmails(selectedIds)} disabled={deleting} className="p-1 rounded hover:bg-red-500/20 text-red-400">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-                <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar..."
-                  className="w-full pl-8 pr-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500/50" />
-              </div>
-            </div>
-          </div>
-
-          {/* Email list */}
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="flex items-center justify-center p-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
-            ) : error ? (
-              <div className="p-8 text-center">
-                <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                <p className="text-red-400 text-sm">{error}</p>
-                <button onClick={loadEmails} className="mt-3 px-4 py-2 bg-slate-800 rounded-lg text-sm text-white hover:bg-slate-700">Reintentar</button>
-              </div>
-                     <span className="ml-auto text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded font-medium">
-                    {emails.filter(e => !e.seen).length}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Lista de correos */}
         <div className={`${selectedEmail ? "w-80" : "flex-1"} flex flex-col overflow-hidden border-r border-slate-700/50 transition-all`}>
           {/* Toolbar */}
