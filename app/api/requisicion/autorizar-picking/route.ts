@@ -5,7 +5,7 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 export async function POST(req: Request) {
   try {
   // AUTH CHECK removido 23-Mar-2026: sistema usa login Zoho SMTP, no Supabase Auth.
-  // Auth real se implementarÃ¡ cuando se migre a Supabase Auth (decisiÃ³n aprobada, pendiente).
+  // Auth real se implementará cuando se migre a Supabase Auth (decisión aprobada, pendiente).
 
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -65,10 +65,10 @@ export async function POST(req: Request) {
     const ocList = ocFolios.join("\n");
 
     const materialesText = selections.map((s: any) =>
-      `â¢ ${s.product_name} (${s.quantity} ${s.unit}) â ${s.supplier_name} $${s.unit_price.toLocaleString()}`
+      `• ${s.product_name} (${s.quantity} ${s.unit}) → ${s.supplier_name} $${s.unit_price.toLocaleString()}`
     ).join("\n");
 
-    // WhatsApp â usar template aprobado oc_generada
+    // WhatsApp — usar template aprobado oc_generada
     if (compras?.phone) {
       const firstOcFolio = ocFolios[0]?.split(" - ")[0] || "OC";
       await sendWhatsAppTemplate(
@@ -93,16 +93,16 @@ export async function POST(req: Request) {
             <div style="background:#064e3b;padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;">
               <p style="margin:0;font-size:20px;font-weight:bold;color:#34d399">COMPRA AUTORIZADA</p>
             </div>
-            <p><strong style="color:#94a3b8">RequisiciÃ³n:</strong> ${folio}</p>
+            <p><strong style="color:#94a3b8">Requisición:</strong> ${folio}</p>
             <p><strong style="color:#94a3b8">Obra:</strong> ${obra}</p>
             <p><strong style="color:#94a3b8">Total:</strong> <span style="color:#34d399;font-size:20px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p>
             <hr style="border-color:#334155;margin:20px 0">
-            <p style="color:#94a3b8;font-weight:bold">Ãrdenes de Compra:</p>
+            <p style="color:#94a3b8;font-weight:bold">Órdenes de Compra:</p>
             ${Object.entries(grouped).map(([name, sitems]: [string, any[]]) => {
               const t = sitems.reduce((s: number, i: any) => s + i.total_price, 0);
               return `<div style="background:#1e293b;padding:12px;border-radius:6px;margin:8px 0">
                 <p style="margin:0;color:white;font-weight:bold">${name} - $${t.toLocaleString()}</p>
-                ${sitems.map((i: any) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">â¢ ${i.product_name} (${i.quantity} ${i.unit}) @ $${i.unit_price.toLocaleString()}</p>`).join("")}
+                ${sitems.map((i: any) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">• ${i.product_name} (${i.quantity} ${i.unit}) @ $${i.unit_price.toLocaleString()}</p>`).join("")}
               </div>`;
             }).join("")}
           </div>
