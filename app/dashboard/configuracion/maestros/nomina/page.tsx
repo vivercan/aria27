@@ -63,7 +63,7 @@ export default function NominaConfigPage() {
       <div className="flex items-center gap-2 text-sm text-slate-400">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>
-        <span className="text-white">Configuraci\u00f3n N\u00f3mina</span>
+        <span className="text-white">{"Configuraci\u00f3n N\u00f3mina"}</span>
       </div>
 
       <div className="flex items-center gap-4">
@@ -73,9 +73,9 @@ export default function NominaConfigPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
-          Configuraci\u00f3n de N\u00f3mina
+          {"Configuraci\u00f3n de N\u00f3mina"}
         </h1>
-        <p className="text-slate-400 text-sm">Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias</p>
+        <p className="text-slate-400 text-sm">{"Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias"}</p>
       </div></div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
