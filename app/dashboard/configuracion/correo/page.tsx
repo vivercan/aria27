@@ -28,6 +28,10 @@ export default function CorreoPage() {
   const [userEmail, setUserEmail] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [showCompose, setShowCompose] = useState(false);
   const [composeTo, setComposeTo] = useState("");
@@ -39,8 +43,26 @@ export default function CorreoPage() {
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
-    if (email) setUserEmail(email);
+    if (email) {
+      setUserEmail(email);
+      setLoginEmail(email);
+    }
+    // Verificar si hay credenciales en sessionStorage
+    const creds = sessionStorage.getItem("zohoCreds");
+    if (!creds) setNeedsLogin(true);
   }, []);
+
+  const handleLogin = () => {
+    if (!loginEmail || !loginPassword) return;
+    setLoggingIn(true);
+    const encoded = btoa(JSON.stringify({ e: loginEmail, p: loginPassword }));
+    sessionStorage.setItem("zohoCreds", encoded);
+    localStorage.setItem("userEmail", loginEmail);
+    setUserEmail(loginEmail);
+    setNeedsLogin(false);
+    setLoggingIn(false);
+    setLoginPassword("");
+  };
 
   const loadEmails = async () => {
     setLoading(true);
@@ -48,7 +70,7 @@ export default function CorreoPage() {
     try {
       const creds = sessionStorage.getItem("zohoCreds");
       if (!creds) {
-        setError("Sesión expirada. Vuelve a iniciar sesión.");
+        setNeedsLogin(true);
         return;
       }
       const { e, p } = JSON.parse(atob(creds));
@@ -102,12 +124,12 @@ export default function CorreoPage() {
 
   const deleteEmails = async (uids: number[]) => {
     if (uids.length === 0) return;
-    if (!confirm(`¿Eliminar ${uids.length} correo(s)?`)) return;
+    if (!confirm(`Â¿Eliminar ${uids.length} correo(s)?`)) return;
     
     setDeleting(true);
     try {
       const creds = sessionStorage.getItem("zohoCreds");
-      if (!creds) throw new Error("Sesión expirada");
+      if (!creds) throw new Error("SesiÃ³n expirada");
       const { e, p } = JSON.parse(atob(creds));
       
       const res = await fetch("/api/mail/delete", {
@@ -139,7 +161,7 @@ export default function CorreoPage() {
     setSending(true);
     try {
       const creds = sessionStorage.getItem("zohoCreds");
-      if (!creds) throw new Error("Sesión expirada");
+      if (!creds) throw new Error("SesiÃ³n expirada");
       const { e, p } = JSON.parse(atob(creds));
       const res = await fetch("/api/mail/send", {
         method: "POST",
@@ -211,6 +233,55 @@ export default function CorreoPage() {
     { name: "Notification", label: "ARIA27 Notificaciones", icon: Bell },
   ];
 
+  if (needsLogin) {
+    return (
+      <div className="h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-slate-900">
+        <div className="w-full max-w-sm p-6 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Link href="/dashboard/configuracion" className="p-2 rounded-lg hover:bg-slate-700">
+              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            </Link>
+            <Mail className="w-6 h-6 text-blue-400" />
+            <h2 className="text-lg font-semibold text-white">Iniciar SesiÃ³n de Correo</h2>
+          </div>
+          <p className="text-slate-400 text-sm mb-5">Ingresa tus credenciales de correo para acceder a la bandeja.</p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5">Correo electrÃ³nico</label>
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="tu@gcuavante.com"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm"
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5">ContraseÃ±a</label>
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="ContraseÃ±a del correo"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 text-sm"
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+            <button
+              onClick={handleLogin}
+              disabled={loggingIn || !loginEmail || !loginPassword}
+              className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            >
+              {loggingIn ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Conectar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden bg-slate-900">
       {/* Header */}
@@ -242,7 +313,49 @@ export default function CorreoPage() {
                 <f.icon className="w-4 h-4" />
                 {f.label}
                 {f.name === "INBOX" && emails.filter(e => !e.seen).length > 0 && (
-                  <span className="ml-auto text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded font-medium">
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-xs bg-blue-500 text-white">{emails.filter(e => !e.seen).length}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Email list */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-[320px] bg-slate-900">
+          {/* List header */}
+          <div className="px-4 py-3 border-b border-slate-700/50 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <button onClick={selectAll} className="p-1 rounded hover:bg-slate-800">
+                {selectedIds.length === filteredEmails.length && filteredEmails.length > 0 ? (
+                  <CheckSquare className="w-4 h-4 text-blue-400" />
+                ) : (
+                  <Square className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+              {selectedIds.length > 0 && (
+                <button onClick={() => deleteEmails(selectedIds)} disabled={deleting} className="p-1 rounded hover:bg-red-500/20 text-red-400">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+              <div className="relative flex-1">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar..."
+                  className="w-full pl-8 pr-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500/50" />
+              </div>
+            </div>
+          </div>
+
+          {/* Email list */}
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center p-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                <p className="text-red-400 text-sm">{error}</p>
+                <button onClick={loadEmails} className="mt-3 px-4 py-2 bg-slate-800 rounded-lg text-sm text-white hover:bg-slate-700">Reintentar</button>
+              </div>
+                     <span className="ml-auto text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded font-medium">
                     {emails.filter(e => !e.seen).length}
                   </span>
                 )}
@@ -276,7 +389,7 @@ export default function CorreoPage() {
 
             {selectedIds.length > 0 && (
               <>
-                <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leído">
+                <button onClick={() => selectedIds.forEach(id => toggleRead(id))} className="p-1.5 text-slate-400 hover:bg-slate-700 rounded" title="Marcar leÃ­do">
                   <MailOpen className="w-4 h-4" />
                 </button>
                 <button 
@@ -372,7 +485,7 @@ export default function CorreoPage() {
                 <div className="text-right flex-shrink-0">
                   <p className="text-slate-400 text-sm">{formatDate(selectedEmail.date)}</p>
                   <button onClick={() => toggleRead(selectedEmail.uid)} className="text-xs text-blue-400 hover:underline mt-1">
-                    {selectedEmail.seen ? "Marcar no leído" : "Marcar leído"}
+                    {selectedEmail.seen ? "Marcar no leÃ­do" : "Marcar leÃ­do"}
                   </button>
                 </div>
               </div>
