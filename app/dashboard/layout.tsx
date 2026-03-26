@@ -190,10 +190,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <div className="text-right">
-                <p className="text-xs uppercase" style={{ color: colors.textMuted }}>
+                <p className="text-xs uppercase" style={{ color: colors.textMuted }} suppressHydrationWarning>
                   {new Date().toLocaleDateString("es-MX", { weekday: "long" }).toUpperCase()}
                 </p>
-                <p className="text-sm" style={{ color: colors.text }}>
+                <p className="text-sm" style={{ color: colors.text }} suppressHydrationWarning>
                   {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
