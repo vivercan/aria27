@@ -99,7 +99,7 @@ export default function PorPagarPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-white">Cuentas por Pagar</h1>
-        <p className="text-slate-400 text-sm">Saldos pendientes con proveedores y antigüedad</p>
+        <p className="text-slate-400 text-sm">Saldos pendientes con proveedores y antigÃ¼edad</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -146,34 +146,24 @@ export default function PorPagarPage() {
                 <th className="text-right p-3">Saldo</th>
                 <th className="text-center p-3">Vencimiento</th>
                 <th className="text-center p-3">Estado</th>
+                <th className="text-center p-3">AcciÃ³n</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Cargando...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin cuentas pendientes 🎉</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin cuentas pendientes ð</td></tr>
               ) : filtered.map(c => {
                 const dias = diasRestantes(c.fecha_vencimiento);
                 return (
                   <tr key={c.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${c.vencida ? "bg-red-500/[0.03]" : ""}`}>
                     <td className="p-3 text-white font-mono text-xs">{c.folio}</td>
-                  <td className="p-3 text-center">
-                    {c.saldo > 0 && (
-                      <button
-                        onClick={() => abrirPagoModal(c.id, c.total, c.monto_pagado)}
-                        disabled={pagando === c.id}
-                        className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 disabled:opacity-50"
-                      >
-                        {pagando === c.id ? "..." : "Pagar"}
-                      </button>
-                    )}
-                  </td>
                     <td className="p-3 text-white">{c.supplier_name}</td>
                     <td className="p-3 text-slate-300">{c.obra_nombre || "-"}</td>
-                    <td className="p-3 text-right text-slate-300">${(c.total || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-emerald-400">${(c.monto_pagado || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-white font-medium">${c.saldo.toLocaleString()}</td>
+                    <td className="p-3 text-right text-slate-300">${(c.total || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 text-right text-emerald-400">${(c.monto_pagado || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 text-right text-white font-medium">${c.saldo.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                     <td className="p-3 text-center text-xs text-slate-400">
                       {new Date(c.fecha_vencimiento).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                     </td>
@@ -184,6 +174,17 @@ export default function PorPagarPage() {
                         <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-medium">Vence en {dias}d</span>
                       ) : (
                         <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full font-medium">Vigente {dias}d</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      {c.saldo > 0 && (
+                        <button
+                          onClick={() => abrirPagoModal(c.id, c.total, c.monto_pagado)}
+                          disabled={pagando === c.id}
+                          className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 disabled:opacity-50"
+                        >
+                          {pagando === c.id ? "..." : "Pagar"}
+                        </button>
                       )}
                     </td>
                   </tr>
