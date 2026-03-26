@@ -45,7 +45,7 @@ export default function CosteoPage() {
         obraMap[key].materiales += oc.total || 0;
       });
 
-      // Sumar gastos por obra y categoría
+      // Sumar gastos por obra y categorÃ­a
       (gastos || []).forEach((g: any) => {
         const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
@@ -106,14 +106,14 @@ export default function CosteoPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-white">Costeo por Obra</h1>
-        <p className="text-slate-400 text-sm">Presupuesto vs costo real — materiales, mano de obra, subcontratos e indirectos</p>
+        <p className="text-slate-400 text-sm">Presupuesto vs costo real â materiales, mano de obra, subcontratos e indirectos</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Presupuesto Total", value: `$${totalPresupuesto.toLocaleString()}`, icon: BarChart3, color: "text-blue-400", bg: "bg-blue-500/10" },
-          { label: "Costo Real", value: `$${totalReal.toLocaleString()}`, icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
-          { label: "Diferencia", value: `$${totalDiferencia.toLocaleString()}`, icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
+          { label: "Presupuesto Total", value: `$${totalPresupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: BarChart3, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Costo Real", value: `$${totalReal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Diferencia", value: `$${totalDiferencia.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
           { label: "Obras", value: obras.length, icon: HardHat, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -153,12 +153,12 @@ export default function CosteoPage() {
               ) : filtered.map(o => (
                 <tr key={o.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
                   <td className="p-3 text-white font-medium">{o.obra}</td>
-                  <td className="p-3 text-right text-slate-300">${o.presupuesto.toLocaleString()}</td>
-                  <td className="p-3 text-right text-blue-400">${o.materiales.toLocaleString()}</td>
-                  <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString()}</td>
-                  <td className="p-3 text-right text-cyan-400">${o.subcontratos.toLocaleString()}</td>
-                  <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString()}</td>
-                  <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString()}</td>
+                  <td className="p-3 text-right text-slate-300">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-blue-400">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-cyan-400">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -179,7 +179,7 @@ export default function CosteoPage() {
       {/* Leyenda */}
       <div className="flex gap-6 text-xs text-slate-400">
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500" /> Dentro de presupuesto</div>
-        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /> Cerca del límite (&gt;85%)</div>
+        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /> Cerca del lÃ­mite (&gt;85%)</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500" /> Sobrepasado</div>
       </div>
     </div>
