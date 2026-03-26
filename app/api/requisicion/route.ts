@@ -6,7 +6,7 @@ import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 const BASE_URL = "https://aria.jjcrm27.com";
 
 async function getNextFolio(): Promise<string> {
-  // Usar RPC atÃ³mico si existe, sino fallback con retry para evitar race conditions
+  // Usar RPC atómico si existe, sino fallback con retry para evitar race conditions
   try {
     const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "requisitions" });
     if (!rpcError && rpcData !== null) {
@@ -15,17 +15,17 @@ async function getNextFolio(): Promise<string> {
     }
   } catch {}
 
-  // Fallback: leer + incrementar con verificaciÃ³n de unicidad
+  // Fallback: leer + incrementar con verificación de unicidad
   const year = new Date().getFullYear();
   const { data } = await supabase.from("sequences").select("current_value").eq("id", "requisitions").single();
   const next = (data?.current_value || 0) + 1;
   await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
   const folio = `REQ-${year}-${String(next).padStart(5, "0")}`;
 
-  // Verificar que el folio no exista ya (protecciÃ³n extra contra duplicados)
+  // Verificar que el folio no exista ya (protección extra contra duplicados)
   const { data: existing } = await supabase.from("Requisiciones").select("id").eq("folio", folio).limit(1);
   if (existing && existing.length > 0) {
-    // Si ya existe, forzar el siguiente nÃºmero
+    // Si ya existe, forzar el siguiente número
     const next2 = next + 1;
     await supabase.from("sequences").update({ current_value: next2 }).eq("id", "requisitions");
     return `REQ-${year}-${String(next2).padStart(5, "0")}`;
