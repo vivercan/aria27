@@ -60,7 +60,7 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
 export async function POST(req: NextRequest) {
   try {
   // AUTH CHECK removido 23-Mar-2026: sistema usa login Zoho SMTP, no Supabase Auth.
-  // Auth real se implementarÃ¡ cuando se migre a Supabase Auth (decisiÃ³n aprobada, pendiente).
+  // Auth real se implementará cuando se migre a Supabase Auth (decisión aprobada, pendiente).
 
     const body = await req.json();
     const {
