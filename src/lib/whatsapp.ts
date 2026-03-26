@@ -1,7 +1,7 @@
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
 // ============================================
-// CONFIGURACIÃN DE PLANTILLAS APROBADAS EN META
+// CONFIGURACIÓN DE PLANTILLAS APROBADAS EN META
 // WABA: 842930185269415 | Phone: 963627606824867 (JJCRM27)
 // ============================================
 const TEMPLATE_CONFIG: Record<string, { 
@@ -14,7 +14,7 @@ const TEMPLATE_CONFIG: Record<string, {
   requisicion_creada: { 
     language: "es_MX", 
     paramCount: 4,
-    description: "Confirmar creaciÃ³n al usuario"
+    description: "Confirmar creación al usuario"
     // {{1}}=Folio, {{2}}=Solicitante, {{3}}=Obra, {{4}}=Fecha
   },
   requisicion_validar: { 
@@ -22,7 +22,7 @@ const TEMPLATE_CONFIG: Record<string, {
     hasButton: true, 
     buttonCount: 2, 
     paramCount: 5,
-    description: "Solicitar validaciÃ³n"
+    description: "Solicitar validación"
     // {{1}}=Folio, {{2}}=Solicitante, {{3}}=Obra, {{4}}=Urgencia, {{5}}=Token
     // Botones: Aprobar, Rechazar
   },
@@ -37,15 +37,15 @@ const TEMPLATE_CONFIG: Record<string, {
     hasButton: true,
     buttonCount: 1,
     paramCount: 6,
-    description: "Solicitar autorizaciÃ³n de direcciÃ³n"
+    description: "Solicitar autorización de dirección"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Solicitante, {{4}}=Urgencia, {{5}}=Materiales, {{6}}=Total
-    // BotÃ³n: Ver Cotizaciones (URL con token)
+    // Botón: Ver Cotizaciones (URL con token)
   },
   oc_generada: {
     language: "es_MX",
     paramCount: 6,
     description: "Notificar OC generada"
-    // {{1}}=RequisiciÃ³n, {{2}}=OC, {{3}}=Obra, {{4}}=Proveedor, {{5}}=Total, {{6}}=Forma de pago
+    // {{1}}=Requisición, {{2}}=OC, {{3}}=Obra, {{4}}=Proveedor, {{5}}=Total, {{6}}=Forma de pago
   },
   requisicion_rechazada: { 
     language: "es_MX", 
@@ -82,18 +82,18 @@ export async function sendWhatsAppTemplate(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
-    console.error("[WhatsApp] â Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
+    console.error("[WhatsApp] [ERROR] Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
   // Validar plantilla existe
   const config = TEMPLATE_CONFIG[templateName];
   if (!config) {
-    console.error("[WhatsApp] â Plantilla no configurada:", templateName);
+    console.error("[WhatsApp] [ERROR] Plantilla no configurada:", templateName);
     return { success: false, error: `Plantilla '${templateName}' no existe` };
   }
 
-  // Formatear telÃ©fono mexicano (10 dÃ­gitos â 52 + 10)
+  // Formatear teléfono mexicano (10 dígitos -> 52 + 10)
   let formattedPhone = phone.replace(/\D/g, "");
   if (formattedPhone.length === 10) {
     formattedPhone = "52" + formattedPhone;
@@ -142,7 +142,7 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] ð¤ Enviando:", templateName, "â", formattedPhone);
+  console.log("[WhatsApp] [SEND] Enviando:", templateName, "->", formattedPhone);
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
@@ -157,7 +157,7 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] â Error:", data.error?.message || response.status);
+      console.error("[WhatsApp] [ERROR] Error:", data.error?.message || response.status);
       return { 
         success: false, 
         error: data.error?.message || `HTTP ${response.status}` 
@@ -165,17 +165,17 @@ export async function sendWhatsAppTemplate(
     }
 
     const messageId = data.messages?.[0]?.id;
-    console.log("[WhatsApp] â Enviado:", messageId);
+    console.log("[WhatsApp] [OK] Enviado:", messageId);
     return { success: true, messageId };
 
   } catch (error: any) {
-    console.error("[WhatsApp] â Exception:", error.message);
+    console.error("[WhatsApp] [ERROR] Exception:", error.message);
     return { success: false, error: error.message };
   }
 }
 
 /**
- * Enviar a mÃºltiples destinatarios
+ * Enviar a múltiples destinatarios
  */
 export async function sendWhatsAppToMultiple(
   templateName: string,
@@ -200,7 +200,7 @@ export async function sendWhatsAppToMultiple(
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  console.log("[WhatsApp] ð Batch:", results.sent, "enviados,", results.failed, "fallidos");
+  console.log("[WhatsApp] [STATS] Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
 
