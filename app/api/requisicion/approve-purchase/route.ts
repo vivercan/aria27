@@ -48,9 +48,9 @@ function buildComparativaHTML(req: any, token: string) {
     return`<tr style="background:${idx%2===0?"white":"#f8fafc"}"><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;font-weight:bold;color:#7c3aed">${idx+1}</td><td style="padding:8px;border:1px solid #e2e8f0">${it.product_name}</td><td style="padding:8px;text-align:center;border:1px solid #e2e8f0">${it.quantity}</td><td style="padding:8px;text-align:center;border:1px solid #e2e8f0">${it.unit||"PZA"}</td>${cells}</tr>`;
   }).join("");
   const mR=(l: string,fn: (s: any)=>number,b: boolean)=>`<tr style="background:#f1f5f9"><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">${l}</td>${supData.map((s: any)=>{const v=fn(s);const ic=s.total===bt&&bt>0;const bg=ic?(b?"background:#16a34a;color:white;":"background:#dcfce7;"):"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${b?"font-weight:bold;":""}${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
-  const rR=`<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">¿REBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
+  const rR=`<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">Â¿REBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
   const oR=`<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">OBSERVACIONES</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones||s.entrega||"-"}</td>`).join("")}</tr>`;
-  const btns=supData.map((s: any)=>{const ib=s.total===bt&&bt>0;return`<a href="${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA&proveedor=${encodeURIComponent(s.supplier)}" style="display:inline-block;padding:12px 24px;margin:4px;background:${ib?"#16a34a":"#1e3a5f"};color:white;text-decoration:none;border-radius:8px;font-weight:bold;font-size:13px">${ib?"★ ":""}${s.supplier} - $${s.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</a>`;}).join("");
+  const btns=supData.map((s: any)=>{const ib=s.total===bt&&bt>0;return`<a href="${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA&proveedor=${encodeURIComponent(s.supplier)}" style="display:inline-block;padding:12px 24px;margin:4px;background:${ib?"#16a34a":"#1e3a5f"};color:white;text-decoration:none;border-radius:8px;font-weight:bold;font-size:13px">${ib?"â ":""}${s.supplier} - $${s.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</a>`;}).join("");
   return`<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;margin:0;padding:20px;background:#f1f5f9}table{border-collapse:collapse;width:100%}</style></head><body><div style="max-width:950px;margin:0 auto"><div style="background:#1e3a5f;padding:18px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:22px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:6px 0 0;font-size:15px;font-weight:600">REQ ${req.folio} ${req.cost_center_name}</p></div><div style="background:white;border-radius:0 0 8px 8px;overflow-x:auto"><table><thead><tr><th style="padding:10px 8px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:11px;color:#64748b">#</th><th style="padding:10px 8px;text-align:left;background:#f1f5f9;border:1px solid #e2e8f0;color:#7c3aed;font-weight:bold">PRODUCTOS</th><th style="padding:10px 8px;background:#f1f5f9;border:1px solid #e2e8f0;color:#7c3aed;font-weight:bold">CANT</th><th style="padding:10px 8px;background:#f1f5f9;border:1px solid #e2e8f0;color:#7c3aed;font-weight:bold">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${mR("I.V.A. (16%)",(s: any)=>s.iva,false)}${mR("TOTAL",(s: any)=>s.total,true)}${rR}${oR}</tbody></table></div><div style="margin-top:20px;text-align:center"><p style="color:#64748b;font-size:13px;margin-bottom:15px">Selecciona proveedor para autorizar:</p>${btns}</div><div style="margin-top:15px;text-align:center"><a href="${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA" style="display:inline-block;padding:10px 30px;background:#dc2626;color:white;text-decoration:none;border-radius:8px;font-weight:bold">RECHAZAR TODAS</a></div><p style="text-align:center;color:#94a3b8;font-size:10px;margin-top:20px">ARIA27 - Grupo Cuavante</p></div></body></html>`;
 }
 
@@ -99,8 +99,23 @@ export async function GET(request: Request) {
       const elegido = proveedorElegido
         ? quotes.find((q: any) => q.supplier === proveedorElegido)
         : (quotes.length > 0 ? quotes.reduce((min: any, q: any) => (q.total||0) < (min.total||0) ? q : min, quotes[0]) : null);
-      const total = elegido?.total || 0;
       const supplierName = elegido?.supplier || 'N/A';
+
+      // Resolver datos del proveedor elegido
+      const cotDataPO = req.cotizacion_data || {};
+      const elegidoData = cotDataPO.suppliers?.find((s: any) => s.supplier === supplierName) || {};
+
+      // Calcular total REAL desde items Ã precios (en vez de confiar en elegido.total que puede estar desincronizado)
+      let calculatedTotal = 0;
+      const { data: reqItems } = await supabase.from("requisition_items").select("id, product_name, quantity").eq("requisition_id", req.id);
+      if (reqItems && elegidoData.items_prices) {
+        for (const item of reqItems) {
+          const price = elegidoData.items_prices?.[item.product_name] || 0;
+          calculatedTotal += price * (item.quantity || 1);
+        }
+      }
+      // Usar total calculado si es > 0, sino fallback al total de la cotizaciÃ³n
+      const total = calculatedTotal > 0 ? calculatedTotal : (elegido?.total || 0);
 
       await supabase.from("Requisiciones").update({
         status: "OC_GENERADA",
@@ -110,9 +125,7 @@ export async function GET(request: Request) {
         monto: total
       }).eq("id", req.id);
 
-      // Crear registro en purchase_orders para que aparezca en Órdenes de Compra
-      const cotDataPO = req.cotizacion_data || {};
-      const elegidoData = cotDataPO.suppliers?.find((s: any) => s.supplier === supplierName) || {};
+      // Crear registro en purchase_orders para que aparezca en Ãrdenes de Compra
       await supabase.from("purchase_orders").insert({
         folio: ocFolio,
         requisition_id: req.id,
@@ -125,17 +138,14 @@ export async function GET(request: Request) {
       });
 
       // Actualizar requisition_items con proveedor seleccionado
-      if (proveedorElegido && elegidoData.items_prices) {
-        const { data: reqItems } = await supabase.from("requisition_items").select("id, product_name").eq("requisition_id", req.id);
-        if (reqItems) {
-          for (const item of reqItems) {
-            const price = elegidoData.items_prices?.[item.product_name] || 0;
-            if (price > 0) {
-              await supabase.from("requisition_items").update({
-                selected_supplier_name: supplierName,
-                selected_price: price
-              }).eq("id", item.id);
-            }
+      if (proveedorElegido && elegidoData.items_prices && reqItems) {
+        for (const item of reqItems) {
+          const price = elegidoData.items_prices?.[item.product_name] || 0;
+          if (price > 0) {
+            await supabase.from("requisition_items").update({
+              selected_supplier_name: supplierName,
+              selected_price: price
+            }).eq("id", item.id);
           }
         }
       }
