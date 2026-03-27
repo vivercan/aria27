@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // Generar folio de entrega
-    const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
+    const { count, error: countErr } = await supabase.from("entregas").select("*", { count: "exact", head: true });
+    if (countErr) console.error("[REGISTRAR-ENTREGA] Error obteniendo count:", countErr.message);
     const folioEntrega = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
 
     // Crear registro de entrega
@@ -161,7 +162,7 @@ export async function POST(req: NextRequest) {
       obra_id_usado: obraIdFinal
     });
   } catch (error: any) {
-    console.error("Error registrar entrega:", error);
+    console.error("[REGISTRAR-ENTREGA]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
