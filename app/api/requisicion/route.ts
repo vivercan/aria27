@@ -9,7 +9,7 @@ async function getNextFolio(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `REQ-${year}-`;
 
-  // Estrategia 1: RPC atÃ³mico (ideal)
+  // Estrategia 1: RPC atómico (ideal)
   try {
     const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "requisitions" });
     if (!rpcError && rpcData !== null) {
@@ -32,7 +32,7 @@ async function getNextFolio(): Promise<string> {
     maxNum = parseInt(parts[2], 10) || 0;
   }
 
-  // TambiÃ©n leer sequence por si estÃ¡ mÃ¡s adelante
+  // También leer sequence por si está más adelante
   const { data: seqData } = await supabase
     .from("sequences")
     .select("current_value")
@@ -97,10 +97,11 @@ export async function POST(request: Request) {
       requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
       quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
     }));
-    await supabase.from("requisition_items").insert(items);
+    const { error: itemsErr } = await supabase.from("requisition_items").insert(items);
+    if (itemsErr) throw itemsErr;
 
     const daysUntil = Math.ceil((new Date(requiredDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-    const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MANANA" : `${daysUntil} dias`;
+    const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MAÑANA" : `${daysUntil} días`;
     const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
     const fechaGen = new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
     const fechaReq = new Date(requiredDate).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
