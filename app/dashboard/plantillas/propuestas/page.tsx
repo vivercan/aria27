@@ -73,7 +73,7 @@ export default function PropuestasPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("\u00bfEliminar esta propuesta?")) return;
+    if (!confirm("¿Eliminar esta propuesta?")) return;
     const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
     if (error) msg("error", error.message); else { msg("success", "Propuesta eliminada"); cargar(); }
   };
@@ -105,7 +105,7 @@ export default function PropuestasPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Propuestas de Licitaci\u00f3n</h1>
+          <h1 className="text-2xl font-bold text-white">Propuestas de Licitación</h1>
           <p className="text-slate-400 text-sm">Paquetes de propuestas y licitaciones</p>
         </div>
         <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
@@ -211,15 +211,15 @@ export default function PropuestasPage() {
               ) : filtered.map(p => (
                 <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{p.nombre}</td>
-                  <td className="p-3 text-slate-300">{p.cliente || "\u2014"}</td>
-                  <td className="p-3 text-slate-400">{p.obra || "\u2014"}</td>
+                  <td className="p-3 text-slate-300">{p.cliente || "—"}</td>
+                  <td className="p-3 text-slate-400">{p.obra || "—"}</td>
                   <td className="p-3 text-right text-emerald-400 font-medium">${(p.monto_estimado || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[p.estado] || estadoColors.borrador}`}>
                       {p.estado || "Borrador"}
                     </span>
                   </td>
-                  <td className="p-3 text-slate-400 text-xs">{p.fecha_entrega ? new Date(p.fecha_entrega).toLocaleDateString("es-MX") : "\u2014"}</td>
+                  <td className="p-3 text-slate-400 text-xs">{p.fecha_entrega ? new Date(p.fecha_entrega).toLocaleDateString("es-MX") : "—"}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => editar(p)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
