@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Presentation, Search, Plus, Eye, Copy, Loader2, DollarSign, Calendar } from "lucide-react";
+import { ArrowLeft, Presentation, Search, Plus, Eye, Copy, Loader2, DollarSign, Calendar, X, Save, Trash2 } from "lucide-react";
 
 interface Propuesta {
   id: string;
@@ -15,23 +15,68 @@ interface Propuesta {
   created_at: string;
 }
 
+const ESTADOS = ["borrador", "enviada", "en_revision", "aprobada", "rechazada"];
+const EMPTY = { nombre: "", cliente: "", obra: "", monto_estimado: "", estado: "borrador", fecha_entrega: "" };
+
 export default function PropuestasPage() {
   const router = useRouter();
   const [propuestas, setPropuestas] = useState<Propuesta[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [form, setForm] = useState<any>({ ...EMPTY });
+  const [editId, setEditId] = useState<string | null>(null);
+  const [obras, setObras] = useState<string[]>([]);
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const { data, error } = await supabase.from("propuestas_licitacion").select("*").order("created_at", { ascending: false });
-        if (error) console.error("Error loading propuestas:", error.message);
-        setPropuestas(data || []);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+  useEffect(() => { cargar(); cargarObras(); }, []);
+
+  const cargar = async () => {
+    const { data } = await supabase.from("propuestas_licitacion").select("*").order("created_at", { ascending: false });
+    setPropuestas(data || []);
+    setLoading(false);
+  };
+
+  const cargarObras = async () => {
+    const { data } = await supabase.from("centros_trabajo").select("nombre").order("nombre");
+    setObras((data || []).map(o => o.nombre));
+  };
+
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
+
+  const guardar = async () => {
+    if (!form.nombre.trim()) { msg("error", "El nombre es obligatorio"); return; }
+    setGuardando(true);
+    const payload: any = { ...form };
+    if (payload.monto_estimado) payload.monto_estimado = parseFloat(payload.monto_estimado);
+    Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
+
+    if (editId) {
+      const { error } = await supabase.from("propuestas_licitacion").update(payload).eq("id", editId);
+      if (error) { msg("error", error.message); } else { msg("success", "Propuesta actualizada"); setShowForm(false); setEditId(null); cargar(); }
+    } else {
+      const { error } = await supabase.from("propuestas_licitacion").insert(payload);
+      if (error) { msg("error", error.message); } else { msg("success", "Propuesta creada"); setShowForm(false); cargar(); }
     }
-    load();
-  }, []);
+    setForm({ ...EMPTY });
+    setGuardando(false);
+  };
+
+  const editar = (p: Propuesta) => {
+    setForm({ nombre: p.nombre, cliente: p.cliente || "", obra: p.obra || "", monto_estimado: p.monto_estimado?.toString() || "", estado: p.estado || "borrador", fecha_entrega: p.fecha_entrega || "" });
+    setEditId(p.id);
+    setShowForm(true);
+  };
+
+  const eliminar = async (id: string) => {
+    if (!confirm("Â¿Eliminar esta propuesta?")) return;
+    const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
+    if (error) msg("error", error.message); else { msg("success", "Propuesta eliminada"); cargar(); }
+  };
 
   const filtered = propuestas.filter(p =>
     !search || p.nombre?.toLowerCase().includes(search.toLowerCase()) || p.cliente?.toLowerCase().includes(search.toLowerCase()) || p.obra?.toLowerCase().includes(search.toLowerCase())
@@ -47,6 +92,12 @@ export default function PropuestasPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
+      {mensaje && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
+          {mensaje.texto}
+        </div>
+      )}
+
       <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors w-fit">
         <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
         <span className="text-sm font-medium">Regresar</span>
@@ -54,13 +105,63 @@ export default function PropuestasPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Propuestas de Licitación</h1>
+          <h1 className="text-2xl font-bold text-white">Propuestas de LicitaciÃ³n</h1>
           <p className="text-slate-400 text-sm">Paquetes de propuestas y licitaciones</p>
         </div>
-        <button className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Propuesta
         </button>
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40" onClick={() => setShowForm(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-white">{editId ? "Editar Propuesta" : "Nueva Propuesta"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
+                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre de la propuesta" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block">Cliente</label>
+                  <input value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre del cliente" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block">Obra</label>
+                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                    <option value="">Seleccionar obra</option>
+                    {obras.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block">Monto Estimado</label>
+                  <input type="number" value={form.monto_estimado} onChange={e => setForm({ ...form, monto_estimado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block">Estado</label>
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                    {ESTADOS.map(e => <option key={e} value={e}>{e.charAt(0).toUpperCase() + e.slice(1).replace("_", " ")}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-slate-400 mb-1 block">Fecha de Entrega</label>
+                <input type="date" value={form.fecha_entrega} onChange={e => setForm({ ...form, fecha_entrega: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+              </div>
+              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {guardando ? "Guardando..." : editId ? "Actualizar Propuesta" : "Crear Propuesta"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -110,19 +211,19 @@ export default function PropuestasPage() {
               ) : filtered.map(p => (
                 <tr key={p.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{p.nombre}</td>
-                  <td className="p-3 text-slate-300">{p.cliente || "—"}</td>
-                  <td className="p-3 text-slate-400">{p.obra || "—"}</td>
+                  <td className="p-3 text-slate-300">{p.cliente || "â"}</td>
+                  <td className="p-3 text-slate-400">{p.obra || "â"}</td>
                   <td className="p-3 text-right text-emerald-400 font-medium">${(p.monto_estimado || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[p.estado] || estadoColors.borrador}`}>
                       {p.estado || "Borrador"}
                     </span>
                   </td>
-                  <td className="p-3 text-slate-400 text-xs">{p.fecha_entrega ? new Date(p.fecha_entrega).toLocaleDateString("es-MX") : "—"}</td>
+                  <td className="p-3 text-slate-400 text-xs">{p.fecha_entrega ? new Date(p.fecha_entrega).toLocaleDateString("es-MX") : "â"}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Copy className="w-4 h-4" /></button>
+                      <button onClick={() => editar(p)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
+                      <button onClick={() => eliminar(p.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>
