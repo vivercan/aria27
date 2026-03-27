@@ -67,6 +67,12 @@ const TEMPLATE_CONFIG: Record<string, {
     description: "Enviar comparativa a direccion"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Mejor precio, {{4}}=Num proveedores
   },
+  solicitar_cotizacion: {
+    language: "es_MX",
+    paramCount: 3,
+    description: "Solicitar cotizacion a proveedor"
+    // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia
+  },
 };
 
 /**
