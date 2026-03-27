@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 // Misma función que usa nómina: Jueves a Miércoles
 function getWeekRange(date: Date): { inicio: string; fin: string } {
@@ -46,7 +41,7 @@ export async function GET(req: NextRequest) {
     // 2. Obtener empleados activos
     const { data: empleados, error: errEmp } = await supabase
       .from("Personal")
-      .select("id, full_name, employee_number, geocerca_libre")
+      .select("id, full_name, employee_number")
       .eq("status", "ACTIVO");
     
     if (errEmp) throw errEmp;
