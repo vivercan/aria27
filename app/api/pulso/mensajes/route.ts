@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ mensajes: mensajes || [] });
   } catch (error) {
-    console.error(error);
+    console.error("[PULSO-MENSAJES]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -66,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ mensaje: data });
   } catch (error) {
-    console.error(error);
+    console.error("[PULSO-MENSAJES]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
