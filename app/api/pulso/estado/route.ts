@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 // Actualizar last_seen y estado
 export async function POST(req: NextRequest) {
@@ -19,7 +14,7 @@ export async function POST(req: NextRequest) {
     await supabase.from("Users").update(updates).eq("email", email);
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error(error);
+    console.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -33,7 +28,7 @@ export async function GET(req: NextRequest) {
       .eq("active", true);
     return NextResponse.json({ usuarios: data || [] });
   } catch (error) {
-    console.error(error);
+    console.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
