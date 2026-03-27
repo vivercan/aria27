@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       const total = supplierItems.reduce((s: number, i: any) => s + i.total_price, 0);
       grandTotal += total;
 
-      await supabase.from("purchase_orders").insert({
+      const { error: poError } = await supabase.from("purchase_orders").insert({
         folio: ocFolio,
         requisition_id: Number(requisition_id),
         supplier_name: supplierName,
@@ -43,14 +43,16 @@ export async function POST(req: Request) {
         authorized_by: "direccion",
         authorized_at: new Date().toISOString(),
       });
+      if (poError) throw new Error(`Error creando OC ${ocFolio}: ${poError.message}`);
 
       // Update each item
       for (const item of supplierItems) {
-        await supabase.from("requisition_items").update({
+        const { error: itemErr } = await supabase.from("requisition_items").update({
           selected_supplier_name: supplierName,
           selected_price: item.unit_price,
           director_comments: `OC: ${ocFolio}`,
         }).eq("id", item.item_id);
+        if (itemErr) console.error(`[AUTORIZAR-PICKING] Error item ${item.item_id}:`, itemErr.message);
       }
 
       ocFolios.push(`${ocFolio} - ${supplierName}: $${total.toLocaleString()}`);
@@ -58,7 +60,8 @@ export async function POST(req: Request) {
     }
 
     // Update requisition status
-    await supabase.from("Requisiciones").update({ status: "AUTORIZADA" }).eq("id", requisition_id);
+    const { error: reqError } = await supabase.from("Requisiciones").update({ status: "AUTORIZADA" }).eq("id", requisition_id);
+    if (reqError) throw new Error(`Error actualizando requisici\u00f3n: ${reqError.message}`);
 
     // Notify Compras
     const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
@@ -112,7 +115,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, purchase_orders: ocFolios.length, folios: ocFolios });
   } catch (error: any) {
-    console.error("Error autorizar picking:", error);
+    console.error("[AUTORIZAR-PICKING]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
