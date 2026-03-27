@@ -65,7 +65,7 @@ export default function DocumentosPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("Â¿Eliminar este documento?")) return;
+    if (!confirm("\u00bfEliminar este documento?")) return;
     const { error } = await supabase.from("documentos_plantilla").delete().eq("id", id);
     if (error) msg("error", error.message); else { msg("success", "Documento eliminado"); cargar(); }
   };
@@ -89,8 +89,8 @@ export default function DocumentosPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Centro de DocumentaciÃ³n</h1>
-          <p className="text-slate-400 text-sm">GestiÃ³n y almacenamiento de documentos del proyecto</p>
+          <h1 className="text-2xl font-bold text-white">Centro de Documentaci\u00f3n</h1>
+          <p className="text-slate-400 text-sm">Gesti\u00f3n y almacenamiento de documentos del proyecto</p>
         </div>
         <button onClick={() => { setForm({ ...EMPTY }); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
           <Upload className="w-4 h-4" /> Subir Documento
@@ -117,20 +117,20 @@ export default function DocumentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">CategorÃ­a</label>
-                  <input value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Ej: Legal, TÃ©cnico" />
+                  <label className="text-xs text-slate-400 mb-1 block">Categor\u00eda</label>
+                  <input value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Ej: Legal, T\u00e9cnico" />
                 </div>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Obra</label>
                 <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
-                  <option value="">Sin obra especÃ­fica</option>
+                  <option value="">Sin obra espec\u00edfica</option>
                   {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">DescripciÃ³n</label>
-                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none resize-none" placeholder="DescripciÃ³n opcional" />
+                <label className="text-xs text-slate-400 mb-1 block">Descripci\u00f3n</label>
+                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none resize-none" placeholder="Descripci\u00f3n opcional" />
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">URL del Archivo</label>
@@ -158,7 +158,7 @@ export default function DocumentosPage() {
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Download className="w-4 h-4 text-amber-400" /></div>
-          <p className="text-xl font-bold text-white">â</p>
+          <p className="text-xl font-bold text-white">\u2014</p>
           <p className="text-xs text-slate-400">Descargas este mes</p>
         </div>
       </div>
@@ -192,8 +192,8 @@ export default function DocumentosPage() {
                 <tr key={d.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{d.nombre}</td>
                   <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-300">{d.tipo || "General"}</span></td>
-                  <td className="p-3 text-slate-400">{d.obra_nombre || "â"}</td>
-                  <td className="p-3 text-slate-400 text-xs">{d.created_at ? new Date(d.created_at).toLocaleDateString("es-MX") : "â"}</td>
+                  <td className="p-3 text-slate-400">{d.obra_nombre || "\u2014"}</td>
+                  <td className="p-3 text-slate-400 text-xs">{d.created_at ? new Date(d.created_at).toLocaleDateString("es-MX") : "\u2014"}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       {d.archivo_url && <a href={d.archivo_url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></a>}
