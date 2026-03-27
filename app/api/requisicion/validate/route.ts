@@ -66,7 +66,8 @@ export async function GET(request: Request) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
         });
         if (comprasUser.phone) {
-          await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.cost_center_name, urgencyText], comprasUser.phone);
+          const materialesResumen = (items || []).map((m: any) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
+        await sendWhatsAppTemplate("requisicion_compras", [req.folio, req.cost_center_name, urgencyText, materialesResumen], comprasUser.phone);
         }
       }
 
@@ -89,7 +90,7 @@ export async function GET(request: Request) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
   } catch (error) {
-    console.error(error);
+    console.error("[VALIDATE]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
