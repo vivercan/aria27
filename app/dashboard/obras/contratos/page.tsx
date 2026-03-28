@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Building2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Building2 , Loader2 } from "lucide-react";
 
 interface Contrato {
   id: string;
@@ -188,7 +188,7 @@ export default function ContratosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin contratos registrados</td></tr>
               ) : filtered.map(c => (
