@@ -24,7 +24,7 @@ const subModules = [
     description: "Facturación y CFDI.",
     href: "/dashboard/finanzas/facturacion",
     icon: FileText,
-    gradient: "from-green-500 to-green-600",
+    gradient: "from-emerald-500 to-emerald-600",
     active: true,
   },
   {
