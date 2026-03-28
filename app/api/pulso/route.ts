@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 // AUTH helper: verificar que el email existe en Users
-async function verifyUser(email) {
+async function verifyUser(email: string | null): Promise<boolean> {
   if (!email) return false;
   const { data } = await supabase
     .from("Users")
