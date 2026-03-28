@@ -152,7 +152,7 @@ export default function CotizacionesIAPage() {
   const getUrgencyColor = (u: string) => {
     if (u === "critico") return "bg-red-500";
     if (u === "urgente") return "bg-amber-500";
-    return "bg-green-500";
+    return "bg-emerald-500";
   };
 
   return (
@@ -238,7 +238,7 @@ export default function CotizacionesIAPage() {
             </div>
           ) : buscando ? (
             <div className="text-center py-20 bg-white/5 rounded-xl">
-              <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-amber-400" />
+              <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-blue-400" />
               <p className="text-white font-medium">Analizando productos...</p>
               <p className="text-slate-400 text-sm">Buscando proveedores en Aguascalientes</p>
             </div>
@@ -262,8 +262,8 @@ export default function CotizacionesIAPage() {
 
               {/* Recomendación */}
               {resultado.recomendacion && (
-                <div className="p-3 rounded-lg bg-green-500/20 border border-green-500/30">
-                  <p className="text-green-400 text-sm">💡 {resultado.recomendacion}</p>
+                <div className="p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
+                  <p className="text-emerald-400 text-sm">💡 {resultado.recomendacion}</p>
                 </div>
               )}
 
@@ -271,16 +271,16 @@ export default function CotizacionesIAPage() {
               {resultado.proveedores_internos?.length > 0 && (
                 <div>
                   <h3 className="text-white font-medium mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     Proveedores Registrados
                   </h3>
                   <div className="space-y-2">
                     {resultado.proveedores_internos.map((p, i) => (
-                      <div key={i} className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <div key={i} className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium">{p.nombre}</span>
                           <span className={`px-2 py-0.5 rounded text-xs ${
-                            p.compatibilidad === "alta" ? "bg-green-500 text-white" :
+                            p.compatibilidad === "alta" ? "bg-emerald-500 text-white" :
                             p.compatibilidad === "media" ? "bg-amber-500 text-white" :
                             "bg-slate-500 text-white"
                           }`}>
