@@ -47,7 +47,7 @@ export default function EstadoActivosPage() {
 
   const estadoOptions = ["bueno", "mantenimiento", "reparacion", "baja"];
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   return (
     <div className="space-y-6">
@@ -102,7 +102,7 @@ export default function EstadoActivosPage() {
                         <option value="">Seleccionar...</option>
                         {estadoOptions.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
-                      {saving === a.id && <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />}
+                      {saving === a.id && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
                     </div>
                   </td>
                 </tr>
