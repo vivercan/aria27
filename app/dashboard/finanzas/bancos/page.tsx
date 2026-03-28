@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, TrendingUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, TrendingUp, Pencil, Trash2, Loader2 } from "lucide-react";
 
 interface CuentaBancaria {
   id: string;
@@ -136,7 +136,7 @@ export default function BancosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={7} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : cuentas.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-slate-400">No hay cuentas registradas. Agrega la primera.</td></tr>
               ) : cuentas.map(c => (
