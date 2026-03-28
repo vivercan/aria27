@@ -89,8 +89,8 @@ export default function ChecadasPage() {
             <p className="text-2xl font-bold text-white">{stats.total}</p>
             <p className="text-sm text-slate-400">Total registros</p>
           </div>
-          <div className="p-4 bg-green-500/10 rounded-xl">
-            <p className="text-2xl font-bold text-green-400">{stats.completas}</p>
+          <div className="p-4 bg-emerald-500/10 rounded-xl">
+            <p className="text-2xl font-bold text-emerald-400">{stats.completas}</p>
             <p className="text-sm text-slate-400">Completas</p>
           </div>
           <div className="p-4 bg-blue-500/10 rounded-xl">
@@ -117,8 +117,8 @@ export default function ChecadasPage() {
             {asistencias.map(a => (
               <div key={a.id} className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-green-500/20" : "bg-blue-500/20"}`}>
-                    {a.hora_salida ? <CheckCircle className="w-5 h-5 text-green-400" /> : <Clock className="w-5 h-5 text-blue-400" />}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-emerald-500/20" : "bg-blue-500/20"}`}>
+                    {a.hora_salida ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Clock className="w-5 h-5 text-blue-400" />}
                   </div>
                   <div>
                     <p className="font-medium text-white">{a.employees?.full_name || "Sin nombre"}</p>
@@ -135,8 +135,8 @@ export default function ChecadasPage() {
                     <p className="text-white font-medium">{a.hora_salida || "--:--"}</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <MapPin className={`w-4 h-4 ${a.dentro_geocerca_entrada ? "text-green-400" : "text-red-400"}`} />
-                    <span className={a.dentro_geocerca_entrada ? "text-green-400" : "text-red-400"}>
+                    <MapPin className={`w-4 h-4 ${a.dentro_geocerca_entrada ? "text-emerald-400" : "text-red-400"}`} />
+                    <span className={a.dentro_geocerca_entrada ? "text-emerald-400" : "text-red-400"}>
                       {a.dentro_geocerca_entrada ? "OK" : "Fuera"}
                     </span>
                   </div>
