@@ -245,7 +245,7 @@ export default function NominaManualPage() {
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
   const formatDate = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   const empleadoActual = empleados.find(e => e.id === empleadoSeleccionado);
   const hayEdiciones = asistencias.some(a => a.editando);
@@ -298,7 +298,7 @@ export default function NominaManualPage() {
               <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-blue-400" /><span className="text-slate-400 text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
               <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-emerald-400" /><span className="text-slate-400 text-xs">Días Trabajados</span></div>
               <p className="text-2xl font-bold text-emerald-400">{calculo.dias}</p>
             </div>
@@ -318,7 +318,7 @@ export default function NominaManualPage() {
               <h3 className="text-white font-medium">Asistencias de la Semana</h3>
               <div className="flex gap-2">
                 {hayEdiciones && (
-                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50">
+                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50">
                     {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Guardar
                   </button>
