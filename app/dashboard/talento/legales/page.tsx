@@ -108,7 +108,7 @@ export default function LegalesPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Cargando...</td></tr>
+              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Sin resultados</td></tr>
             ) : filtered.map(e => (
