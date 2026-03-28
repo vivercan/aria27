@@ -83,7 +83,7 @@ export default function ConfigGeneralPage() {
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-300", direccion: "bg-amber-500/20 text-amber-300",
     compras: "bg-blue-500/20 text-blue-300", validador: "bg-emerald-500/20 text-emerald-300",
-    usuario: "bg-gray-500/20 text-gray-300"
+    usuario: "bg-slate-500/20 text-slate-300"
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
