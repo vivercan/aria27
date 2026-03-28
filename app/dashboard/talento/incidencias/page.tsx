@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -25,7 +26,12 @@ export default function IncidenciasPage() {
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState("TODOS");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" });
+  const [form, setForm] = useState({
+    employee_id: "",
+    tipo: "FALTA",
+    fecha: new Date().toISOString().split("T")[0],
+    motivo: ""
+  });
 
   useEffect(() => { loadData(); }, []);
 
@@ -35,26 +41,32 @@ export default function IncidenciasPage() {
       setIncidencias(inc || []);
       const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
       setEmpleados(emps || []);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   }
 
   async function guardar() {
     if (!form.employee_id || !form.tipo) { alert("Empleado y tipo son requeridos"); return; }
     const emp = empleados.find(e => e.id === form.employee_id);
-
     const { error } = await supabase.from("incidencias").insert({
       ...form,
       employee_name: emp?.full_name || "",
       autorizada: false,
     });
-
     if (error) alert("Error: " + error.message);
-    else { setShowForm(false); setForm({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" }); loadData(); }
+    else {
+      setShowForm(false);
+      setForm({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" });
+      loadData();
+    }
   }
 
+  // FIX: Usar el nombre real del usuario logueado en vez de hardcodear "Direccion"
   async function autorizar(id: string) {
-    await supabase.from("incidencias").update({ autorizada: true, autorizada_por: "Dirección" }).eq("id", id);
+    const userName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "Sistema";
+    await supabase.from("incidencias").update({
+      autorizada: true,
+      autorizada_por: userName
+    }).eq("id", id);
     loadData();
   }
 
@@ -70,10 +82,10 @@ export default function IncidenciasPage() {
 
   const getTipoBadge = (tipo: string) => {
     switch (tipo) {
-      case "FALTA": return { color: "bg-red-500/20 text-red-400", icon: "✕" };
-      case "RETARDO": return { color: "bg-amber-500/20 text-amber-400", icon: "⏰" };
-      case "PERMISO": return { color: "bg-blue-500/20 text-blue-400", icon: "📋" };
-      case "INCAPACIDAD": return { color: "bg-violet-500/20 text-violet-400", icon: "🏥" };
+      case "FALTA": return { color: "bg-red-500/20 text-red-400", icon: "\u2715" };
+      case "RETARDO": return { color: "bg-amber-500/20 text-amber-400", icon: "\u23F0" };
+      case "PERMISO": return { color: "bg-blue-500/20 text-blue-400", icon: "\uD83D\uDCCB" };
+      case "INCAPACIDAD": return { color: "bg-violet-500/20 text-violet-400", icon: "\uD83C\uDFE5" };
       default: return { color: "bg-slate-500/20 text-slate-400", icon: "?" };
     }
   };
@@ -116,28 +128,24 @@ export default function IncidenciasPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Empleado</label>
-              <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="">Seleccionar...</option>
                 {empleados.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="FALTA">Falta</option><option value="RETARDO">Retardo</option><option value="PERMISO">Permiso</option><option value="INCAPACIDAD">Incapacidad IMSS</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-              <input type="date" value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+              <input type="date" value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Motivo</label>
-              <input value={form.motivo} onChange={e => setForm({...form, motivo: e.target.value})} placeholder="Opcional"
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
+              <input value={form.motivo} onChange={e => setForm({...form, motivo: e.target.value})} placeholder="Opcional" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
@@ -150,13 +158,11 @@ export default function IncidenciasPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..." className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "FALTA", "RETARDO", "PERMISO", "INCAPACIDAD"].map(f => (
-            <button key={f} onClick={() => setFilterTipo(f)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+            <button key={f} onClick={() => setFilterTipo(f)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
               {f}
             </button>
           ))}
@@ -173,7 +179,7 @@ export default function IncidenciasPage() {
                 <th className="text-center p-3">Tipo</th>
                 <th className="text-left p-3">Motivo</th>
                 <th className="text-center p-3">Autorizada</th>
-                <th className="text-center p-3">Acción</th>
+                <th className="text-center p-3">Accion</th>
               </tr>
             </thead>
             <tbody>
