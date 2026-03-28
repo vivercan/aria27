@@ -24,7 +24,7 @@ const subModules = [
     description: "Control de entradas y salidas.",
     href: "/dashboard/talento/checadas",
     icon: Clock,
-    gradient: "from-green-500 to-emerald-600",
+    gradient: "from-emerald-500 to-emerald-600",
     active: true
   },
   {
