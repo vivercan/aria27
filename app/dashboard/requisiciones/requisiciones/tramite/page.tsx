@@ -393,7 +393,7 @@ Responde SOLO con JSON así:
       </div>
 
       {loadingItems ? (
-        <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-cyan-400" /></div>
+        <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-400" /></div>
       ) : (
         <>
           {/* Proveedores */}
@@ -409,7 +409,7 @@ Responde SOLO con JSON así:
                 {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
               <Link href={`/dashboard/requisiciones/requisiciones/tramite/capturar?req=${selectedReq.id}`}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-medium flex items-center gap-1.5">
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-medium flex items-center gap-1.5">
                 <ShoppingCart className="w-3 h-3" />
                 Capturar Cotizaciones
               </Link>
@@ -772,7 +772,7 @@ Responde SOLO con JSON así:
               } catch { alert("Error al enviar"); }
               finally { setSending(false); }
             }} disabled={!allItemsHaveMinQuotes() || sending}
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Enviar Comparativa a Direccion
             </button>
