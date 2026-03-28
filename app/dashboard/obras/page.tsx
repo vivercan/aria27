@@ -22,7 +22,7 @@ const subModules = [
     description: "Expedientes de obra.",
     href: "/dashboard/obras/expedientes",
     icon: FolderOpen,
-    gradient: "from-green-500 to-emerald-600"
+    gradient: "from-emerald-500 to-emerald-600"
   },
   {
     title: "Contratos",
