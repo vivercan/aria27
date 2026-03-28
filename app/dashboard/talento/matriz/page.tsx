@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, BarChart3, Users, DollarSign, Building2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface Empleado {
@@ -79,7 +79,7 @@ export default function MatrizSalarialPage() {
       </div>
 
       <div className="flex-1 overflow-auto space-y-4">
-        {loading ? <p className="text-slate-400 text-center py-8">Cargando...</p> :
+        {loading ? <div className="flex justify-center py-8"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div> :
           Object.entries(groups).sort(([a], [b]) => a.localeCompare(b)).map(([group, emps]) => (
             <div key={group} className="rounded-xl border border-white/10 overflow-hidden">
               <div className="px-4 py-3 bg-white/5 flex items-center justify-between">
