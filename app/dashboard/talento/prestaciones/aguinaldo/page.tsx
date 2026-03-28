@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Gift, Calculator, DollarSign } from "lucide-react";
+import { ArrowLeft, Gift, Calculator, DollarSign , Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AguinaldoPage() {
@@ -74,7 +74,7 @@ export default function AguinaldoPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">Cargando...</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
             ) : empleados.map(e => {
               const calc = calcAguinaldo(e);
               return (
