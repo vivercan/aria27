@@ -242,7 +242,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* TABLA */}
       <div className="flex-1 overflow-auto min-h-0" onClick={()=>showExportMenu&&setShowExportMenu(false)}>
-        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 text-cyan-400 animate-spin"/><span className="ml-2 text-slate-400 text-sm">Cargando...</span></div>
+        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-blue-400"/><span className="ml-2 text-slate-400 text-sm">Cargando...</span></div>
         ):products.length===0?(<div className="text-center py-12"><Package className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
         ):(
           <table className="w-full">
@@ -306,7 +306,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             </div>
             <div className="p-4">
               <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-emerald-400"/>Proveedores<span className="ml-auto text-[10px] text-slate-500">{loadingDetail?"...":productSuppliers.length}</span></h3>
-              {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 text-cyan-400 animate-spin"/></div>
+              {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-blue-400"/></div>
               ):productSuppliers.length===0?(<div className="text-center py-4 bg-white/[0.02] rounded-lg border border-white/[0.04]"><Truck className="w-6 h-6 text-slate-600 mx-auto mb-1"/><p className="text-slate-500 text-xs">Sin proveedores</p></div>
               ):(<div className="space-y-1.5">{productSuppliers.map((ps:any,idx:number)=>(<div key={idx} className={`p-2.5 rounded-lg border ${ps.es_proveedor_preferido?"bg-emerald-500/[0.06] border-emerald-500/20":"bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04]"}`}>
                 <div className="flex items-center gap-2">
