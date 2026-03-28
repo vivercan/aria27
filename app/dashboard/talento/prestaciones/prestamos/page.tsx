@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Plus, DollarSign, Calendar, User, X , ArrowLeft } from "lucide-react";
+import { Plus, DollarSign, Calendar, User, X, ArrowLeft, Loader2, Wallet, TrendingDown } from "lucide-react";
 
 interface Prestamo {
   id: string;
@@ -76,27 +76,30 @@ export default function PrestamosPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
-          <p className="text-slate-400">Gestiona préstamos y descuentos semanales</p>
+          <h1 className="text-2xl font-bold text-white">Control de PrÃ©stamos</h1>
+          <p className="text-slate-400">Gestiona prÃ©stamos y descuentos semanales</p>
         </div>
         <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nuevo Préstamo
+          <Plus className="w-4 h-4" /> Nuevo PrÃ©stamo
         </button>
       </div>
 
       {/* Resumen */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl">
-          <p className="text-blue-400 text-sm">Préstamos Activos</p>
-          <p className="text-2xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
+        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          <div className="inline-flex p-2 rounded-lg bg-blue-500/10 mb-2"><DollarSign className="w-4 h-4 text-blue-400" /></div>
+          <p className="text-xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
+          <p className="text-xs text-slate-400">PrÃ©stamos Activos</p>
         </div>
-        <div className="p-4 bg-amber-500/20 border border-amber-500/30 rounded-xl">
-          <p className="text-amber-400 text-sm">Total Pendiente</p>
-          <p className="text-2xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.monto_pendiente, 0))}</p>
+        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Wallet className="w-4 h-4 text-amber-400" /></div>
+          <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.monto_pendiente, 0))}</p>
+          <p className="text-xs text-slate-400">Total Pendiente</p>
         </div>
-        <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-xl">
-          <p className="text-green-400 text-sm">Descuento Semanal Total</p>
-          <p className="text-2xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.descuento_semanal, 0))}</p>
+        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><TrendingDown className="w-4 h-4 text-emerald-400" /></div>
+          <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.descuento_semanal, 0))}</p>
+          <p className="text-xs text-slate-400">Descuento Semanal Total</p>
         </div>
       </div>
 
@@ -104,7 +107,7 @@ export default function PrestamosPage() {
       <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden flex-1 min-h-0 overflow-y-auto">
         <table className="w-full">
           <thead className="sticky top-0 bg-[#0a1628] z-10">
-            <tr className="text-left text-slate-400 text-sm">
+            <tr className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
               <th className="p-3">Empleado</th>
               <th className="p-3 text-right">Monto Original</th>
               <th className="p-3 text-right">Pendiente</th>
@@ -115,9 +118,9 @@ export default function PrestamosPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
             ) : prestamos.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay préstamos registrados</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay prÃ©stamos registrados</td></tr>
             ) : (
               prestamos.map((p) => (
                 <tr key={p.id} className="border-t border-white/5 hover:bg-white/5">
@@ -130,7 +133,7 @@ export default function PrestamosPage() {
                   <td className="p-3 text-right text-cyan-400">{formatMoney(p.descuento_semanal)}</td>
                   <td className="p-3 text-slate-300 text-sm">{p.motivo}</td>
                   <td className="p-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${p.status?.toUpperCase() === "ACTIVO" ? "bg-green-500/20 text-green-400" : "bg-slate-500/20 text-slate-400"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
                       {p.status?.toUpperCase()}
                     </span>
                   </td>
@@ -146,7 +149,7 @@ export default function PrestamosPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-800 border border-white/10 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">Nuevo Préstamo</h2>
+              <h2 className="text-xl font-bold text-white">Nuevo PrÃ©stamo</h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white"><X /></button>
             </div>
             <div className="space-y-4">
@@ -158,7 +161,7 @@ export default function PrestamosPage() {
               <input type="number" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
               <input type="number" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
-              <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear Préstamo</button>
+              <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear PrÃ©stamo</button>
             </div>
           </div>
         </div>
