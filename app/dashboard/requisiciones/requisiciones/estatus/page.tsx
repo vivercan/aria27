@@ -276,7 +276,7 @@ export default function RequisicionesStatusPage() {
 
       {loading ? (
         <div className="text-center py-10">
-          <Loader2 className="w-8 h-8 mx-auto animate-spin text-cyan-400" />
+          <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-400" />
         </div>
       ) : (
         <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
@@ -328,7 +328,7 @@ export default function RequisicionesStatusPage() {
                       <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
                       <td className="p-3 text-emerald-400 text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(req.status)}`}>
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
                           {req.status}
                         </span>
                       </td>
@@ -380,7 +380,7 @@ export default function RequisicionesStatusPage() {
                 <p className="text-slate-400 text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded text-xs font-medium ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
                 <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">✕</button>
               </div>
             </div>
@@ -397,7 +397,7 @@ export default function RequisicionesStatusPage() {
               <div>
                 <p className="text-xs font-medium text-slate-400 mb-2">MATERIALES</p>
                 {loadingDetail ? (
-                  <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-cyan-400" /></div>
+                  <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-blue-400" /></div>
                 ) : (
                   <div className="rounded-xl border border-white/10 overflow-hidden">
                     <table className="w-full">
