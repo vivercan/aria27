@@ -139,7 +139,7 @@ export default function ProspeccionPage() {
 
         {searching && (
           <div className="flex flex-col items-center justify-center h-full">
-            <Loader2 className="w-8 h-8 text-violet-400 animate-spin mb-3"/>
+            <Loader2 className="w-8 h-8 animate-spin text-blue-400 mb-3"/>
             <p className="text-white font-medium">Buscando proveedores de &quot;{searchTerm}&quot;...</p>
             <p className="text-slate-400 text-xs mt-1">La IA está buscando en la web, puede tomar 15-30 segundos</p>
           </div>
