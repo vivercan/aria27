@@ -3,6 +3,25 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Mail, Inbox, Send, Trash2, RefreshCw, Edit3, X, Search, CheckSquare, Square, Paperclip, Loader2, MailOpen, Circle, AlertCircle, Bell } from "lucide-react";
 
+// FIX: Sanitizar HTML de emails para prevenir XSS
+function sanitizeHtml(html: string): string {
+  // Eliminar scripts, iframes, objects, embeds, forms
+  let clean = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  clean = clean.replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, '');
+  clean = clean.replace(/<object\b[^>]*>.*?<\/object>/gi, '');
+  clean = clean.replace(/<embed\b[^>]*\/?>|<\/embed>/gi, '');
+  clean = clean.replace(/<form\b[^>]*>.*?<\/form>/gi, '');
+  clean = clean.replace(/<link\b[^>]*\/?>|<\/link>/gi, '');
+  // Eliminar event handlers (onclick, onerror, onload, etc.)
+  clean = clean.replace(/\s+on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+  // Eliminar javascript: URLs
+  clean = clean.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, 'href="#"');
+  clean = clean.replace(/src\s*=\s*["']javascript:[^"']*["']/gi, 'src=""');
+  // Eliminar data: URLs en src (pueden contener JS)
+  clean = clean.replace(/src\s*=\s*["']data:[^"']*["']/gi, 'src=""');
+  return clean;
+}
+
 interface Email {
   seqno: number;
   uid: number;
@@ -455,7 +474,7 @@ export default function CorreoPage() {
                       <span className="ml-3 text-slate-500">Cargando contenido...</span>
                     </div>
                   ) : selectedEmail.html ? (
-                  <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
+                  <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEmail.html) }} />
                 ) : (
                   <pre className="whitespace-pre-wrap font-sans text-slate-300 leading-relaxed text-sm">
                     {selectedEmail.body || "Este correo no tiene contenido de texto."}
