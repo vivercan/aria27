@@ -15,7 +15,7 @@ const subModules = [
     description: "Centro de documentación.",
     href: "/dashboard/plantillas/documentos",
     icon: FileText,
-    gradient: "from-green-500 to-emerald-600"
+    gradient: "from-emerald-500 to-emerald-600"
   },
   {
     title: "Propuestas",
