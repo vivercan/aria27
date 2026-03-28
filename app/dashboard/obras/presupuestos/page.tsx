@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers } from "lucide-react";
+import { ArrowLeft, Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
 
 interface Partida {
   id: string;
@@ -174,7 +174,7 @@ export default function PresupuestosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin partidas registradas</td></tr>
               ) : filtered.map(p => (
