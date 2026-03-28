@@ -282,7 +282,7 @@ export default function ActivosCatalogoPage() {
         ))}
       </div>
 
-      {loading ? <div className="text-center text-slate-400 py-8">Cargando...</div> : (
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div> : (
         <>
           {/* ==================== TAB INVENTARIO ==================== */}
           {tab === "inventario" && (
@@ -335,7 +335,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo}</td>
                           <td className="px-4 py-3 text-slate-400 text-sm">{activo.placas || "-"}</td>
                           <td className="px-4 py-3">
-                            <span className={`px-2 py-1 rounded text-xs font-medium text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-gray-500"}`}>{activo.estado}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-slate-500"}`}>{activo.estado}</span>
                           </td>
                           <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
@@ -359,7 +359,7 @@ export default function ActivosCatalogoPage() {
               <div className="flex justify-between items-center">
                 <p className="text-slate-400">{activosDisponibles.length} activos disponibles para asignar</p>
                 <button onClick={() => setShowModalAsignacion(true)} disabled={activosDisponibles.length === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 rounded-lg text-white font-medium">
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 rounded-lg text-white font-medium">
                   <Plus className="w-4 h-4" /> Nueva Asignación
                 </button>
               </div>
@@ -446,7 +446,7 @@ export default function ActivosCatalogoPage() {
                           <div className="text-slate-400 text-sm">{mant.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                             {mant.tipo}
                           </span>
                         </td>
