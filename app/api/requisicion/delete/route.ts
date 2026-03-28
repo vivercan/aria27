@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-const AUTHORIZED_EMAIL = "recursos.humanos@gcuavante.com";
+// Roles autorizados para eliminar requisiciones
+const AUTHORIZED_ROLES = ["admin", "rh"];
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { requisitionIds, userEmail, confirmation } = body;
 
-    if (userEmail !== AUTHORIZED_EMAIL) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    // Validar usuario por rol en lugar de email hardcodeado
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email de usuario requerido" }, { status: 400 });
+    }
+
+    const { data: callerUser } = await supabase
+      .from("Users")
+      .select("role, email")
+      .eq("email", userEmail)
+      .single();
+
+    if (!callerUser || !AUTHORIZED_ROLES.includes(callerUser.role)) {
+      return NextResponse.json({ error: "No autorizado â se requiere rol admin o rh" }, { status: 403 });
     }
 
     if (confirmation !== "DELETE") {
@@ -25,12 +37,33 @@ export async function POST(request: NextRequest) {
       .select("*")
       .in("id", requisitionIds);
 
+    let deletedCount = 0;
+
     for (const req of Requisiciones || []) {
+      // 1. Obtener items para backup
       const { data: items } = await supabase
         .from("requisition_items")
         .select("*")
         .eq("requisition_id", req.id);
 
+      // 2. Obtener POs relacionadas para backup
+      const { data: purchaseOrders } = await supabase
+        .from("purchase_orders")
+        .select("*")
+        .eq("requisition_id", req.id);
+
+      // 3. Obtener entregas relacionadas (via PO folios)
+      let entregas: any[] = [];
+      if (purchaseOrders && purchaseOrders.length > 0) {
+        const poIds = purchaseOrders.map((po: any) => po.id);
+        const { data: entregasData } = await supabase
+          .from("entregas")
+          .select("*")
+          .in("purchase_order_id", poIds);
+        entregas = entregasData || [];
+      }
+
+      // 4. Crear backup completo
       await supabase.from("Requisiciones_backup").insert({
         original_id: req.id,
         folio: req.folio,
@@ -48,15 +81,31 @@ export async function POST(request: NextRequest) {
         deleted_by: userEmail
       });
 
+      // 5. CASCADE DELETE: eliminar entregas â POs â items â requisiciÃ³n
+      if (entregas.length > 0) {
+        const entregaIds = entregas.map((e: any) => e.id);
+        await supabase.from("entregas").delete().in("id", entregaIds);
+        console.log(`[DELETE] ${entregas.length} entregas eliminadas para req ${req.folio}`);
+      }
+
+      if (purchaseOrders && purchaseOrders.length > 0) {
+        const poIds = purchaseOrders.map((po: any) => po.id);
+        await supabase.from("purchase_orders").delete().in("id", poIds);
+        console.log(`[DELETE] ${purchaseOrders.length} POs eliminadas para req ${req.folio}`);
+      }
+
       await supabase.from("requisition_items").delete().eq("requisition_id", req.id);
+
+      deletedCount++;
     }
 
+    // Eliminar las requisiciones
     await supabase.from("Requisiciones").delete().in("id", requisitionIds);
 
-    return NextResponse.json({ 
-      success: true, 
-      message: requisitionIds.length + " requisicion(es) eliminada(s)",
-      deletedCount: requisitionIds.length
+    return NextResponse.json({
+      success: true,
+      message: `${deletedCount} requisicion(es) eliminada(s) con sus dependencias`,
+      deletedCount
     });
 
   } catch (error) {
