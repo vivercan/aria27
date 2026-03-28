@@ -118,7 +118,7 @@ export default function AuthorizeRequisicionesPage() {
           <h2 className="text-lg font-semibold mb-4">Pendientes ({Requisiciones.length})</h2>
           <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
-              <div className="text-center py-4 text-white/50">Cargando...</div>
+              <div className="text-center py-4 text-white/50"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></div>
             ) : Requisiciones.length === 0 ? (
               <div className="text-center py-4 text-white/50">No hay requisiciones pendientes</div>
             ) : (
