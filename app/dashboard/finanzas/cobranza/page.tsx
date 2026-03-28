@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X, Loader2 } from "lucide-react";
 
 interface Estimacion {
   id: string;
@@ -193,7 +193,7 @@ export default function CobranzaPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin estimaciones registradas</td></tr>
               ) : filtered.map(e => (
