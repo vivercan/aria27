@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle , Loader2 } from "lucide-react";
 
 interface Factura {
   id: string;
@@ -181,7 +181,7 @@ export default function FacturacionPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin facturas registradas</td></tr>
               ) : filtered.map(f => (
