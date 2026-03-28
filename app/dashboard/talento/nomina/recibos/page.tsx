@@ -6,8 +6,7 @@ import {
   ArrowLeft, Printer, FileText, Download, CheckCircle, 
   AlertTriangle, User, Building2, Calendar, DollarSign,
   CreditCard, Banknote, Clock, ChevronDown, ChevronUp,
-  Lock, Unlock
-} from "lucide-react";
+  Lock, Unlock, Loader2 } from "lucide-react";
 
 interface NominaRecord {
   id: string;
@@ -338,7 +337,7 @@ export default function RecibosNominaPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
       </div>
     );
   }
@@ -392,7 +391,7 @@ export default function RecibosNominaPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 ${
                 nominaStatus === "CONFIRMADA"
                   ? "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300"
-                  : "bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:from-emerald-600 hover:to-green-600"
+                  : "bg-gradient-to-r from-emerald-500 to-emerald-500 text-white hover:from-emerald-600 hover:to-emerald-600"
               }`}
             >
               {nominaStatus === "CONFIRMADA" ? (
