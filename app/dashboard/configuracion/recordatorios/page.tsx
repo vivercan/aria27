@@ -99,7 +99,7 @@ export default function RecordatoriosPage() {
             <div className="font-medium truncate">{r.empleado_nombre}</div>
             <div className="text-xs text-slate-400">{r.tipo}</div>
             <div className="text-xs text-slate-400">{r.fecha_hora || "—"}</div>
-            <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-300">{r.canal}</span></div>
+            <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">{r.canal}</span></div>
             <div><span className={`px-2 py-0.5 rounded-full text-[10px] ${statusColor[r.status_entrega] || statusColor.PENDIENTE}`}>{r.status_entrega}</span></div>
             <div><button onClick={() => eliminar(r.id)} className="text-red-400/50 hover:text-red-400 text-xs">✕</button></div>
           </div>
