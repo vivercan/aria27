@@ -194,7 +194,7 @@ export default function ComprasPickingPage() {
     return items.filter(item => itemQuotes.some(iq => iq.requisition_item_id === item.id && iq.supplier_name === name)).length;
   };
 
-  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   // ==========================================
   // VIEW: LIST OF PENDING REQUISITIONS
@@ -428,7 +428,7 @@ export default function ComprasPickingPage() {
         <button onClick={authorize} disabled={authorizing || selectedCount !== items.length}
           className={`w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
             selectedCount === items.length
-              ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
               : "bg-white/5 text-slate-500 cursor-not-allowed"
           }`}>
           {authorizing ? (
