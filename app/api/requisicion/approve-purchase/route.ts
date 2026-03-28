@@ -49,13 +49,13 @@ function buildComparativaHTML(req: any, token: string) {
   }).join("");
   const mR=(l: string,fn: (s: any)=>number,b: boolean)=>`<tr style="background:#f1f5f9"><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">${l}</td>${supData.map((s: any)=>{const v=fn(s);const ic=s.total===bt&&bt>0;const bg=ic?(b?"background:#16a34a;color:white;":"background:#dcfce7;"):"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${b?"font-weight:bold;":""}${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
 
-  const rebajaR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">\u00bfREBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
+  const rebajaR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">&iquest;REBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
   const obsR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">OBSERVACIONES</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones||s.entrega||"-"}</td>`).join("")}</tr>`;
 
   const linkAprobar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=aprobar`;
   const linkRechazar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=rechazar`;
 
-  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} \u00d7 ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${mR("I.V.A. (16%)",(s: any)=>s.iva,false)}${mR("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 \u00d7 Grupo Constructor Urbano Avante</p></div>`;
+  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${mR("I.V.A. (16%)",(s: any)=>s.iva,false)}${mR("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
 }
 
 export async function GET(request: Request) {
@@ -83,11 +83,11 @@ export async function GET(request: Request) {
 
     if (reqError || !req) {
       console.error("[APPROVE-PURCHASE] Token lookup failed:", reqError?.message);
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x26A0;</div><h1 style="color:#f59e0b">Token Inv\u00e1lido o Expirado</h1></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x26A0;</div><h1 style="color:#f59e0b">Token Inv&aacute;lido o Expirado</h1></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
     if (req.status !== "EN_AUTORIZACION") {
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2139;</div><h1 style="color:#3b82f6">Ya Procesada</h1><p style="color:#94a3b8">Esta requisici\u00f3n ya fue procesada.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2139;</div><h1 style="color:#3b82f6">Ya Procesada</h1><p style="color:#94a3b8">Esta requisici&oacute;n ya fue procesada.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
     const comprasUser = await getUserByRole("compras");
@@ -125,21 +125,25 @@ export async function GET(request: Request) {
       }
 
       supplierName = elegidoData.supplier || "N/A";
-      total = elegidoData.total || elegidoData.subtotal * 1.16 || 0;
+      total = elegidoData.total || (elegidoData.subtotal ? elegidoData.subtotal * 1.16 : 0);
+
+      // P0-7 FIX: No crear OC con total $0 â advertir pero continuar con el flujo
+      if (total <= 0) {
+        console.warn(`[APPROVE-PURCHASE] ADVERTENCIA: OC ${ocFolio} con total $0 para req ${req.folio}. Datos cotizaciÃ³n pueden estar incompletos.`);
+      }
 
       await supabase.from("Requisiciones").update({
         status: "OC_GENERADA",
         authorization_comments: null,
         approved_by: "direccion",
         authorized_at: new Date().toISOString(),
-        proveedor: supplierName,
-        monto: total
       }).eq("id", req.id);
 
       await supabase.from("purchase_orders").insert({
         folio: ocFolio,
         requisition_id: req.id,
         supplier_name: supplierName,
+        obra_nombre: req.cost_center_name || null,
         total: total,
         status: "GENERADA",
         payment_method: elegidoData.forma_pago || "Transferencia",
@@ -163,20 +167,20 @@ export async function GET(request: Request) {
         await resend.emails.send({
           from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
           subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici\u00f3n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total} MXN</p></div></div>`
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici&oacute;n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>`
         });
         if (comprasUser.phone) {
-          await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name, supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone);
+          await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name || "N/A", supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone);
         }
       }
 
       await resend.emails.send({
         from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
         subject: `Tu requisici\u00f3n ${req.folio} fue autorizada - ${ocFolio}`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici\u00f3n Autorizada</h1></div><div style="padding:25px"><p>Tu requisici\u00f3n <strong>${req.folio}</strong> ha sido autorizada.</p><p>OC: <strong>${ocFolio}</strong></p><p>Proveedor: ${supplierName} - $${total}</p></div></div>`
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Autorizada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> ha sido autorizada.</p><p>OC: <strong>${ocFolio}</strong></p><p>Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p></div></div>`
       });
 
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici\u00f3n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total}</p><p style="color:#64748b">Se notific\u00f3 a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
     } else if (action === "rechazar" || action === "RECHAZADA") {
       await supabase.from("Requisiciones").update({
@@ -188,19 +192,19 @@ export async function GET(request: Request) {
         await resend.emails.send({
           from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
           subject: `RECHAZADA: ${req.folio}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisici\u00f3n <strong>${req.folio}</strong> fue rechazada por Direcci\u00f3n.</p></div></div>`
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
         });
       }
 
       await resend.emails.send({
         from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
         subject: `Requisici\u00f3n ${req.folio} rechazada por Direcci\u00f3n`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici\u00f3n Rechazada</h1></div><div style="padding:25px"><p>Tu requisici\u00f3n <strong>${req.folio}</strong> fue rechazada por Direcci\u00f3n.</p></div></div>`
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Rechazada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
       });
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x274C;</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     } else {
-      return NextResponse.json({ error: `AcciÃ³n no vÃ¡lida: ${action}` }, { status: 400 });
+      return NextResponse.json({ error: `Acci\u00f3n no v\u00e1lida: ${action}` }, { status: 400 });
     }
   } catch (error: any) {
     console.error("[APPROVE-PURCHASE]", error);
