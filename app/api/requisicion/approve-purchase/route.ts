@@ -125,8 +125,6 @@ export async function GET(request: Request) {
       await supabase.from("Requisiciones").update({
         status: "OC_GENERADA",
         authorization_comments: null,
-        approved_by: "direccion",
-        authorized_at: new Date().toISOString(),
         proveedor: supplierName,
         monto: total
       }).eq("id", req.id);
