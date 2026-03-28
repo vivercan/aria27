@@ -4,7 +4,7 @@ import { DollarSign, Calendar, Gift, FileHeart, ArrowLeft } from "lucide-react";
 
 const submodulos = [
   { titulo: "Préstamos", descripcion: "Control de préstamos y descuentos", href: "/dashboard/talento/prestaciones/prestamos", icono: DollarSign, color: "from-blue-500 to-cyan-500" },
-  { titulo: "Vacaciones", descripcion: "Saldos y solicitudes", href: "/dashboard/talento/prestaciones/vacaciones", icono: Calendar, color: "from-green-500 to-emerald-500" },
+  { titulo: "Vacaciones", descripcion: "Saldos y solicitudes", href: "/dashboard/talento/prestaciones/vacaciones", icono: Calendar, color: "from-emerald-500 to-emerald-500" },
   { titulo: "Aguinaldo", descripcion: "Cálculo anual", href: "/dashboard/talento/prestaciones/aguinaldo", icono: Gift, color: "from-amber-500 to-orange-500" },
   { titulo: "Incapacidades", descripcion: "Registro IMSS", href: "/dashboard/talento/prestaciones/incapacidades", icono: FileHeart, color: "from-red-500 to-pink-500" },
 ];
