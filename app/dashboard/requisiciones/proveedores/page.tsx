@@ -122,7 +122,7 @@ export default function ProveedoresPage() {
       {/* TABLA */}
       <div className="flex-1 overflow-auto min-h-0">
         {loading?(
-          <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 text-emerald-400 animate-spin"/></div>
+          <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-blue-400"/></div>
         ):filtered.length===0?(
           <div className="text-center py-12"><Building2 className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
         ):(
