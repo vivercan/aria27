@@ -59,9 +59,6 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
 
 export async function POST(req: NextRequest) {
   try {
-  // AUTH CHECK removido 23-Mar-2026: sistema usa login Zoho SMTP, no Supabase Auth.
-  // Auth real se implementará cuando se migre a Supabase Auth (decisión aprobada, pendiente).
-
     const body = await req.json();
     const {
       purchase_order_id,
@@ -72,8 +69,22 @@ export async function POST(req: NextRequest) {
       materiales,
       requisition_id,
       solicitante_email,
-      solicitante_phone
+      solicitante_phone,
+      user_email
     } = body;
+
+    // ValidaciÃ³n bÃ¡sica de datos requeridos
+    if (!purchase_order_folio || !materiales || materiales.length === 0) {
+      return NextResponse.json({ error: "Faltan datos requeridos (purchase_order_folio, materiales)" }, { status: 400 });
+    }
+
+    // Validar que el usuario existe y tiene permiso
+    if (user_email) {
+      const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
+      if (!callerUser || !["admin", "compras", "almacen", "rh"].includes(callerUser.role)) {
+        return NextResponse.json({ error: "No autorizado para registrar entregas" }, { status: 403 });
+      }
+    }
 
     // Generar folio de entrega
     const { count, error: countErr } = await supabase.from("entregas").select("*", { count: "exact", head: true });
@@ -116,16 +127,15 @@ export async function POST(req: NextRequest) {
 
     if (obraIdFinal && materiales && materiales.length > 0) {
       itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
-
     } else {
-      console.warn("[ENTREGA] Sin obra_id o sin materiales \u2014 inventario no actualizado. obra_id:", obraIdFinal, "materiales:", materiales?.length);
+      console.warn("[ENTREGA] Sin obra_id o sin materiales â inventario no actualizado. obra_id:", obraIdFinal, "materiales:", materiales?.length);
     }
 
     // WhatsApp con plantilla al solicitante
     if (solicitante_phone) {
       await sendWhatsAppTemplate(
         "entrega_material",
-        [purchase_order_folio, obra_nombre, supplier_name, folioEntrega],
+        [purchase_order_folio, obra_nombre || "N/A", supplier_name || "N/A", folioEntrega],
         solicitante_phone
       );
     }
@@ -133,18 +143,18 @@ export async function POST(req: NextRequest) {
     // Email al solicitante
     if (solicitante_email) {
       const inventarioHtml = itemsInventario > 0
-        ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">${itemsInventario} items actualizados \u2713</strong></td></tr>`
+        ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">${itemsInventario} items actualizados &#x2713;</strong></td></tr>`
         : `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><span style="color:#f59e0b;">Pendiente de procesar</span></td></tr>`;
 
       await sendEmail(
         solicitante_email,
-        `\u2705 Material Recibido - ${purchase_order_folio}`,
+        `&#x2705; Material Recibido - ${purchase_order_folio}`,
         `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-          <h2 style="color:#10b981;">\u2705 Material Recibido</h2>
+          <h2 style="color:#10b981;">&#x2705; Material Recibido</h2>
           <p>Tu material de la orden <strong>${purchase_order_folio}</strong> ha sido recibido.</p>
           <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Obra:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${obra_nombre}</strong></td></tr>
-            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Proveedor:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${supplier_name}</strong></td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Obra:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${obra_nombre || "N/A"}</strong></td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Proveedor:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${supplier_name || "N/A"}</strong></td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Entrega:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong>${folioEntrega}</strong></td></tr>
             ${inventarioHtml}
           </table>
