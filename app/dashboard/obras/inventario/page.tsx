@@ -192,7 +192,7 @@ export default function InventarioObraPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
       </div>
     );
   }
@@ -216,19 +216,19 @@ export default function InventarioObraPage() {
             <button
               key={obra.id}
               onClick={() => setObraSeleccionada(obra)}
-              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-green-500/50 rounded-xl text-left transition-all group"
+              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 rounded-xl text-left transition-all group"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-green-500/20 rounded-xl group-hover:bg-green-500/30 transition-colors">
-                  <Package className="w-6 h-6 text-green-400" />
+                <div className="p-3 bg-emerald-500/20 rounded-xl group-hover:bg-emerald-500/30 transition-colors">
+                  <Package className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white group-hover:text-green-300 transition-colors">
+                  <h3 className="font-semibold text-white group-hover:text-emerald-300 transition-colors">
                     {obra.name}
                   </h3>
                   <p className="text-sm text-slate-400 mt-1">Ver inventario</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 transition-colors" />
+                <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-emerald-400 transition-colors" />
               </div>
             </button>
           ))}
@@ -269,7 +269,7 @@ export default function InventarioObraPage() {
         </div>
         <div className="p-4 bg-white/5 rounded-xl border border-white/10">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-green-400" />
+            <TrendingUp className="w-8 h-8 text-emerald-400" />
             <div>
               <p className="text-2xl font-bold text-white">{totalDisponible.toLocaleString()}</p>
               <p className="text-sm text-slate-400">Unidades disponibles</p>
@@ -324,7 +324,7 @@ export default function InventarioObraPage() {
                       </p>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`font-bold ${item.cantidad_disponible <= 5 ? 'text-amber-400' : 'text-green-400'}`}>
+                      <span className={`font-bold ${item.cantidad_disponible <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
                         {item.cantidad_disponible}
                       </span>
                     </td>
@@ -381,7 +381,7 @@ export default function InventarioObraPage() {
                 </p>
                 <button
                   onClick={() => importarDeEntrega(entrega)}
-                  className="w-full py-2 bg-green-500/20 hover:bg-green-500/40 text-green-400 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Importar a Inventario
@@ -424,14 +424,14 @@ export default function InventarioObraPage() {
               />
               <button
                 onClick={() => setAjusteCantidad(ajusteCantidad + 1)}
-                className="p-3 bg-green-500/20 hover:bg-green-500/40 rounded-lg"
+                className="p-3 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg"
               >
-                <Plus className="w-5 h-5 text-green-400" />
+                <Plus className="w-5 h-5 text-emerald-400" />
               </button>
             </div>
 
             <p className="text-center text-sm mb-4">
-              Nuevo total: <span className={`font-bold ${showAjuste.cantidad_disponible + ajusteCantidad < 0 ? 'text-red-400' : 'text-green-400'}`}>
+              Nuevo total: <span className={`font-bold ${showAjuste.cantidad_disponible + ajusteCantidad < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                 {Math.max(0, showAjuste.cantidad_disponible + ajusteCantidad)}
               </span> {showAjuste.unidad}
             </p>
