@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
 
 interface Incompleta {
   id?: string;
@@ -163,7 +163,7 @@ export default function IncompletasPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Asistencias Pendientes</h1>
             <p className="text-slate-400 text-sm">
-              {periodo ? `Semana: ${periodo.inicio} al ${periodo.fin}` : "Cargando..."}
+              {periodo ? `Semana: ${periodo.inicio} al ${periodo.fin}` : <Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" />}
             </p>
           </div>
         </div>
