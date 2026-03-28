@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
 
 interface PurchaseOrder {
   id: string;
@@ -192,7 +192,7 @@ export default function PagosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">No hay Órdenes de compra</td></tr>
               ) : filtered.map(oc => {
