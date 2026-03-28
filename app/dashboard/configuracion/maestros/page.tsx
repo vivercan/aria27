@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const items = [
   { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-blue-500 to-cyan-500" },
-  { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-green-500" },
+  { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-emerald-500" },
 ];
 
 export default function MaestrosPage() {
