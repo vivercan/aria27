@@ -182,14 +182,14 @@ export default function EntregasPage() {
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-blue-400 font-mono font-bold">{e.folio}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium text-white ${getStatusColor(e.status)}`}>{e.status}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${getStatusColor(e.status)}`}>{e.status}</span>
                     {e.purchase_order_folio && (
-                      <span className="px-2 py-0.5 rounded text-xs font-medium bg-cyan-500/20 text-cyan-400 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 flex items-center gap-1">
                         <FileText className="w-3 h-3" />{e.purchase_order_folio}
                       </span>
                     )}
                     {e.foto_url && (
-                      <span className="px-2 py-0.5 rounded text-xs font-medium bg-violet-500/20 text-violet-400 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-500/20 text-violet-400 flex items-center gap-1">
                         <Image className="w-3 h-3" />Foto
                       </span>
                     )}
