@@ -184,7 +184,7 @@ function CapturarContent() {
   const pagoLabel = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
   if (!requisition) return <div className="text-center py-20 text-slate-400">Requisicion no encontrada</div>;
 
   return (
@@ -426,13 +426,13 @@ function CapturarContent() {
 
       {/* ENVIAR COMPARATIVA */}
       {quotes.length >= 5 && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
             <p className="text-slate-400 text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
           </div>
           <button onClick={enviarComparativa} disabled={enviando}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">
             {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             Enviar a Dirección
           </button>
@@ -444,7 +444,7 @@ function CapturarContent() {
 
 export default function CapturarCotizacionPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}>
       <CapturarContent />
     </Suspense>
   );
