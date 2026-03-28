@@ -172,7 +172,7 @@ export default function PreNominaPage() {
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
   const formatDate = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   return (
     <div className="space-y-6">
@@ -182,7 +182,7 @@ export default function PreNominaPage() {
           <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/20">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <Calculator className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
@@ -195,7 +195,7 @@ export default function PreNominaPage() {
             {calculando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
             {calculando ? "Calculando..." : "Calcular"}
           </button>
-          <button onClick={generarNomina} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:from-emerald-600 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <button onClick={generarNomina} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             {generando ? "Generando..." : "Generar Nómina"}
           </button>
@@ -220,7 +220,7 @@ export default function PreNominaPage() {
             <p className="text-slate-400 text-xs mb-1">Deducciones</p>
             <p className="text-xl font-bold text-red-400">{formatMoney(totales.deducciones)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
             <p className="text-slate-400 text-xs mb-1">Neto a Pagar</p>
             <p className="text-xl font-bold text-emerald-400">{formatMoney(totales.neto)}</p>
           </div>
