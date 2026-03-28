@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface Centro {
@@ -90,7 +90,7 @@ export default function CentrosPage() {
 
       <div className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="text-center py-12 text-slate-400">Cargando...</div>
+          <div className="text-center py-12 text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></div>
         ) : centros.length === 0 ? (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 mx-auto text-slate-600 mb-4" />
@@ -103,8 +103,8 @@ export default function CentrosPage() {
               <div key={c.id} className="p-4 bg-white/5 border border-white/10 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.latitud ? "bg-green-500/20" : "bg-amber-500/20"}`}>
-                      <MapPin className={`w-6 h-6 ${c.latitud ? "text-green-400" : "text-amber-400"}`} />
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.latitud ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
+                      <MapPin className={`w-6 h-6 ${c.latitud ? "text-emerald-400" : "text-amber-400"}`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
