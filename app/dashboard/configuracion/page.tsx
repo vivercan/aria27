@@ -3,19 +3,19 @@ import { Settings, Bell, Mail, Database, BookOpen, ArrowRight } from "lucide-rea
 import Link from "next/link";
 
 const items = [
-  { title: "General", description: "Parámetros del sistema y usuarios", href: "/dashboard/configuracion/general", icon: Settings, gradient: "from-blue-500 to-blue-600" },
-  { title: "Datos Maestros", description: "Centros de trabajo y nómina", href: "/dashboard/configuracion/maestros", icon: Database, gradient: "from-violet-500 to-purple-600" },
-  { title: "Correo", description: "Configuración de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-emerald-600" },
+  { title: "General", description: "ParÃ¡metros del sistema y usuarios", href: "/dashboard/configuracion/general", icon: Settings, gradient: "from-blue-500 to-blue-600" },
+  { title: "Datos Maestros", description: "Centros de trabajo y nÃ³mina", href: "/dashboard/configuracion/maestros", icon: Database, gradient: "from-violet-500 to-purple-600" },
+  { title: "Correo", description: "ConfiguraciÃ³n de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-emerald-600" },
   { title: "Alertas", description: "Alertas de atrasos y vencimientos", href: "/dashboard/configuracion/alertas", icon: Bell, gradient: "from-amber-500 to-orange-500" },
-  { title: "Recordatorios", description: "Recordatorios automáticos por WhatsApp", href: "/dashboard/configuracion/recordatorios", icon: BookOpen, gradient: "from-rose-500 to-pink-500" },
+  { title: "Recordatorios", description: "Recordatorios automÃ¡ticos por WhatsApp", href: "/dashboard/configuracion/recordatorios", icon: BookOpen, gradient: "from-rose-500 to-pink-500" },
 ];
 
 export default function ConfiguracionPage() {
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
       <div>
-        <h1 className="text-2xl font-bold">Configuración</h1>
-        <p className="text-sm text-slate-400">Administra los parámetros del sistema</p>
+        <h1 className="text-2xl font-bold">ConfiguraciÃ³n</h1>
+        <p className="text-sm text-slate-400">Administra los parÃ¡metros del sistema</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((item, i) => (
