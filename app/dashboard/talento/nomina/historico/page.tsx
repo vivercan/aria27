@@ -94,7 +94,7 @@ export default function HistoricoNominaPage() {
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
   const limpiarFiltros = () => { setFiltroSemana(""); setFiltroEmpleado(""); setBusqueda(""); };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   return (
     <div className="space-y-6">
@@ -148,7 +148,7 @@ export default function HistoricoNominaPage() {
           <p className="text-slate-400 text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
           <p className="text-slate-400 text-xs mb-1">Total Bruto</p>
           <p className="text-xl font-bold text-emerald-400">{formatMoney(totales.bruto)}</p>
         </div>
