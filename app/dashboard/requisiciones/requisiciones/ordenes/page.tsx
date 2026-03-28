@@ -145,11 +145,11 @@ export default function OrdenesCompraPage() {
     GENERADA: { label: "Generada", color: "text-blue-400", bg: "bg-blue-500/20", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
     RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },
-    PAGADA: { label: "Pagada", color: "text-green-400", bg: "bg-green-500/20", icon: CheckCircle2 },
+    PAGADA: { label: "Pagada", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: CheckCircle2 },
   };
   const getStatus = (s: string) => statusConfig[s] || statusConfig.GENERADA;
 
-  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   if (selectedPO) {
     const st = getStatus(selectedPO.status);
@@ -168,7 +168,7 @@ export default function OrdenesCompraPage() {
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
         </div>
-        {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-cyan-400" /></div> : (
+        {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div> : (
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
@@ -216,12 +216,12 @@ export default function OrdenesCompraPage() {
               </button>
             )}
             {selectedPO.status === "RECIBIDA" && (
-              <button onClick={() => updateStatus("PAGADA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-green-500/20 text-green-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-green-500/30 transition-colors disabled:opacity-50">
+              <button onClick={() => updateStatus("PAGADA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-emerald-500/30 transition-colors disabled:opacity-50">
                 {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}Marcar Pagada
               </button>
             )}
             {selectedPO.status === "PAGADA" && (
-              <div className="flex-1 py-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
+              <div className="flex-1 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
             )}
           </div>
         </div>
