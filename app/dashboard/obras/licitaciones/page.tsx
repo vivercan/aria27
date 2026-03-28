@@ -27,7 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
   ENVIADA: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   PERDIDA: "bg-red-500/20 text-red-300 border-red-500/30",
-  CANCELADA: "bg-gray-500/20 text-gray-300 border-gray-500/30",
+  CANCELADA: "bg-slate-500/20 text-slate-300 border-slate-500/30",
   DESIERTA: "bg-violet-500/20 text-violet-300 border-violet-500/30",
 };
 
