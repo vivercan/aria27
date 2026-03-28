@@ -240,14 +240,14 @@ export default function ExpedientesPage() {
     switch (prioridad) {
       case "alta": return "text-red-400 bg-red-500/20";
       case "media": return "text-amber-400 bg-amber-500/20";
-      default: return "text-green-400 bg-green-500/20";
+      default: return "text-emerald-400 bg-emerald-500/20";
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
       </div>
     );
   }
@@ -452,7 +452,7 @@ export default function ExpedientesPage() {
                 key={tarea.id}
                 className={`p-4 rounded-xl border transition-all ${
                   tarea.status === "completada"
-                    ? "bg-green-500/10 border-green-500/30"
+                    ? "bg-emerald-500/10 border-emerald-500/30"
                     : "bg-white/5 border-white/10 hover:border-white/20"
                 }`}
               >
@@ -461,14 +461,14 @@ export default function ExpedientesPage() {
                     onClick={() => toggleTareaStatus(tarea)}
                     className={`mt-1 p-1 rounded-full transition-colors ${
                       tarea.status === "completada"
-                                 ? "bg-green-500 text-white"
+                                 ? "bg-emerald-500 text-white"
                         : "bg-white/10 text-slate-400 hover:bg-white/20"
                     }`}
                   >
                     <CheckCircle2 className="w-5 h-5" />
                   </button>
                   <div className="flex-1">
-                    <h3 className={`font-medium ${tarea.status === "completada" ? "text-green-300 line-through" : "text-white"}`}>
+                    <h3 className={`font-medium ${tarea.status === "completada" ? "text-emerald-300 line-through" : "text-white"}`}>
                       {tarea.titulo}
                     </h3>
                     <div className="flex items-center gap-4 mt-2 text-sm">
@@ -481,7 +481,7 @@ export default function ExpedientesPage() {
                           {new Date(tarea.fecha_limite).toLocaleDateString()}
                         </span>
                       )}
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getPrioridadColor(tarea.prioridad)}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getPrioridadColor(tarea.prioridad)}`}>
                         {tarea.prioridad}
                       </span>
                     </div>
