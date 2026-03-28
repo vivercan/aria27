@@ -129,7 +129,7 @@ export default function DashboardPage() {
       title: "Aprobadas",
       value: stats.requisicionesAprobadas,
       icon: CheckCircle2,
-      color: "from-emerald-500 to-green-500",
+      color: "from-emerald-500 to-emerald-500",
       bgColor: "bg-emerald-500/10",
       textColor: "text-emerald-400",
     },
@@ -179,7 +179,7 @@ export default function DashboardPage() {
       description: "Ver entradas y salidas del día",
       href: "/dashboard/talento/checadas",
       icon: Clock,
-      color: "from-emerald-500 to-green-500",
+      color: "from-emerald-500 to-emerald-500",
     },
     {
       title: "Centros de Trabajo",
