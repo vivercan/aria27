@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Save, DollarSign, ArrowLeft } from "lucide-react";
+import { Save, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface ConfigItem {
@@ -80,7 +80,7 @@ export default function NominaConfigPage() {
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
         {loading ? (
-          <p className="text-center text-slate-400 py-8">Cargando...</p>
+          <p className="text-center text-slate-400 py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {configs.map((cfg) => (
