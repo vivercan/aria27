@@ -66,8 +66,13 @@ export async function GET(request: Request) {
     const action = searchParams.get("action");
     const proveedorElegido = searchParams.get("proveedor");
 
-    if (!token || !action) {
-      return NextResponse.json({ error: "Faltan par\u00e1metros" }, { status: 400 });
+    if (!token) {
+      return NextResponse.json({ error: "Token requerido" }, { status: 400 });
+    }
+
+    // Si no viene action, redirigir a la pÃ¡gina de autorizaciÃ³n
+    if (!action) {
+      return NextResponse.redirect(`${BASE_URL}/autorizar/${token}`);
     }
 
     const { data: req, error: reqError } = await supabase
@@ -86,7 +91,7 @@ export async function GET(request: Request) {
     }
 
     const comprasUser = await getUserByRole("compras");
-    // Query items separately (no FK between Requisiciones and requisition_items)
+    // Query items separately (no FK relationship between Requisiciones and requisition_items)
     const { data: reqItemsData } = await supabase
       .from("requisition_items")
       .select("*")
@@ -125,6 +130,8 @@ export async function GET(request: Request) {
       await supabase.from("Requisiciones").update({
         status: "OC_GENERADA",
         authorization_comments: null,
+        approved_by: "direccion",
+        authorized_at: new Date().toISOString(),
         proveedor: supplierName,
         monto: total
       }).eq("id", req.id);
@@ -192,6 +199,8 @@ export async function GET(request: Request) {
       });
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x274C;</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+    } else {
+      return NextResponse.json({ error: `AcciÃ³n no vÃ¡lida: ${action}` }, { status: 400 });
     }
   } catch (error: any) {
     console.error("[APPROVE-PURCHASE]", error);
