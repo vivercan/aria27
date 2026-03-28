@@ -23,7 +23,7 @@ const subModules = [
     description: "Catálogo de proveedores.",
     href: "/dashboard/requisiciones/proveedores",
     icon: Users,
-    gradient: "from-green-500 to-green-600",
+    gradient: "from-emerald-500 to-emerald-600",
     badge: "CRUD"
   },
   {
