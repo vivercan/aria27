@@ -15,7 +15,7 @@ const subModules = [
     description: "Estado actual de activos.",
     href: "/dashboard/activos/estado",
     icon: Activity,
-    gradient: "from-green-500 to-emerald-600"
+    gradient: "from-emerald-500 to-emerald-600"
   },
   {
     title: "Asignación",
