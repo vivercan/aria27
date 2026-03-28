@@ -70,13 +70,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Faltan par\u00e1metros" }, { status: 400 });
     }
 
-    const { data: req } = await supabase
+    const { data: req, error: reqError } = await supabase
       .from("Requisiciones")
-      .select("*, items:requisition_items(*)")
+      .select("*")
       .eq("authorization_comments", token)
       .single();
 
-    if (!req) {
+    if (reqError || !req) {
+      console.error("[APPROVE-PURCHASE] Token lookup failed:", reqError?.message);
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x26A0;</div><h1 style="color:#f59e0b">Token Inv\u00e1lido o Expirado</h1></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
@@ -85,9 +86,14 @@ export async function GET(request: Request) {
     }
 
     const comprasUser = await getUserByRole("compras");
-    const reqItems = req.items || [];
+    // Query items separately (no FK between Requisiciones and requisition_items)
+    const { data: reqItemsData } = await supabase
+      .from("requisition_items")
+      .select("*")
+      .eq("requisition_id", req.id);
+    const reqItems = reqItemsData || [];
 
-    if (action === "aprobar") {
+    if (action === "aprobar" || action === "AUTORIZADA") {
       const ocFolio = await getNextOCFolio();
       const cotData = req.cotizacion_data || {};
       const suppliers: any[] = cotData.suppliers || [];
@@ -167,7 +173,7 @@ export async function GET(request: Request) {
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici\u00f3n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total}</p><p style="color:#64748b">Se notific\u00f3 a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
-    } else {
+    } else if (action === "rechazar" || action === "RECHAZADA") {
       await supabase.from("Requisiciones").update({
         status: "RECHAZADA_DIRECCION",
         authorization_comments: null
