@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
+// AUTH helper: verificar que el email existe en Users
+async function verifyUser(email) {
+  if (!email) return false;
+  const { data } = await supabase
+    .from("Users")
+    .select("email")
+    .eq("email", email)
+    .single();
+  return !!data;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const email = req.nextUrl.searchParams.get("email");
     if (!email) return NextResponse.json({ error: "Email requerido" }, { status: 400 });
+
+    // AUTH: Verificar usuario del sistema
+    if (!(await verifyUser(email))) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+
 
     // Obtener conversaciones donde participa el usuario
     const { data: participaciones } = await supabase
@@ -62,6 +79,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { participantes, nombre, es_grupo } = await req.json();
+
+    // AUTH: Verificar que al menos el primer participante es usuario del sistema
+    const creadorEmail = participantes?.[0];
+    if (!creadorEmail || !(await verifyUser(creadorEmail))) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+
     
     if (!participantes?.length) {
       return NextResponse.json({ error: "Participantes requeridos" }, { status: 400 });
