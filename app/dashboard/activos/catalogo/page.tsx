@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check } from "lucide-react";
+import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2 } from "lucide-react";
 
 interface Activo {
   id: string;
