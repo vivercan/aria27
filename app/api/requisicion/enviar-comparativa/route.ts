@@ -7,7 +7,16 @@ export async function POST(req: Request) {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
     const body = await req.json();
-    const { requisition_id, folio, obra, quotes, items, items_detail, suppliers } = body;
+    const { requisition_id, folio, obra, quotes, items, items_detail, suppliers, user_email } = body;
+
+    // Auth check: verificar usuario y rol
+    if (!user_email) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
+    if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
+      return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
+    }
 
     const { data: director, error: dirError } = await supabase
       .from("Users").select("*").eq("role", "direccion").single();
