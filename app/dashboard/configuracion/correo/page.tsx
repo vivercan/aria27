@@ -51,6 +51,7 @@ export default function CorreoPage() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [showCompose, setShowCompose] = useState(false);
   const [composeTo, setComposeTo] = useState("");
@@ -66,8 +67,16 @@ export default function CorreoPage() {
       setUserEmail(email);
       setLoginEmail(email);
     }
-    // Verificar si hay credenciales en sessionStorage
-    const creds = sessionStorage.getItem("zohoCreds");
+    // Verificar si hay credenciales en sessionStorage o localStorage (sesión persistente)
+    let creds = sessionStorage.getItem("zohoCreds");
+    if (!creds) {
+      const saved = localStorage.getItem("ariaSession");
+      if (saved) {
+        // Restaurar sesión persistente a sessionStorage
+        sessionStorage.setItem("zohoCreds", saved);
+        creds = saved;
+      }
+    }
     if (!creds) setNeedsLogin(true);
   }, []);
 
@@ -77,6 +86,9 @@ export default function CorreoPage() {
     const encoded = btoa(JSON.stringify({ e: loginEmail, p: loginPassword }));
     sessionStorage.setItem("zohoCreds", encoded);
     localStorage.setItem("userEmail", loginEmail);
+    if (rememberMe) {
+      localStorage.setItem("ariaSession", encoded);
+    }
     setUserEmail(loginEmail);
     setNeedsLogin(false);
     setLoggingIn(false);
@@ -287,6 +299,16 @@ export default function CorreoPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
             </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 cursor-pointer"
+                style={{ accentColor: '#3b82f6' }}
+              />
+              <span className="text-xs text-slate-500">Mantener sesión iniciada</span>
+            </label>
             <button
               onClick={handleLogin}
               disabled={loggingIn || !loginEmail || !loginPassword}
