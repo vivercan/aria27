@@ -161,7 +161,8 @@ function CapturarContent() {
             emite_factura: q.emite_factura,
             notas: q.notes
           })),
-          items: items.map(i => i.product_name)
+          items: items.map(i => i.product_name),
+          user_email: localStorage.getItem("userEmail") || ""
         })
       });
       const data = await res.json();
