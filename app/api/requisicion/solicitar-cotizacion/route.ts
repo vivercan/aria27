@@ -3,13 +3,22 @@ import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const BASE_URL = "https://aria.jjcrm27.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
 
   try {
-    const { folio, obra, fecha_requerida, items, proveedores } = await request.json();
+    const { folio, obra, fecha_requerida, items, proveedores, user_email } = await request.json();
+
+    // Auth check: verificar usuario y rol
+    if (!user_email) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
+    if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
+      return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
+    }
 
     if (!folio || !items || !proveedores) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
