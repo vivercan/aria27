@@ -14,7 +14,7 @@ const TIPO_MAP: Record<string, string> = {
   "MATERIALES": "catalogo", "ACEROS": "catalogo", "FERRETERIA": "catalogo",
   "IMPERMEABILIZANTES": "catalogo", "TUBOS Y CONEXIONES": "catalogo",
   "MADERA": "catalogo", "CONCRETOS": "catalogo", "INSUMOS": "catalogo",
-  "DESTAJOS": "libre", "MANO DE OBRA": "libre",
+  "DESTAJOS": "libre", "MANO DE OBRA": "libre", "PERSONAL EXTERNO": "libre",
   "COMBUSTIBLES": "combustible",
   "LUBRICANTES": "combustible", "PIPA DE AGUA": "combustible",
   "GASTOS OPERATIVOS": "libre", "INDIRECTOS DE OBRA": "libre",
@@ -42,6 +42,12 @@ export default function NewRequisitionPage() {
   const [searching, setSearching] = useState(false);
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const qtyInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
+
+  // MANUAL (producto no en catálogo)
+  const [showManual, setShowManual] = useState(false);
+  const [manualName, setManualName] = useState("");
+  const [manualUnit, setManualUnit] = useState("PZA");
+  const [manualTempId, setManualTempId] = useState(-1);
 
   // LIBRE (destajos, MO, gastos, maquinaria)
   const [freeRows, setFreeRows] = useState<FreeRow[]>([]);
@@ -71,7 +77,7 @@ export default function NewRequisitionPage() {
   // Limpiar partidas cuando cambia el modo
   useEffect(() => {
     setMaterials([]); setFreeRows([]); setCombRows([]);
-    setSearchTerm(""); setSearchResults([]);
+    setSearchTerm(""); setSearchResults([]); setShowManual(false); setManualName(""); setManualUnit("PZA");
   }, [subcategoria]);
 
   // ========== BUSQUEDA CATALOGO ==========
@@ -100,7 +106,7 @@ export default function NewRequisitionPage() {
   };
 
   const addFreeRow = () => {
-    const u = subcategoria === "MANO DE OBRA" ? "JORNADA" : subcategoria === "DESTAJOS" ? "DESTAJO" : "SERVICIO";
+    const u = subcategoria === "MANO DE OBRA" ? "JORNADA" : subcategoria === "DESTAJOS" ? "DESTAJO" : subcategoria === "PERSONAL EXTERNO" ? "PERSONA" : "SERVICIO";
     setFreeRows(prev => [...prev, { tempId: nextTempId, descripcion: "", unidad: u, cantidad: 1, monto: 0, observaciones: "" }]);
     setNextTempId(prev => prev + 1);
   };
@@ -133,7 +139,7 @@ export default function NewRequisitionPage() {
 
     let materiales: any[] = [];
     if (formMode === "catalogo") {
-      materiales = materials.map(m => ({ id: m.id, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations }));
+      materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations }));
     } else if (formMode === "combustible") {
       materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}` }));
     } else {
@@ -246,6 +252,37 @@ export default function NewRequisitionPage() {
                   );
                 })}
               </div>
+              {/* AGREGAR PRODUCTO MANUAL */}
+              {!showManual ? (
+                <button onClick={() => setShowManual(true)} className="mt-3 flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition">
+                  <Plus className="w-3 h-3" /> ¿No encontraste el producto? Agregar manualmente
+                </button>
+              ) : (
+                <div className="mt-3 rounded-xl border border-blue-500/30 bg-blue-500/5 p-3 space-y-2">
+                  <p className="text-xs text-blue-300 font-medium">Agregar producto manual</p>
+                  <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-white/50">Nombre del producto</label>
+                      <input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-blue-400" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-white/50">Unidad</label>
+                      <input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-blue-400" placeholder="PZA" value={manualUnit} onChange={e => setManualUnit(e.target.value.toUpperCase())} />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => {
+                        if (!manualName.trim()) return;
+                        setMaterials(prev => [...prev, { id: manualTempId, name: manualName.trim(), unit: manualUnit || "PZA", qty: 1, observations: "" }]);
+                        setManualTempId(prev => prev - 1);
+                        setManualName(""); setManualUnit("PZA");
+                      }} disabled={!manualName.trim()} className="rounded-lg bg-blue-500/30 px-3 py-1.5 text-xs text-blue-300 hover:bg-blue-500/40 disabled:opacity-40 transition">
+                        <Plus className="w-3 h-3 inline mr-1" />Agregar
+                      </button>
+                      <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-white/5 px-2 py-1.5 text-xs text-white/50 hover:bg-white/10 transition">✕</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
@@ -254,7 +291,8 @@ export default function NewRequisitionPage() {
               <h2 className="mb-3 text-lg font-semibold flex items-center gap-2">
                 {subcategoria === "DESTAJOS" && <><Hammer className="w-5 h-5 text-violet-400" /> 2. PARTIDAS DE DESTAJO</>}
                 {subcategoria === "MANO DE OBRA" && <><Users2 className="w-5 h-5 text-violet-400" /> 2. PERSONAL / JORNADAS</>}
-                {!["DESTAJOS","MANO DE OBRA"].includes(subcategoria) && <><Receipt className="w-5 h-5 text-violet-400" /> 2. CONCEPTOS</>}
+                {subcategoria === "PERSONAL EXTERNO" && <><Users2 className="w-5 h-5 text-violet-400" /> 2. PERSONAL EXTERNO</>}
+                {!["DESTAJOS","MANO DE OBRA","PERSONAL EXTERNO"].includes(subcategoria) && <><Receipt className="w-5 h-5 text-violet-400" /> 2. CONCEPTOS</>}
               </h2>
               <button onClick={addFreeRow} className="mb-3 flex items-center gap-2 rounded-xl bg-violet-500/20 px-4 py-2 text-sm text-violet-300 hover:bg-violet-500/30 transition">
                 <Plus className="w-4 h-4" /> Agregar partida
