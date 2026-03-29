@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+const log = logger("REQ-VALIDATE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
@@ -124,7 +126,7 @@ export async function GET(request: Request) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fef2f2"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">â</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#64748b">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
   } catch (error) {
-    console.error("[VALIDATE]", error);
+    log.error("[VALIDATE]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
