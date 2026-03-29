@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("REQ-DELETE");
 
 // Roles autorizados para eliminar requisiciones
 const AUTHORIZED_ROLES = ["admin", "rh"];
@@ -85,13 +87,13 @@ export async function POST(request: NextRequest) {
       if (entregas.length > 0) {
         const entregaIds = entregas.map((e: any) => e.id);
         await supabase.from("entregas").delete().in("id", entregaIds);
-        console.log(`[DELETE] ${entregas.length} entregas eliminadas para req ${req.folio}`);
+        log.info(`[DELETE] ${entregas.length} entregas eliminadas para req ${req.folio}`);
       }
 
       if (purchaseOrders && purchaseOrders.length > 0) {
         const poIds = purchaseOrders.map((po: any) => po.id);
         await supabase.from("purchase_orders").delete().in("id", poIds);
-        console.log(`[DELETE] ${purchaseOrders.length} POs eliminadas para req ${req.folio}`);
+        log.info(`[DELETE] ${purchaseOrders.length} POs eliminadas para req ${req.folio}`);
       }
 
       await supabase.from("requisition_items").delete().eq("requisition_id", req.id);
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Error en delete requisicion:", error);
+    log.error("Error en delete requisicion:", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
