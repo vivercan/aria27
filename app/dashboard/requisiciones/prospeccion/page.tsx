@@ -58,7 +58,8 @@ export default function ProspeccionPage() {
         body: JSON.stringify({
           productos: [
             { nombre: term, cantidad: 1, unidad: "global", categoria: term }
-          ]
+          ],
+          user_email: localStorage.getItem("userEmail") || ""
         }),
       });
 
