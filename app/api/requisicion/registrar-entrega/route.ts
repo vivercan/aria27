@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
     if (obraIdFinal && materiales && materiales.length > 0) {
       itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
     } else {
-      log.warn("[ENTREGA] Sin obra_id o sin materiales â inventario no actualizado. obra_id:", obraIdFinal, "materiales:", materiales?.length);
+      log.warn("[ENTREGA] Sin obra_id o sin materiales - inventario no actualizado", { obra_id: obraIdFinal, materiales: materiales?.length });
     }
 
     // WhatsApp con plantilla al solicitante
