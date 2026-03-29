@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+const log = logger("REGISTRAR-ENTREGA");
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -11,7 +13,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to, subject, html }),
     });
-  } catch (e) { console.error("Error email:", e); }
+  } catch (e) { log.error("Error email:", e); }
 }
 
 async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {
@@ -88,7 +90,7 @@ export async function POST(req: NextRequest) {
 
     // Generar folio de entrega
     const { count, error: countErr } = await supabase.from("entregas").select("*", { count: "exact", head: true });
-    if (countErr) console.error("[REGISTRAR-ENTREGA] Error obteniendo count:", countErr.message);
+    if (countErr) log.error("[REGISTRAR-ENTREGA] Error obteniendo count:", countErr.message);
     const folioEntrega = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
 
     // Crear registro de entrega
@@ -121,14 +123,14 @@ export async function POST(req: NextRequest) {
       obraIdFinal = obraData?.id;
 
       if (!obraData) {
-        console.warn("[ENTREGA] Obra no encontrada en centros_trabajo:", obra_nombre);
+        log.warn("[ENTREGA] Obra no encontrada en centros_trabajo:", obra_nombre);
       }
     }
 
     if (obraIdFinal && materiales && materiales.length > 0) {
       itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
     } else {
-      console.warn("[ENTREGA] Sin obra_id o sin materiales â inventario no actualizado. obra_id:", obraIdFinal, "materiales:", materiales?.length);
+      log.warn("[ENTREGA] Sin obra_id o sin materiales â inventario no actualizado. obra_id:", obraIdFinal, "materiales:", materiales?.length);
     }
 
     // WhatsApp con plantilla al solicitante
@@ -172,7 +174,7 @@ export async function POST(req: NextRequest) {
       obra_id_usado: obraIdFinal
     });
   } catch (error: any) {
-    console.error("[REGISTRAR-ENTREGA]", error);
+    log.error("[REGISTRAR-ENTREGA]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
