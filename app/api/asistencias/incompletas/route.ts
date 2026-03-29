@@ -21,7 +21,7 @@ async function checkAuth(req: NextRequest, body?: any): Promise<{ authorized: bo
   return { authorized: true, role: user.role };
 }
 
-// Misma funciÃ³n que usa nÃ³mina: Jueves a MiÃ©rcoles
+// Misma función que usa nómina: Jueves a Miércoles
 function getWeekRange(date: Date): { inicio: string; fin: string } {
   const d = new Date(date);
   const day = d.getDay();
@@ -36,7 +36,7 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
   };
 }
 
-// GET: Obtener asistencias incompletas Y dÃ­as sin registro
+// GET: Obtener asistencias incompletas Y días sin registro
 export async function GET(req: NextRequest) {
   try {
     // AUTH CHECK
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
 
     if (errTodas) throw errTodas;
 
-    // 4. Generar lista de dÃ­as laborables (Lunes a SÃ¡bado) dentro del rango
+    // 4. Generar lista de días laborables (Lunes a Sábado) dentro del rango
     const diasLaborables: string[] = [];
     const fechaActual = new Date(inicio);
     const fechaFinDate = new Date(fin);
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
       fechaActual.setDate(fechaActual.getDate() + 1);
     }
 
-    // 5. Detectar dÃ­as sin registro por empleado
+    // 5. Detectar días sin registro por empleado
     const sinRegistro: any[] = [];
     for (const emp of empleados || []) {
       const asistenciasEmp =
@@ -121,7 +121,7 @@ export async function GET(req: NextRequest) {
           numero: a.employee?.employee_number || "",
           fecha: a.fecha,
           hora_entrada: a.hora_entrada,
-          ubicacion: a.notas || "Sin ubicaciÃ³n",
+          ubicacion: a.notas || "Sin ubicación",
           tipo: "SIN_SALIDA",
         })) || [],
       sinRegistro,
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
       .update({
         hora_salida,
         notas: notas || "Salida registrada manualmente",
-        dentro_geocerca_salida: false, // FIX: No falsificar verificaciÃ³n de ubicaciÃ³n
+        dentro_geocerca_salida: false, // FIX: No falsificar verificación de ubicación
         correccion_manual: true,
         fecha_correccion: new Date().toISOString(),
       })
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT: Crear asistencia completa para dÃ­a faltante
+// PUT: Crear asistencia completa para día faltante
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
@@ -226,9 +226,9 @@ export async function PUT(req: NextRequest) {
         hora_entrada: entradaReal,
         hora_salida: salidaReal,
         tipo_registro: "MANUAL",
-        notas: "Asistencia creada manualmente - dÃ­a sin registro",
-        dentro_geocerca_entrada: false, // FIX: No falsificar ubicaciÃ³n
-        dentro_geocerca_salida: false,   // FIX: No falsificar ubicaciÃ³n
+        notas: "Asistencia creada manualmente - día sin registro",
+        dentro_geocerca_entrada: false, // FIX: No falsificar ubicación
+        dentro_geocerca_salida: false,   // FIX: No falsificar ubicación
         correccion_manual: true,
         fecha_correccion: new Date().toISOString(),
       })
