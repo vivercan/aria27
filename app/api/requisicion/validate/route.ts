@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const BASE_URL = "https://aria.jjcrm27.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 async function getUserByRole(role: string) {
   const { data } = await supabase.from("Users").select("*").eq("role", role).single();
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       return new Response("Token requerido", { status: 400 });
     }
 
-    // Buscar la requisiciÃ³n por token
+    // Buscar la requisición por token
     const { data: req, error } = await supabase
       .from("Requisiciones")
       .select("*")
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#fefce8"><div style="text-align:center;background:white;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.1)"><div style="font-size:80px">â ï¸</div><h1 style="color:#f59e0b">Ya Procesada</h1><p style="color:#64748b">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
-    // Si no viene action, mostrar pÃ¡gina de validaciÃ³n con botones
+    // Si no viene action, mostrar página de validación con botones
     if (!action) {
       const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
       const materialesHtml = (items || []).map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
       const comprasUser = await getUserByRole("compras");
 
       const daysUntil = Math.ceil((new Date(req.required_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MAÃANA" : `${daysUntil} dÃ­as`;
+      const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MAÑANA" : `${daysUntil} días`;
       const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
       const fechaReq = new Date(req.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
