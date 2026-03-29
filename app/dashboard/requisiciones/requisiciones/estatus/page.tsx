@@ -17,7 +17,11 @@ interface Requisition {
   instructions?: string;
   categoria?: string;
   subcategoria?: string;
-  proveedor_nombre?: string;
+  proveedor?: string;
+  nombre_cuenta?: string;
+  banco?: string;
+  numero_cuenta?: string;
+  clabe_interbancaria?: string;
   forma_pago?: string;
   tipo_pago?: string;
   fecha_pago?: string;
@@ -132,7 +136,7 @@ export default function RequisicionesStatusPage() {
       status: req.status,
       categoria: req.categoria,
       subcategoria: req.subcategoria,
-      proveedor: { nombre: req.proveedor_nombre },
+      proveedor: { nombre: req.proveedor, banco: req.banco, numero_cuenta: req.numero_cuenta, clabe: req.clabe_interbancaria, nombre_cuenta: req.nombre_cuenta },
       forma_pago: req.forma_pago,
       tipo_pago: req.tipo_pago,
       fecha_pago: req.fecha_pago,
@@ -169,7 +173,7 @@ export default function RequisicionesStatusPage() {
       status: req.status,
       categoria: req.categoria,
       subcategoria: req.subcategoria,
-      proveedor: { nombre: req.proveedor_nombre },
+      proveedor: { nombre: req.proveedor, banco: req.banco, numero_cuenta: req.numero_cuenta, clabe: req.clabe_interbancaria, nombre_cuenta: req.nombre_cuenta },
       forma_pago: req.forma_pago,
       tipo_pago: req.tipo_pago,
       fecha_pago: req.fecha_pago,
