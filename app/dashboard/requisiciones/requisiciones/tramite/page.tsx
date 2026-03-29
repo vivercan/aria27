@@ -275,6 +275,7 @@ Responde SOLO con JSON así:
           fecha_requerida: selectedReq.required_date,
           items: items.map(i => ({ product_name: i.product_name, unit: i.unit, quantity: i.quantity })),
           proveedores: provs,
+          user_email: localStorage.getItem("userEmail") || "",
         }),
       });
       const data = await res.json();
@@ -764,7 +765,8 @@ Responde SOLO con JSON así:
                       entrega: q.entrega || "",
                       forma_pago: q.forma_pago || "transferencia",
                       factura: q.factura
-                    })))
+                    }))),
+                    user_email: localStorage.getItem("userEmail") || ""
                   })
                 });
                 alert("Comparativa enviada a Direccion");
