@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const BASE_URL = "https://aria.jjcrm27.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 async function getNextFolio(): Promise<string> {
   const year = new Date().getFullYear();
