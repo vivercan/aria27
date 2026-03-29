@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
-const log = logger("REQ-DELETE");
 
-// Roles autorizados para eliminar requisiciones
+const log = logger("REQ-DELETE");
 const AUTHORIZED_ROLES = ["admin", "rh"];
 
 export async function POST(request: NextRequest) {
@@ -11,121 +10,163 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { requisitionIds, userEmail, confirmation } = body;
 
-    // Validar usuario por rol
+    // ── Validación de entrada ──────────────────────────────
+    if (!requisitionIds || !Array.isArray(requisitionIds) || requisitionIds.length === 0) {
+      return NextResponse.json({ error: "No se proporcionaron IDs de requisiciones" }, { status: 400 });
+    }
+
+    if (confirmation !== "Borrar") {
+      return NextResponse.json({ error: "Confirmación incorrecta. Debe escribir 'Borrar'" }, { status: 400 });
+    }
+
     if (!userEmail) {
       return NextResponse.json({ error: "Email de usuario requerido" }, { status: 400 });
     }
 
-    const { data: callerUser } = await supabase
+    // ── Verificar rol: solo RH puede eliminar ──────────────
+    const { data: userData, error: userError } = await supabase
       .from("Users")
-      .select("role, email, name")
+      .select("role, name")
       .eq("email", userEmail)
       .single();
 
-    if (!callerUser || !AUTHORIZED_ROLES.includes(callerUser.role)) {
-      return NextResponse.json({ error: "No autorizado \u2014 se requiere rol admin o rh" }, { status: 403 });
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 });
     }
 
-    if (confirmation !== "Borrar") {
-      return NextResponse.json({ error: "Confirmacion invalida. Debe escribir Borrar" }, { status: 400 });
+    if (!AUTHORIZED_ROLES.includes(userData.role)) {
+      return NextResponse.json(
+        { error: "Solo el usuario de Recursos Humanos puede eliminar registros" },
+        { status: 403 }
+      );
     }
 
-    if (!requisitionIds || requisitionIds.length === 0) {
-      return NextResponse.json({ error: "No se especificaron requisiciones" }, { status: 400 });
-    }
+    log.info("delete-start", { user: userData.name, email: userEmail, role: userData.role, count: requisitionIds.length });
 
-    const { data: Requisiciones } = await supabase
-      .from("Requisiciones")
-      .select("*")
-      .in("id", requisitionIds);
-
+    // ── Backup + Delete por cada requisición ───────────────
     let deletedCount = 0;
+    const errors: string[] = [];
 
-    for (const req of Requisiciones || []) {
-      // 1. Obtener items para backup
-      const { data: items } = await supabase
-        .from("requisition_items")
-        .select("*")
-        .eq("requisition_id", req.id);
-
-      // 2. Obtener POs relacionadas para backup
-      const { data: purchaseOrders } = await supabase
-        .from("purchase_orders")
-        .select("*")
-        .eq("requisition_id", req.id);
-
-      // 3. Obtener cotizaciones de items
-      const itemIds = (items || []).map((i: { id: string }) => i.id);
-      let itemQuotes: unknown[] = [];
-      if (itemIds.length > 0) {
-        const { data: qData } = await supabase
-          .from("requisition_item_quotes")
+    for (const reqId of requisitionIds) {
+      try {
+        // 1. Obtener datos completos de la requisición
+        const { data: reqData } = await supabase
+          .from("requisitions")
           .select("*")
-          .in("requisition_item_id", itemIds);
-        itemQuotes = qData || [];
-      }
+          .eq("id", reqId)
+          .single();
 
-      // 4. Obtener entregas relacionadas (via PO ids)
-      let entregas: unknown[] = [];
-      if (purchaseOrders && purchaseOrders.length > 0) {
-        const poIds = purchaseOrders.map((po: { id: string }) => po.id);
+        if (!reqData) {
+          errors.push(`Requisición ${reqId} no encontrada`);
+          continue;
+        }
+
+        // 2. Obtener items relacionados
+        const { data: itemsData } = await supabase
+          .from("requisition_items")
+          .select("*")
+          .eq("requisition_id", reqId);
+
+        // 3. Obtener cotizaciones de items
+        const itemIds = (itemsData || []).map((i: { id: string }) => i.id);
+        let quotesData: unknown[] = [];
+        if (itemIds.length > 0) {
+          const { data: qData } = await supabase
+            .from("requisition_item_quotes")
+            .select("*")
+            .in("requisition_item_id", itemIds);
+          quotesData = qData || [];
+        }
+
+        // 4. Obtener OCs relacionadas
+        const { data: posData } = await supabase
+          .from("purchase_orders")
+          .select("*")
+          .eq("requisition_id", reqId);
+
+        // 5. Obtener entregas relacionadas
         const { data: entregasData } = await supabase
           .from("entregas")
           .select("*")
-          .in("purchase_order_id", poIds);
-        entregas = entregasData || [];
+          .eq("requisition_id", reqId);
+
+        // 6. Guardar backup completo en deleted_records
+        const { error: backupError } = await supabase.from("deleted_records").insert({
+          source_table: "requisitions",
+          source_id: reqId,
+          data: reqData,
+          related_data: {
+            items: itemsData || [],
+            item_quotes: quotesData,
+            purchase_orders: posData || [],
+            entregas: entregasData || [],
+          },
+          deleted_by: userEmail,
+          restore_notes: `Folio: ${reqData.folio || "N/A"} | Obra: ${reqData.cost_center_name || "N/A"} | Solicitante: ${reqData.created_by || "N/A"} | Status: ${reqData.status || "N/A"}`,
+        });
+
+        if (backupError) {
+          log.error("backup-fail", { reqId, error: backupError.message });
+          errors.push(`Error al respaldar ${reqData.folio || reqId}`);
+          continue;
+        }
+
+        // 7. Eliminar en orden: nietos → hijos → padre
+        // 7a. Eliminar entregas
+        if (entregasData && entregasData.length > 0) {
+          await supabase.from("entregas").delete().eq("requisition_id", reqId);
+        }
+
+        // 7b. Eliminar cotizaciones de items
+        if (itemIds.length > 0) {
+          await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
+        }
+
+        // 7c. Eliminar OCs
+        if (posData && posData.length > 0) {
+          await supabase.from("purchase_orders").delete().eq("requisition_id", reqId);
+        }
+
+        // 7d. Eliminar items
+        await supabase.from("requisition_items").delete().eq("requisition_id", reqId);
+
+        // 7e. Eliminar requisición
+        const { error: deleteError } = await supabase
+          .from("requisitions")
+          .delete()
+          .eq("id", reqId);
+
+        if (deleteError) {
+          log.error("delete-fail", { reqId, error: deleteError.message });
+          errors.push(`Error al eliminar ${reqData.folio || reqId}`);
+          continue;
+        }
+
+        deletedCount++;
+        log.info("deleted", { folio: reqData.folio, reqId });
+      } catch (err) {
+        log.error("unexpected", { reqId, error: String(err) });
+        errors.push(`Error inesperado en ${reqId}`);
       }
-
-      // 5. Crear backup completo en deleted_records (JSONB)
-      await supabase.from("deleted_records").insert({
-        source_table: "requisitions",
-        source_id: req.id,
-        data: req,
-        related_data: {
-          items: items || [],
-          item_quotes: itemQuotes,
-          purchase_orders: purchaseOrders || [],
-          entregas: entregas,
-        },
-        deleted_by: userEmail,
-        restore_notes: `Folio: ${req.folio || "N/A"} | Obra: ${req.cost_center_name || "N/A"} | Solicitante: ${req.created_by || "N/A"} | Status: ${req.status || "N/A"}`,
-      });
-
-      // 6. CASCADE DELETE: entregas -> item_quotes -> POs -> items
-      if (entregas.length > 0) {
-        const entregaIds = (entregas as { id: string }[]).map((e) => e.id);
-        await supabase.from("entregas").delete().in("id", entregaIds);
-        log.info(`[DELETE] ${entregas.length} entregas eliminadas para req ${req.folio}`);
-      }
-
-      if (itemIds.length > 0) {
-        await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
-        log.info(`[DELETE] cotizaciones de items eliminadas para req ${req.folio}`);
-      }
-
-      if (purchaseOrders && purchaseOrders.length > 0) {
-        const poIds = purchaseOrders.map((po: { id: string }) => po.id);
-        await supabase.from("purchase_orders").delete().in("id", poIds);
-        log.info(`[DELETE] ${purchaseOrders.length} POs eliminadas para req ${req.folio}`);
-      }
-
-      await supabase.from("requisition_items").delete().eq("requisition_id", req.id);
-
-      deletedCount++;
     }
 
-    // Eliminar las requisiciones
-    await supabase.from("Requisiciones").delete().in("id", requisitionIds);
+    // ── Respuesta ──────────────────────────────────────────
+    const message =
+      deletedCount === requisitionIds.length
+        ? `${deletedCount} requisición(es) eliminada(s) correctamente. Respaldo guardado.`
+        : `${deletedCount} de ${requisitionIds.length} eliminadas. ${errors.length > 0 ? "Errores: " + errors.join(", ") : ""}`;
 
-    log.info(`[DELETE] ${deletedCount} requisiciones eliminadas por ${callerUser.name} (${userEmail}). Backup en deleted_records.`);
+    log.info("delete-result", { deletedCount, total: requisitionIds.length, errors: errors.length });
 
     return NextResponse.json({
       success: true,
-      message: `${deletedCount} requisicion(es) eliminada(s). Respaldo guardado.`,
+      message,
       deletedCount,
+      totalRequested: requisitionIds.length,
+      errors: errors.length > 0 ? errors : undefined,
     });
   } catch (error) {
-    log.error("[DELETE] Error:", error);
+    log.error("general", { error: String(error) });
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
