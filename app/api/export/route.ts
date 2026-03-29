@@ -17,9 +17,12 @@ async function fetchAllRows(
   table: string,
   orderCol: string,
   ascending: boolean,
-  filterFn?: (q: ReturnType<SupabaseClient["from"]>) => ReturnType<SupabaseClient["from"]>
-): Promise<{ data: Record<string, unknown>[]; error: string | null }> {
-  const allRows: Record<string, unknown>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filterFn?: (q: any) => any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<{ data: any[]; error: string | null }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRows: any[] = [];
   let offset = 0;
   let hasMore = true;
 
@@ -31,7 +34,7 @@ async function fetchAllRows(
       .range(offset, offset + PAGE_SIZE - 1);
 
     if (filterFn) {
-      query = filterFn(query) as typeof query;
+      query = filterFn(query);
     }
 
     const { data, error } = await query;
