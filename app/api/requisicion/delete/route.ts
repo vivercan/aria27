@@ -11,23 +11,23 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { requisitionIds, userEmail, confirmation } = body;
 
-    // Validar usuario por rol en lugar de email hardcodeado
+    // Validar usuario por rol
     if (!userEmail) {
       return NextResponse.json({ error: "Email de usuario requerido" }, { status: 400 });
     }
 
     const { data: callerUser } = await supabase
       .from("Users")
-      .select("role, email")
+      .select("role, email, name")
       .eq("email", userEmail)
       .single();
 
     if (!callerUser || !AUTHORIZED_ROLES.includes(callerUser.role)) {
-      return NextResponse.json({ error: "No autorizado → se requiere rol admin o rh" }, { status: 403 });
+      return NextResponse.json({ error: "No autorizado \u2014 se requiere rol admin o rh" }, { status: 403 });
     }
 
-    if (confirmation !== "DELETE") {
-      return NextResponse.json({ error: "Confirmacion invalida" }, { status: 400 });
+    if (confirmation !== "Borrar") {
+      return NextResponse.json({ error: "Confirmacion invalida. Debe escribir Borrar" }, { status: 400 });
     }
 
     if (!requisitionIds || requisitionIds.length === 0) {
@@ -54,10 +54,21 @@ export async function POST(request: NextRequest) {
         .select("*")
         .eq("requisition_id", req.id);
 
-      // 3. Obtener entregas relacionadas (via PO folios)
-      let entregas: any[] = [];
+      // 3. Obtener cotizaciones de items
+      const itemIds = (items || []).map((i: { id: string }) => i.id);
+      let itemQuotes: unknown[] = [];
+      if (itemIds.length > 0) {
+        const { data: qData } = await supabase
+          .from("requisition_item_quotes")
+          .select("*")
+          .in("requisition_item_id", itemIds);
+        itemQuotes = qData || [];
+      }
+
+      // 4. Obtener entregas relacionadas (via PO ids)
+      let entregas: unknown[] = [];
       if (purchaseOrders && purchaseOrders.length > 0) {
-        const poIds = purchaseOrders.map((po: any) => po.id);
+        const poIds = purchaseOrders.map((po: { id: string }) => po.id);
         const { data: entregasData } = await supabase
           .from("entregas")
           .select("*")
@@ -65,33 +76,35 @@ export async function POST(request: NextRequest) {
         entregas = entregasData || [];
       }
 
-      // 4. Crear backup completo
-      await supabase.from("Requisiciones_backup").insert({
-        original_id: req.id,
-        folio: req.folio,
-        cost_center_id: req.cost_center_id,
-        cost_center_name: req.cost_center_name,
-        instructions: req.instructions,
-        required_date: req.required_date,
-        status: req.status,
-        created_by: req.created_by,
-        user_email: req.user_email,
-        created_at: req.created_at,
-        updated_at: req.updated_at,
-        authorization_comments: req.authorization_comments,
-        items: items,
-        deleted_by: userEmail
+      // 5. Crear backup completo en deleted_records (JSONB)
+      await supabase.from("deleted_records").insert({
+        source_table: "requisitions",
+        source_id: req.id,
+        data: req,
+        related_data: {
+          items: items || [],
+          item_quotes: itemQuotes,
+          purchase_orders: purchaseOrders || [],
+          entregas: entregas,
+        },
+        deleted_by: userEmail,
+        restore_notes: `Folio: ${req.folio || "N/A"} | Obra: ${req.cost_center_name || "N/A"} | Solicitante: ${req.created_by || "N/A"} | Status: ${req.status || "N/A"}`,
       });
 
-      // 5. CASCADE DELETE: eliminar entregas → POs → items → requisición
+      // 6. CASCADE DELETE: entregas -> item_quotes -> POs -> items
       if (entregas.length > 0) {
-        const entregaIds = entregas.map((e: any) => e.id);
+        const entregaIds = (entregas as { id: string }[]).map((e) => e.id);
         await supabase.from("entregas").delete().in("id", entregaIds);
         log.info(`[DELETE] ${entregas.length} entregas eliminadas para req ${req.folio}`);
       }
 
+      if (itemIds.length > 0) {
+        await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
+        log.info(`[DELETE] cotizaciones de items eliminadas para req ${req.folio}`);
+      }
+
       if (purchaseOrders && purchaseOrders.length > 0) {
-        const poIds = purchaseOrders.map((po: any) => po.id);
+        const poIds = purchaseOrders.map((po: { id: string }) => po.id);
         await supabase.from("purchase_orders").delete().in("id", poIds);
         log.info(`[DELETE] ${purchaseOrders.length} POs eliminadas para req ${req.folio}`);
       }
@@ -104,14 +117,15 @@ export async function POST(request: NextRequest) {
     // Eliminar las requisiciones
     await supabase.from("Requisiciones").delete().in("id", requisitionIds);
 
+    log.info(`[DELETE] ${deletedCount} requisiciones eliminadas por ${callerUser.name} (${userEmail}). Backup en deleted_records.`);
+
     return NextResponse.json({
       success: true,
-      message: `${deletedCount} requisicion(es) eliminada(s) con sus dependencias`,
-      deletedCount
+      message: `${deletedCount} requisicion(es) eliminada(s). Respaldo guardado.`,
+      deletedCount,
     });
-
   } catch (error) {
-    log.error("Error en delete requisicion:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    log.error("[DELETE] Error:", error);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
