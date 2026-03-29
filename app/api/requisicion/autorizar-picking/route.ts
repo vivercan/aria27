@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+const log = logger("AUTORIZAR-PICKING");
 
 // Status enum para flujo de requisiciones
 const REQUISITION_STATUS = {
@@ -67,7 +69,7 @@ export async function POST(req: Request) {
       const total = supplierItems.reduce((s: number, i: any) => s + (i.total_price || 0), 0);
 
       if (total <= 0) {
-        console.warn(`[AUTORIZAR-PICKING] Proveedor ${supplierName} con total $0 â verificar precios`);
+        log.warn(`[AUTORIZAR-PICKING] Proveedor ${supplierName} con total $0 â verificar precios`);
       }
 
       grandTotal += total;
@@ -93,7 +95,7 @@ export async function POST(req: Request) {
           selected_supplier_name: supplierName,
           selected_price: item.unit_price || 0,
         }).eq("id", item.item_id);
-        if (itemErr) console.error(`[AUTORIZAR-PICKING] Error item ${item.item_id}:`, itemErr.message);
+        if (itemErr) log.error(`[AUTORIZAR-PICKING] Error item ${item.item_id}:`, itemErr.message);
       }
 
       ocFolios.push(`${ocFolio} - ${supplierName}: $${total.toLocaleString()}`);
@@ -153,7 +155,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, purchase_orders: ocFolios.length, folios: ocFolios });
   } catch (error: any) {
-    console.error("[AUTORIZAR-PICKING]", error);
+    log.error("[AUTORIZAR-PICKING]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
