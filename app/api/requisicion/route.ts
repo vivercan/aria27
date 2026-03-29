@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+const log = logger("REQUISICION");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
@@ -57,10 +59,10 @@ async function getUserByEmail(email: string) {
 async function getUserByRole(role: string) {
   try {
     const { data, error } = await supabase.from("Users").select("*").eq("role", role).eq("active", true).limit(1);
-    if (error) { console.error(`Error buscando rol ${role}:`, error.message); return null; }
-    if (!data || data.length === 0) { console.error(`No se encontro usuario con rol: ${role}`); return null; }
+    if (error) { log.error(`Error buscando rol ${role}:`, error.message); return null; }
+    if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return data[0];
-  } catch (e: any) { console.error(`Excepcion buscando rol ${role}:`, e.message); return null; }
+  } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e.message); return null; }
 }
 
 export async function POST(request: Request) {
@@ -164,7 +166,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, folio, notificados, logs });
   } catch (error: any) {
-    console.error(`ERROR:`, error);
+    log.error(`ERROR:`, error);
     return NextResponse.json({ error: error.message, logs }, { status: 500 });
   }
 }
