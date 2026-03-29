@@ -467,6 +467,16 @@ export default function CorreoPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 bg-slate-900">
+              <style>{`
+                .email-dark-override * {
+                  background-color: transparent !important;
+                  color: inherit !important;
+                }
+                .email-dark-override img { max-width: 100%; height: auto; }
+                .email-dark-override a { color: #60a5fa !important; }
+                .email-dark-override table { border-color: rgba(255,255,255,0.1) !important; }
+                .email-dark-override td, .email-dark-override th { border-color: rgba(255,255,255,0.1) !important; }
+              `}</style>
               <div className="prose prose-invert max-w-none">
                 {loadingContent ? (
                     <div className="flex items-center justify-center py-20">
@@ -474,7 +484,7 @@ export default function CorreoPage() {
                       <span className="ml-3 text-slate-500">Cargando contenido...</span>
                     </div>
                   ) : selectedEmail.html ? (
-                  <div className="text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEmail.html) }} />
+                  <div className="email-dark-override text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEmail.html) }} />
                 ) : (
                   <pre className="whitespace-pre-wrap font-sans text-slate-300 leading-relaxed text-sm">
                     {selectedEmail.body || "Este correo no tiene contenido de texto."}
