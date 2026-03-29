@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("WEBHOOK-ATTENDANCE");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
@@ -29,7 +31,7 @@ async function sendWhatsApp(phone: string, message: string) {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } })
     });
-  } catch (e) { console.error("Error WhatsApp:", e); }
+  } catch (e) { log.error("Error WhatsApp:", e); }
 }
 
 function getWeekNumber(date: Date): number {
@@ -508,7 +510,7 @@ Para *FOTO de ENTREGA*:
 
     return NextResponse.json({ status: "unhandled type" });
   } catch (error) {
-    console.error("Webhook error:", error);
+    log.error("Webhook error:", error);
     return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }
