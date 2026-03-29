@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("PULSO-ESTADO");
 
 // AUTH helper: verificar que el email existe en Users
 async function verifyUser(email: string | null): Promise<boolean> {
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
     await supabase.from("Users").update(updates).eq("email", email);
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[PULSO-ESTADO]", error);
+    log.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -51,7 +53,7 @@ export async function GET(req: NextRequest) {
       .eq("active", true);
     return NextResponse.json({ usuarios: data || [] });
   } catch (error) {
-    console.error("[PULSO-ESTADO]", error);
+    log.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
