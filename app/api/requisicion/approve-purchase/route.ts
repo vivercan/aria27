@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+const log = logger("REQUISICION-APPROVE-PURCHASE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
@@ -82,7 +84,7 @@ export async function GET(request: Request) {
       .single();
 
     if (reqError || !req) {
-      console.error("[APPROVE-PURCHASE] Token lookup failed:", reqError?.message);
+      log.error("Token lookup failed", { error: reqError?.message });
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x26A0;</div><h1 style="color:#f59e0b">Token Inv&aacute;lido o Expirado</h1></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
@@ -127,9 +129,20 @@ export async function GET(request: Request) {
       supplierName = elegidoData.supplier || "N/A";
       total = elegidoData.total || (elegidoData.subtotal ? elegidoData.subtotal * 1.16 : 0);
 
-      // P0-7 FIX: No crear OC con total $0 â advertir pero continuar con el flujo
+      // Bloquear OC con total $0 - redirigir a selección manual de proveedor
       if (total <= 0) {
-        console.warn(`[APPROVE-PURCHASE] ADVERTENCIA: OC ${ocFolio} con total $0 para req ${req.folio}. Datos cotización pueden estar incompletos.`);
+        log.warn(`[APPROVE-PURCHASE] Bloqueada OC con total $0 para req ${req.folio}. Redirigiendo a selección manual.`);
+        return new Response(
+          `<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a">` +
+          `<div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;max-width:500px">` +
+          `<div style="font-size:80px">&#x26A0;</div>` +
+          `<h1 style="color:#f59e0b">No se puede generar la OC</h1>` +
+          `<p style="color:#94a3b8;margin:15px 0">La cotización de <strong style="color:white">${req.folio}</strong> no tiene precios registrados. ` +
+          `Es necesario seleccionar un proveedor con precios válidos.</p>` +
+          `<a href="${BASE_URL}/autorizar/${token}" style="display:inline-block;margin-top:15px;padding:12px 36px;background:#3b82f6;color:white;text-decoration:none;border-radius:8px;font-weight:bold">Seleccionar Proveedor</a>` +
+          `</div></body></html>`,
+          { headers: { "Content-Type": "text/html" } }
+        );
       }
 
       await supabase.from("Requisiciones").update({
@@ -207,7 +220,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: `Acci\u00f3n no v\u00e1lida: ${action}` }, { status: 400 });
     }
   } catch (error: any) {
-    console.error("[APPROVE-PURCHASE]", error);
+    log.error("[APPROVE-PURCHASE]", { error: String(error) });
     return NextResponse.json({ error: error.message || "Error interno" }, { status: 500 });
   }
 }
