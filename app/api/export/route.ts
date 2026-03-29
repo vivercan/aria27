@@ -1,11 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
+const log = logger("EXPORT");
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
+const PAGE_SIZE = 1000;
+
+/** Fetches ALL rows from a table, paginating in chunks of PAGE_SIZE to bypass Supabase default limit */
+async function fetchAllRows(
+  client: SupabaseClient,
+  table: string,
+  orderCol: string,
+  ascending: boolean,
+  filterFn?: (q: ReturnType<SupabaseClient["from"]>) => ReturnType<SupabaseClient["from"]>
+): Promise<{ data: Record<string, unknown>[]; error: string | null }> {
+  const allRows: Record<string, unknown>[] = [];
+  let offset = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    let query = client
+      .from(table)
+      .select("*")
+      .order(orderCol, { ascending })
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (filterFn) {
+      query = filterFn(query) as typeof query;
+    }
+
+    const { data, error } = await query;
+    if (error) return { data: [], error: error.message };
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allRows.push(...data);
+      offset += PAGE_SIZE;
+      if (data.length < PAGE_SIZE) hasMore = false;
+    }
+  }
+  return { data: allRows, error: null };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,16 +68,17 @@ export async function POST(req: NextRequest) {
     if (tipo === "gastos") {
       const sheet = workbook.addWorksheet("Gastos de Obra");
       
-      let query = supabase.from("gastos").select("*").order("fecha", { ascending: false });
-      if (filtros?.obra) query = query.eq("obra", filtros.obra);
-      if (filtros?.semana && filtros.semana !== "") query = query.eq("semana", parseInt(filtros.semana));
-      if (filtros?.fechaInicio) query = query.gte("fecha", filtros.fechaInicio);
-      if (filtros?.fechaFin) query = query.lte("fecha", filtros.fechaFin);
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error("Error gastos:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      const { data, error: gastosErr } = await fetchAllRows(supabase, "gastos", "fecha", false, (q) => {
+        let fq = q;
+        if (filtros?.obra) fq = fq.eq("obra", filtros.obra);
+        if (filtros?.semana && filtros.semana !== "") fq = fq.eq("semana", parseInt(filtros.semana));
+        if (filtros?.fechaInicio) fq = fq.gte("fecha", filtros.fechaInicio);
+        if (filtros?.fechaFin) fq = fq.lte("fecha", filtros.fechaFin);
+        return fq;
+      });
+
+      if (gastosErr) {
+        return NextResponse.json({ error: gastosErr }, { status: 500 });
       }
 
       // Header
@@ -94,16 +135,11 @@ export async function POST(req: NextRequest) {
       sheet.autoFilter = { from: "A4", to: "G4" };
 
     } else if (tipo === "nomina") {
-      // Obtener TODOS los datos de nomina_historico
-      const { data: allData, error } = await supabase
-        .from("nomina_historico")
-        .select("*")
-        .order("semana", { ascending: false })
-        .order("nombre", { ascending: true });
-      
-      if (error) {
-        console.error("Error nomina:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      // Obtener TODOS los datos de nomina_historico (paginado para superar límite de 1000 filas)
+      const { data: allData, error: nominaErr } = await fetchAllRows(supabase, "nomina_historico", "semana", false);
+
+      if (nominaErr) {
+        return NextResponse.json({ error: nominaErr }, { status: 500 });
       }
 
       // Aplicar filtros si existen
@@ -425,17 +461,18 @@ export async function POST(req: NextRequest) {
     } else if (tipo === "requisiciones") {
       const sheet = workbook.addWorksheet("Requisiciones");
       
-      let query = supabase.from("requisiciones_historico").select("*").order("fecha", { ascending: false });
-      if (filtros?.obra) query = query.eq("obra", filtros.obra);
-      if (filtros?.status) query = query.eq("status", filtros.status);
-      if (filtros?.solicitante) query = query.eq("solicitante", filtros.solicitante);
-      if (filtros?.fechaInicio) query = query.gte("fecha", filtros.fechaInicio);
-      if (filtros?.fechaFin) query = query.lte("fecha", filtros.fechaFin);
-      const { data, error } = await query;
+      const { data, error: reqErr } = await fetchAllRows(supabase, "requisiciones_historico", "fecha", false, (q) => {
+        let fq = q;
+        if (filtros?.obra) fq = fq.eq("obra", filtros.obra);
+        if (filtros?.status) fq = fq.eq("status", filtros.status);
+        if (filtros?.solicitante) fq = fq.eq("solicitante", filtros.solicitante);
+        if (filtros?.fechaInicio) fq = fq.gte("fecha", filtros.fechaInicio);
+        if (filtros?.fechaFin) fq = fq.lte("fecha", filtros.fechaFin);
+        return fq;
+      });
 
-      if (error) {
-        console.error("Error requisiciones:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      if (reqErr) {
+        return NextResponse.json({ error: reqErr }, { status: 500 });
       }
 
       sheet.mergeCells("A1:H1");
@@ -499,9 +536,10 @@ export async function POST(req: NextRequest) {
         "Content-Disposition": `attachment; filename="${tipo}_ARIA_${new Date().toISOString().split("T")[0]}.xlsx"`,
       },
     });
-  } catch (error) {
-    console.error("Error generando Excel:", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    log.error("[EXPORT]", { error: String(msg) });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
