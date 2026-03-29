@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("MAIL-SEND");
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("SMTP Error:", error);
+    log.error("SMTP Error:", error);
     return NextResponse.json(
       { error: error.message || "Error al enviar" },
       { status: 500 }
