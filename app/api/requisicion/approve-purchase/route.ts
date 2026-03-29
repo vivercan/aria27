@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 
-const BASE_URL = "https://aria.jjcrm27.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 async function getUserByRole(role: string) {
   const { data } = await supabase.from("Users").select("*").eq("role", role).single();
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Token requerido" }, { status: 400 });
     }
 
-    // Si no viene action, redirigir a la pÃ¡gina de autorizaciÃ³n
+    // Si no viene action, redirigir a la página de autorización
     if (!action) {
       return NextResponse.redirect(`${BASE_URL}/autorizar/${token}`);
     }
@@ -129,7 +129,7 @@ export async function GET(request: Request) {
 
       // P0-7 FIX: No crear OC con total $0 â advertir pero continuar con el flujo
       if (total <= 0) {
-        console.warn(`[APPROVE-PURCHASE] ADVERTENCIA: OC ${ocFolio} con total $0 para req ${req.folio}. Datos cotizaciÃ³n pueden estar incompletos.`);
+        console.warn(`[APPROVE-PURCHASE] ADVERTENCIA: OC ${ocFolio} con total $0 para req ${req.folio}. Datos cotización pueden estar incompletos.`);
       }
 
       await supabase.from("Requisiciones").update({
