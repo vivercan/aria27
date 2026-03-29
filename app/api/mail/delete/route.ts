@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
+import { logger } from "@/lib/logger";
+const log = logger("MAIL-DELETE");
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error("Error eliminando correos:", error);
+    log.error("Error eliminando correos:", error);
     return NextResponse.json({ error: error.message || "Error al eliminar" }, { status: 500 });
   }
 }
