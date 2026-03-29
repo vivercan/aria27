@@ -219,7 +219,7 @@ function generateHTML(props: RequisicionPrintProps): string {
     
     <div class="firmas-section">
       <div class="firmas-row">
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">RECEPCIÓN DE MATERIALES</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || 'RECEPCIÓN DE MATERIALES'}</div><div class="firma-title">RECEPCIÓN DE MATERIALES</div></div></div>
         <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
       </div>
       <div class="firmas-row" style="justify-content: space-around;">
