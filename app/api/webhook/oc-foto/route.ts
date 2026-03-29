@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("WEBHOOK-OC-FOTO");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
@@ -12,7 +14,7 @@ async function sendWhatsApp(phone: string, message: string) {
       headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } }),
     });
-  } catch (e) { console.error("Error WA:", e); }
+  } catch (e) { log.error("Error WA:", e); }
 }
 
 // Verificación del webhook
@@ -114,7 +116,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ status: "ok", folio: folioOC });
   } catch (error: any) {
-    console.error("Error webhook OC-foto:", error);
+    log.error("Error webhook OC-foto:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
