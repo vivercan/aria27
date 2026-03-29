@@ -135,10 +135,10 @@ export default function CotizacionesIAPage() {
     if (!quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total) return;
     setSavingQuote(true);
     await supabase.from("quotations").insert({
-      requisicion_id: quoteForm.requisicion_id,
+      requisition_id: quoteForm.requisicion_id,
       supplier_name: quoteForm.supplier_name,
       total: parseFloat(quoteForm.total),
-      notas: quoteForm.notas || null,
+      notes: quoteForm.notas || null,
       vigencia_dias: parseInt(quoteForm.vigencia_dias) || 15,
       estado: "recibida",
       fecha: new Date().toISOString().split("T")[0]
