@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
+import { logger } from "@/lib/logger";
+const log = logger("ENVIAR-COMPARATIVA");
 
 export async function POST(req: Request) {
   try {
@@ -89,7 +91,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, enviado_a: director.email });
   } catch (error: any) {
-    console.error("[COMPARATIVA] Error:", error);
+    log.error("[COMPARATIVA] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
