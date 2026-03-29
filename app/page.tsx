@@ -14,19 +14,37 @@ export default function LoginPage() {
 
   // Auto-login si hay sesión guardada
   useEffect(() => {
-    const saved = localStorage.getItem('ariaSession')
-    if (saved) {
-      try {
-        const { e, p } = JSON.parse(atob(saved))
-        if (e && p) {
-          localStorage.setItem('userEmail', e.toLowerCase())
-          sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p })))
-          router.push('/dashboard/requisiciones')
-          return
-        }
-      } catch { /* sesión corrupta, continuar al login */ }
+    const autoLogin = async () => {
+      const saved = localStorage.getItem('ariaSession')
+      if (saved) {
+        try {
+          const { e, p } = JSON.parse(atob(saved))
+          if (e && p) {
+            const emailLower = e.toLowerCase()
+            localStorage.setItem('userEmail', emailLower)
+            sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p })))
+
+            // FIX: Precargar role y permisos antes de redirigir
+            try {
+              const { data: userData } = await supabase
+                .from('users')
+                .select('role, permissions')
+                .eq('email', emailLower)
+                .single()
+              if (userData) {
+                localStorage.setItem('userRole', userData.role || 'user')
+                localStorage.setItem('userPermissions', JSON.stringify(userData.permissions || {}))
+              }
+            } catch { /* fallback: layout.tsx los carga */ }
+
+            router.push('/dashboard/requisiciones')
+            return
+          }
+        } catch { /* sesión corrupta, continuar al login */ }
+      }
+      setCheckingSession(false)
     }
-    setCheckingSession(false)
+    autoLogin()
   }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -95,7 +113,7 @@ export default function LoginPage() {
       return
     }
 
-    // PASO 3: Login exitoso
+    // PASO 3: Login exitoso — cargar role y permisos ANTES de redirigir
     localStorage.setItem('userEmail', emailLower)
     sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
     if (rememberMe) {
@@ -103,6 +121,20 @@ export default function LoginPage() {
     } else {
       localStorage.removeItem('ariaSession')
     }
+
+    // FIX: Precargar role y permisos para que AccessGuard los encuentre al montar
+    try {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role, permissions')
+        .eq('email', emailLower)
+        .single()
+      if (userData) {
+        localStorage.setItem('userRole', userData.role || 'user')
+        localStorage.setItem('userPermissions', JSON.stringify(userData.permissions || {}))
+      }
+    } catch { /* si falla, layout.tsx los cargará como fallback */ }
+
     router.push('/dashboard/requisiciones')
   }
 
