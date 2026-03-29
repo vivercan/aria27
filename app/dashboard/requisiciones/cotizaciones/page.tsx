@@ -112,7 +112,8 @@ export default function CotizacionesIAPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productos,
-          requisicion_id: req.id
+          requisicion_id: req.id,
+          user_email: localStorage.getItem("userEmail") || ""
         })
       });
 
