@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       .eq("conversacion_id", convId)
       .order("created_at", { ascending: true });
 
-    // Marcar como leÃ­dos los mensajes de otros
+    // Marcar como leídos los mensajes de otros
     if (email) {
       await supabase
         .from("pulso_mensajes")
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     if (error)
       return NextResponse.json({ error: error.message }, { status: 500 });
 
-    // Actualizar timestamp de conversaciÃ³n
+    // Actualizar timestamp de conversación
     await supabase
       .from("pulso_conversaciones")
       .update({ updated_at: new Date().toISOString() })
