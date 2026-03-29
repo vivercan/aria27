@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft, Printer, FileDown, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, FileDown, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -63,6 +63,8 @@ export default function RequisicionesStatusPage() {
   const [detailItems, setDetailItems] = useState<ReqItem[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
+  // Solo RH puede eliminar
+  const canDelete = userRole === "rh" || userRole === "admin";
   const isAdmin = userRole === "admin" || userRole === "rh";
   const isCompras = userRole === "compras";
 
@@ -80,7 +82,7 @@ export default function RequisicionesStatusPage() {
 
   async function loadData(email: string) {
     setLoading(true);
-    
+
     let query = supabase
       .from("Requisiciones")
       .select("*")
@@ -88,9 +90,10 @@ export default function RequisicionesStatusPage() {
     // Admin y compras ven todas, los demas solo las suyas
     const { data: uData } = await supabase.from("Users").select("role").eq("email", email).single();
     const uRole = uData?.role || "user";
-    if (uRole !== "admin" && uRole !== "compras") {
+    if (uRole !== "admin" && uRole !== "compras" && uRole !== "rh") {
+      query = query.eq("user_email", email);
     }
-    
+
     const { data } = await query;
     setRequisiciones((data || []) as Requisition[]);
     setLoading(false);
@@ -189,12 +192,6 @@ export default function RequisicionesStatusPage() {
     setLoadingPrint(null);
   }
 
-  async function handleCancelar(reqId: string) {
-    if (!confirm("¿Cancelar esta requisición?")) return;
-    await supabase.from("Requisiciones").update({ status: "CANCELADA" }).eq("id", reqId);
-    loadData(userEmail);
-  }
-
   function handleSelectAll(checked: boolean) {
     setSelectedIds(checked ? requisiciones.map((r) => r.id) : []);
   }
@@ -210,8 +207,14 @@ export default function RequisicionesStatusPage() {
     setShowDeleteModal(true);
   }
 
+  function getDeleteCount(): number {
+    if (deleteType === "single") return 1;
+    if (deleteType === "selected") return selectedIds.length;
+    return requisiciones.length;
+  }
+
   async function handleDelete() {
-    if (deleteConfirmation !== "DELETE") return;
+    if (deleteConfirmation !== "Borrar") return;
     setDeleting(true);
     let idsToDelete: string[] = [];
     if (deleteType === "single") idsToDelete = [singleDeleteId];
@@ -222,11 +225,10 @@ export default function RequisicionesStatusPage() {
       const res = await fetch("/api/requisicion/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requisitionIds: idsToDelete, userEmail, confirmation: deleteConfirmation }),
+        body: JSON.stringify({ requisitionIds: idsToDelete, userEmail, confirmation: "Borrar" }),
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message);
         setShowDeleteModal(false);
         setSelectedIds([]);
         loadData(userEmail);
@@ -268,13 +270,36 @@ export default function RequisicionesStatusPage() {
             <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>
           </div>
         </div>
-        
+
+        {/* Botón eliminar todas — solo RH */}
+        {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && (
+          <button
+            onClick={() => openDeleteModal("all")}
+            className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/20 transition flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Eliminar todas
+          </button>
+        )}
       </div>
 
-      {isAdmin && selectedIds.length > 0 && (
+      {/* Barra de selección — solo RH */}
+      {canDelete && selectedIds.length > 0 && (
         <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
-          <span className="text-sm text-red-300">{selectedIds.length} seleccionadas</span>
-          <button onClick={() => openDeleteModal("selected")} className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition">Eliminar seleccionadas</button>
+          <span className="text-sm text-red-300">{selectedIds.length} seleccionada{selectedIds.length > 1 ? "s" : ""}</span>
+          <button
+            onClick={() => openDeleteModal("selected")}
+            className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Eliminar seleccionadas
+          </button>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="px-4 py-1.5 rounded-lg bg-white/10 text-slate-300 text-sm hover:bg-white/20 transition"
+          >
+            Cancelar selección
+          </button>
         </div>
       )}
 
@@ -288,7 +313,7 @@ export default function RequisicionesStatusPage() {
             <table className="w-full">
               <thead className="bg-white/5 sticky top-0">
                 <tr className="text-left text-slate-400 text-xs">
-                  {isAdmin && (
+                  {canDelete && (
                     <th className="p-3 w-10">
                       <input
                         type="checkbox"
@@ -308,66 +333,68 @@ export default function RequisicionesStatusPage() {
                 </tr>
               </thead>
               <tbody>
-                {requisiciones.map((req) => {
-                  const canCancel =
-                    req.user_email === userEmail &&
-                    (req.status === "PENDIENTE" || req.status === "APROBADA");
-                  return (
-                    <tr key={req.id} className="border-t border-white/5 hover:bg-white/5">
-                      {isAdmin && (
-                        <td className="p-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.includes(req.id)}
-                            onChange={(e) => handleSelect(req.id, e.target.checked)}
-                            className="rounded"
-                          />
-                        </td>
-                      )}
+                {requisiciones.map((req) => (
+                  <tr key={req.id} className="border-t border-white/5 hover:bg-white/5">
+                    {canDelete && (
                       <td className="p-3">
-                        <button onClick={() => openDetail(req)} className="font-mono text-cyan-400 text-sm hover:text-cyan-300 hover:underline transition">{req.folio}</button>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(req.id)}
+                          onChange={(e) => handleSelect(req.id, e.target.checked)}
+                          className="rounded"
+                        />
                       </td>
-                      <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
-                      <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
-                      <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
-                      <td className="p-3 text-emerald-400 text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
-                          {req.status}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex items-center justify-center gap-1">
-                          {/* Imprimir */}
+                    )}
+                    <td className="p-3">
+                      <button onClick={() => openDetail(req)} className="font-mono text-cyan-400 text-sm hover:text-cyan-300 hover:underline transition">{req.folio}</button>
+                    </td>
+                    <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
+                    <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
+                    <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
+                    <td className="p-3 text-emerald-400 text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center justify-center gap-1">
+                        {/* Imprimir */}
+                        <button
+                          onClick={() => handlePrintClick(req)}
+                          disabled={loadingPrint === req.id}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all disabled:opacity-50"
+                          title="Imprimir"
+                        >
+                          {loadingPrint === req.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Printer className="w-4 h-4" />
+                          )}
+                        </button>
+                        {/* PDF */}
+                        <button
+                          onClick={() => handlePDFClick(req)}
+                          disabled={loadingPrint === req.id}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all disabled:opacity-50"
+                          title="Descargar PDF"
+                        >
+                          <FileDown className="w-4 h-4" />
+                        </button>
+                        {/* Eliminar individual — solo RH */}
+                        {canDelete && (
                           <button
-                            onClick={() => handlePrintClick(req)}
-                            disabled={loadingPrint === req.id}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all disabled:opacity-50"
-                            title="Imprimir"
+                            onClick={() => openDeleteModal("single", req.id)}
+                            className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
+                            title="Eliminar"
                           >
-                            {loadingPrint === req.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Printer className="w-4 h-4" />
-                            )}
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                          {/* PDF */}
-                          <button
-                            onClick={() => handlePDFClick(req)}
-                            disabled={loadingPrint === req.id}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all disabled:opacity-50"
-                            title="Descargar PDF"
-                          >
-                            <FileDown className="w-4 h-4" />
-                          </button>
-                          {/* Cancelar */}
-                          
-                          
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -430,37 +457,76 @@ export default function RequisicionesStatusPage() {
         </div>
       )}
 
-      {/* Modal Eliminar */}
+      {/* Modal Eliminar — confirmación con "Borrar" */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0a1628] p-6 rounded-xl border border-white/10 w-96">
-            <h3 className="text-lg font-bold text-white mb-4">⚠️ Confirmar Eliminación</h3>
-            <p className="text-slate-400 text-sm mb-4">
-              {deleteType === "single"
-                ? "¿Eliminar esta requisición?"
-                : `¿Eliminar ${deleteType === "all" ? "TODAS" : selectedIds.length} requisiciones?`}
+          <div className="bg-[#0a1628] p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
+            {/* Icono de advertencia */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-6 h-6 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Eliminar Requisiciones</h3>
+                <p className="text-red-400 text-xs font-medium">Acción irreversible</p>
+              </div>
+            </div>
+
+            {/* Advertencia */}
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+              <p className="text-sm text-red-300 font-medium mb-1">
+                {deleteType === "single"
+                  ? "Se eliminará 1 requisición"
+                  : deleteType === "selected"
+                  ? `Se eliminarán ${selectedIds.length} requisiciones seleccionadas`
+                  : `Se eliminarán TODAS las ${requisiciones.length} requisiciones`}
+              </p>
+              <p className="text-xs text-red-400/80">
+                Se eliminarán también todos los materiales, cotizaciones y órdenes de compra asociadas. Este proceso no tiene vuelta atrás.
+              </p>
+            </div>
+
+            {/* Input de confirmación */}
+            <p className="text-slate-400 text-sm mb-2">
+              Para confirmar, escribe <span className="text-white font-bold">Borrar</span> exactamente:
             </p>
-            <p className="text-slate-500 text-xs mb-2">Escribe DELETE para confirmar:</p>
             <input
               type="text"
               value={deleteConfirmation}
               onChange={(e) => setDeleteConfirmation(e.target.value)}
-              placeholder="DELETE"
-              className="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white mb-4"
+              placeholder="Borrar"
+              className={`w-full px-4 py-2.5 rounded-lg border text-white text-center text-lg font-medium tracking-wider mb-4 focus:outline-none transition ${
+                deleteConfirmation === "Borrar"
+                  ? "bg-red-500/10 border-red-500/50 focus:border-red-500"
+                  : "bg-white/5 border-white/10 focus:border-white/30"
+              }`}
+              autoFocus
             />
-            <div className="flex gap-2">
+
+            {/* Botones */}
+            <div className="flex gap-3">
               <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 py-2 rounded bg-white/10 text-white hover:bg-white/20"
+                onClick={() => { setShowDeleteModal(false); setDeleteConfirmation(""); }}
+                className="flex-1 py-2.5 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDelete}
-                disabled={deleteConfirmation !== "DELETE" || deleting}
-                className="flex-1 py-2 rounded bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+                disabled={deleteConfirmation !== "Borrar" || deleting}
+                className="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
-                {deleting ? "Eliminando..." : "Eliminar"}
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Eliminando...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar {getDeleteCount()}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -469,6 +535,3 @@ export default function RequisicionesStatusPage() {
     </div>
   );
 }
-
-
-
