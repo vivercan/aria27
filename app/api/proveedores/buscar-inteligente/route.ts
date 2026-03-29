@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Anthropic from "@anthropic-ai/sdk";
+import { logger } from "@/lib/logger";
+const log = logger("BUSCAR-INTELIGENTE");
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -153,7 +155,7 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
     });
 
   } catch (error: any) {
-    console.error("Error en búsqueda inteligente:", error);
+    log.error("Error en búsqueda inteligente:", error);
     return NextResponse.json({ 
       error: error.message || "Error en búsqueda",
       success: false 
