@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       user_email
     } = body;
 
-    // ValidaciÃ³n bÃ¡sica de datos requeridos
+    // Validación básica de datos requeridos
     if (!purchase_order_folio || !materiales || materiales.length === 0) {
       return NextResponse.json({ error: "Faltan datos requeridos (purchase_order_folio, materiales)" }, { status: 400 });
     }
