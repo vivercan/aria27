@@ -150,6 +150,9 @@ export async function GET(request: Request) {
         authorization_comments: null,
         approved_by: "direccion",
         authorized_at: new Date().toISOString(),
+        proveedor: supplierName,
+        forma_pago: elegidoData.forma_pago || null,
+        monto: total || null,
       }).eq("id", req.id);
 
       await supabase.from("purchase_orders").insert({
