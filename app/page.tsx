@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -8,7 +8,26 @@ export default function LoginPage() {
   const [pass, setPass] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const router = useRouter()
+
+  // Auto-login si hay sesión guardada
+  useEffect(() => {
+    const saved = localStorage.getItem('ariaSession')
+    if (saved) {
+      try {
+        const { e, p } = JSON.parse(atob(saved))
+        if (e && p) {
+          localStorage.setItem('userEmail', e.toLowerCase())
+          sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p })))
+          router.push('/dashboard/requisiciones')
+          return
+        }
+      } catch { /* sesión corrupta, continuar al login */ }
+    }
+    setCheckingSession(false)
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,7 +98,23 @@ export default function LoginPage() {
     // PASO 3: Login exitoso
     localStorage.setItem('userEmail', emailLower)
     sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
+    if (rememberMe) {
+      localStorage.setItem('ariaSession', btoa(JSON.stringify({ e: email.trim(), p: pass })))
+    } else {
+      localStorage.removeItem('ariaSession')
+    }
     router.push('/dashboard/requisiciones')
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center" style={{ background: '#020617' }}>
+        <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+      </div>
+    )
   }
 
   return (
@@ -121,6 +156,17 @@ export default function LoginPage() {
                   style={{ padding: '8px 12px', fontSize: '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: '0.25em' }}
                   placeholder="••••••••"
                 />
+
+                <label className="flex items-center gap-2 cursor-pointer select-none" style={{ marginTop: '-2px' }}>
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 cursor-pointer"
+                    style={{ accentColor: '#3b82f6' }}
+                  />
+                  <span className="text-[11px] text-slate-500">Mantener sesión iniciada</span>
+                </label>
 
                 {error && (
                   <div className="text-red-400 text-xs text-center py-2 bg-red-500/10 rounded border border-red-500/20">
@@ -174,4 +220,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
