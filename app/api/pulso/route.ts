@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+const log = logger("PULSO");
 
 // AUTH helper: verificar que el email existe en Users
 async function verifyUser(email: string | null): Promise<boolean> {
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ conversaciones: resultado });
   } catch (error) {
-    console.error("[PULSO]", error);
+    log.error("[PULSO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -129,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ conversacion_id: conv.id, existia: false });
   } catch (error) {
-    console.error("[PULSO]", error);
+    log.error("[PULSO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
