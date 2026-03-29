@@ -13,8 +13,17 @@ const anthropic = new Anthropic({
 
 export async function POST(req: NextRequest) {
   try {
-    const { productos, requisicion_id } = await req.json();
-    
+    const { productos, requisicion_id, user_email } = await req.json();
+
+    // Auth check: verificar usuario y rol
+    if (!user_email) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
+    if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
+      return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
+    }
+
     if (!productos || productos.length === 0) {
       return NextResponse.json({ error: "No hay productos para analizar" }, { status: 400 });
     }
