@@ -16,7 +16,7 @@ const REQUISITION_STATUS = {
 
 export async function POST(req: Request) {
   try {
-    // ValidaciÃ³n bÃ¡sica: verificar que el request viene con datos esperados
+    // Validación básica: verificar que el request viene con datos esperados
     const body = await req.json();
     const { requisition_id, folio, obra, urgency, selections, user_email } = body;
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     if (user_email) {
       const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
       if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
-        return NextResponse.json({ error: "No autorizado para esta acciÃ³n" }, { status: 403 });
+        return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
       }
     }
 
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     const { error: reqError } = await supabase.from("Requisiciones").update({
       status: REQUISITION_STATUS.OC_GENERADA,
     }).eq("id", requisition_id);
-    if (reqError) throw new Error(`Error actualizando requisiciÃ³n: ${reqError.message}`);
+    if (reqError) throw new Error(`Error actualizando requisición: ${reqError.message}`);
 
     // Notify Compras
     const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
