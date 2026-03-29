@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content:
-              "Eres un asistente experto en compras y adquisiciones para una empresa constructora. Ayudas a encontrar los mejores proveedores, analizar cotizaciones y optimizar compras. Responde en espaÃ±ol y sÃ© conciso.",
+              "Eres un asistente experto en compras y adquisiciones para una empresa constructora. Ayudas a encontrar los mejores proveedores, analizar cotizaciones y optimizar compras. Responde en español y sé conciso.",
           },
           {
             role: "user",
