@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!callerUser || !AUTHORIZED_ROLES.includes(callerUser.role)) {
-      return NextResponse.json({ error: "No autorizado â se requiere rol admin o rh" }, { status: 403 });
+      return NextResponse.json({ error: "No autorizado → se requiere rol admin o rh" }, { status: 403 });
     }
 
     if (confirmation !== "DELETE") {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         deleted_by: userEmail
       });
 
-      // 5. CASCADE DELETE: eliminar entregas â POs â items â requisiciÃ³n
+      // 5. CASCADE DELETE: eliminar entregas → POs → items → requisición
       if (entregas.length > 0) {
         const entregaIds = entregas.map((e: any) => e.id);
         await supabase.from("entregas").delete().in("id", entregaIds);
