@@ -94,6 +94,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userPermissions");
+    localStorage.removeItem("ariaSession");
+    sessionStorage.removeItem("zohoCreds");
     router.push("/");
   };
 
