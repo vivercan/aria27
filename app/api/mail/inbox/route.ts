@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
+import { logger } from "@/lib/logger";
+const log = logger("MAIL-INBOX");
 
 export async function POST(req: NextRequest) {
   try {
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ emails, count: emails.length });
   } catch (error: any) {
-    console.error("IMAP Error:", error);
+    log.error("IMAP Error:", error);
     return NextResponse.json({ error: error.message || "Error al conectar con Zoho" }, { status: 500 });
   }
 }
