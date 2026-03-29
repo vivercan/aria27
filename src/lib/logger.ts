@@ -24,6 +24,13 @@ interface LogEntry {
   data?: Record<string, unknown>;
 }
 
+function normalize(data: unknown): Record<string, unknown> | undefined {
+  if (data === undefined || data === null) return undefined;
+  if (typeof data === "object" && !Array.isArray(data)) return data as Record<string, unknown>;
+  if (data instanceof Error) return { error: data.message, stack: data.stack };
+  return { value: String(data) };
+}
+
 function emit(entry: LogEntry) {
   const line = JSON.stringify(entry);
   switch (entry.level) {
@@ -40,14 +47,14 @@ function emit(entry: LogEntry) {
 
 export function logger(route: string) {
   return {
-    info(msg: string, data?: Record<string, unknown>) {
-      emit({ ts: new Date().toISOString(), level: "info", route, msg, data });
+    info(msg: string, data?: unknown) {
+      emit({ ts: new Date().toISOString(), level: "info", route, msg, data: normalize(data) });
     },
-    warn(msg: string, data?: Record<string, unknown>) {
-      emit({ ts: new Date().toISOString(), level: "warn", route, msg, data });
+    warn(msg: string, data?: unknown) {
+      emit({ ts: new Date().toISOString(), level: "warn", route, msg, data: normalize(data) });
     },
-    error(msg: string, data?: Record<string, unknown>) {
-      emit({ ts: new Date().toISOString(), level: "error", route, msg, data });
+    error(msg: string, data?: unknown) {
+      emit({ ts: new Date().toISOString(), level: "error", route, msg, data: normalize(data) });
     },
   };
 }
