@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -17,6 +20,9 @@ interface Alerta {
 
 export default function AlertasPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,13 +40,20 @@ export default function AlertasPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta alerta?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("alertas_atraso").delete().eq("id", id);
     if (error) { console.error("Error deleting alerta:", error.message); alert("Error: " + error.message); return; }
     setAlertas(prev => prev.filter(a => a.id !== id));
   };
 
   const pendientes = alertas.filter(a => !a.notificado).length;
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "alertas_atraso", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadData();
+  };
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
@@ -99,6 +112,14 @@ export default function AlertasPage() {
           </div>
         ))}
       </div>
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Alerta"
+      />
     </div>
   );
 }
