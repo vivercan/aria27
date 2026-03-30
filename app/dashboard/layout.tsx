@@ -20,7 +20,7 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "ConfiguraciÃÂ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -56,7 +56,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en lÃÂ­nea real
+  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
   useEffect(() => {
     if (!userEmail) return;
     
@@ -186,7 +186,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
                 <input
                   type="text"
-                  placeholder="Buscar mÃ³dulos, documentos..."
+                  placeholder="Buscar módulos, documentos..."
                   className="bg-transparent outline-none text-sm w-full"
                   style={{ color: colors.text }}
                   value={searchQuery}
