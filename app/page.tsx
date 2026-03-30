@@ -157,7 +157,7 @@ export default function LoginPage() {
       <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,102,255,0.35) 0%, transparent 60%)', filter: 'blur(60px)' }} />
 
       <div className="absolute top-6 right-8 z-20">
-        <p className="text-[10px] text-slate-500 tracking-widest uppercase">ARIA v2025.1 · Secure Access</p>
+        <p className="text-[10px] text-slate-500 tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
       </div>
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
