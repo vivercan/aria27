@@ -72,7 +72,7 @@ export async function GET(request: Request) {
       <a href="${BASE_URL}/api/requisicion/validate?token=${token}&action=RECHAZADA" style="display:inline-block;background:#ef4444;color:white;padding:15px 35px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">â RECHAZAR</a>
     </div>
   </div>
-  <div style="background:#f8fafc;padding:15px;text-align:center;color:#94a3b8;font-size:12px">ARIA27 - GrupoCuavante</div>
+  <div style="background:#f8fafc;padding:15px;text-align:center;color:#94a3b8;font-size:12px">ARIA27 - CUAVANTE</div>
 </div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
