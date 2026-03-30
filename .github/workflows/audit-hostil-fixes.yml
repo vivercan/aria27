@@ -1,0 +1,104 @@
+name: Audit Hostil Fixes - 30Mar2026
+on:
+  workflow_dispatch:
+
+jobs:
+  apply-fixes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix 1 - Incompletas back nav to checadas
+        run: sed -i 's|href="/dashboard/talento/nomina"|href="/dashboard/talento/checadas"|g' app/dashboard/talento/checadas/incompletas/page.tsx
+
+      - name: Fix 2 - Enviar comparativa company name
+        run: sed -i 's|Grupo Cuavante|Grupo Constructor Urbano Avante|g' app/api/requisicion/enviar-comparativa/route.ts
+
+      - name: Fix 3 - Alertas remove Gantt reference
+        run: sed -i 's|actividades atrasadas en el Gantt de obra|actividades con fechas vencidas en las obras registradas|g' app/dashboard/configuracion/alertas/page.tsx
+
+      - name: Fix 4 - Obras hub add Inventario
+        run: |
+          python3 << 'PYEOF'
+          content = open('app/dashboard/obras/page.tsx').read()
+          content = content.replace('Calculator }', 'Calculator, PackageCheck }')
+          inv_entry = """  {
+    title: "Inventario",
+    description: "Inventario de materiales por obra.",
+    href: "/dashboard/obras/inventario",
+    icon: PackageCheck,
+    gradient: "from-teal-500 to-teal-600"
+  }
+];"""
+          content = content.replace('];', inv_entry)
+          open('app/dashboard/obras/page.tsx','w').write(content)
+          PYEOF
+
+      - name: Fix 5 - AI route auth by role + configurable model + error typing
+        run: |
+          python3 << 'PYEOF'
+          content = open('app/api/ai/route.ts').read()
+          # Fix error typing
+          content = content.replace('error: any', 'error: unknown')
+          content = content.replace('error.message', '(error instanceof Error ? error.message : "Error desconocido")')
+          # Add role-based auth check after user check
+          auth_block = """    // AUTH: Solo roles autorizados pueden usar IA (costo $$)
+    const allowedRoles = ["admin", "Administrador", "compras", "direccion"];
+    if (!allowedRoles.includes(user.role || "")) {
+      return NextResponse.json(
+        { error: "No autorizado \u2014 rol sin acceso a IA", success: false },
+        { status: 403 }
+      );
+    }
+
+    const aiModel = process.env.AI_MODEL || "gpt-4o-mini";"""
+          # Insert after the user-not-found check
+          marker = 'const response = await fetch'
+          content = content.replace(marker, auth_block + '\n\n    ' + marker)
+          # Replace hardcoded model
+          content = content.replace('model: "gpt-4o-mini"', 'model: aiModel')
+          open('app/api/ai/route.ts','w').write(content)
+          PYEOF
+
+      - name: Fix 6 - Capturar handle missing req param
+        run: |
+          python3 << 'PYEOF'
+          content = open('app/dashboard/requisiciones/requisiciones/tramite/capturar/page.tsx').read()
+          reqid_block = """  if (!reqId) return (
+    <div className="text-center py-20 text-slate-400">
+      <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
+      <p className="mb-2">Selecciona una requisici\u00f3n desde Tr\u00e1mite</p>
+      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-blue-400 hover:underline text-sm">
+        \u2190 Ir a Tr\u00e1mite
+      </Link>
+    </div>
+  );
+  """
+          content = content.replace('if (!requisition) return (', reqid_block + 'if (!requisition) return (')
+          content = content.replace('href="/dashboard/requisiciones/requisiciones/estatus"', 'href="/dashboard/requisiciones/requisiciones/tramite"')
+          content = content.replace('Ver requisiciones activas', 'Ir a Tr\u00e1mite')
+          open('app/dashboard/requisiciones/requisiciones/tramite/capturar/page.tsx','w').write(content)
+          PYEOF
+
+      - name: Commit all fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: auditoria hostil - 6 correcciones P0/P1/P2
+
+          - Obras hub: agregar Inventario al menu
+          - Incompletas: back nav apunta a /checadas (no /nomina)
+          - Enviar comparativa: Grupo Constructor Urbano Avante (no Cuavante)
+          - Alertas: sin referencia a Gantt inexistente
+          - AI route: auth por rol + modelo configurable + error typing
+          - Capturar: manejo de ?req= ausente con redirect a Tramite"
+
+      - name: Push changes
+        run: git push
+
+      - name: Self-delete workflow
+        run: |
+          git rm .github/workflows/audit-hostil-fixes.yml
+          git commit -m "chore: remove audit-hostil-fixes workflow"
+          git push
