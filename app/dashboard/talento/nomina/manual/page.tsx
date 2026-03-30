@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -53,6 +56,9 @@ function getWeekRange(date: Date): { inicio: string; fin: string; dias: string[]
 
 export default function NominaManualPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState<string>("");
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,7 +164,7 @@ export default function NominaManualPage() {
       return;
     }
     
-    if (!confirm("¿Eliminar este registro de asistencia?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     
     const { error } = await supabase.from("asistencias").delete().eq("id", id);
     if (error) {
@@ -249,6 +255,13 @@ export default function NominaManualPage() {
 
   const empleadoActual = empleados.find(e => e.id === empleadoSeleccionado);
   const hayEdiciones = asistencias.some(a => a.editando);
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "asistencias", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargarEmpleados();
+  };
 
   return (
     <div className="space-y-6">
@@ -383,9 +396,9 @@ export default function NominaManualPage() {
                                   <Edit3 className="w-4 h-4" />
                                 </button>
                               )}
-                              <button onClick={() => eliminarAsistencia(asist.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30">
+                              {canDelete && (<button onClick={() => eliminarAsistencia(asist.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30">
                                 <Trash2 className="w-4 h-4" />
-                              </button>
+                              </button>)}
                             </div>
                           </td>
                         </tr>
@@ -423,6 +436,14 @@ export default function NominaManualPage() {
           </div>
         </>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Asistencia"
+      />
     </div>
   );
 }
