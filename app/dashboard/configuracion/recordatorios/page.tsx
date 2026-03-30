@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
@@ -19,6 +22,9 @@ const EMPTY = { empleado_nombre: "", tipo: "BITACORA", fecha_hora: "", canal: "W
 
 export default function RecordatoriosPage() {
   const [records, setRecords] = useState<Recordatorio[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -41,13 +47,20 @@ export default function RecordatoriosPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     await supabase.from("recordatorios_bitacora").delete().eq("id", id);
     setRecords(prev => prev.filter(r => r.id !== id));
   };
 
   const statusColor: Record<string, string> = {
     PENDIENTE: "bg-amber-500/20 text-amber-300", ENVIADO: "bg-emerald-500/20 text-emerald-300", FALLIDO: "bg-red-500/20 text-red-300"
+  };
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "recordatorios_bitacora", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadData();
   };
 
   return (
@@ -146,6 +159,14 @@ export default function RecordatoriosPage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Recordatorio"
+      />
     </div>
   );
 }
