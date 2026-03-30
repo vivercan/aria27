@@ -515,7 +515,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       </div>
 
       <div style={{ padding: "4px 8px", background: "linear-gradient(180deg, #e0e0e0, #c0c0c0)", borderTop: "1px solid #aaa", display: "flex", justifyContent: "center" }}>
-        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v2.1 · Grupo Cuavante</span>
+        <span style={{ fontSize: "9px", color: "#666" }}>ARIA Pulso v2.1 · Grupo Constructor Urbano Avante</span>
       </div>
     </div>
   );
