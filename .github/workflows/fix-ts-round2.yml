@@ -1,0 +1,98 @@
+name: Fix TS build errors round 2
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-ts-round2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix expedientes - move confirmDelete before if(loading) + obraSeleccionada
+        run: |
+          FILE="app/dashboard/obras/expedientes/page.tsx"
+          # Fix obraSeleccionada possibly null
+          sed -i 's/if (obraSeleccionada) loadCarpetas(obraSeleccionada\.id)/if (obraSeleccionada) loadCarpetas(obraSeleccionada!.id)/' "$FILE"
+          # Move confirmDelete function before if(loading) block
+          python3 -c "
+import re
+with open('$FILE', 'r') as f:
+    content = f.read()
+# Extract confirmDelete block that's incorrectly inside if(loading)
+old = '''  if (loading) {
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: \"expedientes_carpetas\", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:\"\",name:\"\"});
+    loadObras();
+  };
+    return ('''
+new = '''  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: \"expedientes_carpetas\", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:\"\",name:\"\"});
+    loadObras();
+  };
+
+  if (loading) {
+    return ('''
+content = content.replace(old, new)
+with open('$FILE', 'w') as f:
+    f.write(content)
+print('Fixed expedientes')
+"
+
+      - name: Fix msg calls with ?? Error fallback
+        run: |
+          for FILE in \
+            app/dashboard/obras/pipeline/page.tsx \
+            app/dashboard/plantillas/documentos/page.tsx \
+            app/dashboard/plantillas/ordenes/page.tsx \
+            app/dashboard/plantillas/propuestas/page.tsx; do
+            sed -i 's/msg("error", error?\.message)/msg("error", error?.message ?? "Error")/g' "$FILE"
+            echo "Fixed msg in $FILE"
+          done
+
+      - name: Fix texto property with ?? Error fallback
+        run: |
+          sed -i 's/texto: error?\.message }/texto: error?.message ?? "Error" }/g' app/dashboard/talento/nomina/manual/page.tsx
+          sed -i 's/texto: e?\.message }/texto: e?.message ?? "Error" }/g' app/dashboard/talento/nomina/manual/page.tsx
+          sed -i 's/texto: e?\.message }/texto: e?.message ?? "Error" }/g' app/dashboard/talento/nomina/pre-nomina/page.tsx
+          echo "Fixed texto patterns"
+
+      - name: Fix usuarios missing imports
+        run: |
+          FILE="app/dashboard/talento/usuarios/page.tsx"
+          sed -i '1 a\import DeleteModal from "@/components/DeleteModal";\nimport { useDeletePermission } from "@/lib/use-delete-permission";\nimport { backupAndDelete } from "@/lib/backup-delete";' "$FILE"
+          echo "Fixed usuarios imports"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git diff --cached --stat
+            git commit -m "fix: TS build errors round 2 - confirmDelete scope, msg fallbacks, usuarios imports"
+            git push
+          fi
+
+      - name: Cleanup workflow
+        run: |
+          rm -f .github/workflows/fix-ts-round2.yml
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No cleanup needed"
+          else
+            git commit -m "chore: remove temporary fix-ts-round2 workflow"
+            git push
+          fi
