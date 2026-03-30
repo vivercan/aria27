@@ -196,7 +196,7 @@ export default function ActivosCatalogoPage() {
   };
 
   const devolverActivo = async (asig: Asignacion) => {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
+    setDeleteModal({open:true,id:asig.id,name:""}); return; // Protected by DeleteModal
 
     const { error: updateAsigError } = await supabase.from("activos_asignaciones").update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] }).eq("id", asig.id);
     if (updateAsigError) {
