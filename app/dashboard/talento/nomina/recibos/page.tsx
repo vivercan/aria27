@@ -322,7 +322,7 @@ export default function RecibosNominaPage() {
           <div className="text-center">
             <div className="border-b-2 border-gray-400 pb-8 mb-2"></div>
             <p className="text-sm text-gray-600">Firma de Recursos Humanos</p>
-            <p className="text-xs text-gray-400 mt-1">Grupo Cuavante</p>
+            <p className="text-xs text-gray-400 mt-1">Grupo Constructor Urbano Avante</p>
           </div>
         </div>
 
