@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -25,6 +28,9 @@ const EMPTY_FORM = {
 
 export default function ProveedoresPage() {
   const [suppliers,setSuppliers] = useState<Supplier[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading,setLoading] = useState(true);
   const [search,setSearch] = useState("");
   const [filterCat,setFilterCat] = useState("");
@@ -85,12 +91,19 @@ export default function ProveedoresPage() {
   };
 
   const handleDelete = async(id:string,name:string)=>{
-    if(!confirm(`¿Eliminar "${name}"?`))return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     await supabase.from("suppliers").delete().eq("id",id);await loadSuppliers();
   };
 
   const copyClabe = (id:string,clabe:string)=>{navigator.clipboard.writeText(clabe);setCopiedId(id);setTimeout(()=>setCopiedId(null),2000);};
   const updateField = (f:string,v:string|number)=>setForm(p=>({...p,[f]:v}));
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "suppliers", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadSuppliers();
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -175,7 +188,7 @@ export default function ProveedoresPage() {
                     <td className="pr-2">
                       <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={()=>openEdit(s)} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"><Edit2 className="w-3 h-3"/></button>
-                        <button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"><Trash2 className="w-3 h-3"/></button>
+                        {canDelete && (<button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"><Trash2 className="w-3 h-3"/></button>)}
                       </div>
                     </td>
                   </tr>
@@ -256,6 +269,14 @@ export default function ProveedoresPage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Proveedor"
+      />
     </div>
   );
 }
