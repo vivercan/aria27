@@ -1,0 +1,41 @@
+name: Fix error.message optional chaining
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-error-message.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply optional chaining fixes
+        run: |
+          echo "Fixing error.message patterns..."
+          find app -type f \( -name "*.tsx" -o -name "*.ts" \) | while read f; do
+            # Main pattern: ErrorVariable.message -> ErrorVariable?.message
+            sed -i -E 's/([A-Za-z_][A-Za-z0-9_]*[Ee]rror[A-Za-z0-9_]*)\.message/\1?.message/g' "$f"
+            # Standalone error.message (not preceded by word char or ?)
+            sed -i -E 's/([^A-Za-z0-9_?])error\.message/\1error?.message/g' "$f"
+            # e.message in catch blocks
+            sed -i -E 's/([^A-Za-z0-9_?])e\.message/\1e?.message/g' "$f"
+            # err.message in catch blocks
+            sed -i -E 's/([^A-Za-z0-9_?])err\.message/\1err?.message/g' "$f"
+          done
+          echo "Checking remaining patterns..."
+          grep -rn '\.message' app/ --include="*.ts" --include="*.tsx" | grep -v '?\.' | grep -E '[Ee]rr' | head -5 || echo "All clean!"
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "fix: optional chaining on all error.message across codebase (TS strict null checks)"
+            git push
+          fi
