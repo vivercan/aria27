@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
     const fechaGen = new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
     const fechaReq = new Date(requiredDate).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    const emailFooter = `<div style="background:#0a1628;padding:15px;text-align:center;border-top:1px solid #334155"><span style="color:#64748b;font-size:11px">ARIA27 ERP - Grupo Cuavante</span><br><span style="color:#475569;font-size:10px">${fechaGen}</span></div>`;
+    const emailFooter = `<div style="background:#0a1628;padding:15px;text-align:center;border-top:1px solid #334155"><span style="color:#64748b;font-size:11px">ARIA27 ERP - CUAVANTE</span><br><span style="color:#475569;font-size:10px">${fechaGen}</span></div>`;
 
     const materialesHtml = materiales.map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
     const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
