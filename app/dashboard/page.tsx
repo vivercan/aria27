@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   FileText,
   Users,
@@ -37,6 +38,8 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [userPermissions, setUserPermissions] = useState<UserPermissions>({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -46,15 +49,17 @@ export default function DashboardPage() {
         if (storedEmail) {
           const { data: user } = await supabase
             .from("Users")
-            .select("display_name, name")
+            .select("display_name, name, role, permissions")
             .eq("email", storedEmail)
             .single();
           if (user) {
             setUserName(user.display_name || user.name || "");
+            setUserRole(user.role || "user");
+            setUserPermissions(user.permissions || {});
           }
         }
 
-        // Cargar estadísticas
+        // Cargar estadÃ­sticas
         const today = new Date().toISOString().split("T")[0];
 
         // Requisiciones de hoy
@@ -159,13 +164,14 @@ export default function DashboardPage() {
     },
   ];
 
-  const quickActions = [
+  const allQuickActions = [
     {
-      title: "Nueva Requisición",
+      title: "Nueva RequisiciÃ³n",
       description: "Solicitar materiales o servicios",
       href: "/dashboard/requisiciones/requisiciones",
       icon: FileText,
       color: "from-blue-500 to-cyan-500",
+      module: "requisiciones",
     },
     {
       title: "Ver Empleados",
@@ -173,13 +179,15 @@ export default function DashboardPage() {
       href: "/dashboard/talento/personal",
       icon: Users,
       color: "from-violet-500 to-purple-500",
+      module: "talento",
     },
     {
       title: "Registro de Asistencia",
-      description: "Ver entradas y salidas del día",
+      description: "Ver entradas y salidas del dÃ­a",
       href: "/dashboard/talento/checadas",
       icon: Clock,
       color: "from-emerald-500 to-emerald-500",
+      module: "talento",
     },
     {
       title: "Centros de Trabajo",
@@ -187,12 +195,17 @@ export default function DashboardPage() {
       href: "/dashboard/configuracion/maestros/centros",
       icon: Activity,
       color: "from-amber-500 to-orange-500",
+      module: "configuracion",
     },
   ];
 
+  const quickActions = allQuickActions.filter((action) =>
+    canAccessModule(userRole, userPermissions, action.module)
+  );
+
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Buenos días";
+    if (hour < 12) return "Buenos dÃ­as";
     if (hour < 18) return "Buenas tardes";
     return "Buenas noches";
   };
@@ -205,7 +218,7 @@ export default function DashboardPage() {
           {getGreeting()}{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
         <p className="text-slate-400">
-          Aquí tienes un resumen de la actividad de hoy en ARIA
+          AquÃ­ tienes un resumen de la actividad de hoy en ARIA
         </p>
       </div>
 
@@ -239,7 +252,7 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <Activity className="w-5 h-5 text-blue-400" />
-          Acciones Rápidas
+          Acciones RÃ¡pidas
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
@@ -278,9 +291,9 @@ export default function DashboardPage() {
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-1">Sistema ARIA - Infinity Loop</h3>
             <p className="text-slate-300 text-sm leading-relaxed">
-              Bienvenido al ERP de Grupo Cuavante. Desde aquí puedes gestionar requisiciones, 
-              controlar asistencias, administrar empleados y más. Usa el menú lateral para navegar 
-              entre los módulos.
+              Bienvenido al ERP de Grupo Constructor Urbano Avante. Desde aquÃ­ puedes gestionar requisiciones,
+              controlar asistencias, administrar empleados y mÃ¡s. Usa el menÃº lateral para navegar
+              entre los mÃ³dulos.
             </p>
           </div>
         </div>
