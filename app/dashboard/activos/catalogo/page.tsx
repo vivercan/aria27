@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -52,6 +55,9 @@ const ESTADOS = { DISPONIBLE: "bg-emerald-500", EN_USO: "bg-blue-500", MANTENIMI
 
 export default function ActivosCatalogoPage() {
   const [tab, setTab] = useState<"inventario" | "asignaciones" | "mantenimiento">("inventario");
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [activos, setActivos] = useState<Activo[]>([]);
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
@@ -144,7 +150,7 @@ export default function ActivosCatalogoPage() {
   };
 
   const eliminarActivo = async (id: string) => {
-    if (!confirm("¿Eliminar este activo?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("activos").update({ activo: false }).eq("id", id);
     if (error) {
       console.error("Error deleting activo:", error.message);
@@ -190,7 +196,7 @@ export default function ActivosCatalogoPage() {
   };
 
   const devolverActivo = async (asig: Asignacion) => {
-    if (!confirm("¿Registrar devolución de este activo?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
 
     const { error: updateAsigError } = await supabase.from("activos_asignaciones").update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] }).eq("id", asig.id);
     if (updateAsigError) {
@@ -252,6 +258,13 @@ export default function ActivosCatalogoPage() {
     const diff = (prox.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24);
     return diff <= 30 && diff >= 0;
   });
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "activos_empresa", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargarDatos();
+  };
 
   return (
     <div className="space-y-6">
@@ -341,7 +354,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
                               <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
-                              <button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>
+                              {canDelete && (<button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>)}
                             </div>
                           </td>
                         </tr>
@@ -532,6 +545,14 @@ export default function ActivosCatalogoPage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Activo"
+      />
     </div>
   );
 }
