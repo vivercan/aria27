@@ -10,10 +10,10 @@ export interface UserPermissions {
 }
 
 // FIX: Roles vÃ¡lidos del sistema â previene escalaciÃ³n via localStorage spoofing
-const SYSTEM_ROLES = ["admin", "rh", "compras", "almacen", "operador", "residente", "direccion"];
+const SYSTEM_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion"];
 
 export function canAccessModule(role: string, permissions: UserPermissions, moduleKey: string): boolean {
-  if (role === "admin") return true;
+  if (role === "admin" || role === "Administrador") return true;
 
   // FIX: Solo roles conocidos del sistema pasan cuando no hay permisos configurados
   // Antes: return true (cualquier string en localStorage = acceso total)
@@ -25,7 +25,7 @@ export function canAccessModule(role: string, permissions: UserPermissions, modu
 }
 
 export function canAccessSub(role: string, permissions: UserPermissions, moduleKey: string, subKey: string): boolean {
-  if (role === "admin") return true;
+  if (role === "admin" || role === "Administrador") return true;
 
   // FIX: Misma protecciÃ³n contra roles inventados
   if (!permissions || Object.keys(permissions).length === 0) {
