@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
@@ -38,6 +41,9 @@ const EMPTY_FORM = {
 
 export default function LicitacionesPage() {
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
@@ -98,7 +104,7 @@ export default function LicitacionesPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta licitación?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("licitaciones").delete().eq("id", id);
     if (error) {
       console.error("Error deleting licitacion:", error.message);
@@ -122,6 +128,13 @@ export default function LicitacionesPage() {
   };
 
   const fmt = (n: number) => `$${(n||0).toLocaleString("es-MX", { minimumFractionDigits: 0 })}`;
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadData();
+  };
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
@@ -254,6 +267,14 @@ export default function LicitacionesPage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Licitación"
+      />
     </div>
   );
 }
