@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -20,6 +23,9 @@ interface CuentaBancaria {
 export default function BancosPage() {
   const router = useRouter();
   const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" });
@@ -42,12 +48,19 @@ export default function BancosPage() {
   }
 
   async function eliminar(id: string) {
-    if (!confirm("¿Eliminar esta cuenta?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     await supabase.from("cuentas_bancarias").delete().eq("id", id);
     loadData();
   }
 
   const totalSaldo = cuentas.reduce((s, c) => s + (c.saldo || 0), 0);
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "cuentas_bancarias", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadData();
+  };
 
   return (
     <div className="space-y-6">
@@ -148,9 +161,9 @@ export default function BancosPage() {
                   <td className="p-3 text-slate-300">{c.tipo}</td>
                   <td className="p-3 text-right text-emerald-400 font-medium">${(c.saldo || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
-                    <button onClick={() => eliminar(c.id)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                    {canDelete && (<button onClick={() => eliminar(c.id)} className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button>)}
                   </td>
                 </tr>
               ))}
@@ -158,6 +171,14 @@ export default function BancosPage() {
           </table>
         </div>
       </div>
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Cuenta Bancaria"
+      />
     </div>
   );
 }
