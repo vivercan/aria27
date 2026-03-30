@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +24,9 @@ const EMPTY = { nombre: "", cliente: "", obra: "", monto_estimado: "", estado: "
 export default function PropuestasPage() {
   const router = useRouter();
   const [propuestas, setPropuestas] = useState<Propuesta[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -73,7 +79,7 @@ export default function PropuestasPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta propuesta?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
     if (error) msg("error", error.message); else { msg("success", "Propuesta eliminada"); cargar(); }
   };
@@ -88,6 +94,13 @@ export default function PropuestasPage() {
     aprobada: "bg-emerald-500/20 text-emerald-300",
     rechazada: "bg-red-500/20 text-red-300",
     en_revision: "bg-amber-500/20 text-amber-300",
+  };
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "propuestas_licitacion", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargar();
   };
 
   return (
@@ -223,7 +236,7 @@ export default function PropuestasPage() {
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => editar(p)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => eliminar(p.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                      {canDelete && (<button onClick={() => eliminar(p.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>)}
                     </div>
                   </td>
                 </tr>
@@ -232,6 +245,14 @@ export default function PropuestasPage() {
           </table>
         </div>
       </div>
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Propuesta"
+      />
     </div>
   );
 }
