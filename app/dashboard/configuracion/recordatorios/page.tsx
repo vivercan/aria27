@@ -30,12 +30,13 @@ export default function RecordatoriosPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY);
 
-  useEffect(() => {
-    supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false }).then(({ data }) => {
-      setRecords(data || []);
-      setLoading(false);
-    });
-  }, []);
+  const loadData = async () => {
+    const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
+    setRecords(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const guardar = async () => {
     if (!form.empleado_nombre) { alert("Nombre es requerido"); return; }
