@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +35,9 @@ const EMPTY = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", fe
 
 export default function PipelinePage() {
   const [obras, setObras] = useState<Obra[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -131,7 +137,7 @@ export default function PipelinePage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta obra?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("centros_trabajo").delete().eq("id", id);
     if (error) { msg("error", error.message); } else { msg("success", "Obra eliminada"); cargar(); }
   };
@@ -158,6 +164,13 @@ export default function PipelinePage() {
       )}
     </div>
   );
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargar();
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -208,7 +221,7 @@ export default function PipelinePage() {
                 <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(o.estado)}`}>{getStatusLabel(o.estado)}</span></td>
                 <td className="p-3 text-center flex items-center justify-center gap-1">
                   <button onClick={() => editar(o)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>
+                  {canDelete && (<button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>)}
                 </td>
               </tr>
             ))}
@@ -312,6 +325,14 @@ export default function PipelinePage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Obra"
+      />
     </div>
   );
 }
