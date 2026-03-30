@@ -139,7 +139,7 @@ export default function ActivosCatalogoPage() {
     } else {
       const { error } = await supabase.from("activos").insert(formActivo);
       if (error) {
-        console.error("Error inserting activo:", eerror?.message;
+        console.error("Error inserting activo:", error?.message);
         return;
       }
     }
@@ -153,7 +153,7 @@ export default function ActivosCatalogoPage() {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("activos").update({ activo: false }).eq("id", id);
     if (error) {
-      console.error("Error deleting activo:", ererror?.message
+      console.error("Error deleting activo:", error?.message);
       return;
     }
     cargarDatos();
