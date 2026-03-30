@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -36,6 +39,9 @@ function CapturarContent() {
   const reqId = searchParams.get("req");
 
   const [requisition, setRequisition] = useState<any>(null);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [items, setItems] = useState<ReqItem[]>([]);
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -130,7 +136,7 @@ function CapturarContent() {
   };
 
   const eliminarCotizacion = async (quoteId: number, sName: string) => {
-    if (!confirm("Eliminar cotizacion de " + sName + "?")) return;
+    if (!canDelete) return; // Protected: only RH/admin
     await supabase.from("quotations").delete().eq("id", quoteId);
     for (const item of items) {
       await supabase.from("requisition_item_quotes").delete()
@@ -234,9 +240,9 @@ function CapturarContent() {
                     <p className="text-white font-semibold text-sm">{q.supplier_name}</p>
                     {q.total === bestPrice && <span className="text-emerald-400 text-[10px] font-medium">MEJOR PRECIO</span>}
                   </div>
-                  <button onClick={() => eliminarCotizacion(q.id, q.supplier_name)} className="p-1 rounded hover:bg-red-500/20">
+                  {canDelete && (<button onClick={() => eliminarCotizacion(q.id, q.supplier_name)} className="p-1 rounded hover:bg-red-500/20">
                     <Trash2 className="w-3.5 h-3.5 text-slate-500 hover:text-red-400" />
-                  </button>
+                  </button>)}
                 </div>
                 <p className={`text-xl font-bold ${q.total === bestPrice ? "text-emerald-400" : "text-white"}`}>
                   ${q.total.toLocaleString()}
