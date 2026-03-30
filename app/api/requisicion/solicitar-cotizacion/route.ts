@@ -77,7 +77,7 @@ export async function POST(request: Request) {
           });
           emailsSent++;
         } catch (e: any) {
-          errors.push(`Email ${prov.name}: ${e.message}`);
+          errors.push(`Email ${prov.name}: ${e?.message}`);
         }
       }
 
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
           if (result.success) whatsappSent++;
           else errors.push(`WA ${prov.name}: ${result.error}`);
         } catch (e: any) {
-          errors.push(`WA ${prov.name}: ${e.message}`);
+          errors.push(`WA ${prov.name}: ${e?.message}`);
         }
       }
     }
@@ -106,6 +106,6 @@ export async function POST(request: Request) {
     });
 
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    return NextResponse.json({ error: e?.message }, { status: 500 });
   }
 }

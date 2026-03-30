@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         authorized_by: user_email || "direccion",
         authorized_at: new Date().toISOString(),
       });
-      if (poError) throw new Error(`Error creando OC ${ocFolio}: ${poError.message}`);
+      if (poError) throw new Error(`Error creando OC ${ocFolio}: ${poError?.message}`);
 
       // Update each item with selected supplier and price
       for (const item of supplierItems) {
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
     const { error: reqError } = await supabase.from("Requisiciones").update({
       status: REQUISITION_STATUS.OC_GENERADA,
     }).eq("id", requisition_id);
-    if (reqError) throw new Error(`Error actualizando requisición: ${reqError.message}`);
+    if (reqError) throw new Error(`Error actualizando requisición: ${reqError?.message}`);
 
     // Notify Compras
     const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
@@ -156,6 +156,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, purchase_orders: ocFolios.length, folios: ocFolios });
   } catch (error: any) {
     log.error("[AUTORIZAR-PICKING]", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

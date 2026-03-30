@@ -183,7 +183,7 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
-        setMensaje({ tipo: "error", texto: "Error al crear: " + error.message });
+        setMensaje({ tipo: "error", texto: "Error al crear: " + error?.message });
       } else {
         setMensaje({ tipo: "success", texto: "Empleado " + empNumber + " creado correctamente" });
         setEditando(null);
@@ -195,7 +195,7 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
-        setMensaje({ tipo: "error", texto: "Error: " + error.message });
+        setMensaje({ tipo: "error", texto: "Error: " + error?.message });
       } else {
         setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
         setEditando(null);

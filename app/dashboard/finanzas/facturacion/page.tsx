@@ -58,7 +58,7 @@ export default function FacturacionPage() {
       metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi,
     });
 
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03" }); loadData(); }
   }
 

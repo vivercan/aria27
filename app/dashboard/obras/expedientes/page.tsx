@@ -96,7 +96,7 @@ export default function ExpedientesPage() {
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
     if (error) {
-      console.error("Error loading obras:", error.message);
+      console.error("Error loading obras:", error?.message);
       setLoading(false);
       return;
     }
@@ -111,7 +111,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("orden");
     if (error) {
-      console.error("Error loading carpetas:", error.message);
+      console.error("Error loading carpetas:", error?.message);
       return;
     }
     setCarpetas(data || []);
@@ -124,7 +124,7 @@ export default function ExpedientesPage() {
       .eq("carpeta_id", carpetaId)
       .order("created_at", { ascending: false });
     if (error) {
-      console.error("Error loading archivos:", error.message);
+      console.error("Error loading archivos:", error?.message);
       return;
     }
     setArchivos(data || []);
@@ -137,7 +137,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("fecha_limite");
     if (error) {
-      console.error("Error loading tareas:", error.message);
+      console.error("Error loading tareas:", error?.message);
       return;
     }
     setTareas(data || []);
@@ -154,7 +154,7 @@ export default function ExpedientesPage() {
     });
 
     if (error) {
-      console.error("Error creating carpeta:", error.message);
+      console.error("Error creating carpeta:", error?.message);
       return;
     }
 
@@ -173,7 +173,7 @@ export default function ExpedientesPage() {
     });
 
     if (error) {
-      console.error("Error creating tarea:", error.message);
+      console.error("Error creating tarea:", error?.message);
       return;
     }
 
@@ -190,7 +190,7 @@ export default function ExpedientesPage() {
     }).eq("id", tarea.id);
 
     if (error) {
-      console.error("Error updating tarea status:", error.message);
+      console.error("Error updating tarea status:", error?.message);
       return;
     }
 
@@ -202,7 +202,7 @@ export default function ExpedientesPage() {
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting carpeta:", error.message);
+      console.error("Error deleting carpeta:", error?.message);
       return;
     }
 
@@ -221,7 +221,7 @@ export default function ExpedientesPage() {
       .upload(fileName, file);
 
     if (error) {
-      alert("Error al subir archivo: " + error.message);
+      alert("Error al subir archivo: " + error?.message);
       return;
     }
 
@@ -236,7 +236,7 @@ export default function ExpedientesPage() {
     });
 
     if (insertError) {
-      console.error("Error inserting archivo record:", insertError.message);
+      console.error("Error inserting archivo record:", insertError?.message);
       return;
     }
 

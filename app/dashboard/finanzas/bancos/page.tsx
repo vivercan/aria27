@@ -43,7 +43,7 @@ export default function BancosPage() {
   async function guardar() {
     if (!form.banco || !form.cuenta) { alert("Banco y cuenta son requeridos"); return; }
     const { error } = await supabase.from("cuentas_bancarias").insert({ ...form, activa: true });
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" }); loadData(); }
   }
 

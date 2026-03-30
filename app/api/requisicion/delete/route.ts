@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (backupError) {
-          log.error("backup-fail", { reqId, error: backupError.message });
+          log.error("backup-fail", { reqId, error: backupError?.message });
           errors.push(`Error al respaldar ${reqData.folio || reqId}`);
           continue;
         }
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
           .eq("id", reqId);
 
         if (deleteError) {
-          log.error("delete-fail", { reqId, error: deleteError.message });
+          log.error("delete-fail", { reqId, error: deleteError?.message });
           errors.push(`Error al eliminar ${reqData.folio || reqId}`);
           continue;
         }

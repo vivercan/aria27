@@ -168,7 +168,7 @@ export default function NominaManualPage() {
     
     const { error } = await supabase.from("asistencias").delete().eq("id", id);
     if (error) {
-      setMensaje({ tipo: "error", texto: error.message });
+      setMensaje({ tipo: "error", texto: error?.message });
     } else {
       setAsistencias(asistencias.filter(a => a.id !== id));
       setMensaje({ tipo: "success", texto: "Asistencia eliminada" });
@@ -209,7 +209,7 @@ export default function NominaManualPage() {
       setMensaje({ tipo: "success", texto: "✅ Cambios guardados correctamente" });
       await cargarAsistencias();
     } catch (e: any) {
-      setMensaje({ tipo: "error", texto: e.message });
+      setMensaje({ tipo: "error", texto: e?.message });
     }
     
     setGuardando(false);
@@ -239,7 +239,7 @@ export default function NominaManualPage() {
       }).eq("id", nominaExistente.id);
       
       if (error) {
-        setMensaje({ tipo: "error", texto: error.message });
+        setMensaje({ tipo: "error", texto: error?.message });
       } else {
         setMensaje({ tipo: "success", texto: "✅ Nómina recalculada y actualizada" });
       }

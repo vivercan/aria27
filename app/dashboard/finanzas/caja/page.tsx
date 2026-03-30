@@ -37,7 +37,7 @@ export default function CajaChicaPage() {
   async function guardar() {
     if (!form.concepto || form.monto <= 0) { alert("Concepto y monto son requeridos"); return; }
     const { error } = await supabase.from("caja_chica").insert({ ...form, fecha: new Date().toISOString().split("T")[0] });
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ concepto: "", monto: 0, tipo: "GASTO", obra_nombre: "", solicitante: "", comprobante: false }); loadData(); }
   }
 

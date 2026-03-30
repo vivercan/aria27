@@ -59,7 +59,7 @@ export default function CobranzaPage() {
       fecha_presentacion: new Date().toISOString().split("T")[0],
     });
 
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 }); loadData(); }
   }
 

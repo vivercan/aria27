@@ -33,8 +33,8 @@ export default function ConfigGeneralPage() {
       supabase.from("configuracion_nomina").select("*").order("clave"),
       supabase.from("users").select("*").order("name")
     ]).then(([{ data: p, error: pError }, { data: u, error: uError }]) => {
-      if (pError) { console.error("Error loading configuracion_nomina:", pError.message); setLoading(false); return; }
-      if (uError) { console.error("Error loading users:", uError.message); setLoading(false); return; }
+      if (pError) { console.error("Error loading configuracion_nomina:", pError?.message); setLoading(false); return; }
+      if (uError) { console.error("Error loading users:", uError?.message); setLoading(false); return; }
       setParams(p || []);
       setUsers((u || []) as UserInfo[]);
       setLoading(false);
@@ -50,7 +50,7 @@ export default function ConfigGeneralPage() {
     if (newVal === undefined || newVal === param.valor) return;
     setSaving(param.id);
     const { error } = await supabase.from("configuracion_nomina").update({ valor: newVal, updated_at: new Date().toISOString() }).eq("id", param.id);
-    if (error) { console.error("Error saving param:", error.message); setSaving(null); return; }
+    if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
     setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
     setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
     setSaving(null);
@@ -63,11 +63,11 @@ export default function ConfigGeneralPage() {
     for (const param of params) {
       if (edited[param.id] !== undefined && edited[param.id] !== param.valor) {
         const { error } = await supabase.from("configuracion_nomina").update({ valor: edited[param.id], updated_at: new Date().toISOString() }).eq("id", param.id);
-        if (error) { console.error("Error saving param:", error.message); setSaving(null); return; }
+        if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
       }
     }
     const { data, error: selectError } = await supabase.from("configuracion_nomina").select("*").order("clave");
-    if (selectError) { console.error("Error loading configuracion:", selectError.message); setSaving(null); return; }
+    if (selectError) { console.error("Error loading configuracion:", selectError?.message); setSaving(null); return; }
     setParams(data || []);
     setEdited({});
     setSaving(null);

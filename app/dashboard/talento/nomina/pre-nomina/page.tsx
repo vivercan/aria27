@@ -164,7 +164,7 @@ export default function PreNominaPage() {
         setMensaje({ tipo: "success", texto: `✅ Nómina generada: ${data.registros} empleados | Total: $${data.totales.neto.toLocaleString("es-MX", {minimumFractionDigits: 2})}` });
       }
     } catch (e: any) {
-      setMensaje({ tipo: "error", texto: e.message });
+      setMensaje({ tipo: "error", texto: e?.message });
     }
     setGenerando(false);
   };

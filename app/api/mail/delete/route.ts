@@ -47,6 +47,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result);
   } catch (error: any) {
     log.error("Error eliminando correos:", error);
-    return NextResponse.json({ error: error.message || "Error al eliminar" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Error al eliminar" }, { status: 500 });
   }
 }

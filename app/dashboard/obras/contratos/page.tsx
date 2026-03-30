@@ -59,7 +59,7 @@ export default function ContratosPage() {
       numero, ...form, anticipo_monto: anticipo, plazo_dias: plazo, status: "VIGENTE",
     });
 
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", rfc_cliente: "", tipo: "OBRA_PUBLICA", monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5, fecha_inicio: "", fecha_fin: "", descripcion: "" }); loadData(); }
   }
 

@@ -90,7 +90,7 @@ export default function AuthorizeRequisicionesPage() {
       }
     } catch (err: any) {
       console.error("Error en handleAction:", err);
-      alert("Error: " + err.message);
+      alert("Error: " + err?.message);
     }
 
     setSelectedReq(null);

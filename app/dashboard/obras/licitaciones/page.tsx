@@ -57,7 +57,7 @@ export default function LicitacionesPage() {
   const loadData = async () => {
     const { data, error } = await supabase.from("licitaciones").select("*").order("created_at", { ascending: false });
     if (error) {
-      console.error("Error loading licitaciones:", error.message);
+      console.error("Error loading licitaciones:", error?.message);
       setLoading(false);
       return;
     }
@@ -77,14 +77,14 @@ export default function LicitacionesPage() {
     if (editId) {
       const { error } = await supabase.from("licitaciones").update(record).eq("id", editId);
       if (error) {
-        console.error("Error updating licitacion:", error.message);
+        console.error("Error updating licitacion:", error?.message);
         setSaving(false);
         return;
       }
     } else {
       const { error } = await supabase.from("licitaciones").insert(record);
       if (error) {
-        console.error("Error creating licitacion:", error.message);
+        console.error("Error creating licitacion:", error?.message);
         setSaving(false);
         return;
       }
@@ -107,7 +107,7 @@ export default function LicitacionesPage() {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("licitaciones").delete().eq("id", id);
     if (error) {
-      console.error("Error deleting licitacion:", error.message);
+      console.error("Error deleting licitacion:", error?.message);
       return;
     }
     loadData();

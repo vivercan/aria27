@@ -115,7 +115,7 @@ export default function CorreoPage() {
       setEmails(data.emails || []);
       setSelectedIds([]);
     } catch (err: any) {
-      setError(err.message || "Error al cargar correos");
+      setError(err?.message || "Error al cargar correos");
     } finally {
       setLoading(false);
     }
@@ -178,7 +178,7 @@ export default function CorreoPage() {
         setSelectedEmail(null);
       }
     } catch (err: any) {
-      alert("Error al eliminar: " + (err.message || "Error desconocido"));
+      alert("Error al eliminar: " + (err?.message || "Error desconocido"));
     } finally {
       setDeleting(false);
     }
@@ -208,7 +208,7 @@ export default function CorreoPage() {
       setComposeBody("");
       setAttachments([]);
     } catch (err: any) {
-      alert("Error: " + (err.message || "No se pudo enviar"));
+      alert("Error: " + (err?.message || "No se pudo enviar"));
     } finally {
       setSending(false);
     }

@@ -68,7 +68,7 @@ export default function InventarioObraPage() {
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
     if (error) {
-      console.error("Error loading obras:", error.message);
+      console.error("Error loading obras:", error?.message);
       setLoading(false);
       return;
     }
@@ -83,7 +83,7 @@ export default function InventarioObraPage() {
       .eq("obra_id", obraId)
       .order("producto_nombre");
     if (error) {
-      console.error("Error loading inventario:", error.message);
+      console.error("Error loading inventario:", error?.message);
       return;
     }
     setInventario(data || []);
@@ -98,7 +98,7 @@ export default function InventarioObraPage() {
       .order("fecha_entrega", { ascending: false })
       .limit(10);
     if (error) {
-      console.error("Error loading entregas:", error.message);
+      console.error("Error loading entregas:", error?.message);
       return;
     }
     setEntregas(data || []);
@@ -172,7 +172,7 @@ export default function InventarioObraPage() {
       .eq("id", showAjuste.id);
 
     if (error) {
-      console.error("Error updating inventory adjustment:", error.message);
+      console.error("Error updating inventory adjustment:", error?.message);
       return;
     }
 

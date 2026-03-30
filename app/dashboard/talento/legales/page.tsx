@@ -30,7 +30,7 @@ export default function LegalesPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").order("employee_number");
-      if (error) { console.error("Error loading empleados:", error.message); setLoading(false); return; }
+      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };
@@ -65,7 +65,7 @@ export default function LegalesPage() {
       nss: editForm.nss || null,
       tipo_contrato: editForm.tipo_contrato || null
     }).eq("id", editingId);
-    if (error) { console.error("Error saving legal info:", error.message); alert("Error: " + error.message); setSaving(false); return; }
+    if (error) { console.error("Error saving legal info:", error?.message); alert("Error: " + error?.message); setSaving(false); return; }
     setSaving(false);
     setEditingId(null);
     window.location.reload();

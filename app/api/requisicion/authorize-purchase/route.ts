@@ -10,7 +10,7 @@ const BASE_URL = "https://aria.jjcrm27.com";
 // Obtener usuario por ROL (dinamico)
 async function getUserByRole(role: string) {
   const { data, error } = await supabase.from("Users").select("*").eq("role", role).single();
-  if (error) { log.error("getUserByRole error:", error.message); return null; }
+  if (error) { log.error("getUserByRole error:", error?.message); return null; }
   return data;
 }
 
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
 

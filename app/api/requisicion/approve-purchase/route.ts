@@ -224,6 +224,6 @@ export async function GET(request: Request) {
     }
   } catch (error: any) {
     log.error("[APPROVE-PURCHASE]", { error: String(error) });
-    return NextResponse.json({ error: error.message || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Error interno" }, { status: 500 });
   }
 }

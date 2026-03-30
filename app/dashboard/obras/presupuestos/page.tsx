@@ -44,7 +44,7 @@ export default function PresupuestosPage() {
     const importe = form.cantidad * form.precio_unitario;
 
     const { error } = await supabase.from("presupuestos_partidas").insert({ ...form, importe });
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); }
   }
 

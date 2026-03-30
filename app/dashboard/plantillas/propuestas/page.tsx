@@ -63,10 +63,10 @@ export default function PropuestasPage() {
 
     if (editId) {
       const { error } = await supabase.from("propuestas_licitacion").update(payload).eq("id", editId);
-      if (error) { msg("error", error.message); } else { msg("success", "Propuesta actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message); } else { msg("success", "Propuesta actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("propuestas_licitacion").insert(payload);
-      if (error) { msg("error", error.message); } else { msg("success", "Propuesta creada"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message); } else { msg("success", "Propuesta creada"); setShowForm(false); cargar(); }
     }
     setForm({ ...EMPTY });
     setGuardando(false);
@@ -81,7 +81,7 @@ export default function PropuestasPage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
-    if (error) msg("error", error.message); else { msg("success", "Propuesta eliminada"); cargar(); }
+    if (error) msg("error", error?.message); else { msg("success", "Propuesta eliminada"); cargar(); }
   };
 
   const filtered = propuestas.filter(p =>

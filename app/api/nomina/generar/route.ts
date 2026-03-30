@@ -230,7 +230,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     log.error("Error generando nómina:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
 
@@ -312,7 +312,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
 

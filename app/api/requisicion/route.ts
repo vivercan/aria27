@@ -59,10 +59,10 @@ async function getUserByEmail(email: string) {
 async function getUserByRole(role: string) {
   try {
     const { data, error } = await supabase.from("Users").select("*").eq("role", role).eq("active", true).limit(1);
-    if (error) { log.error(`Error buscando rol ${role}:`, error.message); return null; }
+    if (error) { log.error(`Error buscando rol ${role}:`, error?.message); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return data[0];
-  } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e.message); return null; }
+  } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e?.message); return null; }
 }
 
 export async function POST(request: Request) {
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       });
       logs.push(`Email creador OK: ${usuario.email}`);
       console.log(`[REQUISICION] Email creador OK: ${usuario.email}`);
-    } catch (e: any) { logs.push(`Email creador ERROR: ${e.message}`); console.error(`[REQUISICION] Email creador ERROR:`, e.message); }
+    } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); console.error(`[REQUISICION] Email creador ERROR:`, e?.message); }
 
     if (creatorUser?.phone) {
       await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone);
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email compras OK: ${comprasUser.email}`);
         console.log(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
-      } catch (e: any) { logs.push(`Email compras ERROR: ${e.message}`); console.error(`[REQUISICION] Email compras ERROR:`, e.message); }
+      } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); console.error(`[REQUISICION] Email compras ERROR:`, e?.message); }
 
       if (comprasUser.phone) {
         await sendWhatsAppTemplate("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone);
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email dirección OK: ${direccionUser.email}`);
         console.log(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
-      } catch (e: any) { logs.push(`Email dirección ERROR: ${e.message}`); console.error(`[REQUISICION] Email dirección ERROR:`, e.message); }
+      } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); console.error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
 
       if (direccionUser.phone) {
         await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone);
@@ -201,7 +201,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email admin OK: ${adminUser.email}`);
         console.log(`[REQUISICION] Email admin OK: ${adminUser.email}`);
-      } catch (e: any) { logs.push(`Email admin ERROR: ${e.message}`); console.error(`[REQUISICION] Email admin ERROR:`, e.message); }
+      } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); console.error(`[REQUISICION] Email admin ERROR:`, e?.message); }
 
       if (adminUser.phone) {
         await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone);
@@ -212,6 +212,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, folio, flujo, notificados, logs });
   } catch (error: any) {
     log.error(`ERROR:`, error);
-    return NextResponse.json({ error: error.message, logs }, { status: 500 });
+    return NextResponse.json({ error: error?.message, logs }, { status: 500 });
   }
 }

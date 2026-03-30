@@ -128,7 +128,7 @@ export default function ProductosPage() {
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
-    }catch(e:any){console.error(e);alert("Error: "+e.message);}
+    }catch(e:any){console.error(e);alert("Error: "+e?.message);}
     finally{setSavingNew(false);}
   };
 
@@ -163,7 +163,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       setParsedProducts(parsed);
     }catch(e:any){
       console.error("Error parsing:",e);
-      setParseError(e.message||"Error procesando el archivo");
+      setParseError(e?.message||"Error procesando el archivo");
     }finally{setParsing(false);}
   };
 

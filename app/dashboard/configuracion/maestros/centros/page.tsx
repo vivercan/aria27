@@ -26,7 +26,7 @@ export default function CentrosPage() {
 
   const cargar = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("*").order("nombre");
-    if (error) { console.error("Error loading centros:", error.message); setLoading(false); return; }
+    if (error) { console.error("Error loading centros:", error?.message); setLoading(false); return; }
     if (data) setCentros(data);
     setLoading(false);
   };
@@ -61,11 +61,11 @@ export default function CentrosPage() {
 
     if (editando) {
       const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
-      if (error) { console.error("Error updating centro:", error.message); alert("Error: " + error.message); return; }
+      if (error) { console.error("Error updating centro:", error?.message); alert("Error: " + error?.message); return; }
     } else {
       const nextNum = centros.length + 1;
       const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
-      if (error) { console.error("Error creating centro:", error.message); alert("Error: " + error.message); return; }
+      if (error) { console.error("Error creating centro:", error?.message); alert("Error: " + error?.message); return; }
     }
     setShowModal(false);
     cargar();

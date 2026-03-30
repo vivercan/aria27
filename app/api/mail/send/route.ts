@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     log.error("SMTP Error:", error);
     return NextResponse.json(
-      { error: error.message || "Error al enviar" },
+      { error: error?.message || "Error al enviar" },
       { status: 500 }
     );
   }

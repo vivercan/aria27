@@ -74,7 +74,7 @@ export default function ProspeccionPage() {
       setRecomendacion(data.recomendacion || "");
     } catch (e: any) {
       console.error("Error buscando:", e);
-      setError(e.message || "Error en la búsqueda");
+      setError(e?.message || "Error en la búsqueda");
     } finally {
       setSearching(false);
       setSearchDone(true);
@@ -96,7 +96,7 @@ export default function ProspeccionPage() {
       setSavedIdxs(prev => [...prev, idx]);
     } catch (e: any) {
       console.error("Error guardando:", e);
-      alert("Error: " + (e.message || "No se pudo guardar"));
+      alert("Error: " + (e?.message || "No se pudo guardar"));
     } finally {
       setSavingIdx(null);
     }

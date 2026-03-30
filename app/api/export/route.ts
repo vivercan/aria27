@@ -38,7 +38,7 @@ async function fetchAllRows(
     }
 
     const { data, error } = await query;
-    if (error) return { data: [], error: error.message };
+    if (error) return { data: [], error: error?.message };
     if (!data || data.length === 0) {
       hasMore = false;
     } else {
@@ -540,7 +540,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
+    const msg = error instanceof Error ? error?.message : String(error);
     log.error("[EXPORT]", { error: String(msg) });
     return NextResponse.json({ error: msg }, { status: 500 });
   }

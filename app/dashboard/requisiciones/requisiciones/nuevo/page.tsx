@@ -161,7 +161,7 @@ export default function NewRequisitionPage() {
       setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments("");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : "Error al generar la requisición.");
+      setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición.");
     } finally { setSending(false); }
   };
 

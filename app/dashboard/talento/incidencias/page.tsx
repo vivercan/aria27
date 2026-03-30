@@ -52,7 +52,7 @@ export default function IncidenciasPage() {
       employee_name: emp?.full_name || "",
       autorizada: false,
     });
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error: " + error?.message);
     else {
       setShowForm(false);
       setForm({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" });

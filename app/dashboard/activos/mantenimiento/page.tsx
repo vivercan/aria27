@@ -24,13 +24,13 @@ export default function MantenimientoPage() {
     const { data: acts, error: acts_error } = acts_result;
 
     if (mant_error) {
-      console.error("Error loading maintenance records:", mant_error.message);
+      console.error("Error loading maintenance records:", mant_error?.message);
       setLoading(false);
       return;
     }
 
     if (acts_error) {
-      console.error("Error loading assets:", acts_error.message);
+      console.error("Error loading assets:", acts_error?.message);
       setLoading(false);
       return;
     }
@@ -40,7 +40,7 @@ export default function MantenimientoPage() {
       const { data: actData, error: actData_error } = await supabase.from("activos").select("id, nombre, name").in("id", actIds);
 
       if (actData_error) {
-        console.error("Error loading asset details:", actData_error.message);
+        console.error("Error loading asset details:", actData_error?.message);
         setLoading(false);
         return;
       }
@@ -68,7 +68,7 @@ export default function MantenimientoPage() {
     });
 
     if (error) {
-      console.error("Error saving maintenance record:", error.message);
+      console.error("Error saving maintenance record:", error?.message);
       setSaving(false);
       return;
     }

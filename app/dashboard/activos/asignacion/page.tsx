@@ -24,17 +24,17 @@ export default function AsignacionPage() {
     ]);
 
     if (asigError) {
-      console.error("Error loading activos_asignaciones:", asigError.message);
+      console.error("Error loading activos_asignaciones:", asigError?.message);
       setLoading(false);
       return;
     }
     if (actsError) {
-      console.error("Error loading activos:", actsError.message);
+      console.error("Error loading activos:", actsError?.message);
       setLoading(false);
       return;
     }
     if (empsError) {
-      console.error("Error loading empleados:", empsError.message);
+      console.error("Error loading empleados:", empsError?.message);
       setLoading(false);
       return;
     }
@@ -48,12 +48,12 @@ export default function AsignacionPage() {
       ]);
 
       if (empDataError) {
-        console.error("Error loading empleado details:", empDataError.message);
+        console.error("Error loading empleado details:", empDataError?.message);
         setLoading(false);
         return;
       }
       if (actDataError) {
-        console.error("Error loading activo details:", actDataError.message);
+        console.error("Error loading activo details:", actDataError?.message);
         setLoading(false);
         return;
       }
@@ -81,7 +81,7 @@ export default function AsignacionPage() {
     });
 
     if (error) {
-      console.error("Error creating asignacion:", error.message);
+      console.error("Error creating asignacion:", error?.message);
       setSaving(false);
       return;
     }
@@ -99,7 +99,7 @@ export default function AsignacionPage() {
     }).eq("id", id);
 
     if (error) {
-      console.error("Error updating asignacion estado:", error.message);
+      console.error("Error updating asignacion estado:", error?.message);
       return;
     }
 

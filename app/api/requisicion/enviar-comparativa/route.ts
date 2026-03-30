@@ -92,6 +92,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, enviado_a: director.email });
   } catch (error: any) {
     log.error("[COMPARATIVA] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }

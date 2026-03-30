@@ -24,7 +24,7 @@ export default function BibliotecaPage() {
     async function load() {
       try {
         const { data, error } = await supabase.from("plantillas").select("*").order("nombre");
-        if (error) console.error("Error loading plantillas:", error.message);
+        if (error) console.error("Error loading plantillas:", error?.message);
         setPlantillas(data || []);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
