@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -22,6 +25,9 @@ const EMPTY = { nombre: "", numero: "", proveedor: "", obra: "", monto: "", esta
 export default function OrdenesPage() {
   const router = useRouter();
   const [ordenes, setOrdenes] = useState<OrdenFormato[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -87,7 +93,7 @@ export default function OrdenesPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta orden?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("ordenes_formato").delete().eq("id", id);
     if (error) msg("error", error.message); else { msg("success", "Orden eliminada"); cargar(); }
   };
@@ -102,6 +108,13 @@ export default function OrdenesPage() {
     aprobada: "bg-emerald-500/20 text-emerald-300",
     enviada: "bg-blue-500/20 text-blue-300",
     completada: "bg-violet-500/20 text-violet-300",
+  };
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "ordenes_formato", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargar();
   };
 
   return (
@@ -246,7 +259,7 @@ export default function OrdenesPage() {
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => editar(o)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                      {canDelete && (<button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>)}
                     </div>
                   </td>
                 </tr>
@@ -255,6 +268,14 @@ export default function OrdenesPage() {
           </table>
         </div>
       </div>
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Orden"
+      />
     </div>
   );
 }
