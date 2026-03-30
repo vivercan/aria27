@@ -133,13 +133,13 @@ export default function ActivosCatalogoPage() {
     if (editando) {
       const { error } = await supabase.from("activos").update(formActivo).eq("id", editando.id);
       if (error) {
-        console.error("Error updating activo:", error.message);
+        console.error("Error updating activo:", error?.message);
         return;
       }
     } else {
       const { error } = await supabase.from("activos").insert(formActivo);
       if (error) {
-        console.error("Error inserting activo:", error.message);
+        console.error("Error inserting activo:", eerror?.message;
         return;
       }
     }
@@ -153,7 +153,7 @@ export default function ActivosCatalogoPage() {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("activos").update({ activo: false }).eq("id", id);
     if (error) {
-      console.error("Error deleting activo:", error.message);
+      console.error("Error deleting activo:", ererror?.message
       return;
     }
     cargarDatos();
