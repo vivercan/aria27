@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -56,6 +59,9 @@ interface Tarea {
 
 export default function ExpedientesPage() {
   const [obras, setObras] = useState<Obra[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
@@ -192,7 +198,7 @@ export default function ExpedientesPage() {
   };
 
   const eliminarCarpeta = async (id: string) => {
-    if (!confirm("¿Eliminar esta carpeta y todos sus archivos?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
@@ -246,6 +252,13 @@ export default function ExpedientesPage() {
   };
 
   if (loading) {
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    loadObras();
+  };
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
@@ -263,7 +276,7 @@ export default function ExpedientesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona una obra para ver sus documentos</p>
+            <p className="text-slate-400 text-sm">Selecciona una obra para ver sus documentos</p>/p>
           </div>
         </div>
 
@@ -390,12 +403,12 @@ export default function ExpedientesPage() {
                       <span className="text-sm font-medium">Subir archivo</span>
                       <input type="file" className="hidden" onChange={handleFileUpload} />
                     </label>
-                    <button
+                    {canDelete && (<button
                       onClick={() => eliminarCarpeta(carpetaSeleccionada.id)}
                       className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </button>)}
                   </div>
                 </div>
 
@@ -582,6 +595,14 @@ export default function ExpedientesPage() {
           </div>
         </div>
       )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Carpeta"
+      />
     </div>
   );
 }
