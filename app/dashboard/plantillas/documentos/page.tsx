@@ -1,4 +1,7 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +27,9 @@ const EMPTY = { nombre: "", tipo: "Contrato", categoria: "", descripcion: "", ar
 export default function DocumentosPage() {
   const router = useRouter();
   const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -65,7 +71,7 @@ export default function DocumentosPage() {
   };
 
   const eliminar = async (id: string) => {
-    if (!confirm("¿Eliminar este documento?")) return;
+    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("documentos_plantilla").delete().eq("id", id);
     if (error) msg("error", error.message); else { msg("success", "Documento eliminado"); cargar(); }
   };
@@ -73,6 +79,13 @@ export default function DocumentosPage() {
   const filtered = documentos.filter(d =>
     !search || d.nombre?.toLowerCase().includes(search.toLowerCase()) || d.tipo?.toLowerCase().includes(search.toLowerCase()) || d.obra_nombre?.toLowerCase().includes(search.toLowerCase())
   );
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "documentos_plantilla", id: deleteModal.id, userEmail });
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargar();
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
@@ -197,7 +210,7 @@ export default function DocumentosPage() {
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       {d.archivo_url && <a href={d.archivo_url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></a>}
-                      <button onClick={() => eliminar(d.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                      {canDelete && (<button onClick={() => eliminar(d.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>)}
                     </div>
                   </td>
                 </tr>
@@ -206,6 +219,14 @@ export default function DocumentosPage() {
           </table>
         </div>
       </div>
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({open:false,id:"",name:""})}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Documento"
+      />
     </div>
   );
 }
