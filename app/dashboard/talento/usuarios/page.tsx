@@ -26,6 +26,9 @@ const MODULOS = [
 
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
+    ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
@@ -85,7 +88,8 @@ export default function UsuariosPage() {
 
   const confirmDelete = async () => {
     if (deleteConfirmText !== "delete" || !deletingUser) return;
-    await supabase.from("Users").delete().eq("id", deletingUser.id);
+    await backupAndDelete({ table: "Users", id: deletingUser.id, userEmail });
+    // await supabase.from("Users").delete().eq("id", deletingUser.id);
     closeDeleteModal();
     loadUsers();
   };
@@ -288,9 +292,9 @@ export default function UsuariosPage() {
                             <button onClick={() => startEdit(u)} className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white" title="Editar">
                               <Edit2 className="w-4 h-4" />
                             </button>
-                            <button onClick={() => openDeleteModal(u)} className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
+                            {canDelete && (<button onClick={() => openDeleteModal(u)} className="p-1.5 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400" title="Eliminar">
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </button>)}
                           </div>
                         )}
                       </td>
