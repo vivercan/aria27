@@ -20,7 +20,7 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "ConfiguraciÃ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -54,7 +54,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
+  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en lÃ­nea real
   useEffect(() => {
     if (!userEmail) return;
     
@@ -161,7 +161,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="p-3 text-xs" style={{ borderTop: `1px solid ${colors.cardBorder}`, color: colors.textMuted }}>
-          ARIA v2025.1 - Production
+          ARIA v2026.1 - Production
         </div>
       </aside>
 
@@ -183,7 +183,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
               <input 
                 type="text" 
-                placeholder="Buscar módulos, documentos..." 
+                placeholder="Buscar mÃ³dulos, documentos..." 
                 className="bg-transparent outline-none text-sm w-full"
                 style={{ color: colors.text }}
               />
