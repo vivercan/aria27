@@ -60,7 +60,7 @@ function CapturarContent() {
   const [notas, setNotas] = useState("");
   const [itemPrices, setItemPrices] = useState<Record<number, number>>({});
 
-  useEffect(() => { if (reqId) loadAll(); }, [reqId]);
+  useEffect(() => { if (reqId) loadAll(); else setLoading(false); }, [reqId]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -192,7 +192,15 @@ function CapturarContent() {
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
-  if (!requisition) return <div className="text-center py-20 text-slate-400">Requisicion no encontrada</div>;
+  if (!requisition) return (
+    <div className="text-center py-20 text-slate-400">
+      <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
+      <p className="mb-2">No se encontr\u00f3 la requisici\u00f3n</p>
+      <Link href="/dashboard/requisiciones/requisiciones/estatus" className="text-blue-400 hover:underline text-sm">
+        \u2190 Ver requisiciones activas
+      </Link>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
