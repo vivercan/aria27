@@ -10,7 +10,7 @@ import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, MessageCircle, Moon, Sun
+  ChevronRight, LogOut, MessageCircle, Moon, Sun, X
 } from "lucide-react";
 
 const menuItems = [
@@ -20,7 +20,7 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "ConfiguraciÃ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "ConfiguraciÃÂ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -46,6 +46,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState("");
   const [userPermissions, setUserPermissions] = useState<UserPermissions>({});
   const [showPulso, setShowPulso] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -54,7 +56,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en lÃ­nea real
+  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en lÃÂ­nea real
   useEffect(() => {
     if (!userEmail) return;
     
@@ -176,17 +178,64 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           }}
         >
           <div className="flex items-center justify-between px-6 py-3">
-            <div 
-              className="flex items-center gap-2 px-3 py-2 rounded-lg w-80"
-              style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : colors.card }}
-            >
-              <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
-              <input 
-                type="text" 
-                placeholder="Buscar mÃ³dulos, documentos..." 
-                className="bg-transparent outline-none text-sm w-full"
-                style={{ color: colors.text }}
-              />
+            <div className="relative w-80">
+              <div
+                className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : colors.card }}
+              >
+                <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
+                <input
+                  type="text"
+                  placeholder="Buscar mÃ³dulos, documentos..."
+                  className="bg-transparent outline-none text-sm w-full"
+                  style={{ color: colors.text }}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const q = e.target.value;
+                    setSearchQuery(q);
+                    if (q.trim().length > 0) {
+                      const filtered = menuItems.filter(item =>
+                        item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
+                      );
+                      setSearchResults(filtered);
+                    } else {
+                      setSearchResults([]);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); }
+                    if (e.key === "Enter" && searchResults.length > 0) {
+                      router.push(searchResults[0].href);
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    }
+                  }}
+                />
+                {searchQuery && (
+                  <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} className="p-0.5" style={{ color: colors.textMuted }}>
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              {searchResults.length > 0 && (
+                <div
+                  className="absolute top-full left-0 right-0 mt-1 rounded-lg border shadow-lg z-50 overflow-hidden"
+                  style={{ backgroundColor: colors.sidebar, borderColor: colors.cardBorder }}
+                >
+                  {searchResults.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:opacity-80"
+                      style={{ color: colors.text }}
+                    >
+                      <item.icon className="w-4 h-4" style={{ color: colors.accent }} />
+                      <span>{item.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4">
