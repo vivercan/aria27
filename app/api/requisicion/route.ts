@@ -94,10 +94,10 @@ export async function POST(request: Request) {
     const direccionUser = flujo === "direccion" ? await getUserByRole("direccion") : null;
 
     logs.push(`Creador: ${usuario.email} (rol: ${creatorUser?.role})`);
-    console.log(`[REQUISICION] Creador: ${usuario.email} (rol: ${creatorUser?.role})`);
+    logger.info(`[REQUISICION] Creador: ${usuario.email} (rol: ${creatorUser?.role})`);
     logs.push(`Flujo: ${flujo}`);
     if (comprasUser) logs.push(`Compras: ${comprasUser.email}`);
-    console.log(`[REQUISICION] Compras: ${comprasUser?.email || "NO ENCONTRADO"}`);
+    logger.info(`[REQUISICION] Compras: ${comprasUser?.email || "NO ENCONTRADO"}`);
     if (direccionUser) logs.push(`Dirección: ${direccionUser.email}`);
 
     const displayName = creatorUser?.display_name || creatorUser?.name || usuario.nombre;
@@ -144,8 +144,8 @@ export async function POST(request: Request) {
         html: `<div style="font-family:Arial;max-width:650px;margin:0 auto;border-radius:2px;overflow:hidden"><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div><div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px;margin-top:4px">Operations OS</div><p style="margin:8px 0 0;font-size:16px;opacity:0.9">ARIA27 ERP</p></div><div style="padding:25px"><h2 style="color:#1e3a5f">Requisicion Generada</h2><p>Hola <strong>${displayName}</strong>, tu requisicion ha sido registrada y enviada a ${destinoTexto}.</p><div style="background:#f8fafc;border-radius:8px;padding:20px;margin:20px 0"><table style="width:100%"><tr><td style="color:#64748b">Folio:</td><td style="font-weight:bold">${folio}</td></tr><tr><td style="color:#64748b">Obra:</td><td style="font-weight:bold">${obra}</td></tr><tr><td style="color:#64748b">Generada:</td><td>${fechaGen}</td></tr><tr><td style="color:#64748b">Requerida:</td><td style="font-weight:bold;color:${urgencyColor}">${fechaReq}</td></tr></table></div>${tablaHtml}</div>${emailFooter}</div>`
       });
       logs.push(`Email creador OK: ${usuario.email}`);
-      console.log(`[REQUISICION] Email creador OK: ${usuario.email}`);
-    } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); console.error(`[REQUISICION] Email creador ERROR:`, e?.message); }
+      logger.info(`[REQUISICION] Email creador OK: ${usuario.email}`);
+    } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); logger.error(`[REQUISICION] Email creador ERROR:`, e?.message); }
 
     if (creatorUser?.phone) {
       await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone);
@@ -161,8 +161,8 @@ export async function POST(request: Request) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto;border-radius:2px;overflow:hidden"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div><div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px;margin-top:4px">Operations OS</div><p style="margin:8px 0 0;font-size:16px;opacity:0.9">Nueva Requisicion para Compras</p></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div>${emailFooter}</div>`
         });
         logs.push(`Email compras OK: ${comprasUser.email}`);
-        console.log(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
-      } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); console.error(`[REQUISICION] Email compras ERROR:`, e?.message); }
+        logger.info(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
+      } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); logger.error(`[REQUISICION] Email compras ERROR:`, e?.message); }
 
       if (comprasUser.phone) {
         await sendWhatsAppTemplate("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone);
@@ -182,8 +182,8 @@ export async function POST(request: Request) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto;border-radius:2px;overflow:hidden"><div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div><div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px;margin-top:4px">Operations OS</div><p style="margin:8px 0 0;font-size:16px;opacity:0.9">Solicitud Directa de Autorización</p></div><div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:28px;font-weight:bold">${urgencyText}</div><div>${subcategoria} - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Tipo:</strong> ${subcategoria}</p></div>${tablaHtml}<div style="text-align:center;margin:30px 0"><a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a><a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a></div></div>${emailFooter}</div>`
         });
         logs.push(`Email dirección OK: ${direccionUser.email}`);
-        console.log(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
-      } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); console.error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
+        logger.info(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
+      } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); logger.error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
 
       if (direccionUser.phone) {
         await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone);
@@ -200,8 +200,8 @@ export async function POST(request: Request) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto;border-radius:2px;overflow:hidden"><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div><div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px;margin-top:4px">Operations OS</div><p style="margin:8px 0 0;font-size:16px;opacity:0.9">Nueva Requisicion</p></div><div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Para:</strong> ${fechaReq}</p></div>${tablaHtml}</div>${emailFooter}</div>`
         });
         logs.push(`Email admin OK: ${adminUser.email}`);
-        console.log(`[REQUISICION] Email admin OK: ${adminUser.email}`);
-      } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); console.error(`[REQUISICION] Email admin ERROR:`, e?.message); }
+        logger.info(`[REQUISICION] Email admin OK: ${adminUser.email}`);
+      } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); logger.error(`[REQUISICION] Email admin ERROR:`, e?.message); }
 
       if (adminUser.phone) {
         await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone);
