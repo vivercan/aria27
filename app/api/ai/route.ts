@@ -18,10 +18,21 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "No autorizado â usuario no registrado", success: false },
+        { error: "No autorizado — usuario no registrado", success: false },
         { status: 403 }
       );
     }
+
+    // AUTH: Solo roles autorizados pueden usar IA (costo $$)
+    const allowedRoles = ["admin", "Administrador", "compras", "direccion"];
+    if (!allowedRoles.includes(user.role || "")) {
+      return NextResponse.json(
+        { error: "No autorizado — rol sin acceso a IA", success: false },
+        { status: 403 }
+      );
+    }
+
+    const aiModel = process.env.AI_MODEL || "gpt-4o-mini";
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -30,7 +41,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: aiModel,
         messages: [
           {
             role: "system",
@@ -52,9 +63,10 @@ export async function POST(request: NextRequest) {
       response: data.choices?.[0]?.message?.content || "Sin respuesta",
       success: true,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
     return NextResponse.json(
-      { error: error?.message, success: false },
+      { error: message, success: false },
       { status: 500 }
     );
   }

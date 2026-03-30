@@ -1,5 +1,5 @@
 "use client";
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator } from "lucide-react";
+import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -44,6 +44,13 @@ const subModules = [
     href: "/dashboard/obras/presupuestos",
     icon: Calculator,
     gradient: "from-cyan-500 to-cyan-600"
+  },
+  {
+    title: "Inventario",
+    description: "Inventario de materiales por obra.",
+    href: "/dashboard/obras/inventario",
+    icon: PackageCheck,
+    gradient: "from-teal-500 to-teal-600"
   }
 ];
 

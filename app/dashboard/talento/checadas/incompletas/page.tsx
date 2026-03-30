@@ -153,7 +153,7 @@ export default function IncompletasPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento/nomina" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+        <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
         </Link>
         <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export default function IncompletasPage() {
           <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">¡Todo en orden!</h3>
           <p className="text-slate-400 mb-6">No hay asistencias pendientes de completar</p>
-          <Link href="/dashboard/talento/nomina" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+          <Link href="/dashboard/talento/checadas" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors">
             Ir a Nómina
           </Link>
         </div>

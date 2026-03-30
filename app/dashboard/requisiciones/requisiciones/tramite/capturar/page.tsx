@@ -192,11 +192,21 @@ function CapturarContent() {
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (!reqId) return (
+    <div className="text-center py-20 text-slate-400">
+      <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
+      <p className="mb-2">Selecciona una requisición desde Trámite</p>
+      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-blue-400 hover:underline text-sm">
+        ← Ir a Trámite
+      </Link>
+    </div>
+  );
+
   if (!requisition) return (
     <div className="text-center py-20 text-slate-400">
       <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="mb-2">No se encontr\u00f3 la requisici\u00f3n</p>
-      <Link href="/dashboard/requisiciones/requisiciones/estatus" className="text-blue-400 hover:underline text-sm">
+      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-blue-400 hover:underline text-sm">
         \u2190 Ver requisiciones activas
       </Link>
     </div>
