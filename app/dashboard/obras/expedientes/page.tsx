@@ -276,7 +276,7 @@ export default function ExpedientesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona una obra para ver sus documentos</p>/p>
+            <p className="text-slate-400 text-sm">Selecciona una obra para ver sus documentos</p>
           </div>
         </div>
 
