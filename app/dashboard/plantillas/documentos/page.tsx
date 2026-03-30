@@ -66,14 +66,14 @@ export default function DocumentosPage() {
       if (obra) payload.obra_nombre = obra.nombre;
     }
     const { error } = await supabase.from("documentos_plantilla").insert(payload);
-    if (error) { msg("error", error?.message); } else { msg("success", "Documento registrado"); setShowForm(false); setForm({ ...EMPTY }); cargar(); }
+    if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Documento registrado"); setShowForm(false); setForm({ ...EMPTY }); cargar(); }
     setGuardando(false);
   };
 
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("documentos_plantilla").delete().eq("id", id);
-    if (error) msg("error", error?.message); else { msg("success", "Documento eliminado"); cargar(); }
+    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Documento eliminado"); cargar(); }
   };
 
   const filtered = documentos.filter(d =>

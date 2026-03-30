@@ -77,10 +77,10 @@ export default function OrdenesPage() {
 
     if (editId) {
       const { error } = await supabase.from("ordenes_formato").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message); } else { msg("success", "Orden actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Orden actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("ordenes_formato").insert(payload);
-      if (error) { msg("error", error?.message); } else { msg("success", "Orden creada"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Orden creada"); setShowForm(false); cargar(); }
     }
     setForm({ ...EMPTY });
     setGuardando(false);
@@ -95,7 +95,7 @@ export default function OrdenesPage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("ordenes_formato").delete().eq("id", id);
-    if (error) msg("error", error?.message); else { msg("success", "Orden eliminada"); cargar(); }
+    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Orden eliminada"); cargar(); }
   };
 
   const filtered = ordenes.filter(o =>

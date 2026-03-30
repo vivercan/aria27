@@ -82,7 +82,7 @@ export default function ExpedientesPage() {
 
   useEffect(() => {
     if (obraSeleccionada) {
-      loadCarpetas(obraSeleccionada.id);
+      loadCarpetas(obraSeleccionada!.id);
       loadTareas(obraSeleccionada.id);
     }
   }, [obraSeleccionada]);
@@ -160,7 +160,7 @@ export default function ExpedientesPage() {
 
     setNuevaCarpetaNombre("");
     setShowNuevaCarpeta(false);
-    loadCarpetas(obraSeleccionada.id);
+    loadCarpetas(obraSeleccionada!.id);
   };
 
   const crearTarea = async () => {
@@ -207,7 +207,7 @@ export default function ExpedientesPage() {
     }
 
     setCarpetaSeleccionada(null);
-    if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);
+    if (obraSeleccionada) loadCarpetas(obraSeleccionada!.id);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,7 +251,6 @@ export default function ExpedientesPage() {
     }
   };
 
-  if (loading) {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
@@ -259,6 +258,8 @@ export default function ExpedientesPage() {
     setDeleteModal({open:false,id:"",name:""});
     loadObras();
   };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-blue-400" />

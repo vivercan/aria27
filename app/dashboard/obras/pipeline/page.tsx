@@ -70,10 +70,10 @@ export default function PipelinePage() {
 
     if (editId) {
       const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message); } else { msg("success", "Obra actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Obra actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("centros_trabajo").insert(payload);
-      if (error) { msg("error", error?.message); } else { msg("success", "Obra creada"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Obra creada"); setShowForm(false); cargar(); }
     }
     setGuardando(false);
   };
@@ -139,7 +139,7 @@ export default function PipelinePage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("centros_trabajo").delete().eq("id", id);
-    if (error) { msg("error", error?.message); } else { msg("success", "Obra eliminada"); cargar(); }
+    if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Obra eliminada"); cargar(); }
   };
 
   const editar = (o: Obra) => {
