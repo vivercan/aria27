@@ -10,7 +10,7 @@ import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, MessageCircle, Moon, Sun, X
+  ChevronRight, LogOut, MessageCircle, Moon, Sun, X, Briefcase
 } from "lucide-react";
 
 const menuItems = [
