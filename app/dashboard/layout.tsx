@@ -20,6 +20,7 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
+  { name: "Administración", icon: Briefcase, href: "/dashboard/administracion" },
   { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
