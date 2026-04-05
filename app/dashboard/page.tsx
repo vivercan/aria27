@@ -59,7 +59,7 @@ export default function DashboardPage() {
           }
         }
 
-        // Cargar estadÃ­sticas
+        // Cargar estadísticas
         const today = new Date().toISOString().split("T")[0];
 
         // Requisiciones de hoy
@@ -166,7 +166,7 @@ export default function DashboardPage() {
 
   const allQuickActions = [
     {
-      title: "Nueva RequisiciÃ³n",
+      title: "Nueva Requisición",
       description: "Solicitar materiales o servicios",
       href: "/dashboard/requisiciones/requisiciones",
       icon: FileText,
@@ -183,7 +183,7 @@ export default function DashboardPage() {
     },
     {
       title: "Registro de Asistencia",
-      description: "Ver entradas y salidas del dÃ­a",
+      description: "Ver entradas y salidas del día",
       href: "/dashboard/talento/checadas",
       icon: Clock,
       color: "from-emerald-500 to-emerald-500",
@@ -205,7 +205,7 @@ export default function DashboardPage() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Buenos dÃ­as";
+    if (hour < 12) return "Buenos días";
     if (hour < 18) return "Buenas tardes";
     return "Buenas noches";
   };
@@ -218,7 +218,7 @@ export default function DashboardPage() {
           {getGreeting()}{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
         <p className="text-slate-400">
-          AquÃ­ tienes un resumen de la actividad de hoy en ARIA
+          Aquí tienes un resumen de la actividad de hoy en ARIA
         </p>
       </div>
 
@@ -252,7 +252,7 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <Activity className="w-5 h-5 text-blue-400" />
-          Acciones RÃ¡pidas
+          Acciones Rápidas
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
@@ -291,9 +291,9 @@ export default function DashboardPage() {
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-1">Sistema ARIA - Infinity Loop</h3>
             <p className="text-slate-300 text-sm leading-relaxed">
-              Bienvenido al ERP de Grupo Constructor Urbano Avante. Desde aquÃ­ puedes gestionar requisiciones,
-              controlar asistencias, administrar empleados y mÃ¡s. Usa el menÃº lateral para navegar
-              entre los mÃ³dulos.
+              Bienvenido al ERP de Grupo Constructor Urbano Avante. Desde aquí puedes gestionar requisiciones,
+              controlar asistencias, administrar empleados y más. Usa el menú lateral para navegar
+              entre los módulos.
             </p>
           </div>
         </div>
