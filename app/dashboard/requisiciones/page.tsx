@@ -1,5 +1,5 @@
 "use client";
-import { FileText, Package, Users, ShoppingCart, CreditCard, Truck, Search } from "lucide-react";
+import { FileText, Package, Users, ShoppingCart, CreditCard, Truck, Search , Receipt} from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -56,7 +56,14 @@ const subModules = [
   }
 ];
 
-export default function RequisicionesPage() {
+expo    {
+      title: 'Cotizaciones',
+      description: 'Comparativas y seleccion de proveedores.',
+      href: '/dashboard/requisiciones/cotizaciones',
+      icon: Receipt,
+      gradient: 'from-amber-500 to-orange-600',
+    },
+rt default function RequisicionesPage() {
   return (
     <div className="space-y-8">
       <div>
