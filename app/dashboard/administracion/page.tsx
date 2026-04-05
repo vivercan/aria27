@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Shield, ScrollText, Building2 } from "lucide-react";
+import { FileText, Shield, ScrollText, Building2 , Calculator, HardHat} from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -38,7 +38,21 @@ const subModules = [
   },
 ];
 
-export default function AdministracionPage() {
+export default     {
+      title: 'SUA / Aportaciones',
+      description: 'Control de aportaciones IMSS, Infonavit y SUA.',
+      href: '/dashboard/administracion/sua',
+      icon: Calculator,
+      gradient: 'from-cyan-500 to-teal-600',
+    },
+    {
+      title: 'SIROC',
+      description: 'Registro IMSS de obras ante SIROC.',
+      href: '/dashboard/administracion/siroc',
+      icon: HardHat,
+      gradient: 'from-rose-500 to-pink-600',
+    },
+function AdministracionPage() {
   return (
     <div className="space-y-8">
       <div>
