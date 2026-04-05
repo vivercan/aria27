@@ -34,7 +34,7 @@ const TIPO_OPTIONS = [
   { value: "RC", label: "Responsabilidad Civil" },
   { value: "todo_riesgo", label: "Todo Riesgo" },
   { value: "equipo", label: "Equipo" },
-  { value: "caucion", label: "CauciÃ³n" },
+  { value: "caucion", label: "Caución" },
   { value: "vida", label: "Vida" },
 ];
 
@@ -93,7 +93,7 @@ export default function PolizasPage() {
 
   const guardar = async () => {
     if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.numero_poliza?.trim()) { msg("error", "El nÃºmero de pÃ³liza es obligatorio"); return; }
+    if (!form.numero_poliza?.trim()) { msg("error", "El número de póliza es obligatorio"); return; }
     if (!form.aseguradora?.trim()) { msg("error", "La aseguradora es obligatoria"); return; }
 
     setGuardando(true);
@@ -137,10 +137,10 @@ export default function PolizasPage() {
 
     if (editId) {
       const { error } = await supabase.from("polizas_seguro").update(payload).eq("id", editId);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "PÃ³liza actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("polizas_seguro").insert(payload);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "PÃ³liza registrada"); setShowForm(false); cargar(); }
+      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Póliza registrada"); setShowForm(false); cargar(); }
     }
     setGuardando(false);
   };
@@ -183,19 +183,19 @@ export default function PolizasPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
-          <div><h1 className="text-xl font-bold text-white">PÃ³lizas de Seguro</h1><p className="text-xs text-slate-400">{polizas.length} pÃ³lizas registradas</p></div>
+          <div><h1 className="text-xl font-bold text-white">Pólizas de Seguro</h1><p className="text-xs text-slate-400">{polizas.length} pólizas registradas</p></div>
         </div>
-        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nueva PÃ³liza</button>
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nueva Póliza</button>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3"><p className="text-blue-400 text-2xl font-bold">{totalPolizas}</p><p className="text-blue-400/70 text-xs">Total PÃ³lizas</p></div>
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3"><p className="text-blue-400 text-2xl font-bold">{totalPolizas}</p><p className="text-blue-400/70 text-xs">Total Pólizas</p></div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{vigentes}</p><p className="text-emerald-400/70 text-xs">Vigentes</p></div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3"><p className="text-amber-400 text-2xl font-bold">{porVencer}</p><p className="text-amber-400/70 text-xs">Por Vencer</p></div>
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
-        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar pÃ³liza, aseguradora..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
+        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar póliza, aseguradora..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
         <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
       </div>
 
@@ -204,7 +204,7 @@ export default function PolizasPage() {
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">
           <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10"><tr className="border-b border-white/10">
-            <th className="text-left p-3 text-slate-400 font-medium text-xs">PÃ³liza</th>
+            <th className="text-left p-3 text-slate-400 font-medium text-xs">Póliza</th>
             <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
             <th className="text-center p-3 text-slate-400 font-medium text-xs">Tipo</th>
             <th className="text-left p-3 text-slate-400 font-medium text-xs">Aseguradora</th>
@@ -214,7 +214,7 @@ export default function PolizasPage() {
           </tr></thead>
           <tbody>
             {loading ? (<tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
-            ) : filtrados.length === 0 ? (<tr><td colSpan={7} className="p-8 text-center"><Shield className="w-10 h-10 text-slate-600 mx-auto mb-2" /><p className="text-slate-500 text-sm">{polizas.length === 0 ? "No hay pÃ³lizas registradas" : "Sin resultados"}</p></td></tr>
+            ) : filtrados.length === 0 ? (<tr><td colSpan={7} className="p-8 text-center"><Shield className="w-10 h-10 text-slate-600 mx-auto mb-2" /><p className="text-slate-500 text-sm">{polizas.length === 0 ? "No hay pólizas registradas" : "Sin resultados"}</p></td></tr>
             ) : filtrados.map(p => {
               const estatusActual = getEstatusActualizado(p.estatus, p.fecha_vencimiento);
               return (
@@ -240,13 +240,13 @@ export default function PolizasPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h2 className="text-lg font-bold text-white">{editId ? "Editar PÃ³liza" : "Nueva PÃ³liza"}</h2>
+              <h2 className="text-lg font-bold text-white">{editId ? "Editar Póliza" : "Nueva Póliza"}</h2>
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">NÃºmero *</label><input type="text" value={form.numero_poliza} onChange={e => setForm({ ...form, numero_poliza: e.target.value })} placeholder="POL-2026-001" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Número *</label><input type="text" value={form.numero_poliza} onChange={e => setForm({ ...form, numero_poliza: e.target.value })} placeholder="POL-2026-001" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className={inputClass}>{TIPO_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Aseguradora *</label><input type="text" value={form.aseguradora} onChange={e => setForm({ ...form, aseguradora: e.target.value })} placeholder="AXA, Allianz, etc." className={inputClass} /></div>
@@ -258,7 +258,7 @@ export default function PolizasPage() {
                 <div><label className="block text-xs text-slate-400 mb-1">Cobertura</label><input type="text" value={form.cobertura} onChange={e => setForm({ ...form, cobertura: e.target.value })} placeholder="Monto de cobertura" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Prima</label><input type="number" step="0.01" value={form.prima} onChange={e => setForm({ ...form, prima: e.target.value })} placeholder="0.00" className={inputClass} /></div>
               </div>
-              <div><label className="block text-xs text-slate-400 mb-1">Contacto</label><input type="text" value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })} placeholder="Nombre, telÃ©fono" className={inputClass} /></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Contacto</label><input type="text" value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })} placeholder="Nombre, teléfono" className={inputClass} /></div>
               <div><label className="block text-xs text-slate-400 mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>
               <div><label className="block text-xs text-slate-400 mb-1">Observaciones</label><input type="text" value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} className={inputClass} /></div>
             </div>
@@ -270,7 +270,7 @@ export default function PolizasPage() {
         </div>
       )}
 
-      <DeleteModal open={deleteModal.open} onClose={() => setDeleteModal({ open: false, id: "", name: "" })} onConfirm={confirmDelete} count={1} itemLabel="PÃ³liza" />
+      <DeleteModal open={deleteModal.open} onClose={() => setDeleteModal({ open: false, id: "", name: "" })} onConfirm={confirmDelete} count={1} itemLabel="Póliza" />
     </div>
   );
 }
