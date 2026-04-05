@@ -11,7 +11,7 @@ export default function SIROCPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">SIROC</h1>
-          <p className="text-slate-400 text-sm">Registro IMSS de obras de construcciÃ³n</p>
+          <p className="text-slate-400 text-sm">Registro IMSS de obras de construcción</p>
         </div>
       </div>
 
@@ -20,14 +20,14 @@ export default function SIROCPage() {
           <div className="w-20 h-20 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 mx-auto mb-6">
             <HardHat className="w-10 h-10 text-violet-400" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">MÃ³dulo en Desarrollo</h2>
+          <h2 className="text-xl font-bold text-white mb-2">Módulo en Desarrollo</h2>
           <p className="text-slate-400 mb-4">
-            El registro SIROC ante el IMSS estÃ¡ siendo implementado. PrÃ³ximamente podrÃ¡s gestionar
-            avisos de obra, incidencias y reportes bimestrales desde aquÃ­.
+            El registro SIROC ante el IMSS está siendo implementado. Próximamente podrás gestionar
+            avisos de obra, incidencias y reportes bimestrales desde aquí.
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
             <Clock className="w-4 h-4" />
-            <span>Disponible prÃ³ximamente</span>
+            <span>Disponible próximamente</span>
           </div>
         </div>
       </div>
