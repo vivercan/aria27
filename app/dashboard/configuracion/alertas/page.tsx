@@ -87,19 +87,19 @@ export default function AlertasPage() {
 
       <div className="flex-1 overflow-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
         <div className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
-          <div>Obra / Actividad</div><div>DÃ­as atraso</div><div>Detectada</div><div>Estado</div><div></div>
+          <div>Obra / Actividad</div><div>Días atraso</div><div>Detectada</div><div>Estado</div><div></div>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
         ) : alertas.length === 0 ? (
           <div className="text-center py-12 text-sm text-white/40">
             <CheckCircle2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            Sin alertas de atraso. Las alertas se generan automÃ¡ticamente cuando se detectan actividades con fechas vencidas en las obras registradas.
+            Sin alertas de atraso. Las alertas se generan automáticamente cuando se detectan actividades con fechas vencidas en las obras registradas.
           </div>
         ) : alertas.map(a => (
           <div key={a.id} className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
             <div className="truncate">{a.obra_id || "â"}</div>
-            <div className="text-amber-400 font-medium">{a.dias_atraso} dÃ­as</div>
+            <div className="text-amber-400 font-medium">{a.dias_atraso} días</div>
             <div className="text-xs text-slate-400">{a.fecha_deteccion || "â"}</div>
             <div>
               {a.notificado ? (
