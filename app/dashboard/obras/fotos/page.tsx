@@ -25,8 +25,8 @@ interface Foto {
 }
 
 const FASE_OPTIONS = [
-  { value: "excavacion", label: "ExcavaciÃ³n" },
-  { value: "cimentacion", label: "CimentaciÃ³n" },
+  { value: "excavacion", label: "Excavación" },
+  { value: "cimentacion", label: "Cimentación" },
   { value: "estructura", label: "Estructura" },
   { value: "acabados", label: "Acabados" },
   { value: "entrega", label: "Entrega" },
@@ -137,11 +137,11 @@ export default function FotosPage() {
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3"><p className="text-blue-400 text-2xl font-bold">{totalFotos}</p><p className="text-blue-400/70 text-xs">Total Fotos</p></div>
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3"><p className="text-cyan-400 text-2xl font-bold">{estesMes}</p><p className="text-cyan-400/70 text-xs">Este Mes</p></div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaCarga}</p><p className="text-emerald-400/70 text-xs">Ãltima Carga</p></div>
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaCarga}</p><p className="text-emerald-400/70 text-xs">Última Carga</p></div>
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
-        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar foto, descripciÃ³n..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
+        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar foto, descripción..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
         <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
       </div>
 
@@ -163,7 +163,7 @@ export default function FotosPage() {
                     {canDelete && <button onClick={() => setDeleteModal({ open: true, id: f.id, name: f.descripcion || "Foto" })} className="p-1.5 rounded-lg bg-red-500/80 text-white hover:bg-red-500"><Trash2 className="w-3 h-3" /></button>}
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <p className="text-white text-xs font-medium line-clamp-2">{f.descripcion || "Sin descripciÃ³n"}</p>
+                    <p className="text-white text-xs font-medium line-clamp-2">{f.descripcion || "Sin descripción"}</p>
                     <p className="text-slate-300 text-xs">{f.obra_nombre}</p>
                     <p className="text-slate-400 text-xs">{new Date(f.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}</p>
                   </div>
@@ -188,9 +188,9 @@ export default function FotosPage() {
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha</label><input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Fase</label><select value={form.fase} onChange={e => setForm({ ...form, fase: e.target.value })} className={inputClass}>{FASE_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}</select></div>
               </div>
-              <div><label className="block text-xs text-slate-400 mb-1">DescripciÃ³n</label><input type="text" value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} placeholder="Ej: Colado de zapatas, zona A" className={inputClass} /></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Descripción</label><input type="text" value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} placeholder="Ej: Colado de zapatas, zona A" className={inputClass} /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">UbicaciÃ³n</label><input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} placeholder="Eje A-B" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Ubicación</label><input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} placeholder="Eje A-B" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Responsable</label><input type="text" value={form.responsable} onChange={e => setForm({ ...form, responsable: e.target.value })} className={inputClass} /></div>
               </div>
             </div>
