@@ -232,7 +232,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                     const q = e.target.value;
                     setSearchQuery(q);
                     if (q.trim().length > 0) {
-                      const filtered = menuItems.filter(item =>
+                      const filtered = searchableItems.filter(item =>
                         item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
                       );
                       setSearchResults(filtered);
@@ -280,7 +280,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <ThemeToggle />
               <div className="text-right">
                 <p className="text-xs uppercase" style={{ color: colors.textMuted }} suppressHydrationWarning>
-             filtered = searchableItems.filterteString("es-MX", { weekday: "long" }).toUpperCase()}
+             {new Date().toLocaleDateString("es-MX", { weekday: "long" }).toUpperCase()}
                 </p>
                 <p className="text-sm" style={{ color: colors.text }} suppressHydrationWarning>
                   {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
