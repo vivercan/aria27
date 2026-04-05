@@ -80,7 +80,7 @@ export default function SIROCPage() {
 
   const guardar = async () => {
     if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.numero_registro?.trim()) { msg("error", "El nÃºmero de registro es obligatorio"); return; }
+    if (!form.numero_registro?.trim()) { msg("error", "El número de registro es obligatorio"); return; }
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
@@ -226,12 +226,12 @@ export default function SIROCPage() {
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">NÃºmero Registro *</label><input type="text" value={form.numero_registro} onChange={e => setForm({ ...form, numero_registro: e.target.value })} placeholder="REG-2026-001" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Número Registro *</label><input type="text" value={form.numero_registro} onChange={e => setForm({ ...form, numero_registro: e.target.value })} placeholder="REG-2026-001" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha Registro</label><input type="date" value={form.fecha_registro} onChange={e => setForm({ ...form, fecha_registro: e.target.value })} className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Bimestre</label><select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className={inputClass}>{BIMESTRE_OPTIONS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}</select></div>
-                <div><label className="block text-xs text-slate-400 mb-1">ClasificaciÃ³n Riesgo</label><input type="text" value={form.clasificacion_riesgo} onChange={e => setForm({ ...form, clasificacion_riesgo: e.target.value })} placeholder="I, II, III, IV, V" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Clasificación Riesgo</label><input type="text" value={form.clasificacion_riesgo} onChange={e => setForm({ ...form, clasificacion_riesgo: e.target.value })} placeholder="I, II, III, IV, V" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} /></div>
