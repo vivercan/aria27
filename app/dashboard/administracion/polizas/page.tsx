@@ -97,7 +97,7 @@ export default function PolizasPage() {
     if (!form.aseguradora?.trim()) { msg("error", "La aseguradora es obligatoria"); return; }
 
     setGuardando(true);
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => String(o.id) === form.obra_id);
 
     let urlFile = form.documento_url || null;
 
@@ -126,7 +126,7 @@ export default function PolizasPage() {
     const estatusActualizado = getEstatusActualizado(form.estatus, form.fecha_vencimiento);
 
     const payload: any = {
-      obra_id: Number(form.obra_id), obra_nombre: obra?.nombre || "",
+      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       numero_poliza: form.numero_poliza.trim(), tipo: form.tipo,
       aseguradora: form.aseguradora.trim(), fecha_inicio: form.fecha_inicio || null,
       fecha_vencimiento: form.fecha_vencimiento || null, cobertura: form.cobertura?.trim() || null,
