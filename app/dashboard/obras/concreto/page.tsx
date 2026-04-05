@@ -189,14 +189,14 @@ export default function ConcretoPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Resistencia</label><input type="text" value={form.resistencia} onChange={e => setForm({ ...form, resistencia: e.target.value })} placeholder="f'c 250" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Volumen mÂ³</label><input type="number" step="0.1" value={form.volumen_m3} onChange={e => setForm({ ...form, volumen_m3: e.target.value })} placeholder="0.0" className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">RemisiÃ³n</label><input type="text" value={form.remision} onChange={e => setForm({ ...form, remision: e.target.value })} placeholder="#12345" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Remisión</label><input type="text" value={form.remision} onChange={e => setForm({ ...form, remision: e.target.value })} placeholder="#12345" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Proveedor</label><input type="text" value={form.proveedor} onChange={e => setForm({ ...form, proveedor: e.target.value })} placeholder="CEMEX, Holcim..." className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Estatus</label><select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className={inputClass}>{ESTATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">UbicaciÃ³n</label><input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} placeholder="Eje A-B / 1-3" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Ubicación</label><input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} placeholder="Eje A-B / 1-3" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Responsable</label><input type="text" value={form.responsable} onChange={e => setForm({ ...form, responsable: e.target.value })} className={inputClass} /></div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Observaciones</label><input type="text" value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} className={inputClass} /></div>
