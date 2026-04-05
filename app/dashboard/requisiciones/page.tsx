@@ -53,17 +53,17 @@ const subModules = [
     href: "/dashboard/requisiciones/prospeccion",
     icon: Search,
     gradient: "from-purple-500 to-purple-600"
-  }
+    },
+  {
+    title: "Cotizaciones",
+    description: "Comparativas y seleccion de proveedores.",
+    href: "/dashboard/requisiciones/cotizaciones",
+    icon: Receipt,
+    gradient: "from-amber-500 to-orange-600",
+  },
 ];
 
-expo    {
-      title: 'Cotizaciones',
-      description: 'Comparativas y seleccion de proveedores.',
-      href: '/dashboard/requisiciones/cotizaciones',
-      icon: Receipt,
-      gradient: 'from-amber-500 to-orange-600',
-    },
-rt default function RequisicionesPage() {
+export default function RequisicionesPage() {
   return (
     <div className="space-y-8">
       <div>
