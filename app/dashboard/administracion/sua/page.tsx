@@ -75,7 +75,7 @@ export default function SUAPage() {
 
   const guardar = async () => {
     if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.periodo?.trim()) { msg("error", "El perÃ­odo es obligatorio"); return; }
+    if (!form.periodo?.trim()) { msg("error", "El período es obligatorio"); return; }
     if (!form.monto) { msg("error", "El monto es obligatorio"); return; }
 
     setGuardando(true);
@@ -117,10 +117,10 @@ export default function SUAPage() {
 
     if (editId) {
       const { error } = await supabase.from("sua_aportaciones").update(payload).eq("id", editId);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "AportaciÃ³n actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Aportación actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("sua_aportaciones").insert(payload);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "AportaciÃ³n registrada"); setShowForm(false); cargar(); }
+      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Aportación registrada"); setShowForm(false); cargar(); }
     }
     setGuardando(false);
   };
@@ -166,7 +166,7 @@ export default function SUAPage() {
           <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <div><h1 className="text-xl font-bold text-white">SUA / Infonavit</h1><p className="text-xs text-slate-400">{aportaciones.length} aportaciones registradas</p></div>
         </div>
-        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nueva AportaciÃ³n</button>
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nueva Aportación</button>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
@@ -176,7 +176,7 @@ export default function SUAPage() {
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
-        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar perÃ­odo, tipo..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
+        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar período, tipo..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
         <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
       </div>
 
@@ -185,7 +185,7 @@ export default function SUAPage() {
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">
           <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10"><tr className="border-b border-white/10">
-            <th className="text-left p-3 text-slate-400 font-medium text-xs">PerÃ­odo</th>
+            <th className="text-left p-3 text-slate-400 font-medium text-xs">Período</th>
             <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
             <th className="text-center p-3 text-slate-400 font-medium text-xs">Tipo</th>
             <th className="text-center p-3 text-slate-400 font-medium text-xs">Trabajadores</th>
@@ -218,13 +218,13 @@ export default function SUAPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h2 className="text-lg font-bold text-white">{editId ? "Editar AportaciÃ³n" : "Nueva AportaciÃ³n"}</h2>
+              <h2 className="text-lg font-bold text-white">{editId ? "Editar Aportación" : "Nueva Aportación"}</h2>
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">PerÃ­odo *</label><input type="text" value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-01" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Período *</label><input type="text" value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-01" className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className={inputClass}>{TIPO_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -249,7 +249,7 @@ export default function SUAPage() {
         </div>
       )}
 
-      <DeleteModal open={deleteModal.open} onClose={() => setDeleteModal({ open: false, id: "", name: "" })} onConfirm={confirmDelete} count={1} itemLabel="AportaciÃ³n" />
+      <DeleteModal open={deleteModal.open} onClose={() => setDeleteModal({ open: false, id: "", name: "" })} onConfirm={confirmDelete} count={1} itemLabel="Aportación" />
     </div>
   );
 }
