@@ -73,9 +73,9 @@ export default function ConcretoPage() {
     if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
     if (!form.elemento?.trim()) { msg("error", "El elemento es obligatorio"); return; }
     setGuardando(true);
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => String(o.id) === form.obra_id);
     const payload: any = {
-      obra_id: Number(form.obra_id), obra_nombre: obra?.nombre || "",
+      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       fecha_colado: form.fecha_colado || null, resistencia: form.resistencia?.trim() || null,
       volumen_m3: form.volumen_m3 ? parseFloat(form.volumen_m3) : null,
       proveedor: form.proveedor?.trim() || null, remision: form.remision?.trim() || null,
