@@ -1,29 +1,327 @@
 "use client";
-
-import { ArrowLeft, Car, Plus } from "lucide-react";
+import DeleteModal from "@/components/DeleteModal";
+import { useDeletePermission } from "@/lib/use-delete-permission";
+import { backupAndDelete } from "@/lib/backup-delete";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import {
+  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
+  Car, Key, Fuel, Search, MapPin
+} from "lucide-react";
+
+interface Vehiculo {
+  id: string;
+  codigo: string;
+  nombre: string;
+  tipo: string;
+  marca: string;
+  modelo: string;
+  anio: number;
+  placas: string;
+  estado: string;
+  ubicacion_actual: string;
+  kilometraje: number;
+  combustible: string;
+  created_at: string;
+}
+
+const ESTADO_OPTIONS = [
+  { value: "bueno", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "mantenimiento", label: "En Mantenimiento", color: "bg-amber-500/20 text-amber-400" },
+  { value: "reparacion", label: "En Reparación", color: "bg-orange-500/20 text-orange-400" },
+  { value: "baja", label: "Dado de Baja", color: "bg-red-500/20 text-red-400" },
+];
+
+const COMBUSTIBLE_OPTIONS = ["Gasolina", "Diésel", "Eléctrico", "Híbrido", "N/A"];
+
+const EMPTY_FORM = {
+  codigo: "", nombre: "", marca: "", modelo: "", anio: "",
+  placas: "", estado: "bueno", ubicacion_actual: "", kilometraje: "",
+  combustible: "Diésel",
+};
 
 export default function VehiculosPage() {
+  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
+  const { userEmail, canDelete } = useDeletePermission();
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<any>({ ...EMPTY_FORM });
+  const [editId, setEditId] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+
+  useEffect(() => { cargar(); }, []);
+
+  const cargar = async () => {
+    const { data, error } = await supabase
+      .from("activos")
+      .select("*")
+      .in("tipo", ["VEHICULO", "MAQUINARIA"])
+      .order("nombre");
+    if (error) console.error("Error:", error?.message);
+    if (data) setVehiculos(data);
+    setLoading(false);
+  };
+
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
+
+  const guardar = async () => {
+    if (!form.nombre?.trim()) { msg("error", "El nombre es obligatorio"); return; }
+    setGuardando(true);
+
+    const payload: any = {
+      nombre: form.nombre.trim(),
+      codigo: form.codigo?.trim() || null,
+      tipo: "VEHICULO",
+      marca: form.marca?.trim() || null,
+      modelo: form.modelo?.trim() || null,
+      anio: form.anio ? parseInt(form.anio) : null,
+      placas: form.placas?.trim() || null,
+      estado: form.estado || "bueno",
+      ubicacion_actual: form.ubicacion_actual?.trim() || null,
+      kilometraje: form.kilometraje ? parseFloat(form.kilometraje) : null,
+      combustible: form.combustible || null,
+    };
+
+    if (editId) {
+      const { error } = await supabase.from("activos").update(payload).eq("id", editId);
+      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
+      else { msg("success", "Vehículo actualizado"); setShowForm(false); setEditId(null); cargar(); }
+    } else {
+      const { error } = await supabase.from("activos").insert(payload);
+      if (error) { msg("error", error?.message ?? "Error al crear"); }
+      else { msg("success", "Vehículo registrado"); setShowForm(false); cargar(); }
+    }
+    setGuardando(false);
+  };
+
+  const editar = (v: Vehiculo) => {
+    setEditId(v.id);
+    setForm({
+      codigo: v.codigo || "", nombre: v.nombre || "", marca: v.marca || "",
+      modelo: v.modelo || "", anio: v.anio ? String(v.anio) : "",
+      placas: v.placas || "", estado: v.estado || "bueno",
+      ubicacion_actual: v.ubicacion_actual || "",
+      kilometraje: v.kilometraje ? String(v.kilometraje) : "",
+      combustible: v.combustible || "Diésel",
+    });
+    setShowForm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
+      msg("success", "Vehículo eliminado");
+    } catch (e: any) { msg("error", e?.message || "Error"); }
+    setDeleteModal({ open: false, id: "", name: "" });
+    cargar();
+  };
+
+  const getEstadoStyle = (s: string) => ESTADO_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
+  const getEstadoLabel = (s: string) => ESTADO_OPTIONS.find(o => o.value === s)?.label || s;
+
+  const filtrados = vehiculos.filter(v => {
+    if (!busqueda) return true;
+    const q = busqueda.toLowerCase();
+    return v.nombre?.toLowerCase().includes(q) || v.placas?.toLowerCase().includes(q) ||
+      v.marca?.toLowerCase().includes(q) || v.ubicacion_actual?.toLowerCase().includes(q);
+  });
+
+  const operativos = vehiculos.filter(v => v.estado === "bueno").length;
+  const enMant = vehiculos.filter(v => v.estado === "mantenimiento" || v.estado === "reparacion").length;
+
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
+
   return (
-    <div className="p-6 space-y-6 overflow-y-auto h-full">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-<ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
-        <div className="flex-1">
-<h1 className="text-2xl font-bold text-white">Vehículos</h1>
-<p className="text-slate-400 text-sm">Control de vehículos, llaves y maquinaria.</p>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-white">Vehículos y Maquinaria</h1>
+            <p className="text-xs text-slate-400">{vehiculos.length} unidades registradas</p>
+          </div>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm rounded-lg transition-colors">
-<Plus className="w-4 h-4" />
-Nuevo Vehículo
+        <button
+          onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700"
+        >
+          <Plus className="w-4 h-4" /> Nuevo Vehículo
         </button>
       </div>
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-8 text-center">
-        <Car className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-        <p className="text-slate-400">No hay vehículos registrados.</p>
-        <p className="text-slate-500 text-sm mt-1">Registra vehículos y maquinaria con placas, responsable y control de llaves.</p>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
+          <p className="text-blue-400 text-2xl font-bold">{vehiculos.length}</p>
+          <p className="text-blue-400/70 text-xs">Total</p>
+        </div>
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+          <p className="text-emerald-400 text-2xl font-bold">{operativos}</p>
+          <p className="text-emerald-400/70 text-xs">Operativos</p>
+        </div>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+          <p className="text-amber-400 text-2xl font-bold">{enMant}</p>
+          <p className="text-amber-400/70 text-xs">En Mant/Rep</p>
+        </div>
       </div>
+
+      {/* Search */}
+      <div className="flex items-center gap-3 mb-3 flex-shrink-0">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre, placas, marca o ubicación..."
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600"
+          />
+        </div>
+      </div>
+
+      {mensaje && (
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
+            <tr className="border-b border-white/10">
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Vehículo</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Placas</th>
+              <th className="text-left p-3 text-slate-400 font-medium text-xs">Ubicación</th>
+              <th className="text-right p-3 text-slate-400 font-medium text-xs">Km</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Combustible</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Estado</th>
+              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+            ) : filtrados.length === 0 ? (
+              <tr><td colSpan={7} className="p-8 text-center">
+                <Car className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                <p className="text-slate-500 text-sm">{vehiculos.length === 0 ? "No hay vehículos registrados" : "Sin resultados"}</p>
+              </td></tr>
+            ) : filtrados.map(v => (
+              <tr key={v.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                <td className="p-3">
+                  <p className="text-white text-sm font-medium">{v.nombre}</p>
+                  <p className="text-slate-500 text-xs">{[v.marca, v.modelo, v.anio].filter(Boolean).join(" ") || "—"}</p>
+                </td>
+                <td className="p-3 text-slate-300 text-sm font-mono">{v.placas || "—"}</td>
+                <td className="p-3 text-slate-400 text-sm">{v.ubicacion_actual || "—"}</td>
+                <td className="p-3 text-right text-sm text-white">{v.kilometraje ? Number(v.kilometraje).toLocaleString() : "—"}</td>
+                <td className="p-3 text-center text-xs text-slate-400">{v.combustible || "—"}</td>
+                <td className="p-3 text-center">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${getEstadoStyle(v.estado)}`}>{getEstadoLabel(v.estado)}</span>
+                </td>
+                <td className="p-3 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={() => editar(v)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
+                    {canDelete && (
+                      <button onClick={() => setDeleteModal({ open: true, id: v.id, name: v.nombre })} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">{editId ? "Editar Vehículo" : "Nuevo Vehículo"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Código</label>
+                  <input type="text" value={form.codigo} onChange={e => setForm({ ...form, codigo: e.target.value })} placeholder="VH-001" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Nombre *</label>
+                  <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Camioneta Ford F-150" className={inputClass} />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Marca</label>
+                  <input type="text" value={form.marca} onChange={e => setForm({ ...form, marca: e.target.value })} placeholder="Ford" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Modelo</label>
+                  <input type="text" value={form.modelo} onChange={e => setForm({ ...form, modelo: e.target.value })} placeholder="F-150" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Año</label>
+                  <input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} placeholder="2024" className={inputClass} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Placas</label>
+                  <input type="text" value={form.placas} onChange={e => setForm({ ...form, placas: e.target.value })} placeholder="AGS-123-A" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Kilometraje</label>
+                  <input type="number" value={form.kilometraje} onChange={e => setForm({ ...form, kilometraje: e.target.value })} placeholder="0" className={inputClass} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Combustible</label>
+                  <select value={form.combustible} onChange={e => setForm({ ...form, combustible: e.target.value })} className={inputClass}>
+                    {COMBUSTIBLE_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Estado</label>
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className={inputClass}>
+                    {ESTADO_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Ubicación actual</label>
+                <input type="text" value={form.ubicacion_actual} onChange={e => setForm({ ...form, ubicacion_actual: e.target.value })} placeholder="Obra Pinar del Lago" className={inputClass} />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-sm disabled:opacity-50">
+                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {editId ? "Actualizar" : "Registrar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: "", name: "" })}
+        onConfirm={confirmDelete}
+        count={1}
+        itemLabel="Vehículo"
+      />
     </div>
   );
 }
