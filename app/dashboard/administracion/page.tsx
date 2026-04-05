@@ -36,23 +36,25 @@ const subModules = [
     gradient: "from-purple-500 to-purple-600",
     active: true,
   },
+  {
+    title: "SUA / Aportaciones",
+    description: "Control de aportaciones IMSS, Infonavit y SUA.",
+    href: "/dashboard/administracion/sua",
+    icon: Calculator,
+    gradient: "from-cyan-500 to-teal-600",
+    active: true,
+  },
+  {
+    title: "SIROC",
+    description: "Registro IMSS de obras ante SIROC.",
+    href: "/dashboard/administracion/siroc",
+    icon: HardHat,
+    gradient: "from-rose-500 to-pink-600",
+    active: true,
+  },
 ];
 
-export default     {
-      title: 'SUA / Aportaciones',
-      description: 'Control de aportaciones IMSS, Infonavit y SUA.',
-      href: '/dashboard/administracion/sua',
-      icon: Calculator,
-      gradient: 'from-cyan-500 to-teal-600',
-    },
-    {
-      title: 'SIROC',
-      description: 'Registro IMSS de obras ante SIROC.',
-      href: '/dashboard/administracion/siroc',
-      icon: HardHat,
-      gradient: 'from-rose-500 to-pink-600',
-    },
-function AdministracionPage() {
+export default function AdministracionPage() {
   return (
     <div className="space-y-8">
       <div>
