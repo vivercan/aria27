@@ -68,7 +68,7 @@ export default function FotosPage() {
     if (!form.file) { msg("error", "Selecciona una imagen"); return; }
 
     setGuardando(true);
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => String(o.id) === form.obra_id);
 
     const timestamp = Date.now();
     const ext = form.file.name.split(".").pop() || "jpg";
@@ -89,7 +89,7 @@ export default function FotosPage() {
       .getPublicUrl(path);
 
     const payload: any = {
-      obra_id: Number(form.obra_id), obra_nombre: obra?.nombre || "",
+      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       fecha: form.fecha || new Date().toISOString().split("T")[0],
       url: publicUrl, descripcion: form.descripcion?.trim() || null,
       fase: form.fase, ubicacion: form.ubicacion?.trim() || null,
