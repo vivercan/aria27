@@ -38,6 +38,18 @@ function CapturarContent() {
   const searchParams = useSearchParams();
   const reqId = searchParams.get("req");
 
+  // FIX P0-03: Manejar caso sin parametro req
+  if (!reqId) {
+    return (
+      <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8' }}>
+        <p style={{ fontSize: 18, marginBottom: 16 }}>No se especifico una requisicion.</p>
+        <a href="/dashboard/requisiciones/requisiciones" style={{ color: '#10b981', textDecoration: 'underline' }}>
+          Volver a Requisiciones
+        </a>
+      </div>
+    );
+  }
+
   const [requisition, setRequisition] = useState<any>(null);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
