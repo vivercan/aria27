@@ -31,7 +31,7 @@ const DISCIPLINA_OPTIONS = [
   { value: "arquitectura", label: "Arquitectura" },
   { value: "estructura", label: "Estructura" },
   { value: "instalaciones", label: "Instalaciones" },
-  { value: "topografia", label: "TopografÃ­a" },
+  { value: "topografia", label: "Topografía" },
 ];
 
 const REVISION_OPTIONS = [
@@ -156,7 +156,7 @@ export default function PlanosPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
-          <div><h1 className="text-xl font-bold text-white">Planos y Documentos TÃ©cnicos</h1><p className="text-xs text-slate-400">{planos.length} planos registrados</p></div>
+          <div><h1 className="text-xl font-bold text-white">Planos y Documentos Técnicos</h1><p className="text-xs text-slate-400">{planos.length} planos registrados</p></div>
         </div>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nuevo Plano</button>
       </div>
@@ -164,7 +164,7 @@ export default function PlanosPage() {
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3"><p className="text-blue-400 text-2xl font-bold">{totalPlanos}</p><p className="text-blue-400/70 text-xs">Total Planos</p></div>
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3"><p className="text-cyan-400 text-2xl font-bold">{arquitectura}</p><p className="text-cyan-400/70 text-xs">Arquitectura</p></div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaRecepcion}</p><p className="text-emerald-400/70 text-xs">Ãltima RecepciÃ³n</p></div>
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaRecepcion}</p><p className="text-emerald-400/70 text-xs">Última Recepción</p></div>
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
@@ -216,14 +216,14 @@ export default function PlanosPage() {
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
-              <div><label className="block text-xs text-slate-400 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano ArquitectÃ³nico Nivel 3" className={inputClass} /></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano Arquitectónico Nivel 3" className={inputClass} /></div>
               <div className="grid grid-cols-3 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Disciplina</label><select value={form.disciplina} onChange={e => setForm({ ...form, disciplina: e.target.value })} className={inputClass}>{DISCIPLINA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}</select></div>
-                <div><label className="block text-xs text-slate-400 mb-1">RevisiÃ³n</label><select value={form.revision} onChange={e => setForm({ ...form, revision: e.target.value })} className={inputClass}>{REVISION_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}</select></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Revisión</label><select value={form.revision} onChange={e => setForm({ ...form, revision: e.target.value })} className={inputClass}>{REVISION_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}</select></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><input type="text" value={form.tipo_archivo} onChange={e => setForm({ ...form, tipo_archivo: e.target.value })} placeholder="pdf, dwg, jpg" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Fecha recepciÃ³n</label><input type="date" value={form.fecha_recepcion} onChange={e => setForm({ ...form, fecha_recepcion: e.target.value })} className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Fecha recepción</label><input type="date" value={form.fecha_recepcion} onChange={e => setForm({ ...form, fecha_recepcion: e.target.value })} className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Responsable</label><input type="text" value={form.responsable} onChange={e => setForm({ ...form, responsable: e.target.value })} className={inputClass} /></div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Archivo</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>
