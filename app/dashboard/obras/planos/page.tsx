@@ -78,7 +78,7 @@ export default function PlanosPage() {
     if (!form.nombre?.trim()) { msg("error", "El nombre es obligatorio"); return; }
 
     setGuardando(true);
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => String(o.id) === form.obra_id);
 
     let urlFile = form.url || null;
 
@@ -105,7 +105,7 @@ export default function PlanosPage() {
     }
 
     const payload: any = {
-      obra_id: Number(form.obra_id), obra_nombre: obra?.nombre || "",
+      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       nombre: form.nombre.trim(), disciplina: form.disciplina,
       revision: form.revision, url: urlFile,
       tipo_archivo: form.tipo_archivo, fecha_recepcion: form.fecha_recepcion || null,
