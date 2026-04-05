@@ -25,6 +25,43 @@ const menuItems = [
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
+const searchableItems = [
+  ...menuItems,
+  { name: "Pipeline", href: "/dashboard/obras/pipeline" },
+  { name: "Licitaciones", href: "/dashboard/obras/licitaciones" },
+  { name: "Expedientes", href: "/dashboard/obras/expedientes" },
+  { name: "Contratos", href: "/dashboard/obras/contratos" },
+  { name: "SIROC Obras", href: "/dashboard/obras/siroc" },
+  { name: "Presupuestos", href: "/dashboard/obras/presupuestos" },
+  { name: "Inventario", href: "/dashboard/obras/inventario" },
+  { name: "Concreto", href: "/dashboard/obras/concreto" },
+  { name: "Planos", href: "/dashboard/obras/planos" },
+  { name: "Tareas", href: "/dashboard/obras/tareas" },
+  { name: "Fotos de Avance", href: "/dashboard/obras/fotos" },
+  { name: "Personal", href: "/dashboard/talento/personal" },
+  { name: "Usuarios", href: "/dashboard/talento/usuarios" },
+  { name: "Asistencias", href: "/dashboard/talento/checadas" },
+  { name: "Nomina", href: "/dashboard/talento/nomina" },
+  { name: "Incidencias", href: "/dashboard/talento/incidencias" },
+  { name: "Prestaciones", href: "/dashboard/talento/prestaciones" },
+  { name: "Documentos Legales", href: "/dashboard/talento/legales" },
+  { name: "Matriz Salarial", href: "/dashboard/talento/matriz" },
+  { name: "Requisiciones", href: "/dashboard/requisiciones/requisiciones" },
+  { name: "Productos", href: "/dashboard/requisiciones/productos" },
+  { name: "Proveedores", href: "/dashboard/requisiciones/proveedores" },
+  { name: "Compras", href: "/dashboard/requisiciones/compras" },
+  { name: "Pagos", href: "/dashboard/requisiciones/pagos" },
+  { name: "Entregas", href: "/dashboard/requisiciones/entregas" },
+  { name: "Prospeccion", href: "/dashboard/requisiciones/prospeccion" },
+  { name: "Cotizaciones", href: "/dashboard/requisiciones/cotizaciones" },
+  { name: "Documentacion Legal", href: "/dashboard/administracion/documentacion" },
+  { name: "Polizas", href: "/dashboard/administracion/polizas" },
+  { name: "Opiniones Cumplimiento", href: "/dashboard/administracion/opiniones" },
+  { name: "Datos de Empresa", href: "/dashboard/administracion/empresa" },
+  { name: "SUA Aportaciones", href: "/dashboard/administracion/sua" },
+  { name: "SIROC Admin", href: "/dashboard/administracion/siroc" },
+];
+
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   return (
@@ -243,7 +280,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <ThemeToggle />
               <div className="text-right">
                 <p className="text-xs uppercase" style={{ color: colors.textMuted }} suppressHydrationWarning>
-                  {new Date().toLocaleDateString("es-MX", { weekday: "long" }).toUpperCase()}
+             filtered = searchableItems.filterteString("es-MX", { weekday: "long" }).toUpperCase()}
                 </p>
                 <p className="text-sm" style={{ color: colors.text }} suppressHydrationWarning>
                   {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
