@@ -83,7 +83,7 @@ export default function SIROCPage() {
     if (!form.numero_registro?.trim()) { msg("error", "El nÃºmero de registro es obligatorio"); return; }
 
     setGuardando(true);
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => String(o.id) === form.obra_id);
 
     let urlFile = form.documento_url || null;
 
@@ -110,7 +110,7 @@ export default function SIROCPage() {
     }
 
     const payload: any = {
-      obra_id: Number(form.obra_id), obra_nombre: obra?.nombre || "",
+      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       numero_registro: form.numero_registro.trim(), fecha_registro: form.fecha_registro || null,
       clasificacion_riesgo: form.clasificacion_riesgo?.trim() || null,
       bimestre: form.bimestre, num_trabajadores: form.num_trabajadores ? parseInt(form.num_trabajadores) : null,
