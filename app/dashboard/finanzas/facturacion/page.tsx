@@ -88,12 +88,27 @@ export default function FacturacionPage() {
         </button>
       </div>
 
-      {/* Aviso CFDI */}
-      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-sm text-amber-300 font-medium">Registro interno — No genera CFDI</p>
-          <p className="text-xs text-amber-400/70">Para timbrado fiscal se requiere integración con un PAC autorizado por el SAT</p>
+      {/* Aviso CFDI prominente */}
+      <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
+        <div className="flex items-start gap-4">
+          <div className="p-2.5 rounded-xl bg-amber-500/20 flex-shrink-0">
+            <AlertTriangle className="w-6 h-6 text-amber-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base font-semibold text-amber-300">Registro Interno — Sin Timbrado CFDI</h3>
+            <p className="text-sm text-amber-400/80 mt-1">
+              Este módulo registra facturas para control interno de la empresa.
+              No genera CFDI (Comprobante Fiscal Digital por Internet) ni timbrado ante el SAT.
+            </p>
+            <div className="mt-3 p-3 bg-black/20 rounded-lg">
+              <p className="text-xs text-slate-300 font-medium mb-1">Para habilitar facturación electrónica se requiere:</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
+                <span>1. Contratar un PAC autorizado por el SAT</span>
+                <span>2. Certificado de Sello Digital (CSD)</span>
+                <span>3. Configurar API del PAC en ARIA</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
