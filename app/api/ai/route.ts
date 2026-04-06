@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +22,13 @@ export async function POST(request: NextRequest) {
         { error: "No autorizado — usuario no registrado", success: false },
         { status: 403 }
       );
+    }
+
+    // Rate limit: AI es costoso, 20 requests por 5 min por usuario
+    const clientId = getClientIdentifier(request, user_email);
+    const rl = checkRateLimit(clientId, { key: "ai:query", ...RATE_LIMITS.EXPENSIVE });
+    if (!rl.allowed) {
+      return rateLimitResponse(rl);
     }
 
     // AUTH: Solo roles autorizados pueden usar IA (costo $$)
