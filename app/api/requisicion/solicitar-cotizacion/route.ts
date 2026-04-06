@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
 
   try {
@@ -18,6 +19,13 @@ export async function POST(request: Request) {
     const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
     if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
       return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
+    }
+
+    // Rate limit: protege contra envío masivo de cotizaciones
+    const clientId = getClientIdentifier(request, user_email);
+    const rl = checkRateLimit(clientId, { key: "req:solicitar-cotizacion", ...RATE_LIMITS.EMAIL });
+    if (!rl.allowed) {
+      return rateLimitResponse(rl);
     }
 
     if (!folio || !items || !proveedores) {
