@@ -1,7 +1,7 @@
-// src/lib/auth-api.ts â Middleware de autenticaciÃ³n para API routes
-// PatrÃ³n: El frontend envÃ­a user_email en body/params, el middleware
+// src/lib/auth-api.ts — Middleware de autenticación para API routes
+// Patrón: El frontend envía user_email en body/params, el middleware
 // lo valida contra la tabla Users y verifica el rol.
-// TODO: Migrar a Supabase Auth con JWT cuando estÃ© listo.
+// TODO: Migrar a Supabase Auth con JWT cuando esté listo.
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
@@ -20,7 +20,7 @@ export interface AuthResult {
 /**
  * Valida que el usuario existe en la tabla Users y tiene uno de los roles permitidos.
  * @param userEmail - Email del usuario (viene del frontend via body o query param)
- * @param allowedRoles - Array de roles permitidos. Si vacÃ­o, cualquier usuario autenticado pasa.
+ * @param allowedRoles - Array de roles permitidos. Si vacío, cualquier usuario autenticado pasa.
  * @returns AuthResult con usuario validado o error
  */
 export async function validateApiAuth(
@@ -51,7 +51,7 @@ export async function validateApiAuth(
     return { authorized: true, user };
   }
 
-  // Verificar que el rol del usuario estÃ¡ en la lista de permitidos
+  // Verificar que el rol del usuario está en la lista de permitidos
   if (!allowedRoles.includes(user.role)) {
     return {
       authorized: false,
@@ -81,7 +81,7 @@ export function extractUserEmail(req: NextRequest, body?: any): string | null {
 }
 
 /**
- * Respuesta estÃ¡ndar de error de autenticaciÃ³n
+ * Respuesta estándar de error de autenticación
  */
 export function unauthorizedResponse(message: string = "No autorizado"): NextResponse {
   return NextResponse.json({ error: message }, { status: 403 });
