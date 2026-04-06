@@ -17,7 +17,7 @@ export default function IncapacidadesPage() {
     const { data: inc } = await supabase.from("incidencias").select("*").eq("tipo", "incapacidad").order("fecha_inicio", { ascending: false });
     if (inc && emps) {
       const empMap = Object.fromEntries(emps.map((e: any) => [e.id, e]));
-      setRegistros(inc.map((i: any) => ({ ...i, empleado: empMap[i.empleado_id] })));
+      setRegistros(inc.map((i: any) => ({ ...i, empleado: empMap[i.employee_id] })));
     }
     setLoading(false);
   };
@@ -29,7 +29,7 @@ export default function IncapacidadesPage() {
     const inicio = new Date(form.fecha_inicio);
     const fin = form.fecha_fin ? new Date(form.fecha_fin) : inicio;
     const { error } = await supabase.from("incidencias").insert({
-      empleado_id: form.employee_id,
+      employee_id: form.employee_id,
       tipo: "incapacidad",
       subtipo: form.tipo,
       fecha_inicio: form.fecha_inicio,
