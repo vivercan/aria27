@@ -110,7 +110,7 @@ function CapturarContent() {
     setSaving(true);
     try {
       const { data: quote, error: qErr } = await supabase.from("quotations").insert({
-        requisition_id: Number(reqId),
+        requisition_id: reqId,
         supplier_name: supplierName.trim(),
         dias_credito: tipoCredito === "CREDITO" ? diasCredito : 0,
         dias_entrega: diasEntrega,
@@ -141,9 +141,10 @@ function CapturarContent() {
       if (stErr) throw stErr;
       resetForm();
       await loadAll();
-    } catch (e) {
-      console.error(e);
-      alert("Error al guardar");
+    } catch (e: any) {
+      console.error("[capturar] guardarCotizacion error:", e);
+      const msg = e?.message || e?.error_description || JSON.stringify(e);
+      alert("Error al guardar cotizacion: " + msg);
     } finally {
       setSaving(false);
     }
