@@ -109,7 +109,12 @@ export default function OrdenesCompraPage() {
       } catch (e) { console.error("Error creando entrega:", e); }
     }
     
-    await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
+    const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
+    if (updErr) {
+      setUpdatingStatus(false);
+      alert("No se pudo actualizar la orden: " + (updErr.message ?? "error desconocido"));
+      return;
+    }
     setSelectedPO({ ...selectedPO, ...updates });
     setOrders(prev => prev.map(o => o.id === selectedPO.id ? { ...o, ...updates } : o));
     setUpdatingStatus(false);

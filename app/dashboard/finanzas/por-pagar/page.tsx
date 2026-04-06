@@ -84,8 +84,12 @@ export default function PorPagarPage() {
     const cuenta = cuentas.find(c => c.id === pagoModal.id);
     if (!cuenta) { setPagoSaving(false); return; }
     const nuevoPagado = cuenta.monto_pagado + monto;
-    await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", pagoModal.id);
+    const { error } = await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", pagoModal.id);
     setPagoSaving(false);
+    if (error) {
+      alert("No se pudo registrar el pago: " + (error.message ?? "error desconocido"));
+      return;
+    }
     setPagoModal(null);
     loadData();
   }

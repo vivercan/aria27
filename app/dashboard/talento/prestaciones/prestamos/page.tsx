@@ -48,7 +48,7 @@ export default function PrestamosPage() {
     const descuento = parseFloat(form.descuento);
     const semanas = parseInt(form.semanas);
     
-    await supabase.from("prestamos").insert({
+    const { error } = await supabase.from("prestamos").insert({
       employee_id: form.employee_id,
       monto_original: monto,
       monto_pendiente: monto,
@@ -59,7 +59,11 @@ export default function PrestamosPage() {
       motivo: form.motivo,
       status: "ACTIVO",
     });
-    
+    if (error) {
+      alert("No se pudo registrar el préstamo: " + (error.message ?? "error desconocido"));
+      return;
+    }
+
     setShowModal(false);
     setForm({ employee_id: "", monto: "", descuento: "", semanas: "", motivo: "" });
     cargarDatos();

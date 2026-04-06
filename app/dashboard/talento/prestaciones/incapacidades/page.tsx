@@ -29,7 +29,7 @@ export default function IncapacidadesPage() {
     const inicio = new Date(form.fecha_inicio);
     const fin = form.fecha_fin ? new Date(form.fecha_fin) : inicio;
     const dias = Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    await supabase.from("incidencias").insert({
+    const { error } = await supabase.from("incidencias").insert({
       empleado_id: form.employee_id,
       tipo: "incapacidad",
       subtipo: form.tipo,
@@ -40,6 +40,10 @@ export default function IncapacidadesPage() {
       notas: form.notas,
       status: "activa"
     });
+    if (error) {
+      alert("No se pudo registrar la incapacidad: " + (error.message ?? "error desconocido"));
+      return;
+    }
     setShowModal(false);
     setForm({ employee_id: "", tipo: "enfermedad", fecha_inicio: "", fecha_fin: "", folio_imss: "", notas: "" });
     setLoading(true);

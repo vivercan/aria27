@@ -49,7 +49,7 @@ export default function ChecadasPage() {
   const handleManual = async () => {
     if (!formManual.employee_id) return;
     setSaving(true);
-    await supabase.from("asistencias").insert({
+    const { error } = await supabase.from("asistencias").insert({
       employee_id: formManual.employee_id,
       fecha: formManual.fecha,
       hora_entrada: formManual.hora_entrada,
@@ -58,6 +58,10 @@ export default function ChecadasPage() {
       dentro_geocerca_entrada: true
     });
     setSaving(false);
+    if (error) {
+      alert("No se pudo registrar la asistencia: " + (error.message ?? "error desconocido"));
+      return;
+    }
     setShowModal(false);
     setFormManual({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
     cargarAsistencias();

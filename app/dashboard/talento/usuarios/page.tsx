@@ -69,12 +69,16 @@ export default function UsuariosPage() {
   };
 
   const saveUser = async (id: string) => {
-    await supabase.from("Users").update({
+    const { error } = await supabase.from("Users").update({
       role: editRole,
       email: editEmail,
       phone: editPhone,
       permissions: editPermissions
     }).eq("id", id);
+    if (error) {
+      alert("No se pudo guardar el usuario: " + (error.message ?? "error desconocido"));
+      return;
+    }
     setEditingId(null);
     loadUsers();
   };
