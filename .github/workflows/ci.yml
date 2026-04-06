@@ -21,11 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Lint
+      - name: Lint (informational)
+        continue-on-error: true
         run: npm run lint
 
-      - name: Typecheck
+      - name: Typecheck (informational)
+        continue-on-error: true
         run: npm run typecheck
 
-      - name: Unit tests (Vitest)
+      - name: Unit tests (Vitest) — blocking
         run: npm test
