@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("WEBHOOK-OC-FOTO");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -34,6 +35,14 @@ export async function GET(req: NextRequest) {
 // Recibir mensajes
 export async function POST(req: NextRequest) {
   try {
+    // RATE LIMIT: webhook publico — 30 req/min por IP (anti-abuso)
+    const clientId = getClientIdentifier(req);
+    const rl = checkRateLimit(clientId, { key: "wh:oc-foto", ...RATE_LIMITS.PUBLIC });
+    if (!rl.allowed) {
+      log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+      return rateLimitResponse(rl);
+    }
+
     const body = await req.json();
     const entry = body.entry?.[0];
     const changes = entry?.changes?.[0];
