@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("REQUISICION-APPROVE-PURCHASE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -60,7 +61,15 @@ function buildComparativaHTML(req: any, token: string) {
   return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${mR("I.V.A. (16%)",(s: any)=>s.iva,false)}${mR("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // Rate limit público por IP: protege contra brute-force de tokens
+  const clientId = getClientIdentifier(request);
+  const rl = checkRateLimit(clientId, { key: "req:approve-purchase", ...RATE_LIMITS.PUBLIC });
+  if (!rl.allowed) {
+    log.warn("Rate limit excedido en approve-purchase", { clientId });
+    return rateLimitResponse(rl);
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY!);
   try {
     const { searchParams } = new URL(request.url);
