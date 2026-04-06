@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("NOMINA-GENERAR");
 
 const supabase = createClient(
@@ -44,6 +45,14 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
   if (authError || !user) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  // RATE LIMIT: operacion costosa (genera nomina completa) — 20 por 5 min por usuario
+  const clientId = getClientIdentifier(req, user.email);
+  const rl = checkRateLimit(clientId, { key: "nomina:generar", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) {
+    log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+    return rateLimitResponse(rl);
   }
 
     const { fechaReferencia, forzar } = await req.json();
