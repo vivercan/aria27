@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("ENVIAR-COMPARATIVA");
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,6 +15,14 @@ export async function POST(req: Request) {
     // Auth check: verificar usuario y rol
     if (!user_email) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    // Rate limit: protege contra envío masivo de emails
+    const clientId = getClientIdentifier(req, user_email);
+    const rl = checkRateLimit(clientId, { key: "req:enviar-comparativa", ...RATE_LIMITS.EMAIL });
+    if (!rl.allowed) {
+      log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+      return rateLimitResponse(rl);
     }
     const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
     if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
@@ -94,4 +103,4 @@ export async function POST(req: Request) {
     log.error("[COMPARATIVA] Error:", error);
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         }
+}
