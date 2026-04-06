@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("MAIL-SEND");
 
 export async function POST(req: NextRequest) {
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     if (!senderUser) {
       return NextResponse.json(
-        { error: "No autorizado â el remitente no es un usuario registrado del sistema" },
+        { error: "No autorizado â el remitente no es un usuario registrado del sistema" },
         { status: 403 }
       );
     }
@@ -31,9 +32,17 @@ export async function POST(req: NextRequest) {
     // (previene uso como relay con credenciales ajenas)
     if (email !== senderUser.email && senderUser.role !== "admin") {
       return NextResponse.json(
-        { error: "No autorizado â solo puedes enviar desde tu propio email" },
+        { error: "No autorizado â solo puedes enviar desde tu propio email" },
         { status: 403 }
       );
+    }
+
+    // RATE LIMIT: 10 correos por minuto por remitente autenticado (anti-spam)
+    const clientId = getClientIdentifier(req, senderUser.email);
+    const rl = checkRateLimit(clientId, { key: "mail:send", ...RATE_LIMITS.EMAIL });
+    if (!rl.allowed) {
+      log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+      return rateLimitResponse(rl);
     }
 
     const transporter = nodemailer.createTransport({
