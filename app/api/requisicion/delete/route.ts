@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("REQ-DELETE");
 const AUTHORIZED_ROLES = ["admin", "rh"];
@@ -39,6 +40,14 @@ export async function POST(request: NextRequest) {
         { error: "Solo el usuario de Recursos Humanos puede eliminar registros" },
         { status: 403 }
       );
+    }
+
+    // RATE LIMIT: accion destructiva — 60 por minuto por usuario autorizado
+    const clientId = getClientIdentifier(request, userEmail);
+    const rl = checkRateLimit(clientId, { key: "req:delete", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) {
+      log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+      return rateLimitResponse(rl);
     }
 
     log.info("delete-start", { user: userData.name, email: userEmail, role: userData.role, count: requisitionIds.length });
