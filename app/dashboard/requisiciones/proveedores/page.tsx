@@ -84,10 +84,15 @@ export default function ProveedoresPage() {
   const handleSave = async()=>{
     if(!form.name.trim())return; setSaving(true);
     try{
-      if(editingId){await supabase.from("suppliers").update(form).eq("id",editingId);}
-      else{await supabase.from("suppliers").insert({...form,active:true});}
+      if(editingId){
+        const { error } = await supabase.from("suppliers").update(form).eq("id",editingId);
+        if (error) { alert("Error al actualizar proveedor: " + error.message); return; }
+      } else {
+        const { error } = await supabase.from("suppliers").insert({...form,active:true});
+        if (error) { alert("Error al crear proveedor: " + error.message); return; }
+      }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    }catch(e){console.error(e);}finally{setSaving(false);}
+    }catch(e){console.error(e);alert("Error: "+(e as Error).message);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{

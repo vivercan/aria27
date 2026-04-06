@@ -126,17 +126,19 @@ function CapturarContent() {
 
       for (const item of items) {
         if (itemPrices[item.id] && itemPrices[item.id] > 0) {
-          await supabase.from("requisition_item_quotes").insert({
+          const { error: iqErr } = await supabase.from("requisition_item_quotes").insert({
             requisition_item_id: item.id,
             supplier_name: supplierName.trim(),
             unit_price: itemPrices[item.id],
             total_price: itemPrices[item.id] * item.quantity,
             dias_entrega: diasEntrega,
           });
+          if (iqErr) throw iqErr;
         }
       }
 
-      await supabase.from("Requisiciones").update({ status: "EN_COTIZACION" }).eq("id", reqId);
+      const { error: stErr } = await supabase.from("requisitions").update({ status: "EN_COTIZACION" }).eq("id", reqId);
+      if (stErr) throw stErr;
       resetForm();
       await loadAll();
     } catch (e) {
@@ -149,11 +151,13 @@ function CapturarContent() {
 
   const eliminarCotizacion = async (quoteId: number, sName: string) => {
     if (!canDelete) return; // Protected: only RH/admin
-    await supabase.from("quotations").delete().eq("id", quoteId);
+    const { error: delQErr } = await supabase.from("quotations").delete().eq("id", quoteId);
+    if (delQErr) { alert("Error al eliminar cotización: " + delQErr.message); return; }
     for (const item of items) {
-      await supabase.from("requisition_item_quotes").delete()
+      const { error: delIqErr } = await supabase.from("requisition_item_quotes").delete()
         .eq("requisition_item_id", item.id)
         .eq("supplier_name", sName);
+      if (delIqErr) { alert("Error al eliminar item cotizado: " + delIqErr.message); return; }
     }
     await loadAll();
   };
@@ -185,7 +189,8 @@ function CapturarContent() {
       });
       const data = await res.json();
       if (data.success) {
-        await supabase.from("Requisiciones").update({ status: "COMPARATIVA_ENVIADA" }).eq("id", reqId);
+        const { error: cmpErr } = await supabase.from("requisitions").update({ status: "COMPARATIVA_ENVIADA" }).eq("id", reqId);
+        if (cmpErr) { alert("Comparativa enviada, pero error al actualizar estatus: " + cmpErr.message); }
         alert("Comparativa enviada a Direccion");
         await loadAll();
       } else {

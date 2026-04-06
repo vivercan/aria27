@@ -48,9 +48,7 @@ export default function BancosPage() {
   }
 
   async function eliminar(id: string) {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
-    await supabase.from("cuentas_bancarias").delete().eq("id", id);
-    loadData();
+    setDeleteModal({open:true,id,name:""}); // Protected by DeleteModal (delete real en confirmDelete)
   }
 
   const totalSaldo = cuentas.reduce((s, c) => s + (c.saldo || 0), 0);

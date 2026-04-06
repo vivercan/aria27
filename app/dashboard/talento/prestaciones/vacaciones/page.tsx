@@ -65,17 +65,20 @@ export default function VacacionesPage() {
   };
 
   const aprobarSolicitud = async (id: string, employee_id: string, dias: number) => {
-    await supabase.from("solicitudes_vacaciones").update({ status: "APROBADA", fecha_aprobacion: new Date().toISOString() }).eq("id", id);
+    const { error: solErr } = await supabase.from("solicitudes_vacaciones").update({ status: "APROBADA", fecha_aprobacion: new Date().toISOString() }).eq("id", id);
+    if (solErr) { alert("Error al aprobar: " + solErr.message); return; }
     // Primero obtener el valor actual
     const { data: vac } = await supabase.from("vacaciones_empleados").select("dias_tomados").eq("employee_id", employee_id).eq("anio", new Date().getFullYear()).single();
     if (vac) {
-      await supabase.from("vacaciones_empleados").update({ dias_tomados: vac.dias_tomados + dias }).eq("employee_id", employee_id).eq("anio", new Date().getFullYear());
+      const { error: vacErr } = await supabase.from("vacaciones_empleados").update({ dias_tomados: vac.dias_tomados + dias }).eq("employee_id", employee_id).eq("anio", new Date().getFullYear());
+      if (vacErr) { alert("Aprobada, pero error al sumar días tomados: " + vacErr.message); }
     }
     cargarDatos();
   };
 
   const rechazarSolicitud = async (id: string) => {
-    await supabase.from("solicitudes_vacaciones").update({ status: "RECHAZADA" }).eq("id", id);
+    const { error } = await supabase.from("solicitudes_vacaciones").update({ status: "RECHAZADA" }).eq("id", id);
+    if (error) { alert("Error al rechazar: " + error.message); return; }
     cargarDatos();
   };
 
@@ -92,7 +95,7 @@ export default function VacacionesPage() {
     const dias = calcularDias();
     if (dias <= 0) return alert("Las fechas son inválidas");
 
-    await supabase.from("solicitudes_vacaciones").insert({
+    const { error } = await supabase.from("solicitudes_vacaciones").insert({
       employee_id: form.employee_id,
       fecha_inicio: form.fecha_inicio,
       fecha_fin: form.fecha_fin,
@@ -100,6 +103,7 @@ export default function VacacionesPage() {
       motivo: form.motivo,
       status: "PENDIENTE"
     });
+    if (error) { alert("Error al crear solicitud: " + error.message); return; }
     setShowModal(false);
     setForm({ employee_id: "", fecha_inicio: "", fecha_fin: "", motivo: "" });
     cargarDatos();

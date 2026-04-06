@@ -73,12 +73,13 @@ export default function CobranzaPage() {
     const montoCobrado = parseFloat(cobroMonto);
     if (isNaN(montoCobrado) || montoCobrado <= 0) return;
     setCobroSaving(true);
-    await supabase.from("estimaciones").update({
+    const { error } = await supabase.from("estimaciones").update({
       monto_cobrado: montoCobrado,
       status: "COBRADA",
       fecha_cobro: new Date().toISOString().split("T")[0],
     }).eq("id", cobroModal.id);
     setCobroSaving(false);
+    if (error) { alert("Error al registrar cobro: " + error.message); return; }
     setCobroModal(null);
     loadData();
   }

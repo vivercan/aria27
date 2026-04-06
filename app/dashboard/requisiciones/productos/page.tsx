@@ -124,7 +124,8 @@ export default function ProductosPage() {
       }).select("id").single();
       if(error)throw error;
       if(inserted&&newForm.supplierId){
-        await supabase.from("product_suppliers").insert({product_id:inserted.id,supplier_id:parseInt(newForm.supplierId)});
+        const { error: psErr } = await supabase.from("product_suppliers").insert({product_id:inserted.id,supplier_id:parseInt(newForm.supplierId)});
+        if (psErr) { alert("Producto creado, pero error al vincular proveedor: " + psErr.message); }
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
@@ -188,10 +189,11 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         // Link to supplier
         const{data:existLink}=await supabase.from("product_suppliers").select("id").eq("product_id",productId).eq("supplier_id",parseInt(uploadSuppId)).limit(1);
         if(!existLink||existLink.length===0){
-          await supabase.from("product_suppliers").insert({
+          const { error: psErr } = await supabase.from("product_suppliers").insert({
             product_id:productId,supplier_id:parseInt(uploadSuppId),
             precio_referencia:p.price||null
           });
+          if (psErr) { console.error("Error link product_supplier:", psErr); continue; }
         }
         saved++;setSavedCount(saved);
       }catch(e){console.error("Error saving product:",e);}

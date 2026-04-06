@@ -303,12 +303,14 @@ Responde SOLO con JSON así:
     setSending(true);
     try {
       for (const item of items) {
-        await supabase.from("requisition_items").update({
+        const { error: itErr } = await supabase.from("requisition_items").update({
           selected_price: prices[item.id]?.price || 0,
           selected_supplier: prices[item.id]?.supplier || ""
         }).eq("id", item.id);
+        if (itErr) { alert("Error al guardar item: " + itErr.message); setSending(false); return; }
       }
-      await supabase.from("Requisiciones").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
+      const { error: reqErr } = await supabase.from("requisitions").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
+      if (reqErr) { alert("Error al marcar COTIZADO: " + reqErr.message); setSending(false); return; }
 
       await fetch("/api/requisicion/authorize-purchase", {
         method: "POST",

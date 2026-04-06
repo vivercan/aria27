@@ -63,10 +63,11 @@ export default function IncidenciasPage() {
   // FIX: Usar el nombre real del usuario logueado en vez de hardcodear "Direccion"
   async function autorizar(id: string) {
     const userName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "Sistema";
-    await supabase.from("incidencias").update({
+    const { error } = await supabase.from("incidencias").update({
       autorizada: true,
       autorizada_por: userName
     }).eq("id", id);
+    if (error) { alert("Error al autorizar: " + error.message); return; }
     loadData();
   }
 

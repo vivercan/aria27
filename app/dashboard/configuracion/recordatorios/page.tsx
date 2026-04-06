@@ -41,16 +41,15 @@ export default function RecordatoriosPage() {
   const guardar = async () => {
     if (!form.empleado_nombre) { alert("Nombre es requerido"); return; }
     setSaving(true);
-    await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
+    const { error } = await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
+    if (error) { alert("Error al crear recordatorio: " + error.message); setSaving(false); return; }
     const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
     setRecords(data || []);
     setForm(EMPTY); setShowForm(false); setSaving(false);
   };
 
   const eliminar = async (id: string) => {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
-    await supabase.from("recordatorios_bitacora").delete().eq("id", id);
-    setRecords(prev => prev.filter(r => r.id !== id));
+    setDeleteModal({open:true,id,name:""}); // Protected by DeleteModal (delete real en confirmDelete)
   };
 
   const statusColor: Record<string, string> = {
