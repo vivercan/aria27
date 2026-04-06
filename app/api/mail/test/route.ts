@@ -1,9 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("MAIL-TEST");
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "mail:test", ...RATE_LIMITS.EMAIL });
+  if (!rl.allowed) {
+    log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
+    return rateLimitResponse(rl);
+  }
+
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
