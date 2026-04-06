@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     }
 
     // Update requisition status
-    const { error: reqError } = await supabase.from("Requisiciones").update({
+    const { error: reqError } = await supabase.from("requisitions").update({
       status: REQUISITION_STATUS.OC_GENERADA,
     }).eq("id", requisition_id);
     if (reqError) throw new Error(`Error actualizando requisición: ${reqError?.message}`);

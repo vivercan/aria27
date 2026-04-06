@@ -34,17 +34,25 @@ export async function POST(req: NextRequest) {
 
     if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
 
-    const { data: reqData } = await supabase
-      .from("Requisiciones").select("created_by, urgency").eq("id", requisition_id).single();
+    const { data: reqData, error: reqLookupErr } = await supabase
+      .from("requisitions").select("created_by, urgency").eq("id", requisition_id).single();
+    if (reqLookupErr || !reqData) {
+      log.error("Requisicion no encontrada", { id: requisition_id, error: reqLookupErr?.message });
+      return NextResponse.json({ error: `Requisición ${requisition_id} no encontrada` }, { status: 404 });
+    }
     const solicitante = reqData?.created_by || "N/A";
     const urgencia = reqData?.urgency || "normal";
     const token = crypto.randomUUID();
 
-    await supabase.from("Requisiciones").update({
+    const { error: updEnvErr } = await supabase.from("requisitions").update({
       status: "EN_AUTORIZACION",
       authorization_comments: token,
       cotizacion_data: { quotes, items, items_detail, suppliers, obra, folio }
     }).eq("id", requisition_id);
+    if (updEnvErr) {
+      log.error("Error update EN_AUTORIZACION", { id: requisition_id, error: updEnvErr.message });
+      return NextResponse.json({ error: `Error actualizando requisición: ${updEnvErr.message}` }, { status: 500 });
+    }
 
     const supList = suppliers || [];
     const itemsDet = items_detail || (items || []).map((name: string) => ({ product_name: name, quantity: 1, unit: "PZA" }));
@@ -60,7 +68,8 @@ export async function POST(req: NextRequest) {
 
     // Guardar total estimado (mejor proveedor) en Requisiciones para visualización en Estatus
     if (bestTot > 0) {
-      await supabase.from("Requisiciones").update({ monto: bestTot }).eq("id", requisition_id);
+      const { error: montoErr } = await supabase.from("requisitions").update({ monto: bestTot }).eq("id", requisition_id);
+      if (montoErr) log.error("Error guardando monto estimado", { id: requisition_id, error: montoErr.message });
     }
 
     const linkAutorizar = `https://aria.jjcrm27.com/autorizar/${token}`;

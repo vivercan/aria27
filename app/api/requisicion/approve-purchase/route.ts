@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: req, error: reqError } = await supabase
-      .from("Requisiciones")
+      .from("requisitions")
       .select("*")
       .eq("authorization_comments", token)
       .single();
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      await supabase.from("Requisiciones").update({
+      const { error: updReqErr } = await supabase.from("requisitions").update({
         status: "OC_GENERADA",
         authorization_comments: null,
         approved_by: "direccion",
@@ -163,8 +163,9 @@ export async function GET(request: NextRequest) {
         forma_pago: elegidoData.forma_pago || null,
         monto: total || null,
       }).eq("id", req.id);
+      if (updReqErr) { log.error("Error update requisition", { error: updReqErr.message, req: req.folio }); throw new Error(`Error actualizando requisición ${req.folio}: ${updReqErr.message}`); }
 
-      await supabase.from("purchase_orders").insert({
+      const { error: poInsErr } = await supabase.from("purchase_orders").insert({
         folio: ocFolio,
         requisition_id: req.id,
         supplier_name: supplierName,
@@ -175,15 +176,17 @@ export async function GET(request: NextRequest) {
         credit_days: elegidoData.dias_credito || 0,
         authorized_at: new Date().toISOString()
       });
+      if (poInsErr) { log.error("Error insert purchase_order", { error: poInsErr.message, ocFolio }); throw new Error(`Error creando OC ${ocFolio}: ${poInsErr.message}`); }
 
       if (proveedorElegido && elegidoData.items_prices && reqItems) {
         for (const item of reqItems) {
           const price = elegidoData.items_prices?.[item.product_name] || 0;
           if (price > 0) {
-            await supabase.from("requisition_items").update({
+            const { error: itemUpdErr } = await supabase.from("requisition_items").update({
               selected_supplier_name: supplierName,
               selected_price: price
             }).eq("id", item.id);
+            if (itemUpdErr) log.error("Error update requisition_item", { error: itemUpdErr.message, item_id: item.id });
           }
         }
       }
@@ -208,10 +211,11 @@ export async function GET(request: NextRequest) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
     } else if (action === "rechazar" || action === "RECHAZADA") {
-      await supabase.from("Requisiciones").update({
+      const { error: rechErr } = await supabase.from("requisitions").update({
         status: "RECHAZADA_DIRECCION",
         authorization_comments: null
       }).eq("id", req.id);
+      if (rechErr) { log.error("Error rechazar requisicion", { error: rechErr.message, req: req.folio }); throw new Error(`Error rechazando requisición ${req.folio}: ${rechErr.message}`); }
 
       if (comprasUser) {
         await resend.emails.send({

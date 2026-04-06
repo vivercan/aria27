@@ -155,6 +155,7 @@ export default function ExpedientesPage() {
 
     if (error) {
       console.error("Error creating carpeta:", error?.message);
+      alert("Error al crear carpeta: " + error.message);
       return;
     }
 
@@ -174,6 +175,7 @@ export default function ExpedientesPage() {
 
     if (error) {
       console.error("Error creating tarea:", error?.message);
+      alert("Error al crear tarea: " + error.message);
       return;
     }
 
@@ -191,6 +193,7 @@ export default function ExpedientesPage() {
 
     if (error) {
       console.error("Error updating tarea status:", error?.message);
+      alert("Error al cambiar estado de tarea: " + error.message);
       return;
     }
 
@@ -256,7 +259,8 @@ export default function ExpedientesPage() {
       await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
     } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
-    loadObras();
+    setCarpetaSeleccionada(null);
+    if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);
   };
 
   if (loading) {

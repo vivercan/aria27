@@ -22,7 +22,7 @@ async function getNextFolio(): Promise<string> {
 
   // Estrategia 2: Leer MAX folio real de la tabla (evita race condition del sequence)
   const { data: maxFolioData } = await supabase
-    .from("Requisiciones")
+    .from("requisitions")
     .select("folio")
     .like("folio", `${prefix}%`)
     .order("folio", { ascending: false })
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
     const initialStatus = flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE";
 
-    const { data: req, error: reqErr } = await supabase.from("Requisiciones").insert({
+    const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
       folio, cost_center_name: obra, instructions: comentarios,
       required_date: requiredDate, status: initialStatus,
       created_by: solicitante || displayName, user_email: usuario.email, authorization_comments: token,

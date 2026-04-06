@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
     // Buscar la requisición por token
     const { data: req, error } = await supabase
-      .from("Requisiciones")
+      .from("requisitions")
       .select("*")
       .eq("authorization_comments", token)
       .single();
@@ -81,7 +81,11 @@ export async function GET(request: Request) {
       return new Response("Accion no permitida", { status: 403 });
     }
 
-    await supabase.from("Requisiciones").update({ status: action, authorization_comments: null }).eq("id", req.id);
+    const { error: validateUpdErr } = await supabase.from("requisitions").update({ status: action, authorization_comments: null }).eq("id", req.id);
+    if (validateUpdErr) {
+      log.error("Error update validate", { id: req.id, action, error: validateUpdErr.message });
+      return new Response(`<html><body style="font-family:Arial;padding:40px;text-align:center"><h1 style="color:#ef4444">Error</h1><p>No se pudo actualizar la requisición: ${validateUpdErr.message}</p></body></html>`, { status: 500, headers: { "Content-Type": "text/html" } });
+    }
 
     if (action === "APROBADA") {
       const comprasUser = await getUserByRole("compras");
