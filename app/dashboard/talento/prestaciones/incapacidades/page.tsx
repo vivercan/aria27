@@ -28,14 +28,12 @@ export default function IncapacidadesPage() {
     if (!form.employee_id || !form.fecha_inicio) return;
     const inicio = new Date(form.fecha_inicio);
     const fin = form.fecha_fin ? new Date(form.fecha_fin) : inicio;
-    const dias = Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const { error } = await supabase.from("incidencias").insert({
       empleado_id: form.employee_id,
       tipo: "incapacidad",
       subtipo: form.tipo,
       fecha_inicio: form.fecha_inicio,
       fecha_fin: form.fecha_fin || form.fecha_inicio,
-      dias: dias,
       folio: form.folio_imss,
       notas: form.notas,
       status: "activa"
@@ -91,7 +89,7 @@ export default function IncapacidadesPage() {
                 <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.subtipo === "riesgo_trabajo" ? "bg-red-500/20 text-red-400" : r.subtipo === "maternidad" ? "bg-pink-500/20 text-pink-400" : "bg-blue-500/20 text-blue-400"}`}>{r.subtipo || "Enfermedad"}</span></td>
                 <td className="px-4 py-3 text-slate-300">{r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleDateString("es-MX") : "—"}</td>
                 <td className="px-4 py-3 text-slate-300">{r.fecha_fin ? new Date(r.fecha_fin).toLocaleDateString("es-MX") : "—"}</td>
-                <td className="px-4 py-3 text-center font-mono text-white">{r.dias || "—"}</td>
+                <td className="px-4 py-3 text-center font-mono text-white">{r.fecha_inicio && r.fecha_fin ? (Math.floor((new Date(r.fecha_fin).getTime() - new Date(r.fecha_inicio).getTime()) / (1000 * 60 * 60 * 24)) + 1) : "—"}</td>
                 <td className="px-4 py-3 text-blue-400 font-mono text-xs">{r.folio || "—"}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.status === "activa" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>{r.status || "Activa"}</span></td>
               </tr>
