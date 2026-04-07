@@ -5,7 +5,8 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
+import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Activo {
   id: string;
@@ -59,6 +60,7 @@ export default function ActivosCatalogoPage() {
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [activos, setActivos] = useState<Activo[]>([]);
+  const [expedienteActivo, setExpedienteActivo] = useState<Activo|null>(null);
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
   const [empleados, setEmpleados] = useState<{id: string; full_name: string}[]>([]);
@@ -349,6 +351,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
+                              <button onClick={() => setExpedienteActivo(activo)} title="Expediente" className="p-1.5 rounded bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-4 h-4" /></button>
                               <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
                               {canDelete && (<button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>)}
                             </div>
@@ -541,6 +544,14 @@ export default function ActivosCatalogoPage() {
           </div>
         </div>
       )}
+
+      <EntityFolderDrawer
+        open={!!expedienteActivo}
+        onClose={() => setExpedienteActivo(null)}
+        entityType="activo"
+        entityId={expedienteActivo?.id || ""}
+        entityName={expedienteActivo?.nombre}
+      />
 
       <DeleteModal
         open={deleteModal.open}

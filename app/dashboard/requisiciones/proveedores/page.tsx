@@ -7,9 +7,10 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Plus, Search, Edit2, Phone, Mail, Building2,
   MapPin, X, Save, Copy, Check, Trash2, Globe,
-  MessageCircle, CreditCard, Filter, ChevronRight, Loader2
+  MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
 } from "lucide-react";
 import Link from "next/link";
+import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
@@ -40,6 +41,7 @@ export default function ProveedoresPage() {
   const [saving,setSaving] = useState(false);
   const [copiedId,setCopiedId] = useState<string|null>(null);
   const [expanded,setExpanded] = useState<string|null>(null);
+  const [expedienteSup,setExpedienteSup] = useState<Supplier|null>(null);
 
   const loadSuppliers = useCallback(async()=>{
     const{data}=await supabase.from("Proveedores")
@@ -192,6 +194,7 @@ export default function ProveedoresPage() {
                     </td>
                     <td className="pr-2">
                       <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={()=>setExpedienteSup(s)} title="Expediente" className="p-1 hover:bg-violet-500/20 rounded text-violet-400/70 hover:text-violet-400"><FolderOpen className="w-3 h-3"/></button>
                         <button onClick={()=>openEdit(s)} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"><Edit2 className="w-3 h-3"/></button>
                         {canDelete && (<button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"><Trash2 className="w-3 h-3"/></button>)}
                       </div>
@@ -274,6 +277,14 @@ export default function ProveedoresPage() {
           </div>
         </div>
       )}
+
+      <EntityFolderDrawer
+        open={!!expedienteSup}
+        onClose={() => setExpedienteSup(null)}
+        entityType="proveedor"
+        entityId={expedienteSup?.id || ""}
+        entityName={expedienteSup?.name}
+      />
 
       <DeleteModal
         open={deleteModal.open}

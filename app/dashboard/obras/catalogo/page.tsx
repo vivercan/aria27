@@ -110,7 +110,22 @@ export default function CatalogoObrasPage() {
 
   const cambiarEstado = async (o: Obra, nuevoEstado: string) => {
     const label = STATUS.find(s => s.value === nuevoEstado)?.label || nuevoEstado;
-    if (!confirm(`¿Mover la obra "${o.nombre}" al estado "${label}"?`)) return;
+    const archivar = ["TERMINADA", "CANCELADA"].includes(nuevoEstado);
+    if (archivar) {
+      const aviso =
+        `ATENCIÓN — Vas a ARCHIVAR la obra "${o.nombre}" como "${label}".\n\n` +
+        `Esta obra puede tener todavía:\n` +
+        `  • Órdenes de compra activas\n` +
+        `  • Cobranza pendiente\n` +
+        `  • Personal / nómina activa\n` +
+        `  • Requisiciones abiertas\n\n` +
+        `El sistema NO bloquea el archivado, pero quedará registrado en el historial (updated_at).\n\n` +
+        `¿Confirmas que esta obra debe pasar a "${label}"?`;
+      if (!confirm(aviso)) return;
+      if (!confirm(`Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`)) return;
+    } else {
+      if (!confirm(`¿Mover la obra "${o.nombre}" al estado "${label}"?`)) return;
+    }
     const { error } = await supabase.from("centros_trabajo")
       .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
       .eq("id", o.id);

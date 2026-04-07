@@ -235,7 +235,10 @@ export default function BancosPage() {
                       <button onClick={() => toggleActiva(c)} title={c.activa === false ? "Reactivar" : "Desactivar"} className="p-1.5 text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg">
                         <Power className="w-4 h-4" />
                       </button>
-                      {canDelete && (
+                      {/* Eliminación física deshabilitada por decisión funcional 7-Abr-2026.
+                          Baja lógica vía Power (toggle activa) es el flujo principal.
+                          Mantener handler `eliminar` para uso admin si se reactiva. */}
+                      {false && canDelete && (
                         <button onClick={() => eliminar(c)} title="Eliminar (con respaldo)" className="p-1.5 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg">
                           <Trash2 className="w-4 h-4" />
                         </button>

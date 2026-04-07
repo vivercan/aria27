@@ -4,8 +4,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2,
-  Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus
+  Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus, FolderOpen
 } from "lucide-react";
+import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Empleado {
   id: string;
@@ -82,6 +83,7 @@ export default function PersonalPage() {
   const [form, setForm] = useState<any>({ ...EMPTY_FORM });
   const [tab, setTab] = useState<"general" | "laboral" | "bancario" | "fiscal">("general");
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [expedienteEmp, setExpedienteEmp] = useState<Empleado | null>(null);
 
   useEffect(() => {
     cargarDatos();
@@ -333,10 +335,16 @@ export default function PersonalPage() {
                     }`}>{campos}/7</span>
                   </td>
                   <td className="p-3 text-center">
-                    <button onClick={() => abrirEdicion(e)}
-                      className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => setExpedienteEmp(e)} title="Expediente documental"
+                        className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30">
+                        <FolderOpen className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => abrirEdicion(e)} title="Editar"
+                        className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -344,6 +352,15 @@ export default function PersonalPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Drawer Expediente */}
+      <EntityFolderDrawer
+        open={!!expedienteEmp}
+        onClose={() => setExpedienteEmp(null)}
+        entityType="empleado"
+        entityId={expedienteEmp?.id || ""}
+        entityName={expedienteEmp?.full_name}
+      />
 
       {/* Modal de edicion / alta */}
       {editando && (
