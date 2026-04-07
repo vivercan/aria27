@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Library, Search, Plus, FileText, Download, Eye, Loader2 } from "lucide-react";
+import BetaBadge from "@/components/BetaBadge";
 
 interface Plantilla {
   id: string;
@@ -40,6 +41,7 @@ export default function BibliotecaPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
+      <BetaBadge reason="Biblioteca de plantillas: tabla documentos_plantilla vacia, sin upload ni versionado" />
       <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors w-fit">
         <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
         <span className="text-sm font-medium">Regresar</span>

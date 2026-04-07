@@ -80,12 +80,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan datos requeridos (purchase_order_folio, materiales)" }, { status: 400 });
     }
 
-    // Validar que el usuario existe y tiene permiso
-    if (user_email) {
-      const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
-      if (!callerUser || !["admin", "compras", "almacen", "rh"].includes(callerUser.role)) {
-        return NextResponse.json({ error: "No autorizado para registrar entregas" }, { status: 403 });
-      }
+    // P0 hardening 7-Abr-2026: auth OBLIGATORIA
+    if (!user_email) {
+      log.warn("[REGISTRAR-ENTREGA] user_email ausente - 401");
+      return NextResponse.json({ error: "user_email requerido" }, { status: 401 });
+    }
+    const { data: callerUser } = await supabase.from("Users").select("role,active").eq("email", user_email).single();
+    if (!callerUser || callerUser.active === false || !["admin", "compras", "almacen", "rh"].includes(callerUser.role)) {
+      log.warn(`[REGISTRAR-ENTREGA] denegado para ${user_email} (rol=${callerUser?.role})`);
+      return NextResponse.json({ error: "No autorizado para registrar entregas" }, { status: 403 });
     }
 
     // Generar folio de entrega

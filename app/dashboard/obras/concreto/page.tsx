@@ -1,5 +1,6 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import BetaBadge from "@/components/BetaBadge";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
@@ -118,6 +119,7 @@ export default function ConcretoPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <BetaBadge reason="Control de concreto: tabla concreto vacia, sin captura ni reportes operativos" />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>

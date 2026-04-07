@@ -26,12 +26,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltan datos requeridos (requisition_id, selections)" }, { status: 400 });
     }
 
-    // Validar que el usuario existe y tiene permiso (rol compras, admin, o direccion)
-    if (user_email) {
-      const { data: callerUser } = await supabase.from("Users").select("role").eq("email", user_email).single();
-      if (!callerUser || !["admin", "compras", "direccion"].includes(callerUser.role)) {
-        return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
-      }
+    // P0 hardening 7-Abr-2026: auth OBLIGATORIA (no opt-in)
+    if (!user_email) {
+      log.warn("[AUTORIZAR-PICKING] user_email ausente - 401");
+      return NextResponse.json({ error: "user_email requerido" }, { status: 401 });
+    }
+    const { data: callerUser } = await supabase.from("Users").select("role,active").eq("email", user_email).single();
+    if (!callerUser || callerUser.active === false || !["admin", "compras", "direccion"].includes(callerUser.role)) {
+      log.warn(`[AUTORIZAR-PICKING] denegado para ${user_email} (rol=${callerUser?.role})`);
+      return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
     }
 
     const { Resend } = await import("resend");

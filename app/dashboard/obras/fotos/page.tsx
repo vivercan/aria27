@@ -6,6 +6,7 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import DeleteModal from "@/components/DeleteModal";
+import BetaBadge from "@/components/BetaBadge";
 import {
   ArrowLeft, Plus, Camera, Search, Upload, Eye, Trash2, X, Loader2, Image
 } from "lucide-react";
@@ -128,6 +129,7 @@ export default function FotosPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <BetaBadge reason="Fotos de avance: tabla fotos_avance vacia, sin captura ni vinculacion a obra" />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>

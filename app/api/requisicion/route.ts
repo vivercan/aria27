@@ -73,6 +73,18 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { usuario, obra, comentarios, materiales, requiredDate, solicitante, subcategoria } = body;
 
+    // P0 hardening 7-Abr-2026: validar usuario activo antes de crear requisicion
+    if (!usuario?.email) {
+      logger("REQUISICION").warn("[REQUISICION] usuario.email ausente - 401");
+      return NextResponse.json({ error: "usuario.email requerido", logs }, { status: 401 });
+    }
+    const { data: callerCheck } = await supabase
+      .from("Users").select("email,role,active").eq("email", usuario.email).single();
+    if (!callerCheck || callerCheck.active === false) {
+      logger("REQUISICION").warn(`[REQUISICION] usuario no autorizado: ${usuario.email}`);
+      return NextResponse.json({ error: "Usuario no autorizado", logs }, { status: 403 });
+    }
+
     const folio = await getNextFolio();
     const token = crypto.randomUUID();
 

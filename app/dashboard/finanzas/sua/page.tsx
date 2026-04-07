@@ -2,10 +2,12 @@
 
 import { ArrowLeft, Building2, Upload } from "lucide-react";
 import Link from "next/link";
+import BetaBadge from "@/components/BetaBadge";
 
 export default function SUAPage() {
   return (
     <div className="p-6 space-y-6 overflow-y-auto h-full">
+      <BetaBadge reason="SUA / Infonavit: sin parser ni persistencia, solo placeholder" />
       <div className="flex items-center gap-3">
         <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
 <ArrowLeft className="w-5 h-5 text-slate-400" />

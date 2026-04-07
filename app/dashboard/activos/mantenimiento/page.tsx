@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Wrench, Plus, Calendar, DollarSign, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
+import BetaBadge from "@/components/BetaBadge";
 
 export default function MantenimientoPage() {
   const [registros, setRegistros] = useState<any[]>([]);
@@ -83,6 +84,7 @@ export default function MantenimientoPage() {
 
   return (
     <div className="space-y-6">
+      <BetaBadge reason="Mantenimiento de activos: tabla activos_mantenimiento vacia, sin agenda ni alertas" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>

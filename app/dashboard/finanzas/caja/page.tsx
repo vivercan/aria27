@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, DollarSign, TrendingDown, Receipt, Calendar, Search, Download, Loader2 } from "lucide-react";
+import BetaBadge from "@/components/BetaBadge";
 
 interface MovimientoCaja {
   id: string;
@@ -49,6 +50,7 @@ export default function CajaChicaPage() {
 
   return (
     <div className="space-y-6">
+      <BetaBadge reason="Caja chica: tabla caja_chica vacia, sin captura ni arqueo" />
       <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
         <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
         <span className="text-sm font-medium">Regresar</span>
