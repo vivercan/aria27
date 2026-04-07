@@ -157,22 +157,29 @@ export default function InventarioObraPage() {
   const ajustarInventario = async () => {
     if (!showAjuste || ajusteCantidad === 0) return;
 
-    const nuevaCantidad = showAjuste.cantidad_disponible + ajusteCantidad;
-    const nuevaUsada = ajusteCantidad < 0
-      ? showAjuste.cantidad_usada + Math.abs(ajusteCantidad)
-      : showAjuste.cantidad_usada;
+    const expectedDisp = showAjuste.cantidad_disponible;
+    const expectedUsada = showAjuste.cantidad_usada;
+    const nuevaCantidad = expectedDisp + ajusteCantidad;
+    if (nuevaCantidad < 0) { alert("La cantidad resultante no puede ser negativa"); return; }
+    const nuevaUsada = ajusteCantidad < 0 ? expectedUsada + Math.abs(ajusteCantidad) : expectedUsada;
 
-    const { error } = await supabase
+    // OPTIMISTIC LOCK: la fila debe seguir con los mismos valores leídos
+    const { data: rows, error } = await supabase
       .from("inventario_obra")
       .update({
-        cantidad_disponible: Math.max(0, nuevaCantidad),
+        cantidad_disponible: nuevaCantidad,
         cantidad_usada: nuevaUsada,
         ultimo_movimiento: new Date().toISOString(),
       })
-      .eq("id", showAjuste.id);
+      .eq("id", showAjuste.id)
+      .eq("cantidad_disponible", expectedDisp)
+      .eq("cantidad_usada", expectedUsada)
+      .select("id");
 
-    if (error) {
-      console.error("Error updating inventory adjustment:", error?.message);
+    if (error) { alert("Error en ajuste: " + error.message); return; }
+    if (!rows || rows.length === 0) {
+      alert("Otro usuario modificó este ítem mientras editabas. Recarga y verifica.");
+      if (obraSeleccionada) loadInventario(obraSeleccionada.id);
       return;
     }
 

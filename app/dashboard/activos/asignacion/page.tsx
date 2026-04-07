@@ -72,6 +72,20 @@ export default function AsignacionPage() {
   const handleAsignar = async () => {
     if (!form.activo_id || !form.empleado_id) return;
     setSaving(true);
+
+    // OPTIMISTIC LOCK sobre activos.estado
+    const { data: lockRows, error: lockErr } = await supabase
+      .from("activos")
+      .update({ estado: "EN_USO" })
+      .eq("id", form.activo_id)
+      .eq("estado", "DISPONIBLE")
+      .select("id");
+    if (lockErr) { alert("Error al reservar activo: " + lockErr.message); setSaving(false); return; }
+    if (!lockRows || lockRows.length === 0) {
+      alert("Este activo ya no está DISPONIBLE. Recarga.");
+      setSaving(false); load(); return;
+    }
+
     const { error } = await supabase.from("activos_asignaciones").insert({
       activo_id: form.activo_id,
       empleado_id: form.empleado_id,
@@ -81,7 +95,9 @@ export default function AsignacionPage() {
     });
 
     if (error) {
-      console.error("Error creating asignacion:", error?.message);
+      // Rollback
+      await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
+      alert("Error al crear asignación: " + error.message);
       setSaving(false);
       return;
     }
@@ -93,16 +109,19 @@ export default function AsignacionPage() {
   };
 
   const handleDevolver = async (id: string) => {
-    const { error } = await supabase.from("activos_asignaciones").update({
+    // OPTIMISTIC LOCK
+    const { data: rows, error } = await supabase.from("activos_asignaciones").update({
       estado: "devuelto",
       fecha_devolucion: new Date().toISOString().split("T")[0]
-    }).eq("id", id);
+    }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) {
-      console.error("Error updating asignacion estado:", error?.message);
-      return;
+    if (error) { alert("Error al devolver: " + error.message); return; }
+    if (!rows || rows.length === 0) { alert("Esta asignación ya fue devuelta. Recarga."); load(); return; }
+
+    // Liberar activo
+    if (rows[0].activo_id) {
+      await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", rows[0].activo_id);
     }
-
     load();
   };
 

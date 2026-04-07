@@ -178,15 +178,25 @@ export default function ActivosCatalogoPage() {
   const guardarAsignacion = async () => {
     if (!formAsignacion.activo_id || !formAsignacion.empleado_id) return alert("Selecciona activo y empleado");
 
-    const { error: insertError } = await supabase.from("activos_asignaciones").insert(formAsignacion);
-    if (insertError) {
-      console.error("Error inserting asignacion:", insertError?.message);
+    // OPTIMISTIC LOCK: solo asigna si el activo sigue DISPONIBLE
+    const { data: lockRows, error: lockErr } = await supabase
+      .from("activos")
+      .update({ estado: "EN_USO" })
+      .eq("id", formAsignacion.activo_id)
+      .eq("estado", "DISPONIBLE")
+      .select("id");
+    if (lockErr) { alert("Error al reservar activo: " + lockErr.message); return; }
+    if (!lockRows || lockRows.length === 0) {
+      alert("Este activo ya no está DISPONIBLE (otro usuario lo asignó o está en mantenimiento). Recarga.");
+      cargarDatos();
       return;
     }
 
-    const { error: updateError } = await supabase.from("activos").update({ estado: "EN_USO" }).eq("id", formAsignacion.activo_id);
-    if (updateError) {
-      console.error("Error updating activo estado:", updateError?.message);
+    const { error: insertError } = await supabase.from("activos_asignaciones").insert(formAsignacion);
+    if (insertError) {
+      // Rollback: liberar activo
+      await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", formAsignacion.activo_id).eq("estado", "EN_USO");
+      alert("Error al crear asignación: " + insertError.message);
       return;
     }
 
@@ -198,15 +208,23 @@ export default function ActivosCatalogoPage() {
   const devolverActivo = async (asig: Asignacion) => {
     setDeleteModal({open:true,id:asig.id,name:""}); return; // Protected by DeleteModal
 
-    const { error: updateAsigError } = await supabase.from("activos_asignaciones").update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] }).eq("id", asig.id);
-    if (updateAsigError) {
-      console.error("Error updating asignacion:", updateAsigError?.message);
+    // OPTIMISTIC LOCK: solo devuelve si la asignación sigue activa
+    const { data: rows, error: updateAsigError } = await supabase
+      .from("activos_asignaciones")
+      .update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] })
+      .eq("id", asig.id)
+      .eq("activa", true)
+      .select("id");
+    if (updateAsigError) { alert("Error al devolver: " + updateAsigError.message); return; }
+    if (!rows || rows.length === 0) {
+      alert("Esta asignación ya fue devuelta por otro usuario. Recarga.");
+      cargarDatos();
       return;
     }
 
     const { error: updateActivoError } = await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", asig.activo_id);
     if (updateActivoError) {
-      console.error("Error updating activo estado:", updateActivoError?.message);
+      alert("Devuelta, pero error al liberar activo: " + updateActivoError.message);
       return;
     }
 
