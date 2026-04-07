@@ -42,11 +42,25 @@ interface DocRow {
   url: string;
   size_bytes: number | null;
   uploaded_by: string | null;
+  categoria: string | null;
   created_at: string;
 }
 
 const BUCKET = "expedientes";
 const TABLE = "entity_documents";
+
+export const ENTITY_DOC_CATEGORIES = [
+  "INE",
+  "Comprobante domicilio",
+  "Contrato",
+  "Opinión 32D",
+  "Constancia fiscal",
+  "Factura",
+  "Póliza",
+  "Foto",
+  "Otro",
+] as const;
+export type EntityDocCategory = typeof ENTITY_DOC_CATEGORIES[number];
 
 export default function EntityFolder({
   entityType,
@@ -64,6 +78,8 @@ export default function EntityFolder({
   const fileRef = useRef<HTMLInputElement>(null);
   const replaceRef = useRef<HTMLInputElement>(null);
   const [replaceTarget, setReplaceTarget] = useState<DocRow | null>(null);
+  const [pendingCat, setPendingCat] = useState<EntityDocCategory>("Otro");
+  const [filterCat, setFilterCat] = useState<string>("");
 
   useEffect(() => {
     if (entityId) cargar();
@@ -117,6 +133,7 @@ export default function EntityFolder({
           tipo: file.type || file.name.split(".").pop() || null,
           size_bytes: file.size,
           uploaded_by: userEmail,
+          categoria: pendingCat,
         },
         urlField: "url",
       });
@@ -234,6 +251,14 @@ export default function EntityFolder({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <select
+            value={pendingCat}
+            onChange={e => setPendingCat(e.target.value as EntityDocCategory)}
+            title="Categoría del próximo archivo a subir"
+            className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs"
+          >
+            {ENTITY_DOC_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
           <button onClick={cargar} title="Recargar" className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -254,6 +279,18 @@ export default function EntityFolder({
         </div>
       )}
 
+      <div className="px-4 pt-3 flex items-center gap-2">
+        <span className="text-[11px] text-slate-500">Filtrar:</span>
+        <select
+          value={filterCat}
+          onChange={e => setFilterCat(e.target.value)}
+          className="px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-[11px]"
+        >
+          <option value="">Todas las categorías</option>
+          {ENTITY_DOC_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
       <div className="p-3 max-h-80 overflow-y-auto">
         {loading ? (
           <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-blue-400 mx-auto" /></div>
@@ -261,11 +298,14 @@ export default function EntityFolder({
           <p className="text-center text-xs text-slate-500 py-6">Sin documentos. Sube el primero con "Subir documento".</p>
         ) : (
           <div className="space-y-1">
-            {docs.map(d => (
+            {docs.filter(d => !filterCat || (d.categoria || "Otro") === filterCat).map(d => (
               <div key={d.id} className="flex items-center gap-2 p-2 rounded bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04]">
                 <FileIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{d.nombre}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-white truncate">{d.nombre}</p>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-300 flex-shrink-0">{d.categoria || "Otro"}</span>
+                  </div>
                   <p className="text-[11px] text-slate-500">
                     {new Date(d.created_at).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
                     {d.size_bytes ? ` · ${fmtSize(d.size_bytes)}` : ""}

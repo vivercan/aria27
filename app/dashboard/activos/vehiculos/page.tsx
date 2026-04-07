@@ -7,8 +7,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
-  Car, Key, Fuel, Search, MapPin
+  Car, Key, Fuel, Search, MapPin, FolderOpen
 } from "lucide-react";
+import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Vehiculo {
   id: string;
@@ -52,6 +53,7 @@ export default function VehiculosPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [expedienteVeh, setExpedienteVeh] = useState<Vehiculo|null>(null);
 
   useEffect(() => { cargar(); }, []);
 
@@ -230,6 +232,7 @@ export default function VehiculosPage() {
                 </td>
                 <td className="p-3 text-center">
                   <div className="flex items-center justify-center gap-1">
+                    <button onClick={() => setExpedienteVeh(v)} title="Expediente" className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-3.5 h-3.5" /></button>
                     <button onClick={() => editar(v)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
                     {canDelete && (
                       <button onClick={() => setDeleteModal({ open: true, id: v.id, name: v.nombre })} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -314,6 +317,14 @@ export default function VehiculosPage() {
           </div>
         </div>
       )}
+
+      <EntityFolderDrawer
+        open={!!expedienteVeh}
+        onClose={() => setExpedienteVeh(null)}
+        entityType="vehiculo"
+        entityId={expedienteVeh?.id || ""}
+        entityName={expedienteVeh?.nombre}
+      />
 
       <DeleteModal
         open={deleteModal.open}

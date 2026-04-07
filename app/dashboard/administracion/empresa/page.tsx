@@ -4,8 +4,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Building2, MapPin, FileText, Users, Loader2,
-  Edit2, Save, X, Briefcase
+  Edit2, Save, X, Briefcase, FolderOpen
 } from "lucide-react";
+import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Empresa {
   id: string;
@@ -35,6 +36,7 @@ export default function EmpresaPage() {
   const [form, setForm] = useState<any>({});
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [expedienteEmp, setExpedienteEmp] = useState<Empresa|null>(null);
 
   useEffect(() => { cargar(); }, []);
 
@@ -123,12 +125,20 @@ export default function EmpresaPage() {
                     </div>
                     <h2 className="text-lg font-semibold text-white">{emp.nombre || "Sin nombre"}</h2>
                   </div>
-                  <button
-                    onClick={() => iniciarEdicion(emp)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" /> Editar
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setExpedienteEmp(emp)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30 text-xs"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" /> Expediente
+                    </button>
+                    <button
+                      onClick={() => iniciarEdicion(emp)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" /> Editar
+                    </button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-start gap-2">
@@ -193,6 +203,14 @@ export default function EmpresaPage() {
           </>
         )}
       </div>
+
+      <EntityFolderDrawer
+        open={!!expedienteEmp}
+        onClose={() => setExpedienteEmp(null)}
+        entityType="empresa"
+        entityId={expedienteEmp?.id || ""}
+        entityName={expedienteEmp?.nombre}
+      />
 
       {/* Edit Modal */}
       {editEmpresa && (
