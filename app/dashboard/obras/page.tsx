@@ -1,12 +1,20 @@
 "use client";
 
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera } from "lucide-react";
+import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
   {
+    title: "Catálogo Maestro",
+    description: "Fuente única de obras: alta, edición, archivo, historial.",
+    href: "/dashboard/obras/catalogo",
+    icon: BookOpen,
+    gradient: "from-sky-500 to-blue-600",
+    active: true,
+  },
+  {
     title: "Pipeline",
-    description: "Seguimiento de proyectos activos.",
+    description: "Vista kanban operativa de proyectos activos.",
     href: "/dashboard/obras/pipeline",
     icon: Kanban,
     gradient: "from-blue-500 to-blue-600",
