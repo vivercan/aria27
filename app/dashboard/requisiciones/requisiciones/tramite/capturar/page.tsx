@@ -241,8 +241,8 @@ function CapturarContent() {
       }
       const data = await res.json().catch(() => ({}));
       if (data.success) {
-        const { error: cmpErr } = await supabase.from("requisitions").update({ status: "COMPARATIVA_ENVIADA" }).eq("id", reqId);
-        if (cmpErr) { alert("Comparativa enviada, pero error al actualizar estatus: " + cmpErr.message); }
+        // No sobrescribir el status: enviar-comparativa ya lo dejo en EN_AUTORIZACION
+        // (requerido por /autorizar/[token] y approve-purchase). Override anterior rompia autorizacion.
         alert("Comparativa enviada a Direccion");
         await loadAll();
       } else {
