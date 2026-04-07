@@ -111,7 +111,7 @@ export default function CobranzaManualPage() {
     else if (form.saldo > 0 && form.saldo < form.monto && estatus !== "CANCELADO") estatus = "PARCIAL";
     else if (form.saldo === form.monto && estatus !== "CANCELADO") estatus = "PENDIENTE";
 
-    const payload = {
+    const payload: any = {
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
       obra_id: form.obra_id || null,
@@ -124,6 +124,9 @@ export default function CobranzaManualPage() {
       fecha: form.fecha,
       observaciones: form.observaciones || null,
     };
+    if (!editId) {
+      payload.created_by = (typeof window !== "undefined" && localStorage.getItem("userEmail")) || null;
+    }
 
     setSaving(true);
     try {

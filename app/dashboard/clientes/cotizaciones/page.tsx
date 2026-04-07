@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -68,7 +68,17 @@ export default function CotizacionesClientesPage() {
       if (c.error?.code === "42P01" || c.error?.code === "PGRST205") {
         alert("Falta crear tabla cotizaciones_clientes en Supabase.");
       }
-      setCots((c.data as Cotizacion[]) || []);
+      // Auto VENCIDA en lectura: si hoy > fecha + vigencia_dias y estatus es BORRADOR/ENVIADA, mostrar como VENCIDA
+      const hoy = new Date().toISOString().split("T")[0];
+      const cotsConVencidas = ((c.data as Cotizacion[]) || []).map(co => {
+        if (["BORRADOR", "ENVIADA"].includes(co.estatus)) {
+          const limite = new Date(co.fecha);
+          limite.setDate(limite.getDate() + (co.vigencia_dias || 30));
+          if (limite.toISOString().split("T")[0] < hoy) return { ...co, estatus: "VENCIDA" };
+        }
+        return co;
+      });
+      setCots(cotsConVencidas);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
     } catch (e) { console.error(e); }
@@ -140,7 +150,7 @@ export default function CotizacionesClientesPage() {
       folio = `COT-${yr}-${String((count || 0) + 1).padStart(4, "0")}`;
     }
 
-    const payload = {
+    const payload: any = {
       folio,
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
@@ -155,6 +165,9 @@ export default function CotizacionesClientesPage() {
       estatus: form.estatus,
       notas: form.notas || null,
     };
+    if (!editId) {
+      payload.created_by = (typeof window !== "undefined" && localStorage.getItem("userEmail")) || null;
+    }
 
     setSaving(true);
     try {
@@ -191,6 +204,87 @@ export default function CotizacionesClientesPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function imprimirCotizacion(c: Cotizacion) {
+    // Cargar items
+    const { data: rows } = await supabase.from("cotizaciones_clientes_items")
+      .select("*").eq("cotizacion_id", c.id).order("orden", { ascending: true });
+    const its = (rows as any[]) || [];
+
+    const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+    const fechaLimite = new Date(c.fecha);
+    fechaLimite.setDate(fechaLimite.getDate() + (c.vigencia_dias || 30));
+    const vence = fechaLimite.toISOString().split("T")[0];
+
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${c.folio || "Cotización"}</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; color: #1a1a1a; padding: 32px; max-width: 800px; margin: 0 auto; font-size: 12px; }
+  .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1e40af; padding-bottom: 16px; margin-bottom: 24px; }
+  .empresa h1 { margin: 0; color: #1e40af; font-size: 20px; }
+  .empresa p { margin: 2px 0; font-size: 11px; color: #555; }
+  .doc-meta { text-align: right; }
+  .doc-meta .folio { font-size: 18px; font-weight: bold; color: #1e40af; }
+  .doc-meta p { margin: 2px 0; font-size: 11px; }
+  .cliente-box { background: #f3f4f6; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; }
+  .cliente-box .label { font-size: 10px; color: #6b7280; text-transform: uppercase; }
+  .cliente-box .nombre { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: #1e40af; color: white; text-align: left; padding: 8px; font-size: 11px; text-transform: uppercase; }
+  td { border-bottom: 1px solid #e5e7eb; padding: 8px; font-size: 11px; }
+  .totales { margin-top: 16px; margin-left: auto; width: 280px; }
+  .totales .row { display: flex; justify-content: space-between; padding: 4px 0; }
+  .totales .total { border-top: 2px solid #1e40af; padding-top: 8px; margin-top: 8px; font-size: 14px; font-weight: bold; color: #1e40af; }
+  .notas { margin-top: 24px; padding: 12px; background: #fef3c7; border-left: 3px solid #f59e0b; font-size: 11px; }
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; text-align: center; }
+  .estatus { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; background: #1e40af; color: white; }
+  @media print { body { padding: 16px; } }
+</style></head><body>
+<div class="header">
+  <div class="empresa">
+    <h1>Grupo Constructor Urbano Avante</h1>
+    <p>Aguascalientes, México</p>
+    <p>aria.jjcrm27.com</p>
+  </div>
+  <div class="doc-meta">
+    <div class="folio">${c.folio || "COTIZACIÓN"}</div>
+    <p><strong>Fecha:</strong> ${c.fecha}</p>
+    <p><strong>Vigencia:</strong> ${c.vigencia_dias} días (vence ${vence})</p>
+    <p><span class="estatus">${c.estatus}</span></p>
+  </div>
+</div>
+<div class="cliente-box">
+  <div class="label">Cliente</div>
+  <div class="nombre">${c.cliente_nombre}</div>
+  ${c.obra_nombre ? `<div class="label" style="margin-top:8px">Obra</div><div>${c.obra_nombre}</div>` : ""}
+</div>
+<table>
+  <thead><tr><th>#</th><th>Concepto</th><th>Unidad</th><th style="text-align:right">Cantidad</th><th style="text-align:right">P. Unitario</th><th style="text-align:right">Importe</th></tr></thead>
+  <tbody>
+    ${its.map((it, idx) => `<tr>
+      <td>${idx + 1}</td>
+      <td>${(it.concepto || "").replace(/</g, "&lt;")}</td>
+      <td>${it.unidad || ""}</td>
+      <td style="text-align:right">${Number(it.cantidad).toLocaleString("es-MX")}</td>
+      <td style="text-align:right">${fmt(it.precio_unitario)}</td>
+      <td style="text-align:right">${fmt(it.importe)}</td>
+    </tr>`).join("")}
+  </tbody>
+</table>
+<div class="totales">
+  <div class="row"><span>Subtotal:</span><span>${fmt(c.subtotal)}</span></div>
+  <div class="row"><span>IVA:</span><span>${fmt(c.iva)}</span></div>
+  <div class="row total"><span>TOTAL ${c.moneda}:</span><span>${fmt(c.total)}</span></div>
+</div>
+${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, "&lt;")}</div>` : ""}
+<div class="footer">Documento generado el ${new Date().toLocaleString("es-MX")} — ARIA27</div>
+<script>window.onload = function() { setTimeout(function(){ window.print(); }, 300); }</script>
+</body></html>`;
+
+    const w = window.open("", "_blank", "width=900,height=700");
+    if (!w) { alert("Pop-up bloqueado. Permite ventanas emergentes para esta página."); return; }
+    w.document.write(html);
+    w.document.close();
   }
 
   async function cambiarEstatus(c: Cotizacion, nuevo: string) {
@@ -296,10 +390,16 @@ export default function CotizacionesClientesPage() {
                     </select>
                   </td>
                   <td className="p-3 text-center">
-                    <button onClick={() => abrirEdicion(c)} disabled={["CANCELADA"].includes(c.estatus)}
-                      className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30 disabled:opacity-30">
-                      Editar
-                    </button>
+                    <div className="flex gap-1 justify-center">
+                      <button onClick={() => imprimirCotizacion(c)} title="Imprimir / PDF"
+                        className="p-1.5 bg-violet-500/20 text-violet-400 rounded hover:bg-violet-500/30">
+                        <Printer className="w-3 h-3" />
+                      </button>
+                      <button onClick={() => abrirEdicion(c)} disabled={["CANCELADA"].includes(c.estatus)}
+                        className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30 disabled:opacity-30">
+                        Editar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
