@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { registrarPagoOC } from "@/lib/finanzas-payments";
 import { ArrowLeft, DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X } from "lucide-react";
 
 interface CuentaPorPagar {
@@ -25,8 +26,10 @@ export default function PorPagarPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
   const [pagando, setPagando] = useState<string | null>(null);
-  const [pagoModal, setPagoModal] = useState<{ id: string; saldo: number } | null>(null);
+  const [pagoModal, setPagoModal] = useState<{ id: string; total: number; pagado: number; saldo: number } | null>(null);
   const [pagoMonto, setPagoMonto] = useState("");
+  const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
+  const [pagoReferencia, setPagoReferencia] = useState("");
   const [pagoSaving, setPagoSaving] = useState(false);
 
   useEffect(() => { loadData(); }, []);
@@ -72,8 +75,11 @@ export default function PorPagarPage() {
 
 
   function abrirPagoModal(id: string, total: number, pagado: number) {
-    setPagoModal({ id, saldo: total - pagado });
-    setPagoMonto(String(total - pagado));
+    const saldo = +(total - pagado).toFixed(2);
+    setPagoModal({ id, total, pagado, saldo });
+    setPagoMonto(String(saldo));
+    setPagoMetodo("Transferencia");
+    setPagoReferencia("");
   }
 
   async function confirmarPago() {
@@ -81,17 +87,22 @@ export default function PorPagarPage() {
     const monto = Number(pagoMonto);
     if (isNaN(monto) || monto <= 0) return;
     setPagoSaving(true);
-    const cuenta = cuentas.find(c => c.id === pagoModal.id);
-    if (!cuenta) { setPagoSaving(false); return; }
-    const nuevoPagado = cuenta.monto_pagado + monto;
-    const { error } = await supabase.from("purchase_orders").update({ monto_pagado: nuevoPagado }).eq("id", pagoModal.id);
-    setPagoSaving(false);
-    if (error) {
-      alert("No se pudo registrar el pago: " + (error.message ?? "error desconocido"));
-      return;
+    try {
+      await registrarPagoOC({
+        ocId: pagoModal.id,
+        monto,
+        total: pagoModal.total,
+        expectedPagado: pagoModal.pagado,
+        metodo: pagoMetodo,
+        referencia: pagoReferencia,
+      });
+      setPagoModal(null);
+      await loadData();
+    } catch (e: any) {
+      alert(e?.message || "Error desconocido al registrar pago");
+    } finally {
+      setPagoSaving(false);
     }
-    setPagoModal(null);
-    loadData();
   }
 
   return (
@@ -206,11 +217,27 @@ export default function PorPagarPage() {
               <h3 className="text-lg font-bold text-white">Registrar Pago</h3>
               <button onClick={() => setPagoModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
-              <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
-              <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
+                <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0" max={pagoModal.saldo}
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Método de pago</label>
+                <select value={pagoMetodo} onChange={e => setPagoMetodo(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Efectivo">Efectivo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Referencia (opcional)</label>
+                <input type="text" value={pagoReferencia} onChange={e => setPagoReferencia(e.target.value)} placeholder="No. de referencia"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>

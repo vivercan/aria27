@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { registrarCobroEstimacion } from "@/lib/finanzas-payments";
 import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X, Loader2 } from "lucide-react";
 
 interface Estimacion {
@@ -25,7 +26,7 @@ export default function CobranzaPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
-  const [cobroModal, setCobroModal] = useState<{ id: string; monto: number } | null>(null);
+  const [cobroModal, setCobroModal] = useState<{ id: string; montoEstimado: number; retencion: number; cobrado: number; pendiente: number } | null>(null);
   const [cobroMonto, setCobroMonto] = useState("");
   const [cobroSaving, setCobroSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -43,8 +44,17 @@ export default function CobranzaPage() {
 
   async function guardar() {
     if (!form.obra_nombre || form.monto_estimado <= 0) { alert("Obra y monto son requeridos"); return; }
-    const { count } = await supabase.from("estimaciones").select("*", { count: "exact", head: true }).eq("obra_nombre", form.obra_nombre);
-    const numero = (count || 0) + 1;
+    // Folio derivado del max(numero) + 1 por obra. NOTA: sin unique constraint en
+    // (obra_nombre, numero) sigue habiendo riesgo de colisión bajo concurrencia.
+    // Mitigado a nivel cliente; deuda P1: añadir unique index en BD.
+    const { data: maxRow } = await supabase
+      .from("estimaciones")
+      .select("numero")
+      .eq("obra_nombre", form.obra_nombre)
+      .order("numero", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const numero = ((maxRow?.numero as number | undefined) || 0) + 1;
     const retencionMonto = form.monto_estimado * (form.retencion_fondo / 100);
 
     const { error } = await supabase.from("estimaciones").insert({
@@ -63,9 +73,18 @@ export default function CobranzaPage() {
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 }); loadData(); }
   }
 
-  function abrirCobroModal(id: string, monto: number) {
-    setCobroModal({ id, monto });
-    setCobroMonto(String(monto));
+  function abrirCobroModal(est: Estimacion) {
+    const retencion = est.retencion_fondo || 0;
+    const cobrado = est.monto_cobrado || 0;
+    const pendiente = +(est.monto_estimado - retencion - cobrado).toFixed(2);
+    setCobroModal({
+      id: est.id,
+      montoEstimado: est.monto_estimado,
+      retencion,
+      cobrado,
+      pendiente,
+    });
+    setCobroMonto(String(pendiente));
   }
 
   async function confirmarCobro() {
@@ -73,15 +92,21 @@ export default function CobranzaPage() {
     const montoCobrado = parseFloat(cobroMonto);
     if (isNaN(montoCobrado) || montoCobrado <= 0) return;
     setCobroSaving(true);
-    const { error } = await supabase.from("estimaciones").update({
-      monto_cobrado: montoCobrado,
-      status: "COBRADA",
-      fecha_cobro: new Date().toISOString().split("T")[0],
-    }).eq("id", cobroModal.id);
-    setCobroSaving(false);
-    if (error) { alert("Error al registrar cobro: " + error.message); return; }
-    setCobroModal(null);
-    loadData();
+    try {
+      await registrarCobroEstimacion({
+        estimacionId: cobroModal.id,
+        monto: montoCobrado,
+        montoEstimado: cobroModal.montoEstimado,
+        retencion: cobroModal.retencion,
+        expectedCobrado: cobroModal.cobrado,
+      });
+      setCobroModal(null);
+      await loadData();
+    } catch (e: any) {
+      alert(e?.message || "Error desconocido al registrar cobro");
+    } finally {
+      setCobroSaving(false);
+    }
   }
 
   const totalEstimado = estimaciones.reduce((s, e) => s + (e.monto_estimado || 0), 0);
@@ -215,7 +240,7 @@ export default function CobranzaPage() {
                   </td>
                   <td className="p-3 text-center">
                     {e.status !== "COBRADA" && (
-                      <button onClick={() => abrirCobroModal(e.id, e.monto_estimado - (e.retencion_fondo || 0))}
+                      <button onClick={() => abrirCobroModal(e)}
                         className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/30">
                         Cobrar
                       </button>
@@ -237,9 +262,9 @@ export default function CobranzaPage() {
             </div>
             <div>
               <label className="block text-xs text-slate-400 mb-1">Monto cobrado</label>
-              <input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0"
+              <input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0" max={cobroModal.pendiente}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
-              <p className="text-xs text-slate-500 mt-1">{`Estimado: $${cobroModal.monto.toLocaleString()}`}</p>
+              <p className="text-xs text-slate-500 mt-1">{`Pendiente cobrable: $${cobroModal.pendiente.toLocaleString()} (cobrado previo: $${cobroModal.cobrado.toLocaleString()}, retención: $${cobroModal.retencion.toLocaleString()})`}</p>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setCobroModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>

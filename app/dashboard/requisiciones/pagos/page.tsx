@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { registrarPagoOC } from "@/lib/finanzas-payments";
 import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
 
 interface PurchaseOrder {
@@ -24,7 +25,7 @@ export default function PagosPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("TODOS");
   const [stats, setStats] = useState({ total: 0, pagado: 0, pendiente: 0, ordenes: 0 });
-  const [pagoModal, setPagoModal] = useState<{ ocId: string; saldo: number } | null>(null);
+  const [pagoModal, setPagoModal] = useState<{ ocId: string; total: number; pagado: number; saldo: number } | null>(null);
   const [pagoMonto, setPagoMonto] = useState("");
   const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
   const [pagoReferencia, setPagoReferencia] = useState("");
@@ -73,7 +74,7 @@ export default function PagosPage() {
   function abrirPagoModal(ocId: string) {
     const oc = orders.find(o => o.id === ocId);
     if (!oc) return;
-    setPagoModal({ ocId, saldo: oc.saldo });
+    setPagoModal({ ocId, total: oc.total, pagado: oc.pagado || 0, saldo: oc.saldo });
     setPagoMonto(String(oc.saldo));
     setPagoMetodo("Transferencia");
     setPagoReferencia("");
@@ -85,27 +86,21 @@ export default function PagosPage() {
     if (isNaN(monto) || monto <= 0) return;
 
     setPagoSaving(true);
-    const oc = orders.find(o => o.id === pagoModal.ocId);
-    if (!oc) { setPagoSaving(false); return; }
-
-    const nuevoPagado = (oc.pagado || 0) + monto;
-    const nuevoStatus = nuevoPagado >= oc.total ? "PAGADA" : "PAGO_PARCIAL";
-
-    const { error } = await supabase
-      .from("purchase_orders")
-      .update({
-        monto_pagado: nuevoPagado,
-        status: nuevoStatus,
-        ultimo_pago_fecha: new Date().toISOString(),
-        ultimo_pago_metodo: pagoMetodo,
-        ultimo_pago_referencia: pagoReferencia,
-      })
-      .eq("id", pagoModal.ocId);
-
-    setPagoSaving(false);
-    if (!error) {
+    try {
+      await registrarPagoOC({
+        ocId: pagoModal.ocId,
+        monto,
+        total: pagoModal.total,
+        expectedPagado: pagoModal.pagado,
+        metodo: pagoMetodo,
+        referencia: pagoReferencia,
+      });
       setPagoModal(null);
-      loadData();
+      await loadData();
+    } catch (e: any) {
+      alert(e?.message || "Error desconocido al registrar pago");
+    } finally {
+      setPagoSaving(false);
     }
   }
 
@@ -233,7 +228,7 @@ export default function PagosPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
-                <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0"
+                <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0" max={pagoModal.saldo}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
                 <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
               </div>

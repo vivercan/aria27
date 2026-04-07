@@ -47,19 +47,45 @@ export default function FacturacionPage() {
 
   async function guardar() {
     if (!form.cliente || form.subtotal <= 0) { alert("Cliente y subtotal requeridos"); return; }
-    const { count } = await supabase.from("facturas").select("*", { count: "exact", head: true });
-    const folio = `${form.serie}-${String((count || 0) + 1).padStart(5, "0")}`;
-    const iva = form.subtotal * 0.16;
+    // Folio derivado del max(folio) por serie. NOTA: sin unique constraint en
+    // (serie, folio) sigue habiendo riesgo de colisión bajo concurrencia.
+    // Mitigación cliente + retry simple. Deuda P1: añadir unique index en BD.
+    const iva = +(form.subtotal * 0.16).toFixed(2);
+    const total = +(form.subtotal + iva).toFixed(2);
 
-    const { error } = await supabase.from("facturas").insert({
-      folio, serie: form.serie, cliente: form.cliente, rfc_cliente: form.rfc_cliente,
-      concepto: form.concepto, subtotal: form.subtotal, iva, total: form.subtotal + iva,
-      status: "EMITIDA", obra_nombre: form.obra_nombre, fecha_emision: new Date().toISOString().split("T")[0],
-      metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi,
-    });
+    const generarFolio = async (): Promise<string> => {
+      const { data: rows } = await supabase
+        .from("facturas")
+        .select("folio")
+        .eq("serie", form.serie)
+        .order("folio", { ascending: false })
+        .limit(1);
+      const last = rows?.[0]?.folio as string | undefined;
+      const lastNum = last ? parseInt(last.split("-").pop() || "0", 10) || 0 : 0;
+      return `${form.serie}-${String(lastNum + 1).padStart(5, "0")}`;
+    };
 
-    if (error) alert("Error: " + error?.message);
-    else { setShowForm(false); setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03" }); loadData(); }
+    const intentar = async (intento: number): Promise<{ ok: boolean; err?: string }> => {
+      const folio = await generarFolio();
+      const { error } = await supabase.from("facturas").insert({
+        folio, serie: form.serie, cliente: form.cliente, rfc_cliente: form.rfc_cliente,
+        concepto: form.concepto, subtotal: form.subtotal, iva, total,
+        status: "EMITIDA", obra_nombre: form.obra_nombre, fecha_emision: new Date().toISOString().split("T")[0],
+        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi,
+      });
+      if (!error) return { ok: true };
+      // Si fue colisión por unique constraint, reintentar una sola vez.
+      const msg = error.message || "";
+      const esDuplicado = /duplicate|unique|23505/i.test(msg);
+      if (esDuplicado && intento < 2) return intentar(intento + 1);
+      return { ok: false, err: msg };
+    };
+
+    const r = await intentar(1);
+    if (!r.ok) { alert("Error: " + r.err); return; }
+    setShowForm(false);
+    setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03" });
+    loadData();
   }
 
   const totalFacturado = facturas.reduce((s, f) => s + (f.total || 0), 0);
