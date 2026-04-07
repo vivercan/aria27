@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
       const { error: updReqErr } = await supabase.from("requisitions").update({
         status: "OC_GENERADA",
         authorization_comments: null,
-        approved_by: "direccion",
+        authorized_by: "direccion",
         authorized_at: new Date().toISOString(),
         proveedor: supplierName,
         forma_pago: elegidoData.forma_pago || null,
