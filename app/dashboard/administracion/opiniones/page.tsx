@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import {
   ArrowLeft, ScrollText, Upload, Loader2, Download,
   Trash2, CheckCircle2, AlertTriangle, Clock, FileText, X
@@ -57,27 +58,24 @@ export default function OpinionesPage() {
     setUploading(uploadTarget);
 
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
-      const filePath = `opiniones/${uploadTarget}/${Date.now()}.${ext}`;
-
-      const { error: uploadErr } = await supabase.storage
-        .from("documentos")
-        .upload(filePath, file, { upsert: true });
-      if (uploadErr) throw uploadErr;
-
-      const { data: urlData } = supabase.storage.from("documentos").getPublicUrl(filePath);
-
+      const path = buildPath({ module: "opiniones", scope: [uploadTarget], file: file as unknown as File });
       const vigencia = new Date();
       vigencia.setDate(vigencia.getDate() + 30);
 
-      const { error: insertErr } = await supabase.from("expedientes_archivos").insert({
-        carpeta_id: "opiniones_cumplimiento",
-        tipo: uploadTarget,
-        nombre: `${OPINIONES.find(o => o.key === uploadTarget)?.label || uploadTarget} - ${file.name}`,
-        url: urlData.publicUrl,
-        vigencia: vigencia.toISOString().split("T")[0],
+      await uploadAndInsert({
+        bucket: "documentos",
+        path,
+        file: file as unknown as File,
+        upsert: true,
+        table: "expedientes_archivos",
+        payload: {
+          carpeta_id: "opiniones_cumplimiento",
+          tipo: uploadTarget,
+          nombre: `${OPINIONES.find(o => o.key === uploadTarget)?.label || uploadTarget} - ${file.name}`,
+          vigencia: vigencia.toISOString().split("T")[0],
+        },
+        urlField: "url",
       });
-      if (insertErr) throw insertErr;
 
       await loadDocs();
     } catch (err: any) {
@@ -94,9 +92,21 @@ export default function OpinionesPage() {
     if (!confirm(`¿Eliminar ${doc.nombre}?`)) return;
     setDeleting(doc.id);
     try {
-      await supabase.from("expedientes_archivos").delete().eq("id", doc.id);
+      const result = await deleteRowAndBlob({
+        table: "expedientes_archivos",
+        id: doc.id,
+        userEmail: "admin@aria27",
+        bucket: "documentos",
+        blobUrlField: "url",
+      });
+      if (result.orphanPath) {
+        alert(`Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
+      }
       await loadDocs();
-    } catch (e) { console.error(e); }
+    } catch (e: any) {
+      console.error(e);
+      alert("Error al eliminar: " + (e?.message || "desconocido"));
+    }
     finally { setDeleting(null); }
   }
 

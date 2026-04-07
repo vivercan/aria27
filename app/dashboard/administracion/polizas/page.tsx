@@ -2,6 +2,7 @@
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
+import { uploadAndInsert, uploadAndUpdate, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -98,49 +99,40 @@ export default function PolizasPage() {
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
-
-    let urlFile = form.documento_url || null;
-
-    if (form.file) {
-      const timestamp = Date.now();
-      const ext = form.file.name.split(".").pop() || "pdf";
-      const path = `polizas/${form.obra_id}/${timestamp}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("expedientes")
-        .upload(path, form.file, { upsert: false });
-
-      if (uploadError) {
-        msg("error", uploadError.message);
-        setGuardando(false);
-        return;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("expedientes")
-        .getPublicUrl(path);
-
-      urlFile = publicUrl;
-    }
-
     const estatusActualizado = getEstatusActualizado(form.estatus, form.fecha_vencimiento);
-
-    const payload: any = {
+    const basePayload: any = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       numero_poliza: form.numero_poliza.trim(), tipo: form.tipo,
       aseguradora: form.aseguradora.trim(), fecha_inicio: form.fecha_inicio || null,
       fecha_vencimiento: form.fecha_vencimiento || null, cobertura: form.cobertura?.trim() || null,
       prima: form.prima ? parseFloat(form.prima) : null,
-      estatus: estatusActualizado, documento_url: urlFile,
+      estatus: estatusActualizado,
       contacto: form.contacto?.trim() || null, observaciones: form.observaciones?.trim() || null,
     };
 
-    if (editId) {
-      const { error } = await supabase.from("polizas_seguro").update(payload).eq("id", editId);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar(); }
-    } else {
-      const { error } = await supabase.from("polizas_seguro").insert(payload);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Póliza registrada"); setShowForm(false); cargar(); }
+    try {
+      if (!editId) {
+        if (form.file) {
+          const path = buildPath({ module: "polizas", scope: [form.obra_id, form.tipo], file: form.file });
+          await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "polizas_seguro", payload: basePayload, urlField: "documento_url" });
+        } else {
+          const { error } = await supabase.from("polizas_seguro").insert({ ...basePayload, documento_url: form.documento_url || null });
+          if (error) throw new Error(error.message);
+        }
+        msg("success", "Póliza registrada"); setShowForm(false); cargar();
+      } else {
+        const newPath = form.file ? buildPath({ module: "polizas", scope: [form.obra_id, form.tipo], file: form.file }) : undefined;
+        await uploadAndUpdate({
+          bucket: "expedientes", table: "polizas_seguro", id: editId,
+          newFile: form.file, newPath,
+          payload: basePayload,
+          oldUrl: form.documento_url || null,
+          urlField: "documento_url",
+        });
+        msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar();
+      }
+    } catch (e: any) {
+      msg("error", e?.message || "Error");
     }
     setGuardando(false);
   };
@@ -160,7 +152,10 @@ export default function PolizasPage() {
   };
 
   const confirmDelete = async () => {
-    try { await backupAndDelete({ table: "polizas_seguro", id: deleteModal.id, userEmail }); msg("success", "Eliminado"); } catch (e: any) { msg("error", e?.message || "Error"); }
+    try {
+      const r = await deleteRowAndBlob({ table: "polizas_seguro", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
+      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

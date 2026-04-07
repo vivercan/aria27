@@ -2,6 +2,7 @@
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
+import { uploadAndInsert, uploadAndUpdate, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -79,45 +80,38 @@ export default function PlanosPage() {
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
-
-    let urlFile = form.url || null;
-
-    if (form.file) {
-      const timestamp = Date.now();
-      const ext = form.file.name.split(".").pop() || "pdf";
-      const path = `planos/${form.obra_id}/${timestamp}.${ext}`;
-
-      const { error: uploadError, data: uploadData } = await supabase.storage
-        .from("expedientes")
-        .upload(path, form.file, { upsert: false });
-
-      if (uploadError) {
-        msg("error", uploadError.message);
-        setGuardando(false);
-        return;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("expedientes")
-        .getPublicUrl(path);
-
-      urlFile = publicUrl;
-    }
-
-    const payload: any = {
+    const basePayload: any = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       nombre: form.nombre.trim(), disciplina: form.disciplina,
-      revision: form.revision, url: urlFile,
+      revision: form.revision,
       tipo_archivo: form.tipo_archivo, fecha_recepcion: form.fecha_recepcion || null,
       responsable: form.responsable?.trim() || null, observaciones: form.observaciones?.trim() || null,
     };
 
-    if (editId) {
-      const { error } = await supabase.from("planos").update(payload).eq("id", editId);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Plano actualizado"); setShowForm(false); setEditId(null); cargar(); }
-    } else {
-      const { error } = await supabase.from("planos").insert(payload);
-      if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Plano registrado"); setShowForm(false); cargar(); }
+    try {
+      if (!editId) {
+        // CREATE
+        if (form.file) {
+          const path = buildPath({ module: "planos", scope: [form.obra_id, form.disciplina], file: form.file });
+          await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "planos", payload: basePayload, urlField: "url" });
+        } else {
+          const { error } = await supabase.from("planos").insert({ ...basePayload, url: form.url || null });
+          if (error) throw new Error(error.message);
+        }
+        msg("success", "Plano registrado"); setShowForm(false); cargar();
+      } else {
+        const newPath = form.file ? buildPath({ module: "planos", scope: [form.obra_id, form.disciplina], file: form.file }) : undefined;
+        await uploadAndUpdate({
+          bucket: "expedientes", table: "planos", id: editId,
+          newFile: form.file, newPath,
+          payload: basePayload,
+          oldUrl: form.url || null,
+          urlField: "url",
+        });
+        msg("success", "Plano actualizado"); setShowForm(false); setEditId(null); cargar();
+      }
+    } catch (e: any) {
+      msg("error", e?.message || "Error");
     }
     setGuardando(false);
   };
@@ -134,7 +128,10 @@ export default function PlanosPage() {
   };
 
   const confirmDelete = async () => {
-    try { await backupAndDelete({ table: "planos", id: deleteModal.id, userEmail }); msg("success", "Eliminado"); } catch (e: any) { msg("error", e?.message || "Error"); }
+    try {
+      const r = await deleteRowAndBlob({ table: "planos", id: deleteModal.id, userEmail, bucket: "expedientes" });
+      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

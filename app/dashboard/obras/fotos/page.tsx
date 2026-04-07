@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
+import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import DeleteModal from "@/components/DeleteModal";
 import {
   ArrowLeft, Plus, Camera, Search, Upload, Eye, Trash2, X, Loader2, Image
@@ -70,40 +71,41 @@ export default function FotosPage() {
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
 
-    const timestamp = Date.now();
-    const ext = form.file.name.split(".").pop() || "jpg";
-    const path = `fotos/${form.obra_id}/${timestamp}.${ext}`;
+    const path = buildPath({
+      module: "fotos",
+      scope: [form.obra_id, form.fase || "estructura"],
+      file: form.file,
+    });
 
-    const { error: uploadError } = await supabase.storage
-      .from("expedientes")
-      .upload(path, form.file, { upsert: false });
-
-    if (uploadError) {
-      msg("error", uploadError.message);
-      setGuardando(false);
-      return;
+    try {
+      await uploadAndInsert({
+        bucket: "expedientes",
+        path,
+        file: form.file,
+        table: "fotos_avance",
+        payload: {
+          obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
+          fecha: form.fecha || new Date().toISOString().split("T")[0],
+          descripcion: form.descripcion?.trim() || null,
+          fase: form.fase, ubicacion: form.ubicacion?.trim() || null,
+          responsable: form.responsable?.trim() || null,
+        },
+        urlField: "url",
+      });
+      msg("success", "Foto registrada");
+      setShowForm(false);
+      cargar();
+    } catch (err: any) {
+      msg("error", err?.message || "Error al subir");
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from("expedientes")
-      .getPublicUrl(path);
-
-    const payload: any = {
-      obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
-      fecha: form.fecha || new Date().toISOString().split("T")[0],
-      url: publicUrl, descripcion: form.descripcion?.trim() || null,
-      fase: form.fase, ubicacion: form.ubicacion?.trim() || null,
-      responsable: form.responsable?.trim() || null,
-    };
-
-    const { error } = await supabase.from("fotos_avance").insert(payload);
-    if (error) msg("error", error?.message ?? "Error");
-    else { msg("success", "Foto registrada"); setShowForm(false); cargar(); }
     setGuardando(false);
   };
 
   const confirmDelete = async () => {
-    try { await backupAndDelete({ table: "fotos_avance", id: deleteModal.id, userEmail }); msg("success", "Eliminado"); } catch (e: any) { msg("error", e?.message || "Error"); }
+    try {
+      const r = await deleteRowAndBlob({ table: "fotos_avance", id: deleteModal.id, userEmail, bucket: "expedientes" });
+      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

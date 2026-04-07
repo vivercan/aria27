@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { uploadAndInsert, buildPath } from "@/lib/storage";
 import {
   ArrowLeft, Upload, FileText, Search, Loader2, FolderOpen,
   Download, Trash2, Eye, Plus, X, ChevronRight, File
@@ -94,32 +95,24 @@ export default function DocumentacionPage() {
 
   const subirArchivo = async (file: globalThis.File, carpetaId: string) => {
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const filePath = `documentacion-legal/${carpetaId}/${Date.now()}.${ext}`;
-
-    const { error: uploadErr } = await supabase.storage
-      .from("expedientes")
-      .upload(filePath, file);
-
-    if (uploadErr) {
-      msg("error", uploadErr?.message ?? "Error al subir archivo");
-      setUploading(false);
-      return;
+    const path = buildPath({ module: "documentacion-legal", scope: [carpetaId], file: file as unknown as File });
+    try {
+      await uploadAndInsert({
+        bucket: "expedientes",
+        path,
+        file: file as unknown as File,
+        table: "expedientes_archivos",
+        payload: {
+          carpeta_id: carpetaId,
+          nombre: file.name,
+          tipo: file.type || file.name.split(".").pop() || "application/octet-stream",
+        },
+        urlField: "url",
+      });
+      msg("success", `"${file.name}" subido exitosamente`);
+    } catch (err: any) {
+      msg("error", err?.message || "Error al subir");
     }
-
-    const { data: urlData } = supabase.storage
-      .from("expedientes")
-      .getPublicUrl(filePath);
-
-    const { error: insertErr } = await supabase.from("expedientes_archivos").insert({
-      carpeta_id: carpetaId,
-      nombre: file.name,
-      tipo: file.type || ext || "application/octet-stream",
-      url: urlData?.publicUrl || filePath,
-    });
-
-    if (insertErr) { msg("error", insertErr?.message ?? "Error al registrar"); }
-    else { msg("success", `"${file.name}" subido exitosamente`); }
     setUploading(false);
     cargar();
   };

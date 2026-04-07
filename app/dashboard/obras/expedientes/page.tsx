@@ -2,6 +2,7 @@
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
+import { uploadAndInsert, buildPath } from "@/lib/storage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -214,36 +215,34 @@ export default function ExpedientesPage() {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !carpetaSeleccionada) return;
+    if (!e.target.files || !carpetaSeleccionada || !obraSeleccionada) return;
     const file = e.target.files[0];
 
-    // Subir a Supabase Storage
-    const fileName = `${Date.now()}_${file.name}`;
-    const { data: uploadData, error } = await supabase.storage
-      .from("expedientes")
-      .upload(fileName, file);
-
-    if (error) {
-      alert("Error al subir archivo: " + error?.message);
-      return;
-    }
-
-    const { data: { publicUrl } } = supabase.storage.from("expedientes").getPublicUrl(fileName);
-
-    const { error: insertError } = await supabase.from("expedientes_archivos").insert({
-      carpeta_id: carpetaSeleccionada.id,
-      nombre: file.name,
-      tipo: file.type,
-      url: publicUrl,
-      tamano_bytes: file.size,
+    // Path con namespace estructurado: expedientes/<obra>/<carpeta>/<ts_filename>
+    const path = buildPath({
+      module: "expedientes",
+      scope: [obraSeleccionada.id, carpetaSeleccionada.id],
+      file,
     });
 
-    if (insertError) {
-      console.error("Error inserting archivo record:", insertError?.message);
-      return;
+    try {
+      await uploadAndInsert({
+        bucket: "expedientes",
+        path,
+        file,
+        table: "expedientes_archivos",
+        payload: {
+          carpeta_id: carpetaSeleccionada.id,
+          nombre: file.name,
+          tipo: file.type,
+          tamano_bytes: file.size,
+        },
+        urlField: "url",
+      });
+      loadArchivos(carpetaSeleccionada.id);
+    } catch (err: any) {
+      alert(err?.message || "Error al subir archivo");
     }
-
-    loadArchivos(carpetaSeleccionada.id);
   };
 
   const getPrioridadColor = (prioridad: string) => {
