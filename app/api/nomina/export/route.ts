@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 const log = logger("NOMINA-EXPORT");
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = getSupabaseAdmin();
 
 export async function POST(req: NextRequest) {
   try {
