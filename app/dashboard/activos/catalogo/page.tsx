@@ -206,29 +206,7 @@ export default function ActivosCatalogoPage() {
   };
 
   const devolverActivo = async (asig: Asignacion) => {
-    setDeleteModal({open:true,id:asig.id,name:""}); return; // Protected by DeleteModal
-
-    // OPTIMISTIC LOCK: solo devuelve si la asignación sigue activa
-    const { data: rows, error: updateAsigError } = await supabase
-      .from("activos_asignaciones")
-      .update({ activa: false, fecha_devolucion: new Date().toISOString().split("T")[0] })
-      .eq("id", asig.id)
-      .eq("activa", true)
-      .select("id");
-    if (updateAsigError) { alert("Error al devolver: " + updateAsigError.message); return; }
-    if (!rows || rows.length === 0) {
-      alert("Esta asignación ya fue devuelta por otro usuario. Recarga.");
-      cargarDatos();
-      return;
-    }
-
-    const { error: updateActivoError } = await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", asig.activo_id);
-    if (updateActivoError) {
-      alert("Devuelta, pero error al liberar activo: " + updateActivoError.message);
-      return;
-    }
-
-    cargarDatos();
+    setDeleteModal({open:true,id:asig.id,name:""}); // Protected by DeleteModal
   };
 
   // === CRUD MANTENIMIENTO ===
