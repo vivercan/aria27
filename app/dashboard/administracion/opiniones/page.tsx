@@ -42,7 +42,14 @@ export default function OpinionesPage() {
         .select("*")
         .eq("carpeta_id", "opiniones_cumplimiento")
         .order("created_at", { ascending: false });
-      setDocs((data || []) as OpinionDoc[]);
+      // vigencia se calcula client-side: created_at + 30 días (la columna no existe en BD)
+      const enriched = (data || []).map((d: any) => ({
+        ...d,
+        vigencia: d.created_at
+          ? new Date(new Date(d.created_at).getTime() + 30 * 86400000).toISOString().split("T")[0]
+          : null,
+      }));
+      setDocs(enriched as OpinionDoc[]);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
@@ -59,11 +66,9 @@ export default function OpinionesPage() {
 
     try {
       const path = buildPath({ module: "opiniones", scope: [uploadTarget], file: file as unknown as File });
-      const vigencia = new Date();
-      vigencia.setDate(vigencia.getDate() + 30);
 
       await uploadAndInsert({
-        bucket: "documentos",
+        bucket: "expedientes",
         path,
         file: file as unknown as File,
         upsert: true,
@@ -72,7 +77,6 @@ export default function OpinionesPage() {
           carpeta_id: "opiniones_cumplimiento",
           tipo: uploadTarget,
           nombre: `${OPINIONES.find(o => o.key === uploadTarget)?.label || uploadTarget} - ${file.name}`,
-          vigencia: vigencia.toISOString().split("T")[0],
         },
         urlField: "url",
       });
@@ -96,7 +100,7 @@ export default function OpinionesPage() {
         table: "expedientes_archivos",
         id: doc.id,
         userEmail: "admin@aria27",
-        bucket: "documentos",
+        bucket: "expedientes",
         blobUrlField: "url",
       });
       if (result.orphanPath) {
