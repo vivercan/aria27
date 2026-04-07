@@ -62,14 +62,15 @@ export default function AuthorizeRequisicionesPage() {
 
     try {
       if (action === "REVISION") {
-        // Devolver: solo PATCH directo, no hay endpoint dedicado
-        const { error: updErr } = await supabase.from("requisitions").update({
+        // Devolver: solo PATCH directo con OPTIMISTIC LOCK sobre status
+        const { data: rows, error: updErr } = await supabase.from("requisitions").update({
           status: action,
           authorized_by: "autorizador@gcuavante.com",
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
-        }).eq("id", selectedReq.id);
+        }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
         if (updErr) { alert("Error al devolver requisición: " + updErr.message); setProcessing(false); return; }
+        if (!rows || rows.length === 0) { alert("Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       } else if (selectedReq.authorization_comments && selectedReq.status === "EN_AUTORIZACION") {
         // APROBADA o RECHAZADA con token valido: usar endpoint approve-purchase
         const apiAction = action === "APROBADA" ? "AUTORIZADA" : "RECHAZADA";
@@ -81,14 +82,15 @@ export default function AuthorizeRequisicionesPage() {
           alert("Error al procesar: " + res.status);
         }
       } else {
-        // Fallback: PATCH directo para requisiciones sin token (PENDIENTE sin comparativa)
-        const { error: updErr } = await supabase.from("requisitions").update({
+        // Fallback: PATCH directo con OPTIMISTIC LOCK sobre status
+        const { data: rows, error: updErr } = await supabase.from("requisitions").update({
           status: action,
           authorized_by: "autorizador@gcuavante.com",
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
-        }).eq("id", selectedReq.id);
+        }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
         if (updErr) { alert("Error al procesar autorización: " + updErr.message); setProcessing(false); return; }
+        if (!rows || rows.length === 0) { alert("Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       }
     } catch (err: any) {
       console.error("Error en handleAction:", err);
