@@ -50,7 +50,7 @@ export default function DocumentacionPage() {
     const { data: carps } = await supabase
       .from("expedientes_carpetas")
       .select("*")
-      .or("obra_id.is.null,obra_id.eq.0")
+      .is("obra_id", null)
       .order("orden");
 
     if (carps && carps.length > 0) {

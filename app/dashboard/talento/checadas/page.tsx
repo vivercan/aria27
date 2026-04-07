@@ -17,7 +17,9 @@ interface Asistencia {
 export default function ChecadasPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const hoy = new Date().toISOString().split("T")[0];
+  const [fechaInicio, setFechaInicio] = useState(hoy);
+  const [fechaFin, setFechaFin] = useState(hoy);
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -25,18 +27,50 @@ export default function ChecadasPage() {
   const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
 
   useEffect(() => { cargarAsistencias();
-    supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fecha]);
+    supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fechaInicio, fechaFin]);
 
   const cargarAsistencias = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("asistencias")
       .select("*, employees(full_name, employee_number)")
-      .eq("fecha", fecha)
+      .gte("fecha", fechaInicio)
+      .lte("fecha", fechaFin)
+      .order("fecha", { ascending: false })
       .order("hora_entrada", { ascending: true });
-    if (data) setAsistencias(data);
+
+    let registros: Asistencia[] = (data as any) || [];
+
+    // Fallback: enriquecer registros sin nombre desde Personal (VIEW) por employee_id
+    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: any) => r.employee_id).filter(Boolean);
+    if (sinNombre.length > 0) {
+      const { data: extras } = await supabase
+        .from("Personal")
+        .select("id, full_name, employee_number")
+        .in("id", Array.from(new Set(sinNombre)));
+      if (extras) {
+        const map: Record<string, { full_name: string; employee_number: string }> = {};
+        extras.forEach((e: any) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
+        registros = registros.map((r: any) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id] || r.employees });
+      }
+    }
+
+    setAsistencias(registros);
     setLoading(false);
   };
+
+  // Acumulados por empleado en el rango
+  const acumulados = (() => {
+    const map: Record<string, { nombre: string; numero: string; total: number; completas: number; sinSalida: number }> = {};
+    asistencias.forEach((a: any) => {
+      const key = a.employee_id || a.employees?.employee_number || "desconocido";
+      if (!map[key]) map[key] = { nombre: a.employees?.full_name || "Sin nombre", numero: a.employees?.employee_number || "—", total: 0, completas: 0, sinSalida: 0 };
+      map[key].total += 1;
+      if (a.hora_entrada && a.hora_salida) map[key].completas += 1;
+      if (a.hora_entrada && !a.hora_salida) map[key].sinSalida += 1;
+    });
+    return Object.values(map).sort((x, y) => y.total - x.total);
+  })();
 
   const stats = {
     total: asistencias.length,
@@ -79,9 +113,15 @@ export default function ChecadasPage() {
             <p className="text-slate-400">Control de entradas y salidas</p>
           </div>
           <div className="flex items-center gap-2">
-            <input type="date" value={fecha} onChange={e => setFecha(e.target.value)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
-            <Link href="/dashboard/talento/checadas/incompletas" 
+            <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} title="Desde"
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            <span className="text-slate-500 text-xs">→</span>
+            <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} title="Hasta"
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            <button onClick={() => { setFechaInicio(hoy); setFechaFin(hoy); }} className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs">Hoy</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d); start.setDate(d.getDate() - 6); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs">7 días</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d.getFullYear(), d.getMonth(), 1); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs">Mes</button>
+            <Link href="/dashboard/talento/checadas/incompletas"
               className="px-4 py-2 bg-amber-500/20 text-amber-400 rounded-lg hover:bg-amber-500/30">
               Ver Incompletas
             </Link>
@@ -107,6 +147,20 @@ export default function ChecadasPage() {
           </div>
         </div>
       </div>
+
+      {acumulados.length > 0 && (fechaInicio !== fechaFin) && (
+        <div className="flex-none px-6 py-3 border-b border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-slate-400 mb-2">Acumulados por empleado ({fechaInicio} → {fechaFin})</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+            {acumulados.map(a => (
+              <div key={a.numero + a.nombre} className="flex items-center justify-between px-3 py-1.5 rounded bg-white/5 text-xs">
+                <span className="text-white truncate flex-1">{a.nombre}</span>
+                <span className="text-slate-400 ml-2">{a.total} reg · {a.completas} ok · {a.sinSalida} sin salida</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto p-6">
         {loading ? (
