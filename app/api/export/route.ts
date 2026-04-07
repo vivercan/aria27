@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/src/lib/supabase-server";
 import { logger } from "@/lib/logger";
 const log = logger("EXPORT");
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = getSupabaseAdmin();
 
 const PAGE_SIZE = 1000;
 
