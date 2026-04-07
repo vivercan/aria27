@@ -142,14 +142,15 @@ export default function CosteoPage() {
                 <th className="text-right p-3">Subcontratos</th>
                 <th className="text-right p-3">Indirectos</th>
                 <th className="text-right p-3">Costo Real</th>
+                <th className="text-right p-3">Diferencia</th>
                 <th className="text-center p-3">% Avance</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin datos de costeo</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin datos de costeo</td></tr>
               ) : filtered.map(o => (
                 <tr key={o.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
                   <td className="p-3 text-white font-medium">{o.obra}</td>
@@ -159,6 +160,9 @@ export default function CosteoPage() {
                   <td className="p-3 text-right text-cyan-400">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {o.diferencia >= 0 ? "+" : "-"}${Math.abs(o.diferencia).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                  </td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden">

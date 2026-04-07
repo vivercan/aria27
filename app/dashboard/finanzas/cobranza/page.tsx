@@ -132,9 +132,14 @@ export default function CobranzaPage() {
           <h1 className="text-2xl font-bold text-white">Cobranza</h1>
           <p className="text-slate-400 text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nueva Estimación
-        </button>
+        <div className="flex gap-2">
+          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-xl text-sm font-medium hover:bg-violet-500/30 transition-colors flex items-center gap-2">
+            <DollarSign className="w-4 h-4" /> Cobros Manuales
+          </a>
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Nueva Estimación
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
