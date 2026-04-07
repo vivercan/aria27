@@ -169,7 +169,6 @@ export async function GET(request: NextRequest) {
         folio: ocFolio,
         requisition_id: req.id,
         supplier_name: supplierName,
-        obra_nombre: req.cost_center_name || null,
         total: total,
         status: "GENERADA",
         payment_method: elegidoData.forma_pago || "Transferencia",
