@@ -32,15 +32,29 @@ function buildComparativaHTML(req: any, token: string) {
   if (suppliers.length > 0) {
     supData = suppliers.map((s: any) => {
       const sub = itemsDet.reduce((sum: number, it: any) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
-      return {...s, subtotal:sub, iva:sub*0.16, total:sub*1.16};
+      const tr = typeof s.tax_rate === "number" ? s.tax_rate : 16;
+      const iva = +(sub * (tr/100)).toFixed(2);
+      const total = +(sub + iva).toFixed(2);
+      const apct = typeof s.advance_percentage === "number" ? s.advance_percentage : 0;
+      const aamt = +(total * (apct/100)).toFixed(2);
+      return {...s, subtotal:sub, tax_rate:tr, iva, total, advance_percentage:apct, advance_amount:aamt};
     });
   } else {
-    const grp: Record<string,any> = {};
-    quotes.forEach((q: any) => {
-      if(!grp[q.supplier]) grp[q.supplier]={supplier:q.supplier,subtotal:0,entrega:q.entrega||"-",forma_pago:q.forma_pago||"-",factura:q.factura,rebaja_iva:false,observaciones:"",items_prices:{}};
-      grp[q.supplier].subtotal+=(q.total||0);
-    });
-    supData = Object.values(grp).map((s: any)=>({...s,iva:s.subtotal*0.16,total:s.subtotal*1.16}));
+    supData = quotes.map((q: any) => ({
+      supplier: q.supplier,
+      subtotal: Number(q.subtotal ?? q.total ?? 0),
+      tax_rate: Number(q.tax_rate ?? 16),
+      iva: Number(q.iva ?? 0),
+      total: Number(q.total ?? 0),
+      advance_percentage: Number(q.advance_percentage ?? 0),
+      advance_amount: Number(q.advance_amount ?? 0),
+      entrega: q.entrega || "-",
+      forma_pago: q.forma_pago || "-",
+      factura: q.factura,
+      rebaja_iva: false,
+      observaciones: q.notas || "",
+      items_prices: {},
+    }));
   }
   const bt = supData.length>0?Math.min(...supData.filter((s: any)=>s.subtotal>0).map((s: any)=>s.total)):0;
   const sH = supData.map((s: any)=>`<th style="padding:10px 8px;text-align:center;font-size:12px;border:1px solid #334155;${s.total===bt&&bt>0?"background:#16a34a;color:white":"background:#1e3a5f;color:white"}">${s.supplier}</th>`).join("");
@@ -52,13 +66,15 @@ function buildComparativaHTML(req: any, token: string) {
   }).join("");
   const mR=(l: string,fn: (s: any)=>number,b: boolean)=>`<tr style="background:#f1f5f9"><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">${l}</td>${supData.map((s: any)=>{const v=fn(s);const ic=s.total===bt&&bt>0;const bg=ic?(b?"background:#16a34a;color:white;":"background:#dcfce7;"):"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${b?"font-weight:bold;":""}${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
 
+  const ivaLabelRow = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">I.V.A.</td>${supData.map((s: any)=>{const ic=s.total===bt&&bt>0;const bg=ic?"background:#dcfce7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
+  const advanceR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#b45309">ANTICIPO</td>${supData.map((s: any)=>{const pct=s.advance_percentage||0;const amt=s.advance_amount||0;const ic=s.total===bt&&bt>0;const bg=ic?"background:#fef3c7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
   const rebajaR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">&iquest;REBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
   const obsR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">OBSERVACIONES</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones||s.entrega||"-"}</td>`).join("")}</tr>`;
 
   const linkAprobar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=aprobar`;
   const linkRechazar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=rechazar`;
 
-  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${mR("I.V.A. (16%)",(s: any)=>s.iva,false)}${mR("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
+  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${ivaLabelRow}${mR("TOTAL",(s: any)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
 }
 
 export async function GET(request: NextRequest) {
@@ -126,8 +142,12 @@ export async function GET(request: NextRequest) {
         const itemsDet = cotData.items_detail || [];
         elegidoData = suppliers.reduce((best: any, s: any) => {
           const sub = itemsDet.reduce((sum: number, it: any) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
-          const tot = sub * 1.16;
-          if (!best.total || (tot > 0 && tot < best.total)) return {...s, subtotal: sub, total: tot};
+          const tr = typeof s.tax_rate === "number" ? s.tax_rate : 16;
+          const iva = +(sub * (tr/100)).toFixed(2);
+          const tot = +(sub + iva).toFixed(2);
+          const apct = typeof s.advance_percentage === "number" ? s.advance_percentage : 0;
+          const aamt = +(tot * (apct/100)).toFixed(2);
+          if (!best.total || (tot > 0 && tot < best.total)) return {...s, subtotal: sub, tax_rate: tr, iva, total: tot, advance_percentage: apct, advance_amount: aamt};
           return best;
         }, {});
       }
@@ -136,7 +156,12 @@ export async function GET(request: NextRequest) {
       }
 
       supplierName = elegidoData.supplier || "N/A";
-      total = elegidoData.total || (elegidoData.subtotal ? elegidoData.subtotal * 1.16 : 0);
+      const elegTaxRate = typeof elegidoData.tax_rate === "number" ? elegidoData.tax_rate : 16;
+      const elegSubtotal = Number(elegidoData.subtotal ?? 0);
+      const elegIva = elegidoData.iva != null ? Number(elegidoData.iva) : +(elegSubtotal * (elegTaxRate/100)).toFixed(2);
+      total = Number(elegidoData.total ?? +(elegSubtotal + elegIva).toFixed(2));
+      const elegAdvPct = Number(elegidoData.advance_percentage ?? 0);
+      const elegAdvAmt = Number(elegidoData.advance_amount ?? +(total * (elegAdvPct/100)).toFixed(2));
 
       // Bloquear OC con total $0 - redirigir a selección manual de proveedor
       if (total <= 0) {
@@ -169,7 +194,12 @@ export async function GET(request: NextRequest) {
         folio: ocFolio,
         requisition_id: req.id,
         supplier_name: supplierName,
+        subtotal: elegSubtotal,
+        tax_rate: elegTaxRate,
+        iva: elegIva,
         total: total,
+        advance_percentage: elegAdvPct,
+        advance_amount: elegAdvAmt,
         status: "GENERADA",
         payment_method: elegidoData.forma_pago || "Transferencia",
         credit_days: elegidoData.dias_credito || 0,

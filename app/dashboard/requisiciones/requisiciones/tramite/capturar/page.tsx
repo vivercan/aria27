@@ -31,6 +31,11 @@ type QuoteRow = {
   emite_factura: boolean;
   notes: string;
   total: number;
+  subtotal: number | null;
+  tax_rate: number | null;
+  iva: number | null;
+  advance_percentage: number | null;
+  advance_amount: number | null;
   created_at: string;
 };
 
@@ -70,7 +75,11 @@ function CapturarContent() {
   const [tipoCredito, setTipoCredito] = useState("CONTADO");
   const [emiteFactura, setEmiteFactura] = useState(true);
   const [notas, setNotas] = useState("");
+  // Precios SIN IVA por item (canónico)
   const [itemPrices, setItemPrices] = useState<Record<number, number>>({});
+  // IVA y anticipo a nivel cotización
+  const [taxRate, setTaxRate] = useState<number>(16);
+  const [advancePct, setAdvancePct] = useState<number>(0);
 
   useEffect(() => { if (reqId) loadAll(); else setLoading(false); }, [reqId]);
 
@@ -91,7 +100,15 @@ function CapturarContent() {
     setLoading(false);
   };
 
-  const formTotal = () => items.reduce((s, i) => s + ((itemPrices[i.id] || 0) * i.quantity), 0);
+  // Subtotal SIN IVA
+  const formSubtotal = () => items.reduce((s, i) => s + ((itemPrices[i.id] || 0) * i.quantity), 0);
+  const formIva = () => +(formSubtotal() * (taxRate / 100)).toFixed(2);
+  const formTotal = () => +(formSubtotal() + formIva()).toFixed(2);
+  const formAdvance = () => +((formTotal() * (advancePct / 100))).toFixed(2);
+  // Helpers de sincronía SIN IVA <-> CON IVA por unidad
+  const unitWithTax = (id: number) => +(((itemPrices[id] || 0) * (1 + taxRate / 100))).toFixed(4);
+  const setUnitWithoutTax = (id: number, v: number) => setItemPrices(p => ({ ...p, [id]: v }));
+  const setUnitWithTax = (id: number, v: number) => setItemPrices(p => ({ ...p, [id]: +(v / (1 + taxRate / 100)).toFixed(4) }));
 
   const resetForm = () => {
     setSupplierName("");
@@ -102,13 +119,26 @@ function CapturarContent() {
     setEmiteFactura(true);
     setNotas("");
     setItemPrices({});
+    setTaxRate(16);
+    setAdvancePct(0);
     setShowForm(false);
   };
 
   const guardarCotizacion = async () => {
-    if (!supplierName.trim() || formTotal() <= 0) return;
+    if (!supplierName.trim() || formSubtotal() <= 0) return;
+    if (taxRate < 0 || taxRate > 100) { alert("Tasa de IVA inválida (0-100)"); return; }
+    if (![0, 30, 50, 100].includes(advancePct)) { alert("Anticipo inválido"); return; }
     setSaving(true);
     try {
+      const subtotal = formSubtotal();
+      const iva = formIva();
+      const total = formTotal();
+      const advance_amount = formAdvance();
+      const effectiveTaxRate = emiteFactura ? taxRate : 0;
+      const effectiveIva = emiteFactura ? iva : 0;
+      const effectiveTotal = emiteFactura ? total : subtotal;
+      const effectiveAdvance = +(effectiveTotal * (advancePct / 100)).toFixed(2);
+
       const { data: quote, error: qErr } = await supabase.from("quotations").insert({
         requisition_id: reqId,
         supplier_name: supplierName.trim(),
@@ -118,7 +148,12 @@ function CapturarContent() {
         tipo_credito: tipoCredito,
         emite_factura: emiteFactura,
         notes: notas,
-        total: formTotal(),
+        subtotal: subtotal,
+        tax_rate: effectiveTaxRate,
+        iva: effectiveIva,
+        total: effectiveTotal,
+        advance_percentage: advancePct,
+        advance_amount: effectiveAdvance,
         created_by: "compras"
       }).select().single();
 
@@ -126,12 +161,17 @@ function CapturarContent() {
 
       for (const item of items) {
         if (itemPrices[item.id] && itemPrices[item.id] > 0) {
+          const pwt = itemPrices[item.id];
+          const pct = +(pwt * (1 + effectiveTaxRate / 100)).toFixed(4);
           const { error: iqErr } = await supabase.from("requisition_item_quotes").insert({
             requisition_item_id: item.id,
             supplier_name: supplierName.trim(),
-            unit_price: itemPrices[item.id],
-            total_price: itemPrices[item.id] * item.quantity,
+            unit_price: pwt,
+            total_price: pwt * item.quantity,
             dias_entrega: diasEntrega,
+            price_without_tax: pwt,
+            price_with_tax: pct,
+            tax_rate: effectiveTaxRate,
           });
           if (iqErr) throw iqErr;
         }
@@ -176,7 +216,12 @@ function CapturarContent() {
           obra: requisition.cost_center_name,
           quotes: quotes.map(q => ({
             supplier: q.supplier_name,
+            subtotal: q.subtotal ?? q.total,
+            iva: q.iva ?? 0,
+            tax_rate: q.tax_rate ?? 16,
             total: q.total,
+            advance_percentage: q.advance_percentage ?? 0,
+            advance_amount: q.advance_amount ?? 0,
             credito: q.dias_credito,
             entrega: q.dias_entrega,
             forma_pago: q.forma_pago,
@@ -287,8 +332,18 @@ function CapturarContent() {
                   </button>)}
                 </div>
                 <p className={`text-xl font-bold ${q.total === bestPrice ? "text-emerald-400" : "text-white"}`}>
-                  ${q.total.toLocaleString()}
+                  ${q.total.toLocaleString()} <span className="text-[10px] text-slate-400 font-normal">{(q.tax_rate ?? 0) > 0 ? "c/IVA" : "s/IVA"}</span>
                 </p>
+                {(q.subtotal ?? null) !== null && (
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    Subt ${Number(q.subtotal).toLocaleString()} · IVA {Number(q.tax_rate ?? 0)}% ${Number(q.iva ?? 0).toLocaleString()}
+                  </p>
+                )}
+                {(q.advance_percentage ?? 0) > 0 && (
+                  <p className="text-[10px] text-amber-400 mt-0.5">
+                    Anticipo {q.advance_percentage}% = ${Number(q.advance_amount ?? 0).toLocaleString()}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px]">
                   <span className="text-slate-400 flex items-center gap-1">
                     <Truck className="w-3 h-3" /> {q.dias_entrega}d entrega
@@ -408,17 +463,40 @@ function CapturarContent() {
             </div>
           </div>
 
-          {/* Precios por item */}
+          {/* IVA y Anticipo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-slate-400 text-xs block mb-1">IVA (%)</label>
+              <input type="number" min="0" max="100" step="0.01" value={taxRate}
+                onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+              <p className="text-[10px] text-slate-500 mt-1">Default 16%. Si el proveedor emite Nota, se guarda como 0%.</p>
+            </div>
+            <div>
+              <label className="text-slate-400 text-xs block mb-1">Anticipo</label>
+              <div className="flex gap-1">
+                {[0, 30, 50, 100].map(pct => (
+                  <button key={pct} type="button" onClick={() => setAdvancePct(pct)}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${advancePct === pct ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Precios por item — SIN IVA y CON IVA sincronizados */}
           <div>
-            <label className="text-slate-400 text-xs block mb-2">Precios unitarios *</label>
+            <label className="text-slate-400 text-xs block mb-2">Precios unitarios * (capture cualquier columna; la otra se recalcula)</label>
             <div className="rounded-lg bg-black/30 border border-white/10 overflow-hidden">
               <table className="w-full">
                 <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                   <tr className="text-left text-slate-500 text-[10px]">
                     <th className="p-2">Producto</th>
-                    <th className="p-2 w-20">Cant.</th>
-                    <th className="p-2 w-28">P. Unit.</th>
-                    <th className="p-2 w-28 text-right">Subtotal</th>
+                    <th className="p-2 w-16">Cant.</th>
+                    <th className="p-2 w-28">P.U. SIN IVA</th>
+                    <th className="p-2 w-28">P.U. CON IVA</th>
+                    <th className="p-2 w-28 text-right">Subtotal s/IVA</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -427,13 +505,19 @@ function CapturarContent() {
                       <td className="p-2 text-white text-xs">{item.product_name}</td>
                       <td className="p-2 text-slate-400 text-xs">{item.quantity} {item.unit}</td>
                       <td className="p-2">
-                        <input type="number" placeholder="$0" step="0.01"
-                          value={itemPrices[item.id] || ""}
-                          onChange={(e) => setItemPrices(prev => ({ ...prev, [item.id]: parseFloat(e.target.value) || 0 }))}
+                        <input type="number" placeholder="$0" step="0.0001"
+                          value={itemPrices[item.id] ? Number(itemPrices[item.id].toFixed(4)) : ""}
+                          onChange={(e) => setUnitWithoutTax(item.id, parseFloat(e.target.value) || 0)}
+                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none" />
+                      </td>
+                      <td className="p-2">
+                        <input type="number" placeholder="$0" step="0.0001"
+                          value={itemPrices[item.id] ? Number(unitWithTax(item.id).toFixed(4)) : ""}
+                          onChange={(e) => setUnitWithTax(item.id, parseFloat(e.target.value) || 0)}
                           className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none" />
                       </td>
                       <td className="p-2 text-right text-emerald-400 text-xs font-medium">
-                        {itemPrices[item.id] ? `$${(itemPrices[item.id] * item.quantity).toLocaleString()}` : ""}
+                        {itemPrices[item.id] ? `$${(itemPrices[item.id] * item.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : ""}
                       </td>
                     </tr>
                   ))}
@@ -450,21 +534,27 @@ function CapturarContent() {
           </div>
 
           {/* Resumen */}
-          <div className="p-3 rounded-lg bg-black/30 border border-white/10">
+          <div className="p-3 rounded-lg bg-black/30 border border-white/10 space-y-2">
             <div className="flex flex-wrap gap-3 text-xs text-slate-400">
               <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {formaPago === "TRANSFERENCIA" ? "Transferencia" : formaPago === "EFECTIVO" ? "Efectivo" : "Cheque"}</span>
               <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> {tipoCredito === "CONTADO" ? "Contado" : `${diasCredito}d crédito`}</span>
               <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> {diasEntrega}d entrega</span>
               <span className={`flex items-center gap-1 ${emiteFactura ? "text-emerald-400" : "text-amber-400"}`}>
-                <Receipt className="w-3 h-3" /> {emiteFactura ? "Factura (IVA)" : "Nota (sin IVA)"}
+                <Receipt className="w-3 h-3" /> {emiteFactura ? `Factura (IVA ${taxRate}%)` : "Nota (sin IVA)"}
               </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/10">
+              <div><div className="text-slate-500 text-[10px]">SUBTOTAL</div><div className="text-white font-medium">${formSubtotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-slate-500 text-[10px]">IVA {emiteFactura ? taxRate : 0}%</div><div className="text-white font-medium">${(emiteFactura ? formIva() : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-slate-500 text-[10px]">TOTAL</div><div className="text-emerald-400 font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-slate-500 text-[10px]">ANTICIPO {advancePct}%</div><div className="text-amber-300 font-medium">${(((emiteFactura ? formTotal() : formSubtotal()) * advancePct) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
             </div>
           </div>
 
           {/* Footer formulario */}
           <div className="flex items-center justify-between pt-2 border-t border-white/10">
-            <span className="text-emerald-400 font-bold text-lg">${formTotal().toLocaleString()}</span>
-            <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formTotal() <= 0}
+            <span className="text-emerald-400 font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formSubtotal() <= 0}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Guardar cotizacion
