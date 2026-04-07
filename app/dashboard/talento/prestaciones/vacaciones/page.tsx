@@ -65,13 +65,42 @@ export default function VacacionesPage() {
   };
 
   const aprobarSolicitud = async (id: string, employee_id: string, dias: number) => {
-    const { error: solErr } = await supabase.from("solicitudes_vacaciones").update({ status: "APROBADA", fecha_aprobacion: new Date().toISOString() }).eq("id", id);
+    // Fase 1: aprobar solicitud (idempotente sobre la misma solicitud)
+    const { data: solRow, error: solErr } = await supabase
+      .from("solicitudes_vacaciones")
+      .update({ status: "APROBADA", fecha_aprobacion: new Date().toISOString() })
+      .eq("id", id)
+      .eq("status", "PENDIENTE")
+      .select("id")
+      .maybeSingle();
     if (solErr) { alert("Error al aprobar: " + solErr.message); return; }
-    // Primero obtener el valor actual
-    const { data: vac } = await supabase.from("vacaciones_empleados").select("dias_tomados").eq("employee_id", employee_id).eq("anio", new Date().getFullYear()).single();
-    if (vac) {
-      const { error: vacErr } = await supabase.from("vacaciones_empleados").update({ dias_tomados: vac.dias_tomados + dias }).eq("employee_id", employee_id).eq("anio", new Date().getFullYear());
-      if (vacErr) { alert("Aprobada, pero error al sumar días tomados: " + vacErr.message); }
+    if (!solRow) { alert("Esta solicitud ya fue procesada por otro usuario. Recarga."); cargarDatos(); return; }
+
+    // Fase 2: sumar días tomados con OPTIMISTIC LOCK para evitar race
+    // (read → modify → write sin lock perdería días si dos aprobadores concurrentes).
+    const anio = new Date().getFullYear();
+    const { data: vac, error: readErr } = await supabase
+      .from("vacaciones_empleados")
+      .select("dias_tomados")
+      .eq("employee_id", employee_id)
+      .eq("anio", anio)
+      .maybeSingle();
+    if (readErr) { alert("Aprobada, pero error leyendo días: " + readErr.message); cargarDatos(); return; }
+    if (!vac) { alert("Aprobada, pero no existe registro de vacaciones para este empleado/año."); cargarDatos(); return; }
+
+    const expected = vac.dias_tomados;
+    const nuevoTomados = (expected || 0) + dias;
+    const { data: updRow, error: vacErr } = await supabase
+      .from("vacaciones_empleados")
+      .update({ dias_tomados: nuevoTomados })
+      .eq("employee_id", employee_id)
+      .eq("anio", anio)
+      .eq("dias_tomados", expected)
+      .select("dias_tomados")
+      .maybeSingle();
+    if (vacErr) { alert("Aprobada, pero error al sumar días tomados: " + vacErr.message); }
+    else if (!updRow) {
+      alert("Aprobada, pero los días tomados fueron modificados por otro usuario. Recarga y verifica el saldo.");
     }
     cargarDatos();
   };

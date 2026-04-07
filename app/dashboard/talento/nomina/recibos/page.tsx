@@ -124,12 +124,19 @@ export default function RecibosNominaPage() {
       const confirm2 = window.confirm(`SEGUNDA CONFIRMACIÓN\n\nMotivo: ${motivoModificacion}\n\n¿CONFIRMA que desea desbloquear la nómina de Semana ${semanaInfo.semana}?`);
       if (!confirm2) return;
 
-      // Registrar modificación y cambiar status
-      await supabase
+      // Registrar modificación y cambiar status (con error check + verificación de filas afectadas)
+      const { data: unlockRows, error: unlockErr } = await supabase
         .from("nomina_historico")
         .update({ status: "GENERADA" })
         .eq("semana", semanaInfo.semana)
-        .eq("anio", semanaInfo.anio);
+        .eq("anio", semanaInfo.anio)
+        .eq("status", "CONFIRMADA")
+        .select("id");
+      if (unlockErr) { alert("No se pudo desbloquear: " + unlockErr.message); return; }
+      if (!unlockRows || unlockRows.length === 0) {
+        alert("La nómina ya no estaba CONFIRMADA. Recarga la página.");
+        return;
+      }
 
       // Log de auditoría
       await supabase.from("audit_log").insert({
@@ -152,15 +159,22 @@ export default function RecibosNominaPage() {
       if (!confirm2) return;
 
       setConfirmando(true);
-      await supabase
+      const { data: lockRows, error: lockErr } = await supabase
         .from("nomina_historico")
         .update({ status: "CONFIRMADA" })
         .eq("semana", semanaInfo.semana)
-        .eq("anio", semanaInfo.anio);
+        .eq("anio", semanaInfo.anio)
+        .eq("status", "GENERADA")
+        .select("id");
+      setConfirmando(false);
+      if (lockErr) { alert("No se pudo confirmar: " + lockErr.message); return; }
+      if (!lockRows || lockRows.length === 0) {
+        alert("La nómina ya no estaba GENERADA (otro usuario la confirmó o desbloqueó). Recarga.");
+        return;
+      }
 
       setNominaStatus("CONFIRMADA");
-      setConfirmando(false);
-      alert("✅ Nómina CONFIRMADA exitosamente");
+      alert(`✅ Nómina CONFIRMADA exitosamente (${lockRows.length} recibos)`);
     }
   };
 
