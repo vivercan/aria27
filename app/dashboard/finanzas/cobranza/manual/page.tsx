@@ -153,6 +153,19 @@ export default function CobranzaManualPage() {
     else cargar();
   }
 
+  async function reactivarCobro(c: Cobro) {
+    if (c.estatus !== "CANCELADO") return;
+    // Re-derivar estatus a partir del saldo actual
+    let nuevo: string;
+    if (Number(c.saldo) === 0) nuevo = "PAGADO";
+    else if (Number(c.saldo) > 0 && Number(c.saldo) < Number(c.monto)) nuevo = "PARCIAL";
+    else nuevo = "PENDIENTE";
+    if (!confirm(`Reactivar cobro de "${c.cliente_nombre}" como ${nuevo}?`)) return;
+    const { error } = await supabase.from("cobros_manuales").update({ estatus: nuevo }).eq("id", c.id);
+    if (error) alert("Error: " + error.message);
+    else cargar();
+  }
+
   const clientesActivos = clientes.filter(c => c.estatus === "ACTIVO");
   const obrasActivas = obras.filter(o => o.activo !== false);
 
@@ -257,10 +270,15 @@ export default function CobranzaManualPage() {
                         className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30 disabled:opacity-30">
                         Editar
                       </button>
-                      {c.estatus !== "CANCELADO" && (
+                      {c.estatus !== "CANCELADO" ? (
                         <button onClick={() => cancelarCobro(c)}
                           className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs hover:bg-red-500/30">
                           Cancelar
+                        </button>
+                      ) : (
+                        <button onClick={() => reactivarCobro(c)}
+                          className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
+                          Reactivar
                         </button>
                       )}
                     </div>

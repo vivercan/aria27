@@ -158,13 +158,21 @@ export default function ClientesPage() {
             </h1>
             <p className="text-xs text-slate-400">CRUD + baja lógica + expediente documental reusable</p>
           </div>
-          <button
-            onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
-            className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-xl text-sm font-medium hover:bg-emerald-500/30 flex items-center gap-2"
-          >
-            {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            {showForm ? "Cancelar" : "Nuevo cliente"}
-          </button>
+          <div className="flex gap-2">
+            <a
+              href="/dashboard/clientes/cotizaciones"
+              className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 flex items-center gap-2"
+            >
+              Cotizaciones
+            </a>
+            <button
+              onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
+              className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-xl text-sm font-medium hover:bg-emerald-500/30 flex items-center gap-2"
+            >
+              {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {showForm ? "Cancelar" : "Nuevo cliente"}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mt-4">
