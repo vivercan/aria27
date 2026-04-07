@@ -91,7 +91,7 @@ export default function OrdenesCompraPage() {
       
       // Crear entrega y notificar
       try {
-        await fetch("/api/requisicion/registrar-entrega", {
+        const reRes = await fetch("/api/requisicion/registrar-entrega", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -106,7 +106,12 @@ export default function OrdenesCompraPage() {
             solicitante_phone: userData?.phone || null,
           }),
         });
-      } catch (e) { console.error("Error creando entrega:", e); }
+        if (!reRes.ok) {
+          const errTxt = await reRes.text().catch(() => "");
+          console.error("registrar-entrega fallo", reRes.status, errTxt);
+          alert("Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
+        }
+      } catch (e) { console.error("Error creando entrega:", e); alert("Error red registrar-entrega: " + (e as any)?.message); }
     }
     
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);

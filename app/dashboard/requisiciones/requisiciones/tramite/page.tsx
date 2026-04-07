@@ -278,7 +278,12 @@ Responde SOLO con JSON así:
           user_email: localStorage.getItem("userEmail") || "",
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert("Error solicitar-cotizacion (" + res.status + "): " + (data?.error || "").slice(0, 200));
+        setSolicitando(false);
+        return;
+      }
       setResultadoSolicitud(data);
     } catch (e) {
       setResultadoSolicitud({ error: "Error de conexion" });
@@ -312,7 +317,7 @@ Responde SOLO con JSON así:
       const { error: reqErr } = await supabase.from("requisitions").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
       if (reqErr) { alert("Error al marcar COTIZADO: " + reqErr.message); setSending(false); return; }
 
-      await fetch("/api/requisicion/authorize-purchase", {
+      const apRes = await fetch("/api/requisicion/authorize-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -322,6 +327,12 @@ Responde SOLO con JSON así:
           token: selectedReq.authorization_comments
         })
       });
+      if (!apRes.ok) {
+        const errTxt = await apRes.text().catch(() => "");
+        alert("Error al enviar a autorizacion (" + apRes.status + "): " + errTxt.slice(0, 200));
+        setSending(false);
+        return;
+      }
 
       alert("✅ Enviado a autorización");
       setSelectedReq(null);
@@ -724,7 +735,7 @@ Responde SOLO con JSON así:
                   unit: item.unit,
                   quotes: getFilledQuotes(item.id)
                 }));
-                await fetch("/api/requisicion/enviar-comparativa", {
+                const ecRes = await fetch("/api/requisicion/enviar-comparativa", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -771,7 +782,14 @@ Responde SOLO con JSON así:
                     user_email: localStorage.getItem("userEmail") || ""
                   })
                 });
-                alert("Comparativa enviada a Direccion");
+                if (!ecRes.ok) {
+                  const errTxt = await ecRes.text().catch(() => "");
+                  alert("Error enviando comparativa (" + ecRes.status + "): " + errTxt.slice(0, 250));
+                  setSending(false);
+                  return;
+                }
+                const ecJson = await ecRes.json().catch(() => ({}));
+                alert("Comparativa enviada a Direccion (" + (ecJson.enviado_a || "ok") + ")");
                 setSelectedReq(null); setItems([]); loadData();
               } catch { alert("Error al enviar"); }
               finally { setSending(false); }

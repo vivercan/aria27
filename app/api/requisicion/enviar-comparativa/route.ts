@@ -35,13 +35,12 @@ export async function POST(req: NextRequest) {
     if (!director) return NextResponse.json({ error: "No se encontro director" }, { status: 404 });
 
     const { data: reqData, error: reqLookupErr } = await supabase
-      .from("requisitions").select("created_by, urgency").eq("id", requisition_id).single();
+      .from("requisitions").select("created_by").eq("id", requisition_id).single();
     if (reqLookupErr || !reqData) {
-      log.error("Requisicion no encontrada", { id: requisition_id, error: reqLookupErr?.message });
-      return NextResponse.json({ error: `Requisición ${requisition_id} no encontrada` }, { status: 404 });
+      log.error("Lookup requisicion fallo", { id: requisition_id, error: reqLookupErr?.message, code: (reqLookupErr as any)?.code });
+      return NextResponse.json({ error: `Lookup requisicion fallo: ${reqLookupErr?.message || 'no encontrada'}` }, { status: reqLookupErr ? 500 : 404 });
     }
     const solicitante = reqData?.created_by || "N/A";
-    const urgencia = reqData?.urgency || "normal";
     const token = crypto.randomUUID();
 
     const { error: updEnvErr } = await supabase.from("requisitions").update({
@@ -94,20 +93,46 @@ export async function POST(req: NextRequest) {
 
     const emailHTML = `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${folio} ${obra}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${supH}</tr></thead><tbody>${prodRows}${mkRow("SUBTOTAL",(s: any)=>s.subtotal,false)}${mkRow("I.V.A. (16%)",(s: any)=>s.iva,false)}${mkRow("TOTAL",(s: any)=>s.total,true)}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-weight:bold">VER COMPARATIVA Y AUTORIZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 - Grupo Constructor Urbano Avante</p></div>`;
 
-    await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML });
+    let emailResult: any = null;
+    let emailError: string | null = null;
+    try {
+      emailResult = await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML });
+      if ((emailResult as any)?.error) {
+        emailError = (emailResult as any).error?.message || JSON.stringify((emailResult as any).error);
+        log.error("Resend email error", { id: requisition_id, error: emailError });
+      } else {
+        log.info("Email enviado", { to: director.email, id: (emailResult as any)?.data?.id });
+      }
+    } catch (e: any) {
+      emailError = e?.message || String(e);
+      log.error("Resend exception", { id: requisition_id, error: emailError });
+    }
 
+    let waResult: { success: boolean; messageId?: string; error?: string } = { success: false, error: "no enviado (sin telefono)" };
     if (director.phone) {
       const { sendWhatsAppTemplate } = await import("@/lib/whatsapp");
       const mejorText = `${mejor.supplier} $${(mejor.total || mejor.subtotal || 0).toLocaleString?.() || 0}`;
-      await sendWhatsAppTemplate(
+      waResult = await sendWhatsAppTemplate(
         "comparativa_enviar",
         [folio, obra, mejorText, String(supList.length || quotes?.length || 0)],
         director.phone,
         token
       );
+      if (!waResult.success) {
+        log.error("WhatsApp comparativa fallo", { id: requisition_id, phone: director.phone, error: waResult.error });
+      } else {
+        log.info("WhatsApp comparativa enviado", { id: requisition_id, messageId: waResult.messageId });
+      }
+    } else {
+      log.warn("Director sin telefono - WhatsApp no enviado", { id: requisition_id });
     }
 
-    return NextResponse.json({ success: true, enviado_a: director.email });
+    return NextResponse.json({
+      success: true,
+      enviado_a: director.email,
+      email: emailError ? { ok: false, error: emailError } : { ok: true, id: (emailResult as any)?.data?.id || null },
+      whatsapp: waResult,
+    });
   } catch (error: any) {
     log.error("[COMPARATIVA] Error:", error);
     return NextResponse.json({ error: error?.message }, { status: 500 });

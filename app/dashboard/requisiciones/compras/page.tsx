@@ -159,7 +159,13 @@ export default function ComprasPickingPage() {
           })
         })
       });
-      const data = await res.json();
+      if (!res.ok) {
+        const errTxt = await res.text().catch(() => "");
+        alert("Error autorizar-picking (" + res.status + "): " + errTxt.slice(0, 250));
+        setAuthorizing(false);
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
       if (data.success) {
         alert("Compra autorizada\n" + data.purchase_orders + " orden(es) de compra generada(s)\nNotificacion enviada a Compras");
         goBack();

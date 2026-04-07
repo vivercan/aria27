@@ -188,7 +188,13 @@ function CapturarContent() {
           user_email: localStorage.getItem("userEmail") || ""
         })
       });
-      const data = await res.json();
+      if (!res.ok) {
+        const errTxt = await res.text().catch(() => "");
+        alert("Error enviar-comparativa (" + res.status + "): " + errTxt.slice(0, 250));
+        setEnviando(false);
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
       if (data.success) {
         const { error: cmpErr } = await supabase.from("requisitions").update({ status: "COMPARATIVA_ENVIADA" }).eq("id", reqId);
         if (cmpErr) { alert("Comparativa enviada, pero error al actualizar estatus: " + cmpErr.message); }
