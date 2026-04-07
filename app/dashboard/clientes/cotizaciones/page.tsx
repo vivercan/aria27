@@ -207,21 +207,30 @@ export default function CotizacionesClientesPage() {
   }
 
   async function imprimirCotizacion(c: Cotizacion) {
-    // Cargar items
-    const { data: rows } = await supabase.from("cotizaciones_clientes_items")
-      .select("*").eq("cotizacion_id", c.id).order("orden", { ascending: true });
-    const its = (rows as any[]) || [];
+    // Cargar items + datos del cliente (para contacto)
+    const [itemsRes, cliRes] = await Promise.all([
+      supabase.from("cotizaciones_clientes_items").select("*").eq("cotizacion_id", c.id).order("orden", { ascending: true }),
+      c.cliente_id ? supabase.from("clientes").select("contacto, telefono, email").eq("id", c.cliente_id).maybeSingle() : Promise.resolve({ data: null }),
+    ]);
+    const its = (itemsRes.data as any[]) || [];
+    const cliExtra = (cliRes as any).data || {};
 
     const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
     const fechaLimite = new Date(c.fecha);
     fechaLimite.setDate(fechaLimite.getDate() + (c.vigencia_dias || 30));
     const vence = fechaLimite.toISOString().split("T")[0];
+    const logoUrl = `${window.location.origin}/logo-cuavante.png`;
 
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>${c.folio || "Cotización"}</title>
 <style>
-  body { font-family: -apple-system, Arial, sans-serif; color: #1a1a1a; padding: 32px; max-width: 800px; margin: 0 auto; font-size: 12px; }
-  .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1e40af; padding-bottom: 16px; margin-bottom: 24px; }
+  body { font-family: -apple-system, Arial, sans-serif; color: #1a1a1a; padding: 32px; max-width: 800px; margin: 0 auto; font-size: 12px; position: relative; }
+  .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 110px; color: rgba(220,38,38,0.08); font-weight: 900; pointer-events: none; z-index: 0; white-space: nowrap; }
+  .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1e40af; padding-bottom: 16px; margin-bottom: 24px; position: relative; z-index: 1; }
+  .empresa { display: flex; gap: 14px; align-items: center; }
+  .empresa img { height: 56px; width: auto; }
   .empresa h1 { margin: 0; color: #1e40af; font-size: 20px; }
+  .sellos { margin-top: 28px; display: flex; gap: 12px; justify-content: flex-end; }
+  .sello { border: 2px dashed #dc2626; color: #dc2626; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
   .empresa p { margin: 2px 0; font-size: 11px; color: #555; }
   .doc-meta { text-align: right; }
   .doc-meta .folio { font-size: 18px; font-weight: bold; color: #1e40af; }
@@ -240,11 +249,15 @@ export default function CotizacionesClientesPage() {
   .estatus { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; background: #1e40af; color: white; }
   @media print { body { padding: 16px; } }
 </style></head><body>
+<div class="watermark">SIN VALOR FISCAL</div>
 <div class="header">
   <div class="empresa">
-    <h1>Grupo Constructor Urbano Avante</h1>
-    <p>Aguascalientes, México</p>
-    <p>aria.jjcrm27.com</p>
+    <img src="${logoUrl}" alt="Logo" onerror="this.style.display='none'" />
+    <div>
+      <h1>Grupo Constructor Urbano Avante</h1>
+      <p>Aguascalientes, México</p>
+      <p>aria.jjcrm27.com</p>
+    </div>
   </div>
   <div class="doc-meta">
     <div class="folio">${c.folio || "COTIZACIÓN"}</div>
@@ -257,6 +270,7 @@ export default function CotizacionesClientesPage() {
   <div class="label">Cliente</div>
   <div class="nombre">${c.cliente_nombre}</div>
   ${c.obra_nombre ? `<div class="label" style="margin-top:8px">Obra</div><div>${c.obra_nombre}</div>` : ""}
+  ${cliExtra.contacto ? `<div class="label" style="margin-top:8px">Contacto</div><div>${cliExtra.contacto}${cliExtra.telefono ? ` — ${cliExtra.telefono}` : ""}</div>` : ""}
 </div>
 <table>
   <thead><tr><th>#</th><th>Concepto</th><th>Unidad</th><th style="text-align:right">Cantidad</th><th style="text-align:right">P. Unitario</th><th style="text-align:right">Importe</th></tr></thead>
@@ -277,6 +291,10 @@ export default function CotizacionesClientesPage() {
   <div class="row total"><span>TOTAL ${c.moneda}:</span><span>${fmt(c.total)}</span></div>
 </div>
 ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, "&lt;")}</div>` : ""}
+<div class="sellos">
+  <div class="sello">Sin valor fiscal</div>
+  <div class="sello">Vigencia ${c.vigencia_dias} días</div>
+</div>
 <div class="footer">Documento generado el ${new Date().toLocaleString("es-MX")} — ARIA27</div>
 <script>window.onload = function() { setTimeout(function(){ window.print(); }, 300); }</script>
 </body></html>`;
