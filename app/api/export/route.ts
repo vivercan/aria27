@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseAdmin } from "@/src/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 const log = logger("EXPORT");
 

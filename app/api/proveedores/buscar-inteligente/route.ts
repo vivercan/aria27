@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { getSupabaseAdmin } from "@/src/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 const log = logger("BUSCAR-INTELIGENTE");
 
