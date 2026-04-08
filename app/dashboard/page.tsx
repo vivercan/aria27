@@ -220,6 +220,14 @@ export default function DashboardPage() {
         <p className="text-slate-400">
           Aquí tienes un resumen de la actividad de hoy en ARIA
         </p>
+        <Link
+          href="/dashboard/ceo"
+          className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-200 hover:from-amber-500/30 hover:to-orange-500/30 transition w-fit"
+        >
+          <Activity className="w-4 h-4" />
+          <span className="text-sm font-medium">Abrir Dashboard CEO — vista ejecutiva consolidada</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* STATS GRID */}
