@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { ArrowLeft, Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
 
 interface Partida {
@@ -24,6 +25,7 @@ export default function PresupuestosPage() {
   const [search, setSearch] = useState("");
   const [filterObra, setFilterObra] = useState("TODAS");
   const [obras, setObras] = useState<string[]>([]);
+  const { obras: obrasCat } = useObrasCatalogo();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" });
 
@@ -114,8 +116,10 @@ export default function PresupuestosPage() {
           <h3 className="text-lg font-semibold text-white">Nueva Partida</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div><label className="text-xs text-slate-400 mb-1 block">Obra</label>
-              <input value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" list="obras-list" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
-              <datalist id="obras-list">{obras.map((o, i) => <option key={i} value={o} />)}</datalist></div>
+              <select value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                <option value="">-- Selecciona obra del catálogo --</option>
+                {obrasCat.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
+              </select></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Clave</label>
               <input value={form.clave} onChange={e => setForm({...form, clave: e.target.value.toUpperCase()})} placeholder="Ej: ALB-001" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Categoría</label>

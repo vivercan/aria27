@@ -8,6 +8,7 @@ interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
 interface Req { id: string; cost_center_name: string | null; }
 interface NomRec { obra: string; sueldo_neto: number; status: string; }
+interface CobroRec { obra_nombre: string | null; monto: number; saldo: number; estatus: string; }
 
 interface ObraRow {
   nombre: string;
@@ -16,6 +17,9 @@ interface ObraRow {
   gastoOC: number;
   gastoNomina: number;
   gastoTotal: number;
+  cobrado: number;
+  porCobrar: number;
+  margen: number;
   avance: number;
   saldo: number;
   semaforo: "VERDE" | "AMARILLO" | "ROJO" | "REBASADO" | "SIN_PRESUPUESTO";
@@ -55,6 +59,7 @@ export default function ControlObrasPage() {
   const [pos, setPos] = useState<PO[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
   const [nomina, setNomina] = useState<NomRec[]>([]);
+  const [cobros, setCobros] = useState<CobroRec[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtroSem, setFiltroSem] = useState<string>("");
   const [expandida, setExpandida] = useState<string | null>(null);
@@ -64,16 +69,18 @@ export default function ControlObrasPage() {
   async function cargar() {
     setLoading(true);
     try {
-      const [pp, po, rq, nh] = await Promise.all([
+      const [pp, po, rq, nh, co] = await Promise.all([
         supabase.from("presupuestos_partidas").select("obra_nombre,categoria,importe"),
         supabase.from("purchase_orders").select("id,total,status,requisition_id"),
         supabase.from("requisitions").select("id,cost_center_name"),
         supabase.from("nomina_historico").select("obra,sueldo_neto,status").eq("status", "CONFIRMADA"),
+        supabase.from("cobros_manuales").select("obra_nombre,monto,saldo,estatus").neq("estatus", "CANCELADO"),
       ]);
       setPartidas((pp.data as any[]) || []);
       setPos((po.data as any[]) || []);
       setReqs((rq.data as any[]) || []);
       setNomina((nh.data as any[]) || []);
+      setCobros((co.data as any[]) || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -89,6 +96,7 @@ export default function ControlObrasPage() {
     partidas.forEach(p => p.obra_nombre && obras.add(p.obra_nombre));
     pos.forEach(po => { const o = po.requisition_id ? reqMap.get(po.requisition_id) : null; if (o) obras.add(o); });
     nomina.forEach(n => n.obra && obras.add(n.obra));
+    cobros.forEach(c => c.obra_nombre && obras.add(c.obra_nombre));
 
     return Array.from(obras).sort().map(nombre => {
       const presupuestoCat: Record<string, number> = {};
@@ -103,14 +111,19 @@ export default function ControlObrasPage() {
         .reduce((s, po) => s + (po.total || 0), 0);
       const gastoNomina = nomina.filter(n => n.obra === nombre).reduce((s, n) => s + (n.sueldo_neto || 0), 0);
       const gastoTotal = gastoOC + gastoNomina;
+      const cobrosObra = cobros.filter(c => c.obra_nombre === nombre);
+      const cobrado = cobrosObra.reduce((s, c) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+      const porCobrar = cobrosObra.reduce((s, c) => s + (Number(c.saldo) || 0), 0);
+      const margen = cobrado - gastoTotal;
       const avance = presupuesto > 0 ? (gastoTotal / presupuesto) * 100 : 0;
       const saldo = presupuesto - gastoTotal;
       return {
         nombre, presupuesto, presupuestoCat, gastoOC, gastoNomina, gastoTotal,
+        cobrado, porCobrar, margen,
         avance, saldo, semaforo: semaforoOf(avance, presupuesto)
       };
     });
-  }, [partidas, pos, reqMap, nomina]);
+  }, [partidas, pos, reqMap, nomina, cobros]);
 
   const filtradas = useMemo(() => filas.filter(f => {
     if (busqueda && !f.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
@@ -123,6 +136,9 @@ export default function ControlObrasPage() {
     gastoOC: filtradas.reduce((s, f) => s + f.gastoOC, 0),
     gastoNomina: filtradas.reduce((s, f) => s + f.gastoNomina, 0),
     gastoTotal: filtradas.reduce((s, f) => s + f.gastoTotal, 0),
+    cobrado: filtradas.reduce((s, f) => s + f.cobrado, 0),
+    porCobrar: filtradas.reduce((s, f) => s + f.porCobrar, 0),
+    margen: filtradas.reduce((s, f) => s + f.margen, 0),
     saldo: filtradas.reduce((s, f) => s + f.saldo, 0),
     obras: filtradas.length,
     rebasadas: filtradas.filter(f => f.semaforo === "REBASADO").length,
@@ -131,8 +147,8 @@ export default function ControlObrasPage() {
 
   const exportCSV = () => {
     if (filtradas.length === 0) return;
-    const headers = ["Obra", "Presupuesto", "Gasto_OC", "Gasto_Nomina", "Gasto_Total", "Saldo", "Avance_%", "Semaforo"];
-    const rows = filtradas.map(f => [f.nombre, f.presupuesto, f.gastoOC, f.gastoNomina, f.gastoTotal, f.saldo, f.avance.toFixed(2), f.semaforo]);
+    const headers = ["Obra", "Presupuesto", "Gasto_OC", "Gasto_Nomina", "Gasto_Total", "Cobrado", "Por_Cobrar", "Margen_Real", "Saldo", "Avance_%", "Semaforo"];
+    const rows = filtradas.map(f => [f.nombre, f.presupuesto, f.gastoOC, f.gastoNomina, f.gastoTotal, f.cobrado, f.porCobrar, f.margen, f.saldo, f.avance.toFixed(2), f.semaforo]);
     const csv = "\uFEFF" + headers.join(",") + "\n" + rows.map(r => r.map(v => typeof v === "string" && v.includes(",") ? `"${v}"` : v).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
@@ -164,7 +180,7 @@ export default function ControlObrasPage() {
       </div>
 
       {/* Totales */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
           <p className="text-slate-400 text-xs">Obras</p>
           <p className="text-xl font-bold text-blue-300">{totales.obras}</p>
@@ -186,8 +202,16 @@ export default function ControlObrasPage() {
           <p className="text-lg font-bold text-red-300">{fmt(totales.gastoTotal)}</p>
         </div>
         <div className={`p-4 rounded-xl border ${totales.saldo >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
-          <p className="text-slate-400 text-xs">Saldo</p>
+          <p className="text-slate-400 text-xs">Saldo Ppto</p>
           <p className={`text-lg font-bold ${totales.saldo >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.saldo)}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+          <p className="text-slate-400 text-xs">Cobrado</p>
+          <p className="text-lg font-bold text-emerald-300">{fmt(totales.cobrado)}</p>
+        </div>
+        <div className={`p-4 rounded-xl border ${totales.margen >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
+          <p className="text-slate-400 text-xs">Margen Real</p>
+          <p className={`text-lg font-bold ${totales.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.margen)}</p>
         </div>
       </div>
 
@@ -228,6 +252,8 @@ export default function ControlObrasPage() {
                 <th className="text-right p-3 text-slate-400 text-xs">OC</th>
                 <th className="text-right p-3 text-slate-400 text-xs">Nómina</th>
                 <th className="text-right p-3 text-slate-400 text-xs">Gasto Total</th>
+                <th className="text-right p-3 text-slate-400 text-xs">Cobrado</th>
+                <th className="text-right p-3 text-slate-400 text-xs">Margen</th>
                 <th className="text-right p-3 text-slate-400 text-xs">Saldo</th>
                 <th className="text-center p-3 text-slate-400 text-xs">Avance</th>
                 <th className="text-center p-3 text-slate-400 text-xs">Estado</th>
@@ -235,7 +261,7 @@ export default function ControlObrasPage() {
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
+                <tr><td colSpan={10} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
               ) : filtradas.map(f => (
                 <>
                   <tr key={f.nombre} className="border-b border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
@@ -247,6 +273,8 @@ export default function ControlObrasPage() {
                     <td className="p-3 text-right text-orange-300">{fmt(f.gastoOC)}</td>
                     <td className="p-3 text-right text-violet-300">{fmt(f.gastoNomina)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmt(f.gastoTotal)}</td>
+                    <td className="p-3 text-right text-emerald-300">{fmt(f.cobrado)}</td>
+                    <td className={`p-3 text-right font-medium ${f.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(f.margen)}</td>
                     <td className={`p-3 text-right font-medium ${f.saldo >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(f.saldo)}</td>
                     <td className="p-3 text-center">
                       <div className="flex flex-col items-center gap-1">
@@ -262,7 +290,7 @@ export default function ControlObrasPage() {
                   </tr>
                   {expandida === f.nombre && (
                     <tr key={f.nombre + "_d"} className="bg-slate-900/40 border-b border-white/5">
-                      <td colSpan={8} className="p-4">
+                      <td colSpan={10} className="p-4">
                         <p className="text-slate-400 text-xs uppercase mb-2">Presupuesto por categoría</p>
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                           {CATS.map(c => (
@@ -290,7 +318,7 @@ export default function ControlObrasPage() {
         <TrendingUp className="w-5 h-5 text-blue-400 mt-0.5" />
         <div className="text-xs text-slate-400">
           <p className="text-blue-300 font-medium mb-1">Cómo se calcula</p>
-          <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Avance:</b> Gasto Total / Presupuesto. Cobranza no se incluye aún (no tiene relación directa con obra todavía).</p>
+          <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Cobrado:</b> suma de (monto - saldo) en cobros_manuales no canceladas vinculadas a la obra del catálogo. <b>Margen Real:</b> Cobrado − Gasto Total. <b>Avance:</b> Gasto Total / Presupuesto.</p>
         </div>
       </div>
     </div>
