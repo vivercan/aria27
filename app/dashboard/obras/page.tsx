@@ -1,9 +1,17 @@
 "use client";
 
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen } from "lucide-react";
+import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
+  {
+    title: "Centro de Control",
+    description: "Presupuesto vs Gasto Real (OC + Nómina) por obra. Semáforo de avance.",
+    href: "/dashboard/obras/control",
+    icon: Activity,
+    gradient: "from-cyan-500 to-blue-600",
+    active: true,
+  },
   {
     title: "Catálogo Maestro",
     description: "Fuente única de obras: alta, edición, archivo, historial.",
