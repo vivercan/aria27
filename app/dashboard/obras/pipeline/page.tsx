@@ -259,15 +259,39 @@ export default function PipelinePage() {
               {/* MANUAL */}
               {modo === "manual" && (
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nombre de la obra" field="name" placeholder="Ej: Pinar del Lago" />
-                  <Field label="Ubicación" field="location" placeholder="Dirección o referencia" />
-                  <Field label="Cliente" field="client" placeholder="Nombre del cliente" />
-                  <Field label="Presupuesto" field="budget" type="number" placeholder="0.00" />
-                  <Field label="Estado" field="status" options={STATUS_OPTIONS} />
-                  <Field label="Fecha inicio" field="start_date" type="date" />
-                  <Field label="Fecha fin estimada" field="end_date" type="date" />
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Nombre de la obra</label>
+                    <input type="text" value={form.nombre || ""} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Pinar del Lago" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Ubicación</label>
+                    <input type="text" value={form.direccion || ""} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Dirección o referencia" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Cliente</label>
+                    <input type="text" value={form.cliente || ""} onChange={e => setForm({ ...form, cliente: e.target.value })} placeholder="Nombre del cliente" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Presupuesto</label>
+                    <input type="number" value={form.presupuesto || ""} onChange={e => setForm({ ...form, presupuesto: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Estado</label>
+                    <select value={form.estado || "ACTIVA"} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
+                      {STATUS_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Fecha inicio</label>
+                    <input type="date" value={form.fecha_inicio || ""} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Fecha fin estimada</label>
+                    <input type="date" value={form.fecha_fin || ""} onChange={e => setForm({ ...form, fecha_fin: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none" />
+                  </div>
                   <div className="col-span-2">
-                    <Field label="Descripción" field="description" placeholder="Notas adicionales" />
+                    <label className="block text-xs text-slate-400 mb-1">Descripción</label>
+                    <input type="text" value={form.descripcion || ""} onChange={e => setForm({ ...form, descripcion: e.target.value })} placeholder="Notas adicionales" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
                   </div>
                 </div>
               )}

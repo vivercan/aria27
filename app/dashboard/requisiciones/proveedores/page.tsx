@@ -86,11 +86,16 @@ export default function ProveedoresPage() {
   const handleSave = async()=>{
     if(!form.name.trim())return; setSaving(true);
     try{
+      // Normalizar categories: string "ACEROS, CONCRETO" -> array; "" -> null
+      const catsArr = form.categories
+        ? form.categories.split(",").map(c=>c.trim()).filter(Boolean)
+        : null;
+      const payload:any = {...form, categories: catsArr && catsArr.length>0 ? catsArr : null};
       if(editingId){
-        const { error } = await supabase.from("suppliers").update(form).eq("id",editingId);
+        const { error } = await supabase.from("suppliers").update(payload).eq("id",editingId);
         if (error) { alert("Error al actualizar proveedor: " + error.message); return; }
       } else {
-        const { error } = await supabase.from("suppliers").insert({...form,active:true});
+        const { error } = await supabase.from("suppliers").insert({...payload,active:true});
         if (error) { alert("Error al crear proveedor: " + error.message); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();

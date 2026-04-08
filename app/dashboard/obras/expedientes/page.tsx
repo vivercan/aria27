@@ -28,6 +28,8 @@ import {
 interface Obra {
   id: string;
   name: string;
+  fecha_inicio?: string | null;
+  anio?: number | null;
 }
 
 interface Carpeta {
@@ -70,6 +72,7 @@ export default function ExpedientesPage() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"carpetas" | "tareas">("carpetas");
+  const [anioFiltro, setAnioFiltro] = useState<number | "TODOS">("TODOS");
 
   // Modales
   const [showNuevaCarpeta, setShowNuevaCarpeta] = useState(false);
@@ -95,13 +98,17 @@ export default function ExpedientesPage() {
   }, [carpetaSeleccionada]);
 
   const loadObras = async () => {
-    const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
+    const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre, fecha_inicio").order("nombre");
     if (error) {
       console.error("Error loading obras:", error?.message);
       setLoading(false);
       return;
     }
-    setObras(data || []);
+    const conAnio = (data || []).map((o: any) => ({
+      ...o,
+      anio: o.fecha_inicio ? new Date(o.fecha_inicio).getFullYear() : null,
+    }));
+    setObras(conAnio);
     setLoading(false);
   };
 
@@ -284,8 +291,39 @@ export default function ExpedientesPage() {
           </div>
         </div>
 
+        {/* Filtro por año */}
+        <div className="flex flex-wrap gap-2">
+          {(() => {
+            const aniosUnicos = Array.from(new Set(obras.map(o => o.anio).filter(Boolean))) as number[];
+            aniosUnicos.sort((a, b) => b - a);
+            const chips: (number | "TODOS" | "SIN_ANIO")[] = ["TODOS", ...aniosUnicos];
+            if (obras.some(o => !o.anio)) chips.push("SIN_ANIO");
+            return chips.map((chip) => {
+              const label = chip === "TODOS" ? "Todas" : chip === "SIN_ANIO" ? "Sin año" : String(chip);
+              const isActive = anioFiltro === chip || (chip === "SIN_ANIO" && anioFiltro === "SIN_ANIO" as any);
+              return (
+                <button
+                  key={label}
+                  onClick={() => setAnioFiltro(chip as any)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                    isActive
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            });
+          })()}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {obras.map((obra) => (
+          {obras.filter(o => {
+            if (anioFiltro === "TODOS") return true;
+            if ((anioFiltro as any) === "SIN_ANIO") return !o.anio;
+            return o.anio === anioFiltro;
+          }).map((obra) => (
             <button
               key={obra.id}
               onClick={() => setObraSeleccionada(obra)}
@@ -299,7 +337,7 @@ export default function ExpedientesPage() {
                   <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
                     {obra.name}
                   </h3>
-                  <p className="text-sm text-slate-400 mt-1">Ver expediente</p>
+                  <p className="text-sm text-slate-400 mt-1">{obra.anio ? `Año ${obra.anio}` : "Sin año registrado"}</p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
               </div>
