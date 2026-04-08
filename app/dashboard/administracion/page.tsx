@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Shield, ScrollText, Building2 , Calculator, HardHat} from "lucide-react";
+import { FileText, Shield, ScrollText, Building2 , Calculator, HardHat, FolderTree } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -49,6 +49,46 @@ const subModules = [
     description: "Registro IMSS de obras ante SIROC.",
     href: "/dashboard/administracion/siroc",
     icon: HardHat,
+    gradient: "from-rose-500 to-pink-600",
+    active: true,
+  },
+  {
+    title: "Pólizas · Carpetas",
+    description: "Vista de carpetas jerárquicas personalizadas para pólizas.",
+    href: "/dashboard/administracion/carpetas/polizas",
+    icon: FolderTree,
+    gradient: "from-emerald-500 to-green-600",
+    active: true,
+  },
+  {
+    title: "Opiniones · Carpetas",
+    description: "Vista de carpetas jerárquicas personalizadas para opiniones.",
+    href: "/dashboard/administracion/carpetas/opiniones",
+    icon: FolderTree,
+    gradient: "from-amber-500 to-orange-600",
+    active: true,
+  },
+  {
+    title: "Empresa · Carpetas",
+    description: "Vista de carpetas jerárquicas personalizadas para empresa.",
+    href: "/dashboard/administracion/carpetas/empresa",
+    icon: FolderTree,
+    gradient: "from-purple-500 to-fuchsia-600",
+    active: true,
+  },
+  {
+    title: "SUA · Carpetas",
+    description: "Vista de carpetas jerárquicas personalizadas para SUA.",
+    href: "/dashboard/administracion/carpetas/sua",
+    icon: FolderTree,
+    gradient: "from-cyan-500 to-teal-600",
+    active: true,
+  },
+  {
+    title: "SIROC · Carpetas",
+    description: "Vista de carpetas jerárquicas personalizadas para SIROC.",
+    href: "/dashboard/administracion/carpetas/siroc",
+    icon: FolderTree,
     gradient: "from-rose-500 to-pink-600",
     active: true,
   },
