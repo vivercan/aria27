@@ -148,6 +148,7 @@ export default function NominaManualPage() {
   const tieneAsistencia = (fecha: string) => asistencias.some(a => a.fecha === fecha);
 
   const agregarAsistencia = (fecha: string) => {
+    if (nominaStatus === "CONFIRMADA") { setMensaje({tipo:"error",texto:"❌ Nómina CONFIRMADA. Desbloquéala desde Recibos para agregar asistencias."}); return; }
     const nueva: Asistencia = {
       id: `new-${Date.now()}`,
       employee_id: empleadoSeleccionado,
@@ -163,6 +164,7 @@ export default function NominaManualPage() {
   };
 
   const editarAsistencia = (id: string) => {
+    if (nominaStatus === "CONFIRMADA") { setMensaje({tipo:"error",texto:"❌ Nómina CONFIRMADA. Desbloquéala desde Recibos para editar asistencias."}); return; }
     setAsistencias(asistencias.map(a => a.id === id ? { ...a, editando: true } : a));
   };
 
@@ -183,7 +185,7 @@ export default function NominaManualPage() {
       setAsistencias(asistencias.filter(a => a.id !== id));
       return;
     }
-    
+    if (nominaStatus === "CONFIRMADA") { setMensaje({tipo:"error",texto:"❌ Nómina CONFIRMADA. Desbloquéala desde Recibos para eliminar asistencias."}); return; }
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     
     const { error } = await supabase.from("asistencias").delete().eq("id", id);
