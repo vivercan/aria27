@@ -1,5 +1,5 @@
 "use client";
-import { Users, Clock, DollarSign, AlertCircle, FileText, BarChart3, UserCog, HandCoins, Gift } from "lucide-react";
+import { Users, Clock, DollarSign, AlertCircle, FileText, BarChart3, UserCog, HandCoins, Gift, ClipboardList } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -57,6 +57,14 @@ const subModules = [
     href: "/dashboard/talento/legales",
     icon: FileText,
     gradient: "from-purple-500 to-purple-600",
+    active: true
+  },
+  {
+    title: "Tareas Asignadas",
+    description: "Tareas por colaborador, avance y fechas compromiso.",
+    href: "/dashboard/talento/tareas",
+    icon: ClipboardList,
+    gradient: "from-fuchsia-500 to-purple-600",
     active: true
   },
   {

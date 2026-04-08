@@ -1,0 +1,406 @@
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import {
+  ArrowLeft, Plus, Edit2, X, Save, Loader2, ClipboardList,
+  User, Calendar, TrendingUp, Flag, Search, Trash2, CheckCircle2
+} from "lucide-react";
+
+interface Tarea {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  asignado_id: string;
+  asignado_nombre: string;
+  asignado_por: string;
+  obra: string;
+  avance: number;
+  fecha_compromiso: string;
+  estatus: string;
+  prioridad: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Empleado { id: string; full_name: string; }
+
+const EMPTY_FORM = {
+  titulo: "",
+  descripcion: "",
+  asignado_id: "",
+  asignado_nombre: "",
+  obra: "",
+  avance: 0,
+  fecha_compromiso: "",
+  estatus: "PENDIENTE",
+  prioridad: "MEDIA",
+};
+
+const ESTATUS = ["PENDIENTE", "EN_PROGRESO", "COMPLETADA", "CANCELADA"];
+const PRIORIDADES = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
+
+function colorEstatus(e: string) {
+  switch (e) {
+    case "PENDIENTE": return "bg-slate-500/20 text-slate-300 border-slate-500/40";
+    case "EN_PROGRESO": return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+    case "COMPLETADA": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+    case "CANCELADA": return "bg-rose-500/20 text-rose-300 border-rose-500/40";
+    default: return "bg-slate-500/20 text-slate-300 border-slate-500/40";
+  }
+}
+
+function colorPrioridad(p: string) {
+  switch (p) {
+    case "BAJA": return "text-slate-400";
+    case "MEDIA": return "text-amber-400";
+    case "ALTA": return "text-orange-400";
+    case "URGENTE": return "text-rose-400";
+    default: return "text-slate-400";
+  }
+}
+
+export default function TareasTalentoPage() {
+  const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [form, setForm] = useState<any>(EMPTY_FORM);
+  const [search, setSearch] = useState("");
+  const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserEmail(localStorage.getItem("userEmail") || "");
+    }
+    cargar();
+  }, []);
+
+  async function cargar() {
+    setLoading(true);
+    const { data: emps } = await supabase
+      .from("employees")
+      .select("id, full_name")
+      .order("full_name");
+    setEmpleados(emps || []);
+
+    const { data, error } = await supabase
+      .from("tareas_asignadas")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) console.error("tareas_asignadas error:", error);
+    setTareas(data || []);
+    setLoading(false);
+  }
+
+  async function guardar() {
+    if (!form.titulo.trim()) { alert("Título requerido"); return; }
+    if (!form.asignado_id) { alert("Asignar a un colaborador"); return; }
+    if (!form.fecha_compromiso) { alert("Fecha compromiso requerida"); return; }
+    setGuardando(true);
+    const emp = empleados.find(e => e.id === form.asignado_id);
+    const payload = {
+      titulo: form.titulo.trim(),
+      descripcion: form.descripcion.trim(),
+      asignado_id: form.asignado_id,
+      asignado_nombre: emp?.full_name || "",
+      obra: form.obra.trim(),
+      avance: Number(form.avance) || 0,
+      fecha_compromiso: form.fecha_compromiso,
+      estatus: form.estatus,
+      prioridad: form.prioridad,
+      asignado_por: userEmail || "sistema",
+    };
+    let error;
+    if (editando) {
+      ({ error } = await supabase.from("tareas_asignadas").update(payload).eq("id", editando));
+    } else {
+      ({ error } = await supabase.from("tareas_asignadas").insert(payload));
+    }
+    setGuardando(false);
+    if (error) { alert("Error: " + error.message); return; }
+    setShowForm(false);
+    setEditando(null);
+    setForm(EMPTY_FORM);
+    cargar();
+  }
+
+  async function eliminar(id: string) {
+    if (!confirm("¿Eliminar esta tarea?")) return;
+    const { error } = await supabase.from("tareas_asignadas").delete().eq("id", id);
+    if (error) { alert("Error: " + error.message); return; }
+    cargar();
+  }
+
+  async function cambiarAvance(id: string, nuevoAvance: number) {
+    const estatus = nuevoAvance >= 100 ? "COMPLETADA" : nuevoAvance > 0 ? "EN_PROGRESO" : "PENDIENTE";
+    await supabase.from("tareas_asignadas")
+      .update({ avance: nuevoAvance, estatus })
+      .eq("id", id);
+    cargar();
+  }
+
+  function abrirEditar(t: Tarea) {
+    setEditando(t.id);
+    setForm({
+      titulo: t.titulo,
+      descripcion: t.descripcion || "",
+      asignado_id: t.asignado_id,
+      asignado_nombre: t.asignado_nombre,
+      obra: t.obra || "",
+      avance: t.avance,
+      fecha_compromiso: t.fecha_compromiso,
+      estatus: t.estatus,
+      prioridad: t.prioridad,
+    });
+    setShowForm(true);
+  }
+
+  const filtradas = tareas.filter(t => {
+    const s = search.toLowerCase();
+    const matchSearch = !s || t.titulo.toLowerCase().includes(s) ||
+      t.asignado_nombre?.toLowerCase().includes(s) ||
+      t.obra?.toLowerCase().includes(s);
+    const matchEstatus = filtroEstatus === "TODAS" || t.estatus === filtroEstatus;
+    return matchSearch && matchEstatus;
+  });
+
+  const stats = {
+    total: tareas.length,
+    pendientes: tareas.filter(t => t.estatus === "PENDIENTE").length,
+    enProgreso: tareas.filter(t => t.estatus === "EN_PROGRESO").length,
+    completadas: tareas.filter(t => t.estatus === "COMPLETADA").length,
+    vencidas: tareas.filter(t => t.estatus !== "COMPLETADA" && t.estatus !== "CANCELADA" && t.fecha_compromiso && new Date(t.fecha_compromiso) < new Date()).length,
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/10">
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <ClipboardList className="w-8 h-8 text-fuchsia-400" />
+            Tareas Asignadas
+          </h1>
+          <p className="text-slate-400 mt-1">Asignación, seguimiento y avance de tareas por colaborador.</p>
+        </div>
+        <button
+          onClick={() => { setEditando(null); setForm(EMPTY_FORM); setShowForm(true); }}
+          className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg flex items-center gap-2 font-medium"
+        >
+          <Plus className="w-5 h-5" /> Nueva tarea
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
+          <div className="text-xs text-slate-400 uppercase">Total</div>
+          <div className="text-2xl font-bold text-white">{stats.total}</div>
+        </div>
+        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
+          <div className="text-xs text-slate-400 uppercase">Pendientes</div>
+          <div className="text-2xl font-bold text-slate-300">{stats.pendientes}</div>
+        </div>
+        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
+          <div className="text-xs text-slate-400 uppercase">En progreso</div>
+          <div className="text-2xl font-bold text-blue-300">{stats.enProgreso}</div>
+        </div>
+        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
+          <div className="text-xs text-slate-400 uppercase">Completadas</div>
+          <div className="text-2xl font-bold text-emerald-300">{stats.completadas}</div>
+        </div>
+        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
+          <div className="text-xs text-slate-400 uppercase">Vencidas</div>
+          <div className="text-2xl font-bold text-rose-300">{stats.vencidas}</div>
+        </div>
+      </div>
+
+      <div className="flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por título, colaborador u obra..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500"
+          />
+        </div>
+        <select
+          value={filtroEstatus}
+          onChange={e => setFiltroEstatus(e.target.value)}
+          className="px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500"
+        >
+          <option value="TODAS">Todas</option>
+          {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
+        </select>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-fuchsia-400" /></div>
+      ) : filtradas.length === 0 ? (
+        <div className="text-center py-12 text-slate-400">No hay tareas registradas.</div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filtradas.map(t => {
+            const vencida = t.estatus !== "COMPLETADA" && t.estatus !== "CANCELADA" && t.fecha_compromiso && new Date(t.fecha_compromiso) < new Date();
+            return (
+              <div key={t.id} className={`rounded-xl bg-slate-800/50 border p-5 ${vencida ? "border-rose-500/50" : "border-slate-700/50"}`}>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-white text-lg">{t.titulo}</h3>
+                      <Flag className={`w-4 h-4 ${colorPrioridad(t.prioridad)}`} />
+                    </div>
+                    {t.descripcion && <p className="text-sm text-slate-400">{t.descripcion}</p>}
+                  </div>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${colorEstatus(t.estatus)}`}>
+                    {t.estatus.replace("_", " ")}
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm text-slate-300 mb-4">
+                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-slate-500" /> {t.asignado_nombre || "—"}</div>
+                  {t.obra && <div className="flex items-center gap-2"><ClipboardList className="w-4 h-4 text-slate-500" /> {t.obra}</div>}
+                  <div className="flex items-center gap-2">
+                    <Calendar className={`w-4 h-4 ${vencida ? "text-rose-400" : "text-slate-500"}`} />
+                    <span className={vencida ? "text-rose-400 font-semibold" : ""}>
+                      {t.fecha_compromiso ? new Date(t.fecha_compromiso).toLocaleDateString("es-MX") : "—"}
+                      {vencida && " (VENCIDA)"}
+                    </span>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <span>Avance</span>
+                    <span className="font-semibold text-white">{t.avance}%</span>
+                  </div>
+                  <div className="w-full bg-slate-700/50 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-2 rounded-full transition-all"
+                      style={{ width: `${t.avance}%` }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={t.avance}
+                    onChange={e => cambiarAvance(t.id, Number(e.target.value))}
+                    className="w-full mt-2 accent-fuchsia-500"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => abrirEditar(t)}
+                    className="flex-1 px-3 py-1.5 text-sm bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <Edit2 className="w-4 h-4" /> Editar
+                  </button>
+                  {t.estatus !== "COMPLETADA" && (
+                    <button
+                      onClick={() => cambiarAvance(t.id, 100)}
+                      className="px-3 py-1.5 text-sm bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-lg flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Completar
+                    </button>
+                  )}
+                  <button
+                    onClick={() => eliminar(t.id)}
+                    className="px-3 py-1.5 text-sm bg-rose-600/80 hover:bg-rose-600 text-white rounded-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-5 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">{editando ? "Editar tarea" : "Nueva tarea"}</h2>
+              <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }} className="p-1 rounded hover:bg-white/10">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Título *</label>
+                <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Descripción</label>
+                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Asignado a *</label>
+                  <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    <option value="">Seleccionar...</option>
+                    {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Obra (opcional)</label>
+                  <input type="text" value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Fecha compromiso *</label>
+                  <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Prioridad</label>
+                  <select value={form.prioridad} onChange={e => setForm({ ...form, prioridad: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Avance ({form.avance}%)</label>
+                  <input type="range" min="0" max="100" step="5" value={form.avance}
+                    onChange={e => setForm({ ...form, avance: Number(e.target.value) })}
+                    className="w-full accent-fuchsia-500" />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-400 mb-1 block">Estatus</label>
+                  <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700 p-5 flex justify-end gap-3">
+              <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
+              <button onClick={guardar} disabled={guardando}
+                className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
+                {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
