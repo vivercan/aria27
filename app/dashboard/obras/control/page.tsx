@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
@@ -280,11 +280,12 @@ export default function ControlObrasPage() {
                 <th className="text-center p-3 text-slate-400 text-xs">Avance Fís</th>
                 <th className="text-center p-3 text-slate-400 text-xs">Δ Fís−Fin</th>
                 <th className="text-center p-3 text-slate-400 text-xs">Estado</th>
+                <th className="text-center p-3 text-slate-400 text-xs">Reporte</th>
               </tr>
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={12} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
+                <tr><td colSpan={13} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
               ) : filtradas.map(f => (
                 <>
                   <tr key={f.nombre} className="border-b border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
@@ -325,10 +326,15 @@ export default function ControlObrasPage() {
                     <td className="p-3 text-center">
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${semColor[f.semaforo]}`}>{semLabel[f.semaforo]}</span>
                     </td>
+                    <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
+                      <a href={`/dashboard/obras/reporte?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 text-[10px]">
+                        <FileText className="w-3 h-3" /> PDF
+                      </a>
+                    </td>
                   </tr>
                   {expandida === f.nombre && (
                     <tr key={f.nombre + "_d"} className="bg-slate-900/40 border-b border-white/5">
-                      <td colSpan={12} className="p-4">
+                      <td colSpan={13} className="p-4">
                         <p className="text-slate-400 text-xs uppercase mb-2">Presupuesto por categoría</p>
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                           {CATS.map(c => (
