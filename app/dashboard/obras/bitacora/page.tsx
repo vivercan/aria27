@@ -1,0 +1,240 @@
+"use client";
+import { useEffect, useState, Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
+
+interface Obra { id: number; nombre: string; }
+interface Entrada {
+  id: string;
+  obra_id: number | null;
+  obra_nombre: string;
+  fecha: string;
+  clima: string | null;
+  personal_en_obra: number | null;
+  maquinaria: string | null;
+  actividades: string | null;
+  observaciones: string | null;
+  incidentes: string | null;
+  fotos: string[] | null;
+  residente_nombre: string | null;
+  hora_registro: string | null;
+  created_at: string;
+}
+
+const FORM_INIT = {
+  fecha: new Date().toISOString().slice(0,10),
+  clima: "Soleado",
+  personal_en_obra: 0,
+  maquinaria: "",
+  actividades: "",
+  observaciones: "",
+  incidentes: "",
+  fotos: "",
+};
+
+function BitacoraContent() {
+  const sp = useSearchParams();
+  const obraQuery = sp.get("obra") || "";
+  const [obras, setObras] = useState<Obra[]>([]);
+  const [obraSel, setObraSel] = useState<string>(obraQuery);
+  const [entradas, setEntradas] = useState<Entrada[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ ...FORM_INIT });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("centros_trabajo").select("id, nombre").order("nombre");
+      setObras((data as any) || []);
+    })();
+  }, []);
+
+  useEffect(() => { loadEntradas(); }, [obraSel]);
+
+  async function loadEntradas() {
+    setLoading(true);
+    let q = supabase.from("bitacora_obra").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(200);
+    if (obraSel) q = q.eq("obra_nombre", obraSel);
+    const { data, error } = await q;
+    if (error) console.error(error.message);
+    setEntradas((data as any) || []);
+    setLoading(false);
+  }
+
+  async function guardar() {
+    if (!obraSel) { alert("Selecciona una obra"); return; }
+    if (!form.actividades) { alert("Las actividades son requeridas"); return; }
+    const obra = obras.find(o => o.nombre === obraSel);
+    const fotosArr = form.fotos.split(",").map(s => s.trim()).filter(Boolean);
+    const payload = {
+      obra_id: obra?.id || null,
+      obra_nombre: obraSel,
+      fecha: form.fecha,
+      clima: form.clima,
+      personal_en_obra: Number(form.personal_en_obra) || 0,
+      maquinaria: form.maquinaria,
+      actividades: form.actividades,
+      observaciones: form.observaciones,
+      incidentes: form.incidentes,
+      fotos: fotosArr,
+      residente_nombre: typeof window !== "undefined" ? localStorage.getItem("userEmail") || null : null,
+      hora_registro: new Date().toTimeString().slice(0,8),
+      recibido_por_whatsapp: false,
+    };
+    const { error } = await supabase.from("bitacora_obra").insert(payload);
+    if (error) { alert("Error: " + error.message); return; }
+    setForm({ ...FORM_INIT });
+    setShowForm(false);
+    loadEntradas();
+  }
+
+  const totalEntradas = entradas.length;
+  const conIncidentes = entradas.filter(e => e.incidentes && e.incidentes.trim().length > 0).length;
+  const personalProm = entradas.length > 0 ? Math.round(entradas.reduce((s, e) => s + (e.personal_en_obra || 0), 0) / entradas.length) : 0;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-amber-400" /> Bitácora de Obra
+          </h1>
+          <p className="text-slate-400 text-sm">Registro diario de actividades, personal, clima e incidencias</p>
+        </div>
+        <button onClick={() => setShowForm(!showForm)} disabled={!obraSel} className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 disabled:opacity-50 text-amber-300 rounded-lg flex items-center gap-2 text-sm">
+          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          {showForm ? "Cancelar" : "Nueva entrada"}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <select value={obraSel} onChange={e => setObraSel(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm min-w-[280px]">
+          <option value="">— Selecciona obra —</option>
+          {obras.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
+        </select>
+      </div>
+
+      {obraSel && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+            <p className="text-sm text-slate-400">Entradas registradas</p>
+            <p className="text-2xl font-bold text-white">{totalEntradas}</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+            <p className="text-sm text-slate-400">Personal promedio</p>
+            <p className="text-2xl font-bold text-blue-400">{personalProm}</p>
+          </div>
+          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+            <p className="text-sm text-slate-400">Días con incidentes</p>
+            <p className="text-2xl font-bold text-red-400">{conIncidentes}</p>
+          </div>
+        </div>
+      )}
+
+      {showForm && obraSel && (
+        <div className="p-6 bg-white/5 rounded-xl border border-white/10 space-y-4">
+          <h3 className="text-lg font-semibold text-white">Nueva entrada · {obraSel}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs text-slate-400">Fecha</label>
+              <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Clima</label>
+              <select value={form.clima} onChange={e => setForm({ ...form, clima: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+                <option>Soleado</option><option>Nublado</option><option>Lluvioso</option><option>Tormenta</option><option>Frío</option><option>Caluroso</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Personal en obra</label>
+              <input type="number" value={form.personal_en_obra} onChange={e => setForm({ ...form, personal_en_obra: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-xs text-slate-400">Actividades del día *</label>
+              <textarea value={form.actividades} onChange={e => setForm({ ...form, actividades: e.target.value })} rows={3} placeholder="Avance, áreas trabajadas, materiales colocados..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-xs text-slate-400">Maquinaria utilizada</label>
+              <input value={form.maquinaria} onChange={e => setForm({ ...form, maquinaria: e.target.value })} placeholder="Retro, vibrocompactador, ..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-xs text-slate-400">Observaciones</label>
+              <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-xs text-slate-400">Incidentes (vacío si todo OK)</label>
+              <textarea value={form.incidentes} onChange={e => setForm({ ...form, incidentes: e.target.value })} rows={2} placeholder="Accidentes, retrasos, problemas..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-xs text-slate-400">Fotos (URLs separadas por coma)</label>
+              <input value={form.fotos} onChange={e => setForm({ ...form, fotos: e.target.value })} placeholder="https://..., https://..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={guardar} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm">Guardar entrada</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-sm">Cancelar</button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {loading && <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>}
+        {!loading && entradas.length === 0 && (
+          <div className="text-center py-12 text-slate-400 bg-white/5 rounded-xl border border-white/10">
+            <BookOpen className="w-12 h-12 mx-auto mb-2 opacity-30" />
+            <p>{obraSel ? "Sin entradas en bitácora" : "Selecciona una obra para ver su bitácora"}</p>
+          </div>
+        )}
+        {!loading && entradas.map(e => (
+          <div key={e.id} className="p-5 bg-white/5 rounded-xl border border-white/10">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-white font-semibold text-lg">{new Date(e.fecha).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+                <p className="text-xs text-slate-400">{e.obra_nombre} · {e.residente_nombre || "—"} · {e.hora_registro || ""}</p>
+              </div>
+              <div className="flex items-center gap-3 text-xs">
+                {e.clima && <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 rounded"><Cloud className="w-3 h-3" />{e.clima}</span>}
+                {e.personal_en_obra !== null && <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded"><Users className="w-3 h-3" />{e.personal_en_obra}</span>}
+                {e.fotos && e.fotos.length > 0 && <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded"><Camera className="w-3 h-3" />{e.fotos.length}</span>}
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <p className="text-slate-400 text-xs uppercase">Actividades</p>
+                <p className="text-white whitespace-pre-line">{e.actividades || "—"}</p>
+              </div>
+              {e.maquinaria && <div><p className="text-slate-400 text-xs uppercase">Maquinaria</p><p className="text-slate-300">{e.maquinaria}</p></div>}
+              {e.observaciones && <div><p className="text-slate-400 text-xs uppercase">Observaciones</p><p className="text-slate-300">{e.observaciones}</p></div>}
+              {e.incidentes && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-300 text-xs uppercase flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Incidentes</p>
+                  <p className="text-red-200">{e.incidentes}</p>
+                </div>
+              )}
+              {e.fotos && e.fotos.length > 0 && (
+                <div className="flex gap-2 flex-wrap pt-2">
+                  {e.fotos.map((url, i) => (
+                    <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-300 underline hover:text-purple-200">Foto {i+1}</a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function BitacoraPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>}>
+      <BitacoraContent />
+    </Suspense>
+  );
+}

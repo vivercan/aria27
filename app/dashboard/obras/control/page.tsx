@@ -330,6 +330,9 @@ export default function ControlObrasPage() {
                       <a href={`/dashboard/obras/reporte?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 text-[10px]">
                         <FileText className="w-3 h-3" /> PDF
                       </a>
+                      <a href={`/dashboard/obras/bitacora?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[10px] ml-1">
+                        Bitácora
+                      </a>
                     </td>
                   </tr>
                   {expandida === f.nombre && (
