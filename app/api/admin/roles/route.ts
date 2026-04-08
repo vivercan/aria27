@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest) {
   let body: any;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
 
-  const { id, role, permissions } = body || {};
+  const { id, role, permissions, email: newEmail, phone } = body || {};
   if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
   const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
@@ -55,11 +55,19 @@ export async function PATCH(req: NextRequest) {
   if (permissions && (typeof permissions !== "object" || Array.isArray(permissions))) {
     return NextResponse.json({ error: "permissions debe ser objeto" }, { status: 400 });
   }
+  if (newEmail && typeof newEmail !== "string") {
+    return NextResponse.json({ error: "email debe ser string" }, { status: 400 });
+  }
+  if (phone && typeof phone !== "string") {
+    return NextResponse.json({ error: "phone debe ser string" }, { status: 400 });
+  }
 
   const sb = getSupabaseAdmin();
   const patch: any = {};
   if (typeof role === "string") patch.role = role;
   if (permissions !== undefined) patch.permissions = permissions;
+  if (typeof newEmail === "string" && newEmail.trim()) patch.email = newEmail.trim();
+  if (typeof phone === "string") patch.phone = phone.trim();
 
   const { error } = await sb.from("Users").update(patch).eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

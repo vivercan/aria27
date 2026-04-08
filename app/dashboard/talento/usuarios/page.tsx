@@ -69,14 +69,30 @@ export default function UsuariosPage() {
   };
 
   const saveUser = async (id: string) => {
-    const { error } = await supabase.from("Users").update({
-      role: editRole,
-      email: editEmail,
-      phone: editPhone,
-      permissions: editPermissions
-    }).eq("id", id);
-    if (error) {
-      alert("No se pudo guardar el usuario: " + (error.message ?? "error desconocido"));
+    // Hardening: role/permissions/email/phone se escriben server-side via /api/admin/roles
+    // (whitelist + verificacion de rol admin en BD, service role key).
+    try {
+      const r = await fetch("/api/admin/roles", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": userEmail || (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : ""),
+        },
+        body: JSON.stringify({
+          id,
+          role: editRole,
+          permissions: editPermissions,
+          email: editEmail,
+          phone: editPhone,
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        alert("No se pudo guardar el usuario: " + (j.error || "error desconocido"));
+        return;
+      }
+    } catch (e: any) {
+      alert("Error de red: " + (e?.message || "desconocido"));
       return;
     }
     setEditingId(null);
