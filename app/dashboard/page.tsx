@@ -197,6 +197,14 @@ export default function DashboardPage() {
       color: "from-amber-500 to-orange-500",
       module: "configuracion",
     },
+    {
+      title: "Carpetas Personalizadas",
+      description: "Organiza archivos jerárquicamente en cualquier módulo",
+      href: "/dashboard/carpetas",
+      icon: FileText,
+      color: "from-rose-500 to-pink-500",
+      module: "dashboard",
+    },
   ];
 
   const quickActions = allQuickActions.filter((action) =>
