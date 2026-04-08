@@ -181,6 +181,36 @@ export async function sendWhatsAppTemplate(
 }
 
 /**
+ * Wrapper que envía con sendWhatsAppTemplate y SIEMPRE escribe a wa_log (auditoría).
+ * Bloque 16 — auditoría obligatoria de todos los envíos WhatsApp.
+ */
+export async function sendWhatsAppLogged(
+  templateName: string,
+  params: string[],
+  phone: string,
+  opts: { origen?: string; enviadoPor?: string; buttonToken?: string } = {}
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const result = await sendWhatsAppTemplate(templateName, params, phone, opts.buttonToken);
+  try {
+    const { getSupabaseAdmin } = await import("./supabase-server");
+    const supa = getSupabaseAdmin();
+    await supa.from("wa_log").insert({
+      template: templateName,
+      phone,
+      params,
+      success: result.success,
+      message_id: result.messageId || null,
+      error: result.error || null,
+      origen: opts.origen || null,
+      enviado_por: opts.enviadoPor || null,
+    });
+  } catch (e: any) {
+    console.error("[WhatsApp] [LOG] No se pudo escribir wa_log:", e?.message);
+  }
+  return result;
+}
+
+/**
  * Enviar a múltiples destinatarios
  */
 export async function sendWhatsAppToMultiple(
