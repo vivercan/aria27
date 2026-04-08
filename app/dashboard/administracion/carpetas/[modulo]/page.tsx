@@ -5,13 +5,14 @@ import { ArrowLeft } from "lucide-react";
 import FolderTree from "@/components/FolderTree";
 import EntityFolder from "@/components/EntityFolder";
 
+const HUB = "/dashboard/administracion";
 const MODULOS: Record<string, { titulo: string; desc: string; back: string }> = {
-  documentacion: { titulo: "Documentación Legal", desc: "Carpetas jerárquicas de documentación corporativa", back: "/dashboard/administracion/documentacion" },
-  polizas: { titulo: "Pólizas · Carpetas", desc: "Organiza pólizas por carpetas personalizadas", back: "/dashboard/administracion/polizas" },
-  opiniones: { titulo: "Opiniones · Carpetas", desc: "Organiza opiniones por carpetas personalizadas", back: "/dashboard/administracion/opiniones" },
-  empresa: { titulo: "Empresa · Carpetas", desc: "Organiza documentos de empresa por carpetas personalizadas", back: "/dashboard/administracion/empresa" },
-  sua: { titulo: "SUA · Carpetas", desc: "Organiza archivos SUA por carpetas personalizadas", back: "/dashboard/administracion/sua" },
-  siroc: { titulo: "SIROC · Carpetas", desc: "Organiza archivos SIROC por carpetas personalizadas", back: "/dashboard/administracion/siroc" },
+  documentacion: { titulo: "Documentación Legal", desc: "Carpetas jerárquicas de documentación corporativa", back: HUB },
+  polizas: { titulo: "Pólizas · Carpetas", desc: "Organiza pólizas por carpetas personalizadas", back: HUB },
+  opiniones: { titulo: "Opiniones · Carpetas", desc: "Organiza opiniones por carpetas personalizadas", back: HUB },
+  empresa: { titulo: "Empresa · Carpetas", desc: "Organiza documentos de empresa por carpetas personalizadas", back: HUB },
+  sua: { titulo: "SUA · Carpetas", desc: "Organiza archivos SUA por carpetas personalizadas", back: HUB },
+  siroc: { titulo: "SIROC · Carpetas", desc: "Organiza archivos SIROC por carpetas personalizadas", back: HUB },
 };
 
 export default function CarpetasModuloPage({ params }: { params: Promise<{ modulo: string }> }) {

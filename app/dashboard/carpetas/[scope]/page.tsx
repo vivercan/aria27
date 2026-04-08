@@ -5,16 +5,17 @@ import { ArrowLeft } from "lucide-react";
 import FolderTree from "@/components/FolderTree";
 import EntityFolder from "@/components/EntityFolder";
 
+const HUB = "/dashboard/carpetas";
 const SCOPES: Record<string, { titulo: string; desc: string; back: string }> = {
-  "obras-general": { titulo: "Obras · Carpetas", desc: "Carpetas jerárquicas para documentación general de obras", back: "/dashboard/obras" },
-  "obras-expedientes": { titulo: "Obras · Expedientes Carpetas", desc: "Carpetas jerárquicas para expedientes de obra", back: "/dashboard/obras/expedientes" },
-  "talento-general": { titulo: "Talento · Carpetas", desc: "Carpetas jerárquicas para recursos humanos", back: "/dashboard/talento" },
-  "finanzas-general": { titulo: "Finanzas · Carpetas", desc: "Carpetas jerárquicas para documentación financiera", back: "/dashboard/finanzas" },
-  "finanzas-bancos": { titulo: "Finanzas · Bancos Carpetas", desc: "Carpetas jerárquicas para estados de cuenta y conciliaciones", back: "/dashboard/finanzas/bancos" },
-  "clientes-general": { titulo: "Clientes · Carpetas", desc: "Carpetas jerárquicas para documentación de clientes", back: "/dashboard/clientes" },
-  "activos-general": { titulo: "Activos · Carpetas", desc: "Carpetas jerárquicas para activos y vehículos", back: "/dashboard/activos" },
-  "requisiciones-general": { titulo: "Requisiciones · Carpetas", desc: "Carpetas jerárquicas para requisiciones y OC", back: "/dashboard/requisiciones" },
-  "plantillas-general": { titulo: "Plantillas · Carpetas", desc: "Carpetas jerárquicas para plantillas y formatos", back: "/dashboard/plantillas" },
+  "obras-general": { titulo: "Obras · Carpetas", desc: "Carpetas jerárquicas para documentación general de obras", back: HUB },
+  "obras-expedientes": { titulo: "Obras · Expedientes Carpetas", desc: "Carpetas jerárquicas para expedientes de obra", back: HUB },
+  "talento-general": { titulo: "Talento · Carpetas", desc: "Carpetas jerárquicas para recursos humanos", back: HUB },
+  "finanzas-general": { titulo: "Finanzas · Carpetas", desc: "Carpetas jerárquicas para documentación financiera", back: HUB },
+  "finanzas-bancos": { titulo: "Finanzas · Bancos Carpetas", desc: "Carpetas jerárquicas para estados de cuenta y conciliaciones", back: HUB },
+  "clientes-general": { titulo: "Clientes · Carpetas", desc: "Carpetas jerárquicas para documentación de clientes", back: HUB },
+  "activos-general": { titulo: "Activos · Carpetas", desc: "Carpetas jerárquicas para activos y vehículos", back: HUB },
+  "requisiciones-general": { titulo: "Requisiciones · Carpetas", desc: "Carpetas jerárquicas para requisiciones y OC", back: HUB },
+  "plantillas-general": { titulo: "Plantillas · Carpetas", desc: "Carpetas jerárquicas para plantillas y formatos", back: HUB },
 };
 
 export default function CarpetasScopePage({ params }: { params: Promise<{ scope: string }> }) {
