@@ -169,7 +169,16 @@ export default function NewRequisitionPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <h1 className="text-2xl font-bold">Nueva Requisición</h1>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          title="Regresar"
+        >
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </button>
+        <h1 className="text-2xl font-bold">Nueva Requisición</h1>
+      </div>
 
       {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
       {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
