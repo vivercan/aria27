@@ -70,6 +70,10 @@ export default function ExpedientesPage() {
   const [anioSeleccionado, setAnioSeleccionado] = useState<number | "SIN_ANIO" | null>(null);
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
+  const [carpetasAnio, setCarpetasAnio] = useState<Carpeta[]>([]);
+  const [showNuevaCarpetaAnio, setShowNuevaCarpetaAnio] = useState(false);
+  const [nuevaCarpetaAnioNombre, setNuevaCarpetaAnioNombre] = useState("");
+  const [carpetaAnioSeleccionada, setCarpetaAnioSeleccionada] = useState<Carpeta | null>(null);
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
   const [archivos, setArchivos] = useState<Archivo[]>([]);
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -92,6 +96,56 @@ export default function ExpedientesPage() {
       loadTareas(obraSeleccionada.id);
     }
   }, [obraSeleccionada]);
+
+  useEffect(() => {
+    if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") {
+      loadCarpetasAnio(anioSeleccionado as number);
+    } else {
+      setCarpetasAnio([]);
+    }
+  }, [anioSeleccionado]);
+
+  const loadCarpetasAnio = async (anio: number) => {
+    const { data, error } = await supabase
+      .from("expedientes_carpetas")
+      .select("*")
+      .eq("anio", anio)
+      .is("obra_id", null)
+      .order("orden");
+    if (error) {
+      console.error("Error loading carpetas año:", error?.message);
+      return;
+    }
+    setCarpetasAnio(data || []);
+  };
+
+  const crearCarpetaAnio = async () => {
+    if (!nuevaCarpetaAnioNombre.trim() || !anioSeleccionado || anioSeleccionado === "SIN_ANIO") return;
+    const { error } = await supabase.from("expedientes_carpetas").insert({
+      obra_id: null,
+      obra_nombre: null,
+      nombre: nuevaCarpetaAnioNombre,
+      anio: anioSeleccionado as number,
+      orden: carpetasAnio.length,
+    });
+    if (error) {
+      alert("Error al crear carpeta del año: " + error.message);
+      return;
+    }
+    setNuevaCarpetaAnioNombre("");
+    setShowNuevaCarpetaAnio(false);
+    loadCarpetasAnio(anioSeleccionado as number);
+  };
+
+  const eliminarCarpetaAnio = async (id: string, nombre: string) => {
+    if (!confirm(`Eliminar carpeta "${nombre}"?`)) return;
+    const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+    loadCarpetasAnio(anioSeleccionado as number);
+  };
 
   useEffect(() => {
     if (carpetaSeleccionada) {
@@ -342,49 +396,118 @@ export default function ExpedientesPage() {
     );
   }
 
-  // Vista 1: Lista de Obras del año seleccionado
+  // Vista 1: Carpetas libres + Obras del año seleccionado
   if (!obraSeleccionada) {
     const obrasFiltradas = obras.filter(o => anioSeleccionado === "SIN_ANIO" ? !o.anio : o.anio === anioSeleccionado);
+    const puedeCrearCarpetas = anioSeleccionado !== "SIN_ANIO";
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setAnioSeleccionado(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Año {anioSeleccionado === "SIN_ANIO" ? "— Sin fecha" : anioSeleccionado}</h1>
-            <p className="text-slate-400 text-sm">{obrasFiltradas.length} obras · Selecciona una para ver su expediente</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setAnioSeleccionado(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Año {anioSeleccionado === "SIN_ANIO" ? "— Sin fecha" : anioSeleccionado}</h1>
+              <p className="text-slate-400 text-sm">{carpetasAnio.length} carpetas libres · {obrasFiltradas.length} obras</p>
+            </div>
           </div>
+          {puedeCrearCarpetas && (
+            <button
+              onClick={() => setShowNuevaCarpetaAnio(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition"
+            >
+              <Plus className="w-4 h-4" /> Nueva carpeta del año
+            </button>
+          )}
         </div>
 
-        {obrasFiltradas.length === 0 ? (
+        {showNuevaCarpetaAnio && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3">
+            <input
+              autoFocus
+              value={nuevaCarpetaAnioNombre}
+              onChange={(e) => setNuevaCarpetaAnioNombre(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") crearCarpetaAnio(); }}
+              placeholder="Nombre de la carpeta (ej: Contratos, Escrituras, Permisos...)"
+              className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+            />
+            <button onClick={crearCarpetaAnio} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">Crear</button>
+            <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm">Cancelar</button>
+          </div>
+        )}
+
+        {carpetasAnio.length > 0 && (
+          <div>
+            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Carpetas del año</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {carpetasAnio.map((carpeta) => (
+                <div
+                  key={carpeta.id}
+                  className="p-5 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative"
+                >
+                  <button
+                    onClick={() => setCarpetaAnioSeleccionada(carpeta)}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-amber-500/20 rounded-xl group-hover:bg-amber-500/30 transition-colors">
+                        <FolderOpen className="w-6 h-6 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">
+                          {carpeta.nombre}
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-1">Carpeta libre · {anioSeleccionado}</p>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); eliminarCarpetaAnio(carpeta.id, carpeta.nombre); }}
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition"
+                    title="Eliminar"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {obrasFiltradas.length > 0 && (
+          <div>
+            <h2 className="text-sm uppercase text-blue-400 font-semibold mb-3">Obras del año</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {obrasFiltradas.map((obra) => (
+                <button
+                  key={obra.id}
+                  onClick={() => setObraSeleccionada(obra)}
+                  className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-xl text-left transition-all group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
+                      <Building2 className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                        {obra.name}
+                      </h3>
+                      <p className="text-sm text-slate-400 mt-1">Ver carpetas y tareas</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {carpetasAnio.length === 0 && obrasFiltradas.length === 0 && (
           <div className="text-center py-16 text-slate-400">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p>No hay obras en este año</p>
-            <p className="text-sm mt-2">Ve a Obras → Pipeline y asigna fecha de inicio a una obra para que aparezca aquí.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {obrasFiltradas.map((obra) => (
-              <button
-                key={obra.id}
-                onClick={() => setObraSeleccionada(obra)}
-                className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
-                    <Building2 className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
-                      {obra.name}
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-1">Ver carpetas y tareas</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
-                </div>
-              </button>
-            ))}
+            <p>Este año está vacío</p>
+            {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botón de arriba o asigna obras desde Pipeline.</p>}
           </div>
         )}
       </div>
