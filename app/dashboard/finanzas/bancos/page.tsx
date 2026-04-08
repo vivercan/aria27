@@ -4,8 +4,9 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X } from "lucide-react";
+import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
 
 interface CuentaBancaria {
   id: string;
@@ -116,6 +117,9 @@ export default function BancosPage() {
           <p className="text-slate-400 text-sm">Cuentas bancarias del grupo · CRUD completo · baja lógica reversible</p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-xl text-sm font-medium hover:bg-purple-500/30 transition-colors flex items-center gap-2">
+            <ListChecks className="w-4 h-4" /> Movimientos / Conciliación
+          </Link>
           <label className="flex items-center gap-2 text-xs text-slate-400 px-3 py-2 bg-white/5 rounded-lg cursor-pointer">
             <input type="checkbox" checked={showInactivas} onChange={e => setShowInactivas(e.target.checked)} /> Mostrar inactivas
           </label>
