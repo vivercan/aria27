@@ -333,6 +333,27 @@ export default function ControlObrasPage() {
                       <a href={`/dashboard/obras/bitacora?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[10px] ml-1">
                         Bitácora
                       </a>
+                      <a
+                        href={`/api/obras/export-excel?obra=${encodeURIComponent(f.nombre)}`}
+                        onClick={(e) => {
+                          const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
+                          if (!email) return;
+                          e.preventDefault();
+                          fetch(`/api/obras/export-excel?obra=${encodeURIComponent(f.nombre)}`, { headers: { "x-user-email": email } })
+                            .then(r => r.blob())
+                            .then(b => {
+                              const url = URL.createObjectURL(b);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = `reporte-${f.nombre}-${new Date().toISOString().slice(0,10)}.xlsx`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            });
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-[10px] ml-1"
+                      >
+                        Excel
+                      </a>
                     </td>
                   </tr>
                   {expandida === f.nombre && (
