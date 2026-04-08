@@ -31,22 +31,30 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 
 export async function POST(req: NextRequest) {
   try {
-  // AUTH CHECK - agregado 22-Feb-2026
-  const supabaseAuth = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (authHeader) {
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: { user } } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+    if (user?.email) userEmail = user.email;
   }
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
-  if (authError || !user) {
+  if (!userEmail) {
+    const hdrEmail = req.headers.get("x-user-email");
+    if (hdrEmail) {
+      const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
+      if (u && u.active !== false) userEmail = u.email;
+    }
+  }
+  if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   // RATE LIMIT: operacion costosa (genera nomina completa) — 20 por 5 min por usuario
-  const clientId = getClientIdentifier(req, user.email);
+  const clientId = getClientIdentifier(req, userEmail);
   const rl = checkRateLimit(clientId, { key: "nomina:generar", ...RATE_LIMITS.EXPENSIVE });
   if (!rl.allowed) {
     log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
@@ -244,17 +252,25 @@ export async function POST(req: NextRequest) {
 // GET para consultar incidencias sin generar
 export async function GET(req: NextRequest) {
   try {
-  // AUTH CHECK - agregado 22-Feb-2026
-  const supabaseAuth = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (authHeader) {
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: { user } } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+    if (user?.email) userEmail = user.email;
   }
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
-  if (authError || !user) {
+  if (!userEmail) {
+    const hdrEmail = req.headers.get("x-user-email");
+    if (hdrEmail) {
+      const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
+      if (u && u.active !== false) userEmail = u.email;
+    }
+  }
+  if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

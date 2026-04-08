@@ -9,17 +9,25 @@ const supabase = getSupabaseAdmin();
 
 export async function POST(req: NextRequest) {
   try {
-  // AUTH CHECK - agregado 22-Feb-2026
-  const supabaseAuth = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (authHeader) {
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data: { user } } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+    if (user?.email) userEmail = user.email;
   }
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
-  if (authError || !user) {
+  if (!userEmail) {
+    const hdrEmail = req.headers.get("x-user-email");
+    if (hdrEmail) {
+      const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
+      if (u && u.active !== false) userEmail = u.email;
+    }
+  }
+  if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
