@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
 export function useDeletePermission() {
   const [userEmail, setUserEmail] = useState("");
@@ -7,28 +6,13 @@ export function useDeletePermission() {
   const [canDelete, setCanDelete] = useState(false);
 
   useEffect(() => {
+    // Fase piloto: todos los usuarios logueados tienen acceso total (crear/borrar en cualquier modulo).
+    // La restriccion por rol/modulo vendra despues via /dashboard/admin/roles.
     const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+    const role = typeof window !== "undefined" ? localStorage.getItem("userRole") || "user" : "user";
     setUserEmail(email);
-    if (!email) return;
-
-    const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
-    if (ADMIN_EMAILS.includes(email.toLowerCase())) {
-      setUserRole("admin");
-      setCanDelete(true);
-      return;
-    }
-
-    (async () => {
-      let role = "user";
-      const r1 = await supabase.from("users").select("role").eq("email", email).maybeSingle();
-      if (r1.data?.role) role = r1.data.role;
-      else {
-        const r2 = await supabase.from("Users").select("role").eq("email", email).maybeSingle();
-        if (r2.data?.role) role = r2.data.role;
-      }
-      setUserRole(role);
-      setCanDelete(["rh", "admin", "superadmin", "rrhh"].includes(role.toLowerCase()));
-    })();
+    setUserRole(role);
+    setCanDelete(!!email);
   }, []);
 
   return { userEmail, userRole, canDelete };
