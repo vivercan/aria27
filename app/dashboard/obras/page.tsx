@@ -1,6 +1,6 @@
 "use client";
 
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity } from "lucide-react";
+import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -10,6 +10,14 @@ const subModules = [
     href: "/dashboard/obras/control",
     icon: Activity,
     gradient: "from-cyan-500 to-blue-600",
+    active: true,
+  },
+  {
+    title: "Avance Físico",
+    description: "Captura semanal de % de avance físico real por obra. Compara contra avance financiero.",
+    href: "/dashboard/obras/avance",
+    icon: TrendingUp,
+    gradient: "from-emerald-500 to-teal-600",
     active: true,
   },
   {

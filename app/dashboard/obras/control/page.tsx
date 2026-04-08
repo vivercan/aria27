@@ -9,6 +9,7 @@ interface PO { id: string; total: number; status: string; requisition_id: string
 interface Req { id: string; cost_center_name: string | null; }
 interface NomRec { obra: string; sueldo_neto: number; status: string; }
 interface CobroRec { obra_nombre: string | null; monto: number; saldo: number; estatus: string; }
+interface AvanceRec { obra_nombre: string; semana_iso: string; pct_fisico: number; }
 
 interface ObraRow {
   nombre: string;
@@ -20,6 +21,9 @@ interface ObraRow {
   cobrado: number;
   porCobrar: number;
   margen: number;
+  pctFisico: number | null;
+  semanaFisico: string | null;
+  deltaFisFin: number | null;
   avance: number;
   saldo: number;
   semaforo: "VERDE" | "AMARILLO" | "ROJO" | "REBASADO" | "SIN_PRESUPUESTO";
@@ -60,6 +64,7 @@ export default function ControlObrasPage() {
   const [reqs, setReqs] = useState<Req[]>([]);
   const [nomina, setNomina] = useState<NomRec[]>([]);
   const [cobros, setCobros] = useState<CobroRec[]>([]);
+  const [avancesFis, setAvancesFis] = useState<AvanceRec[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtroSem, setFiltroSem] = useState<string>("");
   const [expandida, setExpandida] = useState<string | null>(null);
@@ -69,18 +74,20 @@ export default function ControlObrasPage() {
   async function cargar() {
     setLoading(true);
     try {
-      const [pp, po, rq, nh, co] = await Promise.all([
+      const [pp, po, rq, nh, co, av] = await Promise.all([
         supabase.from("presupuestos_partidas").select("obra_nombre,categoria,importe"),
         supabase.from("purchase_orders").select("id,total,status,requisition_id"),
         supabase.from("requisitions").select("id,cost_center_name"),
         supabase.from("nomina_historico").select("obra,sueldo_neto,status").eq("status", "CONFIRMADA"),
         supabase.from("cobros_manuales").select("obra_nombre,monto,saldo,estatus").neq("estatus", "CANCELADO"),
+        supabase.from("obra_avances").select("obra_nombre,semana_iso,pct_fisico").order("semana_iso", { ascending: false }),
       ]);
       setPartidas((pp.data as any[]) || []);
       setPos((po.data as any[]) || []);
       setReqs((rq.data as any[]) || []);
       setNomina((nh.data as any[]) || []);
       setCobros((co.data as any[]) || []);
+      setAvancesFis((av.data as any[]) || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -90,6 +97,15 @@ export default function ControlObrasPage() {
     reqs.forEach(r => { if (r.cost_center_name) m.set(r.id, r.cost_center_name); });
     return m;
   }, [reqs]);
+
+  const ultimoFisicoPorObra = useMemo(() => {
+    const m = new Map<string, { pct: number; semana: string }>();
+    for (const a of avancesFis) {
+      const ex = m.get(a.obra_nombre);
+      if (!ex || a.semana_iso > ex.semana) m.set(a.obra_nombre, { pct: Number(a.pct_fisico) || 0, semana: a.semana_iso });
+    }
+    return m;
+  }, [avancesFis]);
 
   const filas: ObraRow[] = useMemo(() => {
     const obras = new Set<string>();
@@ -117,13 +133,18 @@ export default function ControlObrasPage() {
       const margen = cobrado - gastoTotal;
       const avance = presupuesto > 0 ? (gastoTotal / presupuesto) * 100 : 0;
       const saldo = presupuesto - gastoTotal;
+      const fis = ultimoFisicoPorObra.get(nombre);
+      const pctFisico = fis ? fis.pct : null;
+      const semanaFisico = fis ? fis.semana : null;
+      const deltaFisFin = fis && presupuesto > 0 ? (fis.pct - avance) : null;
       return {
         nombre, presupuesto, presupuestoCat, gastoOC, gastoNomina, gastoTotal,
         cobrado, porCobrar, margen,
+        pctFisico, semanaFisico, deltaFisFin,
         avance, saldo, semaforo: semaforoOf(avance, presupuesto)
       };
     });
-  }, [partidas, pos, reqMap, nomina, cobros]);
+  }, [partidas, pos, reqMap, nomina, cobros, ultimoFisicoPorObra]);
 
   const filtradas = useMemo(() => filas.filter(f => {
     if (busqueda && !f.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
@@ -147,8 +168,8 @@ export default function ControlObrasPage() {
 
   const exportCSV = () => {
     if (filtradas.length === 0) return;
-    const headers = ["Obra", "Presupuesto", "Gasto_OC", "Gasto_Nomina", "Gasto_Total", "Cobrado", "Por_Cobrar", "Margen_Real", "Saldo", "Avance_%", "Semaforo"];
-    const rows = filtradas.map(f => [f.nombre, f.presupuesto, f.gastoOC, f.gastoNomina, f.gastoTotal, f.cobrado, f.porCobrar, f.margen, f.saldo, f.avance.toFixed(2), f.semaforo]);
+    const headers = ["Obra", "Presupuesto", "Gasto_OC", "Gasto_Nomina", "Gasto_Total", "Cobrado", "Por_Cobrar", "Margen_Real", "Saldo", "Avance_Fin_%", "Avance_Fis_%", "Delta_Fis_Fin", "Semana_Fis", "Semaforo"];
+    const rows = filtradas.map(f => [f.nombre, f.presupuesto, f.gastoOC, f.gastoNomina, f.gastoTotal, f.cobrado, f.porCobrar, f.margen, f.saldo, f.avance.toFixed(2), f.pctFisico !== null ? f.pctFisico.toFixed(2) : "", f.deltaFisFin !== null ? f.deltaFisFin.toFixed(2) : "", f.semanaFisico || "", f.semaforo]);
     const csv = "\uFEFF" + headers.join(",") + "\n" + rows.map(r => r.map(v => typeof v === "string" && v.includes(",") ? `"${v}"` : v).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
@@ -255,13 +276,15 @@ export default function ControlObrasPage() {
                 <th className="text-right p-3 text-slate-400 text-xs">Cobrado</th>
                 <th className="text-right p-3 text-slate-400 text-xs">Margen</th>
                 <th className="text-right p-3 text-slate-400 text-xs">Saldo</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Avance</th>
+                <th className="text-center p-3 text-slate-400 text-xs">Avance Fin</th>
+                <th className="text-center p-3 text-slate-400 text-xs">Avance Fís</th>
+                <th className="text-center p-3 text-slate-400 text-xs">Δ Fís−Fin</th>
                 <th className="text-center p-3 text-slate-400 text-xs">Estado</th>
               </tr>
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={10} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
+                <tr><td colSpan={12} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
               ) : filtradas.map(f => (
                 <>
                   <tr key={f.nombre} className="border-b border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
@@ -285,12 +308,27 @@ export default function ControlObrasPage() {
                       </div>
                     </td>
                     <td className="p-3 text-center">
+                      {f.pctFisico !== null ? (
+                        <div className="flex flex-col items-center">
+                          <span className="text-emerald-300 text-xs font-medium">{f.pctFisico.toFixed(1)}%</span>
+                          <span className="text-[9px] text-slate-500">{f.semanaFisico}</span>
+                        </div>
+                      ) : <span className="text-slate-600 text-xs">—</span>}
+                    </td>
+                    <td className="p-3 text-center">
+                      {f.deltaFisFin !== null ? (
+                        <span className={`text-xs font-medium ${f.deltaFisFin >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
+                          {f.deltaFisFin >= 0 ? "+" : ""}{f.deltaFisFin.toFixed(1)}%
+                        </span>
+                      ) : <span className="text-slate-600 text-xs">—</span>}
+                    </td>
+                    <td className="p-3 text-center">
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${semColor[f.semaforo]}`}>{semLabel[f.semaforo]}</span>
                     </td>
                   </tr>
                   {expandida === f.nombre && (
                     <tr key={f.nombre + "_d"} className="bg-slate-900/40 border-b border-white/5">
-                      <td colSpan={10} className="p-4">
+                      <td colSpan={12} className="p-4">
                         <p className="text-slate-400 text-xs uppercase mb-2">Presupuesto por categoría</p>
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                           {CATS.map(c => (
@@ -318,7 +356,7 @@ export default function ControlObrasPage() {
         <TrendingUp className="w-5 h-5 text-blue-400 mt-0.5" />
         <div className="text-xs text-slate-400">
           <p className="text-blue-300 font-medium mb-1">Cómo se calcula</p>
-          <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Cobrado:</b> suma de (monto - saldo) en cobros_manuales no canceladas vinculadas a la obra del catálogo. <b>Margen Real:</b> Cobrado − Gasto Total. <b>Avance:</b> Gasto Total / Presupuesto.</p>
+          <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Cobrado:</b> suma de (monto - saldo) en cobros_manuales no canceladas vinculadas a la obra del catálogo. <b>Margen Real:</b> Cobrado − Gasto Total. <b>Avance Fin:</b> Gasto Total / Presupuesto. <b>Avance Físico:</b> último % capturado en /obras/avance por obra. <b>Δ Fís−Fin:</b> avance físico − avance financiero (positivo = obra adelantada al gasto, negativo = sobrecosto encubierto).</p>
         </div>
       </div>
     </div>
