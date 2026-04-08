@@ -16,10 +16,17 @@ interface SirocRegistro {
   fecha_fin_estimada: string;
   fecha_fin_real: string;
   importe_total: number;
+  monto_ejercido: number;
+  superficie_construccion: number;
   trabajadores_promedio: number;
   estado: string;
   ultima_incidencia: string;
   ultima_incidencia_fecha: string;
+  fecha_suspension: string;
+  motivo_suspension: string;
+  fecha_reanudacion: string;
+  fecha_cancelacion: string;
+  motivo_cancelacion: string;
   notas: string;
   created_at: string;
 }
@@ -27,8 +34,10 @@ interface SirocRegistro {
 const EMPTY: any = {
   obra: "", registro_patronal: "", numero_siroc: "", clase_riesgo: "III",
   tipo_obra: "", modalidad: "PROPIA", fecha_inicio: "", fecha_fin_estimada: "",
-  fecha_fin_real: "", importe_total: 0, trabajadores_promedio: 0,
-  estado: "REGISTRADA", ultima_incidencia: "", ultima_incidencia_fecha: "", notas: ""
+  fecha_fin_real: "", importe_total: 0, monto_ejercido: 0, superficie_construccion: 0,
+  trabajadores_promedio: 0, estado: "REGISTRADA", ultima_incidencia: "", ultima_incidencia_fecha: "",
+  fecha_suspension: "", motivo_suspension: "", fecha_reanudacion: "",
+  fecha_cancelacion: "", motivo_cancelacion: "", notas: ""
 };
 
 const ESTADOS = ["REGISTRADA", "EN_CURSO", "SUSPENDIDA", "TERMINADA", "CANCELADA"];
@@ -83,10 +92,17 @@ export default function SirocRegistrosPage() {
       fecha_fin_estimada: form.fecha_fin_estimada || null,
       fecha_fin_real: form.fecha_fin_real || null,
       importe_total: Number(form.importe_total) || 0,
+      monto_ejercido: Number(form.monto_ejercido) || 0,
+      superficie_construccion: Number(form.superficie_construccion) || 0,
       trabajadores_promedio: Number(form.trabajadores_promedio) || 0,
       estado: form.estado,
       ultima_incidencia: form.ultima_incidencia || null,
       ultima_incidencia_fecha: form.ultima_incidencia_fecha || null,
+      fecha_suspension: form.fecha_suspension || null,
+      motivo_suspension: form.motivo_suspension || null,
+      fecha_reanudacion: form.fecha_reanudacion || null,
+      fecha_cancelacion: form.fecha_cancelacion || null,
+      motivo_cancelacion: form.motivo_cancelacion || null,
       notas: form.notas || null,
     };
     let error;
@@ -131,6 +147,7 @@ export default function SirocRegistrosPage() {
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
           <p className="text-slate-400 mt-1">Registro estructurado de obras ante IMSS.</p>
         </div>
+        <Link href="/dashboard/obras/siroc/bimestrales" className="px-3 py-2 bg-amber-600/80 hover:bg-amber-600 text-white rounded-lg text-sm">Reportes bimestrales</Link>
         <Link href="/dashboard/obras/siroc" className="px-3 py-2 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg text-sm">Carpetas</Link>
         <button onClick={() => { setEditando(null); setForm(EMPTY); setShowForm(true); }}
           className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 font-medium">
@@ -228,12 +245,19 @@ export default function SirocRegistrosPage() {
                 <div><label className="text-sm text-slate-400 mb-1 block">Modalidad</label><select value={form.modalidad} onChange={e => setForm({ ...form, modalidad: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500">{MODALIDADES.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha inicio *</label><input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha fin estimada</label><input type="date" value={form.fecha_fin_estimada} onChange={e => setForm({ ...form, fecha_fin_estimada: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Importe total ($)</label><input type="number" value={form.importe_total} onChange={e => setForm({ ...form, importe_total: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Importe total contrato ($)</label><input type="number" value={form.importe_total} onChange={e => setForm({ ...form, importe_total: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acum. ($)</label><input type="number" value={form.monto_ejercido} onChange={e => setForm({ ...form, monto_ejercido: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Superficie construcción (m²)</label><input type="number" step="0.01" value={form.superficie_construccion} onChange={e => setForm({ ...form, superficie_construccion: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Trabajadores promedio</label><input type="number" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Estado</label><select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500">{ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}</select></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha fin real</label><input type="date" value={form.fecha_fin_real} onChange={e => setForm({ ...form, fecha_fin_real: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Última incidencia</label><select value={form.ultima_incidencia} onChange={e => setForm({ ...form, ultima_incidencia: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500">{INCIDENCIAS.map(i => <option key={i} value={i}>{i || "Ninguna"}</option>)}</select></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha incidencia</label><input type="date" value={form.ultima_incidencia_fecha} onChange={e => setForm({ ...form, ultima_incidencia_fecha: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha suspensión</label><input type="date" value={form.fecha_suspension} onChange={e => setForm({ ...form, fecha_suspension: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha reanudación</label><input type="date" value={form.fecha_reanudacion} onChange={e => setForm({ ...form, fecha_reanudacion: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div className="col-span-2"><label className="text-sm text-slate-400 mb-1 block">Motivo suspensión</label><input type="text" value={form.motivo_suspension} onChange={e => setForm({ ...form, motivo_suspension: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha cancelación</label><input type="date" value={form.fecha_cancelacion} onChange={e => setForm({ ...form, fecha_cancelacion: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Motivo cancelación</label><input type="text" value={form.motivo_cancelacion} onChange={e => setForm({ ...form, motivo_cancelacion: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
               </div>
               <div><label className="text-sm text-slate-400 mb-1 block">Notas</label><textarea value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} rows={3} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
             </div>
