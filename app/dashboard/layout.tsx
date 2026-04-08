@@ -95,6 +95,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
+  // Bug 6: Atajo global de regreso (Alt+Left) en todo el dashboard.
+  // Ignora si el foco esta en un input/textarea/contenteditable para no pisar escritura.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.altKey || e.key !== "ArrowLeft") return;
+      const el = document.activeElement as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      if (pathname === "/dashboard") return;
+      e.preventDefault();
+      router.back();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pathname, router]);
+
   // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
   useEffect(() => {
     if (!userEmail) return;
