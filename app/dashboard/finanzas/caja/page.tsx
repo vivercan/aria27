@@ -1,13 +1,12 @@
-import HiddenStub from "@/components/HiddenStub";
+import ModuleFolders from "@/components/ModuleFolders";
 
 export default function CajaPage() {
   return (
-    <HiddenStub
-      titulo="Caja"
-      modulo="Finanzas"
-      hubHref="/dashboard/finanzas"
-      motivo="Caja chica no tiene tabla de movimientos ni reglas de arqueo. Hoy los gastos se capturan en Gastos por Obra."
-      decision="OCULTA TEMPORAL"
+    <ModuleFolders
+      titulo="Caja Chica"
+      descripcion="Comprobantes, vales y reposiciones · organiza por semana o responsable en carpetas"
+      backHref="/dashboard/finanzas"
+      scope="finanzas:caja"
     />
   );
 }

@@ -1,13 +1,12 @@
-import HiddenStub from "@/components/HiddenStub";
+import ModuleFolders from "@/components/ModuleFolders";
 
 export default function ConcretoPage() {
   return (
-    <HiddenStub
+    <ModuleFolders
       titulo="Control de Concreto"
-      modulo="Obras"
-      hubHref="/dashboard/obras"
-      motivo="Control de concreto requiere definir colados, pruebas de resistencia y bitácora con responsable de calidad. No hay tabla aún."
-      decision="OCULTA TEMPORAL"
+      descripcion="Colados, pruebas de resistencia y bitácora · organiza por obra o por colado en carpetas"
+      backHref="/dashboard/obras"
+      scope="obras:concreto"
     />
   );
 }

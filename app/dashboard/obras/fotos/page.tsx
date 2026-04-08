@@ -1,13 +1,12 @@
-import HiddenStub from "@/components/HiddenStub";
+import ModuleFolders from "@/components/ModuleFolders";
 
 export default function FotosPage() {
   return (
-    <HiddenStub
+    <ModuleFolders
       titulo="Fotos de Obra"
-      modulo="Obras"
-      hubHref="/dashboard/obras"
-      motivo="Fotos sueltas se cubren temporalmente desde Obras › Expedientes (carpeta por obra). Se reactivará como galería dedicada cuando se defina el flujo de captura."
-      decision="OCULTA TEMPORAL"
+      descripcion="Galería fotográfica organizada por carpetas (una por obra, fecha o tema)"
+      backHref="/dashboard/obras"
+      scope="obras:fotos"
     />
   );
 }
