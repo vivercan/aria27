@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import BackButton from "@/components/BackButton";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
 
@@ -34,23 +33,34 @@ export default function RolesAdminPage() {
   const [filter, setFilter] = useState("");
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
 
+  const authEmail = () => (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "");
+
   useEffect(() => {
-    const email = (typeof window !== "undefined" ? localStorage.getItem("userEmail") : "") || "";
-    const role = (typeof window !== "undefined" ? localStorage.getItem("userRole") : "") || "";
-    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase()) || role === "admin" || role === "Administrador";
-    setAuthorized(isAdmin);
-    if (isAdmin) cargar();
-    else setLoading(false);
+    cargar();
   }, []);
 
   const cargar = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("Users")
-      .select("id,email,display_name,role,permissions")
-      .order("email", { ascending: true });
-    if (error) setMsg({ tipo: "err", texto: error.message });
-    setUsers((data as UserRow[]) || []);
+    try {
+      const r = await fetch("/api/admin/roles", { headers: { "x-user-email": authEmail() } });
+      if (r.status === 401 || r.status === 403) {
+        setAuthorized(false);
+        setLoading(false);
+        return;
+      }
+      const j = await r.json();
+      if (!r.ok) {
+        setMsg({ tipo: "err", texto: j.error || "Error" });
+        setAuthorized(true);
+        setLoading(false);
+        return;
+      }
+      setAuthorized(true);
+      setUsers((j.users as UserRow[]) || []);
+    } catch (e: any) {
+      setMsg({ tipo: "err", texto: e?.message || "Error de red" });
+      setAuthorized(true);
+    }
     setLoading(false);
   };
 
@@ -72,12 +82,18 @@ export default function RolesAdminPage() {
 
   const guardar = async (u: UserRow) => {
     setGuardando(u.id);
-    const { error } = await supabase
-      .from("Users")
-      .update({ role: u.role, permissions: u.permissions || {} })
-      .eq("id", u.id);
-    if (error) flash("err", error.message);
-    else flash("ok", `Permisos actualizados para ${u.email}`);
+    try {
+      const r = await fetch("/api/admin/roles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-user-email": authEmail() },
+        body: JSON.stringify({ id: u.id, role: u.role, permissions: u.permissions || {} }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) flash("err", j.error || "Error");
+      else flash("ok", `Permisos actualizados para ${u.email}`);
+    } catch (e: any) {
+      flash("err", e?.message || "Error de red");
+    }
     setGuardando(null);
   };
 
