@@ -31,7 +31,7 @@ const STATUS_OPTIONS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const EMPTY = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
+const EMPTY = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
 
 export default function PipelinePage() {
   const [obras, setObras] = useState<Obra[]>([]);
@@ -65,7 +65,16 @@ export default function PipelinePage() {
   const guardarManual = async () => {
     setGuardando(true);
     const payload: any = { ...form };
-    if (payload.presupuesto) payload.presupuesto = parseFloat(payload.presupuesto);
+    // Calcular presupuesto total = contratado + ampliaciones (si ambos presentes)
+    const contratado = parseFloat(payload.presupuesto_contratado) || 0;
+    const ampliaciones = parseFloat(payload.presupuesto_ampliaciones) || 0;
+    if (contratado > 0 || ampliaciones > 0) {
+      payload.presupuesto_contratado = contratado;
+      payload.presupuesto_ampliaciones = ampliaciones;
+      payload.presupuesto = contratado + ampliaciones;
+    } else if (payload.presupuesto) {
+      payload.presupuesto = parseFloat(payload.presupuesto);
+    }
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
@@ -144,7 +153,7 @@ export default function PipelinePage() {
 
   const editar = (o: Obra) => {
     setEditId(o.id);
-    setForm({ nombre: o.nombre || "", direccion: o.direccion || "", estado: o.estado || "ACTIVA", presupuesto: o.presupuesto || "", fecha_inicio: o.fecha_inicio || "", fecha_fin: o.fecha_fin || "", cliente: o.cliente || "", descripcion: o.descripcion || "" });
+    setForm({ nombre: o.nombre || "", direccion: o.direccion || "", estado: o.estado || "ACTIVA", presupuesto: o.presupuesto || "", presupuesto_contratado: (o as any).presupuesto_contratado || "", presupuesto_ampliaciones: (o as any).presupuesto_ampliaciones || "", fecha_inicio: o.fecha_inicio || "", fecha_fin: o.fecha_fin || "", cliente: o.cliente || "", descripcion: o.descripcion || "" });
     setModo("manual");
     setShowForm(true);
   };
@@ -272,8 +281,15 @@ export default function PipelinePage() {
                     <input type="text" value={form.cliente || ""} onChange={e => setForm({ ...form, cliente: e.target.value })} placeholder="Nombre del cliente" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1">Presupuesto</label>
-                    <input type="number" value={form.presupuesto || ""} onChange={e => setForm({ ...form, presupuesto: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+                    <label className="block text-xs text-slate-400 mb-1">Monto contratado</label>
+                    <input type="number" value={form.presupuesto_contratado || ""} onChange={e => setForm({ ...form, presupuesto_contratado: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Ampliaciones</label>
+                    <input type="number" value={form.presupuesto_ampliaciones || ""} onChange={e => setForm({ ...form, presupuesto_ampliaciones: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
+                    {(parseFloat(form.presupuesto_contratado)||0) + (parseFloat(form.presupuesto_ampliaciones)||0) > 0 && (
+                      <div className="text-[10px] text-emerald-400 mt-1">Total: ${((parseFloat(form.presupuesto_contratado)||0) + (parseFloat(form.presupuesto_ampliaciones)||0)).toLocaleString()}</div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Estado</label>

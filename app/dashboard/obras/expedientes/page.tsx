@@ -60,11 +60,14 @@ interface Tarea {
   status: string;
 }
 
+const AÑOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
+
 export default function ExpedientesPage() {
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
+  const [anioSeleccionado, setAnioSeleccionado] = useState<number | "SIN_ANIO" | null>(null);
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
@@ -72,7 +75,6 @@ export default function ExpedientesPage() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"carpetas" | "tareas">("carpetas");
-  const [anioFiltro, setAnioFiltro] = useState<number | "TODOS">("TODOS");
 
   // Modales
   const [showNuevaCarpeta, setShowNuevaCarpeta] = useState(false);
@@ -277,8 +279,12 @@ export default function ExpedientesPage() {
     );
   }
 
-  // Vista: Lista de Obras
-  if (!obraSeleccionada) {
+  // Vista 0: Carpetas de Año (nivel superior)
+  if (!anioSeleccionado) {
+    const countPorAnio = (anio: number | "SIN_ANIO") => {
+      if (anio === "SIN_ANIO") return obras.filter(o => !o.anio).length;
+      return obras.filter(o => o.anio === anio).length;
+    };
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -287,63 +293,100 @@ export default function ExpedientesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona una obra para ver sus documentos</p>
+            <p className="text-slate-400 text-sm">Selecciona un año para ver las obras de ese periodo</p>
           </div>
         </div>
 
-        {/* Filtro por año */}
-        <div className="flex flex-wrap gap-2">
-          {(() => {
-            const aniosUnicos = Array.from(new Set(obras.map(o => o.anio).filter(Boolean))) as number[];
-            aniosUnicos.sort((a, b) => b - a);
-            const chips: (number | "TODOS" | "SIN_ANIO")[] = ["TODOS", ...aniosUnicos];
-            if (obras.some(o => !o.anio)) chips.push("SIN_ANIO");
-            return chips.map((chip) => {
-              const label = chip === "TODOS" ? "Todas" : chip === "SIN_ANIO" ? "Sin año" : String(chip);
-              const isActive = anioFiltro === chip || (chip === "SIN_ANIO" && anioFiltro === "SIN_ANIO" as any);
-              return (
-                <button
-                  key={label}
-                  onClick={() => setAnioFiltro(chip as any)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                    isActive
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            });
-          })()}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {obras.filter(o => {
-            if (anioFiltro === "TODOS") return true;
-            if ((anioFiltro as any) === "SIN_ANIO") return !o.anio;
-            return o.anio === anioFiltro;
-          }).map((obra) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {AÑOS_FIJOS.map((anio) => {
+            const count = countPorAnio(anio);
+            return (
+              <button
+                key={anio}
+                onClick={() => setAnioSeleccionado(anio)}
+                className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl text-left transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-amber-500/20 rounded-xl group-hover:bg-amber-500/30 transition-colors">
+                    <FolderOpen className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-xl group-hover:text-amber-300 transition-colors">
+                      {anio}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">{count} {count === 1 ? "obra" : "obras"}</p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+          {countPorAnio("SIN_ANIO") > 0 && (
             <button
-              key={obra.id}
-              onClick={() => setObraSeleccionada(obra)}
-              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-xl text-left transition-all group"
+              onClick={() => setAnioSeleccionado("SIN_ANIO")}
+              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-slate-400/50 rounded-xl text-left transition-all group"
             >
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
-                  <Building2 className="w-6 h-6 text-blue-400" />
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-slate-500/20 rounded-xl group-hover:bg-slate-500/30 transition-colors">
+                  <FolderOpen className="w-8 h-8 text-slate-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
-                    {obra.name}
-                  </h3>
-                  <p className="text-sm text-slate-400 mt-1">{obra.anio ? `Año ${obra.anio}` : "Sin año registrado"}</p>
+                  <h3 className="font-bold text-white text-xl">Sin año</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{countPorAnio("SIN_ANIO")} obras</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
               </div>
             </button>
-          ))}
+          )}
         </div>
+        <p className="text-xs text-slate-500 italic">Tip: Para que una obra aparezca en su año, asigna su fecha de inicio desde Obras → Pipeline.</p>
+      </div>
+    );
+  }
+
+  // Vista 1: Lista de Obras del año seleccionado
+  if (!obraSeleccionada) {
+    const obrasFiltradas = obras.filter(o => anioSeleccionado === "SIN_ANIO" ? !o.anio : o.anio === anioSeleccionado);
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setAnioSeleccionado(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Año {anioSeleccionado === "SIN_ANIO" ? "— Sin fecha" : anioSeleccionado}</h1>
+            <p className="text-slate-400 text-sm">{obrasFiltradas.length} obras · Selecciona una para ver su expediente</p>
+          </div>
+        </div>
+
+        {obrasFiltradas.length === 0 ? (
+          <div className="text-center py-16 text-slate-400">
+            <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
+            <p>No hay obras en este año</p>
+            <p className="text-sm mt-2">Ve a Obras → Pipeline y asigna fecha de inicio a una obra para que aparezca aquí.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {obrasFiltradas.map((obra) => (
+              <button
+                key={obra.id}
+                onClick={() => setObraSeleccionada(obra)}
+                className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-xl text-left transition-all group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
+                    <Building2 className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                      {obra.name}
+                    </h3>
+                    <p className="text-sm text-slate-400 mt-1">Ver carpetas y tareas</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
