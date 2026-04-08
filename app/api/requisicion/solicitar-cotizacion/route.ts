@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -92,10 +92,11 @@ export async function POST(request: NextRequest) {
       // WhatsApp con plantilla
       if (prov.phone) {
         try {
-          const result = await sendWhatsAppTemplate(
+          const result = await sendWhatsAppLogged(
             "solicitar_cotizacion",
             [folio, obra, urgencyText],
-            prov.phone
+            prov.phone,
+            { origen: "solicitar-cotizacion", enviadoPor: user_email || "solicitar-cotizacion" }
           );
           if (result.success) whatsappSent++;
           else errors.push(`WA ${prov.name}: ${result.error}`);

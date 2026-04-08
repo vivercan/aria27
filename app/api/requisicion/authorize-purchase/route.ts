@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 const log = logger("AUTHORIZE-PURCHASE");
 
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
 
       if (autorizadorUser.phone) {
         const materialesWA = cotizacion.items.map((item: any) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
-        await sendWhatsAppTemplate("compra_autorizar", [req.folio, req.cost_center_name, req.created_by || "N/A", urgencyText, materialesWA, `$${total.toLocaleString()}`], autorizadorUser.phone, token);
+        await sendWhatsAppLogged("compra_autorizar", [req.folio, req.cost_center_name, req.created_by || "N/A", urgencyText, materialesWA, `$${total.toLocaleString()}`], autorizadorUser.phone, { origen: "compra-autorizar", enviadoPor: "authorize-purchase", buttonToken: token });
       }
     }
 

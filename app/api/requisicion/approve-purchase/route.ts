@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("REQUISICION-APPROVE-PURCHASE");
@@ -227,7 +227,7 @@ export async function GET(request: NextRequest) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici&oacute;n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>`
         });
         if (comprasUser.phone) {
-          await sendWhatsAppTemplate("oc_generada", [req.folio, ocFolio, req.cost_center_name || "N/A", supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone);
+          await sendWhatsAppLogged("oc_generada", [req.folio, ocFolio, req.cost_center_name || "N/A", supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone, { origen: "oc-generada-approve", enviadoPor: "approve-purchase" });
         }
       }
 

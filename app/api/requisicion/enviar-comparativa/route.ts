@@ -137,13 +137,13 @@ export async function POST(req: NextRequest) {
 
     let waResult: { success: boolean; messageId?: string; error?: string } = { success: false, error: "no enviado (sin telefono)" };
     if (director.phone) {
-      const { sendWhatsAppTemplate } = await import("@/lib/whatsapp");
+      const { sendWhatsAppLogged } = await import("@/lib/whatsapp");
       const mejorText = `${mejor.supplier} $${(mejor.total || mejor.subtotal || 0).toLocaleString?.() || 0}`;
-      waResult = await sendWhatsAppTemplate(
+      waResult = await sendWhatsAppLogged(
         "comparativa_enviar",
         [folio, obra, mejorText, String(supList.length || quotes?.length || 0)],
         director.phone,
-        token
+        { origen: "comparativa-enviar", enviadoPor: "enviar-comparativa", buttonToken: token }
       );
       if (!waResult.success) {
         log.error("WhatsApp comparativa fallo", { id: requisition_id, phone: director.phone, error: waResult.error });

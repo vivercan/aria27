@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 const log = logger("REGISTRAR-ENTREGA");
 
@@ -138,10 +138,11 @@ export async function POST(req: NextRequest) {
 
     // WhatsApp con plantilla al solicitante
     if (solicitante_phone) {
-      await sendWhatsAppTemplate(
+      await sendWhatsAppLogged(
         "entrega_material",
         [purchase_order_folio, obra_nombre || "N/A", supplier_name || "N/A", folioEntrega],
-        solicitante_phone
+        solicitante_phone,
+        { origen: "entrega-material", enviadoPor: solicitante_email || "registrar-entrega" }
       );
     }
 

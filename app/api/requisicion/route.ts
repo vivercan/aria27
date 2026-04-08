@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 const log = logger("REQUISICION");
 
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
     } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, e?.message); }
 
     if (creatorUser?.phone) {
-      await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone);
+      await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
     }
     notificados.push(`Creador: ${usuario.email}`);
 
@@ -177,7 +177,7 @@ export async function POST(request: Request) {
       } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, e?.message); }
 
       if (comprasUser.phone) {
-        await sendWhatsAppTemplate("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone);
+        await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
       }
       notificados.push(`Compras: ${comprasUser.email}`);
     }
@@ -198,7 +198,7 @@ export async function POST(request: Request) {
       } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
 
       if (direccionUser.phone) {
-        await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone);
+        await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone, { origen: "req-creada-direccion", enviadoPor: usuario.email });
       }
       notificados.push(`Dirección: ${direccionUser.email}`);
     }
@@ -216,7 +216,7 @@ export async function POST(request: Request) {
       } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, e?.message); }
 
       if (adminUser.phone) {
-        await sendWhatsAppTemplate("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone);
+        await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone, { origen: "req-creada-admin", enviadoPor: usuario.email });
       }
       notificados.push(`Admin: ${adminUser.email}`);
     }

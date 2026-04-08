@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 const log = logger("AUTORIZAR-PICKING");
 
@@ -117,10 +117,11 @@ export async function POST(req: Request) {
     // WhatsApp â usar template aprobado oc_generada
     if (compras?.phone) {
       const firstOcFolio = ocFolios[0]?.split(" - ")[0] || "OC";
-      await sendWhatsAppTemplate(
+      await sendWhatsAppLogged(
         "oc_generada",
         [folio, firstOcFolio, obra || "N/A", `$${grandTotal.toLocaleString()}`, urgency || "normal"],
-        compras.phone
+        compras.phone,
+        { origen: "oc-generada-picking", enviadoPor: "autorizar-picking" }
       );
     }
 
