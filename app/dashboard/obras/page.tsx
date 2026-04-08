@@ -1,6 +1,6 @@
 "use client";
 
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp } from "lucide-react";
+import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp, ShieldCheck, Droplet } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -10,6 +10,22 @@ const subModules = [
     href: "/dashboard/obras/control",
     icon: Activity,
     gradient: "from-cyan-500 to-blue-600",
+    active: true,
+  },
+  {
+    title: "SIROC IMSS",
+    description: "Registro de obras ante IMSS: fases, incidencias e importes bimestre.",
+    href: "/dashboard/obras/siroc/registros",
+    icon: ShieldCheck,
+    gradient: "from-red-500 to-rose-600",
+    active: true,
+  },
+  {
+    title: "Control de Concreto",
+    description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.",
+    href: "/dashboard/obras/concreto/remisiones",
+    icon: Droplet,
+    gradient: "from-slate-500 to-slate-700",
     active: true,
   },
   {
