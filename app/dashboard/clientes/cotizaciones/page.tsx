@@ -309,8 +309,44 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
     if (c.estatus === nuevo) return;
     if (nuevo === "CANCELADA" && !confirm(`Cancelar cotización ${c.folio}?`)) return;
     const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
-    if (error) alert("Error: " + error.message);
-    else cargar();
+    if (error) { alert("Error: " + error.message); return; }
+
+    // Bloque 12: al APROBAR, generar cobro_manual auto vinculado a esta cotizacion (idempotente)
+    if (nuevo === "APROBADA") {
+      try {
+        const { data: existente } = await supabase
+          .from("cobros_manuales")
+          .select("id")
+          .eq("cotizacion_id", c.id)
+          .maybeSingle();
+        if (!existente) {
+          const monto = Number(c.total) || 0;
+          if (monto > 0 && c.cliente_id) {
+            const payload: any = {
+              cliente_id: c.cliente_id,
+              cliente_nombre: c.cliente_nombre,
+              obra_id: c.obra_id || null,
+              obra_nombre: c.obra_nombre || null,
+              monto,
+              saldo: monto,
+              estatus: "PENDIENTE",
+              referencia: `COT ${c.folio || c.id.slice(0, 8)}`,
+              metodo: null,
+              fecha: new Date().toISOString().split("T")[0],
+              observaciones: `Generado automaticamente desde cotizacion ${c.folio || c.id.slice(0, 8)} al APROBAR.`,
+              cotizacion_id: c.id,
+              created_by: (typeof window !== "undefined" && localStorage.getItem("userEmail")) || null,
+            };
+            const { error: ce } = await supabase.from("cobros_manuales").insert(payload);
+            if (ce) console.warn("[Bloque12] No se pudo generar cobro auto:", ce.message);
+          }
+        }
+      } catch (e: any) {
+        console.warn("[Bloque12] Error generando cobro auto:", e?.message);
+      }
+    }
+
+    cargar();
   }
 
   const clientesActivos = clientes.filter(c => c.estatus === "ACTIVO");
