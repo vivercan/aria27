@@ -328,6 +328,7 @@ export default function ActivosCatalogoPage() {
                         <th className="px-4 py-3">Marca/Modelo</th>
                         <th className="px-4 py-3">Placas</th>
                         <th className="px-4 py-3">Estado</th>
+                        <th className="px-4 py-3">Obra</th>
                         <th className="px-4 py-3">Km/Hrs</th>
                         <th className="px-4 py-3">Acciones</th>
                       </tr>
@@ -348,6 +349,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-slate-500"}`}>{activo.estado}</span>
                           </td>
+                          <td className="px-4 py-3 text-slate-300 text-sm">{asignaciones.find(a => a.activo_id === activo.id && a.activa)?.obra_nombre || "-"}</td>
                           <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
