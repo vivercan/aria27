@@ -9,7 +9,7 @@ import {
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
-interface PO { id: string; total: number; status: string; created_at: string; requisition_id: string | null; }
+interface PO { id: string; total: number; status: string; created_at: string; requisition_id: string | null; po_number?: string | null; }
 interface Req { id: string; cost_center_name: string | null; }
 interface Nom { obra: string | null; sueldo_neto: number; status: string; semana_iso: string | null; }
 interface Part { obra_nombre: string; importe: number; }
@@ -43,7 +43,7 @@ export default function CeoDashboardPage() {
       const [c, co, p, r, n, pp, a] = await Promise.all([
         supabase.from("cotizaciones_clientes").select("id,folio,cliente_nombre,total,estatus,fecha,vigencia_dias").order("fecha", { ascending: false }),
         supabase.from("cobros_manuales").select("obra_nombre,cliente_nombre,monto,saldo,estatus,fecha").neq("estatus", "CANCELADO"),
-        supabase.from("purchase_orders").select("id,total,status,created_at,requisition_id"),
+        supabase.from("purchase_orders").select("id,po_number,total,status,created_at,requisition_id"),
         supabase.from("requisitions").select("id,cost_center_name"),
         supabase.from("nomina_historico").select("obra,sueldo_neto,status,semana_iso").eq("status", "CONFIRMADA"),
         supabase.from("presupuestos_partidas").select("obra_nombre,importe"),
@@ -140,6 +140,53 @@ export default function CeoDashboardPage() {
   const topMargen = useMemo(() => [...obras].sort((a, b) => b.margen - a.margen).slice(0, 5), [obras]);
   const obrasRebasadas = useMemo(() => obras.filter(o => o.rebasada), [obras]);
   const obrasDeltaNeg = useMemo(() => obras.filter(o => o.delta !== null && (o.delta as number) < -10), [obras]);
+  const ocGrandesPend = useMemo(() => pos.filter(p => ["BORRADOR", "PENDIENTE", "PENDING", "ENVIADA"].includes(p.status) && Number(p.total || 0) >= 50000), [pos]);
+
+  // Flujo caja 12 semanas: cobranza vs gasto OC por semana ISO
+  const flujoCaja = useMemo(() => {
+    const semanas: string[] = [];
+    const hoy = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(hoy);
+      d.setDate(d.getDate() - i * 7);
+      const y = d.getFullYear();
+      const start = new Date(y, 0, 1);
+      const days = Math.floor((d.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+      const week = Math.ceil((days + start.getDay() + 1) / 7);
+      semanas.push(`${y}-W${String(week).padStart(2, "0")}`);
+    }
+    const cobroPorSem = new Map<string, number>();
+    const gastoPorSem = new Map<string, number>();
+    cobs.forEach(c => {
+      if (!c.fecha) return;
+      const d = new Date(c.fecha);
+      const y = d.getFullYear();
+      const start = new Date(y, 0, 1);
+      const days = Math.floor((d.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+      const week = Math.ceil((days + start.getDay() + 1) / 7);
+      const key = `${y}-W${String(week).padStart(2, "0")}`;
+      cobroPorSem.set(key, (cobroPorSem.get(key) || 0) + (Number(c.monto) - Number(c.saldo)));
+    });
+    pos.filter(p => p.status !== "CANCELADA").forEach(p => {
+      const d = new Date(p.created_at);
+      const y = d.getFullYear();
+      const start = new Date(y, 0, 1);
+      const days = Math.floor((d.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+      const week = Math.ceil((days + start.getDay() + 1) / 7);
+      const key = `${y}-W${String(week).padStart(2, "0")}`;
+      gastoPorSem.set(key, (gastoPorSem.get(key) || 0) + Number(p.total || 0));
+    });
+    const maxVal = Math.max(
+      ...semanas.map(s => Math.max(cobroPorSem.get(s) || 0, gastoPorSem.get(s) || 0)),
+      1,
+    );
+    return semanas.map(s => ({
+      semana: s.slice(5),
+      cobro: cobroPorSem.get(s) || 0,
+      gasto: gastoPorSem.get(s) || 0,
+      maxVal,
+    }));
+  }, [cobs, pos]);
 
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
@@ -175,19 +222,40 @@ export default function CeoDashboardPage() {
       </div>
 
       {/* Alertas */}
-      {(obrasRebasadas.length > 0 || obrasDeltaNeg.length > 0 || kpis.cotsVencidas.length > 0) && (
+      {(obrasRebasadas.length > 0 || obrasDeltaNeg.length > 0 || kpis.cotsVencidas.length > 0 || ocGrandesPend.length > 0) && (
         <div className="rounded-2xl bg-rose-500/5 border border-rose-500/20 p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-5 h-5 text-rose-400" />
             <h2 className="text-lg font-bold text-rose-200">Alertas operativas</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <AlertBox title="Obras rebasadas" count={obrasRebasadas.length} items={obrasRebasadas.map(o => `${o.nombre} (${fmt(o.gastoTotal - o.presupuesto)} sobre ppto)`)} link="/dashboard/obras/control" />
             <AlertBox title="Δ Físico−Fin < −10%" count={obrasDeltaNeg.length} items={obrasDeltaNeg.map(o => `${o.nombre} (${(o.delta as number).toFixed(1)}%)`)} link="/dashboard/obras/control" />
             <AlertBox title="Cotizaciones vencidas" count={kpis.cotsVencidas.length} items={kpis.cotsVencidas.slice(0, 5).map(c => `${c.folio || c.id.slice(0, 6)} · ${c.cliente_nombre} · ${fmt(Number(c.total))}`)} link="/dashboard/clientes/cotizaciones" />
+            <AlertBox title="OC ≥ $50k sin autorizar" count={ocGrandesPend.length} items={ocGrandesPend.slice(0, 5).map(p => `${p.po_number || p.id.slice(0, 6)} · ${fmt(Number(p.total))}`)} link="/dashboard/requisiciones/requisiciones/ordenes" />
           </div>
         </div>
       )}
+
+      {/* Flujo caja 12 semanas */}
+      <div className="rounded-2xl bg-white/[0.02] border border-white/10 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="w-5 h-5 text-blue-400" />
+          <h2 className="text-base font-bold text-white">Flujo de caja · últimas 12 semanas</h2>
+          <span className="ml-auto text-xs text-slate-500">verde=cobros · naranja=gasto OC</span>
+        </div>
+        <div className="grid grid-cols-12 gap-2 items-end h-40">
+          {flujoCaja.map((f, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 h-full">
+              <div className="flex-1 w-full flex gap-0.5 items-end">
+                <div className="flex-1 bg-emerald-500/60 rounded-t" style={{ height: `${(f.cobro / f.maxVal) * 100}%` }} title={`Cobrado: ${fmt(f.cobro)}`} />
+                <div className="flex-1 bg-orange-500/60 rounded-t" style={{ height: `${(f.gasto / f.maxVal) * 100}%` }} title={`Gasto OC: ${fmt(f.gasto)}`} />
+              </div>
+              <p className="text-[9px] text-slate-500">{f.semana}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Top obras por margen */}
       <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
