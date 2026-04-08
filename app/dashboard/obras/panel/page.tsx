@@ -24,8 +24,10 @@ export default function PanelObras() {
 
   async function cargar() {
     setLoading(true);
-    const { data: ct } = await supabase.from("centros_trabajo").select("nombre,presupuesto,estado").in("estado", ["ACTIVA", "EN_PLANEACION", "PAUSADA"]).order("nombre");
-    const nombres = (ct || []).map((c: any) => c.nombre);
+    const { data: ctAll, error: ctErr } = await supabase.from("centros_trabajo").select("*");
+    if (ctErr) console.error("centros_trabajo error", ctErr);
+    const ct = (ctAll || []).filter((o: any) => ["ACTIVA", "EN_PLANEACION", "PAUSADA"].includes(o.estado));
+    const nombres = ct.map((c: any) => c.nombre);
 
     const out: ObraCard[] = [];
     for (const nom of nombres) {
