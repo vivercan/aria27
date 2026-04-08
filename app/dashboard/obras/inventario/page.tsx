@@ -121,33 +121,52 @@ export default function InventarioObraPage() {
         continue;
       }
 
+      const cantMov = Number(mat.cantidad || mat.quantity || 0);
+      const nombreMat = mat.nombre || mat.product_name;
+      const unidadMat = mat.unidad || mat.unit || "PZA";
+      let saldoPost = 0;
       if (existe) {
-        // Actualizar cantidad
+        saldoPost = Number(existe.cantidad_disponible) + cantMov;
         const { error: errorUpdate } = await supabase
           .from("inventario_obra")
           .update({
-            cantidad_disponible: existe.cantidad_disponible + (mat.cantidad || mat.quantity || 0),
+            cantidad_disponible: saldoPost,
             ultimo_movimiento: new Date().toISOString(),
           })
           .eq("id", existe.id);
         if (errorUpdate) {
           console.error("Error updating inventory item:", errorUpdate.message);
+          continue;
         }
       } else {
-        // Crear nuevo registro
+        saldoPost = cantMov;
         const { error: errorInsert } = await supabase.from("inventario_obra").insert({
           obra_id: obraSeleccionada.id,
           obra_nombre: obraSeleccionada.name,
-          producto_nombre: mat.nombre || mat.product_name,
-          unidad: mat.unidad || mat.unit || "PZA",
-          cantidad_disponible: mat.cantidad || mat.quantity || 0,
+          producto_nombre: nombreMat,
+          unidad: unidadMat,
+          cantidad_disponible: cantMov,
           cantidad_usada: 0,
           entrega_id: entrega.id,
         });
         if (errorInsert) {
           console.error("Error inserting new inventory item:", errorInsert.message);
+          continue;
         }
       }
+      await supabase.from("inventario_movimientos").insert({
+        obra_id: obraSeleccionada.id,
+        obra_nombre: obraSeleccionada.name,
+        producto_nombre: nombreMat,
+        unidad: unidadMat,
+        tipo: "ENTRADA",
+        cantidad: cantMov,
+        saldo_post: saldoPost,
+        motivo: `Importado de entrega ${entrega.folio}`,
+        referencia_tipo: "ENTREGA",
+        referencia_id: entrega.id,
+        usuario: typeof window !== "undefined" ? localStorage.getItem("userEmail") || "sistema" : "sistema",
+      });
     }
 
     loadInventario(obraSeleccionada.id);
@@ -182,6 +201,20 @@ export default function InventarioObraPage() {
       if (obraSeleccionada) loadInventario(obraSeleccionada.id);
       return;
     }
+
+    await supabase.from("inventario_movimientos").insert({
+      obra_id: showAjuste.obra_id,
+      obra_nombre: showAjuste.obra_nombre,
+      producto_nombre: showAjuste.producto_nombre,
+      unidad: showAjuste.unidad,
+      tipo: ajusteCantidad >= 0 ? "ENTRADA" : "SALIDA",
+      cantidad: Math.abs(ajusteCantidad),
+      saldo_post: nuevaCantidad,
+      motivo: ajusteMotivo || "Ajuste manual",
+      referencia_tipo: "AJUSTE",
+      referencia_id: showAjuste.id,
+      usuario: typeof window !== "undefined" ? localStorage.getItem("userEmail") || "sistema" : "sistema",
+    });
 
     setShowAjuste(null);
     setAjusteCantidad(0);
@@ -319,7 +352,7 @@ export default function InventarioObraPage() {
                   <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Disponible</th>
                   <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Usado</th>
                   <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Unidad</th>
-                  <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Ajustar</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-slate-300">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -339,12 +372,22 @@ export default function InventarioObraPage() {
                     <td className="px-4 py-3 text-center text-slate-400">{item.cantidad_usada}</td>
                     <td className="px-4 py-3 text-center text-slate-400">{item.unidad}</td>
                     <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => setShowAjuste(item)}
-                        className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg transition-colors"
-                      >
-                        <History className="w-4 h-4 text-blue-400" />
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <Link
+                          href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`}
+                          className="p-2 bg-purple-500/20 hover:bg-purple-500/40 rounded-lg transition-colors"
+                          title="Ver kardex"
+                        >
+                          <History className="w-4 h-4 text-purple-400" />
+                        </Link>
+                        <button
+                          onClick={() => setShowAjuste(item)}
+                          className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg transition-colors"
+                          title="Ajustar"
+                        >
+                          <Plus className="w-4 h-4 text-blue-400" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
