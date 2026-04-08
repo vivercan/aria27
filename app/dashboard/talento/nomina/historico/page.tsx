@@ -32,8 +32,33 @@ export default function HistoricoNominaPage() {
   const [semanas, setSemanas] = useState<{semana: number; anio: number; total: number}[]>([]);
   const [empleados, setEmpleados] = useState<string[]>([]);
   const [vistaAcumulado, setVistaAcumulado] = useState(false);
+  const [filtroAnio, setFiltroAnio] = useState<string>("");
+  const [anios, setAnios] = useState<number[]>([]);
 
   useEffect(() => { cargarDatos(); }, []);
+
+  const exportarCSV = () => {
+    const filas = vistaAcumulado ? acumuladoPorEmpleado.map(e => ({
+      Empleado: e.nombre, Puesto: e.puesto, Semanas: e.semanas,
+      Bruto: e.totalBruto, Deducciones: e.totalDeducciones, Neto: e.totalNeto,
+      Tarjeta: e.totalTarjeta, Efectivo: e.totalEfectivo
+    })) : registrosFiltrados.map(r => ({
+      Anio: r.anio, Semana: r.semana, FechaInicio: r.fecha_inicio, FechaFin: r.fecha_fin,
+      Empleado: r.nombre, Puesto: r.puesto, Obra: r.obra, Dias: r.dias_trabajados,
+      Bruto: r.total_percepciones, Deducciones: r.total_deducciones, Neto: r.sueldo_neto,
+      Tarjeta: r.pago_tarjeta, Efectivo: r.pago_efectivo
+    }));
+    if (filas.length === 0) return;
+    const headers = Object.keys(filas[0]);
+    const csv = "\uFEFF" + headers.join(",") + "\n" + filas.map(f => headers.map(h => {
+      const v = (f as any)[h]; return typeof v === "string" && v.includes(",") ? `"${v}"` : v ?? "";
+    }).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `historico_nomina_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -58,14 +83,23 @@ export default function HistoricoNominaPage() {
       setSemanas(Array.from(semanasMap.values()));
       // Extraer empleados únicos
       setEmpleados([...new Set(data.map(r => r.nombre))].sort());
+      // Años únicos
+      setAnios([...new Set(data.map(r => r.anio))].sort((a,b) => b-a));
     }
     setLoading(false);
   };
 
   const registrosFiltrados = registros.filter(r => {
+    if (filtroAnio && String(r.anio) !== filtroAnio) return false;
     if (filtroSemana && `${r.anio}-${r.semana}` !== filtroSemana) return false;
     if (filtroEmpleado && r.nombre !== filtroEmpleado) return false;
-    if (busqueda && !r.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
+    if (busqueda) {
+      const q = busqueda.toLowerCase();
+      const hit = (r.nombre || "").toLowerCase().includes(q)
+        || (r.puesto || "").toLowerCase().includes(q)
+        || (r.obra || "").toLowerCase().includes(q);
+      if (!hit) return false;
+    }
     return true;
   });
 
@@ -88,11 +122,14 @@ export default function HistoricoNominaPage() {
     bruto: registrosFiltrados.reduce((s, r) => s + (r.total_percepciones || 0), 0),
     deducciones: registrosFiltrados.reduce((s, r) => s + (r.total_deducciones || 0), 0),
     neto: registrosFiltrados.reduce((s, r) => s + (r.sueldo_neto || 0), 0),
+    tarjeta: registrosFiltrados.reduce((s, r) => s + (r.pago_tarjeta || 0), 0),
+    efectivo: registrosFiltrados.reduce((s, r) => s + (r.pago_efectivo || 0), 0),
     registros: registrosFiltrados.length
   };
 
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
-  const limpiarFiltros = () => { setFiltroSemana(""); setFiltroEmpleado(""); setBusqueda(""); };
+  const formatDateShort = (d: string) => d ? new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "";
+  const limpiarFiltros = () => { setFiltroSemana(""); setFiltroEmpleado(""); setBusqueda(""); setFiltroAnio(""); };
 
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
@@ -113,6 +150,9 @@ export default function HistoricoNominaPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <button onClick={exportarCSV} disabled={registrosFiltrados.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40 transition-all">
+            <Download className="w-4 h-4" /> CSV
+          </button>
           <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-violet-500/20 border-violet-500/30 text-violet-300" : "bg-white/5 border-white/10 text-slate-300"}`}>
             {vistaAcumulado ? "Ver por Semana" : "Ver Acumulado"}
           </button>
@@ -123,8 +163,12 @@ export default function HistoricoNominaPage() {
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input type="text" placeholder="Buscar empleado..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50" />
+          <input type="text" placeholder="Buscar nombre/puesto/obra..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50" />
         </div>
+        <select value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
+          <option value="">Todos los años</option>
+          {anios.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
         <select value={filtroSemana} onChange={e => setFiltroSemana(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
           <option value="">Todas las semanas</option>
           {semanas.map(s => (
@@ -143,7 +187,7 @@ export default function HistoricoNominaPage() {
       </div>
 
       {/* Totales */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-6 gap-3">
         <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
           <p className="text-slate-400 text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
@@ -160,6 +204,14 @@ export default function HistoricoNominaPage() {
           <p className="text-slate-400 text-xs mb-1">Neto Pagado</p>
           <p className="text-xl font-bold text-violet-400">{formatMoney(totales.neto)}</p>
         </div>
+        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
+          <p className="text-slate-400 text-xs mb-1">Tarjeta</p>
+          <p className="text-xl font-bold text-purple-400">{formatMoney(totales.tarjeta)}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
+          <p className="text-slate-400 text-xs mb-1">Efectivo</p>
+          <p className="text-xl font-bold text-amber-400">{formatMoney(totales.efectivo)}</p>
+        </div>
       </div>
 
       {/* Tabla */}
@@ -169,6 +221,7 @@ export default function HistoricoNominaPage() {
             <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm">
               <tr className="border-b border-white/10">
                 {!vistaAcumulado && <th className="text-left p-4 text-slate-400 font-medium text-sm">Sem</th>}
+                {!vistaAcumulado && <th className="text-left p-4 text-slate-400 font-medium text-sm">Periodo</th>}
                 <th className="text-left p-4 text-slate-400 font-medium text-sm">Empleado</th>
                 <th className="text-left p-4 text-slate-400 font-medium text-sm">Puesto</th>
                 {vistaAcumulado && <th className="text-center p-4 text-slate-400 font-medium text-sm">Semanas</th>}
@@ -197,7 +250,8 @@ export default function HistoricoNominaPage() {
               ) : (
                 registrosFiltrados.map((r, i) => (
                   <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 text-xs font-medium">{r.semana}</span></td>
+                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 text-xs font-medium">{r.semana}/{r.anio}</span></td>
+                    <td className="p-4 text-slate-400 text-xs whitespace-nowrap">{formatDateShort(r.fecha_inicio)} – {formatDateShort(r.fecha_fin)}</td>
                     <td className="p-4 text-white font-medium">{r.nombre}</td>
                     <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{r.puesto}</span></td>
                     <td className="p-4 text-center text-emerald-400 font-bold">{r.dias_trabajados}</td>

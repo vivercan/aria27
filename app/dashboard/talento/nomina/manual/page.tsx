@@ -65,18 +65,38 @@ export default function NominaManualPage() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{tipo: "success" | "error"; texto: string} | null>(null);
   const [semanaInfo, setSemanaInfo] = useState({ inicio: "", fin: "", dias: [] as string[] });
+  const [refDate, setRefDate] = useState<Date>(new Date());
   const [calculo, setCalculo] = useState({ dias: 0, salarioBase: 0, neto: 0 });
+  const [nominaStatus, setNominaStatus] = useState<string | null>(null);
+  const [filtroEmp, setFiltroEmp] = useState("");
 
   useEffect(() => {
-    const hoy = new Date();
-    const { inicio, fin, dias } = getWeekRange(hoy);
+    const { inicio, fin, dias } = getWeekRange(refDate);
     setSemanaInfo({ inicio, fin, dias });
     cargarEmpleados();
-  }, []);
+  }, [refDate]);
+
+  const shiftWeek = (delta: number) => {
+    const d = new Date(refDate); d.setDate(d.getDate() + delta * 7); setRefDate(d);
+  };
+  const irHoy = () => setRefDate(new Date());
 
   useEffect(() => {
-    if (empleadoSeleccionado) cargarAsistencias();
+    if (empleadoSeleccionado) { cargarAsistencias(); checarNominaStatus(); }
+    else { setNominaStatus(null); }
   }, [empleadoSeleccionado, semanaInfo.inicio]);
+
+  const checarNominaStatus = async () => {
+    if (!empleadoSeleccionado || !semanaInfo.inicio) return;
+    const { data } = await supabase
+      .from("nomina_historico")
+      .select("status,id")
+      .eq("employee_id", empleadoSeleccionado)
+      .gte("fecha_inicio", semanaInfo.inicio)
+      .lte("fecha_fin", semanaInfo.fin)
+      .maybeSingle();
+    setNominaStatus((data as any)?.status || null);
+  };
 
   useEffect(() => {
     calcularNomina();
@@ -219,16 +239,25 @@ export default function NominaManualPage() {
     // Actualizar nómina en nomina_historico si existe
     const emp = empleados.find(e => e.id === empleadoSeleccionado);
     if (!emp) return;
-    
+
+    if (nominaStatus === "CONFIRMADA") {
+      setMensaje({ tipo: "error", texto: "❌ Nómina CONFIRMADA. Desbloquéala desde Recibos antes de recalcular." });
+      return;
+    }
+
     const { data: nominaExistente } = await supabase
       .from("nomina_historico")
-      .select("id")
+      .select("id,status")
       .eq("employee_id", empleadoSeleccionado)
       .gte("fecha_inicio", semanaInfo.inicio)
       .lte("fecha_fin", semanaInfo.fin)
-      .single();
-    
+      .maybeSingle();
+
     if (nominaExistente) {
+      if ((nominaExistente as any).status === "CONFIRMADA") {
+        setMensaje({ tipo: "error", texto: "❌ Nómina CONFIRMADA. Desbloquéala desde Recibos antes de recalcular." });
+        return;
+      }
       const { error } = await supabase.from("nomina_historico").update({
         dias_trabajados: calculo.dias,
         salario_base: calculo.salarioBase,
@@ -276,24 +305,43 @@ export default function NominaManualPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Nómina Manual</h1>
-            <p className="text-slate-400 text-sm">{formatDate(semanaInfo.inicio)} - {formatDate(semanaInfo.fin)} | Editar asistencias y recalcular</p>
+            <p className="text-slate-400 text-sm">{formatDate(semanaInfo.inicio)} – {formatDate(semanaInfo.fin)} | Editar asistencias y recalcular</p>
           </div>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button onClick={() => shiftWeek(-1)} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10">‹</button>
+          <button onClick={irHoy} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-sm">Hoy</button>
+          <button onClick={() => shiftWeek(1)} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10">›</button>
+          {nominaStatus && (
+            <span className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
+              {nominaStatus}
+            </span>
+          )}
         </div>
       </div>
 
       {/* Selector de empleado */}
-      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
-        <label className="text-slate-400 text-sm mb-2 block">Seleccionar Empleado</label>
-        <select 
-          value={empleadoSeleccionado} 
-          onChange={e => setEmpleadoSeleccionado(e.target.value)}
-          className="w-full max-w-md px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50"
-        >
-          <option value="">-- Selecciona un empleado --</option>
-          {empleados.map(e => (
-            <option key={e.id} value={e.id}>{e.full_name} - {e.position}</option>
-          ))}
-        </select>
+      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Filtrar empleados por nombre/puesto..."
+            value={filtroEmp}
+            onChange={e => setFiltroEmp(e.target.value)}
+            className="flex-1 max-w-xs px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 text-sm"
+          />
+          <select
+            value={empleadoSeleccionado}
+            onChange={e => setEmpleadoSeleccionado(e.target.value)}
+            className="flex-1 max-w-md px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50"
+          >
+            <option value="">-- Selecciona un empleado --</option>
+            {empleados
+              .filter(e => !filtroEmp || `${e.full_name} ${e.position}`.toLowerCase().includes(filtroEmp.toLowerCase()))
+              .map(e => (<option key={e.id} value={e.id}>{e.full_name} — {e.position}</option>))}
+          </select>
+          <span className="text-slate-500 text-xs self-center">{empleados.length} activos</span>
+        </div>
       </div>
 
       {/* Mensaje */}
@@ -430,8 +478,8 @@ export default function NominaManualPage() {
           <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
             <div>
-              <p className="text-blue-300 font-medium">Información</p>
-              <p className="text-slate-400 text-sm">Los cambios en asistencias afectan directamente el cálculo de nómina. Al guardar, se actualizan las asistencias en la base de datos. Usa "Recalcular Nómina" para actualizar el registro de nómina existente.</p>
+              <p className="text-blue-300 font-medium">Cómo se relaciona con Pre-Nómina y Recibos</p>
+              <p className="text-slate-400 text-sm">Esta pantalla edita <b>asistencias reales</b> de la semana seleccionada. Los cambios afectan el cálculo en Pre-Nómina la próxima vez que se Genere. Si la nómina ya está <b>CONFIRMADA</b>, primero hay que desbloquearla desde Recibos. El "Neto Estimado" mostrado aquí es solo días×salario sin incidencias/préstamos — el cálculo oficial vive en /api/nomina/generar.</p>
             </div>
           </div>
         </>
