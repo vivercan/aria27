@@ -7,7 +7,7 @@ import { ArrowLeft, Activity, AlertTriangle, TrendingUp, Download, Search, Loade
 interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
 interface Req { id: string; cost_center_name: string | null; }
-interface NomRec { obra: string; sueldo_neto: number; }
+interface NomRec { obra: string; sueldo_neto: number; status: string; }
 
 interface ObraRow {
   nombre: string;
@@ -68,7 +68,7 @@ export default function ControlObrasPage() {
         supabase.from("presupuestos_partidas").select("obra_nombre,categoria,importe"),
         supabase.from("purchase_orders").select("id,total,status,requisition_id"),
         supabase.from("requisitions").select("id,cost_center_name"),
-        supabase.from("nomina_historico").select("obra,sueldo_neto"),
+        supabase.from("nomina_historico").select("obra,sueldo_neto,status").eq("status", "CONFIRMADA"),
       ]);
       setPartidas((pp.data as any[]) || []);
       setPos((po.data as any[]) || []);
