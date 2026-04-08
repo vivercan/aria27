@@ -49,7 +49,7 @@ interface DocRow {
 const BUCKET = "expedientes";
 const TABLE = "entity_documents";
 
-export const ENTITY_DOC_CATEGORIES = [
+export const ENTITY_DOC_CATEGORIES_FALLBACK = [
   "INE",
   "Comprobante domicilio",
   "Contrato",
@@ -60,7 +60,9 @@ export const ENTITY_DOC_CATEGORIES = [
   "Foto",
   "Otro",
 ] as const;
-export type EntityDocCategory = typeof ENTITY_DOC_CATEGORIES[number];
+// Backward-compat export (legacy importers).
+export const ENTITY_DOC_CATEGORIES = ENTITY_DOC_CATEGORIES_FALLBACK;
+export type EntityDocCategory = string;
 
 export default function EntityFolder({
   entityType,
@@ -80,6 +82,18 @@ export default function EntityFolder({
   const [replaceTarget, setReplaceTarget] = useState<DocRow | null>(null);
   const [pendingCat, setPendingCat] = useState<EntityDocCategory>("Otro");
   const [filterCat, setFilterCat] = useState<string>("");
+  const [categorias, setCategorias] = useState<string[]>([...ENTITY_DOC_CATEGORIES_FALLBACK]);
+
+  useEffect(() => {
+    supabase
+      .from("expedientes_categorias")
+      .select("nombre")
+      .eq("activa", true)
+      .order("orden", { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) setCategorias(data.map((r: any) => r.nombre));
+      });
+  }, []);
 
   useEffect(() => {
     if (entityId) cargar();
@@ -257,7 +271,7 @@ export default function EntityFolder({
             title="Categoría del próximo archivo a subir"
             className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs"
           >
-            {ENTITY_DOC_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {categorias.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <button onClick={cargar} title="Recargar" className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
             <RefreshCw className="w-4 h-4" />
@@ -287,7 +301,7 @@ export default function EntityFolder({
           className="px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-[11px]"
         >
           <option value="">Todas las categorías</option>
-          {ENTITY_DOC_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
 

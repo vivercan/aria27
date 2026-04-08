@@ -80,12 +80,15 @@ export default function PlanosPage() {
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
+    const ext = form.file?.name?.split(".").pop()?.toLowerCase() || form.tipo_archivo || "pdf";
     const basePayload: any = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       nombre: form.nombre.trim(), disciplina: form.disciplina,
       revision: form.revision,
-      tipo_archivo: form.tipo_archivo, fecha_recepcion: form.fecha_recepcion || null,
-      responsable: form.responsable?.trim() || null, observaciones: form.observaciones?.trim() || null,
+      tipo_archivo: ext,
+      fecha_recepcion: editId ? (form.fecha_recepcion || null) : new Date().toISOString().slice(0, 10),
+      responsable: form.responsable?.trim() || null,
+      observaciones: form.observaciones?.trim() || null,
     };
 
     try {
@@ -214,14 +217,9 @@ export default function PlanosPage() {
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
               <div><label className="block text-xs text-slate-400 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano Arquitectónico Nivel 3" className={inputClass} /></div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Disciplina</label><select value={form.disciplina} onChange={e => setForm({ ...form, disciplina: e.target.value })} className={inputClass}>{DISCIPLINA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}</select></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Revisión</label><select value={form.revision} onChange={e => setForm({ ...form, revision: e.target.value })} className={inputClass}>{REVISION_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}</select></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><input type="text" value={form.tipo_archivo} onChange={e => setForm({ ...form, tipo_archivo: e.target.value })} placeholder="pdf, dwg, jpg" className={inputClass} /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Fecha recepción</label><input type="date" value={form.fecha_recepcion} onChange={e => setForm({ ...form, fecha_recepcion: e.target.value })} className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Responsable</label><input type="text" value={form.responsable} onChange={e => setForm({ ...form, responsable: e.target.value })} className={inputClass} /></div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Archivo</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>
               <div><label className="block text-xs text-slate-400 mb-1">Observaciones</label><input type="text" value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} className={inputClass} /></div>
