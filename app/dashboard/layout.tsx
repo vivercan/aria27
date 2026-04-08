@@ -10,7 +10,7 @@ import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, MessageCircle, Moon, Sun, X, Briefcase, Bell
+  ChevronRight, LogOut, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
 } from "lucide-react";
 
 const menuItems = [
@@ -85,6 +85,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState("");
   const [userPermissions, setUserPermissions] = useState<UserPermissions>({});
   const [showPulso, setShowPulso] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
 
@@ -161,12 +162,17 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     <div className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} relative`}>
       <SeasonEffects />
       
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside 
-        className="fixed left-0 top-0 h-full w-[180px] flex flex-col z-40 border-r"
-        style={{ 
+      <aside
+        className={`fixed left-0 top-0 h-full w-[180px] flex flex-col z-40 border-r transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        style={{
           backgroundColor: colors.sidebar,
-          borderColor: colors.cardBorder 
+          borderColor: colors.cardBorder
         }}
       >
         <div className="p-4" style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
@@ -202,7 +208,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             }
 
             return (
-              <Link key={item.name} href={item.href}
+              <Link key={item.name} href={item.href} onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
                 style={{ 
                   backgroundColor: isActive ? colors.accentBg : "transparent",
@@ -222,7 +228,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <main className="ml-[180px] relative z-10 h-screen flex flex-col overflow-hidden">
+      <main className="md:ml-[180px] relative z-10 h-screen flex flex-col overflow-hidden">
         {/* Header */}
         <header 
           className="sticky top-0 z-30 backdrop-blur-md border-b"
@@ -231,8 +237,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             borderColor: colors.cardBorder 
           }}
         >
-          <div className="flex items-center justify-between px-6 py-3">
-            <div className="relative w-80">
+          <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
+            <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg hover:bg-white/10" style={{ color: colors.text }} aria-label="Abrir menú">
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="relative flex-1 md:w-80 md:flex-none">
               <div
                 className="flex items-center gap-2 px-3 py-2 rounded-lg"
                 style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : colors.card }}
