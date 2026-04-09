@@ -93,6 +93,8 @@ export default function InventarioObraPage() {
   const [sugerencias, setSugerencias] = useState<ProductoCatalogo[]>([]);
   const [guardando, setGuardando] = useState(false);
   const [nuevoProductoId, setNuevoProductoId] = useState<number | null>(null);
+  const [validando, setValidando] = useState(false);
+  const [validacionResult, setValidacionResult] = useState<any>(null);
 
   // Modal Registrar Entrada
   const [showEntrada, setShowEntrada] = useState(false);
@@ -101,6 +103,12 @@ export default function InventarioObraPage() {
   const [entradaMotivo, setEntradaMotivo] = useState("");
   const [entradaFoto, setEntradaFoto] = useState<File | null>(null);
   const [entradaFotoPreview, setEntradaFotoPreview] = useState<string | null>(null);
+
+  // Modal Registrar Salida
+  const [showSalida, setShowSalida] = useState(false);
+  const [salidaItem, setSalidaItem] = useState<ItemInventario | null>(null);
+  const [salidaCantidad, setSalidaCantidad] = useState(1);
+  const [salidaMotivo, setSalidaMotivo] = useState("");
 
   // Modal Ver Foto
   const [fotoAmpliadaUrl, setFotoAmpliadaUrl] = useState<string | null>(null);
@@ -210,8 +218,31 @@ export default function InventarioObraPage() {
     setNuevoFoto(null);
     setNuevoFotoPreview(null);
     setNuevoProductoId(null);
+    setValidacionResult(null);
     setSugerencias([]);
     loadCatalogo();
+  };
+
+  const validarMaterial = async () => {
+    if (!nuevoNombre.trim() || !obraSeleccionada) return;
+    setValidando(true);
+    setValidacionResult(null);
+    try {
+      const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+      const res = await fetch("/api/inventario/validar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-user-email": email },
+        body: JSON.stringify({ nombre: nuevoNombre.trim(), obraId: obraSeleccionada.id }),
+      });
+      const data = await res.json();
+      setValidacionResult(data);
+      if (data.nombreCorregido && data.esValido) {
+        setNuevoNombre(data.nombreCorregido);
+      }
+    } catch {
+      // Si falla validación, permitir continuar
+    }
+    setValidando(false);
   };
 
   const buscarEnCatalogo = (texto: string) => {
@@ -346,6 +377,67 @@ export default function InventarioObraPage() {
       });
 
       setShowEntrada(false);
+      loadInventario(obraSeleccionada.id);
+    } catch (err) {
+      alert("Error: " + (err as Error).message);
+    }
+    setGuardando(false);
+  };
+
+  // ====== REGISTRAR SALIDA ======
+  const abrirSalida = (item: ItemInventario) => {
+    setShowSalida(true);
+    setSalidaItem(item);
+    setSalidaCantidad(1);
+    setSalidaMotivo("");
+  };
+
+  const guardarSalida = async () => {
+    if (!salidaItem || !obraSeleccionada || salidaCantidad <= 0) return;
+    if (salidaCantidad > salidaItem.cantidad_disponible) {
+      alert("No hay suficiente material disponible. Disponible: " + salidaItem.cantidad_disponible);
+      return;
+    }
+    setGuardando(true);
+    try {
+      const nuevoDisp = salidaItem.cantidad_disponible - salidaCantidad;
+      const nuevaUsada = salidaItem.cantidad_usada + salidaCantidad;
+
+      const { data: rows, error } = await supabase
+        .from("inventario_obra")
+        .update({
+          cantidad_disponible: nuevoDisp,
+          cantidad_usada: nuevaUsada,
+          ultimo_movimiento: new Date().toISOString(),
+        })
+        .eq("id", salidaItem.id)
+        .eq("cantidad_disponible", salidaItem.cantidad_disponible)
+        .eq("cantidad_usada", salidaItem.cantidad_usada)
+        .select("id");
+
+      if (error) { alert("Error: " + error.message); setGuardando(false); return; }
+      if (!rows || rows.length === 0) {
+        alert("Otro usuario modificó este ítem. Recarga y verifica.");
+        loadInventario(obraSeleccionada.id);
+        setGuardando(false);
+        return;
+      }
+
+      await supabase.from("inventario_movimientos").insert({
+        obra_id: obraSeleccionada.id,
+        obra_nombre: obraSeleccionada.name,
+        producto_nombre: salidaItem.producto_nombre,
+        unidad: salidaItem.unidad,
+        tipo: "SALIDA",
+        cantidad: salidaCantidad,
+        saldo_post: nuevoDisp,
+        motivo: salidaMotivo || "Salida manual",
+        referencia_tipo: "SALIDA_MANUAL",
+        referencia_id: salidaItem.id,
+        usuario: getUserEmail(),
+      });
+
+      setShowSalida(false);
       loadInventario(obraSeleccionada.id);
     } catch (err) {
       alert("Error: " + (err as Error).message);
@@ -696,6 +788,13 @@ export default function InventarioObraPage() {
                           <Truck className="w-4 h-4 text-emerald-400" />
                         </button>
                         <button
+                          onClick={() => abrirSalida(item)}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition-colors"
+                          title="Registrar salida"
+                        >
+                          <Minus className="w-4 h-4 text-red-400" />
+                        </button>
+                        <button
                           onClick={() => abrirAjuste(item)}
                           className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg transition-colors"
                           title="Ajustar"
@@ -803,6 +902,46 @@ export default function InventarioObraPage() {
               )}
             </div>
 
+            {/* Validar con IA */}
+            {nuevoNombre.trim().length >= 2 && !nuevoProductoId && (
+              <div className="mb-3">
+                <button
+                  onClick={validarMaterial}
+                  disabled={validando}
+                  className="px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  {validando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />}
+                  {validando ? "Validando..." : "Validar nombre con IA"}
+                </button>
+                {validacionResult && (
+                  <div className={`mt-2 p-2 rounded-lg text-sm ${validacionResult.esValido ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+                    {validacionResult.esValido ? (
+                      <p className="text-emerald-300">✓ Material válido: <span className="font-medium text-white">{validacionResult.nombreCorregido}</span></p>
+                    ) : (
+                      <p className="text-red-300">✗ {validacionResult.razon || "No parece ser un material de construcción"}</p>
+                    )}
+                    {validacionResult.existeEnObra && (
+                      <p className="text-amber-300 mt-1">⚠ Ya existe en el inventario de esta obra</p>
+                    )}
+                    {validacionResult.matchExacto && (
+                      <p className="text-blue-300 mt-1">→ Coincide con: <span className="font-medium">{validacionResult.matchExacto.name}</span> ({validacionResult.matchExacto.unit})</p>
+                    )}
+                    {!validacionResult.matchExacto && validacionResult.sugerencias?.length > 0 && (
+                      <div className="mt-1">
+                        <p className="text-slate-400 text-xs">Productos similares:</p>
+                        {validacionResult.sugerencias.slice(0, 3).map((s: any) => (
+                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(s.id); setValidacionResult(null); }}
+                            className="block text-left text-blue-300 hover:text-blue-200 text-xs mt-0.5">
+                            → {s.name} ({s.unit}) — {s.similarity}% similar
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Unidad + Cantidad */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
@@ -862,7 +1001,7 @@ export default function InventarioObraPage() {
               <button onClick={() => setShowNuevo(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
               <button
                 onClick={guardarNuevoMaterial}
-                disabled={!nuevoNombre.trim() || nuevoCantidad <= 0 || guardando}
+                disabled={!nuevoNombre.trim() || nuevoCantidad <= 0 || guardando || (!nuevoProductoId && !validacionResult?.esValido)}
                 className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
               >
                 {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -1039,6 +1178,59 @@ export default function InventarioObraPage() {
               >
                 {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
                 Guardar Ajuste
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====== MODAL: Registrar Salida ====== */}
+      {showSalida && salidaItem && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-lg border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-400">Registrar Salida</h3>
+              <button onClick={() => setShowSalida(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+            </div>
+
+            <div className="p-3 bg-white/5 rounded-lg mb-4">
+              <p className="text-white font-medium">{salidaItem.producto_nombre}</p>
+              <p className="text-sm text-slate-400">Disponible: <span className="text-emerald-400 font-bold">{salidaItem.cantidad_disponible}</span> {salidaItem.unidad}</p>
+            </div>
+
+            <label className="block text-sm text-slate-300 mb-1">Cantidad a retirar *</label>
+            <input
+              type="number"
+              min={1}
+              max={salidaItem.cantidad_disponible}
+              value={salidaCantidad}
+              onChange={(e) => setSalidaCantidad(Number(e.target.value))}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-red-500 mb-3"
+            />
+            <p className="text-center text-sm text-slate-400 mb-3">
+              Quedarán: <span className={`font-bold ${salidaItem.cantidad_disponible - salidaCantidad <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                {Math.max(0, salidaItem.cantidad_disponible - salidaCantidad)}
+              </span> {salidaItem.unidad}
+            </p>
+
+            <label className="block text-sm text-slate-300 mb-1">Motivo / Requisición *</label>
+            <input
+              type="text"
+              placeholder="Ej: REQ-2026-00005, Usado en obra, etc."
+              value={salidaMotivo}
+              onChange={(e) => setSalidaMotivo(e.target.value)}
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-red-500 mb-4"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowSalida(false)} className="px-4 py-2 text-slate-400 hover:text-white transition-colors">Cancelar</button>
+              <button
+                onClick={guardarSalida}
+                disabled={salidaCantidad <= 0 || salidaCantidad > salidaItem.cantidad_disponible || !salidaMotivo.trim() || guardando}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
+              >
+                {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
+                Registrar Salida
               </button>
             </div>
           </div>
