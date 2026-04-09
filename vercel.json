@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    { "path": "/api/alertas/digest", "schedule": "0 13 * * *" },
+    { "path": "/api/backup/snapshot", "schedule": "0 8 * * *" }
+  ]
+}

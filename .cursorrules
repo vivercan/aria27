@@ -1,0 +1,171 @@
+# ARIA27 ERP — REGLAS PARA IA (.cursorrules)
+# Grupo Constructor Urbano Avante
+# Actualización: 7 de febrero 2026
+
+## REGLA SUPREMA
+Antes de modificar CUALQUIER archivo:
+1. Lee el archivo completo
+2. Identifica qué tablas de Supabase usa
+3. Busca qué OTROS archivos leen/escriben esas mismas tablas
+4. NO cambies nombres de campos sin verificar todos los consumidores
+5. Si hay duda, PREGUNTA antes de cambiar
+
+## MODO DE OPERACIÓN
+- Por defecto: MODO LECTURA (read-only)
+- Solo modificar lo que JJ pida explícitamente
+- Cambios pequeños e incrementales
+- NUNCA reescribir archivos completos si el cambio puede ser parcial
+
+## BASE DE DATOS (Supabase yhylkvpynzyorqortbkk)
+
+### Tablas y nombres CORRECTOS:
+| Concepto | Tabla en BD | NUNCA usar |
+|----------|-------------|------------|
+| Empleados | "Personal" | employees, colaboradores |
+| Centros de trabajo | centros_trabajo | work_centers, cost_centers |
+| Asistencias | asistencias | attendance, checkins |
+| Productos | products | catalogo, materiales |
+| Proveedores | suppliers | proveedores, vendors |
+| Relación prod-prov | product_suppliers | - |
+| Requisiciones | requisitions | pedidos, solicitudes |
+| Items de requisición | requisition_items | materials |
+| Cotizaciones | requisition_item_quotes | quotes |
+| Órdenes de compra | purchase_orders | ordenes |
+| Entregas | entregas | deliveries |
+| Nómina histórica | nomina_historico | payroll |
+| Préstamos | prestamos | loans |
+| Gastos | gastos | expenses |
+| Gastos semanales | gastos_semanales | - |
+| Tareas de obra | tareas_obra | tasks |
+| Empresas | empresas | companies |
+| Usuarios sistema | users | usuarios |
+| Config nómina | configuracion_nomina | payroll_config |
+| Secuencias | sequences | - |
+
+### Columnas REALES de "Personal":
+id, employee_number, full_name, position, project_site, department,
+salary_monthly, salario_diario, salario_semanal, minimo_tarjeta,
+email, status (ACTIVO/BAJA), expediente_status, whatsapp,
+tipo_nomina, hora_entrada, hora_salida, dias_laborales,
+centro_trabajo_id (FK, actualmente NULL en todos), empresa_id (FK, NULL en todos),
+banco, clabe, numero_cuenta, fecha_ingreso, fecha_baja, nss, curp, rfc, motivo_baja
+
+### Campos críticos (causan bugs si se confunden):
+- asistencias.dentro_geocerca_entrada (boolean) — NO "dentro_geocerca"
+- asistencias.dentro_geocerca_salida (boolean) — NO "dentro_geocerca"
+- asistencias.employee_id → FK a "Personal".id
+- "Personal".full_name — NO employees.full_name
+- "Personal".empresa_id — NO "empresa" (esa columna NO EXISTE)
+- "Personal".project_site — NO "obra", "site", "work_site"
+- "Personal".status → valores: "ACTIVO" o "BAJA"
+- requisition_items.product_id (integer) → FK a products.id
+
+## WHATSAPP BUSINESS API
+- App: JJCRM27
+- WABA ID: 842930185269415
+- Phone Number ID: 963627606824867
+- BORRADOS (NUNCA usar): 869940452874474, "Test", "ARIA27"
+- Plantillas: requisicion_creada, requisicion_validar, requisicion_compras, compra_autorizar, oc_generada
+
+## EMAIL: Resend, dominio mail.jjcrm27.com, from noreply@mail.jjcrm27.com
+
+## CORREO ZOHO (IMAP con App Passwords)
+- recursos.humanos@gcuavante.com → Pwj3E9Y2XLJB
+- superintendencia@gcuavante.com → 3yWKe3Mj62C4
+- compras@gcuavante.com → Xdi66swiT6C5
+- administracion@gcuavante.com → ZhwTgcRnVfF4
+
+## USUARIOS
+| Rol | Nombre | Email | WhatsApp |
+|-----|--------|-------|----------|
+| Admin/RH | Deya Montalvo | recursos.humanos@gcuavante.com | 4492788797 |
+| Validador | Deysi Sanchez | superintendencia@gcuavante.com | 4951198249 |
+| Compras | Jessica Gallardo | compras@gcuavante.com | 4495880244 |
+| Dirección | JJ | timonfx@hotmail.com | 8112392266 |
+
+## EMPRESAS: AVANTE, DENIVEL, TERRACRET
+
+## UI/UX
+1. ArrowLeft en todos los submódulos para regresar al padre
+2. NUNCA scroll de página — solo scroll interno en contenedores
+3. Table headers: sticky top-0
+4. Paleta: fondo #0f172a→#1e3a5a, sidebar #0a1628, cards bg-white/5, accent cyan-400→blue-500
+5. NO subtítulos más grandes que el título
+6. NO dos títulos de módulo en la misma vista
+
+## REGLAS DE NEGOCIO
+- Nómina: ciclo Jueves a Miércoles, domingo descanso
+- Geocerca: radio default 350m, geocerca_libre=true omite validación
+- Requisiciones: PENDIENTE→VALIDADA→EN_COTIZACIÓN→COMPARATIVA_ENVIADA→EN_AUTORIZACIÓN→AUTORIZADA→COMPLETADA
+- Préstamos: descuento automático semanal en nómina
+
+## FLUJO REQUISICIONES (4 actores)
+1. Deya crea → Notifica validador (email+WA)
+2. Deysi valida (token URL) → Notifica compras
+3. Jessica cotiza → Envía comparativa → Notifica dirección
+4. JJ picking proveedores → Autoriza → Sistema genera OC → Notifica Jessica
+5. Jessica registra entregas → Notifica todos
+
+## DEPLOY: Vercel auto-deploy desde GitHub main, dominio aria.jjcrm27.com
+
+
+
+## DEUDA TECNICA CONOCIDA (no tocar sin autorizacion)
+- cost_centers se usa en varios archivos pero la tabla correcta es centros_trabajo
+  Archivos afectados: dashboard/page.tsx, requisiciones/nuevo, obras/expedientes, obras/inventario, activos/catalogo, entregas
+  Estado: FUNCIONAL pero inconsistente. Migracion pendiente de analisis de impacto.
+- empresa_id = NULL en todos los empleados de Personal
+  Causa: No se ha definido la asignacion AVANTE/DENIVEL/TERRACRET
+  Impacto: Filtros por empresa no funcionan
+- Tabla Personal en Supabase requiere comillas por ser palabra reservada
+
+## AUDITORIA 7 FEB 2026 COMPLETADA
+- 120 archivos escaneados, 67 paginas, 26 APIs
+- WhatsApp ID viejo eliminado de 3 archivos
+- employees migrado a Personal en 8 archivos
+- dentro_geocerca corregido a _entrada en 1 archivo
+- try/catch agregado a 6 APIs
+- sticky headers agregados a 6 tablas
+- doble titulo corregido en 1 pagina
+
+## TABLAS DEFINITIVAS (verificado en BD 8-feb-2026)
+### Tablas ACTIVAS — USAR ESTAS:
+- `Personal` → empleados (NO "employees")
+- `Requisiciones` → requisiciones (capital R, NO "requisitions")
+- `cost_centers` → centros de costo para requisiciones (5 registros)
+- `centros_trabajo` → ubicaciones GPS para asistencias/geocerca (9 registros)
+- `asistencias` → registros entrada/salida
+- `products` → catálogo de productos (3602)
+- `suppliers` → proveedores (101)
+- `product_suppliers` → relación producto-proveedor
+- `users` → usuarios del sistema
+- `configuracion_nomina` → parámetros nómina
+- `nomina_historico` → historial de nóminas
+- `prestamos` → préstamos empleados
+- `incidencias` → incidencias laborales
+- `purchase_orders` → órdenes de compra
+- `sequences` → folios consecutivos
+- `gastos` → gastos por obra (649 registros)
+- `pulso_conversaciones` → chat interno
+- `pulso_mensajes` → mensajes del chat
+- `pulso_participantes` → participantes chat
+
+### Tablas MUERTAS — NO USAR NUNCA:
+- `requisitions` → VIEJA (inglés), reemplazada por `Requisiciones`
+- `work_centers` → VIEJA (inglés), reemplazada por `centros_trabajo`
+- `employees` → VIEJA (inglés), reemplazada por `Personal`
+
+### DISTINCIÓN IMPORTANTE:
+- `cost_centers` ≠ `centros_trabajo`
+- `cost_centers` = a qué OBRA se carga el gasto (usado en requisiciones)
+- `centros_trabajo` = DÓNDE está el empleado físicamente (GPS, geocerca, asistencias)
+- Ambas son válidas y necesarias. NO fusionar.
+
+## BASE DE DATOS - VIEWs vs Tablas Base
+- "Personal", "Productos", "Proveedores", "Users" son VIEWs (no tablas)
+- Las tablas base son: employees, products, suppliers, users
+- Para queries CON JOIN usar tabla base: from("employees").select("..., centro_trabajo:centros_trabajo(nombre)")
+- Para queries SIN JOIN se puede usar la VIEW: from("Personal").select("id, full_name")
+- PostgREST NO resuelve JOINs a través de VIEWs
+- La columna geocerca_libre EXISTE en employees (para Daisy = true)
+- WhatsApp WABA: SOLO JJCRM27 (Phone ID en env var WHATSAPP_PHONE_ID)

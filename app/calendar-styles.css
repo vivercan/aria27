@@ -1,0 +1,66 @@
+
+/* ===== ESTILOS GLOBALES PARA CALENDARIOS/DATE PICKERS ===== */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-datetime-edit,
+::-webkit-datetime-edit-fields-wrapper,
+::-webkit-datetime-edit-text,
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+  color: white;
+}
+
+/* Popup del calendario */
+::-webkit-calendar-picker {
+  background-color: #0a1628 !important;
+  color: white !important;
+}
+
+/* Firefox y otros - usar color-scheme */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Estilos generales para inputs de fecha */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  background-color: rgba(0, 20, 40, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="time"]:focus {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  outline: none !important;
+}
+
+/* ===== ESTILOS PARA DROPDOWNS/SELECTS ===== */
+select {
+  background-color: rgba(0, 20, 40, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+select option {
+  background-color: #0a1628 !important;
+  color: white !important;
+  padding: 12px !important;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #1e3a5f !important;
+  background: linear-gradient(#1e4976, #1e4976) !important;
+  color: white !important;
+}
