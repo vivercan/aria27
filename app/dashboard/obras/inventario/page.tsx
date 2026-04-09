@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
   X,
   Eye,
+  Download,
 } from "lucide-react";
 
 // ====== TYPES ======
@@ -37,6 +38,7 @@ interface ItemInventario {
   cantidad_usada: number;
   ultimo_movimiento: string;
   foto_url?: string | null;
+  ultimo_usuario?: string | null;
 }
 
 interface Entrega {
@@ -128,7 +130,25 @@ export default function InventarioObraPage() {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
     if (error) { console.error("Error loading inventario:", error.message); return; }
-    setInventario(data || []);
+    // Enriquecer con último usuario de movimientos
+    const items: ItemInventario[] = data || [];
+    if (items.length > 0) {
+      const nombres = items.map(i => i.producto_nombre);
+      const { data: movs } = await supabase
+        .from("inventario_movimientos")
+        .select("producto_nombre, usuario, created_at")
+        .eq("obra_id", obraId)
+        .in("producto_nombre", nombres)
+        .order("created_at", { ascending: false });
+      if (movs) {
+        const ultimoMap = new Map<string, string>();
+        for (const m of movs) {
+          if (!ultimoMap.has(m.producto_nombre)) ultimoMap.set(m.producto_nombre, m.usuario);
+        }
+        items.forEach(i => { i.ultimo_usuario = ultimoMap.get(i.producto_nombre) || null; });
+      }
+    }
+    setInventario(items);
   };
 
   const loadEntregas = async (obraNombre: string) => {
@@ -599,6 +619,7 @@ export default function InventarioObraPage() {
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Disponible</th>
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Usado</th>
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Unidad</th>
+                  <th className="px-3 py-3 text-left text-sm font-medium text-slate-300">Usuario</th>
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Acciones</th>
                 </tr>
               </thead>
@@ -608,12 +629,19 @@ export default function InventarioObraPage() {
                     {/* Foto thumbnail */}
                     <td className="px-3 py-2">
                       {item.foto_url ? (
-                        <button onClick={() => setFotoAmpliadaUrl(item.foto_url!)} className="relative group">
+                        <div className="relative group w-10 h-10">
                           <img src={item.foto_url} alt={item.producto_nombre} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
-                          <div className="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <Eye className="w-4 h-4 text-white" />
+                          <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                            <button onClick={() => setFotoAmpliadaUrl(item.foto_url!)} className="p-0.5" title="Ver foto">
+                              <Eye className="w-3.5 h-3.5 text-white" />
+                            </button>
+                            <label className="p-0.5 cursor-pointer" title="Cambiar foto">
+                              <Camera className="w-3.5 h-3.5 text-white" />
+                              <input type="file" accept="image/*" className="hidden"
+                                onChange={(e) => { const f = e.target.files?.[0]; if (f) actualizarFotoProducto(item, f); }} />
+                            </label>
                           </div>
-                        </button>
+                        </div>
                       ) : (
                         <label className="w-10 h-10 rounded-lg border border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-blue-400/50 transition-colors">
                           <Camera className="w-4 h-4 text-slate-500" />
@@ -642,6 +670,15 @@ export default function InventarioObraPage() {
                     </td>
                     <td className="px-3 py-3 text-center text-slate-400">{item.cantidad_usada}</td>
                     <td className="px-3 py-3 text-center text-slate-400">{item.unidad}</td>
+                    <td className="px-3 py-3">
+                      {item.ultimo_usuario ? (
+                        <p className="text-xs text-slate-400 truncate max-w-[120px]" title={item.ultimo_usuario}>
+                          {item.ultimo_usuario.split("@")[0]}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-slate-500">—</p>
+                      )}
+                    </td>
                     <td className="px-3 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Link
@@ -1012,9 +1049,22 @@ export default function InventarioObraPage() {
       {fotoAmpliadaUrl && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setFotoAmpliadaUrl(null)}>
           <div className="relative max-w-3xl max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setFotoAmpliadaUrl(null)} className="absolute -top-3 -right-3 p-2 bg-slate-800 rounded-full border border-white/10 hover:bg-slate-700 z-10">
-              <X className="w-5 h-5 text-white" />
-            </button>
+            <div className="absolute -top-3 right-8 flex items-center gap-2 z-10">
+              <a
+                href={fotoAmpliadaUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-blue-600 rounded-full border border-white/10 hover:bg-blue-500 transition-colors"
+                title="Descargar foto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download className="w-5 h-5 text-white" />
+              </a>
+              <button onClick={() => setFotoAmpliadaUrl(null)} className="p-2 bg-slate-800 rounded-full border border-white/10 hover:bg-slate-700">
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
             <img src={fotoAmpliadaUrl} alt="Foto ampliada" className="max-w-full max-h-[85vh] rounded-xl object-contain" />
           </div>
         </div>
