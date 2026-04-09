@@ -16,11 +16,14 @@ ALTER TABLE inventario_obra ADD COLUMN IF NOT EXISTS producto_id bigint REFERENC
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('inventario', 'inventario', true)
 -- ON CONFLICT (id) DO NOTHING;
 
--- 5. Index para búsquedas rápidas
+-- 5. Fix obra_id en movimientos: original era integer, debe ser uuid (consistente con inventario_obra)
+ALTER TABLE inventario_movimientos ALTER COLUMN obra_id TYPE uuid USING obra_id::text::uuid;
+
+-- 6. Index para búsquedas rápidas
 CREATE INDEX IF NOT EXISTS idx_inventario_obra_producto ON inventario_obra(producto_id);
 CREATE INDEX IF NOT EXISTS idx_inventario_mov_foto ON inventario_movimientos(foto_url) WHERE foto_url IS NOT NULL;
 
--- 6. Comentarios
+-- 7. Comentarios
 COMMENT ON COLUMN inventario_obra.foto_url IS 'URL de la foto del producto/material en Supabase Storage bucket inventario';
 COMMENT ON COLUMN inventario_movimientos.foto_url IS 'Evidencia fotográfica del movimiento (entrada/salida/ajuste)';
 COMMENT ON COLUMN inventario_obra.producto_id IS 'FK opcional a products para ligar al catálogo central';
