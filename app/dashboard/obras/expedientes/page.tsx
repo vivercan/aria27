@@ -34,10 +34,11 @@ interface Obra {
 
 interface Carpeta {
   id: string;
-  obra_id: string;
-  obra_nombre: string;
+  obra_id: string | null;
+  obra_nombre: string | null;
   nombre: string;
   descripcion: string;
+  anio?: number | null;
   created_at: string;
 }
 
@@ -104,6 +105,40 @@ export default function ExpedientesPage() {
       setCarpetasAnio([]);
     }
   }, [anioSeleccionado]);
+
+  useEffect(() => {
+    if (carpetaAnioSeleccionada) {
+      loadArchivos(carpetaAnioSeleccionada.id);
+    }
+  }, [carpetaAnioSeleccionada]);
+
+  const handleFileUploadCarpetaAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !carpetaAnioSeleccionada) return;
+    const file = e.target.files[0];
+    const path = buildPath({
+      module: "expedientes",
+      scope: ["anio", String(carpetaAnioSeleccionada.anio || anioSeleccionado), carpetaAnioSeleccionada.id],
+      file,
+    });
+    try {
+      await uploadAndInsert({
+        bucket: "expedientes",
+        path,
+        file,
+        table: "expedientes_archivos",
+        payload: {
+          carpeta_id: carpetaAnioSeleccionada.id,
+          nombre: file.name,
+          tipo: file.type,
+          tamano_bytes: file.size,
+        },
+        urlField: "url",
+      });
+      loadArchivos(carpetaAnioSeleccionada.id);
+    } catch (err: any) {
+      alert(err?.message || "Error al subir archivo");
+    }
+  };
 
   const loadCarpetasAnio = async (anio: number) => {
     const { data, error } = await supabase
@@ -392,6 +427,57 @@ export default function ExpedientesPage() {
           )}
         </div>
         <p className="text-xs text-slate-500 italic">Tip: Para que una obra aparezca en su año, asigna su fecha de inicio desde Obras → Pipeline.</p>
+      </div>
+    );
+  }
+
+  // Vista 1.5: Carpeta libre del año abierta (archivos)
+  if (!obraSeleccionada && carpetaAnioSeleccionada) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setCarpetaAnioSeleccionada(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-white">{carpetaAnioSeleccionada.nombre}</h1>
+            <p className="text-slate-400 text-sm">Carpeta libre · Año {anioSeleccionado} · {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</p>
+          </div>
+          <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition">
+            <Plus className="w-4 h-4" /> Subir archivo
+            <input type="file" className="hidden" onChange={handleFileUploadCarpetaAnio} />
+          </label>
+        </div>
+
+        {archivos.length === 0 ? (
+          <div className="text-center py-16 text-slate-400 bg-white/5 rounded-xl border border-white/10">
+            <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
+            <p>No hay archivos en esta carpeta</p>
+            <p className="text-sm mt-2">Sube tu primer documento con el botón de arriba.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {archivos.map((archivo) => (
+              <a
+                key={archivo.id}
+                href={archivo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors">
+                    <FolderOpen className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-white truncate group-hover:text-amber-300 transition-colors">{archivo.nombre}</p>
+                    <p className="text-xs text-slate-400 mt-1">{archivo.tipo || "archivo"}</p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
