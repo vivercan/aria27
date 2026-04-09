@@ -160,9 +160,8 @@ export default function ExpedientesPage() {
     if (!anioSeleccionado || anioSeleccionado === "SIN_ANIO" || carpetaAnioSeleccionada) return;
     const enAnalisis = archivosAnio.filter(a => !a.resumen && !a.analizado_at);
     if (enAnalisis.length === 0) return;
-    const t = setInterval(() => {
-      if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") loadCarpetasAnio(anioSeleccionado as number);
-    }, 5000);
+    const anio = anioSeleccionado as number;
+    const t = setInterval(() => { loadCarpetasAnio(anio); }, 5000);
     return () => clearInterval(t);
   }, [archivosAnio, anioSeleccionado, carpetaAnioSeleccionada]);
 
