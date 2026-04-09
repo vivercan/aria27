@@ -53,6 +53,9 @@ interface Archivo {
   tipo: string;
   url: string;
   tamano_bytes?: number | null;
+  resumen?: string | null;
+  paginas?: number | null;
+  analizado_at?: string | null;
   created_at: string;
 }
 
@@ -137,6 +140,17 @@ export default function ExpedientesPage() {
       setArchivosSeleccionados(new Set());
     }
   }, [carpetaAnioSeleccionada]);
+
+  // Polling: mientras haya archivos en análisis, refrescar cada 5s
+  useEffect(() => {
+    if (!carpetaAnioSeleccionada) return;
+    const enAnalisis = archivos.filter(a => !a.resumen && !a.analizado_at);
+    if (enAnalisis.length === 0) return;
+    const t = setInterval(() => {
+      if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [archivos, carpetaAnioSeleccionada]);
 
   const loadSubcarpetas = async (parentId: string) => {
     const { data, error } = await supabase
@@ -254,28 +268,74 @@ export default function ExpedientesPage() {
     }
   };
 
-  const eliminarArchivosSeleccionados = async () => {
+  const descargarArchivoForzado = async (archivo: Archivo) => {
+    try {
+      const res = await fetch(archivo.url);
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = archivo.nombre;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      return true;
+    } catch (e) {
+      console.error("Error al descargar:", e);
+      return false;
+    }
+  };
+
+  const [deleteArchivoModal, setDeleteArchivoModal] = useState<{open:boolean;archivos:Archivo[]}>({open:false,archivos:[]});
+
+  const iniciarEliminarUnArchivo = (a: Archivo) => {
+    setDeleteArchivoModal({ open: true, archivos: [a] });
+  };
+
+  const iniciarEliminarArchivosSeleccionados = () => {
     if (archivosSeleccionados.size === 0) return;
-    const n = archivosSeleccionados.size;
-    if (!confirm(`Eliminar ${n} archivo${n === 1 ? "" : "s"} seleccionado${n === 1 ? "" : "s"}? (Quedará respaldo en auditoría)`)) return;
-    const ids = Array.from(archivosSeleccionados);
+    const seleccionados = archivos.filter(a => archivosSeleccionados.has(a.id));
+    setDeleteArchivoModal({ open: true, archivos: seleccionados });
+  };
+
+  const confirmarEliminarArchivos = async () => {
+    const targets = deleteArchivoModal.archivos;
+    if (targets.length === 0) return;
+    // 1. Descargar cada uno antes de borrar
+    for (const a of targets) {
+      await descargarArchivoForzado(a);
+    }
+    // 2. Borrar rows (el archivo físico permanece en Storage como respaldo + audit trigger captura JSON)
+    const ids = targets.map(a => a.id);
     const { error } = await supabase.from("expedientes_archivos").delete().in("id", ids);
     if (error) {
       alert("Error al eliminar: " + error.message);
       return;
     }
+    setDeleteArchivoModal({ open: false, archivos: [] });
     setArchivosSeleccionados(new Set());
     if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
   };
 
-  const eliminarUnArchivo = async (id: string, nombre: string) => {
-    if (!confirm(`Eliminar "${nombre}"? (Quedará respaldo en auditoría)`)) return;
-    const { error } = await supabase.from("expedientes_archivos").delete().eq("id", id);
-    if (error) {
-      alert("Error: " + error.message);
-      return;
+  const eliminarArchivosSeleccionados = () => iniciarEliminarArchivosSeleccionados();
+  const eliminarUnArchivo = (id: string, nombre: string) => {
+    const a = archivos.find(x => x.id === id);
+    if (a) iniciarEliminarUnArchivo(a);
+  };
+
+  const dispararAnalisis = async (archivoId: string) => {
+    try {
+      await fetch("/api/expedientes/analizar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archivoId }),
+      });
+      if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
+    } catch (e) {
+      console.error("Error al disparar análisis:", e);
     }
-    if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
   };
 
   const handleFileUploadCarpetaAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -288,7 +348,7 @@ export default function ExpedientesPage() {
       file,
     });
     try {
-      await uploadAndInsert({
+      const result = await uploadAndInsert({
         bucket: "expedientes",
         path,
         file,
@@ -301,7 +361,17 @@ export default function ExpedientesPage() {
         },
         urlField: "url",
       });
-      loadArchivos(carpetaAnioSeleccionada.id);
+      await loadArchivos(carpetaAnioSeleccionada.id);
+      // Disparar análisis IA (fire-and-forget)
+      const { data: nuevoRow } = await supabase
+        .from("expedientes_archivos")
+        .select("id")
+        .eq("carpeta_id", carpetaAnioSeleccionada.id)
+        .eq("url", result.publicUrl)
+        .maybeSingle();
+      if (nuevoRow?.id) {
+        dispararAnalisis(nuevoRow.id);
+      }
     } catch (err: any) {
       alert(err?.message || "Error al subir archivo");
     }
@@ -620,6 +690,35 @@ export default function ExpedientesPage() {
           </div>
         )}
 
+        {deleteArchivoModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <h3 className="text-lg font-bold text-white mb-2">
+                Eliminar {deleteArchivoModal.archivos.length === 1 ? "archivo" : `${deleteArchivoModal.archivos.length} archivos`}
+              </h3>
+              <p className="text-slate-300 text-sm mb-3">
+                Antes de eliminar se <span className="text-amber-300 font-semibold">descargará automáticamente</span> una copia a tu equipo.
+                Los registros quedan respaldados en auditoría y el archivo físico permanece en Storage.
+              </p>
+              <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
+                {deleteArchivoModal.archivos.map(a => (
+                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">• {a.nombre}</div>
+                ))}
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteArchivoModal({open:false, archivos:[]})}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                >Cancelar</button>
+                <button
+                  onClick={confirmarEliminarArchivos}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                >Delete</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 flex-wrap">
           <button onClick={volverNivel} className="p-2 hover:bg-white/10 rounded-lg transition-colors shrink-0">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -731,36 +830,50 @@ export default function ExpedientesPage() {
             <div className="space-y-2">
               {archivos.map((archivo) => {
                 const selected = archivosSeleccionados.has(archivo.id);
+                const analizando = !archivo.resumen && !archivo.analizado_at;
                 return (
                   <div
                     key={archivo.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${selected ? "bg-amber-500/10 border-amber-500/50" : "bg-white/5 border-white/10 hover:border-amber-500/40"}`}
+                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${selected ? "bg-amber-500/10 border-amber-500/50" : "bg-white/5 border-white/10 hover:border-amber-500/40"}`}
                   >
                     <button
                       onClick={() => toggleArchivoSeleccionado(archivo.id)}
-                      className="shrink-0 text-amber-400 hover:text-amber-300 transition"
+                      className="shrink-0 mt-1 text-amber-400 hover:text-amber-300 transition"
                       title={selected ? "Deseleccionar" : "Seleccionar"}
                     >
                       {selected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
                     </button>
-                    <div className="p-2 bg-amber-500/20 rounded-lg shrink-0">
+                    <div className="p-2 bg-amber-500/20 rounded-lg shrink-0 mt-0.5">
                       <FileText className="w-4 h-4 text-amber-400" />
                     </div>
-                    <a
-                      href={archivo.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 min-w-0 hover:text-amber-300 transition"
-                    >
-                      <p className="font-medium text-white truncate">{archivo.nombre}</p>
+                    <div className="flex-1 min-w-0">
+                      <a
+                        href={archivo.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block hover:text-amber-300 transition"
+                      >
+                        <p className="font-medium text-white truncate">{archivo.nombre}</p>
+                      </a>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        {formatBytes(archivo.tamano_bytes)} · {archivo.tipo || "archivo"} · {new Date(archivo.created_at).toLocaleDateString("es-MX")}
+                        {formatBytes(archivo.tamano_bytes)}
+                        {typeof archivo.paginas === "number" && archivo.paginas > 0 && ` · ${archivo.paginas} ${archivo.paginas === 1 ? "página" : "páginas"}`}
+                        {` · ${archivo.tipo || "archivo"} · ${new Date(archivo.created_at).toLocaleDateString("es-MX")}`}
                       </p>
-                    </a>
+                      {analizando ? (
+                        <p className="text-xs text-blue-300/80 mt-1.5 italic flex items-center gap-1.5">
+                          <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
+                        </p>
+                      ) : archivo.resumen ? (
+                        <p className="text-xs text-slate-300 mt-1.5 leading-snug line-clamp-3 bg-white/5 rounded px-2 py-1 border border-white/10">
+                          {archivo.resumen}
+                        </p>
+                      ) : null}
+                    </div>
                     <button
                       onClick={() => eliminarUnArchivo(archivo.id, archivo.nombre)}
-                      className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 transition shrink-0"
-                      title="Eliminar"
+                      className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 transition shrink-0 mt-0.5"
+                      title="Eliminar (descargará antes)"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
