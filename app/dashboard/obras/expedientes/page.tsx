@@ -39,6 +39,7 @@ interface Carpeta {
   nombre: string;
   descripcion: string;
   anio?: number | null;
+  parent_carpeta_id?: string | null;
   created_at: string;
 }
 
@@ -75,6 +76,10 @@ export default function ExpedientesPage() {
   const [showNuevaCarpetaAnio, setShowNuevaCarpetaAnio] = useState(false);
   const [nuevaCarpetaAnioNombre, setNuevaCarpetaAnioNombre] = useState("");
   const [carpetaAnioSeleccionada, setCarpetaAnioSeleccionada] = useState<Carpeta | null>(null);
+  const [rutaCarpetas, setRutaCarpetas] = useState<Carpeta[]>([]);
+  const [subcarpetas, setSubcarpetas] = useState<Carpeta[]>([]);
+  const [showNuevaSubcarpeta, setShowNuevaSubcarpeta] = useState(false);
+  const [nuevaSubcarpetaNombre, setNuevaSubcarpetaNombre] = useState("");
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
   const [archivos, setArchivos] = useState<Archivo[]>([]);
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -109,15 +114,92 @@ export default function ExpedientesPage() {
   useEffect(() => {
     if (carpetaAnioSeleccionada) {
       loadArchivos(carpetaAnioSeleccionada.id);
+      loadSubcarpetas(carpetaAnioSeleccionada.id);
+    } else {
+      setSubcarpetas([]);
+      setRutaCarpetas([]);
     }
   }, [carpetaAnioSeleccionada]);
+
+  const loadSubcarpetas = async (parentId: string) => {
+    const { data, error } = await supabase
+      .from("expedientes_carpetas")
+      .select("*")
+      .eq("parent_carpeta_id", parentId)
+      .order("orden");
+    if (error) {
+      console.error("Error loading subcarpetas:", error?.message);
+      setSubcarpetas([]);
+      return;
+    }
+    setSubcarpetas(data || []);
+  };
+
+  const abrirSubcarpeta = (sub: Carpeta) => {
+    if (!carpetaAnioSeleccionada) return;
+    setRutaCarpetas([...rutaCarpetas, carpetaAnioSeleccionada]);
+    setCarpetaAnioSeleccionada(sub);
+  };
+
+  const volverNivel = () => {
+    if (rutaCarpetas.length === 0) {
+      setCarpetaAnioSeleccionada(null);
+      return;
+    }
+    const nueva = [...rutaCarpetas];
+    const anterior = nueva.pop()!;
+    setRutaCarpetas(nueva);
+    setCarpetaAnioSeleccionada(anterior);
+  };
+
+  const irANivel = (idx: number) => {
+    // idx = -1 → raíz (año); 0..n-1 → nodos en ruta
+    if (idx < 0) {
+      setCarpetaAnioSeleccionada(null);
+      return;
+    }
+    const destino = rutaCarpetas[idx];
+    const nuevaRuta = rutaCarpetas.slice(0, idx);
+    setRutaCarpetas(nuevaRuta);
+    setCarpetaAnioSeleccionada(destino);
+  };
+
+  const crearSubcarpeta = async () => {
+    if (!nuevaSubcarpetaNombre.trim() || !carpetaAnioSeleccionada) return;
+    const { error } = await supabase.from("expedientes_carpetas").insert({
+      obra_id: null,
+      obra_nombre: null,
+      nombre: nuevaSubcarpetaNombre,
+      anio: carpetaAnioSeleccionada.anio || (anioSeleccionado !== "SIN_ANIO" ? (anioSeleccionado as number) : null),
+      parent_carpeta_id: carpetaAnioSeleccionada.id,
+      orden: subcarpetas.length,
+    });
+    if (error) {
+      alert("Error al crear subcarpeta: " + error.message);
+      return;
+    }
+    setNuevaSubcarpetaNombre("");
+    setShowNuevaSubcarpeta(false);
+    loadSubcarpetas(carpetaAnioSeleccionada.id);
+  };
+
+  const eliminarSubcarpeta = async (id: string, nombre: string) => {
+    if (!confirm(`Eliminar carpeta "${nombre}" y todo su contenido?`)) return;
+    const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+    if (carpetaAnioSeleccionada) loadSubcarpetas(carpetaAnioSeleccionada.id);
+  };
 
   const handleFileUploadCarpetaAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !carpetaAnioSeleccionada) return;
     const file = e.target.files[0];
+    const rutaIds = [...rutaCarpetas.map(c => c.id), carpetaAnioSeleccionada.id];
     const path = buildPath({
       module: "expedientes",
-      scope: ["anio", String(carpetaAnioSeleccionada.anio || anioSeleccionado), carpetaAnioSeleccionada.id],
+      scope: ["anio", String(carpetaAnioSeleccionada.anio || anioSeleccionado), ...rutaIds],
       file,
     });
     try {
@@ -146,6 +228,7 @@ export default function ExpedientesPage() {
       .select("*")
       .eq("anio", anio)
       .is("obra_id", null)
+      .is("parent_carpeta_id", null)
       .order("orden");
     if (error) {
       console.error("Error loading carpetas año:", error?.message);
@@ -431,51 +514,118 @@ export default function ExpedientesPage() {
     );
   }
 
-  // Vista 1.5: Carpeta libre del año abierta (archivos)
+  // Vista 1.5: Carpeta libre del año abierta (subcarpetas + archivos)
   if (!obraSeleccionada && carpetaAnioSeleccionada) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => setCarpetaAnioSeleccionada(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+          <button onClick={volverNivel} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white">{carpetaAnioSeleccionada.nombre}</h1>
-            <p className="text-slate-400 text-sm">Carpeta libre · Año {anioSeleccionado} · {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-white truncate">{carpetaAnioSeleccionada.nombre}</h1>
+            <div className="text-slate-400 text-sm flex flex-wrap items-center gap-1">
+              <button onClick={() => irANivel(-1)} className="hover:text-amber-300 transition">Año {anioSeleccionado}</button>
+              {rutaCarpetas.map((n, i) => (
+                <span key={n.id} className="flex items-center gap-1">
+                  <ChevronRight className="w-3 h-3 opacity-60" />
+                  <button onClick={() => irANivel(i)} className="hover:text-amber-300 transition truncate max-w-[140px]">{n.nombre}</button>
+                </span>
+              ))}
+              <ChevronRight className="w-3 h-3 opacity-60" />
+              <span className="text-white/80 truncate max-w-[160px]">{carpetaAnioSeleccionada.nombre}</span>
+              <span className="ml-2 opacity-70">· {subcarpetas.length} subcarpeta{subcarpetas.length === 1 ? "" : "s"} · {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</span>
+            </div>
           </div>
+          <button
+            onClick={() => setShowNuevaSubcarpeta(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-300 text-sm font-medium transition"
+          >
+            <FolderPlus className="w-4 h-4" /> Nueva subcarpeta
+          </button>
           <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition">
             <Plus className="w-4 h-4" /> Subir archivo
             <input type="file" className="hidden" onChange={handleFileUploadCarpetaAnio} />
           </label>
         </div>
 
-        {archivos.length === 0 ? (
+        {showNuevaSubcarpeta && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3">
+            <input
+              autoFocus
+              value={nuevaSubcarpetaNombre}
+              onChange={(e) => setNuevaSubcarpetaNombre(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") crearSubcarpeta(); }}
+              placeholder="Nombre de la subcarpeta"
+              className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+            />
+            <button onClick={crearSubcarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">Crear</button>
+            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm">Cancelar</button>
+          </div>
+        )}
+
+        {subcarpetas.length > 0 && (
+          <div>
+            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Subcarpetas</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {subcarpetas.map((sub) => (
+                <div key={sub.id} className="p-5 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative">
+                  <button onClick={() => abrirSubcarpeta(sub)} className="w-full text-left">
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-amber-500/20 rounded-xl group-hover:bg-amber-500/30 transition-colors">
+                        <FolderOpen className="w-6 h-6 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">{sub.nombre}</h3>
+                        <p className="text-xs text-slate-400 mt-1">Subcarpeta</p>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); eliminarSubcarpeta(sub.id, sub.nombre); }}
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition"
+                    title="Eliminar"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {archivos.length > 0 && (
+          <div>
+            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Archivos</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {archivos.map((archivo) => (
+                <a
+                  key={archivo.id}
+                  href={archivo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors">
+                      <FileText className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white truncate group-hover:text-amber-300 transition-colors">{archivo.nombre}</p>
+                      <p className="text-xs text-slate-400 mt-1">{archivo.tipo || "archivo"}</p>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {subcarpetas.length === 0 && archivos.length === 0 && (
           <div className="text-center py-16 text-slate-400 bg-white/5 rounded-xl border border-white/10">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p>No hay archivos en esta carpeta</p>
-            <p className="text-sm mt-2">Sube tu primer documento con el botón de arriba.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {archivos.map((archivo) => (
-              <a
-                key={archivo.id}
-                href={archivo.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl transition-all group"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors">
-                    <FolderOpen className="w-5 h-5 text-amber-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate group-hover:text-amber-300 transition-colors">{archivo.nombre}</p>
-                    <p className="text-xs text-slate-400 mt-1">{archivo.tipo || "archivo"}</p>
-                  </div>
-                </div>
-              </a>
-            ))}
+            <p>Carpeta vacía</p>
+            <p className="text-sm mt-2">Crea subcarpetas o sube archivos con los botones de arriba.</p>
           </div>
         )}
       </div>
