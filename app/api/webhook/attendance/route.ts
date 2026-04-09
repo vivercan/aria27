@@ -162,15 +162,20 @@ async function extractInventarioFromImage(imageUrl: string, mediaType: string, c
             { type: "image", source: { type: "base64", media_type: mediaType, data: base64Image } },
             { type: "text", text: `El usuario envió esta foto de material de construcción con el mensaje: "${caption}"
 
+CONTEXTO: Este es un sistema de inventario de obras de construcción. El mensaje típico es:
+"entrada [MATERIAL] [CANTIDAD] [UNIDAD] [NOMBRE_OBRA]"
+Palabras como "entrada", "material", "llegó", "recibí", "inventario" son KEYWORDS del sistema, NO son parte del nombre del material ni de la obra.
+
 Extrae la información del material en formato JSON. Responde SOLO con el JSON:
 {
-  "material": "nombre del material (ej: Arena sílica saco 25kg, Varilla 3/8, Cemento Portland)",
+  "material": "nombre del material SIN la palabra entrada/material/llegó/recibí (ej: Cemento, Arena sílica, Varilla 3/8)",
   "cantidad": 10,
   "unidad": "una de: PZA, LITRO, METRO, KILO, TONELADA, SACO, ROLLO, CAJA, PAQUETE, VIAJE, BOLSA, BOTE, CUBETA_19L",
-  "obra": "nombre de la obra si la menciona o null",
+  "obra": "nombre de la OBRA/PROYECTO donde se entrega (ej: OFICINA, MIRAVALLE, PINAR DEL LAGO) o null si no lo dice",
   "proveedor": "nombre del proveedor si lo menciona o null",
   "descripcion": "breve descripción de lo que se ve en la foto"
 }
+IMPORTANTE: La obra es la ÚLTIMA palabra(s) del mensaje, generalmente un nombre propio en MAYÚSCULAS.
 Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dice pon 1.` }
           ]
         }]
@@ -212,15 +217,31 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   }
 
   // Buscar obra en centros_trabajo
-  const { data: obraRow } = await supabase
+  let { data: obraRow } = await supabase
     .from("centros_trabajo")
     .select("id, nombre")
     .ilike("nombre", `%${obraFinal}%`)
     .limit(1)
     .single();
 
+  // Fallback: si no encontró, buscar cada palabra del caption original en centros_trabajo
+  if (!obraRow && invData._caption) {
+    const palabras = invData._caption.split(/\s+/).filter((p: string) => p.length >= 3);
+    const skipWords = ["entrada", "material", "inventario", "llegó", "llego", "recibí", "recibi", "sacos", "saco", "kilos", "kilo", "piezas", "metros", "litros", "cajas", "rollos"];
+    for (const palabra of palabras) {
+      if (skipWords.includes(palabra.toLowerCase()) || /^\d+$/.test(palabra)) continue;
+      const { data: match } = await supabase
+        .from("centros_trabajo")
+        .select("id, nombre")
+        .ilike("nombre", `%${palabra}%`)
+        .limit(1)
+        .single();
+      if (match) { obraRow = match; break; }
+    }
+  }
+
   if (!obraRow) {
-    await sendWhatsApp(from, `❌ No encontré la obra "${obraFinal}" en el sistema.\n\nVerifica el nombre e intenta de nuevo.`);
+    await sendWhatsApp(from, `❌ No encontré la obra "${obraFinal}" en el sistema.\n\nVerifica el nombre e intenta de nuevo.\nObras disponibles: envía "ayuda" para ver opciones.`);
     return;
   }
 
@@ -620,6 +641,7 @@ export async function POST(request: NextRequest) {
         await sendWhatsApp(from, "📦 Analizando material... espera un momento.");
         const invData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
         if (invData && invData.material) {
+          invData._caption = caption; // pasar caption original para fallback de obra
           await handleInventarioWhatsApp(from, phone10, invData, mediaInfo.url);
           return NextResponse.json({ status: "inventario processed" });
         }
