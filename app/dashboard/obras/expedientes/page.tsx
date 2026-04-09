@@ -107,14 +107,30 @@ export default function ExpedientesPage() {
   const [archivosAnioSeleccionados, setArchivosAnioSeleccionados] = useState<Set<string>>(new Set());
   const [deleteArchivoAnioModal, setDeleteArchivoAnioModal] = useState<{open:boolean;archivos:Archivo[]}>({open:false,archivos:[]});
 
+  const [carpetasPorAnio, setCarpetasPorAnio] = useState<Record<number, number>>({});
+
   // Modales
   const [showNuevaCarpeta, setShowNuevaCarpeta] = useState(false);
   const [showNuevaTarea, setShowNuevaTarea] = useState(false);
   const [nuevaCarpetaNombre, setNuevaCarpetaNombre] = useState("");
   const [nuevaTarea, setNuevaTarea] = useState({ titulo: "", responsable: "", fecha_limite: "", prioridad: "normal" });
 
+  const loadCarpetasCounts = async () => {
+    const { data } = await supabase
+      .from("expedientes_carpetas")
+      .select("anio")
+      .is("obra_id", null)
+      .is("parent_carpeta_id", null)
+      .not("nombre", "like", "__root__%");
+    if (!data) return;
+    const counts: Record<number, number> = {};
+    data.forEach(r => { if (r.anio) counts[r.anio] = (counts[r.anio] || 0) + 1; });
+    setCarpetasPorAnio(counts);
+  };
+
   useEffect(() => {
     loadObras();
+    loadCarpetasCounts();
   }, []);
 
   useEffect(() => {
@@ -697,6 +713,7 @@ export default function ExpedientesPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {AÑOS_FIJOS.map((anio) => {
             const count = countPorAnio(anio);
+            const carpCount = carpetasPorAnio[anio] || 0;
             return (
               <button
                 key={anio}
@@ -711,7 +728,10 @@ export default function ExpedientesPage() {
                     <h3 className="font-bold text-white text-xl group-hover:text-amber-300 transition-colors">
                       {anio}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">{count} {count === 1 ? "obra" : "obras"}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {carpCount > 0 && <span className="text-amber-400/80">{carpCount} carpeta{carpCount !== 1 ? "s" : ""} · </span>}
+                      {count} {count === 1 ? "obra" : "obras"}
+                    </p>
                   </div>
                 </div>
               </button>
@@ -1000,7 +1020,7 @@ export default function ExpedientesPage() {
         )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => setAnioSeleccionado(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <button onClick={() => { setAnioSeleccionado(null); loadCarpetasCounts(); }} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5 text-slate-400" />
             </button>
             <div>
