@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import BackButton from "@/components/BackButton";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
 
 type Tab = "audit" | "deleted";
@@ -30,7 +30,6 @@ interface DeletedRow {
 const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
 
 export default function AuditoriaPage() {
-  const supabase = createClientComponentClient();
   const [tab, setTab] = useState<Tab>("audit");
   const [loading, setLoading] = useState(true);
   const [audit, setAudit] = useState<AuditRow[]>([]);
