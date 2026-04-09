@@ -103,6 +103,9 @@ export default function ExpedientesPage() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"carpetas" | "tareas">("carpetas");
+  const [archivosAnio, setArchivosAnio] = useState<Archivo[]>([]);
+  const [archivosAnioSeleccionados, setArchivosAnioSeleccionados] = useState<Set<string>>(new Set());
+  const [deleteArchivoAnioModal, setDeleteArchivoAnioModal] = useState<{open:boolean;archivos:Archivo[]}>({open:false,archivos:[]});
 
   // Modales
   const [showNuevaCarpeta, setShowNuevaCarpeta] = useState(false);
@@ -151,6 +154,17 @@ export default function ExpedientesPage() {
     }, 5000);
     return () => clearInterval(t);
   }, [archivos, carpetaAnioSeleccionada]);
+
+  // Polling: archivos sueltos del año en análisis
+  useEffect(() => {
+    if (!anioSeleccionado || anioSeleccionado === "SIN_ANIO" || carpetaAnioSeleccionada) return;
+    const enAnalisis = archivosAnio.filter(a => !a.resumen && !a.analizado_at);
+    if (enAnalisis.length === 0) return;
+    const t = setInterval(() => {
+      if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") loadCarpetasAnio(anioSeleccionado as number);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [archivosAnio, anioSeleccionado, carpetaAnioSeleccionada]);
 
   const loadSubcarpetas = async (parentId: string) => {
     const { data, error } = await supabase
@@ -389,7 +403,70 @@ export default function ExpedientesPage() {
       console.error("Error loading carpetas año:", error?.message);
       return;
     }
-    setCarpetasAnio(data || []);
+    setCarpetasAnio((data || []).filter(c => !c.nombre.startsWith("__root__")));
+    // Cargar archivos sueltos del año
+    const rootCarpeta = (data || []).find(c => c.nombre.startsWith("__root__"));
+    if (rootCarpeta) {
+      const { data: arcs } = await supabase.from("expedientes_archivos").select("*").eq("carpeta_id", rootCarpeta.id).order("created_at", { ascending: false });
+      setArchivosAnio(arcs || []);
+    } else {
+      setArchivosAnio([]);
+    }
+  };
+
+  const getOrCreateRootCarpeta = async (anio: number): Promise<string | null> => {
+    const rootName = `__root__${anio}`;
+    const { data: existing } = await supabase
+      .from("expedientes_carpetas")
+      .select("id")
+      .eq("anio", anio)
+      .is("obra_id", null)
+      .eq("nombre", rootName)
+      .maybeSingle();
+    if (existing?.id) return existing.id;
+    const { data: created, error } = await supabase
+      .from("expedientes_carpetas")
+      .insert({ obra_id: null, obra_nombre: null, nombre: rootName, anio, orden: -1 })
+      .select("id")
+      .single();
+    if (error) { console.error("Error creating root carpeta:", error.message); return null; }
+    return created.id;
+  };
+
+  const handleFileUploadAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !anioSeleccionado || anioSeleccionado === "SIN_ANIO") return;
+    const file = e.target.files[0];
+    const anio = anioSeleccionado as number;
+    const rootId = await getOrCreateRootCarpeta(anio);
+    if (!rootId) { alert("Error al preparar carpeta raíz"); return; }
+    const path = buildPath({ module: "expedientes", scope: ["anio", String(anio), "sueltos"], file });
+    try {
+      const result = await uploadAndInsert({
+        bucket: "expedientes", path, file,
+        table: "expedientes_archivos",
+        payload: { carpeta_id: rootId, nombre: file.name, tipo: file.type, tamano_bytes: file.size },
+        urlField: "url",
+      });
+      await loadCarpetasAnio(anio);
+      const { data: nuevoRow } = await supabase
+        .from("expedientes_archivos").select("id")
+        .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
+      if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
+    } catch (err: any) {
+      alert(err?.message || "Error al subir archivo");
+    }
+    e.target.value = "";
+  };
+
+  const confirmarEliminarArchivosAnio = async () => {
+    const targets = deleteArchivoAnioModal.archivos;
+    if (targets.length === 0) return;
+    for (const a of targets) { await descargarArchivoForzado(a); }
+    const ids = targets.map(a => a.id);
+    await supabase.from("expedientes_archivos").delete().in("id", ids);
+    setDeleteArchivoAnioModal({ open: false, archivos: [] });
+    setArchivosAnioSeleccionados(new Set());
+    if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") loadCarpetasAnio(anioSeleccionado as number);
   };
 
   const crearCarpetaAnio = async () => {
@@ -697,8 +774,8 @@ export default function ExpedientesPage() {
                 Eliminar {deleteArchivoModal.archivos.length === 1 ? "archivo" : `${deleteArchivoModal.archivos.length} archivos`}
               </h3>
               <p className="text-slate-300 text-sm mb-3">
-                Antes de eliminar se <span className="text-amber-300 font-semibold">descargará automáticamente</span> una copia a tu equipo.
-                Los registros quedan respaldados en auditoría y el archivo físico permanece en Storage.
+                Esta acción <span className="text-red-400 font-semibold">no se puede deshacer</span>.
+                Se descargará una copia a tu equipo antes de eliminar.
               </p>
               <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
                 {deleteArchivoModal.archivos.map(a => (
@@ -901,6 +978,27 @@ export default function ExpedientesPage() {
     const puedeCrearCarpetas = anioSeleccionado !== "SIN_ANIO";
     return (
       <div className="space-y-6">
+        {deleteCarpetaModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
+              <p className="text-slate-300 text-sm mb-4">
+                ¿Eliminar <span className="text-amber-300 font-semibold">&quot;{deleteCarpetaModal.nombre}&quot;</span> y todo su contenido?
+                Los registros quedarán respaldados en auditoría.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteCarpetaModal({open:false,id:"",nombre:"",isSub:false})}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                >Cancelar</button>
+                <button
+                  onClick={confirmarEliminarCarpetaAnio}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                >Delete</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setAnioSeleccionado(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
@@ -1012,11 +1110,116 @@ export default function ExpedientesPage() {
           </div>
         )}
 
-        {carpetasAnio.length === 0 && obrasFiltradas.length === 0 && (
+        {/* Archivos sueltos del año */}
+        {puedeCrearCarpetas && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm uppercase text-green-400 font-semibold">Archivos del año</h2>
+              <div className="flex items-center gap-2">
+                {archivosAnioSeleccionados.size > 0 && (
+                  <button
+                    onClick={() => {
+                      const targets = archivosAnio.filter(a => archivosAnioSeleccionados.has(a.id));
+                      setDeleteArchivoAnioModal({ open: true, archivos: targets });
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium border border-red-500/30"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Eliminar {archivosAnioSeleccionados.size}
+                  </button>
+                )}
+                <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300 text-xs font-medium cursor-pointer transition">
+                  <Upload className="w-3.5 h-3.5" /> Subir archivo
+                  <input type="file" className="hidden" onChange={handleFileUploadAnio} />
+                </label>
+              </div>
+            </div>
+            {archivosAnio.length > 0 ? (
+              <div className="space-y-2">
+                {archivosAnio.map(archivo => {
+                  const sel = archivosAnioSeleccionados.has(archivo.id);
+                  const analizando = !archivo.resumen && !archivo.analizado_at;
+                  return (
+                    <div key={archivo.id} className="flex items-start gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 group">
+                      <button onClick={() => {
+                        const ns = new Set(archivosAnioSeleccionados);
+                        sel ? ns.delete(archivo.id) : ns.add(archivo.id);
+                        setArchivosAnioSeleccionados(ns);
+                      }} className="mt-0.5 shrink-0">
+                        {sel ? <CheckSquare className="w-4 h-4 text-amber-400" /> : <Square className="w-4 h-4 text-slate-500" />}
+                      </button>
+                      <FileText className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <a href={archivo.url} target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-green-300 font-medium truncate block">
+                          {archivo.nombre}
+                        </a>
+                        <div className="flex flex-wrap gap-3 text-xs text-slate-400 mt-0.5">
+                          {archivo.tamano_bytes != null && <span>{formatBytes(archivo.tamano_bytes)}</span>}
+                          {(archivo.paginas ?? 0) > 0 && <span>{archivo.paginas} pág.</span>}
+                          <span>{archivo.tipo?.split("/").pop()}</span>
+                          <span>{new Date(archivo.created_at).toLocaleDateString("es-MX")}</span>
+                        </div>
+                        {analizando ? (
+                          <p className="text-xs text-blue-300/80 mt-1 italic flex items-center gap-1.5">
+                            <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
+                          </p>
+                        ) : archivo.resumen ? (
+                          <p className="text-xs text-slate-300 mt-1 leading-snug line-clamp-3 bg-white/5 rounded px-2 py-1 border border-white/10">
+                            {archivo.resumen}
+                          </p>
+                        ) : null}
+                      </div>
+                      <button
+                        onClick={() => setDeleteArchivoAnioModal({ open: true, archivos: [archivo] })}
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition shrink-0"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-sm py-4 text-center">Sin archivos sueltos. Sube un archivo con el botón de arriba.</p>
+            )}
+          </div>
+        )}
+
+        {/* Modal eliminar archivos del año */}
+        {deleteArchivoAnioModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <h3 className="text-lg font-bold text-white mb-2">
+                Eliminar {deleteArchivoAnioModal.archivos.length === 1 ? "archivo" : `${deleteArchivoAnioModal.archivos.length} archivos`}
+              </h3>
+              <p className="text-slate-300 text-sm mb-3">
+                Esta acción <span className="text-red-400 font-semibold">no se puede deshacer</span>.
+                Se descargará una copia a tu equipo antes de eliminar.
+              </p>
+              <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
+                {deleteArchivoAnioModal.archivos.map(a => (
+                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">• {a.nombre}</div>
+                ))}
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteArchivoAnioModal({open:false, archivos:[]})}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                >Cancelar</button>
+                <button
+                  onClick={confirmarEliminarArchivosAnio}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                >Delete</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {carpetasAnio.length === 0 && obrasFiltradas.length === 0 && archivosAnio.length === 0 && (
           <div className="text-center py-16 text-slate-400">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p>Este año está vacío</p>
-            {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botón de arriba o asigna obras desde Pipeline.</p>}
+            {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botón de arriba, sube archivos, o asigna obras desde Pipeline.</p>}
           </div>
         )}
       </div>
