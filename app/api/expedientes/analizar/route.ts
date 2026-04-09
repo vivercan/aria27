@@ -10,6 +10,9 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// Tamaño máximo de archivo para análisis: 4MB (Vercel serverless limit)
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
 type Archivo = {
   id: string;
   nombre: string;
@@ -27,18 +30,34 @@ Reglas:
 - No inventes contenido que no esté en el documento.`;
 
 function parseJsonResponse(text: string): { paginas: number | null; resumen: string } {
-  // Claude a veces rodea con ```json ... ```
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  const obj = JSON.parse(cleaned);
-  return {
-    paginas: typeof obj.paginas === "number" ? obj.paginas : null,
-    resumen: String(obj.resumen || "").slice(0, 500),
-  };
+  try {
+    const obj = JSON.parse(cleaned);
+    return {
+      paginas: typeof obj.paginas === "number" ? obj.paginas : null,
+      resumen: String(obj.resumen || "").slice(0, 500),
+    };
+  } catch {
+    // EXP-002 FIX: Si Claude retorna texto no-JSON, devolver resumen genérico
+    log.warn("parseJsonResponse: JSON.parse falló, retornando fallback", { text: cleaned.slice(0, 200) });
+    return { paginas: null, resumen: cleaned.slice(0, 500) || "(Análisis completado pero no se pudo estructurar)" };
+  }
 }
 
 export async function POST(req: NextRequest) {
+  // EXP-001 FIX: Verificar autenticación
+  const userEmail = req.headers.get("x-user-email");
+  if (!userEmail) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  // EXP-003 FIX: Parsear body UNA sola vez y guardar archivoId en variable del scope exterior
+  let archivoId: string | undefined;
+
   try {
-    const { archivoId } = await req.json();
+    const body = await req.json();
+    archivoId = body.archivoId;
+
     if (!archivoId) {
       return NextResponse.json({ error: "archivoId requerido" }, { status: 400 });
     }
@@ -60,6 +79,15 @@ export async function POST(req: NextRequest) {
     const nombre = a.nombre || "";
     const ext = nombre.split(".").pop()?.toLowerCase() || "";
 
+    // EXP-009 FIX: Validar tamaño antes de descargar
+    if (a.tamano_bytes && a.tamano_bytes > MAX_FILE_SIZE) {
+      await supabase.from("expedientes_archivos").update({
+        resumen: `(Archivo demasiado grande para análisis: ${(a.tamano_bytes / 1024 / 1024).toFixed(1)}MB, máximo ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        analizado_at: new Date().toISOString(),
+      }).eq("id", a.id);
+      return NextResponse.json({ ok: false, reason: "file-too-large" });
+    }
+
     const isPdf = tipo.includes("pdf") || ext === "pdf";
     const isImage = tipo.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp"].includes(ext);
     const isText = tipo.startsWith("text/") || ["txt", "md", "csv"].includes(ext);
@@ -74,7 +102,6 @@ export async function POST(req: NextRequest) {
     let paginas: number | null = null;
 
     if (isPdf) {
-      // Descargar PDF y enviarlo como base64
       const pdfRes = await fetch(a.url);
       if (!pdfRes.ok) {
         await supabase.from("expedientes_archivos").update({
@@ -144,7 +171,6 @@ export async function POST(req: NextRequest) {
       resumen = parsed.resumen;
       paginas = Math.max(1, Math.ceil(texto.length / 3000));
     } else {
-      // Tipo no soportado
       resumen = `Archivo ${ext.toUpperCase() || "desconocido"} — análisis automático no disponible para este formato.`;
       paginas = null;
     }
@@ -152,11 +178,7 @@ export async function POST(req: NextRequest) {
     // UPDATE con resultados
     const { error: errUpd } = await supabase
       .from("expedientes_archivos")
-      .update({
-        resumen,
-        paginas,
-        analizado_at: new Date().toISOString(),
-      })
+      .update({ resumen, paginas, analizado_at: new Date().toISOString() })
       .eq("id", a.id);
 
     if (errUpd) {
@@ -167,16 +189,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, resumen, paginas });
   } catch (e: any) {
     log.error("analizar error", { err: e?.message, stack: e?.stack?.slice(0, 300) });
-    // Intentar marcar el archivo con error leve
-    try {
-      const { archivoId } = await req.json().catch(() => ({}));
-      if (archivoId) {
+    // EXP-003 FIX: Usar archivoId del scope exterior en vez de re-consumir req.json()
+    if (archivoId) {
+      try {
         await supabase
           .from("expedientes_archivos")
           .update({ resumen: "(Error al analizar — reintenta después)", analizado_at: new Date().toISOString() })
           .eq("id", archivoId);
-      }
-    } catch {}
+      } catch {}
+    }
     return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
   }
 }

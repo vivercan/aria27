@@ -109,6 +109,9 @@ export default function ExpedientesPage() {
 
   const [carpetasPorAnio, setCarpetasPorAnio] = useState<Record<number, number>>({});
 
+  // EXP-006 FIX: bandera para prevenir doble-clic en creación de carpetas
+  const [creandoCarpeta, setCreandoCarpeta] = useState(false);
+
   // Modales
   const [showNuevaCarpeta, setShowNuevaCarpeta] = useState(false);
   const [showNuevaTarea, setShowNuevaTarea] = useState(false);
@@ -356,11 +359,12 @@ export default function ExpedientesPage() {
 
   const dispararAnalisis = async (archivoId: string) => {
     try {
+      const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       await fetch("/api/expedientes/analizar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-email": email },
         body: JSON.stringify({ archivoId }),
-      });
+      }).catch((err) => console.error("Error fetch análisis:", err));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
     } catch (e) {
       console.error("Error al disparar análisis:", e);
@@ -485,21 +489,26 @@ export default function ExpedientesPage() {
   };
 
   const crearCarpetaAnio = async () => {
-    if (!nuevaCarpetaAnioNombre.trim() || !anioSeleccionado || anioSeleccionado === "SIN_ANIO") return;
-    const { error } = await supabase.from("expedientes_carpetas").insert({
-      obra_id: null,
-      obra_nombre: null,
-      nombre: nuevaCarpetaAnioNombre,
-      anio: anioSeleccionado as number,
-      orden: carpetasAnio.length,
-    });
-    if (error) {
-      alert("Error al crear carpeta del año: " + error.message);
-      return;
+    if (!nuevaCarpetaAnioNombre.trim() || !anioSeleccionado || anioSeleccionado === "SIN_ANIO" || creandoCarpeta) return;
+    setCreandoCarpeta(true);
+    try {
+      const { error } = await supabase.from("expedientes_carpetas").insert({
+        obra_id: null,
+        obra_nombre: null,
+        nombre: nuevaCarpetaAnioNombre,
+        anio: anioSeleccionado as number,
+        orden: carpetasAnio.length,
+      });
+      if (error) {
+        alert("Error al crear carpeta del año: " + error.message);
+        return;
+      }
+      setNuevaCarpetaAnioNombre("");
+      setShowNuevaCarpetaAnio(false);
+      loadCarpetasAnio(anioSeleccionado as number);
+    } finally {
+      setCreandoCarpeta(false);
     }
-    setNuevaCarpetaAnioNombre("");
-    setShowNuevaCarpetaAnio(false);
-    loadCarpetasAnio(anioSeleccionado as number);
   };
 
   const eliminarCarpetaAnio = async (id: string, nombre: string) => {
@@ -567,24 +576,28 @@ export default function ExpedientesPage() {
   };
 
   const crearCarpeta = async () => {
-    if (!nuevaCarpetaNombre.trim() || !obraSeleccionada) return;
+    if (!nuevaCarpetaNombre.trim() || !obraSeleccionada || creandoCarpeta) return;
+    setCreandoCarpeta(true);
+    try {
+      const { error } = await supabase.from("expedientes_carpetas").insert({
+        obra_id: obraSeleccionada.id,
+        obra_nombre: obraSeleccionada.name,
+        nombre: nuevaCarpetaNombre,
+        orden: carpetas.length,
+      });
 
-    const { error } = await supabase.from("expedientes_carpetas").insert({
-      obra_id: obraSeleccionada.id,
-      obra_nombre: obraSeleccionada.name,
-      nombre: nuevaCarpetaNombre,
-      orden: carpetas.length,
-    });
+      if (error) {
+        console.error("Error creating carpeta:", error?.message);
+        alert("Error al crear carpeta: " + error.message);
+        return;
+      }
 
-    if (error) {
-      console.error("Error creating carpeta:", error?.message);
-      alert("Error al crear carpeta: " + error.message);
-      return;
-    }
-
-    setNuevaCarpetaNombre("");
+      setNuevaCarpetaNombre("");
     setShowNuevaCarpeta(false);
     loadCarpetas(obraSeleccionada!.id);
+    } finally {
+      setCreandoCarpeta(false);
+    }
   };
 
   const crearTarea = async () => {
@@ -1025,7 +1038,7 @@ export default function ExpedientesPage() {
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white">Año {anioSeleccionado === "SIN_ANIO" ? "— Sin fecha" : anioSeleccionado}</h1>
-              <p className="text-slate-400 text-sm">{carpetasAnio.length} carpetas libres · {obrasFiltradas.length} obras</p>
+              <p className="text-slate-400 text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} · {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
             </div>
           </div>
           {puedeCrearCarpetas && (
@@ -1049,7 +1062,7 @@ export default function ExpedientesPage() {
               maxLength={80}
               className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
             />
-            <button onClick={crearCarpetaAnio} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm shrink-0">Crear</button>
+            <button onClick={crearCarpetaAnio} disabled={creandoCarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm shrink-0">{creandoCarpeta ? "Creando..." : "Crear"}</button>
             <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}

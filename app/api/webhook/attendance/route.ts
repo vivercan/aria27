@@ -137,6 +137,143 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
   }
 }
 
+// ============== CLAUDE: EXTRAER DATOS DE INVENTARIO DESDE IMAGEN ==============
+async function extractInventarioFromImage(imageUrl: string, mediaType: string, caption: string): Promise<any> {
+  try {
+    const imageResponse = await fetch(imageUrl, {
+      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
+    });
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const base64Image = Buffer.from(imageBuffer).toString("base64");
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Image } },
+            { type: "text", text: `El usuario envió esta foto de material de construcción con el mensaje: "${caption}"
+
+Extrae la información del material en formato JSON. Responde SOLO con el JSON:
+{
+  "material": "nombre del material (ej: Arena sílica saco 25kg, Varilla 3/8, Cemento Portland)",
+  "cantidad": 10,
+  "unidad": "una de: PZA, LITRO, METRO, KILO, TONELADA, SACO, ROLLO, CAJA, PAQUETE, VIAJE, BOLSA, BOTE, CUBETA_19L",
+  "obra": "nombre de la obra si la menciona o null",
+  "proveedor": "nombre del proveedor si lo menciona o null",
+  "descripcion": "breve descripción de lo que se ve en la foto"
+}
+Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dice pon 1.` }
+          ]
+        }]
+      })
+    });
+
+    const result = await response.json();
+    const text = result.content?.[0]?.text || "{}";
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+  } catch (error) {
+    log.error("Error extractInventarioFromImage:", error);
+    return null;
+  }
+}
+
+// ============== MANEJAR ENTRADA DE INVENTARIO VÍA WHATSAPP ==============
+async function handleInventarioWhatsApp(from: string, phone10: string, invData: any, imageUrl: string) {
+  const material = invData.material;
+  const cantidad = invData.cantidad || 1;
+  const unidad = invData.unidad || "PZA";
+  const obraNombre = invData.obra;
+
+  if (!material) {
+    await sendWhatsApp(from, "❌ No pude identificar el material. Envía la foto con un mensaje como:\n\n📦 ENTRADA Arena 10 sacos MIRAVALLE");
+    return;
+  }
+
+  // Buscar obra — si no la especificó, usar la del empleado
+  let obraFinal = obraNombre;
+  if (!obraFinal) {
+    const emp = await findEmpleado(phone10, from);
+    obraFinal = ((emp?.centro_trabajo as any)?.[0]?.nombre ?? (emp?.centro_trabajo as any)?.nombre) || null;
+  }
+
+  if (!obraFinal) {
+    await sendWhatsApp(from, `❌ No pude determinar la obra.\n\nEnvía la foto con el nombre de la obra:\n📦 ENTRADA ${material} ${cantidad} ${unidad} NOMBRE_OBRA`);
+    return;
+  }
+
+  // Buscar obra en centros_trabajo
+  const { data: obraRow } = await supabase
+    .from("centros_trabajo")
+    .select("id, nombre")
+    .ilike("nombre", `%${obraFinal}%`)
+    .limit(1)
+    .single();
+
+  if (!obraRow) {
+    await sendWhatsApp(from, `❌ No encontré la obra "${obraFinal}" en el sistema.\n\nVerifica el nombre e intenta de nuevo.`);
+    return;
+  }
+
+  // Buscar si ya existe en inventario
+  const { data: existe } = await supabase
+    .from("inventario_obra")
+    .select("*")
+    .eq("obra_id", obraRow.id)
+    .ilike("producto_nombre", material)
+    .single();
+
+  let saldoPost = 0;
+  if (existe) {
+    saldoPost = Number(existe.cantidad_disponible) + cantidad;
+    await supabase.from("inventario_obra").update({
+      cantidad_disponible: saldoPost,
+      ultimo_movimiento: new Date().toISOString(),
+      foto_url: imageUrl,
+    }).eq("id", existe.id);
+  } else {
+    saldoPost = cantidad;
+    await supabase.from("inventario_obra").insert({
+      obra_id: obraRow.id,
+      obra_nombre: obraRow.nombre,
+      producto_nombre: material,
+      unidad: unidad,
+      cantidad_disponible: cantidad,
+      cantidad_usada: 0,
+      ultimo_movimiento: new Date().toISOString(),
+      foto_url: imageUrl,
+    });
+  }
+
+  // Registrar movimiento con foto
+  await supabase.from("inventario_movimientos").insert({
+    obra_id: obraRow.id,
+    obra_nombre: obraRow.nombre,
+    producto_nombre: material,
+    unidad: unidad,
+    tipo: "ENTRADA",
+    cantidad: cantidad,
+    saldo_post: saldoPost,
+    motivo: `Entrada vía WhatsApp${invData.proveedor ? ` — Prov: ${invData.proveedor}` : ""}`,
+    referencia_tipo: "WHATSAPP",
+    referencia_id: null,
+    usuario: `WhatsApp ${phone10}`,
+    foto_url: imageUrl,
+  });
+
+  const provLine = invData.proveedor ? `🏪 ${invData.proveedor}\n` : "";
+  await sendWhatsApp(from, `✅ *INVENTARIO ACTUALIZADO*\n\n📦 ${material}\n📏 +${cantidad} ${unidad}\n🏗️ ${obraRow.nombre}\n${provLine}📊 Saldo: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n¡Registrado!`);
+}
+
 // ============== BUSCAR EMPLEADO ==============
 async function findEmpleado(phone10: string, fullPhone: string) {
   // Usar tabla base "employees" - PostgREST no resuelve JOINs en VIEWs
@@ -469,7 +606,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "foto oc processed" });
       }
 
-      // Si no es OC, procesar como gasto/ticket
+      // Detectar si es entrada de inventario (palabras clave: ENTRADA, MATERIAL, INV, INVENTARIO, LLEGÓ, LLEGO)
+      const captionLower = caption.toLowerCase();
+      const esInventario = captionLower.includes("entrada") ||
+                           captionLower.includes("material") ||
+                           captionLower.includes("inventario") ||
+                           captionLower.includes("inv ") ||
+                           captionLower.includes("llegó") ||
+                           captionLower.includes("llego") ||
+                           captionLower.includes("recibí") ||
+                           captionLower.includes("recibi");
+      if (esInventario) {
+        await sendWhatsApp(from, "📦 Analizando material... espera un momento.");
+        const invData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
+        if (invData && invData.material) {
+          await handleInventarioWhatsApp(from, phone10, invData, mediaInfo.url);
+          return NextResponse.json({ status: "inventario processed" });
+        }
+        // Si no pudo parsear, cae al flujo de gasto
+      }
+
+      // Si no es OC ni inventario, procesar como gasto/ticket
       await sendWhatsApp(from, "🔍 Analizando ticket... espera un momento.");
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
 
@@ -510,8 +667,12 @@ Para registrar *GASTO*:
 📷 Envía foto del ticket
 💬 O escribe: "Gasto 500 OXXO gasolina"
 
-Para *FOTO de ENTREGA*:
-📷 Envía foto con caption: OC-2025-00001
+Para *FOTO de ENTREGA OC*:
+📷 Envía foto con caption: OC-2026-00001
+
+Para *ENTRADA DE MATERIAL*:
+📷 Foto del material con caption:
+"Entrada Arena 10 sacos MIRAVALLE"
 
 ¿En qué te ayudo?`);
       return NextResponse.json({ status: "help sent" });
