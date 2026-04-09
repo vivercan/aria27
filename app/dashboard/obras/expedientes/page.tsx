@@ -23,6 +23,9 @@ import {
   X,
   FolderPlus,
   Loader2,
+  Pencil,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 
 interface Obra {
@@ -49,7 +52,17 @@ interface Archivo {
   nombre: string;
   tipo: string;
   url: string;
+  tamano_bytes?: number | null;
   created_at: string;
+}
+
+function formatBytes(bytes?: number | null): string {
+  if (!bytes || bytes <= 0) return "—";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  let n = bytes;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
 interface Tarea {
@@ -80,6 +93,8 @@ export default function ExpedientesPage() {
   const [subcarpetas, setSubcarpetas] = useState<Carpeta[]>([]);
   const [showNuevaSubcarpeta, setShowNuevaSubcarpeta] = useState(false);
   const [nuevaSubcarpetaNombre, setNuevaSubcarpetaNombre] = useState("");
+  const [archivosSeleccionados, setArchivosSeleccionados] = useState<Set<string>>(new Set());
+  const [deleteCarpetaModal, setDeleteCarpetaModal] = useState<{open:boolean;id:string;nombre:string;isSub:boolean}>({open:false,id:"",nombre:"",isSub:false});
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
   const [archivos, setArchivos] = useState<Archivo[]>([]);
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -115,9 +130,11 @@ export default function ExpedientesPage() {
     if (carpetaAnioSeleccionada) {
       loadArchivos(carpetaAnioSeleccionada.id);
       loadSubcarpetas(carpetaAnioSeleccionada.id);
+      setArchivosSeleccionados(new Set());
     } else {
       setSubcarpetas([]);
       setRutaCarpetas([]);
+      setArchivosSeleccionados(new Set());
     }
   }, [carpetaAnioSeleccionada]);
 
@@ -184,13 +201,81 @@ export default function ExpedientesPage() {
   };
 
   const eliminarSubcarpeta = async (id: string, nombre: string) => {
-    if (!confirm(`Eliminar carpeta "${nombre}" y todo su contenido?`)) return;
+    setDeleteCarpetaModal({ open: true, id, nombre, isSub: true });
+  };
+
+  const confirmarEliminarCarpetaAnio = async () => {
+    const { id, isSub } = deleteCarpetaModal;
+    if (!id) return;
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
     if (error) {
       alert("Error: " + error.message);
       return;
     }
-    if (carpetaAnioSeleccionada) loadSubcarpetas(carpetaAnioSeleccionada.id);
+    setDeleteCarpetaModal({ open: false, id: "", nombre: "", isSub: false });
+    if (isSub && carpetaAnioSeleccionada) {
+      loadSubcarpetas(carpetaAnioSeleccionada.id);
+    } else if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") {
+      loadCarpetasAnio(anioSeleccionado as number);
+    }
+  };
+
+  const editarNombreCarpeta = async (id: string, nombreActual: string, isSub: boolean) => {
+    const nuevo = window.prompt("Nuevo nombre:", nombreActual);
+    if (!nuevo || !nuevo.trim() || nuevo.trim() === nombreActual) return;
+    const { error } = await supabase
+      .from("expedientes_carpetas")
+      .update({ nombre: nuevo.trim() })
+      .eq("id", id);
+    if (error) {
+      alert("Error al renombrar: " + error.message);
+      return;
+    }
+    if (isSub && carpetaAnioSeleccionada) {
+      loadSubcarpetas(carpetaAnioSeleccionada.id);
+    } else if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") {
+      loadCarpetasAnio(anioSeleccionado as number);
+    }
+  };
+
+  const toggleArchivoSeleccionado = (id: string) => {
+    setArchivosSeleccionados(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const seleccionarTodosArchivos = () => {
+    if (archivosSeleccionados.size === archivos.length) {
+      setArchivosSeleccionados(new Set());
+    } else {
+      setArchivosSeleccionados(new Set(archivos.map(a => a.id)));
+    }
+  };
+
+  const eliminarArchivosSeleccionados = async () => {
+    if (archivosSeleccionados.size === 0) return;
+    const n = archivosSeleccionados.size;
+    if (!confirm(`Eliminar ${n} archivo${n === 1 ? "" : "s"} seleccionado${n === 1 ? "" : "s"}? (Quedará respaldo en auditoría)`)) return;
+    const ids = Array.from(archivosSeleccionados);
+    const { error } = await supabase.from("expedientes_archivos").delete().in("id", ids);
+    if (error) {
+      alert("Error al eliminar: " + error.message);
+      return;
+    }
+    setArchivosSeleccionados(new Set());
+    if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
+  };
+
+  const eliminarUnArchivo = async (id: string, nombre: string) => {
+    if (!confirm(`Eliminar "${nombre}"? (Quedará respaldo en auditoría)`)) return;
+    const { error } = await supabase.from("expedientes_archivos").delete().eq("id", id);
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+    if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
   };
 
   const handleFileUploadCarpetaAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,13 +341,7 @@ export default function ExpedientesPage() {
   };
 
   const eliminarCarpetaAnio = async (id: string, nombre: string) => {
-    if (!confirm(`Eliminar carpeta "${nombre}"?`)) return;
-    const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
-    if (error) {
-      alert("Error: " + error.message);
-      return;
-    }
-    loadCarpetasAnio(anioSeleccionado as number);
+    setDeleteCarpetaModal({ open: true, id, nombre, isSub: false });
   };
 
   useEffect(() => {
@@ -516,64 +595,88 @@ export default function ExpedientesPage() {
 
   // Vista 1.5: Carpeta libre del año abierta (subcarpetas + archivos)
   if (!obraSeleccionada && carpetaAnioSeleccionada) {
+    const todosSeleccionados = archivos.length > 0 && archivosSeleccionados.size === archivos.length;
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button onClick={volverNivel} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+      <div className="space-y-6 max-w-5xl mx-auto">
+        {deleteCarpetaModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
+              <p className="text-slate-300 text-sm mb-4">
+                ¿Eliminar <span className="text-amber-300 font-semibold">"{deleteCarpetaModal.nombre}"</span> y todo su contenido?
+                Los registros quedarán respaldados en auditoría.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteCarpetaModal({open:false,id:"",nombre:"",isSub:false})}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                >Cancelar</button>
+                <button
+                  onClick={confirmarEliminarCarpetaAnio}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                >Delete</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <button onClick={volverNivel} className="p-2 hover:bg-white/10 rounded-lg transition-colors shrink-0">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-white truncate">{carpetaAnioSeleccionada.nombre}</h1>
-            <div className="text-slate-400 text-sm flex flex-wrap items-center gap-1">
+            <h1 className="text-2xl font-bold text-white truncate max-w-full">{carpetaAnioSeleccionada.nombre}</h1>
+            <div className="text-slate-400 text-xs flex flex-wrap items-center gap-1 mt-0.5">
               <button onClick={() => irANivel(-1)} className="hover:text-amber-300 transition">Año {anioSeleccionado}</button>
               {rutaCarpetas.map((n, i) => (
                 <span key={n.id} className="flex items-center gap-1">
                   <ChevronRight className="w-3 h-3 opacity-60" />
-                  <button onClick={() => irANivel(i)} className="hover:text-amber-300 transition truncate max-w-[140px]">{n.nombre}</button>
+                  <button onClick={() => irANivel(i)} className="hover:text-amber-300 transition truncate max-w-[120px]">{n.nombre}</button>
                 </span>
               ))}
               <ChevronRight className="w-3 h-3 opacity-60" />
-              <span className="text-white/80 truncate max-w-[160px]">{carpetaAnioSeleccionada.nombre}</span>
+              <span className="text-white/80 truncate max-w-[140px]">{carpetaAnioSeleccionada.nombre}</span>
               <span className="ml-2 opacity-70">· {subcarpetas.length} subcarpeta{subcarpetas.length === 1 ? "" : "s"} · {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</span>
             </div>
           </div>
           <button
             onClick={() => setShowNuevaSubcarpeta(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-300 text-sm font-medium transition"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-300 text-sm font-medium transition shrink-0"
           >
             <FolderPlus className="w-4 h-4" /> Nueva subcarpeta
           </button>
-          <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition">
+          <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition shrink-0">
             <Plus className="w-4 h-4" /> Subir archivo
             <input type="file" className="hidden" onChange={handleFileUploadCarpetaAnio} />
           </label>
         </div>
 
         {showNuevaSubcarpeta && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 max-w-2xl">
             <input
               autoFocus
               value={nuevaSubcarpetaNombre}
               onChange={(e) => setNuevaSubcarpetaNombre(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") crearSubcarpeta(); }}
               placeholder="Nombre de la subcarpeta"
+              maxLength={80}
               className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
             />
-            <button onClick={crearSubcarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">Crear</button>
-            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm">Cancelar</button>
+            <button onClick={crearSubcarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm shrink-0">Crear</button>
+            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}
 
         {subcarpetas.length > 0 && (
           <div>
-            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Subcarpetas</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <h2 className="text-xs uppercase text-amber-400 font-semibold mb-3 tracking-wider">Subcarpetas</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {subcarpetas.map((sub) => (
-                <div key={sub.id} className="p-5 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative">
-                  <button onClick={() => abrirSubcarpeta(sub)} className="w-full text-left">
+                <div key={sub.id} className="p-4 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative">
+                  <button onClick={() => abrirSubcarpeta(sub)} className="w-full text-left pr-16">
                     <div className="flex items-start gap-3">
-                      <div className="p-3 bg-amber-500/20 rounded-xl group-hover:bg-amber-500/30 transition-colors">
-                        <FolderOpen className="w-6 h-6 text-amber-400" />
+                      <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors shrink-0">
+                        <FolderOpen className="w-5 h-5 text-amber-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">{sub.nombre}</h3>
@@ -581,13 +684,22 @@ export default function ExpedientesPage() {
                       </div>
                     </div>
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); eliminarSubcarpeta(sub.id, sub.nombre); }}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); editarNombreCarpeta(sub.id, sub.nombre, true); }}
+                      className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/30 text-blue-300"
+                      title="Renombrar"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); eliminarSubcarpeta(sub.id, sub.nombre); }}
+                      className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -596,27 +708,65 @@ export default function ExpedientesPage() {
 
         {archivos.length > 0 && (
           <div>
-            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Archivos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {archivos.map((archivo) => (
-                <a
-                  key={archivo.id}
-                  href={archivo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl transition-all group"
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xs uppercase text-amber-400 font-semibold tracking-wider">Archivos ({archivos.length})</h2>
+                <button
+                  onClick={seleccionarTodosArchivos}
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors">
-                      <FileText className="w-5 h-5 text-amber-400" />
+                  {todosSeleccionados ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
+                  {todosSeleccionados ? "Deseleccionar todo" : "Seleccionar todo"}
+                </button>
+              </div>
+              {archivosSeleccionados.size > 0 && (
+                <button
+                  onClick={eliminarArchivosSeleccionados}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete ({archivosSeleccionados.size})
+                </button>
+              )}
+            </div>
+            <div className="space-y-2">
+              {archivos.map((archivo) => {
+                const selected = archivosSeleccionados.has(archivo.id);
+                return (
+                  <div
+                    key={archivo.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${selected ? "bg-amber-500/10 border-amber-500/50" : "bg-white/5 border-white/10 hover:border-amber-500/40"}`}
+                  >
+                    <button
+                      onClick={() => toggleArchivoSeleccionado(archivo.id)}
+                      className="shrink-0 text-amber-400 hover:text-amber-300 transition"
+                      title={selected ? "Deseleccionar" : "Seleccionar"}
+                    >
+                      {selected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                    </button>
+                    <div className="p-2 bg-amber-500/20 rounded-lg shrink-0">
+                      <FileText className="w-4 h-4 text-amber-400" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white truncate group-hover:text-amber-300 transition-colors">{archivo.nombre}</p>
-                      <p className="text-xs text-slate-400 mt-1">{archivo.tipo || "archivo"}</p>
-                    </div>
+                    <a
+                      href={archivo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 min-w-0 hover:text-amber-300 transition"
+                    >
+                      <p className="font-medium text-white truncate">{archivo.nombre}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {formatBytes(archivo.tamano_bytes)} · {archivo.tipo || "archivo"} · {new Date(archivo.created_at).toLocaleDateString("es-MX")}
+                      </p>
+                    </a>
+                    <button
+                      onClick={() => eliminarUnArchivo(archivo.id, archivo.nombre)}
+                      className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 transition shrink-0"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                </a>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -659,17 +809,18 @@ export default function ExpedientesPage() {
         </div>
 
         {showNuevaCarpetaAnio && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 max-w-2xl">
             <input
               autoFocus
               value={nuevaCarpetaAnioNombre}
               onChange={(e) => setNuevaCarpetaAnioNombre(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") crearCarpetaAnio(); }}
-              placeholder="Nombre de la carpeta (ej: Contratos, Escrituras, Permisos...)"
-              className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+              placeholder="Nombre de la carpeta (ej: Contratos, Permisos...)"
+              maxLength={80}
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
             />
-            <button onClick={crearCarpetaAnio} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm">Crear</button>
-            <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm">Cancelar</button>
+            <button onClick={crearCarpetaAnio} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm shrink-0">Crear</button>
+            <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}
 
@@ -698,13 +849,22 @@ export default function ExpedientesPage() {
                       </div>
                     </div>
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); eliminarCarpetaAnio(carpeta.id, carpeta.nombre); }}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); editarNombreCarpeta(carpeta.id, carpeta.nombre, false); }}
+                      className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/30 text-blue-300"
+                      title="Renombrar"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDeleteCarpetaModal({open:true,id:carpeta.id,nombre:carpeta.nombre,isSub:false}); }}
+                      className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
