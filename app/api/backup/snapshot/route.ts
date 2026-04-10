@@ -4,22 +4,16 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 const log = logger("BACKUP-SNAPSHOT");
 
-// Snapshot ligero de tablas críticas → JSON en bucket 'backups' de Storage.
-// Protegido por Bearer token (BACKUP_TOKEN). Dispara desde cron externo (Vercel Cron diario).
-const TABLAS_CRITICAS = [
-  "centros_trabajo",
-  "employees",
-  "suppliers",
-  "products",
-  "requisitions",
-  "purchase_orders",
-  "cobros_manuales",
-  "cotizaciones_clientes",
-  "presupuestos_partidas",
-  "nomina_historico",
-  "obra_avances",
-  "obra_bitacora",
-];
+// ---------------------------------------------------------------------------
+// Backup completo diario — "cintas magnéticas" digitales.
+// Respalda TODAS las tablas públicas + TODOS los archivos de Storage.
+// Cada ejecución crea una carpeta con timestamp: backups/{fecha}/{...}
+// Protegido por BACKUP_TOKEN o x-vercel-cron header.
+// ---------------------------------------------------------------------------
+
+const PAGE_SIZE = 1000; // Supabase PostgREST max por request
+const SKIP_BUCKETS = ["backups"]; // No respaldar el propio bucket de backups
+const SKIP_TABLES = ["schema_migrations", "supabase_migrations"]; // Sistema
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization") || "";
@@ -30,48 +24,281 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = getSupabaseAdmin();
-  const ts = new Date().toISOString().replace(/[:.]/g, "-");
-  const results: { tabla: string; rows: number; size: number; error?: string }[] = [];
+  const now = new Date();
+  const dateFolder = now.toISOString().split("T")[0]; // 2026-04-09
+  const ts = now.toISOString().replace(/[:.]/g, "-");
 
-  // Asegurar bucket backups
+  // --- Asegurar bucket backups ---
   const { data: buckets } = await supabase.storage.listBuckets();
-  if (!buckets?.find(b => b.name === "backups")) {
+  if (!buckets?.find((b) => b.name === "backups")) {
     await supabase.storage.createBucket("backups", { public: false });
     log.info("bucket backups creado");
   }
 
-  for (const tabla of TABLAS_CRITICAS) {
+  // ===============================================================
+  // FASE 1: Backup de TODAS las tablas
+  // ===============================================================
+  const tableResults: {
+    tabla: string;
+    rows: number;
+    pages: number;
+    size: number;
+    error?: string;
+  }[] = [];
+
+  // Obtener lista dinámica de tablas vía RPC
+  let tableNames: string[] = [];
+  const { data: rpcTables, error: rpcErr } = await supabase.rpc(
+    "list_backup_tables"
+  );
+  if (rpcErr || !rpcTables) {
+    log.error("rpc list_backup_tables falló, usando fallback", {
+      error: rpcErr?.message,
+    });
+    // Fallback: lista conocida (puede quedar desactualizada)
+    tableNames = [
+      "centros_trabajo",
+      "employees",
+      "suppliers",
+      "products",
+      "requisitions",
+      "purchase_orders",
+      "cobros_manuales",
+      "cotizaciones_clientes",
+      "presupuestos_partidas",
+      "nomina_historico",
+      "obra_avances",
+      "bitacora_obra",
+      "audit_log",
+      "auth_attempts",
+      "deleted_records",
+      "users",
+      "gastos",
+      "solicitudes_vacaciones",
+      "incapacidades",
+      "prestamos",
+      "nominas",
+      "quotations",
+      "entity_documents",
+      "expedientes_carpetas",
+      "expedientes_archivos",
+      "clientes",
+      "cotizaciones_items",
+      "conciliacion_bancaria",
+      "inventario_movimientos",
+      "wa_log",
+      "rate_limit_log",
+    ];
+  } else {
+    tableNames = (rpcTables as { table_name: string }[])
+      .map((r) => r.table_name)
+      .filter((t) => !SKIP_TABLES.includes(t));
+  }
+
+  log.info("tablas a respaldar", { count: tableNames.length });
+
+  for (const tabla of tableNames) {
     try {
-      const { data, error } = await supabase.from(tabla).select("*");
+      // Primera página para detectar si la tabla tiene datos
+      const { data: firstPage, error, count } = await supabase
+        .from(tabla)
+        .select("*", { count: "exact", head: false })
+        .range(0, PAGE_SIZE - 1);
+
       if (error) {
-        results.push({ tabla, rows: 0, size: 0, error: error.message });
+        tableResults.push({
+          tabla,
+          rows: 0,
+          pages: 0,
+          size: 0,
+          error: error.message,
+        });
         continue;
       }
-      const json = JSON.stringify(data || []);
-      const path = `${ts}/${tabla}.json`;
-      const { error: upErr } = await supabase.storage.from("backups").upload(path, new Blob([json], { type: "application/json" }), { upsert: true });
-      if (upErr) {
-        results.push({ tabla, rows: data?.length || 0, size: json.length, error: upErr.message });
-      } else {
-        results.push({ tabla, rows: data?.length || 0, size: json.length });
+
+      const totalRows = count || firstPage?.length || 0;
+      const allData: any[] = [...(firstPage || [])];
+
+      // Paginar si hay más de PAGE_SIZE filas
+      if (totalRows > PAGE_SIZE) {
+        const totalPages = Math.ceil(totalRows / PAGE_SIZE);
+        for (let page = 1; page < totalPages; page++) {
+          const from = page * PAGE_SIZE;
+          const to = from + PAGE_SIZE - 1;
+          const { data: pageData } = await supabase
+            .from(tabla)
+            .select("*")
+            .range(from, to);
+          if (pageData) allData.push(...pageData);
+        }
       }
+
+      const json = JSON.stringify(allData);
+      const path = `${dateFolder}/tables/${tabla}.json`;
+      const { error: upErr } = await supabase.storage
+        .from("backups")
+        .upload(path, new Blob([json], { type: "application/json" }), {
+          upsert: true,
+        });
+
+      tableResults.push({
+        tabla,
+        rows: allData.length,
+        pages: Math.ceil(totalRows / PAGE_SIZE),
+        size: json.length,
+        ...(upErr ? { error: upErr.message } : {}),
+      });
     } catch (e: any) {
-      results.push({ tabla, rows: 0, size: 0, error: e?.message || "error" });
+      tableResults.push({
+        tabla,
+        rows: 0,
+        pages: 0,
+        size: 0,
+        error: e?.message || "error",
+      });
     }
   }
 
-  // Manifest
-  const manifest = {
-    timestamp: ts,
-    total_tablas: results.length,
-    exitosas: results.filter(r => !r.error).length,
-    fallidas: results.filter(r => r.error).length,
-    total_rows: results.reduce((s, r) => s + r.rows, 0),
-    total_size: results.reduce((s, r) => s + r.size, 0),
-    resultados: results,
-  };
-  await supabase.storage.from("backups").upload(`${ts}/manifest.json`, new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" }), { upsert: true });
+  // ===============================================================
+  // FASE 2: Backup de TODOS los archivos de Storage
+  // ===============================================================
+  const storageResults: {
+    bucket: string;
+    files: number;
+    copied: number;
+    errors: number;
+    errorDetails?: string[];
+  }[] = [];
 
-  log.info("snapshot completado", { ts, exitosas: manifest.exitosas, fallidas: manifest.fallidas, rows: manifest.total_rows });
+  const allBuckets = buckets || [];
+  const bucketsToBackup = allBuckets.filter(
+    (b) => !SKIP_BUCKETS.includes(b.name)
+  );
+
+  for (const bucket of bucketsToBackup) {
+    const bucketName = bucket.name;
+    let filesCounted = 0;
+    let filesCopied = 0;
+    const errorDetails: string[] = [];
+
+    try {
+      // Listar todos los archivos del bucket (recursivo)
+      const filePaths = await listAllFiles(supabase, bucketName, "");
+      filesCounted = filePaths.length;
+
+      for (const filePath of filePaths) {
+        try {
+          // Descargar el archivo original
+          const { data: fileData, error: dlErr } = await supabase.storage
+            .from(bucketName)
+            .download(filePath);
+
+          if (dlErr || !fileData) {
+            errorDetails.push(`${filePath}: ${dlErr?.message || "no data"}`);
+            continue;
+          }
+
+          // Subir copia al bucket de backups
+          const backupPath = `${dateFolder}/storage/${bucketName}/${filePath}`;
+          const { error: upErr } = await supabase.storage
+            .from("backups")
+            .upload(backupPath, fileData, { upsert: true });
+
+          if (upErr) {
+            errorDetails.push(`${filePath}: upload ${upErr.message}`);
+          } else {
+            filesCopied++;
+          }
+        } catch (fe: any) {
+          errorDetails.push(`${filePath}: ${fe?.message || "error"}`);
+        }
+      }
+    } catch (e: any) {
+      errorDetails.push(`listFiles: ${e?.message || "error"}`);
+    }
+
+    storageResults.push({
+      bucket: bucketName,
+      files: filesCounted,
+      copied: filesCopied,
+      errors: errorDetails.length,
+      ...(errorDetails.length > 0
+        ? { errorDetails: errorDetails.slice(0, 10) }
+        : {}),
+    });
+  }
+
+  // ===============================================================
+  // MANIFEST FINAL
+  // ===============================================================
+  const manifest = {
+    version: 2,
+    timestamp: ts,
+    dateFolder,
+    tables: {
+      total: tableResults.length,
+      exitosas: tableResults.filter((r) => !r.error).length,
+      fallidas: tableResults.filter((r) => r.error).length,
+      total_rows: tableResults.reduce((s, r) => s + r.rows, 0),
+      total_size_bytes: tableResults.reduce((s, r) => s + r.size, 0),
+      detalle: tableResults,
+    },
+    storage: {
+      buckets: storageResults.length,
+      total_files: storageResults.reduce((s, r) => s + r.files, 0),
+      total_copied: storageResults.reduce((s, r) => s + r.copied, 0),
+      total_errors: storageResults.reduce((s, r) => s + r.errors, 0),
+      detalle: storageResults,
+    },
+  };
+
+  await supabase.storage
+    .from("backups")
+    .upload(
+      `${dateFolder}/manifest.json`,
+      new Blob([JSON.stringify(manifest, null, 2)], {
+        type: "application/json",
+      }),
+      { upsert: true }
+    );
+
+  log.info("snapshot v2 completado", {
+    dateFolder,
+    tablas_ok: manifest.tables.exitosas,
+    tablas_err: manifest.tables.fallidas,
+    rows: manifest.tables.total_rows,
+    storage_files: manifest.storage.total_copied,
+  });
+
   return NextResponse.json(manifest);
+}
+
+// ---------------------------------------------------------------------------
+// Helper: listar TODOS los archivos de un bucket recursivamente
+// ---------------------------------------------------------------------------
+async function listAllFiles(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  bucket: string,
+  prefix: string
+): Promise<string[]> {
+  const files: string[] = [];
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .list(prefix || undefined, { limit: 1000 });
+
+  if (error || !data) return files;
+
+  for (const item of data) {
+    const fullPath = prefix ? `${prefix}/${item.name}` : item.name;
+    if (item.id) {
+      // Es un archivo (tiene id)
+      files.push(fullPath);
+    } else {
+      // Es una carpeta, listar recursivamente
+      const subFiles = await listAllFiles(supabase, bucket, fullPath);
+      files.push(...subFiles);
+    }
+  }
+
+  return files;
 }
