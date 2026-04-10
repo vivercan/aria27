@@ -10,6 +10,8 @@ import {
   Car, Key, Fuel, Search, MapPin, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { useEntityForm } from "@/hooks/useEntityForm";
 
 interface Vehiculo {
   id: string;
@@ -47,13 +49,12 @@ export default function VehiculosPage() {
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
   const [loading, setLoading] = useState(true);
-  const [guardando, setGuardando] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<any>({ ...EMPTY_FORM });
-  const [editId, setEditId] = useState<string | null>(null);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [expedienteVeh, setExpedienteVeh] = useState<Vehiculo|null>(null);
+
+  // Shared hooks — replace manual modal/form/flash state
+  const { mensaje, msg } = useFlashMessage();
+  const { showModal: showForm, editId, form, saving: guardando, openNew, openEdit, closeModal, setForm, setSaving: setGuardando } = useEntityForm(EMPTY_FORM);
 
   useEffect(() => { cargar(); }, []);
 
@@ -66,11 +67,6 @@ export default function VehiculosPage() {
     if (error) console.error("Error:", error?.message);
     if (data) setVehiculos(data);
     setLoading(false);
-  };
-
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
   };
 
   const guardar = async () => {
@@ -94,18 +90,17 @@ export default function VehiculosPage() {
     if (editId) {
       const { error } = await supabase.from("activos").update(payload).eq("id", editId);
       if (error) { msg("error", error?.message ?? "Error al actualizar"); }
-      else { msg("success", "Vehículo actualizado"); setShowForm(false); setEditId(null); cargar(); }
+      else { msg("success", "Vehículo actualizado"); closeModal(); cargar(); }
     } else {
       const { error } = await supabase.from("activos").insert(payload);
       if (error) { msg("error", error?.message ?? "Error al crear"); }
-      else { msg("success", "Vehículo registrado"); setShowForm(false); cargar(); }
+      else { msg("success", "Vehículo registrado"); closeModal(); cargar(); }
     }
     setGuardando(false);
   };
 
   const editar = (v: Vehiculo) => {
-    setEditId(v.id);
-    setForm({
+    openEdit(v.id, {
       codigo: v.codigo || "", nombre: v.nombre || "", marca: v.marca || "",
       modelo: v.modelo || "", anio: v.anio ? String(v.anio) : "",
       placas: v.placas || "", estado: v.estado || "bueno",
@@ -113,7 +108,6 @@ export default function VehiculosPage() {
       kilometraje: v.kilometraje ? String(v.kilometraje) : "",
       combustible: v.combustible || "Diésel",
     });
-    setShowForm(true);
   };
 
   const confirmDelete = async () => {
@@ -154,7 +148,7 @@ export default function VehiculosPage() {
           </div>
         </div>
         <button
-          onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }}
+          onClick={() => openNew()}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700"
         >
           <Plus className="w-4 h-4" /> Nuevo Vehículo
@@ -247,11 +241,11 @@ export default function VehiculosPage() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => closeModal()}>
           <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <h2 className="text-lg font-bold text-white">{editId ? "Editar Vehículo" : "Nuevo Vehículo"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+              <button onClick={() => closeModal()} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div className="grid grid-cols-2 gap-3">
@@ -308,7 +302,7 @@ export default function VehiculosPage() {
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+              <button onClick={() => closeModal()} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
               <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-sm disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {editId ? "Actualizar" : "Registrar"}
