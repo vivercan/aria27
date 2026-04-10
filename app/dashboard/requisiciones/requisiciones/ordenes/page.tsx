@@ -4,7 +4,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
-  Loader2, Package, Search, Filter,
+  ArrowLeft, Loader2, Package, Search, Filter,
   CheckCircle2, Truck, CreditCard,
   FileText, ChevronRight, Printer, FileDown,
   PackageCheck, Banknote
