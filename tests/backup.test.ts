@@ -84,7 +84,7 @@ describe("backup utilities", () => {
       const date = new Date("2026-03-05T12:00:00Z");
       const folder = date.toISOString().split("T")[0];
 
-      expect(folder).toMatch(/^\\d{4}-\\d{2}-\\d{2}$/);
+      expect(folder).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(folder).toBe("2026-03-05");
     });
 
