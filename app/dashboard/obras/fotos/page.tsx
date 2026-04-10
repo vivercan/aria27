@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from '@/lib/storage';
+import { useDeletePermission } from '@/lib/use-delete-permission';
 import AriaBackButton from '@/components/AriaBackButton';
 import {
   Camera,
@@ -36,6 +37,7 @@ interface LightboxState {
 }
 
 export default function FotosPage() {
+  const { userEmail } = useDeletePermission();
   const [obras, setObras] = useState<Obra[]>([]);
   const [selectedObraId, setSelectedObraId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -175,8 +177,9 @@ export default function FotosPage() {
         await deleteRowAndBlob({
           bucket: 'expedientes',
           table: 'expedientes_archivos',
-          rowId: photoId,
-          blobUrl: photoUrl,
+          id: photoId,
+          userEmail,
+          blobUrlField: 'url',
         });
 
         // Refresh photos

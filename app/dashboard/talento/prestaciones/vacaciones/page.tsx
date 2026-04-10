@@ -134,6 +134,7 @@ export default function VacacionesPage() {
   const crearSolicitud = async () => {
     if (!validar()) return;
 
+    const dias = calcularDias();
     const { error } = await supabase.from("solicitudes_vacaciones").insert({
       employee_id: form.employee_id,
       fecha_inicio: form.fecha_inicio,

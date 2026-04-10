@@ -162,7 +162,7 @@ export default function GastosObraPage() {
       };
 
       if (drawerMode === "create") {
-        let newData = baseData;
+        let newData: typeof baseData & { imagen_url?: string } = baseData;
 
         // Handle file upload
         if (formData.comprobante) {
@@ -183,9 +183,9 @@ export default function GastosObraPage() {
 
         const { error } = await supabase.from("gastos").insert([newData]);
         if (error) throw error;
-        showFlash("success", "Gasto creado exitosamente");
+        showFlash("ok", "Gasto creado exitosamente");
       } else if (drawerMode === "edit" && selectedGasto) {
-        let updateData = baseData;
+        let updateData: typeof baseData & { imagen_url?: string } = baseData;
 
         // Handle file upload for edit
         if (formData.comprobante) {
@@ -206,14 +206,14 @@ export default function GastosObraPage() {
 
         const { error } = await supabase.from("gastos").update(updateData).eq("id", selectedGasto.id);
         if (error) throw error;
-        showFlash("success", "Gasto actualizado exitosamente");
+        showFlash("ok", "Gasto actualizado exitosamente");
       }
 
       await cargarDatos();
       closeDrawer();
     } catch (error) {
       console.error(error);
-      showFlash("error", "Error al guardar el gasto");
+      showFlash("err", "Error al guardar el gasto");
     } finally {
       setSubmitting(false);
     }
@@ -234,12 +234,12 @@ export default function GastosObraPage() {
       }
       const { error } = await supabase.from("gastos").delete().eq("id", id);
       if (error) throw error;
-      showFlash("success", "Gasto eliminado exitosamente");
+      showFlash("ok", "Gasto eliminado exitosamente");
       await cargarDatos();
       closeDrawer();
     } catch (error) {
       console.error(error);
-      showFlash("error", "Error al eliminar el gasto");
+      showFlash("err", "Error al eliminar el gasto");
     } finally {
       setSubmitting(false);
     }
@@ -286,7 +286,7 @@ export default function GastosObraPage() {
 
   return (
     <div className="space-y-6">
-      {flash && <FlashBanner tipo={flash.tipo} mensaje={flash.mensaje} onClose={clearFlash} />}
+      {flash && <FlashBanner msg={flash} />}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -570,7 +570,6 @@ export default function GastosObraPage() {
                     type="file"
                     accept="image/*,.pdf"
                     onChange={e => setFormData({ ...formData, comprobante: e.target.files?.[0] || null })}
-                    disabled={drawerMode === "view"}
                     className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
                   />
                 )}

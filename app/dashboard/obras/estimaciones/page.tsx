@@ -16,6 +16,7 @@ interface Estimacion {
   importe_contrato: number;
   pct_avance: number;
   anticipo_pct: number;
+  amortizacion_anticipo?: number;
   retencion_pct: number;
   monto_retencion: number;
   iva_pct: number;
