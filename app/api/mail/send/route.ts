@@ -3,14 +3,19 @@ import nodemailer from "nodemailer";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-SEND");
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, to, subject, body, user_email } = await req.json();
-
-    if (!email || !password || !to || !subject) {
-      return NextResponse.json({ error: "Campos requeridos faltantes" }, { status: 400 });
+    const { to, subject, body, user_email } = await req.json();
+    const creds = await getZohoCreds();
+    if (!creds) {
+      return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
+    }
+    const { email, password } = creds;
+    if (!to || !subject) {
+      return NextResponse.json({ error: "Campos requeridos faltantes (to, subject)" }, { status: 400 });
     }
 
     // AUTH: Verificar que el email del remitente pertenece a un usuario del sistema

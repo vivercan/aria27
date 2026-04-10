@@ -22,15 +22,6 @@ type Vista = "lista" | "leer" | "componer";
 type Carpeta = "INBOX" | "Sent";
 
 /* ── helpers ── */
-function getZohoCreds(): { email: string; password: string } | null {
-  if (typeof window === "undefined") return null;
-  const raw = sessionStorage.getItem("zohoCreds");
-  if (!raw) return null;
-  try {
-    const { e, p } = JSON.parse(atob(raw));
-    return { email: e, password: p };
-  } catch { return null; }
-}
 
 function fechaCorta(s: string) {
   try {
@@ -68,33 +59,61 @@ export default function InboxPage() {
   const [compBody, setCompBody] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  const creds = getZohoCreds();
-  const sinCreds = !creds;
+  /* ── sesión Zoho (cookie httpOnly) ── */
+  const [zohoEmail, setZohoEmail] = useState<string | null>(null);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPass, setLoginPass] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  const iniciarSesionZoho = async () => {
+    if (!loginEmail.trim() || !loginPass.trim()) return;
+    setLoginLoading(true);
+    setLoginError("");
+    try {
+      const r = await fetch("/api/mail/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: loginEmail.trim(), password: loginPass.trim() }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Error al iniciar sesión");
+      setZohoEmail(data.email);
+      setLoginPass(""); // limpiar password de memoria
+    } catch (e: any) { setLoginError(e.message); }
+    setLoginLoading(false);
+  };
+
+  const cerrarSesionZoho = async () => {
+    await fetch("/api/mail/auth", { method: "DELETE" });
+    setZohoEmail(null);
+    setEmails([]);
+  };
 
   /* ── cargar lista ── */
   const cargarEmails = useCallback(async () => {
-    if (!creds) return;
+    if (!zohoEmail) return;
     setLoading(true);
     setError("");
     try {
       const r = await fetch("/api/mail/inbox", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: creds.email, password: creds.password, folder: carpeta, limit: 40 }),
+        body: JSON.stringify({ folder: carpeta, limit: 40 }),
       });
       const data = await r.json();
+      if (r.status === 401) { setZohoEmail(null); setLoading(false); return; }
       if (!r.ok) throw new Error(data.error || "Error al cargar");
       setEmails(data.emails || []);
       setSeleccionados(new Set());
     } catch (e: any) { setError(e.message); }
     setLoading(false);
-  }, [carpeta]);
+  }, [carpeta, zohoEmail]);
 
   useEffect(() => { cargarEmails(); }, [cargarEmails]);
 
   /* ── abrir email ── */
   const abrirEmail = async (em: EmailHeader) => {
-    if (!creds) return;
     setEmailActual(em);
     setVista("leer");
     setCargandoCuerpo(true);
@@ -102,7 +121,7 @@ export default function InboxPage() {
       const r = await fetch("/api/mail/fetch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: creds.email, password: creds.password, uid: em.uid, folder: carpeta }),
+        body: JSON.stringify({ uid: em.uid, folder: carpeta }),
       });
       const data = await r.json();
       setCuerpo({ body: data.body || "", html: data.html || "" });
@@ -112,14 +131,14 @@ export default function InboxPage() {
 
   /* ── eliminar seleccionados ── */
   const eliminarSeleccionados = async () => {
-    if (!creds || seleccionados.size === 0) return;
+    if (seleccionados.size === 0) return;
     if (!confirm(`¿Eliminar ${seleccionados.size} correo(s)?`)) return;
     try {
       const uids = emails.filter(e => seleccionados.has(e.seqno)).map(e => e.seqno);
       await fetch("/api/mail/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: creds.email, password: creds.password, uids, folder: carpeta }),
+        body: JSON.stringify({ uids, folder: carpeta }),
       });
       cargarEmails();
     } catch (e: any) { setError(e.message); }
@@ -127,16 +146,14 @@ export default function InboxPage() {
 
   /* ── enviar ── */
   const enviarCorreo = async () => {
-    if (!creds || !compTo.trim() || !compSubject.trim()) return;
+    if (!compTo.trim() || !compSubject.trim()) return;
     setEnviando(true);
     try {
       const r = await fetch("/api/mail/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: creds.email, password: creds.password,
           to: compTo.trim(), subject: compSubject.trim(), body: compBody,
-          user_email: creds.email,
         }),
       });
       const data = await r.json();
@@ -174,19 +191,59 @@ export default function InboxPage() {
     });
   };
 
-  /* ═══════════════════════ SIN CREDENCIALES ═══════════════════════ */
-  if (sinCreds) {
+  /* ── auto-detect sesión existente al montar ── */
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/mail/inbox", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder: "INBOX", limit: 1 }),
+        });
+        if (r.ok) {
+          // Cookie activa — extraer email del primer correo o marcar genérico
+          setZohoEmail("active");
+        }
+      } catch { /* sin sesión */ }
+    })();
+  }, []);
+
+  /* ═══════════════════════ PANTALLA LOGIN ZOHO ═══════════════════════ */
+  if (!zohoEmail) {
     return (
-      <div className="h-full overflow-auto p-6">
-        <div className="max-w-lg mx-auto text-center py-20">
-          <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Sesión de correo no activa</h2>
-          <p className="text-slate-400 mb-6">
-            Para usar el correo, cierra sesión y vuelve a iniciar con tus credenciales de Zoho Mail.
-            Las credenciales se guardan solo en tu sesión de navegador.
-          </p>
-          <Link href="/dashboard" className="px-4 py-2 bg-sky-500/20 text-sky-300 rounded-lg hover:bg-sky-500/30 transition-colors">
-            Volver al Dashboard
+      <div className="h-full flex items-center justify-center">
+        <div className="w-full max-w-sm p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+          <div className="text-center">
+            <Mail className="w-10 h-10 text-sky-400 mx-auto mb-2" />
+            <h2 className="text-white font-semibold text-lg">Correo Zoho</h2>
+            <p className="text-slate-400 text-sm mt-1">Ingresa tu cuenta y App Password de Zoho</p>
+          </div>
+          {loginError && (
+            <div className="p-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm text-center">
+              {loginError}
+            </div>
+          )}
+          <input
+            value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
+            placeholder="tu.correo@gcuavante.com" type="email"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-sky-500/50"
+          />
+          <input
+            value={loginPass} onChange={e => setLoginPass(e.target.value)}
+            placeholder="App Password de Zoho" type="password"
+            onKeyDown={e => e.key === "Enter" && iniciarSesionZoho()}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-sky-500/50"
+          />
+          <button
+            onClick={iniciarSesionZoho}
+            disabled={loginLoading || !loginEmail.trim() || !loginPass.trim()}
+            className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+            Iniciar sesión
+          </button>
+          <Link href="/dashboard" className="block text-center text-xs text-slate-500 hover:text-slate-400 transition-colors">
+            ← Volver al dashboard
           </Link>
         </div>
       </div>
@@ -368,7 +425,12 @@ export default function InboxPage() {
       {/* footer */}
       <div className="px-4 md:px-6 py-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-500">
         <span>{emails.length} correo(s) en {carpeta === "INBOX" ? "Recibidos" : "Enviados"}</span>
-        <span>{creds?.email}</span>
+        <div className="flex items-center gap-3">
+          <span>Zoho Mail</span>
+          <button onClick={cerrarSesionZoho} className="text-red-400 hover:text-red-300 transition-colors">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
   );

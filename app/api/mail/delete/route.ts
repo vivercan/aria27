@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
+import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-DELETE");
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, uids, folder = "INBOX" } = await req.json();
-    
-    if (!email || !password || !uids || uids.length === 0) {
-      return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
+    const { uids, folder = "INBOX" } = await req.json();
+    const creds = await getZohoCreds();
+    if (!creds) {
+      return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
+    }
+    const { email, password } = creds;
+    if (!uids || uids.length === 0) {
+      return NextResponse.json({ error: "uids requeridos" }, { status: 400 });
     }
 
     const result = await new Promise<{ success: boolean; deleted: number }>((resolve, reject) => {

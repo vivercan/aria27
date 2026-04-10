@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
+import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-INBOX");
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, folder = "INBOX", limit = 25 } = await req.json();
-    if (!email || !password) {
-      return NextResponse.json({ error: "Credenciales requeridas" }, { status: 400 });
+    const { folder = "INBOX", limit = 25 } = await req.json();
+    const creds = await getZohoCreds();
+    if (!creds) {
+      return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
     }
+    const { email, password } = creds;
     const emails = await new Promise<any[]>((resolve, reject) => {
       const imap = new Imap({
         user: email,

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { simpleParser } from "mailparser";
+import { getZohoCreds } from "../_zoho-creds";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, uid, folder = "INBOX" } = await req.json();
-    if (!email || !password || !uid) {
-      return NextResponse.json({ error: "Faltan parametros" }, { status: 400 });
+    const { uid, folder = "INBOX" } = await req.json();
+    const creds = await getZohoCreds();
+    if (!creds) {
+      return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
+    }
+    const { email, password } = creds;
+    if (!uid) {
+      return NextResponse.json({ error: "uid requerido" }, { status: 400 });
     }
 
     const emailContent = await new Promise<any>((resolve, reject) => {
