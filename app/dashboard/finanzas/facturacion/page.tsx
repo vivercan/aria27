@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle , Loader2 } from "lucide-react";
+import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson, FilePdf } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Factura {
@@ -10,6 +10,7 @@ interface Factura {
   serie: string;
   cliente: string;
   rfc_cliente: string;
+  uuid_fiscal?: string;
   concepto: string;
   subtotal: number;
   iva: number;
@@ -23,16 +24,29 @@ interface Factura {
   created_at: string;
 }
 
+interface FacturaFiles {
+  xml: string | null;
+  pdf: string | null;
+}
+
 export default function FacturacionPage() {
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("TODOS");
+  const [filterTipo, setFilterTipo] = useState("TODOS");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "",
-    metodo_pago: "PUE", uso_cfdi: "G03"
+    metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO"
   });
+
+  // Upload modal state
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFacturaId, setUploadFacturaId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [facturaFiles, setFacturaFiles] = useState<FacturaFiles>({ xml: null, pdf: null });
+  const [uploadedFiles, setUploadedFiles] = useState<Map<string, FacturaFiles>>(new Map());
 
   useEffect(() => { loadData(); }, []);
 
@@ -40,8 +54,152 @@ export default function FacturacionPage() {
     try {
       const { data } = await supabase.from("facturas").select("*").order("created_at", { ascending: false });
       setFacturas(data || []);
+
+      // Load uploaded files for each factura
+      const filesMap = new Map<string, FacturaFiles>();
+      for (const f of data || []) {
+        const files = await loadFacturaFiles(f.id);
+        if (files.xml || files.pdf) {
+          filesMap.set(f.id, files);
+        }
+      }
+      setUploadedFiles(filesMap);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
+  }
+
+  async function loadFacturaFiles(facturaId: string): Promise<FacturaFiles> {
+    try {
+      const { data: xmlFiles } = await supabase.storage
+        .from("finanzas")
+        .list(`facturas/${facturaId}`, { search: ".xml" });
+      const { data: pdfFiles } = await supabase.storage
+        .from("finanzas")
+        .list(`facturas/${facturaId}`, { search: ".pdf" });
+
+      let xmlUrl = null;
+      let pdfUrl = null;
+
+      if (xmlFiles && xmlFiles.length > 0) {
+        const xmlFile = xmlFiles[0];
+        const { data: { publicUrl } } = supabase.storage
+          .from("finanzas")
+          .getPublicUrl(`facturas/${facturaId}/${xmlFile.name}`);
+        xmlUrl = publicUrl;
+      }
+
+      if (pdfFiles && pdfFiles.length > 0) {
+        const pdfFile = pdfFiles[0];
+        const { data: { publicUrl } } = supabase.storage
+          .from("finanzas")
+          .getPublicUrl(`facturas/${facturaId}/${pdfFile.name}`);
+        pdfUrl = publicUrl;
+      }
+
+      return { xml: xmlUrl, pdf: pdfUrl };
+    } catch (e) {
+      console.error("Error loading files:", e);
+      return { xml: null, pdf: null };
+    }
+  }
+
+  function parseXmlCFDI(xmlString: string): Partial<Factura> | null {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+      if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+        console.error("Error parsing XML");
+        return null;
+      }
+
+      // Get root element
+      const comprobante = xmlDoc.documentElement;
+      const uuid = comprobante.getAttribute("Folio") || "";
+      const fecha = comprobante.getAttribute("Fecha") || "";
+      const metodoPago = comprobante.getAttribute("MetodoPago") || "PUE";
+
+      // Get issuer info
+      const emisor = comprobante.getElementsByTagName("cfdi:Emisor")[0];
+      const rfcEmisor = emisor?.getAttribute("Rfc") || "";
+
+      // Get receiver info
+      const receptor = comprobante.getElementsByTagName("cfdi:Receptor")[0];
+      const rfcReceptor = receptor?.getAttribute("Rfc") || "";
+
+      // Get totals
+      const concepto = comprobante.getElementsByTagName("cfdi:Concepto")[0];
+      let subtotal = 0;
+      let iva = 0;
+
+      const conceptos = comprobante.getElementsByTagName("cfdi:Concepto");
+      for (let i = 0; i < conceptos.length; i++) {
+        const importe = parseFloat(conceptos[i].getAttribute("Importe") || "0");
+        subtotal += importe;
+      }
+
+      const impuestos = comprobante.getElementsByTagName("cfdi:Traslado")[0];
+      if (impuestos) {
+        iva = parseFloat(impuestos.getAttribute("Importe") || "0");
+      }
+
+      const total = parseFloat(comprobante.getAttribute("Total") || "0");
+
+      return {
+        uuid_fiscal: uuid,
+        rfc_cliente: rfcReceptor,
+        fecha_emision: fecha.split("T")[0],
+        subtotal: subtotal || 0,
+        iva: iva || 0,
+        total: total || (subtotal + iva),
+        metodo_pago: metodoPago,
+      };
+    } catch (e) {
+      console.error("Error parsing CFDI XML:", e);
+      return null;
+    }
+  }
+
+  async function handleUploadFiles() {
+    if (!uploadFacturaId) return;
+    setUploading(true);
+
+    try {
+      if (facturaFiles.xml) {
+        const xmlContent = await facturaFiles.xml.text();
+        const xmlPath = `facturas/${uploadFacturaId}/${uploadFacturaId}.xml`;
+        const { error: xmlError } = await supabase.storage
+          .from("finanzas")
+          .upload(xmlPath, facturaFiles.xml, { upsert: true });
+
+        if (!xmlError) {
+          const xmlData = parseXmlCFDI(xmlContent);
+          if (xmlData && xmlData.uuid_fiscal) {
+            await supabase.from("facturas").update({ uuid_fiscal: xmlData.uuid_fiscal }).eq("id", uploadFacturaId);
+          }
+        }
+      }
+
+      if (facturaFiles.pdf) {
+        const pdfPath = `facturas/${uploadFacturaId}/${uploadFacturaId}.pdf`;
+        await supabase.storage
+          .from("finanzas")
+          .upload(pdfPath, facturaFiles.pdf, { upsert: true });
+      }
+
+      // Reload files
+      const files = await loadFacturaFiles(uploadFacturaId);
+      setUploadedFiles(prev => new Map(prev).set(uploadFacturaId, files));
+
+      setFacturaFiles({ xml: null, pdf: null });
+      setShowUploadModal(false);
+      alert("Archivos subidos exitosamente");
+    } catch (e) {
+      console.error("Upload error:", e);
+      alert("Error al subir archivos: " + (e instanceof Error ? e.message : "Desconocido"));
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function guardar() {
@@ -70,7 +228,7 @@ export default function FacturacionPage() {
         folio, serie: form.serie, cliente: form.cliente, rfc_cliente: form.rfc_cliente,
         concepto: form.concepto, subtotal: form.subtotal, iva, total,
         status: "EMITIDA", obra_nombre: form.obra_nombre, fecha_emision: new Date().toISOString().split("T")[0],
-        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi,
+        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi, tipo: (form as any).tipo,
       });
       if (!error) return { ok: true };
       // Si fue colisión por unique constraint, reintentar una sola vez.
@@ -83,7 +241,7 @@ export default function FacturacionPage() {
     const r = await intentar(1);
     if (!r.ok) { alert("Error: " + r.err); return; }
     setShowForm(false);
-    setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03" });
+    setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO" });
     loadData();
   }
 
@@ -91,9 +249,10 @@ export default function FacturacionPage() {
   const totalCobrado = facturas.filter(f => f.status === "PAGADA").reduce((s, f) => s + (f.total || 0), 0);
 
   const filtered = facturas.filter(f => {
-    const matchSearch = !search || f.folio?.toLowerCase().includes(search.toLowerCase()) || f.cliente?.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || f.folio?.toLowerCase().includes(search.toLowerCase()) || f.cliente?.toLowerCase().includes(search.toLowerCase()) || f.uuid_fiscal?.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "TODOS" || f.status === filter;
-    return matchSearch && matchFilter;
+    const matchTipo = filterTipo === "TODOS" || (f as any).tipo === filterTipo;
+    return matchSearch && matchFilter && matchTipo;
   });
 
   return (
@@ -154,6 +313,10 @@ export default function FacturacionPage() {
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva Factura</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div><label className="text-xs text-slate-400 mb-1 block">Tipo</label>
+              <select value={(form as any).tipo} onChange={e => setForm({...form, tipo: e.target.value} as any)} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                <option value="INGRESO">INGRESO - Dinero que entra</option><option value="EGRESO">EGRESO - Dinero que sale</option>
+              </select></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Cliente</label>
               <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">RFC</label>
@@ -187,64 +350,189 @@ export default function FacturacionPage() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="space-y-3">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio o cliente..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio, cliente, UUID fiscal..."
             className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
         </div>
-        <div className="flex gap-2">
-          {["TODOS", "EMITIDA", "PAGADA", "CANCELADA"].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
-              {f}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-2">
+            <span className="text-xs text-slate-400 py-2">Estado:</span>
+            {["TODOS", "EMITIDA", "PAGADA", "CANCELADA"].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+                {f}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <span className="text-xs text-slate-400 py-2">Tipo:</span>
+            {["TODOS", "INGRESO", "EGRESO"].map(t => (
+              <button key={t} onClick={() => setFilterTipo(t)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterTipo === t ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
-        <div className="overflow-auto max-h-[500px]">
+        <div className="overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
               <tr className="text-slate-400 text-xs uppercase">
                 <th className="text-left p-3">Folio</th>
                 <th className="text-left p-3">Cliente</th>
                 <th className="text-left p-3">RFC</th>
+                <th className="text-center p-3">UUID Fiscal</th>
                 <th className="text-left p-3">Obra</th>
-                <th className="text-right p-3">Subtotal</th>
-                <th className="text-right p-3">IVA</th>
                 <th className="text-right p-3">Total</th>
+                <th className="text-center p-3">Archivos</th>
                 <th className="text-center p-3">Estado</th>
+                <th className="text-center p-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin facturas registradas</td></tr>
-              ) : filtered.map(f => (
-                <tr key={f.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                  <td className="p-3 text-white font-mono text-xs">{f.folio}</td>
-                  <td className="p-3 text-white">{f.cliente}</td>
-                  <td className="p-3 text-slate-400 font-mono text-xs">{f.rfc_cliente}</td>
-                  <td className="p-3 text-slate-300">{f.obra_nombre || "-"}</td>
-                  <td className="p-3 text-right text-slate-300">${(f.subtotal || 0).toLocaleString()}</td>
-                  <td className="p-3 text-right text-slate-400">${(f.iva || 0).toLocaleString()}</td>
-                  <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
-                  <td className="p-3 text-center">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      f.status === "PAGADA" ? "bg-emerald-500/20 text-emerald-400" :
-                      f.status === "CANCELADA" ? "bg-red-500/20 text-red-400" :
-                      "bg-blue-500/20 text-blue-400"
-                    }`}>{f.status}</span>
-                  </td>
-                </tr>
-              ))}
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin facturas registradas</td></tr>
+              ) : filtered.map(f => {
+                const files = uploadedFiles.get(f.id);
+                return (
+                  <tr key={f.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                    <td className="p-3 text-white font-mono text-xs">{f.folio}</td>
+                    <td className="p-3 text-white text-sm">{f.cliente}</td>
+                    <td className="p-3 text-slate-400 font-mono text-xs">{f.rfc_cliente}</td>
+                    <td className="p-3 text-center text-slate-400 font-mono text-xs">{f.uuid_fiscal ? f.uuid_fiscal.substring(0, 8) + "..." : "-"}</td>
+                    <td className="p-3 text-slate-300 text-sm">{f.obra_nombre || "-"}</td>
+                    <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
+                    <td className="p-3 text-center flex gap-2 justify-center">
+                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" title="XML" />}
+                      {files?.pdf && <FilePdf className="w-4 h-4 text-red-400" title="PDF" />}
+                      {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
+                    </td>
+                    <td className="p-3 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        f.status === "PAGADA" ? "bg-emerald-500/20 text-emerald-400" :
+                        f.status === "CANCELADA" ? "bg-red-500/20 text-red-400" :
+                        "bg-blue-500/20 text-blue-400"
+                      }`}>{f.status}</span>
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => {
+                          setUploadFacturaId(f.id);
+                          setFacturaFiles({ xml: null, pdf: null });
+                          setShowUploadModal(true);
+                        }}
+                        className="px-3 py-1.5 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 mx-auto"
+                      >
+                        <Upload className="w-3 h-3" /> Adjuntar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-white/10 rounded-xl p-6 max-w-md w-full space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Adjuntar Archivos CFDI</h3>
+              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* XML Upload */}
+              <div className="p-4 border border-white/10 rounded-lg hover:bg-white/[0.02] transition-colors">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <FileJson className="w-5 h-5 text-emerald-400" />
+                  <div>
+                    <p className="text-sm font-medium text-white">Archivo XML</p>
+                    <p className="text-xs text-slate-400">Comprobante fiscal digital</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".xml"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) setFacturaFiles(prev => ({ ...prev, xml: file }));
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                {facturaFiles.xml && (
+                  <div className="mt-2 p-2 bg-emerald-500/10 rounded text-xs text-emerald-300 flex items-center justify-between">
+                    <span>{facturaFiles.xml.name}</span>
+                    <button onClick={() => setFacturaFiles(prev => ({ ...prev, xml: null }))} className="hover:text-emerald-200">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* PDF Upload */}
+              <div className="p-4 border border-white/10 rounded-lg hover:bg-white/[0.02] transition-colors">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <FilePdf className="w-5 h-5 text-red-400" />
+                  <div>
+                    <p className="text-sm font-medium text-white">Archivo PDF</p>
+                    <p className="text-xs text-slate-400">Representación visual</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) setFacturaFiles(prev => ({ ...prev, pdf: file }));
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                {facturaFiles.pdf && (
+                  <div className="mt-2 p-2 bg-red-500/10 rounded text-xs text-red-300 flex items-center justify-between">
+                    <span>{facturaFiles.pdf.name}</span>
+                    <button onClick={() => setFacturaFiles(prev => ({ ...prev, pdf: null }))} className="hover:text-red-200">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-300">
+              Nota: Al subir el XML, se extraerá automáticamente el UUID fiscal y otros datos del comprobante.
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleUploadFiles}
+                disabled={!facturaFiles.xml && !facturaFiles.pdf || uploading}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {uploading ? "Subiendo..." : "Subir"}
+              </button>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
