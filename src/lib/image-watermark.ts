@@ -1,8 +1,16 @@
 import sharp from "sharp";
+import fs from "fs";
 import path from "path";
 
-// Ruta a la fuente bundled — funciona en Vercel Lambda donde no hay fonts del sistema
-const FONT_PATH = path.join(process.cwd(), "public", "fonts", "Roboto-Bold.ttf");
+// Cache de la fuente en base64 para embeber en SVG
+let fontBase64Cache: string | null = null;
+function getFontBase64(): string {
+  if (fontBase64Cache) return fontBase64Cache;
+  const fontPath = path.join(process.cwd(), "public", "fonts", "Roboto-Bold.ttf");
+  const fontBuffer = fs.readFileSync(fontPath);
+  fontBase64Cache = fontBuffer.toString("base64");
+  return fontBase64Cache;
+}
 
 /**
  * Estampa un watermark con fecha/hora en el centro de la imagen.
@@ -33,56 +41,29 @@ export async function watermarkWithDate(
   // Tamaño de fuente proporcional (mínimo 20px, máximo 60px)
   const fontSize = Math.max(20, Math.min(60, Math.round(w * 0.04)));
 
-  // Crear texto blanco como imagen con fuente bundled (Roboto-Bold.ttf)
-  const textImage = await sharp({
-    text: {
-      text: `<span foreground="white">${texto}</span>`,
-      fontfile: FONT_PATH,
-      font: "Roboto",
-      rgba: true,
-      dpi: Math.round(fontSize * 5),
-    },
-  })
-    .png()
-    .toBuffer();
+  // Embeber fuente como base64 dentro del SVG — único approach que funciona en Vercel Lambda
+  const fontB64 = getFontBase64();
 
-  // Redimensionar texto para que quepa ~60% del ancho de la imagen
-  const textMeta = await sharp(textImage).metadata();
-  const targetW = Math.round(w * 0.6);
-  const scale = targetW / (textMeta.width || targetW);
-  const resizedText = await sharp(textImage)
-    .resize({ width: targetW })
-    .png()
-    .toBuffer();
-  const resizedMeta = await sharp(resizedText).metadata();
-  const tw = resizedMeta.width || targetW;
-  const th = resizedMeta.height || 30;
-
-  // Crear sombra negra con misma fuente
-  const shadowImage = await sharp({
-    text: {
-      text: `<span foreground="black">${texto}</span>`,
-      fontfile: FONT_PATH,
-      font: "Roboto",
-      rgba: true,
-      dpi: Math.round(fontSize * 5),
-    },
-  })
-    .resize({ width: targetW })
-    .png()
-    .toBuffer();
-
-  // Posición centrada
-  const cx = Math.round((w - tw) / 2);
-  const cy = Math.round((h - th) / 2);
+  const svgOverlay = Buffer.from(`
+<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @font-face {
+        font-family: 'WM';
+        src: url('data:font/truetype;base64,${fontB64}') format('truetype');
+      }
+    </style>
+  </defs>
+  <text x="${w / 2}" y="${h / 2 + 3}" text-anchor="middle" dominant-baseline="central"
+    font-family="WM" font-size="${fontSize}" font-weight="bold"
+    fill="black" opacity="0.6">${texto}</text>
+  <text x="${w / 2}" y="${h / 2}" text-anchor="middle" dominant-baseline="central"
+    font-family="WM" font-size="${fontSize}" font-weight="bold"
+    fill="white" opacity="0.85">${texto}</text>
+</svg>`);
 
   const result = await sharp(imageBuffer)
-    .composite([
-      // Sombra (desplazada 2px)
-      { input: shadowImage, top: cy + 2, left: cx + 2 },
-      // Texto blanco encima
-      { input: resizedText, top: cy, left: cx },
-    ])
+    .composite([{ input: svgOverlay, top: 0, left: 0 }])
     .jpeg({ quality: 85 })
     .toBuffer();
 
