@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson, FileText } from "lucide-react";
+import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Factura {
