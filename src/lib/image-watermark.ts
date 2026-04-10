@@ -29,30 +29,44 @@ export async function watermarkWithDate(
   // Tamaño de fuente proporcional (mínimo 20px, máximo 60px)
   const fontSize = Math.max(20, Math.min(60, Math.round(w * 0.04)));
 
-  // SVG overlay con texto centrado + sombra
-  const svgOverlay = Buffer.from(`
-    <svg width="${w}" height="${h}">
-      <defs>
-        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.8"/>
-        </filter>
-      </defs>
-      <text
-        x="50%" y="50%"
-        text-anchor="middle"
-        dominant-baseline="central"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="${fontSize}"
-        font-weight="bold"
-        fill="white"
-        opacity="0.85"
-        filter="url(#shadow)"
-      >${texto}</text>
-    </svg>
-  `);
+  // Crear texto como imagen separada con sharp.text() (usa Pango, tiene fuentes en Vercel)
+  const textImage = await sharp({
+    text: {
+      text: `<span foreground="white" font="${fontSize}">${texto}</span>`,
+      rgba: true,
+      dpi: 150,
+    },
+  })
+    .png()
+    .toBuffer();
+
+  // Obtener dimensiones del texto renderizado
+  const textMeta = await sharp(textImage).metadata();
+  const tw = textMeta.width || 200;
+  const th = textMeta.height || 30;
+
+  // Crear capa de sombra: texto negro ligeramente desplazado
+  const shadowImage = await sharp({
+    text: {
+      text: `<span foreground="black" font="${fontSize}">${texto}</span>`,
+      rgba: true,
+      dpi: 150,
+    },
+  })
+    .png()
+    .toBuffer();
+
+  // Posición centrada
+  const cx = Math.round((w - tw) / 2);
+  const cy = Math.round((h - th) / 2);
 
   const result = await sharp(imageBuffer)
-    .composite([{ input: svgOverlay, top: 0, left: 0 }])
+    .composite([
+      // Sombra (desplazada 2px abajo y derecha)
+      { input: shadowImage, top: cy + 2, left: cx + 2 },
+      // Texto blanco encima
+      { input: textImage, top: cy, left: cx },
+    ])
     .jpeg({ quality: 85 })
     .toBuffer();
 
