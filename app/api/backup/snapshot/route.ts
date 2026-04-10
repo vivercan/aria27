@@ -256,6 +256,47 @@ export async function GET(req: NextRequest) {
     });
   }
 
+
+  // ===============================================================
+  // FASE 3: Limpieza de backups > 30 días
+  // ===============================================================
+  const RETENTION_DAYS = 30;
+  const cutoffDate = new Date(now.getTime() - RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  const cutoffStr = cutoffDate.toISOString().split("T")[0]; // "2026-03-10"
+  let deletedFolders: string[] = [];
+
+  try {
+    // Listar carpetas de primer nivel en el bucket backups (cada una es YYYY-MM-DD)
+    const { data: topLevel } = await supabase.storage
+      .from("backups")
+      .list("", { limit: 1000 });
+
+    if (topLevel) {
+      const oldFolders = topLevel
+        .filter((item) => !item.id && /^\d{4}-\d{2}-\d{2}$/.test(item.name) && item.name < cutoffStr);
+
+      for (const folder of oldFolders) {
+        try {
+          // Listar todo el contenido recursivo de la carpeta vieja
+          const oldFiles = await listAllFiles(supabase, "backups", folder.name);
+          if (oldFiles.length > 0) {
+            // Supabase Storage remove acepta hasta 1000 paths
+            for (let i = 0; i < oldFiles.length; i += 1000) {
+              const batch = oldFiles.slice(i, i + 1000).map((f) => `${folder.name}/${f}`);
+              await supabase.storage.from("backups").remove(batch);
+            }
+          }
+          deletedFolders.push(folder.name);
+          log.info("backup viejo eliminado", { folder: folder.name, files: oldFiles.length });
+        } catch (delErr: any) {
+          log.error("error eliminando backup viejo", { folder: folder.name, error: delErr?.message });
+        }
+      }
+    }
+  } catch (e: any) {
+    log.error("error en limpieza de backups", { error: e?.message });
+  }
+
   // ===============================================================
   // MANIFEST FINAL
   // ===============================================================
@@ -278,6 +319,11 @@ export async function GET(req: NextRequest) {
       total_errors: storageResults.reduce((s, r) => s + r.errors, 0),
       detalle: storageResults,
     },
+    cleanup: {
+      retention_days: RETENTION_DAYS,
+      cutoff_date: cutoffStr,
+      deleted_folders: deletedFolders,
+    },
   };
 
   await supabase.storage
@@ -296,6 +342,7 @@ export async function GET(req: NextRequest) {
     tablas_err: manifest.tables.fallidas,
     rows: manifest.tables.total_rows,
     storage_files: manifest.storage.total_copied,
+    cleanup_deleted: deletedFolders.length,
   });
 
   return NextResponse.json(manifest);
