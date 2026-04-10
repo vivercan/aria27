@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { validateApiUser } from "@/lib/auth-api";
 
 // Whitelist duro de admins. Unica fuente de verdad server-side para este panel.
-const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
+const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
 
 async function requireAdmin(req: NextRequest): Promise<{ ok: true; email: string } | { ok: false; res: NextResponse }> {
   const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
@@ -10,17 +11,17 @@ async function requireAdmin(req: NextRequest): Promise<{ ok: true; email: string
     return { ok: false, res: NextResponse.json({ error: "x-user-email header requerido" }, { status: 401 }) };
   }
 
+  // Validar que el usuario existe en BD
+  const user = await validateApiUser(email);
+  if (!user) {
+    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+  }
+
+  // Verificar permisos de admin
   if (ADMIN_EMAILS.includes(email)) return { ok: true, email };
 
-  // Segundo camino: rol admin confirmado en BD (no desde localStorage).
-  try {
-    const sb = getSupabaseAdmin();
-    const { data } = await sb.from("Users").select("role").eq("email", email).maybeSingle();
-    const role = (data?.role || "").toString();
-    if (role === "admin" || role === "Administrador") return { ok: true, email };
-  } catch {
-    // fallthrough al 403
-  }
+  // Segundo camino: rol admin confirmado en BD
+  if (user.role === "admin" || user.role === "Administrador") return { ok: true, email };
 
   return { ok: false, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
 }

@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { validateApiUser } from "@/lib/auth-api";
 
-const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
+const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
 
 async function requireAdmin(req: NextRequest) {
   const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
   if (!email) return { ok: false as const, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
+
+  // Validar que el usuario existe en BD
+  const user = await validateApiUser(email);
+  if (!user) return { ok: false as const, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+
+  // Verificar permisos de admin
   if (ADMIN_EMAILS.includes(email)) return { ok: true as const, email };
-  try {
-    const sb = getSupabaseAdmin();
-    const { data } = await sb.from("Users").select("role").eq("email", email).maybeSingle();
-    const role = (data?.role || "").toString();
-    if (role === "admin" || role === "Administrador") return { ok: true as const, email };
-  } catch {}
+  if (user.role === "admin" || user.role === "Administrador") return { ok: true as const, email };
+
   return { ok: false as const, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
 }
 

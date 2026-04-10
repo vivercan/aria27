@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 
 const log = logger("AUTH-API");
@@ -137,4 +138,40 @@ export function extractUserEmail(req: NextRequest, body?: any): string | null {
  */
 export function unauthorizedResponse(message: string = "No autorizado"): NextResponse {
   return NextResponse.json({ error: message }, { status: 403 });
+}
+
+/**
+ * Valida que un usuario existe en la tabla Users sin cambiar la lógica de roles.
+ * Este helper es para backend validation de API requests que usan x-user-email header.
+ * @param userEmail - Email del usuario a validar
+ * @returns Usuario {email, role} si existe, null si no
+ */
+export async function validateApiUser(
+  userEmail: string | null | undefined
+): Promise<{ email: string; role: string } | null> {
+  if (!userEmail) {
+    return null;
+  }
+
+  if (!isValidEmail(userEmail)) {
+    return null;
+  }
+
+  try {
+    const sb = getSupabaseAdmin();
+    const { data: user, error } = await sb
+      .from("Users")
+      .select("email,role")
+      .eq("email", userEmail)
+      .maybeSingle();
+
+    if (error || !user) {
+      return null;
+    }
+
+    return { email: user.email, role: user.role };
+  } catch (err) {
+    log.error("validateApiUser: error al consultar BD", { email: userEmail, error: err });
+    return null;
+  }
 }
