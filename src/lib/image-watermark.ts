@@ -1,4 +1,8 @@
 import sharp from "sharp";
+import path from "path";
+
+// Ruta a la fuente bundled — funciona en Vercel Lambda donde no hay fonts del sistema
+const FONT_PATH = path.join(process.cwd(), "public", "fonts", "Roboto-Bold.ttf");
 
 /**
  * Estampa un watermark con fecha/hora en el centro de la imagen.
@@ -29,30 +33,42 @@ export async function watermarkWithDate(
   // Tamaño de fuente proporcional (mínimo 20px, máximo 60px)
   const fontSize = Math.max(20, Math.min(60, Math.round(w * 0.04)));
 
-  // Crear texto como imagen separada con sharp.text() (usa Pango, tiene fuentes en Vercel)
+  // Crear texto blanco como imagen con fuente bundled (Roboto-Bold.ttf)
   const textImage = await sharp({
     text: {
-      text: `<span foreground="white" font="${fontSize}">${texto}</span>`,
+      text: `<span foreground="white">${texto}</span>`,
+      fontfile: FONT_PATH,
+      font: "Roboto",
       rgba: true,
-      dpi: 150,
+      dpi: Math.round(fontSize * 5),
     },
   })
     .png()
     .toBuffer();
 
-  // Obtener dimensiones del texto renderizado
+  // Redimensionar texto para que quepa ~60% del ancho de la imagen
   const textMeta = await sharp(textImage).metadata();
-  const tw = textMeta.width || 200;
-  const th = textMeta.height || 30;
+  const targetW = Math.round(w * 0.6);
+  const scale = targetW / (textMeta.width || targetW);
+  const resizedText = await sharp(textImage)
+    .resize({ width: targetW })
+    .png()
+    .toBuffer();
+  const resizedMeta = await sharp(resizedText).metadata();
+  const tw = resizedMeta.width || targetW;
+  const th = resizedMeta.height || 30;
 
-  // Crear capa de sombra: texto negro ligeramente desplazado
+  // Crear sombra negra con misma fuente
   const shadowImage = await sharp({
     text: {
-      text: `<span foreground="black" font="${fontSize}">${texto}</span>`,
+      text: `<span foreground="black">${texto}</span>`,
+      fontfile: FONT_PATH,
+      font: "Roboto",
       rgba: true,
-      dpi: 150,
+      dpi: Math.round(fontSize * 5),
     },
   })
+    .resize({ width: targetW })
     .png()
     .toBuffer();
 
@@ -62,10 +78,10 @@ export async function watermarkWithDate(
 
   const result = await sharp(imageBuffer)
     .composite([
-      // Sombra (desplazada 2px abajo y derecha)
+      // Sombra (desplazada 2px)
       { input: shadowImage, top: cy + 2, left: cx + 2 },
       // Texto blanco encima
-      { input: textImage, top: cy, left: cx },
+      { input: resizedText, top: cy, left: cx },
     ])
     .jpeg({ quality: 85 })
     .toBuffer();
