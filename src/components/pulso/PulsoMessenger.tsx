@@ -16,6 +16,9 @@ interface Mensaje {
   sender_email: string;
   contenido: string;
   created_at: string;
+  tipo?: string;
+  archivo_url?: string;
+  archivo_nombre?: string;
 }
 
 interface Conversacion {
@@ -50,6 +53,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
   const [showEmojis, setShowEmojis] = useState(false);
   const [nudgeAnimation, setNudgeAnimation] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [subiendoArchivo, setSubiendoArchivo] = useState(false);
   const previousOnlineRef = useRef<Set<string>>(new Set<string>());
   const nudgeAudioRef = useRef<HTMLAudioElement | null>(null);
   const conexionAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -195,6 +199,36 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       notificarEscribiendo(false);
       cargarMensajes(convActiva.id);
     } catch (e) { console.error(e); }
+  };
+
+  const enviarArchivo = async (file: File) => {
+    if (!convActiva || subiendoArchivo) return;
+    if (file.size > 10 * 1024 * 1024) { alert("Archivo muy grande (máx 10 MB)"); return; }
+    setSubiendoArchivo(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("sender_email", userEmail);
+      fd.append("conversacion_id", convActiva.id);
+      const res = await fetch("/api/pulso/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al subir");
+      // Crear mensaje con archivo
+      await fetch("/api/pulso/mensajes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversacion_id: convActiva.id,
+          sender_email: userEmail,
+          contenido: `📎 ${file.name}`,
+          tipo: file.type.startsWith("image/") ? "imagen" : "archivo",
+          archivo_url: data.archivo_url,
+          archivo_nombre: data.archivo_nombre,
+        })
+      });
+      cargarMensajes(convActiva.id);
+    } catch (e: any) { alert("Error al subir: " + e.message); }
+    setSubiendoArchivo(false);
   };
 
   const handleInputChange = (value: string) => {
@@ -475,7 +509,18 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
                         {msg.sender_email === userEmail ? "Yo" : getNombre(msg.sender_email)} <span style={{ fontWeight: 400, color: "#999" }}>{formatTime(msg.created_at)}</span>
                       </p>
                       <div style={{ padding: "6px 10px", borderRadius: "4px", background: msg.sender_email === userEmail ? "#cce5ff" : "#f0f0f0", border: msg.sender_email === userEmail ? "1px solid #99caff" : "1px solid #ddd" }}>
-                        <p style={{ margin: 0, fontSize: "12px", color: "#333" }}>{msg.contenido}</p>
+                        {msg.tipo === "imagen" && msg.archivo_url ? (
+                          <a href={msg.archivo_url} target="_blank" rel="noopener noreferrer">
+                            <img src={msg.archivo_url} alt={msg.archivo_nombre || "imagen"} style={{ maxWidth: "180px", maxHeight: "180px", borderRadius: "4px", display: "block", marginBottom: "4px" }} />
+                          </a>
+                        ) : msg.tipo === "archivo" && msg.archivo_url ? (
+                          <a href={msg.archivo_url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0078d7", fontSize: "12px", textDecoration: "none" }}>
+                            <Paperclip size={14} />
+                            <span style={{ textDecoration: "underline" }}>{msg.archivo_nombre || "Archivo"}</span>
+                          </a>
+                        ) : (
+                          <p style={{ margin: 0, fontSize: "12px", color: "#333" }}>{msg.contenido}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -500,9 +545,9 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
                 <button onClick={enviarNudge} style={{ padding: "8px", background: "#fff3cd", border: "1px solid #ffc107", borderRadius: "4px", cursor: "pointer" }} title="Zumbido">
                   <Phone size={16} color="#d39e00" />
                 </button>
-                <label style={{ padding: "8px", background: "#d4edda", border: "1px solid #28a745", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center" }} title="Adjuntar archivo">
-                  <Paperclip size={16} color="#28a745" />
-                  <input type="file" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && alert("Archivo: " + e.target.files[0].name)} />
+                <label style={{ padding: "8px", background: subiendoArchivo ? "#f0f0f0" : "#d4edda", border: "1px solid #28a745", borderRadius: "4px", cursor: subiendoArchivo ? "wait" : "pointer", display: "flex", alignItems: "center", opacity: subiendoArchivo ? 0.5 : 1 }} title={subiendoArchivo ? "Subiendo..." : "Adjuntar archivo"}>
+                  {subiendoArchivo ? <Clock size={16} color="#666" /> : <Paperclip size={16} color="#28a745" />}
+                  <input type="file" style={{ display: "none" }} disabled={subiendoArchivo} accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" onChange={(e) => { if (e.target.files?.[0]) { enviarArchivo(e.target.files[0]); e.target.value = ""; } }} />
                 </label>
                 <input type="text" value={nuevoMsg} onChange={e => handleInputChange(e.target.value)} onKeyDown={e => e.key === "Enter" && enviarMensaje()} placeholder="Escribe un mensaje..." style={{ flex: 1, padding: "8px 10px", border: "2px solid #0078d7", borderRadius: "4px", fontSize: "12px", outline: "none", background: "#fff", color: "#1a1a1a" }} />
                 <button onClick={enviarMensaje} disabled={!nuevoMsg.trim()} style={{ padding: "8px 12px", background: nuevoMsg.trim() ? "#0078d7" : "#ccc", border: "none", borderRadius: "4px", cursor: nuevoMsg.trim() ? "pointer" : "default" }}>
