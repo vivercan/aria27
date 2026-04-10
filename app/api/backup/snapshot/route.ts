@@ -12,6 +12,7 @@ const log = logger("BACKUP-SNAPSHOT");
 // ---------------------------------------------------------------------------
 
 const PAGE_SIZE = 1000; // Supabase PostgREST max por request
+const CHUNK_MAX_BYTES = 20 * 1024 * 1024; // 20 MB max por archivo en Storage
 const SKIP_BUCKETS = ["backups"]; // No respaldar el propio bucket de backups
 const SKIP_TABLES = ["schema_migrations", "supabase_migrations"]; // Sistema
 
@@ -133,20 +134,47 @@ export async function GET(req: NextRequest) {
         }
       }
 
+      // Subir en chunks si el JSON es muy grande (>20 MB)
       const json = JSON.stringify(allData);
-      const path = `${dateFolder}/tables/${tabla}.json`;
-      const { error: upErr } = await supabase.storage
-        .from("backups")
-        .upload(path, new Blob([json], { type: "application/json" }), {
-          upsert: true,
-        });
+      let uploadError: string | undefined;
+
+      if (json.length <= CHUNK_MAX_BYTES) {
+        // Tabla cabe en un solo archivo
+        const path = `${dateFolder}/tables/${tabla}.json`;
+        const { error: upErr } = await supabase.storage
+          .from("backups")
+          .upload(path, new Blob([json], { type: "application/json" }), {
+            upsert: true,
+          });
+        if (upErr) uploadError = upErr.message;
+      } else {
+        // Partir en chunks de CHUNK_MAX_BYTES filas aprox
+        const rowsPerChunk = Math.floor(
+          (allData.length * CHUNK_MAX_BYTES) / json.length
+        );
+        const chunks = Math.ceil(allData.length / rowsPerChunk);
+        const errors: string[] = [];
+        for (let c = 0; c < chunks; c++) {
+          const slice = allData.slice(c * rowsPerChunk, (c + 1) * rowsPerChunk);
+          const chunkJson = JSON.stringify(slice);
+          const path = `${dateFolder}/tables/${tabla}_part${String(c + 1).padStart(3, "0")}.json`;
+          const { error: upErr } = await supabase.storage
+            .from("backups")
+            .upload(path, new Blob([chunkJson], { type: "application/json" }), {
+              upsert: true,
+            });
+          if (upErr) errors.push(`part${c + 1}:${upErr.message}`);
+        }
+        if (errors.length > 0) uploadError = errors.join("; ");
+        log.info("tabla chunked", { tabla, chunks, rowsPerChunk });
+      }
 
       tableResults.push({
         tabla,
         rows: allData.length,
         pages: Math.ceil(totalRows / PAGE_SIZE),
         size: json.length,
-        ...(upErr ? { error: upErr.message } : {}),
+        ...(uploadError ? { error: uploadError } : {}),
       });
     } catch (e: any) {
       tableResults.push({
