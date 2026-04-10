@@ -59,7 +59,7 @@ export default function GastosObraPage() {
 
   // Modals and alerts
   const [confirmModal, setConfirmModal] = useState({ open: false, id: "", titulo: "" });
-  const { flash, showFlash, clearFlash } = useFlashMessage();
+  const { msg: flash, flash: showFlash, clear: clearFlash } = useFlashMessage();
   const [obrasData, setObrasData] = useState<Obra[]>([]);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function GastosObraPage() {
           setUploadingFile(true);
           const fileName = formData.comprobante.name;
           const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } as unknown as File });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")
@@ -192,7 +192,7 @@ export default function GastosObraPage() {
           setUploadingFile(true);
           const fileName = formData.comprobante.name;
           const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } as unknown as File });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")

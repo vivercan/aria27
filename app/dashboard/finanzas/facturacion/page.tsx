@@ -29,6 +29,11 @@ interface FacturaFiles {
   pdf: string | null;
 }
 
+interface FacturaUploadFiles {
+  xml: File | null;
+  pdf: File | null;
+}
+
 export default function FacturacionPage() {
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +51,7 @@ export default function FacturacionPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFacturaId, setUploadFacturaId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [facturaFiles, setFacturaFiles] = useState<FacturaFiles>({ xml: null, pdf: null });
+  const [facturaFiles, setFacturaFiles] = useState<FacturaUploadFiles>({ xml: null, pdf: null });
   const [uploadedFiles, setUploadedFiles] = useState<Map<string, FacturaFiles>>(new Map());
 
   useEffect(() => { loadData(); }, []);
@@ -419,8 +424,8 @@ export default function FacturacionPage() {
                     <td className="p-3 text-slate-300 text-sm">{f.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
-                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" title="XML" />}
-                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" title="PDF" />}
+                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" />}
+                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" />}
                       {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">

@@ -9,7 +9,7 @@
 // - Contador de fallos por email para detección de brute-force
 
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+// Removed client import - use getSupabaseAdmin instead
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 
@@ -78,7 +78,9 @@ export async function validateApiAuth(
     return { authorized: false, error: "Demasiados intentos fallidos. Intenta en unos minutos." };
   }
 
-  const { data: user, error } = await supabase
+  const sb = getSupabaseAdmin();
+  if (!sb) return { authorized: false, error: "Servicio no disponible" };
+  const { data: user, error } = await sb
     .from("Users")
     .select("email, role, name, phone")
     .eq("email", userEmail)
