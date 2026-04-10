@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson, FilePdf } from "lucide-react";
+import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson, FileText } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Factura {
@@ -420,7 +420,7 @@ export default function FacturacionPage() {
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
                       {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" title="XML" />}
-                      {files?.pdf && <FilePdf className="w-4 h-4 text-red-400" title="PDF" />}
+                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" title="PDF" />}
                       {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
@@ -493,7 +493,7 @@ export default function FacturacionPage() {
               {/* PDF Upload */}
               <div className="p-4 border border-white/10 rounded-lg hover:bg-white/[0.02] transition-colors">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <FilePdf className="w-5 h-5 text-red-400" />
+                  <FileText className="w-5 h-5 text-red-400" />
                   <div>
                     <p className="text-sm font-medium text-white">Archivo PDF</p>
                     <p className="text-xs text-slate-400">Representación visual</p>
