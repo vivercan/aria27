@@ -1,21 +1,24 @@
 import sharp from "sharp";
-import fs from "fs";
+import { createCanvas, GlobalFonts } from "@napi-rs/canvas";
 import path from "path";
+import fs from "fs";
 
-// Cache de la fuente en base64 para embeber en SVG
-let fontBase64Cache: string | null = null;
-function getFontBase64(): string {
-  if (fontBase64Cache) return fontBase64Cache;
+// Registrar fuente bundled una sola vez
+let fontRegistered = false;
+function ensureFont() {
+  if (fontRegistered) return;
   const fontPath = path.join(process.cwd(), "public", "fonts", "Roboto-Bold.ttf");
-  const fontBuffer = fs.readFileSync(fontPath);
-  fontBase64Cache = fontBuffer.toString("base64");
-  return fontBase64Cache;
+  if (fs.existsSync(fontPath)) {
+    GlobalFonts.registerFromPath(fontPath, "Roboto");
+  }
+  fontRegistered = true;
 }
 
 /**
  * Estampa un watermark con fecha/hora en el centro de la imagen.
  * Formato: "09/Abr/2026 18:15 hrs"
  * Texto blanco con sombra negra para visibilidad en cualquier fondo.
+ * Usa @napi-rs/canvas para renderizar texto (funciona en Vercel Lambda).
  */
 export async function watermarkWithDate(
   imageBuffer: Buffer,
@@ -41,29 +44,32 @@ export async function watermarkWithDate(
   // Tamaño de fuente proporcional (mínimo 20px, máximo 60px)
   const fontSize = Math.max(20, Math.min(60, Math.round(w * 0.04)));
 
-  // Embeber fuente como base64 dentro del SVG — único approach que funciona en Vercel Lambda
-  const fontB64 = getFontBase64();
+  // Registrar fuente
+  ensureFont();
 
-  const svgOverlay = Buffer.from(`
-<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      @font-face {
-        font-family: 'WM';
-        src: url('data:font/truetype;base64,${fontB64}') format('truetype');
-      }
-    </style>
-  </defs>
-  <text x="${w / 2}" y="${h / 2 + 3}" text-anchor="middle" dominant-baseline="central"
-    font-family="WM" font-size="${fontSize}" font-weight="bold"
-    fill="black" opacity="0.6">${texto}</text>
-  <text x="${w / 2}" y="${h / 2}" text-anchor="middle" dominant-baseline="central"
-    font-family="WM" font-size="${fontSize}" font-weight="bold"
-    fill="white" opacity="0.85">${texto}</text>
-</svg>`);
+  // Crear overlay con @napi-rs/canvas
+  const canvas = createCanvas(w, h);
+  const ctx = canvas.getContext("2d");
 
+  // Configurar texto
+  ctx.font = `bold ${fontSize}px Roboto, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Sombra negra (desplazada 2px)
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillText(texto, w / 2 + 2, h / 2 + 2);
+
+  // Texto blanco principal
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText(texto, w / 2, h / 2);
+
+  // Convertir canvas a PNG buffer
+  const overlayPng = canvas.toBuffer("image/png");
+
+  // Componer sobre la imagen original
   const result = await sharp(imageBuffer)
-    .composite([{ input: svgOverlay, top: 0, left: 0 }])
+    .composite([{ input: overlayPng, top: 0, left: 0 }])
     .jpeg({ quality: 85 })
     .toBuffer();
 
