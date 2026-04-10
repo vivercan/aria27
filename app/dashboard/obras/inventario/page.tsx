@@ -113,6 +113,9 @@ export default function InventarioObraPage() {
   // Modal Ver Foto
   const [fotoAmpliadaUrl, setFotoAmpliadaUrl] = useState<string | null>(null);
 
+  // Validación de formularios
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const fileInputNuevoRef = useRef<HTMLInputElement>(null);
   const fileInputAjusteRef = useRef<HTMLInputElement>(null);
   const fileInputEntradaRef = useRef<HTMLInputElement>(null);
@@ -209,6 +212,14 @@ export default function InventarioObraPage() {
   };
 
   // ====== NUEVO MATERIAL ======
+  const validarNuevoMaterial = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!nuevoNombre?.trim()) errors.nuevoNombre = "Nombre del material es obligatorio";
+    if (nuevoCantidad <= 0) errors.nuevoCantidad = "Cantidad debe ser mayor a 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const abrirNuevoMaterial = () => {
     setShowNuevo(true);
     setNuevoNombre("");
@@ -219,6 +230,7 @@ export default function InventarioObraPage() {
     setNuevoProductoId(null);
     setValidacionResult(null);
     setSugerencias([]);
+    setFormErrors({});
     loadCatalogo();
   };
 
@@ -259,7 +271,8 @@ export default function InventarioObraPage() {
   };
 
   const guardarNuevoMaterial = async () => {
-    if (!obraSeleccionada || !nuevoNombre.trim() || nuevoCantidad <= 0) return;
+    if (!obraSeleccionada) { alert("Selecciona una obra"); return; }
+    if (!validarNuevoMaterial()) return;
     setGuardando(true);
 
     try {
@@ -855,6 +868,7 @@ export default function InventarioObraPage() {
                 placeholder="Ej: Arena sílica saco 25kg"
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
               />
+              {formErrors.nuevoNombre && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoNombre}</p>}
               {sugerencias.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-slate-700 border border-white/10 rounded-lg max-h-48 overflow-y-auto">
                   {sugerencias.map((s) => (
@@ -931,6 +945,7 @@ export default function InventarioObraPage() {
                   onChange={(e) => setNuevoCantidad(Number(e.target.value))}
                   className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 />
+                {formErrors.nuevoCantidad && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoCantidad}</p>}
               </div>
             </div>
 

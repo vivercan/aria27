@@ -38,6 +38,7 @@ export default function MovimientosBancariosPage() {
   const [matchModal, setMatchModal] = useState<Movimiento | null>(null);
   const [cobrosSugeridos, setCobrosSugeridos] = useState<Cobro[]>([]);
   const [ocsSugeridas, setOcsSugeridas] = useState<OC[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { loadAll(); }, []);
 
@@ -52,8 +53,16 @@ export default function MovimientosBancariosPage() {
     setLoading(false);
   }
 
+  function validar(): boolean {
+    const errors: Record<string, string> = {};
+    if (!form.cuenta_id) errors.cuenta_id = "Selecciona una cuenta";
+    if (!form.monto || form.monto <= 0) errors.monto = "Monto debe ser mayor a 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
   async function crearMovimiento() {
-    if (!form.cuenta_id || !form.monto) { alert("Cuenta y monto son requeridos"); return; }
+    if (!validar()) return;
     const cuenta = cuentas.find(c => c.id === form.cuenta_id);
     const payload = {
       cuenta_id: form.cuenta_id,
@@ -170,11 +179,12 @@ export default function MovimientosBancariosPage() {
           <h3 className="text-lg font-semibold text-white">Alta de movimiento</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400">Cuenta</label>
+              <label className="text-xs text-slate-400">Cuenta *</label>
               <select value={form.cuenta_id} onChange={e => setForm({ ...form, cuenta_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
                 <option value="">Selecciona...</option>
                 {cuentas.map(c => <option key={c.id} value={c.id}>{c.banco} · {c.cuenta} ({c.empresa})</option>)}
               </select>
+              {formErrors.cuenta_id && <p className="text-red-400 text-xs mt-1">{formErrors.cuenta_id}</p>}
             </div>
             <div>
               <label className="text-xs text-slate-400">Fecha</label>
@@ -188,8 +198,9 @@ export default function MovimientosBancariosPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400">Monto</label>
+              <label className="text-xs text-slate-400">Monto *</label>
               <input type="number" value={form.monto} onChange={e => setForm({ ...form, monto: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
             </div>
             <div className="md:col-span-2">
               <label className="text-xs text-slate-400">Concepto</label>

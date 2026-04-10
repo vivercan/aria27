@@ -51,11 +51,46 @@ export default function ConcretoRemisionesPage() {
   const [formCil, setFormCil] = useState<any>(EMPTY_CIL);
   const [search, setSearch] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [formRemErrors, setFormRemErrors] = useState<Record<string, string>>({});
+  const [formCilErrors, setFormCilErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (typeof window !== "undefined") setUserEmail(localStorage.getItem("userEmail") || "");
     cargar();
   }, []);
+
+  const validarRem = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formRem.obra || !formRem.obra.trim()) {
+      errors.obra = "Obra es requerida";
+    }
+    if (!formRem.numero_remision || !formRem.numero_remision.trim()) {
+      errors.numero_remision = "Número de remisión es requerido";
+    }
+    if (!formRem.fecha_colado) {
+      errors.fecha_colado = "Fecha de colado es requerida";
+    }
+    if (!formRem.m3 || isNaN(Number(formRem.m3)) || Number(formRem.m3) <= 0) {
+      errors.m3 = "m³ debe ser mayor a 0";
+    }
+    setFormRemErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validarCil = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formCil.numero_cilindro || !formCil.numero_cilindro.trim()) {
+      errors.numero_cilindro = "Número de cilindro es requerido";
+    }
+    if (!formCil.fecha_prueba) {
+      errors.fecha_prueba = "Fecha de prueba es requerida";
+    }
+    if (!formCil.resistencia_alcanzada || isNaN(Number(formCil.resistencia_alcanzada)) || Number(formCil.resistencia_alcanzada) <= 0) {
+      errors.resistencia_alcanzada = "Resistencia debe ser mayor a 0";
+    }
+    setFormCilErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   async function cargar() {
     setLoading(true);
@@ -70,7 +105,7 @@ export default function ConcretoRemisionesPage() {
   }
 
   async function guardarRem() {
-    if (!formRem.obra || !formRem.numero_remision || !formRem.fecha_colado || !formRem.m3) { alert("Obra, número remisión, fecha colado y m³ son requeridos"); return; }
+    if (!validarRem()) { alert("Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const m3 = Number(formRem.m3) || 0;
     const cu = Number(formRem.costo_unitario) || 0;
@@ -106,7 +141,7 @@ export default function ConcretoRemisionesPage() {
   }
 
   async function guardarCil() {
-    if (!remActiva || !formCil.numero_cilindro || !formCil.fecha_prueba || !formCil.resistencia_alcanzada) { alert("Número, fecha prueba y resistencia son requeridos"); return; }
+    if (!remActiva || !validarCil()) { alert("Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const payload = {
       remision_id: remActiva.id,
@@ -246,13 +281,13 @@ export default function ConcretoRemisionesPage() {
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400 mb-1 block">Obra *</label><select value={formRem.obra} onChange={e => setFormRem({ ...formRem, obra: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500"><option value="">Seleccionar...</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Número remisión *</label><input type="text" value={formRem.numero_remision} onChange={e => setFormRem({ ...formRem, numero_remision: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-sky-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Obra *</label><select value={formRem.obra} onChange={e => setFormRem({ ...formRem, obra: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500"><option value="">Seleccionar...</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>{formRemErrors.obra && <p className="text-red-400 text-xs mt-1">{formRemErrors.obra}</p>}</div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Número remisión *</label><input type="text" value={formRem.numero_remision} onChange={e => setFormRem({ ...formRem, numero_remision: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-sky-500" />{formRemErrors.numero_remision && <p className="text-red-400 text-xs mt-1">{formRemErrors.numero_remision}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Proveedor</label><input type="text" value={formRem.proveedor} onChange={e => setFormRem({ ...formRem, proveedor: e.target.value })} placeholder="CEMEX, HOLCIM..." className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Fecha colado *</label><input type="date" value={formRem.fecha_colado} onChange={e => setFormRem({ ...formRem, fecha_colado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha colado *</label><input type="date" value={formRem.fecha_colado} onChange={e => setFormRem({ ...formRem, fecha_colado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" />{formRemErrors.fecha_colado && <p className="text-red-400 text-xs mt-1">{formRemErrors.fecha_colado}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Resistencia f'c</label><input type="text" value={formRem.resistencia_fc} onChange={e => setFormRem({ ...formRem, resistencia_fc: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-sky-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Revenimiento (cm)</label><input type="number" step="0.5" value={formRem.revenimiento} onChange={e => setFormRem({ ...formRem, revenimiento: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">m³ *</label><input type="number" step="0.5" value={formRem.m3} onChange={e => setFormRem({ ...formRem, m3: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">m³ *</label><input type="number" step="0.5" value={formRem.m3} onChange={e => setFormRem({ ...formRem, m3: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" />{formRemErrors.m3 && <p className="text-red-400 text-xs mt-1">{formRemErrors.m3}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Elemento</label><input type="text" value={formRem.elemento} onChange={e => setFormRem({ ...formRem, elemento: e.target.value })} placeholder="Losa N1, Castillo C-1, Zapata Z-3..." className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Temperatura (°C)</label><input type="number" value={formRem.temperatura} onChange={e => setFormRem({ ...formRem, temperatura: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Costo por m³ ($)</label><input type="number" value={formRem.costo_unitario} onChange={e => setFormRem({ ...formRem, costo_unitario: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
@@ -280,10 +315,10 @@ export default function ConcretoRemisionesPage() {
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400 mb-1 block">N° cilindro *</label><input type="text" value={formCil.numero_cilindro} onChange={e => setFormCil({ ...formCil, numero_cilindro: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-sky-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">N° cilindro *</label><input type="text" value={formCil.numero_cilindro} onChange={e => setFormCil({ ...formCil, numero_cilindro: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-sky-500" />{formCilErrors.numero_cilindro && <p className="text-red-400 text-xs mt-1">{formCilErrors.numero_cilindro}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Edad (días)</label><select value={formCil.dias_edad} onChange={e => setFormCil({ ...formCil, dias_edad: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500">{[3, 7, 14, 28, 56].map(d => <option key={d} value={d}>{d} días</option>)}</select></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Fecha prueba *</label><input type="date" value={formCil.fecha_prueba} onChange={e => setFormCil({ ...formCil, fecha_prueba: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Resistencia (kg/cm²) *</label><input type="number" value={formCil.resistencia_alcanzada} onChange={e => setFormCil({ ...formCil, resistencia_alcanzada: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha prueba *</label><input type="date" value={formCil.fecha_prueba} onChange={e => setFormCil({ ...formCil, fecha_prueba: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" />{formCilErrors.fecha_prueba && <p className="text-red-400 text-xs mt-1">{formCilErrors.fecha_prueba}</p>}</div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Resistencia (kg/cm²) *</label><input type="number" value={formCil.resistencia_alcanzada} onChange={e => setFormCil({ ...formCil, resistencia_alcanzada: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" />{formCilErrors.resistencia_alcanzada && <p className="text-red-400 text-xs mt-1">{formCilErrors.resistencia_alcanzada}</p>}</div>
                 <div className="col-span-2"><label className="text-sm text-slate-400 mb-1 block">Laboratorio</label><input type="text" value={formCil.laboratorio} onChange={e => setFormCil({ ...formCil, laboratorio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500" /></div>
                 <div className="col-span-2 flex items-center gap-3"><input type="checkbox" id="cumple" checked={formCil.cumple} onChange={e => setFormCil({ ...formCil, cumple: e.target.checked })} className="w-5 h-5 accent-emerald-500" /><label htmlFor="cumple" className="text-white font-medium">Cumple con f'c especificado</label></div>
               </div>

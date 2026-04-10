@@ -78,6 +78,7 @@ export default function EstimacionesPage() {
     notas: "",
     partidas: [] as FormPartida[],
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
@@ -133,23 +134,18 @@ export default function EstimacionesPage() {
     setForm({ ...form, partidas: newPartidas });
   }
 
+  function validar(): boolean {
+    const errors: Record<string, string> = {};
+    if (!form.obra_id?.trim()) errors.obra_id = "Selecciona una obra";
+    if (!form.periodo_inicio) errors.periodo_inicio = "Fecha inicio es requerida";
+    if (!form.periodo_fin) errors.periodo_fin = "Fecha fin es requerida";
+    if (form.partidas.length === 0) errors.partidas = "Agrega al menos una partida";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
   async function guardar() {
-    if (!form.obra_id?.trim()) {
-      alert("Selecciona una obra");
-      return;
-    }
-    if (!form.periodo_inicio) {
-      alert("Periodo inicio es requerido");
-      return;
-    }
-    if (!form.periodo_fin) {
-      alert("Periodo fin es requerido");
-      return;
-    }
-    if (form.partidas.length === 0) {
-      alert("Agrega al menos una partida");
-      return;
-    }
+    if (!validar()) return;
 
     // Validate partidas
     for (let i = 0; i < form.partidas.length; i++) {
@@ -389,6 +385,7 @@ export default function EstimacionesPage() {
                   </option>
                 ))}
               </select>
+              {formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}
             </div>
 
             <div>
@@ -399,6 +396,7 @@ export default function EstimacionesPage() {
                 onChange={(e) => setForm({ ...form, periodo_inicio: e.target.value })}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
               />
+              {formErrors.periodo_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.periodo_inicio}</p>}
             </div>
 
             <div>
@@ -409,6 +407,7 @@ export default function EstimacionesPage() {
                 onChange={(e) => setForm({ ...form, periodo_fin: e.target.value })}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
               />
+              {formErrors.periodo_fin && <p className="text-red-400 text-xs mt-1">{formErrors.periodo_fin}</p>}
             </div>
 
             <div>
@@ -463,7 +462,7 @@ export default function EstimacionesPage() {
           {/* Partidas */}
           <div className="border-t border-white/10 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium text-white">Partidas de la Estimación</h4>
+              <h4 className="text-sm font-medium text-white">Partidas de la Estimación {formErrors.partidas && <span className="text-red-400 text-xs ml-2">({formErrors.partidas})</span>}</h4>
               <button
                 onClick={addPartida}
                 className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium hover:bg-emerald-500/30"

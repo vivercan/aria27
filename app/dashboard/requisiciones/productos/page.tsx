@@ -49,6 +49,7 @@ export default function ProductosPage() {
   const [savedCount,setSavedCount]=useState(0);
   const [parseError,setParseError]=useState("");
   const fileRef=useRef<HTMLInputElement>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(()=>{
     if(searchTimeout.current)clearTimeout(searchTimeout.current);
@@ -114,8 +115,17 @@ export default function ProductosPage() {
     setSkuError(data&&data.length>0?"SKU ya existe":"");
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!newForm.name?.trim()) errors.name = "El nombre es obligatorio";
+    if (!newForm.sku?.trim()) errors.sku = "El SKU es obligatorio";
+    if (skuError) errors.sku = skuError;
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleNewProduct=async()=>{
-    if(!newForm.name.trim()||!newForm.sku.trim()||skuError)return;
+    if (!validar()) return;
     setSavingNew(true);
     try{
       const{data:inserted,error}=await supabase.from("products").insert({

@@ -65,6 +65,7 @@ export default function SIROCPage() {
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     supabase.from("centros_trabajo").select("id,nombre").order("nombre").then(({ data }) => { if (data) setObras(data); });
@@ -79,9 +80,18 @@ export default function SIROCPage() {
 
   const msg = (tipo: "success" | "error", texto: string) => { setMensaje({ tipo, texto }); setTimeout(() => setMensaje(null), 3000); };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.obra_id?.trim()) errors.obra_id = "Selecciona una obra";
+    if (!form.numero_registro?.trim()) errors.numero_registro = "El número de registro es obligatorio";
+    if (form.num_trabajadores && (isNaN(parseInt(form.num_trabajadores)) || parseInt(form.num_trabajadores) < 0)) errors.num_trabajadores = "Trabajadores debe ser >= 0";
+    if (form.incidencias && (isNaN(parseInt(form.incidencias)) || parseInt(form.incidencias) < 0)) errors.incidencias = "Incidencias debe ser >= 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.numero_registro?.trim()) { msg("error", "El número de registro es obligatorio"); return; }
+    if (!validar()) return;
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
@@ -220,9 +230,9 @@ export default function SIROCPage() {
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>{formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Número Registro *</label><input type="text" value={form.numero_registro} onChange={e => setForm({ ...form, numero_registro: e.target.value })} placeholder="REG-2026-001" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Número Registro *</label><input type="text" value={form.numero_registro} onChange={e => setForm({ ...form, numero_registro: e.target.value })} placeholder="REG-2026-001" className={inputClass} />{formErrors.numero_registro && <p className="text-red-400 text-xs mt-1">{formErrors.numero_registro}</p>}</div>
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha Registro</label><input type="date" value={form.fecha_registro} onChange={e => setForm({ ...form, fecha_registro: e.target.value })} className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -230,8 +240,8 @@ export default function SIROCPage() {
                 <div><label className="block text-xs text-slate-400 mb-1">Clasificación Riesgo</label><input type="text" value={form.clasificacion_riesgo} onChange={e => setForm({ ...form, clasificacion_riesgo: e.target.value })} placeholder="I, II, III, IV, V" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Incidencias</label><input type="number" value={form.incidencias} onChange={e => setForm({ ...form, incidencias: e.target.value })} placeholder="0" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} />{formErrors.num_trabajadores && <p className="text-red-400 text-xs mt-1">{formErrors.num_trabajadores}</p>}</div>
+                <div><label className="block text-xs text-slate-400 mb-1">Incidencias</label><input type="number" value={form.incidencias} onChange={e => setForm({ ...form, incidencias: e.target.value })} placeholder="0" className={inputClass} />{formErrors.incidencias && <p className="text-red-400 text-xs mt-1">{formErrors.incidencias}</p>}</div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Estatus</label><select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className={inputClass}>{ESTATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
               <div><label className="block text-xs text-slate-400 mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>

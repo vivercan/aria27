@@ -15,6 +15,7 @@ export default function NominaConfigPage() {
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchConfigs();
@@ -30,10 +31,29 @@ export default function NominaConfigPage() {
     setLoading(false);
   }
 
-  async function handleSave(id: string, valor: string) {
+  function validar(valor: string, clave: string): boolean {
+    const errors: Record<string, string> = {};
+    if (!valor?.trim()) errors[clave] = "El valor es requerido";
+    if (clave.includes("horas") || clave.includes("factor") || clave.includes("aguinaldo") || clave.includes("salario") || clave.includes("minimo")) {
+      if (isNaN(parseFloat(valor)) || parseFloat(valor) < 0) {
+        errors[clave] = "Debe ser un número >= 0";
+      }
+    }
+    if (clave.includes("tolerancia")) {
+      if (isNaN(parseInt(valor)) || parseInt(valor) < 0) {
+        errors[clave] = "Debe ser un número >= 0";
+      }
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  async function handleSave(id: string, valor: string, clave: string) {
+    if (!validar(valor, clave)) return;
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
     if (error) { console.error("Error saving configuracion:", error?.message); alert("Error: " + error?.message); setSaving(false); return; }
+    setFormErrors({});
     setSaving(false);
   }
 
@@ -96,13 +116,14 @@ export default function NominaConfigPage() {
                     className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white"
                   />
                   <button
-                    onClick={() => handleSave(cfg.id, cfg.valor)}
+                    onClick={() => handleSave(cfg.id, cfg.valor, cfg.clave)}
                     disabled={saving}
                     className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white"
                   >
                     <Save size={16} />
                   </button>
                 </div>
+                {formErrors[cfg.clave] && <p className="text-red-400 text-xs mt-1">{formErrors[cfg.clave]}</p>}
                 <p className="text-xs text-slate-500">{cfg.descripcion}</p>
               </div>
             ))}

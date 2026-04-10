@@ -87,6 +87,7 @@ export default function ExpedientesPage() {
     ({open:false,id:"",name:""});
   const [anioSeleccionado, setAnioSeleccionado] = useState<number | "SIN_ANIO" | null>(null);
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [carpetasAnio, setCarpetasAnio] = useState<Carpeta[]>([]);
   const [showNuevaCarpetaAnio, setShowNuevaCarpetaAnio] = useState(false);
@@ -227,8 +228,16 @@ export default function ExpedientesPage() {
     setCarpetaAnioSeleccionada(destino);
   };
 
+  const validarSubcarpeta = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!nuevaSubcarpetaNombre?.trim()) errors.nuevaSubcarpetaNombre = "Nombre de carpeta es obligatorio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const crearSubcarpeta = async () => {
-    if (!nuevaSubcarpetaNombre.trim() || !carpetaAnioSeleccionada) return;
+    if (!carpetaAnioSeleccionada) { alert("Selecciona una carpeta padre"); return; }
+    if (!validarSubcarpeta()) return;
     const { error } = await supabase.from("expedientes_carpetas").insert({
       obra_id: null,
       obra_nombre: null,
@@ -861,17 +870,20 @@ export default function ExpedientesPage() {
 
         {showNuevaSubcarpeta && (
           <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 max-w-2xl">
-            <input
-              autoFocus
-              value={nuevaSubcarpetaNombre}
-              onChange={(e) => setNuevaSubcarpetaNombre(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") crearSubcarpeta(); }}
-              placeholder="Nombre de la subcarpeta"
-              maxLength={80}
-              className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
-            />
+            <div className="flex-1">
+              <input
+                autoFocus
+                value={nuevaSubcarpetaNombre}
+                onChange={(e) => setNuevaSubcarpetaNombre(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") crearSubcarpeta(); }}
+                placeholder="Nombre de la subcarpeta"
+                maxLength={80}
+                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+              />
+              {formErrors.nuevaSubcarpetaNombre && <p className="text-red-400 text-xs mt-1">{formErrors.nuevaSubcarpetaNombre}</p>}
+            </div>
             <button onClick={crearSubcarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm shrink-0">Crear</button>
-            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
+            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); setFormErrors({}); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}
 

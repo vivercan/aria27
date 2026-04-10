@@ -29,6 +29,7 @@ export default function RecordatoriosPage() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const loadData = async () => {
     const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
@@ -38,8 +39,15 @@ export default function RecordatoriosPage() {
 
   useEffect(() => { loadData(); }, []);
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.empleado_nombre?.trim()) errors.empleado_nombre = "El nombre del empleado es obligatorio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.empleado_nombre) { alert("Nombre es requerido"); return; }
+    if (!validar()) return;
     setSaving(true);
     const { error } = await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
     if (error) { alert("Error al crear recordatorio: " + error.message); setSaving(false); return; }
@@ -130,6 +138,7 @@ export default function RecordatoriosPage() {
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Empleado *</label>
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.empleado_nombre} onChange={e => setForm({...form, empleado_nombre: e.target.value})} />
+                {formErrors.empleado_nombre && <p className="text-red-400 text-xs mt-1">{formErrors.empleado_nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">

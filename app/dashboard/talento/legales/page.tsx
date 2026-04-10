@@ -26,6 +26,7 @@ export default function LegalesPage() {
   const [editForm, setEditForm] = useState({ rfc: "", curp: "", nss: "", tipo_contrato: "" });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -56,8 +57,18 @@ export default function LegalesPage() {
     setEditingId(e.id);
     setEditForm({ rfc: e.rfc || "", curp: e.curp || "", nss: e.nss || "", tipo_contrato: e.tipo_contrato || "" });
   };
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (editForm.rfc && !/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(editForm.rfc)) errors.rfc = "RFC inválido";
+    if (editForm.curp && !/^[A-ZÑ]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(editForm.curp)) errors.curp = "CURP inválido";
+    if (editForm.nss && !/^\d{11}$/.test(editForm.nss)) errors.nss = "NSS debe tener 11 dígitos";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSaveLegal = async () => {
     if (!editingId) return;
+    if (!validar()) return;
     setSaving(true);
     const { error } = await supabase.from("employees").update({
       rfc: editForm.rfc || null,
@@ -128,13 +139,20 @@ export default function LegalesPage() {
                 </td>
                   <td className="p-3 text-center">
                     {editingId === e.id ? (
-                      <div className="flex items-center gap-1 justify-center">
-                        <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
-                          {saving ? "..." : "Guardar"}
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs hover:bg-slate-500/30">
-                          <X className="w-3 h-3" />
-                        </button>
+                      <div>
+                        {Object.keys(formErrors).length > 0 && (
+                          <div className="mb-2 p-2 rounded bg-red-500/20 border border-red-500/30">
+                            {Object.entries(formErrors).map(([k, v]) => <p key={k} className="text-red-400 text-[10px]">{v}</p>)}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 justify-center">
+                          <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
+                            {saving ? "..." : "Guardar"}
+                          </button>
+                          <button onClick={() => { setEditingId(null); setFormErrors({}); }} className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs hover:bg-slate-500/30">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <button onClick={() => startEdit(e)} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30">

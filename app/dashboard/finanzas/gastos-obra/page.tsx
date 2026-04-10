@@ -18,7 +18,7 @@ interface Gasto {
   proveedor: string;
   monto: number;
   estatus: string;
-  comprobante_url?: string;
+  imagen_url?: string;
   created_at?: string;
 }
 
@@ -176,8 +176,8 @@ export default function GastosObraPage() {
             .upload(path, formData.comprobante, { upsert: false });
 
           if (uploadError) throw uploadError;
-          const comprobante_url = `${path}`;
-          newData = { ...newData, comprobante_url };
+          const imagen_url = `${path}`;
+          newData = { ...newData, imagen_url };
           setUploadingFile(false);
         }
 
@@ -199,8 +199,8 @@ export default function GastosObraPage() {
             .upload(path, formData.comprobante, { upsert: false });
 
           if (uploadError) throw uploadError;
-          const comprobante_url = `${path}`;
-          updateData = { ...updateData, comprobante_url };
+          const imagen_url = `${path}`;
+          updateData = { ...updateData, imagen_url };
           setUploadingFile(false);
         }
 
@@ -229,8 +229,8 @@ export default function GastosObraPage() {
     setSubmitting(true);
     try {
       const gasto = gastos.find(g => g.id === id);
-      if (gasto?.comprobante_url) {
-        await supabase.storage.from("expedientes").remove([gasto.comprobante_url]);
+      if (gasto?.imagen_url) {
+        await supabase.storage.from("expedientes").remove([gasto.imagen_url]);
       }
       const { error } = await supabase.from("gastos").delete().eq("id", id);
       if (error) throw error;
@@ -396,7 +396,7 @@ export default function GastosObraPage() {
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
                     <td className="px-4 py-3 text-slate-400 truncate max-w-[120px]">{g.proveedor || "—"}</td>
                     <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span></td>
-                    <td className="px-4 py-3 text-center">{g.comprobante_url ? <Paperclip className="w-4 h-4 text-slate-400 mx-auto" /> : <span className="text-slate-600">—</span>}</td>
+                    <td className="px-4 py-3 text-center">{g.imagen_url ? <Paperclip className="w-4 h-4 text-slate-400 mx-auto" /> : <span className="text-slate-600">—</span>}</td>
                   </tr>
                 ))}
               </tbody>
@@ -549,14 +549,14 @@ export default function GastosObraPage() {
                 <label className="block text-sm font-medium text-slate-300 mb-2">Comprobante (Imagen/PDF)</label>
 
                 {/* Preview if exists and viewing */}
-                {drawerMode === "view" && selectedGasto?.comprobante_url && (
+                {drawerMode === "view" && selectedGasto?.imagen_url && (
                   <div className="mb-3 p-3 rounded-lg bg-white/5 border border-white/10">
-                    {getComprobanteMimeType(selectedGasto.comprobante_url) === "image" ? (
+                    {getComprobanteMimeType(selectedGasto.imagen_url) === "image" ? (
                       <div className="relative w-full h-32 bg-black/20 rounded overflow-hidden">
-                        <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.comprobante_url}`} alt="Comprobante" className="w-full h-full object-cover" />
+                        <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} alt="Comprobante" className="w-full h-full object-cover" />
                       </div>
-                    ) : getComprobanteMimeType(selectedGasto.comprobante_url) === "pdf" ? (
-                      <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.comprobante_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm">
+                    ) : getComprobanteMimeType(selectedGasto.imagen_url) === "pdf" ? (
+                      <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm">
                         <Paperclip className="w-4 h-4" />
                         Ver PDF
                       </a>

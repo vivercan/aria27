@@ -65,8 +65,27 @@ export default function SirocRegistrosPage() {
   const [editando, setEditando] = useState<string | null>(null);
   const [form, setForm] = useState<any>(EMPTY);
   const [search, setSearch] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.obra || !form.obra.trim()) {
+      errors.obra = "Obra es requerida";
+    }
+    if (!form.numero_siroc || !form.numero_siroc.trim()) {
+      errors.numero_siroc = "Número SIROC es requerido";
+    }
+    if (!form.fecha_inicio) {
+      errors.fecha_inicio = "Fecha de inicio es requerida";
+    }
+    if (form.importe_total && isNaN(Number(form.importe_total))) {
+      errors.importe_total = "El importe debe ser un número válido";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   async function cargar() {
     setLoading(true);
@@ -79,7 +98,7 @@ export default function SirocRegistrosPage() {
   }
 
   async function guardar() {
-    if (!form.obra || !form.numero_siroc || !form.fecha_inicio) { alert("Obra, Número SIROC y Fecha inicio son requeridos"); return; }
+    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const payload = {
       obra: form.obra,
@@ -237,15 +256,16 @@ export default function SirocRegistrosPage() {
                     <option value="">Seleccionar...</option>
                     {obras.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                  {formErrors.obra && <p className="text-red-400 text-xs mt-1">{formErrors.obra}</p>}
                 </div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Número SIROC *</label><input type="text" value={form.numero_siroc} onChange={e => setForm({ ...form, numero_siroc: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Número SIROC *</label><input type="text" value={form.numero_siroc} onChange={e => setForm({ ...form, numero_siroc: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-red-500" />{formErrors.numero_siroc && <p className="text-red-400 text-xs mt-1">{formErrors.numero_siroc}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Registro patronal</label><input type="text" value={form.registro_patronal} onChange={e => setForm({ ...form, registro_patronal: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Clase de riesgo</label><select value={form.clase_riesgo} onChange={e => setForm({ ...form, clase_riesgo: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500">{CLASES_RIESGO.map(c => <option key={c} value={c}>Clase {c}</option>)}</select></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Tipo de obra</label><input type="text" value={form.tipo_obra} onChange={e => setForm({ ...form, tipo_obra: e.target.value })} placeholder="Edificación, Vivienda..." className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Modalidad</label><select value={form.modalidad} onChange={e => setForm({ ...form, modalidad: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500">{MODALIDADES.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Fecha inicio *</label><input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Fecha inicio *</label><input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" />{formErrors.fecha_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_inicio}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha fin estimada</label><input type="date" value={form.fecha_fin_estimada} onChange={e => setForm({ ...form, fecha_fin_estimada: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Importe total contrato ($)</label><input type="number" value={form.importe_total} onChange={e => setForm({ ...form, importe_total: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Importe total contrato ($)</label><input type="number" value={form.importe_total} onChange={e => setForm({ ...form, importe_total: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" />{formErrors.importe_total && <p className="text-red-400 text-xs mt-1">{formErrors.importe_total}</p>}</div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acum. ($)</label><input type="number" value={form.monto_ejercido} onChange={e => setForm({ ...form, monto_ejercido: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Superficie construcción (m²)</label><input type="number" step="0.01" value={form.superficie_construccion} onChange={e => setForm({ ...form, superficie_construccion: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Trabajadores promedio</label><input type="number" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500" /></div>

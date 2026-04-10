@@ -51,8 +51,24 @@ export default function LicitacionesPage() {
   const [saving, setSaving] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { loadData(); }, []);
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.obra_nombre?.trim()) {
+      errors.obra_nombre = "Obra es requerida";
+    }
+    if (!form.dependencia?.trim()) {
+      errors.dependencia = "Dependencia es requerida";
+    }
+    if (form.monto_estimado && isNaN(parseFloat(form.monto_estimado))) {
+      errors.monto_estimado = "El monto debe ser un número válido";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const loadData = async () => {
     const { data, error } = await supabase.from("licitaciones").select("*").order("created_at", { ascending: false });
@@ -66,7 +82,7 @@ export default function LicitacionesPage() {
   };
 
   const guardar = async () => {
-    if (!form.obra_nombre || !form.dependencia) { alert("Obra y dependencia son requeridos"); return; }
+    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
     setSaving(true);
     const record = {
       obra_nombre: form.obra_nombre, dependencia: form.dependencia, numero_licitacion: form.numero_licitacion,
@@ -220,10 +236,12 @@ export default function LicitacionesPage() {
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Obra *</label>
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} />
+                {formErrors.obra_nombre && <p className="text-red-400 text-xs mt-1">{formErrors.obra_nombre}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Dependencia *</label>
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.dependencia} onChange={e => setForm({...form, dependencia: e.target.value})} />
+                {formErrors.dependencia && <p className="text-red-400 text-xs mt-1">{formErrors.dependencia}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">No. Licitación</label>
@@ -232,6 +250,7 @@ export default function LicitacionesPage() {
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Monto Estimado</label>
                 <input type="number" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: e.target.value})} />
+                {formErrors.monto_estimado && <p className="text-red-400 text-xs mt-1">{formErrors.monto_estimado}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Fecha Apertura</label>

@@ -48,8 +48,18 @@ export default function PipelinePage() {
   const [grupoTexto, setGrupoTexto] = useState("");
   const [excelData, setExcelData] = useState<any[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
+
+  const validarManual = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre?.trim()) {
+      errors.nombre = "El nombre de la obra es obligatorio";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const cargar = async () => {
     const { data } = await supabase.from("centros_trabajo").select("*").order("nombre");
@@ -63,6 +73,7 @@ export default function PipelinePage() {
   };
 
   const guardarManual = async () => {
+    if (!validarManual()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const payload: any = { ...form };
     // Calcular presupuesto total = contratado + ampliaciones (si ambos presentes)
@@ -271,6 +282,7 @@ export default function PipelinePage() {
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Nombre de la obra</label>
                     <input type="text" value={form.nombre || ""} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Pinar del Lago" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" autoComplete="off" />
+                    {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
                   </div>
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Ubicación</label>

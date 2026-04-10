@@ -10,6 +10,7 @@ export default function IncapacidadesPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", tipo: "enfermedad", fecha_inicio: "", fecha_fin: "", folio_imss: "", notas: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const loadData = async () => {
     const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
@@ -24,8 +25,16 @@ export default function IncapacidadesPage() {
 
   useEffect(() => { loadData(); }, []);
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.employee_id?.trim()) errors.employee_id = "Seleccione un empleado";
+    if (!form.fecha_inicio?.trim()) errors.fecha_inicio = "La fecha de inicio es obligatoria";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async () => {
-    if (!form.employee_id || !form.fecha_inicio) return;
+    if (!validar()) return;
     const inicio = new Date(form.fecha_inicio);
     const fin = form.fecha_fin ? new Date(form.fecha_fin) : inicio;
     const { error } = await supabase.from("incidencias").insert({
@@ -108,10 +117,11 @@ export default function IncapacidadesPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-sm text-slate-400">Empleado</label>
-                <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className={`w-full mt-1 p-2 bg-white/5 border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/10"}`}>
                   <option value="">Seleccionar...</option>
                   {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                 </select>
+                {formErrors.employee_id && <p className="text-red-400 text-xs mt-1">{formErrors.employee_id}</p>}
               </div>
               <div>
                 <label className="text-sm text-slate-400">Tipo</label>
@@ -122,7 +132,11 @@ export default function IncapacidadesPage() {
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400">Fecha Inicio</label><input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+                <div>
+                  <label className="text-sm text-slate-400">Fecha Inicio</label>
+                  <input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})} className={`w-full mt-1 p-2 bg-white/5 border rounded-lg text-white ${formErrors.fecha_inicio ? "border-red-500/50" : "border-white/10"}`} />
+                  {formErrors.fecha_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_inicio}</p>}
+                </div>
                 <div><label className="text-sm text-slate-400">Fecha Fin</label><input type="date" value={form.fecha_fin} onChange={e => setForm({...form, fecha_fin: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               </div>
               <div><label className="text-sm text-slate-400">Folio IMSS</label><input type="text" value={form.folio_imss} onChange={e => setForm({...form, folio_imss: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Número de folio" /></div>

@@ -74,8 +74,18 @@ export default function AsignacionPage() {
     setLoading(false);
   };
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.activo_id?.trim()) errors.activo_id = "Selecciona un activo";
+    if (!form.empleado_id?.trim()) errors.empleado_id = "Selecciona un empleado";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleAsignar = async () => {
-    if (!form.activo_id || !form.empleado_id) return;
+    if (!validar()) return;
     setSaving(true);
 
     // OPTIMISTIC LOCK sobre activos.estado
@@ -215,6 +225,7 @@ export default function AsignacionPage() {
                   <option value="">Seleccionar empleado...</option>
                   {empleados.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
                 </select>
+                {formErrors.empleado_id && <p className="text-red-400 text-xs mt-1">{formErrors.empleado_id}</p>}
               </div>
               <div>
                 <label className="text-xs text-slate-400">Activo *</label>
@@ -222,6 +233,7 @@ export default function AsignacionPage() {
                   <option value="">Seleccionar activo...</option>
                   {activos.map(a => <option key={a.id} value={a.id}>{a.nombre || a.name}</option>)}
                 </select>
+                {formErrors.activo_id && <p className="text-red-400 text-xs mt-1">{formErrors.activo_id}</p>}
               </div>
               <div>
                 <label className="text-xs text-slate-400">Notas</label>

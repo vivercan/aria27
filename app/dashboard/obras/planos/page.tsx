@@ -60,6 +60,7 @@ export default function PlanosPage() {
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     supabase.from("centros_trabajo").select("id,nombre").order("nombre").then(({ data }) => { if (data) setObras(data); });
@@ -74,9 +75,16 @@ export default function PlanosPage() {
 
   const msg = (tipo: "success" | "error", texto: string) => { setMensaje({ tipo, texto }); setTimeout(() => setMensaje(null), 3000); };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.obra_id) errors.obra_id = "Selecciona una obra";
+    if (!form.nombre?.trim()) errors.nombre = "El nombre es obligatorio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.nombre?.trim()) { msg("error", "El nombre es obligatorio"); return; }
+    if (!validar()) return;
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
@@ -215,8 +223,8 @@ export default function PlanosPage() {
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
-              <div><label className="block text-xs text-slate-400 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano Arquitectónico Nivel 3" className={inputClass} /></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>{formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}</div>
+              <div><label className="block text-xs text-slate-400 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano Arquitectónico Nivel 3" className={inputClass} />{formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}</div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Disciplina</label><select value={form.disciplina} onChange={e => setForm({ ...form, disciplina: e.target.value })} className={inputClass}>{DISCIPLINA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}</select></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Revisión</label><select value={form.revision} onChange={e => setForm({ ...form, revision: e.target.value })} className={inputClass}>{REVISION_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}</select></div>

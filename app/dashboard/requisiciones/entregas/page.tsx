@@ -44,6 +44,7 @@ export default function EntregasPage() {
     observaciones: "",
     materiales: [{ producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }]
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargarDatos(); }, []);
 
@@ -77,10 +78,18 @@ export default function EntregasPage() {
     setForm({...form, materiales: form.materiales.filter((_, i) => i !== idx)});
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.proveedor_nombre?.trim()) errors.proveedor_nombre = "El proveedor es obligatorio";
+    if (!form.obra_nombre?.trim()) errors.obra_nombre = "La obra es obligatoria";
+    if (!form.recibido_por_nombre?.trim()) errors.recibido_por_nombre = "Quien recibe es obligatorio";
+    if (!form.fecha_entrega?.trim()) errors.fecha_entrega = "La fecha de entrega es obligatoria";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardarEntrega = async () => {
-    if (!form.proveedor_nombre || !form.obra_nombre || !form.recibido_por_nombre) {
-      return alert("Completa proveedor, obra y quien recibe");
-    }
+    if (!validar()) return;
     const { error } = await supabase.from("entregas").insert({
       folio,
       fecha_entrega: form.fecha_entrega,

@@ -71,6 +71,7 @@ export default function TareasTalentoPage() {
   const [search, setSearch] = useState("");
   const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
   const [userEmail, setUserEmail] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -96,10 +97,17 @@ export default function TareasTalentoPage() {
     setLoading(false);
   }
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.titulo?.trim()) errors.titulo = "El título es obligatorio";
+    if (!form.asignado_id?.trim()) errors.asignado_id = "Debe asignar a un colaborador";
+    if (!form.fecha_compromiso?.trim()) errors.fecha_compromiso = "La fecha compromiso es obligatoria";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   async function guardar() {
-    if (!form.titulo.trim()) { alert("Título requerido"); return; }
-    if (!form.asignado_id) { alert("Asignar a un colaborador"); return; }
-    if (!form.fecha_compromiso) { alert("Fecha compromiso requerida"); return; }
+    if (!validar()) return;
     setGuardando(true);
     const emp = empleados.find(e => e.id === form.asignado_id);
     const payload = {
@@ -336,7 +344,8 @@ export default function TareasTalentoPage() {
               <div>
                 <label className="text-sm text-slate-400 mb-1 block">Título *</label>
                 <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                  className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.titulo ? "border-red-500/50" : "border-slate-700"}`} />
+                {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </div>
               <div>
                 <label className="text-sm text-slate-400 mb-1 block">Descripción</label>
@@ -348,10 +357,11 @@ export default function TareasTalentoPage() {
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Asignado a *</label>
                   <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.asignado_id ? "border-red-500/50" : "border-slate-700"}`}>
                     <option value="">Seleccionar...</option>
                     {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                   </select>
+                  {formErrors.asignado_id && <p className="text-red-400 text-xs mt-1">{formErrors.asignado_id}</p>}
                 </div>
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Obra (opcional)</label>
@@ -363,7 +373,8 @@ export default function TareasTalentoPage() {
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Fecha compromiso *</label>
                   <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                    className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-slate-700"}`} />
+                  {formErrors.fecha_compromiso && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_compromiso}</p>}
                 </div>
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Prioridad</label>

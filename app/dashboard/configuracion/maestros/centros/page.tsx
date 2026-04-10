@@ -21,6 +21,7 @@ export default function CentrosPage() {
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState<Centro | null>(null);
   const [form, setForm] = useState({ nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
 
@@ -48,8 +49,24 @@ export default function CentrosPage() {
     setShowModal(true);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre.trim()) errors.nombre = "El nombre es obligatorio";
+    if (form.latitud && (isNaN(parseFloat(form.latitud)) || parseFloat(form.latitud) < -90 || parseFloat(form.latitud) > 90)) {
+      errors.latitud = "Latitud debe estar entre -90 y 90";
+    }
+    if (form.longitud && (isNaN(parseFloat(form.longitud)) || parseFloat(form.longitud) < -180 || parseFloat(form.longitud) > 180)) {
+      errors.longitud = "Longitud debe estar entre -180 y 180";
+    }
+    if (form.radio_metros && (isNaN(parseInt(form.radio_metros)) || parseInt(form.radio_metros) < 1)) {
+      errors.radio_metros = "Radio debe ser > 0";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.nombre.trim()) return alert("Nombre requerido");
+    if (!validar()) return;
 
     const datos = {
       nombre: form.nombre.trim(),
@@ -146,6 +163,7 @@ export default function CentrosPage() {
                 <label className="text-sm text-slate-400">Nombre *</label>
                 <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label className="text-sm text-slate-400">Dirección</label>
@@ -157,17 +175,20 @@ export default function CentrosPage() {
                   <label className="text-sm text-slate-400">Latitud</label>
                   <input type="text" value={form.latitud} onChange={e => setForm({...form, latitud: e.target.value})}
                     className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                  {formErrors.latitud && <p className="text-red-400 text-xs mt-1">{formErrors.latitud}</p>}
                 </div>
                 <div>
                   <label className="text-sm text-slate-400">Longitud</label>
                   <input type="text" value={form.longitud} onChange={e => setForm({...form, longitud: e.target.value})}
                     className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                  {formErrors.longitud && <p className="text-red-400 text-xs mt-1">{formErrors.longitud}</p>}
                 </div>
               </div>
               <div>
                 <label className="text-sm text-slate-400">Radio geocerca (metros)</label>
                 <input type="number" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
               <p className="text-xs text-slate-500">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
               <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">

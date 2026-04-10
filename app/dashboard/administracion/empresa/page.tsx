@@ -66,8 +66,17 @@ export default function EmpresaPage() {
     });
   };
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre?.trim()) errors.nombre = "El nombre es obligatorio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!editEmpresa) return;
+    if (!editEmpresa || !validar()) return;
     setGuardando(true);
     const payload: any = { ...form };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
@@ -213,8 +222,9 @@ export default function EmpresaPage() {
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Nombre</label>
+                <label className="block text-xs text-slate-400 mb-1">Nombre *</label>
                 <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={inputClass} />
+                {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

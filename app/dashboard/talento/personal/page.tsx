@@ -84,6 +84,7 @@ export default function PersonalPage() {
   const [tab, setTab] = useState<"general" | "laboral" | "bancario" | "fiscal">("general");
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [expedienteEmp, setExpedienteEmp] = useState<Empleado | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     cargarDatos();
@@ -153,14 +154,19 @@ export default function PersonalPage() {
     return "EMP-" + String(next).padStart(3, "0");
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.full_name?.trim()) errors.full_name = "El nombre es obligatorio";
+    if (!form.empresa_id?.trim()) errors.empresa_id = "La empresa es obligatoria";
+    if (!form.fecha_ingreso?.trim()) errors.fecha_ingreso = "La fecha de ingreso es obligatoria";
+    if (form.email && form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Email inválido";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
     if (!editando) return;
-
-    if (!form.full_name?.trim()) {
-      setMensaje({ tipo: "error", texto: "El nombre es obligatorio" });
-      setTimeout(() => setMensaje(null), 3000);
-      return;
-    }
+    if (!validar()) return;
 
     setGuardando(true);
 
@@ -226,7 +232,7 @@ export default function PersonalPage() {
         <select
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
+          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-blue-500 focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}>
           <option value="">{"\u2014 Seleccionar \u2014"}</option>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -236,9 +242,10 @@ export default function PersonalPage() {
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
           placeholder={placeholder}
-          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600"
+          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}
         />
       )}
+      {formErrors[field] && <p className="text-red-400 text-xs mt-1">{formErrors[field]}</p>}
     </div>
   );
 

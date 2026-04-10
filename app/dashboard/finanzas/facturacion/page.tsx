@@ -40,6 +40,7 @@ export default function FacturacionPage() {
     serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "",
     metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO"
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -202,8 +203,16 @@ export default function FacturacionPage() {
     }
   }
 
+  function validar(): boolean {
+    const errors: Record<string, string> = {};
+    if (!form.cliente?.trim()) errors.cliente = "Cliente es obligatorio";
+    if (form.subtotal <= 0) errors.subtotal = "Subtotal debe ser mayor a 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
   async function guardar() {
-    if (!form.cliente || form.subtotal <= 0) { alert("Cliente y subtotal requeridos"); return; }
+    if (!validar()) return;
     // Folio derivado del max(folio) por serie. NOTA: sin unique constraint en
     // (serie, folio) sigue habiendo riesgo de colisión bajo concurrencia.
     // Mitigación cliente + retry simple. Deuda P1: añadir unique index en BD.
@@ -317,16 +326,16 @@ export default function FacturacionPage() {
               <select value={(form as any).tipo} onChange={e => setForm({...form, tipo: e.target.value} as any)} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="INGRESO">INGRESO - Dinero que entra</option><option value="EGRESO">EGRESO - Dinero que sale</option>
               </select></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Cliente</label>
-              <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
+              <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />{formErrors.cliente && <p className="text-red-400 text-xs mt-1">{formErrors.cliente}</p>}</div>
             <div><label className="text-xs text-slate-400 mb-1 block">RFC</label>
               <input value={form.rfc_cliente} onChange={e => setForm({...form, rfc_cliente: e.target.value.toUpperCase()})} placeholder="RFC del cliente" maxLength={13} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none uppercase" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Obra</label>
               <input value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
             <div className="md:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Concepto</label>
               <input value={form.concepto} onChange={e => setForm({...form, concepto: e.target.value})} placeholder="Descripción del servicio" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Subtotal (sin IVA)</label>
-              <input type="number" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Subtotal (sin IVA) *</label>
+              <input type="number" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />{formErrors.subtotal && <p className="text-red-400 text-xs mt-1">{formErrors.subtotal}</p>}</div>
             <div><label className="text-xs text-slate-400 mb-1 block">Método Pago</label>
               <select value={form.metodo_pago} onChange={e => setForm({...form, metodo_pago: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="PUE">PUE - Pago en una sola exhibición</option><option value="PPD">PPD - Pago en parcialidades</option>

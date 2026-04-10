@@ -36,6 +36,7 @@ export default function DocumentosPage() {
   const [form, setForm] = useState<any>({ ...EMPTY });
   const [obras, setObras] = useState<Obra[]>([]);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); }, []);
 
@@ -55,8 +56,15 @@ export default function DocumentosPage() {
     setTimeout(() => setMensaje(null), 3000);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre?.trim()) errors.nombre = "El nombre es obligatorio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.nombre.trim()) { msg("error", "El nombre es obligatorio"); return; }
+    if (!validar()) return;
     setGuardando(true);
     const payload: any = { ...form };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
@@ -117,6 +125,7 @@ export default function DocumentosPage() {
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
                 <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre del documento" />
+                {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

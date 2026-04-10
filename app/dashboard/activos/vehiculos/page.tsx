@@ -69,8 +69,23 @@ export default function VehiculosPage() {
     setLoading(false);
   };
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre?.trim()) errors.nombre = "El nombre es obligatorio";
+    if (form.anio && (isNaN(parseInt(form.anio)) || parseInt(form.anio) < 1900 || parseInt(form.anio) > new Date().getFullYear() + 1)) {
+      errors.anio = "Año inválido";
+    }
+    if (form.kilometraje && (isNaN(parseFloat(form.kilometraje)) || parseFloat(form.kilometraje) < 0)) {
+      errors.kilometraje = "Kilometraje debe ser >= 0";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.nombre?.trim()) { msg("error", "El nombre es obligatorio"); return; }
+    if (!validar()) return;
     setGuardando(true);
 
     const payload: any = {
@@ -256,6 +271,7 @@ export default function VehiculosPage() {
                 <div>
                   <label className="block text-xs text-slate-400 mb-1">Nombre *</label>
                   <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Camioneta Ford F-150" className={inputClass} />
+                  {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -270,6 +286,7 @@ export default function VehiculosPage() {
                 <div>
                   <label className="block text-xs text-slate-400 mb-1">Año</label>
                   <input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} placeholder="2024" className={inputClass} />
+                  {formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -280,6 +297,7 @@ export default function VehiculosPage() {
                 <div>
                   <label className="block text-xs text-slate-400 mb-1">Kilometraje</label>
                   <input type="number" value={form.kilometraje} onChange={e => setForm({ ...form, kilometraje: e.target.value })} placeholder="0" className={inputClass} />
+                  {formErrors.kilometraje && <p className="text-red-400 text-xs mt-1">{formErrors.kilometraje}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">

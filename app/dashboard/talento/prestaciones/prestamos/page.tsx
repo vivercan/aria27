@@ -22,6 +22,7 @@ export default function PrestamosPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", monto: "", descuento: "", semanas: "", motivo: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     cargarDatos();
@@ -43,11 +44,25 @@ export default function PrestamosPage() {
     setLoading(false);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.employee_id?.trim()) errors.employee_id = "Seleccione un empleado";
+    if (!form.monto?.trim()) errors.monto = "El monto es obligatorio";
+    else if (parseFloat(form.monto) <= 0) errors.monto = "El monto debe ser mayor a 0";
+    if (!form.descuento?.trim()) errors.descuento = "El descuento es obligatorio";
+    else if (parseFloat(form.descuento) <= 0) errors.descuento = "El descuento debe ser mayor a 0";
+    if (!form.semanas?.trim()) errors.semanas = "Las semanas son obligatorias";
+    else if (parseInt(form.semanas) <= 0) errors.semanas = "Las semanas deben ser mayor a 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const crearPrestamo = async () => {
+    if (!validar()) return;
     const monto = parseFloat(form.monto);
     const descuento = parseFloat(form.descuento);
     const semanas = parseInt(form.semanas);
-    
+
     const { error } = await supabase.from("prestamos").insert({
       employee_id: form.employee_id,
       monto_original: monto,
@@ -157,13 +172,25 @@ export default function PrestamosPage() {
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white"><X /></button>
             </div>
             <div className="space-y-4">
-              <select value={form.employee_id} onChange={(e) => setForm({ ...form, employee_id: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white">
-                <option value="">Seleccionar empleado</option>
-                {empleados.map((e) => <option key={e.id} value={e.id}>{e.full_name}</option>)}
-              </select>
-              <input type="number" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
-              <input type="number" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
-              <input type="number" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
+              <div>
+                <select value={form.employee_id} onChange={(e) => setForm({ ...form, employee_id: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/20"}`}>
+                  <option value="">Seleccionar empleado</option>
+                  {empleados.map((e) => <option key={e.id} value={e.id}>{e.full_name}</option>)}
+                </select>
+                {formErrors.employee_id && <p className="text-red-400 text-xs mt-1">{formErrors.employee_id}</p>}
+              </div>
+              <div>
+                <input type="number" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.monto ? "border-red-500/50" : "border-white/20"}`} />
+                {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
+              </div>
+              <div>
+                <input type="number" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.descuento ? "border-red-500/50" : "border-white/20"}`} />
+                {formErrors.descuento && <p className="text-red-400 text-xs mt-1">{formErrors.descuento}</p>}
+              </div>
+              <div>
+                <input type="number" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.semanas ? "border-red-500/50" : "border-white/20"}`} />
+                {formErrors.semanas && <p className="text-red-400 text-xs mt-1">{formErrors.semanas}</p>}
+              </div>
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
               <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear Préstamo</button>
             </div>

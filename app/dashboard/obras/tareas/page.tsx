@@ -58,6 +58,7 @@ export default function TareasPage() {
   const [filtroObra, setFiltroObra] = useState<string>("");
   const [filtroStatus, setFiltroStatus] = useState<string>("");
   const [busqueda, setBusqueda] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     cargarObras();
@@ -84,9 +85,20 @@ export default function TareasPage() {
     setTimeout(() => setMensaje(null), 3000);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.titulo?.trim()) {
+      errors.titulo = "El título es obligatorio";
+    }
+    if (!form.obra_id) {
+      errors.obra_id = "Selecciona una obra";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.titulo?.trim()) { msg("error", "El título es obligatorio"); return; }
-    if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
+    if (!validar()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
 
     const obra = obras.find(o => o.id === Number(form.obra_id));
@@ -373,6 +385,7 @@ export default function TareasPage() {
                     <option key={o.id} value={String(o.id)}>{o.nombre}</option>
                   ))}
                 </select>
+                {formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}
               </Field>
 
               <Field label="Título de la tarea *">
@@ -383,6 +396,7 @@ export default function TareasPage() {
                   placeholder="Ej: Revisar planos de cimentación"
                   className={inputClass}
                 />
+                {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </Field>
 
               <div className="grid grid-cols-2 gap-3">

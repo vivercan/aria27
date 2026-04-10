@@ -66,6 +66,7 @@ function CapturarContent() {
   const [saving, setSaving] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Form fields
   const [supplierName, setSupplierName] = useState("");
@@ -124,10 +125,18 @@ function CapturarContent() {
     setShowForm(false);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!supplierName?.trim()) errors.supplierName = "El nombre del proveedor es obligatorio";
+    if (formSubtotal() <= 0) errors.prices = "Agregue precios válidos a los artículos";
+    if (taxRate < 0 || taxRate > 100) errors.taxRate = "Tasa de IVA debe estar entre 0-100";
+    if (![0, 30, 50, 100].includes(advancePct)) errors.advancePct = "Anticipo debe ser 0, 30, 50 o 100%";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardarCotizacion = async () => {
-    if (!supplierName.trim() || formSubtotal() <= 0) return;
-    if (taxRate < 0 || taxRate > 100) { alert("Tasa de IVA inválida (0-100)"); return; }
-    if (![0, 30, 50, 100].includes(advancePct)) { alert("Anticipo inválido"); return; }
+    if (!validar()) return;
     setSaving(true);
     try {
       const subtotal = formSubtotal();

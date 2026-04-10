@@ -61,8 +61,24 @@ export default function SirocBimestralesPage() {
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<any>(EMPTY);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
+
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.siroc_registro_id) {
+      errors.siroc_registro_id = "Registro SIROC es requerido";
+    }
+    if (!form.anio || isNaN(Number(form.anio))) {
+      errors.anio = "Año válido es requerido";
+    }
+    if (!form.bimestre) {
+      errors.bimestre = "Bimestre es requerido";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   async function cargar() {
     setLoading(true);
@@ -75,7 +91,7 @@ export default function SirocBimestralesPage() {
   }
 
   async function guardar() {
-    if (!form.siroc_registro_id || !form.anio || !form.bimestre) { alert("Registro SIROC, año y bimestre requeridos"); return; }
+    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const reg = registros.find(r => r.id === form.siroc_registro_id);
     const payload = {
@@ -211,14 +227,16 @@ export default function SirocBimestralesPage() {
                   <option value="">Seleccionar...</option>
                   {registros.map(r => <option key={r.id} value={r.id}>{r.obra} · {r.numero_siroc}</option>)}
                 </select>
+                {formErrors.siroc_registro_id && <p className="text-red-400 text-xs mt-1">{formErrors.siroc_registro_id}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400 mb-1 block">Año *</label><input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Año *</label><input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Bimestre *</label>
                   <select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500">
                     {BIMESTRES.map(b => <option key={b.code} value={b.code}>{b.label}</option>)}
                   </select>
+                  {formErrors.bimestre && <p className="text-red-400 text-xs mt-1">{formErrors.bimestre}</p>}
                 </div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido del periodo ($)</label><input type="number" value={form.monto_ejercido_periodo} onChange={e => setForm({ ...form, monto_ejercido_periodo: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acumulado ($)</label><input type="number" value={form.monto_ejercido_acumulado} onChange={e => setForm({ ...form, monto_ejercido_acumulado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>

@@ -38,6 +38,7 @@ export default function VacacionesPage() {
   const [showModal, setShowModal] = useState(false);
   const [empleados, setEmpleados] = useState<{id: string; full_name: string}[]>([]);
   const [form, setForm] = useState({ employee_id: "", fecha_inicio: "", fecha_fin: "", motivo: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargarDatos(); }, []);
 
@@ -119,10 +120,19 @@ export default function VacacionesPage() {
     return diff > 0 ? diff : 0;
   };
 
-  const crearSolicitud = async () => {
-    if (!form.employee_id || !form.fecha_inicio || !form.fecha_fin) return alert("Completa todos los campos");
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.employee_id?.trim()) errors.employee_id = "Seleccione un empleado";
+    if (!form.fecha_inicio?.trim()) errors.fecha_inicio = "La fecha de inicio es obligatoria";
+    if (!form.fecha_fin?.trim()) errors.fecha_fin = "La fecha de fin es obligatoria";
     const dias = calcularDias();
-    if (dias <= 0) return alert("Las fechas son inválidas");
+    if (dias <= 0) errors.fechas = "Las fechas son inválidas o fin antes que inicio";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const crearSolicitud = async () => {
+    if (!validar()) return;
 
     const { error } = await supabase.from("solicitudes_vacaciones").insert({
       employee_id: form.employee_id,
@@ -327,23 +337,27 @@ export default function VacacionesPage() {
               <div>
                 <label className="block text-sm text-slate-400 mb-1">Empleado</label>
                 <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                  className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/10"}`}>
                   <option value="">Seleccionar...</option>
                   {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                 </select>
+                {formErrors.employee_id && <p className="text-red-400 text-xs mt-1">{formErrors.employee_id}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-slate-400 mb-1">Fecha Inicio</label>
                   <input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                    className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.fecha_inicio ? "border-red-500/50" : "border-white/10"}`} />
+                  {formErrors.fecha_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_inicio}</p>}
                 </div>
                 <div>
                   <label className="block text-sm text-slate-400 mb-1">Fecha Fin</label>
                   <input type="date" value={form.fecha_fin} onChange={e => setForm({...form, fecha_fin: e.target.value})}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                    className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.fecha_fin ? "border-red-500/50" : "border-white/10"}`} />
+                  {formErrors.fecha_fin && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_fin}</p>}
                 </div>
               </div>
+              {formErrors.fechas && <p className="text-red-400 text-xs">{formErrors.fechas}</p>}
               {calcularDias() > 0 && (
                 <div className="text-center text-amber-400 font-medium">{calcularDias()} días solicitados</div>
               )}

@@ -90,6 +90,11 @@ export default function ActivosCatalogoPage() {
     descripcion: "", costo: 0, proveedor: "", proximo_servicio: "", proximo_km: 0
   });
 
+  // Form Errors
+  const [erroresActivo, setErroresActivo] = useState<Record<string, string>>({});
+  const [erroresAsignacion, setErroresAsignacion] = useState<Record<string, string>>({});
+  const [erroresMantenimiento, setErroresMantenimiento] = useState<Record<string, string>>({});
+
   useEffect(() => { cargarDatos(); }, []);
 
   const cargarDatos = async () => {
@@ -132,8 +137,19 @@ export default function ActivosCatalogoPage() {
   };
 
   // === CRUD ACTIVOS ===
+  const validarActivo = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formActivo.codigo?.toString().trim()) errors.codigo = "Código es requerido";
+    if (!formActivo.nombre?.toString().trim()) errors.nombre = "Nombre es requerido";
+    if (formActivo.kilometraje && (isNaN(parseFloat(formActivo.kilometraje as any)) || parseFloat(formActivo.kilometraje as any) < 0)) {
+      errors.kilometraje = "Kilometraje debe ser >= 0";
+    }
+    setErroresActivo(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardarActivo = async () => {
-    if (!formActivo.codigo || !formActivo.nombre) { msg("error", "Código y nombre son requeridos"); return; }
+    if (!validarActivo()) return;
     if (editando) {
       const { error } = await supabase.from("activos").update(formActivo).eq("id", editando.id);
       if (error) {
@@ -179,8 +195,16 @@ export default function ActivosCatalogoPage() {
   };
 
   // === CRUD ASIGNACIONES ===
+  const validarAsignacion = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formAsignacion.activo_id?.toString().trim()) errors.activo_id = "Selecciona un activo";
+    if (!formAsignacion.empleado_id?.toString().trim()) errors.empleado_id = "Selecciona un empleado";
+    setErroresAsignacion(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardarAsignacion = async () => {
-    if (!formAsignacion.activo_id || !formAsignacion.empleado_id) { msg("error", "Selecciona activo y empleado"); return; }
+    if (!validarAsignacion()) return;
 
     // OPTIMISTIC LOCK: solo asigna si el activo sigue DISPONIBLE
     const { data: lockRows, error: lockErr } = await supabase
@@ -214,8 +238,22 @@ export default function ActivosCatalogoPage() {
   };
 
   // === CRUD MANTENIMIENTO ===
+  const validarMantenimiento = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!formMantenimiento.activo_id?.toString().trim()) errors.activo_id = "Selecciona un activo";
+    if (!formMantenimiento.descripcion?.toString().trim()) errors.descripcion = "Descripción es requerida";
+    if (formMantenimiento.costo && (isNaN(parseFloat(formMantenimiento.costo as any)) || parseFloat(formMantenimiento.costo as any) < 0)) {
+      errors.costo = "Costo debe ser >= 0";
+    }
+    if (formMantenimiento.proximo_km && (isNaN(parseFloat(formMantenimiento.proximo_km as any)) || parseFloat(formMantenimiento.proximo_km as any) < 0)) {
+      errors.proximo_km = "Próximo km debe ser >= 0";
+    }
+    setErroresMantenimiento(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardarMantenimiento = async () => {
-    if (!formMantenimiento.activo_id || !formMantenimiento.descripcion) { msg("error", "Selecciona activo y descripción"); return; }
+    if (!validarMantenimiento()) return;
 
     const { error: insertError } = await supabase.from("activos_mantenimiento").insert(formMantenimiento);
     if (insertError) {

@@ -66,6 +66,7 @@ export default function PolizasPage() {
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     supabase.from("centros_trabajo").select("id,nombre").order("nombre").then(({ data }) => { if (data) setObras(data); });
@@ -92,10 +93,18 @@ export default function PolizasPage() {
     return "vigente";
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.obra_id?.trim()) errors.obra_id = "Selecciona una obra";
+    if (!form.numero_poliza?.trim()) errors.numero_poliza = "El número de póliza es obligatorio";
+    if (!form.aseguradora?.trim()) errors.aseguradora = "La aseguradora es obligatoria";
+    if (form.prima && (isNaN(parseFloat(form.prima)) || parseFloat(form.prima) < 0)) errors.prima = "Prima debe ser >= 0";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.obra_id) { msg("error", "Selecciona una obra"); return; }
-    if (!form.numero_poliza?.trim()) { msg("error", "El número de póliza es obligatorio"); return; }
-    if (!form.aseguradora?.trim()) { msg("error", "La aseguradora es obligatoria"); return; }
+    if (!validar()) return;
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
@@ -239,19 +248,19 @@ export default function PolizasPage() {
               <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>{formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Número *</label><input type="text" value={form.numero_poliza} onChange={e => setForm({ ...form, numero_poliza: e.target.value })} placeholder="POL-2026-001" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Número *</label><input type="text" value={form.numero_poliza} onChange={e => setForm({ ...form, numero_poliza: e.target.value })} placeholder="POL-2026-001" className={inputClass} />{formErrors.numero_poliza && <p className="text-red-400 text-xs mt-1">{formErrors.numero_poliza}</p>}</div>
                 <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className={inputClass}>{TIPO_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
               </div>
-              <div><label className="block text-xs text-slate-400 mb-1">Aseguradora *</label><input type="text" value={form.aseguradora} onChange={e => setForm({ ...form, aseguradora: e.target.value })} placeholder="AXA, Allianz, etc." className={inputClass} /></div>
+              <div><label className="block text-xs text-slate-400 mb-1">Aseguradora *</label><input type="text" value={form.aseguradora} onChange={e => setForm({ ...form, aseguradora: e.target.value })} placeholder="AXA, Allianz, etc." className={inputClass} />{formErrors.aseguradora && <p className="text-red-400 text-xs mt-1">{formErrors.aseguradora}</p>}</div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha inicio</label><input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className={inputClass} /></div>
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha vencimiento</label><input type="date" value={form.fecha_vencimiento} onChange={e => setForm({ ...form, fecha_vencimiento: e.target.value })} className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Cobertura</label><input type="text" value={form.cobertura} onChange={e => setForm({ ...form, cobertura: e.target.value })} placeholder="Monto de cobertura" className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Prima</label><input type="number" step="0.01" value={form.prima} onChange={e => setForm({ ...form, prima: e.target.value })} placeholder="0.00" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Prima</label><input type="number" step="0.01" value={form.prima} onChange={e => setForm({ ...form, prima: e.target.value })} placeholder="0.00" className={inputClass} />{formErrors.prima && <p className="text-red-400 text-xs mt-1">{formErrors.prima}</p>}</div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Contacto</label><input type="text" value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })} placeholder="Nombre, teléfono" className={inputClass} /></div>
               <div><label className="block text-xs text-slate-400 mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>

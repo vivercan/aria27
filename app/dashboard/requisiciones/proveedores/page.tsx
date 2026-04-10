@@ -42,6 +42,7 @@ export default function ProveedoresPage() {
   const [copiedId,setCopiedId] = useState<string|null>(null);
   const [expanded,setExpanded] = useState<string|null>(null);
   const [expedienteSup,setExpedienteSup] = useState<Supplier|null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const loadSuppliers = useCallback(async()=>{
     const{data}=await supabase.from("Proveedores")
@@ -83,8 +84,18 @@ export default function ProveedoresPage() {
     setEditingId(s.id);setShowModal(true);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.name?.trim()) errors.name = "El nombre es obligatorio";
+    if (form.email && form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Email inválido";
+    if (form.rfc && form.rfc.trim() && !/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(form.rfc)) errors.rfc = "RFC inválido";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSave = async()=>{
-    if(!form.name.trim())return; setSaving(true);
+    if (!validar()) return;
+    setSaving(true);
     try{
       // Normalizar categories: string "ACEROS, CONCRETO" -> array; "" -> null
       const catsArr = form.categories

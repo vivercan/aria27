@@ -51,6 +51,7 @@ export default function ClientesPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [expedienteCli, setExpedienteCli] = useState<Cliente | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
 
@@ -95,8 +96,18 @@ export default function ClientesPage() {
     setShowForm(true);
   };
 
+  const validar = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!form.nombre?.trim()) errors.nombre = "El nombre / razón social es obligatorio";
+    if (form.dias_credito && (isNaN(parseInt(form.dias_credito)) || parseInt(form.dias_credito) < 0)) {
+      errors.dias_credito = "Días de crédito debe ser >= 0";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const guardar = async () => {
-    if (!form.nombre.trim()) { flash("err", "El nombre / razón social es obligatorio"); return; }
+    if (!validar()) return;
     setSaving(true);
     const payload: any = { ...form };
     payload.dias_credito = parseInt(payload.dias_credito) || 0;
@@ -223,6 +234,7 @@ export default function ClientesPage() {
             <div className="md:col-span-2">
               <label className="text-xs text-slate-400 mb-1 block">Nombre / razón social *</label>
               <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">RFC</label>
@@ -243,6 +255,7 @@ export default function ClientesPage() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Días de crédito</label>
               <input type="number" min={0} value={form.dias_credito} onChange={e => setForm({ ...form, dias_credito: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              {formErrors.dias_credito && <p className="text-red-400 text-xs mt-1">{formErrors.dias_credito}</p>}
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
