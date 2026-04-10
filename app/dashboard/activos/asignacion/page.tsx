@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { useEntityForm } from "@/hooks/useEntityForm";
+
+const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
 
 export default function AsignacionPage() {
   const [asignaciones, setAsignaciones] = useState<any[]>([]);
@@ -10,9 +14,10 @@ export default function AsignacionPage() {
   const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ activo_id: "", empleado_id: "", notas: "" });
+
+  // Shared hooks — replace manual modal/form/flash state
+  const { mensaje, msg } = useFlashMessage();
+  const { showModal, form, saving, openNew, closeModal, setForm, setSaving } = useEntityForm(EMPTY_ASIGNACION);
 
   useEffect(() => { load(); }, []);
 
@@ -80,9 +85,9 @@ export default function AsignacionPage() {
       .eq("id", form.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { alert("Error al reservar activo: " + lockErr.message); setSaving(false); return; }
+    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
     if (!lockRows || lockRows.length === 0) {
-      alert("Este activo ya no está DISPONIBLE. Recarga.");
+      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
       setSaving(false); load(); return;
     }
 
@@ -97,14 +102,13 @@ export default function AsignacionPage() {
     if (error) {
       // Rollback
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
-      alert("Error al crear asignación: " + error.message);
+      msg("error", "Error al crear asignación: " + error.message);
       setSaving(false);
       return;
     }
 
-    setShowModal(false);
-    setForm({ activo_id: "", empleado_id: "", notas: "" });
-    setSaving(false);
+    msg("success", "Activo asignado correctamente");
+    closeModal();
     load();
   };
 
@@ -115,13 +119,14 @@ export default function AsignacionPage() {
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) { alert("Error al devolver: " + error.message); return; }
-    if (!rows || rows.length === 0) { alert("Esta asignación ya fue devuelta. Recarga."); load(); return; }
+    if (error) { msg("error", "Error al devolver: " + error.message); return; }
+    if (!rows || rows.length === 0) { msg("error", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
 
     // Liberar activo
     if (rows[0].activo_id) {
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", rows[0].activo_id);
     }
+    msg("success", "Activo devuelto correctamente");
     load();
   };
 
@@ -143,10 +148,16 @@ export default function AsignacionPage() {
             <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
           </div>
         </div>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors">
+        <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors">
           <Plus className="w-4 h-4" /> Asignar
         </button>
       </div>
+
+      {mensaje && (
+        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10">
         <Search className="w-4 h-4 text-slate-400" />
@@ -195,7 +206,7 @@ export default function AsignacionPage() {
           <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Asignar Activo</h3>
-              <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => closeModal()}><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <div className="space-y-3">
               <div>
@@ -218,7 +229,7 @@ export default function AsignacionPage() {
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => closeModal()} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
               <button onClick={handleAsignar} disabled={saving || !form.activo_id || !form.empleado_id} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Asignar
               </button>
