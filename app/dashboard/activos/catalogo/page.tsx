@@ -7,6 +7,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Activo {
   id: string;
@@ -57,6 +58,7 @@ const ESTADOS = { DISPONIBLE: "bg-emerald-500", EN_USO: "bg-blue-500", MANTENIMI
 export default function ActivosCatalogoPage() {
   const [tab, setTab] = useState<"inventario" | "asignaciones" | "mantenimiento">("inventario");
   const { userEmail, canDelete } = useDeletePermission();
+  const { mensaje, msg } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [activos, setActivos] = useState<Activo[]>([]);
@@ -131,7 +133,7 @@ export default function ActivosCatalogoPage() {
 
   // === CRUD ACTIVOS ===
   const guardarActivo = async () => {
-    if (!formActivo.codigo || !formActivo.nombre) return alert("Código y nombre son requeridos");
+    if (!formActivo.codigo || !formActivo.nombre) { msg("error", "Código y nombre son requeridos"); return; }
     if (editando) {
       const { error } = await supabase.from("activos").update(formActivo).eq("id", editando.id);
       if (error) {
@@ -178,7 +180,7 @@ export default function ActivosCatalogoPage() {
 
   // === CRUD ASIGNACIONES ===
   const guardarAsignacion = async () => {
-    if (!formAsignacion.activo_id || !formAsignacion.empleado_id) return alert("Selecciona activo y empleado");
+    if (!formAsignacion.activo_id || !formAsignacion.empleado_id) { msg("error", "Selecciona activo y empleado"); return; }
 
     // OPTIMISTIC LOCK: solo asigna si el activo sigue DISPONIBLE
     const { data: lockRows, error: lockErr } = await supabase
@@ -187,9 +189,9 @@ export default function ActivosCatalogoPage() {
       .eq("id", formAsignacion.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { alert("Error al reservar activo: " + lockErr.message); return; }
+    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); return; }
     if (!lockRows || lockRows.length === 0) {
-      alert("Este activo ya no está DISPONIBLE (otro usuario lo asignó o está en mantenimiento). Recarga.");
+      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
       cargarDatos();
       return;
     }
@@ -198,7 +200,7 @@ export default function ActivosCatalogoPage() {
     if (insertError) {
       // Rollback: liberar activo
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", formAsignacion.activo_id).eq("estado", "EN_USO");
-      alert("Error al crear asignación: " + insertError.message);
+      msg("error", "Error al crear asignación: " + insertError.message);
       return;
     }
 
@@ -213,7 +215,7 @@ export default function ActivosCatalogoPage() {
 
   // === CRUD MANTENIMIENTO ===
   const guardarMantenimiento = async () => {
-    if (!formMantenimiento.activo_id || !formMantenimiento.descripcion) return alert("Selecciona activo y descripción");
+    if (!formMantenimiento.activo_id || !formMantenimiento.descripcion) { msg("error", "Selecciona activo y descripción"); return; }
 
     const { error: insertError } = await supabase.from("activos_mantenimiento").insert(formMantenimiento);
     if (insertError) {
@@ -292,6 +294,12 @@ export default function ActivosCatalogoPage() {
           </button>
         ))}
       </div>
+
+      {mensaje && (
+        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div> : (
         <>
@@ -484,7 +492,7 @@ export default function ActivosCatalogoPage() {
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
               <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
               <div><label className="block text-sm text-slate-400 mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
