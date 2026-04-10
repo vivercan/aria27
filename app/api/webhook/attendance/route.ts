@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { processAndUploadPhoto } from "@/lib/image-watermark";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 const log = logger("WEBHOOK-ATTENDANCE");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -619,11 +621,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "media error" });
       }
 
+      // ===== DESCARGAR FOTO → WATERMARK → SUPABASE STORAGE (URL permanente) =====
+      const supabaseAdmin = getSupabaseAdmin();
+      const ts = Date.now();
+      const storagePath = `whatsapp/${phone10}/${ts}.jpg`;
+      const permanentUrl = await processAndUploadPhoto({
+        mediaUrl: mediaInfo.url,
+        whatsappToken: WHATSAPP_TOKEN || "",
+        supabase: supabaseAdmin,
+        bucket: "inventario",
+        storagePath,
+      });
+      // Si falla el upload, usar URL original como fallback (mejor algo que nada)
+      const imageUrl = permanentUrl || mediaInfo.url;
+      if (!permanentUrl) {
+        log.warn("No se pudo guardar foto en Storage, usando URL temporal", { phone10 });
+      }
+
       // Detectar si es foto de OC (buscar patrón OC-YYYY-NNNNN en caption)
       const folioOCMatch = caption.match(/OC-\d{4}-\d{5}/i);
       if (folioOCMatch) {
         const folioOC = folioOCMatch[0].toUpperCase();
-        await handleFotoOC(from, folioOC, mediaInfo.url);
+        await handleFotoOC(from, folioOC, imageUrl);
         return NextResponse.json({ status: "foto oc processed" });
       }
 
@@ -642,7 +661,7 @@ export async function POST(request: NextRequest) {
         const invData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
         if (invData && invData.material) {
           invData._caption = caption; // pasar caption original para fallback de obra
-          await handleInventarioWhatsApp(from, phone10, invData, mediaInfo.url);
+          await handleInventarioWhatsApp(from, phone10, invData, imageUrl);
           return NextResponse.json({ status: "inventario processed" });
         }
         // Si no pudo parsear, cae al flujo de gasto
@@ -657,7 +676,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "extraction failed" });
       }
 
-      await handleGasto(from, phone10, gastoData, mediaInfo.url);
+      await handleGasto(from, phone10, gastoData, imageUrl);
       return NextResponse.json({ status: "gasto image processed" });
     }
 

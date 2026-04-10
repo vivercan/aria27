@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { processAndUploadPhoto } from "@/lib/image-watermark";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 const log = logger("WEBHOOK-OC-FOTO");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -86,14 +88,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "oc_not_found" });
     }
 
-    // Si hay imagen, obtener URL
+    // Si hay imagen, descargar → watermark → Storage (URL permanente)
     let fotoUrl = "";
     if (imageId) {
       const mediaRes = await fetch(`https://graph.facebook.com/v22.0/${imageId}`, {
         headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` },
       });
       const mediaData = await mediaRes.json();
-      fotoUrl = mediaData.url || "";
+      const tempUrl = mediaData.url || "";
+
+      if (tempUrl) {
+        const phone10 = from.replace(/^521/, "").replace(/^52/, "");
+        const storagePath = `oc-fotos/${folioOC}/${Date.now()}.jpg`;
+        const supabaseAdmin = getSupabaseAdmin();
+        const permanentUrl = await processAndUploadPhoto({
+          mediaUrl: tempUrl,
+          whatsappToken: WHATSAPP_TOKEN || "",
+          supabase: supabaseAdmin,
+          bucket: "inventario",
+          storagePath,
+        });
+        fotoUrl = permanentUrl || tempUrl;
+        if (!permanentUrl) {
+          log.warn("No se pudo guardar foto OC en Storage", { folioOC, phone10 });
+        }
+      }
     }
 
     // Buscar o crear entrega para esta OC

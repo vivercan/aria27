@@ -173,27 +173,26 @@ export default function InventarioObraPage() {
     setCatalogoProductos(data || []);
   };
 
-  // ====== UPLOAD FOTO A STORAGE ======
+  // ====== UPLOAD FOTO A STORAGE (con watermark fecha/hora) ======
   const subirFoto = async (file: File, prefix: string): Promise<string | null> => {
-    const ext = file.name.split(".").pop() || "jpg";
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${prefix}/${Date.now()}_${safeName}`;
-    const { error } = await supabase.storage.from("inventario").upload(path, file, { upsert: false });
-    if (error) {
-      console.error("Error upload foto:", error.message);
-      // Fallback: intentar crear bucket y reintentar
-      if (error.message.includes("not found") || error.message.includes("Bucket")) {
-        // Bucket no existe — el DDL lo creará, por ahora subir a expedientes como fallback
-        const { error: e2 } = await supabase.storage.from("expedientes").upload(`inventario/${path}`, file, { upsert: false });
-        if (e2) { alert("Error al subir foto: " + e2.message); return null; }
-        const { data: u2 } = supabase.storage.from("expedientes").getPublicUrl(`inventario/${path}`);
-        return u2.publicUrl;
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${prefix}/${Date.now()}_${safeName}`;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bucket", "inventario");
+      formData.append("path", path);
+      const res = await fetch("/api/inventario/watermark", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        alert("Error al subir foto: " + (data.error || "desconocido"));
+        return null;
       }
-      alert("Error al subir foto: " + error.message);
+      return data.url;
+    } catch (e: any) {
+      alert("Error al subir foto: " + (e?.message || "error"));
       return null;
     }
-    const { data: urlData } = supabase.storage.from("inventario").getPublicUrl(path);
-    return urlData.publicUrl;
   };
 
   // ====== HELPERS PARA FILE PREVIEW ======
@@ -706,7 +705,6 @@ export default function InventarioObraPage() {
             <table className="w-full">
               <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
                 <tr>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-slate-300 w-12">Foto</th>
                   <th className="px-3 py-3 text-left text-sm font-medium text-slate-300">Material</th>
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Disponible</th>
                   <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Usado</th>
@@ -718,37 +716,7 @@ export default function InventarioObraPage() {
               <tbody className="divide-y divide-white/5">
                 {inventarioFiltrado.map((item) => (
                   <tr key={item.id} className="hover:bg-white/5">
-                    {/* Foto thumbnail */}
-                    <td className="px-3 py-2">
-                      {item.foto_url ? (
-                        <div className="relative group w-10 h-10">
-                          <img src={item.foto_url} alt={item.producto_nombre} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
-                          <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
-                            <button onClick={() => setFotoAmpliadaUrl(item.foto_url!)} className="p-0.5" title="Ver foto">
-                              <Eye className="w-3.5 h-3.5 text-white" />
-                            </button>
-                            <label className="p-0.5 cursor-pointer" title="Cambiar foto">
-                              <Camera className="w-3.5 h-3.5 text-white" />
-                              <input type="file" accept="image/*" className="hidden"
-                                onChange={(e) => { const f = e.target.files?.[0]; if (f) actualizarFotoProducto(item, f); }} />
-                            </label>
-                          </div>
-                        </div>
-                      ) : (
-                        <label className="w-10 h-10 rounded-lg border border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-blue-400/50 transition-colors">
-                          <Camera className="w-4 h-4 text-slate-500" />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const f = e.target.files?.[0];
-                              if (f) actualizarFotoProducto(item, f);
-                            }}
-                          />
-                        </label>
-                      )}
-                    </td>
+                    {/* Foto eliminada de lista — solo visible en Kardex */}
                     <td className="px-3 py-3">
                       <p className="text-white font-medium">{item.producto_nombre}</p>
                       <p className="text-xs text-slate-400">
