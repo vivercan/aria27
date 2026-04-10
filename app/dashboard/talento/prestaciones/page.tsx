@@ -11,7 +11,7 @@ const submodulos = [
 
 export default function PrestacionesPage() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />

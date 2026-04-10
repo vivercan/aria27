@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
+import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface PurchaseOrder {
   id: string;
@@ -19,7 +19,6 @@ interface PurchaseOrder {
 }
 
 export default function PagosPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -125,13 +124,10 @@ export default function PagosPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <AriaBackButton href="/dashboard/requisiciones" />
 
-      <div>
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <h1 className="text-2xl font-bold text-white">Control de Pagos</h1>
         <p className="text-slate-400 text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
       </div>

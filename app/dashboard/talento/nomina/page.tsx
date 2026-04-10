@@ -11,7 +11,7 @@ const submodulos = [
 
 export default function NominaPage() {
   return (
-    <div className="p-6">
+    <div className="max-w-7xl mx-auto p-6">
       <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
         <ArrowLeft className="w-4 h-4" /> Talento
       </Link>

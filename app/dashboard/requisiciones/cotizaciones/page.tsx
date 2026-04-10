@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
+import { Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface ReqItem {
   id: string;
@@ -50,7 +50,6 @@ interface ResultadoBusqueda {
 }
 
 export default function CotizacionesIAPage() {
-  const router = useRouter();
   const [requisiciones, setRequisiciones] = useState<Requisicion[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReq, setSelectedReq] = useState<Requisicion | null>(null);
@@ -158,12 +157,10 @@ export default function CotizacionesIAPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <button onClick={() => router.back()} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </button>
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
+        <AriaBackButton href="/dashboard/requisiciones" />
         <button onClick={() => setShowQuoteModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Registrar Cotización</button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

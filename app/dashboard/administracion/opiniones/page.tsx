@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import {
-  ArrowLeft, ScrollText, Upload, Loader2, Download,
+  ScrollText, Upload, Loader2, Download,
   Trash2, CheckCircle2, AlertTriangle, Clock, FileText, X
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const OPINIONES = [
   { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -25,7 +25,6 @@ interface OpinionDoc {
 }
 
 export default function OpinionesPage() {
-  const router = useRouter();
   const [docs, setDocs] = useState<OpinionDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -132,16 +131,13 @@ export default function OpinionesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <input type="file" ref={fileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png"
         onChange={handleFileUpload} />
 
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+      <AriaBackButton href="/dashboard/administracion" />
 
-      <div>
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <h1 className="text-2xl font-bold text-white">Opiniones de Cumplimiento</h1>
         <p className="text-slate-400 text-sm">IMSS, Infonavit, SAT, SAR — sube y controla vigencias</p>
       </div>

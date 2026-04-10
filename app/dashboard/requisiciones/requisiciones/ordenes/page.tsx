@@ -4,11 +4,12 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
-  ArrowLeft, Loader2, Package, Search, Filter,
+  Loader2, Package, Search, Filter,
   CheckCircle2, Truck, CreditCard,
   FileText, ChevronRight, Printer, FileDown,
   PackageCheck, Banknote
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type PO = {
   id: number;
@@ -242,7 +243,7 @@ export default function OrdenesCompraPage() {
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center gap-3 mb-4 shrink-0">
-        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+        <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
         <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-slate-400 text-sm">{orders.length} órdenes generadas</p></div>
       </div>
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">

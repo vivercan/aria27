@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Search, Edit2, Trash2, Check, XCircle,
+  Plus, Search, Edit2, Trash2, Check, XCircle,
   Loader2, Wrench, AlertTriangle, Calendar, ClipboardList,
   Clock, CheckCircle2, Settings, Package, DollarSign, Play,
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 /* ────────── types ────────── */
 interface Orden {
@@ -66,7 +66,6 @@ const diasPara = (d: string | null) => { if (!d) return null; return Math.ceil((
 
 /* ────────── component ────────── */
 export default function MantenimientoPage() {
-  const router = useRouter();
   const [tab, setTab] = useState<Tab>("Órdenes");
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [programas, setProgramas] = useState<Programa[]>([]);
@@ -122,6 +121,8 @@ export default function MantenimientoPage() {
   async function guardarOrden() {
     if (!ordenForm.activo_id) { flash("err", "Selecciona un activo"); return; }
     if (!ordenForm.descripcion.trim()) { flash("err", "Descripción requerida"); return; }
+    const costo = parseFloat(ordenForm.costo_estimado);
+    if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
     const payload: any = {
       activo_id: ordenForm.activo_id,
@@ -185,6 +186,8 @@ export default function MantenimientoPage() {
     if (!progForm.nombre.trim()) { flash("err", "Nombre del programa requerido"); return; }
     const freq = parseInt(progForm.frecuencia_dias);
     if (!freq || freq <= 0) { flash("err", "Frecuencia en días debe ser > 0"); return; }
+    const costo = parseFloat(progForm.costo_estimado);
+    if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
     const payload: any = {
       activo_id: progForm.activo_id,
@@ -271,9 +274,7 @@ export default function MantenimientoPage() {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
-        <button onClick={() => router.push("/dashboard/activos")} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
+        <AriaBackButton href="/dashboard/activos" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Wrench className="w-6 h-6 text-orange-400" /> Mantenimiento de Activos
@@ -489,14 +490,14 @@ export default function MantenimientoPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Activo *</label>
-                  <select value={ordenForm.activo_id} onChange={e => setOrdenForm({ ...ordenForm, activo_id: e.target.value })} className={inputClass}>
+                  <select value={ordenForm.activo_id} onChange={e => setOrdenForm({ ...ordenForm, activo_id: e.target.value })} required className={inputClass}>
                     <option value="">Seleccionar...</option>
                     {activos.map(a => <option key={a.id} value={a.id}>{a.nombre}{a.tipo ? ` (${a.tipo})` : ""}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
-                  <select value={ordenForm.tipo} onChange={e => setOrdenForm({ ...ordenForm, tipo: e.target.value })} className={inputClass}>
+                  <select value={ordenForm.tipo} onChange={e => setOrdenForm({ ...ordenForm, tipo: e.target.value })} required className={inputClass}>
                     {TIPO_ORDEN.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -515,7 +516,7 @@ export default function MantenimientoPage() {
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Descripción *</label>
-                <textarea value={ordenForm.descripcion} onChange={e => setOrdenForm({ ...ordenForm, descripcion: e.target.value })} rows={2} placeholder="Describe el trabajo a realizar..." className={inputClass + " resize-none"} />
+                <textarea value={ordenForm.descripcion} onChange={e => setOrdenForm({ ...ordenForm, descripcion: e.target.value })} rows={2} placeholder="Describe el trabajo a realizar..." required className={inputClass + " resize-none"} />
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Diagnóstico</label>
@@ -532,17 +533,17 @@ export default function MantenimientoPage() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Costo estimado</label>
-                  <input type="number" step="0.01" value={ordenForm.costo_estimado} onChange={e => setOrdenForm({ ...ordenForm, costo_estimado: e.target.value })} className={inputClass} />
+                  <input type="number" step="0.01" min="0" value={ordenForm.costo_estimado} onChange={e => setOrdenForm({ ...ordenForm, costo_estimado: e.target.value })} className={inputClass} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Km actual</label>
-                  <input type="number" value={ordenForm.km_actual} onChange={e => setOrdenForm({ ...ordenForm, km_actual: e.target.value })} placeholder="Odómetro" className={inputClass} />
+                  <input type="number" min="0" value={ordenForm.km_actual} onChange={e => setOrdenForm({ ...ordenForm, km_actual: e.target.value })} placeholder="Odómetro" className={inputClass} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Horas actual</label>
-                  <input type="number" value={ordenForm.horas_actual} onChange={e => setOrdenForm({ ...ordenForm, horas_actual: e.target.value })} placeholder="Horómetro" className={inputClass} />
+                  <input type="number" min="0" value={ordenForm.horas_actual} onChange={e => setOrdenForm({ ...ordenForm, horas_actual: e.target.value })} placeholder="Horómetro" className={inputClass} />
                 </div>
               </div>
               <div>
@@ -572,23 +573,23 @@ export default function MantenimientoPage() {
             <div className="p-5 space-y-4 overflow-y-auto max-h-[60vh]">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Activo *</label>
-                <select value={progForm.activo_id} onChange={e => setProgForm({ ...progForm, activo_id: e.target.value })} className={inputClass}>
+                <select value={progForm.activo_id} onChange={e => setProgForm({ ...progForm, activo_id: e.target.value })} required className={inputClass}>
                   <option value="">Seleccionar...</option>
                   {activos.map(a => <option key={a.id} value={a.id}>{a.nombre}{a.tipo ? ` (${a.tipo})` : ""}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nombre del programa *</label>
-                <input value={progForm.nombre} onChange={e => setProgForm({ ...progForm, nombre: e.target.value })} placeholder="Ej: Cambio de aceite" className={inputClass} />
+                <input value={progForm.nombre} onChange={e => setProgForm({ ...progForm, nombre: e.target.value })} placeholder="Ej: Cambio de aceite" required className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Frecuencia (días) *</label>
-                  <input type="number" min="1" value={progForm.frecuencia_dias} onChange={e => setProgForm({ ...progForm, frecuencia_dias: e.target.value })} className={inputClass} />
+                  <input type="number" min="1" required value={progForm.frecuencia_dias} onChange={e => setProgForm({ ...progForm, frecuencia_dias: e.target.value })} className={inputClass} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Frecuencia (km)</label>
-                  <input type="number" min="1" value={progForm.frecuencia_km} onChange={e => setProgForm({ ...progForm, frecuencia_km: e.target.value })} placeholder="Opcional" className={inputClass} />
+                  <input type="number" min="0" value={progForm.frecuencia_km} onChange={e => setProgForm({ ...progForm, frecuencia_km: e.target.value })} placeholder="Opcional" className={inputClass} />
                 </div>
               </div>
               <div>
@@ -602,7 +603,7 @@ export default function MantenimientoPage() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Costo estimado</label>
-                  <input type="number" step="0.01" value={progForm.costo_estimado} onChange={e => setProgForm({ ...progForm, costo_estimado: e.target.value })} className={inputClass} />
+                  <input type="number" step="0.01" min="0" value={progForm.costo_estimado} onChange={e => setProgForm({ ...progForm, costo_estimado: e.target.value })} className={inputClass} />
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import ConfirmModal from "@/components/ConfirmModal";
 import {
   ArrowLeft, Printer, FileText, Download, CheckCircle,
   AlertTriangle, User, Building2, DollarSign,
@@ -73,6 +74,8 @@ export default function RecibosNominaPage() {
   const [filtro, setFiltro] = useState("");
   const [exportando, setExportando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const [confirmState, setConfirmState] = useState<{open: boolean; msg: string; title: string; onOk: () => void; variant?: "warning"|"danger"}>({open: false, msg: "", title: "", onOk: () => {}, variant: "warning"});
+  const closeConfirm = () => setConfirmState(s => ({...s, open: false}));
 
   const semanaInfo = useMemo(() => {
     const r = getWeekRange(refDate);
@@ -115,55 +118,85 @@ export default function RecibosNominaPage() {
   const confirmarNomina = async () => {
     if (nominaStatus === "CONFIRMADA") {
       if (!motivoModificacion.trim()) {
-        alert("Debe ingresar el motivo de la modificación");
+        setMensaje({ tipo: "error", texto: "Debe ingresar el motivo de la modificación" });
         return;
       }
-      const c1 = window.confirm("⚠️ ADVERTENCIA: Esta nómina ya fue CONFIRMADA.\n\n¿Está seguro que desea desbloquearla para modificación?");
-      if (!c1) return;
-      const c2 = window.confirm(`SEGUNDA CONFIRMACIÓN\n\nMotivo: ${motivoModificacion}\n\n¿CONFIRMA que desea desbloquear la nómina de Semana ${semanaInfo.semana}?`);
-      if (!c2) return;
+      // First confirmation for unlock
+      setConfirmState({
+        open: true,
+        title: "⚠️ Advertencia",
+        msg: "Esta nómina ya fue CONFIRMADA. ¿Está seguro que desea desbloquearla para modificación?",
+        variant: "danger",
+        onOk: () => {
+          closeConfirm();
+          // Second confirmation for unlock
+          setConfirmState({
+            open: true,
+            title: "Segunda Confirmación",
+            msg: `Motivo: ${motivoModificacion}\n\n¿CONFIRMA que desea desbloquear la nómina de Semana ${semanaInfo.semana}?`,
+            variant: "danger",
+            onOk: async () => {
+              closeConfirm();
+              const { data: unlockRows, error: unlockErr } = await supabase
+                .from("nomina_historico")
+                .update({ status: "GENERADA" })
+                .eq("semana", semanaInfo.semana)
+                .eq("anio", semanaInfo.anio)
+                .eq("status", "CONFIRMADA")
+                .select("id");
+              if (unlockErr) { setMensaje({ tipo: "error", texto: "No se pudo desbloquear: " + unlockErr.message }); return; }
+              if (!unlockRows || unlockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
 
-      const { data: unlockRows, error: unlockErr } = await supabase
-        .from("nomina_historico")
-        .update({ status: "GENERADA" })
-        .eq("semana", semanaInfo.semana)
-        .eq("anio", semanaInfo.anio)
-        .eq("status", "CONFIRMADA")
-        .select("id");
-      if (unlockErr) { alert("No se pudo desbloquear: " + unlockErr.message); return; }
-      if (!unlockRows || unlockRows.length === 0) { alert("La nómina ya no estaba CONFIRMADA. Recarga."); return; }
+              await supabase.from("audit_log").insert({
+                tabla: "nomina_historico",
+                accion: "DESBLOQUEO_NOMINA",
+                descripcion: `Semana ${semanaInfo.semana}/${semanaInfo.anio} desbloqueada. Motivo: ${motivoModificacion}`,
+                usuario: localStorage.getItem("userEmail") || "unknown",
+              });
 
-      await supabase.from("audit_log").insert({
-        tabla: "nomina_historico",
-        accion: "DESBLOQUEO_NOMINA",
-        descripcion: `Semana ${semanaInfo.semana}/${semanaInfo.anio} desbloqueada. Motivo: ${motivoModificacion}`,
-        usuario: localStorage.getItem("userEmail") || "unknown",
+              setNominaStatus("GENERADA");
+              setShowConfirmModal(false);
+              setMotivoModificacion("");
+              setMensaje({ tipo: "success", texto: "Nómina desbloqueada. Ahora puede regenerarla." });
+            }
+          });
+        }
       });
-
-      setNominaStatus("GENERADA");
-      setShowConfirmModal(false);
-      setMotivoModificacion("");
-      setMensaje({ tipo: "success", texto: "Nómina desbloqueada. Ahora puede regenerarla." });
     } else {
-      const c1 = window.confirm(`¿Confirmar DEFINITIVAMENTE la nómina de Semana ${semanaInfo.semana}?\n\nUna vez confirmada, requerirá doble autorización para modificarla.`);
-      if (!c1) return;
-      const c2 = window.confirm("SEGUNDA CONFIRMACIÓN\n\n¿CONFIRMA que los datos son correctos y desea CERRAR esta nómina?");
-      if (!c2) return;
+      // First confirmation for lock
+      setConfirmState({
+        open: true,
+        title: "Confirmar Nómina",
+        msg: `¿Confirmar DEFINITIVAMENTE la nómina de Semana ${semanaInfo.semana}?\n\nUna vez confirmada, requerirá doble autorización para modificarla.`,
+        variant: "warning",
+        onOk: () => {
+          closeConfirm();
+          // Second confirmation for lock
+          setConfirmState({
+            open: true,
+            title: "Segunda Confirmación",
+            msg: "¿CONFIRMA que los datos son correctos y desea CERRAR esta nómina?",
+            variant: "warning",
+            onOk: async () => {
+              closeConfirm();
+              setConfirmando(true);
+              const { data: lockRows, error: lockErr } = await supabase
+                .from("nomina_historico")
+                .update({ status: "CONFIRMADA" })
+                .eq("semana", semanaInfo.semana)
+                .eq("anio", semanaInfo.anio)
+                .eq("status", "GENERADA")
+                .select("id");
+              setConfirmando(false);
+              if (lockErr) { setMensaje({ tipo: "error", texto: "No se pudo confirmar: " + lockErr.message }); return; }
+              if (!lockRows || lockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba GENERADA. Recarga." }); return; }
 
-      setConfirmando(true);
-      const { data: lockRows, error: lockErr } = await supabase
-        .from("nomina_historico")
-        .update({ status: "CONFIRMADA" })
-        .eq("semana", semanaInfo.semana)
-        .eq("anio", semanaInfo.anio)
-        .eq("status", "GENERADA")
-        .select("id");
-      setConfirmando(false);
-      if (lockErr) { alert("No se pudo confirmar: " + lockErr.message); return; }
-      if (!lockRows || lockRows.length === 0) { alert("La nómina ya no estaba GENERADA. Recarga."); return; }
-
-      setNominaStatus("CONFIRMADA");
-      setMensaje({ tipo: "success", texto: `Nómina CONFIRMADA exitosamente (${lockRows.length} recibos)` });
+              setNominaStatus("CONFIRMADA");
+              setMensaje({ tipo: "success", texto: `Nómina CONFIRMADA exitosamente (${lockRows.length} recibos)` });
+            }
+          });
+        }
+      });
     }
   };
 
@@ -402,8 +435,8 @@ export default function RecibosNominaPage() {
         }
       `}</style>
 
-      <div className="space-y-6 no-print">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="max-w-7xl mx-auto space-y-6 no-print">
+        <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
               <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -520,6 +553,15 @@ export default function RecibosNominaPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        title={confirmState.title}
+        variant={confirmState.variant}
+        onConfirm={() => { confirmState.onOk(); closeConfirm(); }}
+        onCancel={closeConfirm}
+      />
     </>
   );
 }

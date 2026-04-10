@@ -3,10 +3,10 @@ import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
+import { Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface CuentaBancaria {
   id: string;
@@ -26,7 +26,6 @@ interface CuentaBancaria {
 const FORM_INIT = { banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" };
 
 export default function BancosPage() {
-  const router = useRouter();
   const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
@@ -105,18 +104,16 @@ export default function BancosPage() {
   const totalSaldo = cuentasMostradas.reduce((s, c) => s + (c.saldo || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
+        <AriaBackButton href="/dashboard/finanzas" />
 
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Bancos</h1>
-          <p className="text-slate-400 text-sm">Cuentas bancarias del grupo · CRUD completo · baja lógica reversible</p>
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Bancos</h1>
+            <p className="text-slate-400 text-sm">Cuentas bancarias del grupo · CRUD completo · baja lógica reversible</p>
+          </div>
+          <div className="flex items-center gap-2">
           <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-xl text-sm font-medium hover:bg-purple-500/30 transition-colors flex items-center gap-2">
             <ListChecks className="w-4 h-4" /> Movimientos / Conciliación
           </Link>
@@ -130,6 +127,7 @@ export default function BancosPage() {
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? "Cancelar" : "Nueva Cuenta"}
           </button>
+          </div>
         </div>
       </div>
 

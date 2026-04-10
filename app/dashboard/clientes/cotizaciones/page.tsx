@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
+import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -42,7 +42,6 @@ const FORM_INIT = {
 const ITEM_INIT: Item = { concepto: "", unidad: "PZA", cantidad: 1, precio_unitario: 0, importe: 0, orden: 0 };
 
 export default function CotizacionesClientesPage() {
-  const router = useRouter();
   const [cots, setCots] = useState<Cotizacion[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -364,13 +363,10 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
   const totEnviado = cots.filter(c => c.estatus === "ENVIADA").reduce((s, c) => s + Number(c.total || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <AriaBackButton href="/dashboard/clientes" />
 
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Cotizaciones a Cliente</h1>
           <p className="text-slate-400 text-sm">Cotizaciones formales a clientes — bloqueadas para clientes INACTIVOS</p>

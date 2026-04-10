@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Search, Edit2, Trash2, Check, XCircle,
+  Plus, Search, Edit2, Trash2, Check, XCircle,
   Loader2, Shield, AlertTriangle, Calendar, DollarSign,
   FileText, TrendingDown, Clock, CreditCard, Building2,
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -41,7 +41,6 @@ const diasPara = (d: string | null) => { if (!d) return null; const diff = Math.
 
 /* ────────── component ────────── */
 export default function SUAFinanzasPage() {
-  const router = useRouter();
 
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -91,9 +90,11 @@ export default function SUAFinanzasPage() {
   async function guardar() {
     if (!form.periodo.trim()) { flash("err", "Periodo requerido (ej: 2026-03)"); return; }
     const montoBase = parseFloat(form.monto_base);
-    if (!montoBase || montoBase <= 0) { flash("err", "Monto base requerido"); return; }
+    if (isNaN(montoBase) || montoBase <= 0) { flash("err", "Monto base requerido y debe ser mayor a 0"); return; }
     const recargos = parseFloat(form.recargos) || 0;
+    if (recargos < 0) { flash("err", "Recargos no pueden ser negativos"); return; }
     const actualizacion = parseFloat(form.actualizacion) || 0;
+    if (actualizacion < 0) { flash("err", "Actualización no puede ser negativa"); return; }
     const total = montoBase + recargos + actualizacion;
     const obraObj = obras.find(o => o.id === form.obra_id);
 
@@ -160,8 +161,10 @@ export default function SUAFinanzasPage() {
   async function registrarPago() {
     if (!pagoTarget) return;
     const monto = parseFloat(pagoForm.monto);
-    if (!monto || monto <= 0) { flash("err", "Monto de pago requerido"); return; }
+    if (isNaN(monto) || monto <= 0) { flash("err", "Monto de pago requerido y debe ser mayor a 0"); return; }
     if (!pagoForm.fecha) { flash("err", "Fecha de pago requerida"); return; }
+    const maxPago = Number(pagoTarget.total) - Number(pagoTarget.monto_pagado);
+    if (monto > maxPago) { flash("err", `Pago excede el monto adeudado. Máximo: ${maxPago.toFixed(2)}`); return; }
     const nuevoPagado = Number(pagoTarget.monto_pagado) + monto;
     setSaving(true);
     const { error } = await supabase.from("sua_lineas_captura").update({
@@ -198,9 +201,7 @@ export default function SUAFinanzasPage() {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
-        <button onClick={() => router.push("/dashboard/finanzas")} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
+        <AriaBackButton href="/dashboard/finanzas" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-400" /> SUA · Control Financiero
@@ -381,11 +382,11 @@ export default function SUAFinanzasPage() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Periodo *</label>
-                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
+                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Trabajadores</label>
-                  <input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -404,15 +405,15 @@ export default function SUAFinanzasPage() {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Monto base *</label>
-                  <input type="number" step="0.01" value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
+                  <input type="number" step="0.01" min="0.01" required value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Recargos</label>
-                  <input type="number" step="0.01" value={form.recargos} onChange={e => setForm({ ...form, recargos: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <input type="number" step="0.01" min="0" value={form.recargos} onChange={e => setForm({ ...form, recargos: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Actualización</label>
-                  <input type="number" step="0.01" value={form.actualizacion} onChange={e => setForm({ ...form, actualizacion: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <input type="number" step="0.01" min="0" value={form.actualizacion} onChange={e => setForm({ ...form, actualizacion: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
               <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex justify-between items-center">
@@ -459,11 +460,11 @@ export default function SUAFinanzasPage() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Monto a pagar *</label>
-                <input type="number" step="0.01" value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/40" />
+                <input type="number" step="0.01" min="0.01" required value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/40" />
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Fecha de pago *</label>
-                <input type="date" value={pagoForm.fecha} onChange={e => setPagoForm({ ...pagoForm, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                <input type="date" value={pagoForm.fecha} onChange={e => setPagoForm({ ...pagoForm, fecha: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

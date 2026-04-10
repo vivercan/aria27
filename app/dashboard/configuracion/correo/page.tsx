@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Mail, Send, CheckCircle2, Settings, FileText, ShoppingCart, ClipboardCheck, Truck, AlertTriangle, Zap, TestTube } from "lucide-react";
+import { Mail, Send, CheckCircle2, Settings, FileText, ShoppingCart, ClipboardCheck, Truck, AlertTriangle, Zap, TestTube } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const emailTemplates = [
   {
@@ -67,7 +67,6 @@ const emailTemplates = [
 ];
 
 export default function CorreoPage() {
-  const router = useRouter();
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
@@ -89,13 +88,10 @@ export default function CorreoPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <AriaBackButton href="/dashboard/configuracion" />
 
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Configuración de Correo</h1>
           <p className="text-slate-400 text-sm">Servicio de email transaccional via Resend</p>

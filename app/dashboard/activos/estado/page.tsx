@@ -50,24 +50,26 @@ export default function EstadoActivosPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
-          <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
+            <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
-          Todos ({activos.length})
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+            Todos ({activos.length})
+          </button>
         {Object.entries(estados).map(([est, count]) => (
           <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
             {getIcon(est)} {est} ({count as number})
           </button>
         ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (

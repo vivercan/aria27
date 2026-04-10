@@ -395,8 +395,8 @@ Responde SOLO con JSON así:
   const urgency = getUrgencyBadge(selectedReq.required_date);
 
   return (
-    <div className="space-y-3 text-sm">
-      <div className="flex items-center gap-3">
+    <div className="max-w-7xl mx-auto space-y-3 text-sm">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
         <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
           <ArrowLeft className="w-4 h-4 text-slate-400" />
         </button>

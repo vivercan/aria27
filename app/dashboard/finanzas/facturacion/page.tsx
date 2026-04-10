@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle , Loader2 } from "lucide-react";
+import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle , Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Factura {
   id: string;
@@ -24,7 +24,6 @@ interface Factura {
 }
 
 export default function FacturacionPage() {
-  const router = useRouter();
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -98,20 +97,19 @@ export default function FacturacionPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
+        <AriaBackButton href="/dashboard/finanzas" />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Facturación</h1>
-          <p className="text-slate-400 text-sm">Control de facturas emitidas — IVA 16%</p>
+        <div className="mt-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Facturación</h1>
+            <p className="text-slate-400 text-sm">Control de facturas emitidas — IVA 16%</p>
+          </div>
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Nueva Factura
+          </button>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nueva Factura
-        </button>
       </div>
 
       {/* Aviso CFDI prominente */}

@@ -3,9 +3,9 @@ import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, ClipboardList, Search, Plus, Eye, Printer, Loader2, Package, CheckCircle, X, Save, Trash2 } from "lucide-react";
+import { ClipboardList, Search, Plus, Eye, Printer, Loader2, Package, CheckCircle, X, Save, Trash2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface OrdenFormato {
   id: string;
@@ -23,7 +23,6 @@ const ESTADOS = ["borrador", "pendiente", "aprobada", "enviada", "completada"];
 const EMPTY = { nombre: "", numero: "", proveedor: "", obra: "", monto: "", estado: "borrador", fecha: "" };
 
 export default function OrdenesPage() {
-  const router = useRouter();
   const [ordenes, setOrdenes] = useState<OrdenFormato[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -125,10 +124,7 @@ export default function OrdenesPage() {
         </div>
       )}
 
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors w-fit">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+      <AriaBackButton href="/dashboard/plantillas" />
 
       <div className="flex items-center justify-between">
         <div>

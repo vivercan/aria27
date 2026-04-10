@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, ArrowLeft, Fuel, Hammer, Users2, Receipt } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -170,13 +171,7 @@ export default function NewRequisitionPage() {
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          title="Regresar"
-        >
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </button>
+        <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
       </div>
 

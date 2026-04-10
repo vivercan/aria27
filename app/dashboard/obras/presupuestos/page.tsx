@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
-import { ArrowLeft, Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
+import { Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Partida {
   id: string;
@@ -19,7 +19,6 @@ interface Partida {
 }
 
 export default function PresupuestosPage() {
-  const router = useRouter();
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -42,10 +41,13 @@ export default function PresupuestosPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre || !form.descripcion || form.cantidad <= 0 || form.precio_unitario <= 0) { alert("Obra, descripción, cantidad y PU requeridos"); return; }
+    if (!form.obra_nombre.trim()) { alert("Selecciona una obra"); return; }
+    if (!form.descripcion.trim()) { alert("Descripción es requerida"); return; }
+    if (isNaN(form.cantidad) || form.cantidad <= 0) { alert("Cantidad debe ser mayor a 0"); return; }
+    if (isNaN(form.precio_unitario) || form.precio_unitario <= 0) { alert("Precio unitario debe ser mayor a 0"); return; }
     const importe = form.cantidad * form.precio_unitario;
 
-    const { error } = await supabase.from("presupuestos_partidas").insert({ ...form, importe });
+    const { error } = await supabase.from("presupuestos_partidas").insert({ ...form, importe, descripcion: form.descripcion.trim() });
     if (error) alert("Error: " + error?.message);
     else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); }
   }
@@ -67,20 +69,19 @@ export default function PresupuestosPage() {
   })).sort((a, b) => b.total - a.total);
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
+        <AriaBackButton href="/dashboard/obras" />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Presupuestos de Obra</h1>
-          <p className="text-slate-400 text-sm">Catálogo de partidas con precios unitarios por obra</p>
+        <div className="mt-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Presupuestos de Obra</h1>
+            <p className="text-slate-400 text-sm">Catálogo de partidas con precios unitarios por obra</p>
+          </div>
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Nueva Partida
+          </button>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nueva Partida
-        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -115,8 +116,8 @@ export default function PresupuestosPage() {
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva Partida</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div><label className="text-xs text-slate-400 mb-1 block">Obra</label>
-              <select value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+            <div><label className="text-xs text-slate-400 mb-1 block">Obra *</label>
+              <select value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="">-- Selecciona obra del catálogo --</option>
                 {obrasCat.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
               </select></div>
@@ -130,12 +131,12 @@ export default function PresupuestosPage() {
               <select value={form.unidad} onChange={e => setForm({...form, unidad: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="LOTE">LOTE</option><option value="M2">M2</option><option value="M3">M3</option><option value="ML">ML</option><option value="PZA">PZA</option><option value="KG">KG</option><option value="TON">TON</option><option value="JOR">JORNADA</option><option value="GLOBAL">GLOBAL</option>
               </select></div>
-            <div className="md:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Descripción</label>
-              <input value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} placeholder="Descripción de la partida" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Cantidad</label>
-              <input type="number" value={form.cantidad} onChange={e => setForm({...form, cantidad: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Precio Unitario</label>
-              <input type="number" value={form.precio_unitario} onChange={e => setForm({...form, precio_unitario: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div className="md:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Descripción *</label>
+              <input value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} placeholder="Descripción de la partida" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Cantidad *</label>
+              <input type="number" min="0.01" step="0.01" required value={form.cantidad} onChange={e => setForm({...form, cantidad: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Precio Unitario *</label>
+              <input type="number" min="0.01" step="0.01" required value={form.precio_unitario} onChange={e => setForm({...form, precio_unitario: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
           </div>
           {form.cantidad > 0 && form.precio_unitario > 0 && (
             <div className="p-3 bg-white/5 rounded-lg text-sm">

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, AlertCircle, Clock, Calendar, UserX, CheckCircle2 , Loader2 } from "lucide-react";
+import { Plus, Search, AlertCircle, Clock, Calendar, UserX, CheckCircle2 , Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Incidencia {
   id: string;
@@ -19,7 +19,6 @@ interface Incidencia {
 }
 
 export default function IncidenciasPage() {
-  const router = useRouter();
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
   const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,13 +91,10 @@ export default function IncidenciasPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <AriaBackButton href="/dashboard/talento" />
 
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Incidencias</h1>
           <p className="text-slate-400 text-sm">Faltas, retardos, permisos e incapacidades</p>

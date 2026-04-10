@@ -3,9 +3,9 @@ import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, FileText, Search, Upload, Download, Eye, Loader2, FolderOpen, X, Save, Trash2 } from "lucide-react";
+import { FileText, Search, Upload, Download, Eye, Loader2, FolderOpen, X, Save, Trash2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Documento {
   id: string;
@@ -25,7 +25,6 @@ const TIPOS = ["Contrato", "Plano", "Licencia", "Permiso", "Factura", "Reporte",
 const EMPTY = { nombre: "", tipo: "Contrato", categoria: "", descripcion: "", archivo_url: "", obra_id: "", obra_nombre: "" };
 
 export default function DocumentosPage() {
-  const router = useRouter();
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -95,10 +94,7 @@ export default function DocumentosPage() {
         </div>
       )}
 
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors w-fit">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+      <AriaBackButton href="/dashboard/plantillas" />
 
       <div className="flex items-center justify-between">
         <div>

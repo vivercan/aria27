@@ -16,7 +16,7 @@ const scopes = [
 
 export default function CarpetasHubPage() {
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8">
       <div className="flex items-center gap-3">
         <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="w-5 h-5" />

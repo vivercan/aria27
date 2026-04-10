@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { registrarCobroEstimacion } from "@/lib/finanzas-payments";
-import { ArrowLeft, DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X, Loader2 } from "lucide-react";
+import { DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X, Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Estimacion {
   id: string;
@@ -21,7 +21,6 @@ interface Estimacion {
 }
 
 export default function CobranzaPage() {
-  const router = useRouter();
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -122,10 +121,7 @@ export default function CobranzaPage() {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+      <AriaBackButton href="/dashboard/finanzas" />
 
       <div className="flex items-center justify-between">
         <div>

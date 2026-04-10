@@ -105,7 +105,7 @@ export default function ProspeccionPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* HEADER */}
-      <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
           <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>

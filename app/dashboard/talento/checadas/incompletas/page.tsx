@@ -150,9 +150,9 @@ export default function IncompletasPage() {
   const totalPendientes = incompletas.length + sinRegistro.length;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
         </Link>

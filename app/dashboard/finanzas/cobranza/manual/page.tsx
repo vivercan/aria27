@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -38,7 +38,6 @@ const FORM_INIT = {
 };
 
 export default function CobranzaManualPage() {
-  const router = useRouter();
   const [cobros, setCobros] = useState<Cobro[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -100,8 +99,9 @@ export default function CobranzaManualPage() {
       alert(`El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cobranza.`);
       return;
     }
-    if (!form.monto || form.monto <= 0) { alert("Monto debe ser mayor a 0"); return; }
-    if (form.saldo < 0 || form.saldo > form.monto) { alert("Saldo debe estar entre 0 y monto"); return; }
+    if (!form.monto || isNaN(form.monto) || form.monto <= 0) { alert("Monto debe ser un número mayor a 0"); return; }
+    if (isNaN(form.saldo) || form.saldo < 0 || form.saldo > form.monto) { alert("Saldo debe estar entre 0 y monto"); return; }
+    if (!form.fecha) { alert("Fecha es requerida"); return; }
 
     const obra = form.obra_id ? obras.find(o => o.id === form.obra_id) : null;
 
@@ -185,10 +185,7 @@ export default function CobranzaManualPage() {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5" /></div>
-        <span className="text-sm font-medium">Regresar</span>
-      </button>
+      <AriaBackButton href="/dashboard/finanzas" />
 
       <div className="flex items-center justify-between">
         <div>
@@ -304,7 +301,7 @@ export default function CobranzaManualPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
-                <select value={form.cliente_id} onChange={e => setForm({ ...form, cliente_id: e.target.value })}
+                <select value={form.cliente_id} onChange={e => setForm({ ...form, cliente_id: e.target.value })} required
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                   <option value="">— Selecciona cliente ACTIVO —</option>
                   {clientesActivos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -325,7 +322,7 @@ export default function CobranzaManualPage() {
 
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Monto *</label>
-                <input type="number" step="0.01" value={form.monto}
+                <input type="number" step="0.01" min="0.01" required value={form.monto}
                   onChange={e => {
                     const v = parseFloat(e.target.value) || 0;
                     setForm({ ...form, monto: v, saldo: form.saldo > v ? v : form.saldo });
@@ -341,8 +338,8 @@ export default function CobranzaManualPage() {
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-                <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
+                <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
+                <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} required
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
               </div>
               <div>
