@@ -42,7 +42,9 @@ export default function CobranzaPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre || form.monto_estimado <= 0) { alert("Obra y monto son requeridos"); return; }
+    if (!form.obra_nombre?.trim()) { alert("Nombre de obra es requerido"); return; }
+    if (isNaN(form.monto_estimado) || form.monto_estimado <= 0) { alert("Monto estimado debe ser mayor a 0"); return; }
+    if (isNaN(form.retencion_fondo) || form.retencion_fondo < 0 || form.retencion_fondo > 100) { alert("% Retención debe estar entre 0 y 100"); return; }
     // Folio derivado del max(numero) + 1 por obra. NOTA: sin unique constraint en
     // (obra_nombre, numero) sigue habiendo riesgo de colisión bajo concurrencia.
     // Mitigado a nivel cliente; deuda P1: añadir unique index en BD.
@@ -89,7 +91,8 @@ export default function CobranzaPage() {
   async function confirmarCobro() {
     if (!cobroModal) return;
     const montoCobrado = parseFloat(cobroMonto);
-    if (isNaN(montoCobrado) || montoCobrado <= 0) return;
+    if (isNaN(montoCobrado) || montoCobrado <= 0) { alert("Monto a cobrar debe ser mayor a 0"); return; }
+    if (montoCobrado > cobroModal.pendiente) { alert(`Monto no puede exceder pendiente de $${cobroModal.pendiente.toLocaleString()}`); return; }
     setCobroSaving(true);
     try {
       await registrarCobroEstimacion({
@@ -158,24 +161,24 @@ export default function CobranzaPage() {
           <h3 className="text-lg font-semibold text-white">Nueva Estimación</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { key: "obra_nombre", label: "Obra", placeholder: "Nombre de la obra" },
+              { key: "obra_nombre", label: "Obra *", placeholder: "Nombre de la obra" },
               { key: "cliente", label: "Cliente", placeholder: "Nombre del cliente" },
               { key: "periodo", label: "Periodo", placeholder: "Ej: Ene 2026, Semana 1-15 Feb" },
             ].map(f => (
               <div key={f.key}>
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
-                <input value={(form as any)[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
+                <input required={f.key === "obra_nombre"} value={(form as any)[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
               </div>
             ))}
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Monto Estimado</label>
-              <input type="number" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: parseFloat(e.target.value) || 0})}
+              <label className="text-xs text-slate-400 mb-1 block">Monto Estimado *</label>
+              <input type="number" required min="0.01" step="0.01" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: parseFloat(e.target.value) || 0})}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">% Retención Fondo Garantía</label>
-              <input type="number" value={form.retencion_fondo} onChange={e => setForm({...form, retencion_fondo: parseFloat(e.target.value) || 5})}
+              <label className="text-xs text-slate-400 mb-1 block">% Retención Fondo *</label>
+              <input type="number" required min="0" max="100" step="0.01" value={form.retencion_fondo} onChange={e => setForm({...form, retencion_fondo: parseFloat(e.target.value) || 5})}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
             </div>
           </div>
@@ -262,8 +265,8 @@ export default function CobranzaPage() {
               <button onClick={() => setCobroModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Monto cobrado</label>
-              <input type="number" value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0" max={cobroModal.pendiente}
+              <label className="block text-xs text-slate-400 mb-1">Monto cobrado *</label>
+              <input type="number" required value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0.01" max={cobroModal.pendiente}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
               <p className="text-xs text-slate-500 mt-1">{`Pendiente cobrable: $${cobroModal.pendiente.toLocaleString()} (cobrado previo: $${cobroModal.cobrado.toLocaleString()}, retención: $${cobroModal.retencion.toLocaleString()})`}</p>
             </div>

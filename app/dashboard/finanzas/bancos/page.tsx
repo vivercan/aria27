@@ -66,7 +66,10 @@ export default function BancosPage() {
   }
 
   async function guardar() {
-    if (!form.banco || !form.cuenta) { alert("Banco y cuenta son requeridos"); return; }
+    if (!form.banco?.trim()) { alert("Banco es requerido"); return; }
+    if (!form.cuenta?.trim()) { alert("Número de cuenta es requerido"); return; }
+    if (!form.titular?.trim()) { alert("Titular es requerido"); return; }
+    if (isNaN(form.saldo) || form.saldo < 0) { alert("Saldo debe ser >= 0"); return; }
     const payload = { ...form, updated_at: new Date().toISOString() } as any;
     if (editId) {
       const { error } = await supabase.from("cuentas_bancarias").update(payload).eq("id", editId);
@@ -151,15 +154,16 @@ export default function BancosPage() {
           <h3 className="text-lg font-semibold text-white">{editId ? "Editar cuenta bancaria" : "Nueva cuenta bancaria"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { key: "banco", label: "Banco", placeholder: "Ej: BBVA, Banorte, HSBC" },
-              { key: "cuenta", label: "No. Cuenta", placeholder: "Número de cuenta" },
+              { key: "banco", label: "Banco *", placeholder: "Ej: BBVA, Banorte, HSBC" },
+              { key: "cuenta", label: "No. Cuenta *", placeholder: "Número de cuenta" },
               { key: "clabe", label: "CLABE", placeholder: "18 dígitos" },
-              { key: "titular", label: "Titular", placeholder: "Nombre del titular" },
+              { key: "titular", label: "Titular *", placeholder: "Nombre del titular" },
               { key: "empresa", label: "Empresa / Centro", placeholder: "AVANTE, DENIVEL, TENDEVEL" },
             ].map(f => (
               <div key={f.key}>
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
                 <input
+                  required={f.key === "banco" || f.key === "cuenta" || f.key === "titular"}
                   value={(form as any)[f.key]}
                   onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
@@ -178,9 +182,12 @@ export default function BancosPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Saldo {editId ? "actual" : "inicial"}</label>
+              <label className="text-xs text-slate-400 mb-1 block">Saldo {editId ? "actual" : "inicial"} *</label>
               <input
                 type="number"
+                required
+                min="0"
+                step="0.01"
                 value={form.saldo}
                 onChange={e => setForm({ ...form, saldo: parseFloat(e.target.value) || 0 })}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"

@@ -65,7 +65,9 @@ function BitacoraContent() {
 
   async function guardar() {
     if (!obraSel) { alert("Selecciona una obra"); return; }
-    if (!form.actividades) { alert("Las actividades son requeridas"); return; }
+    if (!form.fecha) { alert("Fecha es requerida"); return; }
+    if (!form.actividades?.trim()) { alert("Las actividades son requeridas"); return; }
+    if (isNaN(Number(form.personal_en_obra)) || Number(form.personal_en_obra) < 0) { alert("Personal en obra debe ser >= 0"); return; }
     const obra = obras.find(o => o.nombre === obraSel);
     const fotosArr = form.fotos.split(",").map(s => s.trim()).filter(Boolean);
     const payload = {
@@ -143,8 +145,8 @@ function BitacoraContent() {
           <h3 className="text-lg font-semibold text-white">Nueva entrada · {obraSel}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400">Fecha</label>
-              <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-slate-400">Fecha *</label>
+              <input type="date" required value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
             </div>
             <div>
               <label className="text-xs text-slate-400">Clima</label>
@@ -153,12 +155,12 @@ function BitacoraContent() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400">Personal en obra</label>
-              <input type="number" value={form.personal_en_obra} onChange={e => setForm({ ...form, personal_en_obra: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-slate-400">Personal en obra *</label>
+              <input type="number" required min="0" value={form.personal_en_obra} onChange={e => setForm({ ...form, personal_en_obra: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
               <label className="text-xs text-slate-400">Actividades del día *</label>
-              <textarea value={form.actividades} onChange={e => setForm({ ...form, actividades: e.target.value })} rows={3} placeholder="Avance, áreas trabajadas, materiales colocados..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <textarea required value={form.actividades} onChange={e => setForm({ ...form, actividades: e.target.value })} rows={3} placeholder="Avance, áreas trabajadas, materiales colocados..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
               <label className="text-xs text-slate-400">Maquinaria utilizada</label>

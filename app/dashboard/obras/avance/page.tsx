@@ -79,8 +79,9 @@ export default function AvanceObrasPage() {
 
   async function guardar(obra_nombre: string, obra_id: string | null) {
     const d = getDraft(obra_nombre);
+    if (!d.pct?.trim()) { alert("Porcentaje es requerido"); return; }
     const pct = parseFloat(d.pct);
-    if (isNaN(pct) || pct < 0 || pct > 100) { alert("% debe estar entre 0 y 100"); return; }
+    if (isNaN(pct) || pct < 0 || pct > 100) { alert("Porcentaje debe estar entre 0 y 100"); return; }
     setSaving(true);
     try {
       const existente = semanaActual.get(obra_nombre);
@@ -181,8 +182,9 @@ export default function AvanceObrasPage() {
                     <td className="p-3 text-center">
                       <input
                         type="number"
-                        min={0}
-                        max={100}
+                        required
+                        min="0"
+                        max="100"
                         step="0.1"
                         value={d.pct}
                         onChange={e => setDraftFor(o.nombre, { pct: e.target.value })}

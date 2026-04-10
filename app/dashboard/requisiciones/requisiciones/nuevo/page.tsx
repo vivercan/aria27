@@ -134,16 +134,27 @@ export default function NewRequisitionPage() {
     if (!selectedCostCenterId) { setErrorMsg("Selecciona un centro de costo."); return; }
     if (!requiredDate) { setErrorMsg("Selecciona la fecha requerida."); return; }
     if (getTotalPartidas() === 0) { setErrorMsg("Agrega al menos una partida."); return; }
+
+    // Validar que la fecha sea hoy o en el futuro
+    const today = new Date().toISOString().split("T")[0];
+    if (requiredDate < today) { setErrorMsg("La fecha requerida debe ser hoy o en el futuro."); return; }
+
     const center = costCenters.find(c => c.id === selectedCostCenterId);
     if (!center) return;
     setSending(true);
 
     let materiales: any[] = [];
     if (formMode === "catalogo") {
+      const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
+      if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad > 0."); setSending(false); return; }
       materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations }));
     } else if (formMode === "combustible") {
+      const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim());
+      if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0 y destino."); setSending(false); return; }
       materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}` }));
     } else {
+      const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad <= 0 || isNaN(f.monto) || f.monto < 0);
+      if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción, cantidad > 0 y monto >= 0."); setSending(false); return; }
       materiales = freeRows.map(f => ({ id: null, name: f.descripcion, unit: f.unidad, qty: f.cantidad, comments: f.observaciones, price: f.monto }));
     }
 
@@ -191,8 +202,8 @@ export default function NewRequisitionPage() {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Fecha Requerida</label>
-              <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
+              <label className="text-xs font-medium text-white/70">Fecha Requerida *</label>
+              <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Solicitante</label>
@@ -306,12 +317,12 @@ export default function NewRequisitionPage() {
               <div className="max-h-52 overflow-auto space-y-2">
                 {freeRows.map((r, i) => (
                   <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
-                    <input className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
-                    <input type="number" min={1} className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} />
+                    <input required className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
+                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
-                    <input type="number" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
+                    <input type="number" required min="0" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
                     <button onClick={() => setFreeRows(prev => prev.filter(x => x.tempId !== r.tempId))} className="rounded-full bg-red-500/70 p-1 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 ))}
@@ -329,11 +340,11 @@ export default function NewRequisitionPage() {
               <div className="max-h-52 overflow-auto space-y-2">
                 {combRows.map(r => (
                   <div key={r.tempId} className="grid grid-cols-[100px_80px_1fr_100px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
-                    <select className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
+                    <select required className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
                       <option>DIESEL</option><option>MAGNA</option><option>PREMIUM</option><option>GAS LP</option>
                     </select>
-                    <input type="number" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
-                    <input className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
+                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
+                    <input required className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
                       <option>CAMION</option><option>RETROEXCAVADORA</option><option>CARGADOR</option><option>COMPACTADOR</option><option>CAMIONETA</option><option>PIPA</option><option>OTRO</option>
                     </select>

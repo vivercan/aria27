@@ -46,7 +46,14 @@ export default function ContratosPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre || !form.cliente || form.monto_contrato <= 0) { alert("Obra, cliente y monto requeridos"); return; }
+    if (!form.obra_nombre?.trim()) { alert("Nombre de obra es requerido"); return; }
+    if (!form.cliente?.trim()) { alert("Cliente es requerido"); return; }
+    if (isNaN(form.monto_contrato) || form.monto_contrato <= 0) { alert("Monto contrato debe ser mayor a 0"); return; }
+    if (!form.fecha_inicio) { alert("Fecha inicio es requerida"); return; }
+    if (!form.fecha_fin) { alert("Fecha fin es requerida"); return; }
+    if (isNaN(form.anticipo_porcentaje) || form.anticipo_porcentaje < 0 || form.anticipo_porcentaje > 100) { alert("% Anticipo debe estar entre 0 y 100"); return; }
+    if (isNaN(form.retencion_porcentaje) || form.retencion_porcentaje < 0 || form.retencion_porcentaje > 100) { alert("% Retención debe estar entre 0 y 100"); return; }
+
     const { count } = await supabase.from("contratos").select("*", { count: "exact", head: true });
     const numero = `CONT-${String((count || 0) + 1).padStart(4, "0")}`;
     const anticipo = form.monto_contrato * (form.anticipo_porcentaje / 100);
@@ -117,26 +124,26 @@ export default function ContratosPage() {
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
           <h3 className="text-lg font-semibold text-white">Nuevo Contrato</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div><label className="text-xs text-slate-400 mb-1 block">Obra</label>
-              <input value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Cliente</label>
-              <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Obra *</label>
+              <input required value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
+              <input required value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">RFC Cliente</label>
               <input value={form.rfc_cliente} onChange={e => setForm({...form, rfc_cliente: e.target.value.toUpperCase()})} placeholder="RFC" maxLength={13} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none uppercase" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Tipo</label>
               <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="OBRA_PUBLICA">Obra Pública</option><option value="OBRA_PRIVADA">Obra Privada</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="SERVICIOS">Servicios</option>
               </select></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Monto del Contrato</label>
-              <input type="number" value={form.monto_contrato} onChange={e => setForm({...form, monto_contrato: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">% Anticipo</label>
-              <input type="number" value={form.anticipo_porcentaje} onChange={e => setForm({...form, anticipo_porcentaje: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">% Retención Garantía</label>
-              <input type="number" value={form.retencion_porcentaje} onChange={e => setForm({...form, retencion_porcentaje: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Fecha Inicio</label>
-              <input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Fecha Fin</label>
-              <input type="date" value={form.fecha_fin} onChange={e => setForm({...form, fecha_fin: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Monto del Contrato *</label>
+              <input type="number" required min="0.01" step="0.01" value={form.monto_contrato} onChange={e => setForm({...form, monto_contrato: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">% Anticipo *</label>
+              <input type="number" required min="0" max="100" step="0.01" value={form.anticipo_porcentaje} onChange={e => setForm({...form, anticipo_porcentaje: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">% Retención Garantía *</label>
+              <input type="number" required min="0" max="100" step="0.01" value={form.retencion_porcentaje} onChange={e => setForm({...form, retencion_porcentaje: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Fecha Inicio *</label>
+              <input type="date" required value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
+            <div><label className="text-xs text-slate-400 mb-1 block">Fecha Fin *</label>
+              <input type="date" required value={form.fecha_fin} onChange={e => setForm({...form, fecha_fin: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" /></div>
             <div className="md:col-span-3"><label className="text-xs text-slate-400 mb-1 block">Descripción</label>
               <input value={form.descripcion} onChange={e => setForm({...form, descripcion: e.target.value})} placeholder="Descripción del contrato" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
           </div>

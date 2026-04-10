@@ -44,7 +44,9 @@ export default function IncidenciasPage() {
   }
 
   async function guardar() {
-    if (!form.employee_id || !form.tipo) { alert("Empleado y tipo son requeridos"); return; }
+    if (!form.employee_id) { alert("Empleado es requerido"); return; }
+    if (!form.tipo) { alert("Tipo de incidencia es requerido"); return; }
+    if (!form.fecha) { alert("Fecha es requerida"); return; }
     const emp = empleados.find(e => e.id === form.employee_id);
     const { error } = await supabase.from("incidencias").insert({
       ...form,
@@ -124,21 +126,21 @@ export default function IncidenciasPage() {
           <h3 className="text-lg font-semibold text-white">Registrar Incidencia</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Empleado</label>
-              <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <label className="text-xs text-slate-400 mb-1 block">Empleado *</label>
+              <select required value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="">Seleccionar...</option>
                 {empleados.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
+              <select required value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="FALTA">Falta</option><option value="RETARDO">Retardo</option><option value="PERMISO">Permiso</option><option value="INCAPACIDAD">Incapacidad IMSS</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-              <input type="date" value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+              <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
+              <input type="date" required value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Motivo</label>

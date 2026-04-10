@@ -130,14 +130,18 @@ export default function CotizacionesClientesPage() {
 
   async function guardar() {
     if (!form.cliente_id) { alert("Selecciona un cliente"); return; }
+    if (!form.fecha) { alert("Fecha es requerida"); return; }
+    if (isNaN(form.vigencia_dias) || form.vigencia_dias <= 0) { alert("Vigencia debe ser mayor a 0"); return; }
+    if (isNaN(form.iva_pct) || form.iva_pct < 0 || form.iva_pct > 100) { alert("% IVA debe estar entre 0 y 100"); return; }
+
     const cli = clientes.find(c => c.id === form.cliente_id);
     if (!cli) { alert("Cliente no encontrado"); return; }
     if (cli.estatus !== "ACTIVO") {
       alert(`El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cotización.`);
       return;
     }
-    const itemsValidos = items.filter(i => i.concepto.trim() && Number(i.cantidad) > 0);
-    if (itemsValidos.length === 0) { alert("Agrega al menos un concepto válido"); return; }
+    const itemsValidos = items.filter(i => i.concepto.trim() && Number(i.cantidad) > 0 && Number(i.precio_unitario) >= 0);
+    if (itemsValidos.length === 0) { alert("Agrega al menos un concepto válido con cantidad y precio"); return; }
 
     const obra = form.obra_id ? obras.find(o => o.id === form.obra_id) : null;
 
@@ -473,13 +477,13 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-                <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
+                <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
+                <input type="date" required value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Vigencia (días)</label>
-                <input type="number" value={form.vigencia_dias} onChange={e => setForm({ ...form, vigencia_dias: parseInt(e.target.value) || 30 })}
+                <label className="text-xs text-slate-400 mb-1 block">Vigencia (días) *</label>
+                <input type="number" required min="1" value={form.vigencia_dias} onChange={e => setForm({ ...form, vigencia_dias: parseInt(e.target.value) || 30 })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               </div>
 
@@ -527,13 +531,13 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   <tbody>
                     {items.map((it, idx) => (
                       <tr key={idx} className="border-t border-white/5">
-                        <td className="p-1"><input value={it.concepto} onChange={e => actualizarItem(idx, { concepto: e.target.value })} placeholder="Descripción"
+                        <td className="p-1"><input required value={it.concepto} onChange={e => actualizarItem(idx, { concepto: e.target.value })} placeholder="Descripción"
                           className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs" /></td>
                         <td className="p-1"><input value={it.unidad} onChange={e => actualizarItem(idx, { unidad: e.target.value })}
                           className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs" /></td>
-                        <td className="p-1"><input type="number" step="0.01" value={it.cantidad} onChange={e => actualizarItem(idx, { cantidad: parseFloat(e.target.value) || 0 })}
+                        <td className="p-1"><input type="number" required step="0.01" min="0.01" value={it.cantidad} onChange={e => actualizarItem(idx, { cantidad: parseFloat(e.target.value) || 0 })}
                           className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs text-right" /></td>
-                        <td className="p-1"><input type="number" step="0.01" value={it.precio_unitario} onChange={e => actualizarItem(idx, { precio_unitario: parseFloat(e.target.value) || 0 })}
+                        <td className="p-1"><input type="number" required step="0.01" min="0" value={it.precio_unitario} onChange={e => actualizarItem(idx, { precio_unitario: parseFloat(e.target.value) || 0 })}
                           className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs text-right" /></td>
                         <td className="p-1 text-right text-emerald-400 font-medium">${it.importe.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                         <td className="p-1 text-center">
@@ -559,8 +563,8 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                 </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">% IVA</label>
-                <input type="number" value={form.iva_pct} onChange={e => setForm({ ...form, iva_pct: parseFloat(e.target.value) || 0 })}
+                <label className="text-xs text-slate-400 mb-1 block">% IVA *</label>
+                <input type="number" required min="0" max="100" step="0.01" value={form.iva_pct} onChange={e => setForm({ ...form, iva_pct: parseFloat(e.target.value) || 0 })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               </div>
               <div>
