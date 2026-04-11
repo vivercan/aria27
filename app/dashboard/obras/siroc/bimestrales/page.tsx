@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Bimestre {
   id: string;
@@ -55,6 +58,8 @@ const EMPTY: any = {
 };
 
 export default function SirocBimestralesPage() {
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [bimestres, setBimestres] = useState<Bimestre[]>([]);
   const [registros, setRegistros] = useState<SirocRegistro[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +96,7 @@ export default function SirocBimestralesPage() {
   }
 
   async function guardar() {
-    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
+    if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const reg = registros.find(r => r.id === form.siroc_registro_id);
     const payload = {
@@ -110,14 +115,15 @@ export default function SirocBimestralesPage() {
     };
     const { error } = await supabase.from("siroc_bimestrales").insert(payload);
     setGuardando(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setShowForm(false); setForm(EMPTY); cargar();
   }
 
   async function eliminar(id: string) {
-    if (!confirm("¿Eliminar este reporte bimestral?")) return;
-    await supabase.from("siroc_bimestrales").delete().eq("id", id);
-    cargar();
+    setConfirmState({ open: true, msg: "¿Eliminar este reporte bimestral?", onOk: async () => {
+      await supabase.from("siroc_bimestrales").delete().eq("id", id);
+      cargar();
+    }});
   }
 
   const hoy = new Date().toISOString().slice(0, 10);
@@ -130,6 +136,13 @@ export default function SirocBimestralesPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       <div className="flex items-center gap-4">
         <Link href="/dashboard/obras/siroc/registros" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">

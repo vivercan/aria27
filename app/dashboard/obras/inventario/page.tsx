@@ -21,6 +21,8 @@ import {
   Eye,
   Download,
 } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 // ====== TYPES ======
 interface Obra {
@@ -68,6 +70,7 @@ const getUserEmail = () =>
   typeof window !== "undefined" ? localStorage.getItem("userEmail") || "sistema" : "sistema";
 
 export default function InventarioObraPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [obras, setObras] = useState<Obra[]>([]);
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
   const [inventario, setInventario] = useState<ItemInventario[]>([]);
@@ -188,12 +191,12 @@ export default function InventarioObraPage() {
       const res = await fetch("/api/inventario/watermark", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok || !data.url) {
-        alert("Error al subir foto: " + (data.error || "desconocido"));
+        flash("err", "Error al subir foto: " + (data.error || "desconocido"));
         return null;
       }
       return data.url;
     } catch (e: any) {
-      alert("Error al subir foto: " + (e?.message || "error"));
+      flash("err", "Error al subir foto: " + (e?.message || "error"));
       return null;
     }
   };
@@ -271,7 +274,7 @@ export default function InventarioObraPage() {
   };
 
   const guardarNuevoMaterial = async () => {
-    if (!obraSeleccionada) { alert("Selecciona una obra"); return; }
+    if (!obraSeleccionada) { flash("err", "Selecciona una obra"); return; }
     if (!validarNuevoMaterial()) return;
     setGuardando(true);
 
@@ -282,7 +285,7 @@ export default function InventarioObraPage() {
         .eq("obra_id", obraSeleccionada.id)
         .eq("producto_nombre", nuevoNombre.trim()).single();
       if (existe) {
-        alert("Este material ya existe en el inventario de esta obra. Usa 'Registrar Entrada' para agregar cantidad.");
+        flash("err", "Este material ya existe en el inventario de esta obra. Usa 'Registrar Entrada' para agregar cantidad.");
         setGuardando(false);
         return;
       }
@@ -305,7 +308,7 @@ export default function InventarioObraPage() {
         foto_url: fotoUrl,
         ...(nuevoProductoId ? { producto_id: nuevoProductoId } : {}),
       });
-      if (insertError) { alert("Error: " + insertError.message); setGuardando(false); return; }
+      if (insertError) { flash("err", "Error: " + insertError.message); setGuardando(false); return; }
 
       // Movimiento de entrada
       await supabase.from("inventario_movimientos").insert({
@@ -326,7 +329,7 @@ export default function InventarioObraPage() {
       setShowNuevo(false);
       loadInventario(obraSeleccionada.id);
     } catch (err) {
-      alert("Error inesperado: " + (err as Error).message);
+      flash("err", "Error inesperado: " + (err as Error).message);
     }
     setGuardando(false);
   };
@@ -365,9 +368,9 @@ export default function InventarioObraPage() {
         .eq("cantidad_disponible", entradaItem.cantidad_disponible)
         .select("id");
 
-      if (error) { alert("Error: " + error.message); setGuardando(false); return; }
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
-        alert("Otro usuario modificó este ítem. Recarga y verifica.");
+        flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
         setGuardando(false);
         return;
@@ -391,7 +394,7 @@ export default function InventarioObraPage() {
       setShowEntrada(false);
       loadInventario(obraSeleccionada.id);
     } catch (err) {
-      alert("Error: " + (err as Error).message);
+      flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
   };
@@ -407,7 +410,7 @@ export default function InventarioObraPage() {
   const guardarSalida = async () => {
     if (!salidaItem || !obraSeleccionada || salidaCantidad <= 0) return;
     if (salidaCantidad > salidaItem.cantidad_disponible) {
-      alert("No hay suficiente material disponible. Disponible: " + salidaItem.cantidad_disponible);
+      flash("err", "No hay suficiente material disponible. Disponible: " + salidaItem.cantidad_disponible);
       return;
     }
     setGuardando(true);
@@ -427,9 +430,9 @@ export default function InventarioObraPage() {
         .eq("cantidad_usada", salidaItem.cantidad_usada)
         .select("id");
 
-      if (error) { alert("Error: " + error.message); setGuardando(false); return; }
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
-        alert("Otro usuario modificó este ítem. Recarga y verifica.");
+        flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
         setGuardando(false);
         return;
@@ -452,7 +455,7 @@ export default function InventarioObraPage() {
       setShowSalida(false);
       loadInventario(obraSeleccionada.id);
     } catch (err) {
-      alert("Error: " + (err as Error).message);
+      flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
   };
@@ -507,7 +510,7 @@ export default function InventarioObraPage() {
       });
     }
     loadInventario(obraSeleccionada.id);
-    alert("Materiales importados al inventario");
+    flash("ok", "Materiales importados al inventario");
   };
 
   // ====== AJUSTAR INVENTARIO (con foto opcional) ======
@@ -527,7 +530,7 @@ export default function InventarioObraPage() {
       const expectedDisp = showAjuste.cantidad_disponible;
       const expectedUsada = showAjuste.cantidad_usada;
       const nuevaCantidad = expectedDisp + ajusteCantidad;
-      if (nuevaCantidad < 0) { alert("La cantidad resultante no puede ser negativa"); setGuardando(false); return; }
+      if (nuevaCantidad < 0) { flash("err", "La cantidad resultante no puede ser negativa"); setGuardando(false); return; }
       const nuevaUsada = ajusteCantidad < 0 ? expectedUsada + Math.abs(ajusteCantidad) : expectedUsada;
 
       let fotoUrl: string | null = null;
@@ -547,9 +550,9 @@ export default function InventarioObraPage() {
         .eq("cantidad_usada", expectedUsada)
         .select("id");
 
-      if (error) { alert("Error en ajuste: " + error.message); setGuardando(false); return; }
+      if (error) { flash("err", "Error en ajuste: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
-        alert("Otro usuario modificó este ítem. Recarga y verifica.");
+        flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
         setGuardando(false);
         return;
@@ -573,7 +576,7 @@ export default function InventarioObraPage() {
       setShowAjuste(null);
       loadInventario(obraSeleccionada.id);
     } catch (err) {
-      alert("Error: " + (err as Error).message);
+      flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
   };
@@ -647,6 +650,7 @@ export default function InventarioObraPage() {
   // Vista: Inventario de Obra
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -27,6 +29,7 @@ export default function LegalesPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash } = useFlashMessage();
 
   useEffect(() => {
     const load = async () => {
@@ -76,7 +79,7 @@ export default function LegalesPage() {
       nss: editForm.nss || null,
       tipo_contrato: editForm.tipo_contrato || null
     }).eq("id", editingId);
-    if (error) { console.error("Error saving legal info:", error?.message); alert("Error: " + error?.message); setSaving(false); return; }
+    if (error) { console.error("Error saving legal info:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setSaving(false);
     setEditingId(null);
     window.location.reload();
@@ -84,6 +87,7 @@ export default function LegalesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       <div className="flex-shrink-0 mb-6">
         <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento

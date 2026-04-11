@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -10,6 +12,7 @@ export default function EstadoActivosPage() {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState("todos");
   const [saving, setSaving] = useState<string | null>(null);
+  const { msg, flash } = useFlashMessage();
 
   useEffect(() => { load(); }, []);
 
@@ -23,8 +26,9 @@ export default function EstadoActivosPage() {
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     setSaving(id);
     const { error } = await supabase.from("activos").update({ estado: nuevoEstado }).eq("id", id);
-    if (error) { console.error("Error updating estado:", error?.message); alert("Error: " + error?.message); setSaving(null); return; }
+    if (error) { console.error("Error updating estado:", error?.message); flash("err", "Error: " + error?.message); setSaving(null); return; }
     setActivos(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
+    flash("ok", "Estado actualizado");
     setSaving(null);
   };
 
@@ -51,6 +55,7 @@ export default function EstadoActivosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} className="mx-6" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>

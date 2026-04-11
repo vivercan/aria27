@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
@@ -53,6 +56,8 @@ export default function CotizacionesClientesPage() {
   const [form, setForm] = useState({ ...FORM_INIT });
   const [items, setItems] = useState<Item[]>([{ ...ITEM_INIT }]);
   const [saving, setSaving] = useState(false);
+  const { msg, flash } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { cargar(); }, []);
 
@@ -65,7 +70,7 @@ export default function CotizacionesClientesPage() {
         supabase.from("centros_trabajo").select("id, nombre, activo").order("nombre"),
       ]);
       if (c.error?.code === "42P01" || c.error?.code === "PGRST205") {
-        alert("Falta crear tabla cotizaciones_clientes en Supabase.");
+        flash("err", "Falta crear tabla cotizaciones_clientes en Supabase.");
       }
       // Auto VENCIDA en lectura: si hoy > fecha + vigencia_dias y estatus es BORRADOR/ENVIADA, mostrar como VENCIDA
       const hoy = new Date().toISOString().split("T")[0];
@@ -129,19 +134,19 @@ export default function CotizacionesClientesPage() {
   const total = +(subtotal + iva).toFixed(2);
 
   async function guardar() {
-    if (!form.cliente_id) { alert("Selecciona un cliente"); return; }
-    if (!form.fecha) { alert("Fecha es requerida"); return; }
-    if (isNaN(form.vigencia_dias) || form.vigencia_dias <= 0) { alert("Vigencia debe ser mayor a 0"); return; }
-    if (isNaN(form.iva_pct) || form.iva_pct < 0 || form.iva_pct > 100) { alert("% IVA debe estar entre 0 y 100"); return; }
+    if (!form.cliente_id) { flash("err", "Selecciona un cliente"); return; }
+    if (!form.fecha) { flash("err", "Fecha es requerida"); return; }
+    if (isNaN(form.vigencia_dias) || form.vigencia_dias <= 0) { flash("err", "Vigencia debe ser mayor a 0"); return; }
+    if (isNaN(form.iva_pct) || form.iva_pct < 0 || form.iva_pct > 100) { flash("err", "% IVA debe estar entre 0 y 100"); return; }
 
     const cli = clientes.find(c => c.id === form.cliente_id);
-    if (!cli) { alert("Cliente no encontrado"); return; }
+    if (!cli) { flash("err", "Cliente no encontrado"); return; }
     if (cli.estatus !== "ACTIVO") {
-      alert(`El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cotización.`);
+      flash("err", `El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cotización.`);
       return;
     }
     const itemsValidos = items.filter(i => i.concepto.trim() && Number(i.cantidad) > 0 && Number(i.precio_unitario) >= 0);
-    if (itemsValidos.length === 0) { alert("Agrega al menos un concepto válido con cantidad y precio"); return; }
+    if (itemsValidos.length === 0) { flash("err", "Agrega al menos un concepto válido con cantidad y precio"); return; }
 
     const obra = form.obra_id ? obras.find(o => o.id === form.obra_id) : null;
 
@@ -201,9 +206,10 @@ export default function CotizacionesClientesPage() {
       setEditId(null);
       setForm({ ...FORM_INIT });
       setItems([{ ...ITEM_INIT }]);
+      flash("ok", editId ? "Cotización actualizada" : "Cotización creada");
       await cargar();
     } catch (e: any) {
-      alert("Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -303,16 +309,29 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
 </body></html>`;
 
     const w = window.open("", "_blank", "width=900,height=700");
-    if (!w) { alert("Pop-up bloqueado. Permite ventanas emergentes para esta página."); return; }
+    if (!w) { flash("err", "Pop-up bloqueado. Permite ventanas emergentes para esta página."); return; }
     w.document.write(html);
     w.document.close();
   }
 
   async function cambiarEstatus(c: Cotizacion, nuevo: string) {
     if (c.estatus === nuevo) return;
-    if (nuevo === "CANCELADA" && !confirm(`Cancelar cotización ${c.folio}?`)) return;
+    if (nuevo === "CANCELADA") {
+      setConfirmState({
+        open: true,
+        msg: `¿Cancelar cotización ${c.folio}?`,
+        onOk: async () => {
+          const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
+          if (error) { flash("err", "Error: " + error.message); return; }
+          flash("ok", "Cotización cancelada");
+          await cargar();
+        }
+      });
+      return;
+    }
     const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
+    flash("ok", "Estatus actualizado");
 
     // Bloque 12: al APROBAR, generar cobro_manual auto vinculado a esta cotizacion (idempotente)
     if (nuevo === "APROBADA") {
@@ -369,6 +388,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <AriaBackButton href="/dashboard/clientes" />
+      <FlashBanner msg={msg} className="mx-6" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
@@ -601,6 +621,13 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

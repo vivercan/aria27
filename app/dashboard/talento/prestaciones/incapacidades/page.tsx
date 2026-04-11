@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, HeartPulse, Search, Plus, X } from "lucide-react";
 import Link from "next/link";
 
@@ -11,6 +13,7 @@ export default function IncapacidadesPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", tipo: "enfermedad", fecha_inicio: "", fecha_fin: "", folio_imss: "", notas: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash } = useFlashMessage();
 
   const loadData = async () => {
     const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
@@ -48,7 +51,7 @@ export default function IncapacidadesPage() {
       status: "activa"
     });
     if (error) {
-      alert("No se pudo registrar la incapacidad: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar la incapacidad: " + (error.message ?? "error desconocido"));
       return;
     }
     setShowModal(false);
@@ -59,6 +62,7 @@ export default function IncapacidadesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       <div className="flex-shrink-0 mb-6">
         <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Prestaciones

@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft, Search, Loader2, Globe, Phone, Mail,
   MapPin, Plus, ExternalLink, Building2, X, Check, Package
@@ -18,6 +20,7 @@ interface ExistingSupplier {
 }
 
 export default function ProspeccionPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [searchTerm, setSearchTerm] = useState("");
   const [searching, setSearching] = useState(false);
   const [webResults, setWebResults] = useState<WebResult[]>([]);
@@ -96,7 +99,7 @@ export default function ProspeccionPage() {
       setSavedIdxs(prev => [...prev, idx]);
     } catch (e: any) {
       console.error("Error guardando:", e);
-      alert("Error: " + (e?.message || "No se pudo guardar"));
+      flash("err", "Error: " + (e?.message || "No se pudo guardar"));
     } finally {
       setSavingIdx(null);
     }
@@ -104,6 +107,7 @@ export default function ProspeccionPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">

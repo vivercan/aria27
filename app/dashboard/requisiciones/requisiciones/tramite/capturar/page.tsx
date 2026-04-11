@@ -1,5 +1,7 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { Suspense } from "react";
@@ -40,6 +42,7 @@ type QuoteRow = {
 };
 
 function CapturarContent() {
+  const { msg, flash, clear } = useFlashMessage();
   const searchParams = useSearchParams();
   const reqId = searchParams.get("req");
 
@@ -193,7 +196,7 @@ function CapturarContent() {
     } catch (e: any) {
       console.error("[capturar] guardarCotizacion error:", e);
       const msg = e?.message || e?.error_description || JSON.stringify(e);
-      alert("Error al guardar cotizacion: " + msg);
+      flash("err", "Error al guardar cotizacion: " + msg);
     } finally {
       setSaving(false);
     }
@@ -202,12 +205,12 @@ function CapturarContent() {
   const eliminarCotizacion = async (quoteId: number, sName: string) => {
     if (!canDelete) return; // Protected: only RH/admin
     const { error: delQErr } = await supabase.from("quotations").delete().eq("id", quoteId);
-    if (delQErr) { alert("Error al eliminar cotización: " + delQErr.message); return; }
+    if (delQErr) { flash("err", "Error al eliminar cotización: " + delQErr.message); return; }
     for (const item of items) {
       const { error: delIqErr } = await supabase.from("requisition_item_quotes").delete()
         .eq("requisition_item_id", item.id)
         .eq("supplier_name", sName);
-      if (delIqErr) { alert("Error al eliminar item cotizado: " + delIqErr.message); return; }
+      if (delIqErr) { flash("err", "Error al eliminar item cotizado: " + delIqErr.message); return; }
     }
     await loadAll();
   };
@@ -244,7 +247,7 @@ function CapturarContent() {
       });
       if (!res.ok) {
         const errTxt = await res.text().catch(() => "");
-        alert("Error enviar-comparativa (" + res.status + "): " + errTxt.slice(0, 250));
+        flash("err", "Error enviar-comparativa (" + res.status + "): " + errTxt.slice(0, 250));
         setEnviando(false);
         return;
       }
@@ -252,13 +255,13 @@ function CapturarContent() {
       if (data.success) {
         // No sobrescribir el status: enviar-comparativa ya lo dejo en EN_AUTORIZACION
         // (requerido por /autorizar/[token] y approve-purchase). Override anterior rompia autorizacion.
-        alert("Comparativa enviada a Direccion");
+        flash("ok", "Comparativa enviada a Direccion");
         await loadAll();
       } else {
-        alert("Error: " + (data.error || "desconocido"));
+        flash("err", "Error: " + (data.error || "desconocido"));
       }
     } catch (e) {
-      alert("Error de conexion");
+      flash("err", "Error de conexion");
     } finally {
       setEnviando(false);
     }
@@ -292,6 +295,7 @@ function CapturarContent() {
 
   return (
     <div className="space-y-4">
+      <FlashBanner msg={msg} />
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">

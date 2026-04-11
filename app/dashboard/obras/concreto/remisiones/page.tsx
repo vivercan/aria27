@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Remision {
   id: string;
@@ -38,6 +41,8 @@ const EMPTY_REM: any = { obra: "", proveedor: "", numero_remision: "", fecha_col
 const EMPTY_CIL: any = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
 
 export default function ConcretoRemisionesPage() {
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [remisiones, setRemisiones] = useState<Remision[]>([]);
   const [cilindros, setCilindros] = useState<Cilindro[]>([]);
   const [obras, setObras] = useState<string[]>([]);
@@ -105,7 +110,7 @@ export default function ConcretoRemisionesPage() {
   }
 
   async function guardarRem() {
-    if (!validarRem()) { alert("Por favor corrige los errores en el formulario"); return; }
+    if (!validarRem()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const m3 = Number(formRem.m3) || 0;
     const cu = Number(formRem.costo_unitario) || 0;
@@ -128,20 +133,22 @@ export default function ConcretoRemisionesPage() {
     if (editando) ({ error } = await supabase.from("concreto_remisiones").update(payload).eq("id", editando));
     else ({ error } = await supabase.from("concreto_remisiones").insert(payload));
     setGuardando(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setShowFormRem(false); setEditando(null); setFormRem(EMPTY_REM); cargar();
   }
 
   async function eliminarRem(id: string) {
-    if (!confirm("¿Eliminar esta remisión y sus pruebas de cilindro?")) return;
-    await supabase.from("concreto_cilindros").delete().eq("remision_id", id);
-    const { error } = await supabase.from("concreto_remisiones").delete().eq("id", id);
-    if (error) { alert("Error: " + error.message); return; }
-    cargar();
+    setConfirmState({ open: true, msg: "¿Eliminar esta remisión y sus pruebas de cilindro?", onOk: async () => {
+      await supabase.from("concreto_cilindros").delete().eq("remision_id", id);
+      const { error } = await supabase.from("concreto_remisiones").delete().eq("id", id);
+      if (error) { flash("err", "Error: " + error.message); return; }
+      cargar();
+    }});
+    return;
   }
 
   async function guardarCil() {
-    if (!remActiva || !validarCil()) { alert("Por favor corrige los errores en el formulario"); return; }
+    if (!remActiva || !validarCil()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const payload = {
       remision_id: remActiva.id,
@@ -154,14 +161,15 @@ export default function ConcretoRemisionesPage() {
     };
     const { error } = await supabase.from("concreto_cilindros").insert(payload);
     setGuardando(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setFormCil(EMPTY_CIL); cargar();
   }
 
   async function eliminarCil(id: string) {
-    if (!confirm("¿Eliminar esta prueba?")) return;
-    await supabase.from("concreto_cilindros").delete().eq("id", id);
-    cargar();
+    setConfirmState({ open: true, msg: "¿Eliminar esta prueba?", onOk: async () => {
+      await supabase.from("concreto_cilindros").delete().eq("id", id);
+      cargar();
+    }});
   }
 
   function abrirEditarRem(r: Remision) {
@@ -187,6 +195,13 @@ export default function ConcretoRemisionesPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       <div className="flex items-center gap-4">
         <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">

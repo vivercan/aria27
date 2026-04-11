@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
 
@@ -20,6 +21,7 @@ export default function IncompletasPage() {
   const [procesando, setProcesando] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{tipo: "success" | "error"; texto: string} | null>(null);
   const [periodo, setPeriodo] = useState<{inicio: string; fin: string} | null>(null);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -96,61 +98,75 @@ export default function IncompletasPage() {
   };
 
   const crearTodasAsistencias = async () => {
-    if (!confirm(`¿Crear ${sinRegistro.length} asistencias faltantes con horario 08:00-18:00?`)) return;
-    
-    let creadas = 0;
-    for (const item of sinRegistro) {
-      setProcesando(`${item.employee_id}-${item.fecha}`);
-      try {
-        const res = await fetch("/api/asistencias/incompletas", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            employee_id: item.employee_id,
-            fecha: item.fecha,
-            hora_entrada: "08:00",
-            hora_salida: "18:00"
-          })
-        });
-        if (res.ok) creadas++;
-      } catch (e) {}
-    }
-    
-    setProcesando(null);
-    setMensaje({ tipo: "success", texto: `✓ ${creadas} asistencias creadas` });
-    await cargarDatos();
-    setTimeout(() => setMensaje(null), 3000);
+    setConfirmState({
+      open: true,
+      msg: `¿Crear ${sinRegistro.length} asistencias faltantes con horario 08:00-18:00?`,
+      onOk: async () => {
+        let creadas = 0;
+        for (const item of sinRegistro) {
+          setProcesando(`${item.employee_id}-${item.fecha}`);
+          try {
+            const res = await fetch("/api/asistencias/incompletas", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                employee_id: item.employee_id,
+                fecha: item.fecha,
+                hora_entrada: "08:00",
+                hora_salida: "18:00"
+              })
+            });
+            if (res.ok) creadas++;
+          } catch (e) {}
+        }
+
+        setProcesando(null);
+        setMensaje({ tipo: "success", texto: `✓ ${creadas} asistencias creadas` });
+        await cargarDatos();
+        setTimeout(() => setMensaje(null), 3000);
+      }
+    });
   };
 
   const completarTodasSalidas = async () => {
-    if (!confirm(`¿Completar salida de ${incompletas.length} registros con hora 18:00?`)) return;
-    
-    let completadas = 0;
-    for (const item of incompletas) {
-      setProcesando(item.id || null);
-      try {
-        const res = await fetch("/api/asistencias/incompletas", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            asistencia_id: item.id,
-            hora_salida: "18:00"
-          })
-        });
-        if (res.ok) completadas++;
-      } catch (e) {}
-    }
-    
-    setProcesando(null);
-    setMensaje({ tipo: "success", texto: `✓ ${completadas} salidas registradas` });
-    await cargarDatos();
-    setTimeout(() => setMensaje(null), 3000);
+    setConfirmState({
+      open: true,
+      msg: `¿Completar salida de ${incompletas.length} registros con hora 18:00?`,
+      onOk: async () => {
+        let completadas = 0;
+        for (const item of incompletas) {
+          setProcesando(item.id || null);
+          try {
+            const res = await fetch("/api/asistencias/incompletas", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                asistencia_id: item.id,
+                hora_salida: "18:00"
+              })
+            });
+            if (res.ok) completadas++;
+          } catch (e) {}
+        }
+
+        setProcesando(null);
+        setMensaje({ tipo: "success", texto: `✓ ${completadas} salidas registradas` });
+        await cargarDatos();
+        setTimeout(() => setMensaje(null), 3000);
+      }
+    });
   };
 
   const totalPendientes = incompletas.length + sinRegistro.length;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">

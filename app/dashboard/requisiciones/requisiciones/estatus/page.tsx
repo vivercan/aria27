@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, Printer, FileDown, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -47,6 +49,7 @@ interface ReqItem {
 }
 
 export default function RequisicionesStatusPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
@@ -233,10 +236,10 @@ export default function RequisicionesStatusPage() {
         setSelectedIds([]);
         loadData(userEmail);
       } else {
-        alert("Error: " + data.error);
+        flash("err", "Error: " + data.error);
       }
     } catch {
-      alert("Error al eliminar");
+      flash("err", "Error al eliminar");
     }
     setDeleting(false);
   }
@@ -260,6 +263,7 @@ export default function RequisicionesStatusPage() {
 
   return (
     <div className="space-y-4">
+      <FlashBanner msg={msg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">

@@ -1,6 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft, Mail, Send, Trash2, RefreshCw, Loader2, Inbox, PenSquare,
   ChevronLeft, Search, X, Paperclip, Star, Eye, AlertTriangle
@@ -40,6 +43,7 @@ function nombreCorto(raw: string) {
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function InboxPage() {
+  const { msg, flash } = useFlashMessage();
   const [vista, setVista] = useState<Vista>("lista");
   const [carpeta, setCarpeta] = useState<Carpeta>("INBOX");
   const [emails, setEmails] = useState<EmailHeader[]>([]);
@@ -47,6 +51,7 @@ export default function InboxPage() {
   const [error, setError] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [seleccionados, setSeleccionados] = useState<Set<number>>(new Set());
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   /* ── estado "leer" ── */
   const [emailActual, setEmailActual] = useState<EmailHeader | null>(null);
@@ -132,16 +137,21 @@ export default function InboxPage() {
   /* ── eliminar seleccionados ── */
   const eliminarSeleccionados = async () => {
     if (seleccionados.size === 0) return;
-    if (!confirm(`¿Eliminar ${seleccionados.size} correo(s)?`)) return;
-    try {
-      const uids = emails.filter(e => seleccionados.has(e.seqno)).map(e => e.seqno);
-      await fetch("/api/mail/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uids, folder: carpeta }),
-      });
-      cargarEmails();
-    } catch (e: any) { setError(e.message); }
+    setConfirmState({
+      open: true,
+      msg: `¿Eliminar ${seleccionados.size} correo(s)?`,
+      onOk: async () => {
+        try {
+          const uids = emails.filter(e => seleccionados.has(e.seqno)).map(e => e.seqno);
+          await fetch("/api/mail/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uids, folder: carpeta }),
+          });
+          cargarEmails();
+        } catch (e: any) { setError(e.message); }
+      }
+    });
   };
 
   /* ── enviar ── */
@@ -160,8 +170,9 @@ export default function InboxPage() {
       if (!r.ok) throw new Error(data.error || "Error al enviar");
       setCompTo(""); setCompSubject(""); setCompBody("");
       setVista("lista");
+      flash("ok", "Correo enviado");
       cargarEmails();
-    } catch (e: any) { alert("Error: " + e.message); }
+    } catch (e: any) { flash("err", "Error: " + e.message); }
     setEnviando(false);
   };
 
@@ -432,6 +443,15 @@ export default function InboxPage() {
           </button>
         </div>
       </div>
+
+      <FlashBanner msg={msg} className="fixed bottom-4 left-4 right-4 mx-auto max-w-md z-40" />
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

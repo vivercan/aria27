@@ -2,6 +2,8 @@
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -30,6 +32,7 @@ const MODULOS = [
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
@@ -88,11 +91,11 @@ export default function UsuariosPage() {
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) {
-        alert("No se pudo guardar el usuario: " + (j.error || "error desconocido"));
+        flash("err", "No se pudo guardar el usuario: " + (j.error || "error desconocido"));
         return;
       }
     } catch (e: any) {
-      alert("Error de red: " + (e?.message || "desconocido"));
+      flash("err", "Error de red: " + (e?.message || "desconocido"));
       return;
     }
     setEditingId(null);
@@ -169,6 +172,7 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       {/* Modal de confirmación de borrado */}
       {deletingUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">

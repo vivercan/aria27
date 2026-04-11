@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import ConfirmModal from "@/components/ConfirmModal";
 import { Calculator, CheckCircle, ArrowLeft, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
 
 interface Empleado {
@@ -65,6 +66,7 @@ export default function PreNominaPage() {
   const [filtro, setFiltro] = useState("");
   const [modoNomina, setModoNomina] = useState<string>("ONBOARDING");
   const [yaExiste, setYaExiste] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   const semanaInfo = useMemo(() => {
     const r = getWeekRange(refDate);
@@ -166,8 +168,14 @@ export default function PreNominaPage() {
 
   const generarNomina = async (forzar = false) => {
     if (yaExiste && !forzar) {
-      if (!confirm(`Ya existe nómina para la semana ${semanaInfo.semana}/${semanaInfo.anio}. ¿Regenerar (sobrescribir)?`)) return;
-      forzar = true;
+      setConfirmState({
+        open: true,
+        msg: `Ya existe nómina para la semana ${semanaInfo.semana}/${semanaInfo.anio}. ¿Regenerar (sobrescribir)?`,
+        onOk: async () => {
+          await generarNomina(true);
+        }
+      });
+      return;
     }
     setGenerando(true);
     setMensaje(null);
@@ -240,6 +248,12 @@ export default function PreNominaPage() {
 
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">

@@ -55,7 +55,7 @@ export default function FotosPage() {
       try {
         setLoadingObras(true);
         const { data, error: err } = await supabase
-          .from('obras')
+          .from('centros_trabajo')
           .select('id, nombre')
           .order('nombre', { ascending: true });
 

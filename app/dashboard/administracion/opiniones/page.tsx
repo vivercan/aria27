@@ -1,5 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import {
@@ -31,6 +34,8 @@ export default function OpinionesPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
+  const { msg, flash } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadDocs(); }, []);
 
@@ -81,9 +86,10 @@ export default function OpinionesPage() {
       });
 
       await loadDocs();
+      flash("ok", "Archivo subido correctamente");
     } catch (err: any) {
       console.error("Error subiendo:", err);
-      alert("Error al subir: " + (err?.message || "desconocido"));
+      flash("err", "Error al subir: " + (err?.message || "desconocido"));
     } finally {
       setUploading(null);
       setUploadTarget(null);
@@ -92,25 +98,32 @@ export default function OpinionesPage() {
   }
 
   async function deleteDoc(doc: OpinionDoc) {
-    if (!confirm(`¿Eliminar ${doc.nombre}?`)) return;
-    setDeleting(doc.id);
-    try {
-      const result = await deleteRowAndBlob({
-        table: "expedientes_archivos",
-        id: doc.id,
-        userEmail: "admin@aria27",
-        bucket: "expedientes",
-        blobUrlField: "url",
-      });
-      if (result.orphanPath) {
-        alert(`Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
+    setConfirmState({
+      open: true,
+      msg: `¿Eliminar ${doc.nombre}?`,
+      onOk: async () => {
+        setDeleting(doc.id);
+        try {
+          const result = await deleteRowAndBlob({
+            table: "expedientes_archivos",
+            id: doc.id,
+            userEmail: "admin@aria27",
+            bucket: "expedientes",
+            blobUrlField: "url",
+          });
+          if (result.orphanPath) {
+            flash("warn", `Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
+          } else {
+            flash("ok", "Documento eliminado");
+          }
+          await loadDocs();
+        } catch (e: any) {
+          console.error(e);
+          flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
+        }
+        finally { setDeleting(null); }
       }
-      await loadDocs();
-    } catch (e: any) {
-      console.error(e);
-      alert("Error al eliminar: " + (e?.message || "desconocido"));
-    }
-    finally { setDeleting(null); }
+    });
   }
 
   function getDocForType(tipo: string): OpinionDoc | undefined {
@@ -234,6 +247,15 @@ export default function OpinionesPage() {
           </p>
         </div>
       </div>
+
+      <FlashBanner msg={msg} className="mx-6 mb-4" />
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

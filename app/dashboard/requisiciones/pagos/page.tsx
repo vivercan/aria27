@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -19,6 +21,7 @@ interface PurchaseOrder {
 }
 
 export default function PagosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -97,7 +100,7 @@ export default function PagosPage() {
       setPagoModal(null);
       await loadData();
     } catch (e: any) {
-      alert(e?.message || "Error desconocido al registrar pago");
+      flash("err", e?.message || "Error desconocido al registrar pago");
     } finally {
       setPagoSaving(false);
     }
@@ -125,6 +128,7 @@ export default function PagosPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <FlashBanner msg={msg} />
       <AriaBackButton href="/dashboard/requisiciones" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">

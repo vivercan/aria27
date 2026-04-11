@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Building2 , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Contrato {
   id: string;
@@ -24,6 +26,7 @@ interface Contrato {
 }
 
 export default function ContratosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -46,13 +49,13 @@ export default function ContratosPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre?.trim()) { alert("Nombre de obra es requerido"); return; }
-    if (!form.cliente?.trim()) { alert("Cliente es requerido"); return; }
-    if (isNaN(form.monto_contrato) || form.monto_contrato <= 0) { alert("Monto contrato debe ser mayor a 0"); return; }
-    if (!form.fecha_inicio) { alert("Fecha inicio es requerida"); return; }
-    if (!form.fecha_fin) { alert("Fecha fin es requerida"); return; }
-    if (isNaN(form.anticipo_porcentaje) || form.anticipo_porcentaje < 0 || form.anticipo_porcentaje > 100) { alert("% Anticipo debe estar entre 0 y 100"); return; }
-    if (isNaN(form.retencion_porcentaje) || form.retencion_porcentaje < 0 || form.retencion_porcentaje > 100) { alert("% Retención debe estar entre 0 y 100"); return; }
+    if (!form.obra_nombre?.trim()) { flash("err", "Nombre de obra es requerido"); return; }
+    if (!form.cliente?.trim()) { flash("err", "Cliente es requerido"); return; }
+    if (isNaN(form.monto_contrato) || form.monto_contrato <= 0) { flash("err", "Monto contrato debe ser mayor a 0"); return; }
+    if (!form.fecha_inicio) { flash("err", "Fecha inicio es requerida"); return; }
+    if (!form.fecha_fin) { flash("err", "Fecha fin es requerida"); return; }
+    if (isNaN(form.anticipo_porcentaje) || form.anticipo_porcentaje < 0 || form.anticipo_porcentaje > 100) { flash("err", "% Anticipo debe estar entre 0 y 100"); return; }
+    if (isNaN(form.retencion_porcentaje) || form.retencion_porcentaje < 0 || form.retencion_porcentaje > 100) { flash("err", "% Retención debe estar entre 0 y 100"); return; }
 
     const { count } = await supabase.from("contratos").select("*", { count: "exact", head: true });
     const numero = `CONT-${String((count || 0) + 1).padStart(4, "0")}`;
@@ -65,8 +68,8 @@ export default function ContratosPage() {
       numero, ...form, anticipo_monto: anticipo, plazo_dias: plazo, status: "VIGENTE",
     });
 
-    if (error) alert("Error: " + error?.message);
-    else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", rfc_cliente: "", tipo: "OBRA_PUBLICA", monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5, fecha_inicio: "", fecha_fin: "", descripcion: "" }); loadData(); }
+    if (error) flash("err", "Error: " + error?.message);
+    else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", rfc_cliente: "", tipo: "OBRA_PUBLICA", monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5, fecha_inicio: "", fecha_fin: "", descripcion: "" }); loadData(); flash("ok", "Contrato guardado correctamente"); }
   }
 
   const totalContratado = contratos.reduce((s, c) => s + (c.monto_contrato || 0), 0);
@@ -91,6 +94,7 @@ export default function ContratosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 

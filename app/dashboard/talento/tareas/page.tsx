@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import ConfirmModal from "@/components/ConfirmModal";
 import {
   ArrowLeft, Plus, Edit2, X, Save, Loader2, ClipboardList,
   User, Calendar, TrendingUp, Flag, Search, Trash2, CheckCircle2
@@ -72,6 +75,8 @@ export default function TareasTalentoPage() {
   const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
   const [userEmail, setUserEmail] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -129,7 +134,7 @@ export default function TareasTalentoPage() {
       ({ error } = await supabase.from("tareas_asignadas").insert(payload));
     }
     setGuardando(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setShowForm(false);
     setEditando(null);
     setForm(EMPTY_FORM);
@@ -137,10 +142,15 @@ export default function TareasTalentoPage() {
   }
 
   async function eliminar(id: string) {
-    if (!confirm("¿Eliminar esta tarea?")) return;
-    const { error } = await supabase.from("tareas_asignadas").delete().eq("id", id);
-    if (error) { alert("Error: " + error.message); return; }
-    cargar();
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar esta tarea?",
+      onOk: async () => {
+        const { error } = await supabase.from("tareas_asignadas").delete().eq("id", id);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        cargar();
+      }
+    });
   }
 
   async function cambiarAvance(id: string, nuevoAvance: number) {
@@ -186,6 +196,13 @@ export default function TareasTalentoPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       <div className="flex items-center gap-4">
         <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/10">
           <ArrowLeft className="w-5 h-5 text-white" />

@@ -1,5 +1,7 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useCallback } from "react";
@@ -28,6 +30,7 @@ const EMPTY_FORM = {
 };
 
 export default function ProveedoresPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [suppliers,setSuppliers] = useState<Supplier[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -104,13 +107,13 @@ export default function ProveedoresPage() {
       const payload:any = {...form, categories: catsArr && catsArr.length>0 ? catsArr : null};
       if(editingId){
         const { error } = await supabase.from("suppliers").update(payload).eq("id",editingId);
-        if (error) { alert("Error al actualizar proveedor: " + error.message); return; }
+        if (error) { flash("err", "Error al actualizar proveedor: " + error.message); return; }
       } else {
         const { error } = await supabase.from("suppliers").insert({...payload,active:true});
-        if (error) { alert("Error al crear proveedor: " + error.message); return; }
+        if (error) { flash("err", "Error al crear proveedor: " + error.message); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    }catch(e){console.error(e);alert("Error: "+(e as Error).message);}finally{setSaving(false);}
+    }catch(e){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{
@@ -130,6 +133,7 @@ export default function ProveedoresPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">

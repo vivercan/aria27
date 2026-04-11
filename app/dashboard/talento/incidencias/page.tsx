@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { Plus, Search, AlertCircle, Clock, Calendar, UserX, CheckCircle2 , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -31,6 +33,7 @@ export default function IncidenciasPage() {
     fecha: new Date().toISOString().split("T")[0],
     motivo: ""
   });
+  const { msg, flash } = useFlashMessage();
 
   useEffect(() => { loadData(); }, []);
 
@@ -44,16 +47,16 @@ export default function IncidenciasPage() {
   }
 
   async function guardar() {
-    if (!form.employee_id) { alert("Empleado es requerido"); return; }
-    if (!form.tipo) { alert("Tipo de incidencia es requerido"); return; }
-    if (!form.fecha) { alert("Fecha es requerida"); return; }
+    if (!form.employee_id) { flash("err", "Empleado es requerido"); return; }
+    if (!form.tipo) { flash("err", "Tipo de incidencia es requerido"); return; }
+    if (!form.fecha) { flash("err", "Fecha es requerida"); return; }
     const emp = empleados.find(e => e.id === form.employee_id);
     const { error } = await supabase.from("incidencias").insert({
       ...form,
       employee_name: emp?.full_name || "",
       autorizada: false,
     });
-    if (error) alert("Error: " + error?.message);
+    if (error) flash("err", "Error: " + error?.message);
     else {
       setShowForm(false);
       setForm({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" });
@@ -68,7 +71,7 @@ export default function IncidenciasPage() {
       autorizada: true,
       autorizada_por: userName
     }).eq("id", id);
-    if (error) { alert("Error al autorizar: " + error.message); return; }
+    if (error) { flash("err", "Error al autorizar: " + error.message); return; }
     loadData();
   }
 
@@ -94,6 +97,7 @@ export default function IncidenciasPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <FlashBanner msg={msg} />
       <AriaBackButton href="/dashboard/talento" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">

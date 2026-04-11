@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -19,6 +21,7 @@ export default function CentrosPage() {
   const [centros, setCentros] = useState<Centro[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const { msg, flash } = useFlashMessage();
   const [editando, setEditando] = useState<Centro | null>(null);
   const [form, setForm] = useState({ nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -78,11 +81,13 @@ export default function CentrosPage() {
 
     if (editando) {
       const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
-      if (error) { console.error("Error updating centro:", error?.message); alert("Error: " + error?.message); return; }
+      if (error) { console.error("Error updating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
+      flash("ok", "Centro actualizado");
     } else {
       const nextNum = centros.length + 1;
       const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
-      if (error) { console.error("Error creating centro:", error?.message); alert("Error: " + error?.message); return; }
+      if (error) { console.error("Error creating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
+      flash("ok", "Centro creado");
     }
     setShowModal(false);
     cargar();
@@ -90,6 +95,7 @@ export default function CentrosPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex-none p-6 border-b border-white/10">
         <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Maestros

@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { Plus, Search, DollarSign, TrendingUp, CheckCircle2, Clock, Printer, AlertTriangle, Loader2, X } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Estimacion {
   id: string;
@@ -53,6 +55,7 @@ interface FormPartida {
 }
 
 export default function EstimacionesPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [partidas, setPartidas] = useState<Map<string, Partida[]>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -152,19 +155,19 @@ export default function EstimacionesPage() {
     for (let i = 0; i < form.partidas.length; i++) {
       const p = form.partidas[i];
       if (!p.concepto.trim()) {
-        alert(`Partida ${i + 1}: Concepto es requerido`);
+        flash("err", `Partida ${i + 1}: Concepto es requerido`);
         return;
       }
       if (isNaN(p.cantidad_contrato) || p.cantidad_contrato < 0) {
-        alert(`Partida ${i + 1}: Cantidad contrato debe ser válida`);
+        flash("err", `Partida ${i + 1}: Cantidad contrato debe ser válida`);
         return;
       }
       if (isNaN(p.precio_unitario) || p.precio_unitario <= 0) {
-        alert(`Partida ${i + 1}: Precio unitario debe ser mayor a 0`);
+        flash("err", `Partida ${i + 1}: Precio unitario debe ser mayor a 0`);
         return;
       }
       if (isNaN(p.cantidad_periodo) || p.cantidad_periodo < 0) {
-        alert(`Partida ${i + 1}: Cantidad periodo debe ser válida`);
+        flash("err", `Partida ${i + 1}: Cantidad periodo debe ser válida`);
         return;
       }
     }
@@ -208,7 +211,7 @@ export default function EstimacionesPage() {
     }).select("id").single();
 
     if (errEst || !insEst) {
-      alert("Error al crear estimación: " + (errEst?.message || "Unknown"));
+      flash("err", "Error al crear estimación: " + (errEst?.message || "Unknown"));
       return;
     }
 
@@ -231,7 +234,7 @@ export default function EstimacionesPage() {
 
     const { error: errParts } = await supabase.from("obra_estimacion_partidas").insert(partidasData);
     if (errParts) {
-      alert("Error al crear partidas: " + errParts.message);
+      flash("err", "Error al crear partidas: " + errParts.message);
       return;
     }
 
@@ -262,7 +265,7 @@ export default function EstimacionesPage() {
       .eq("id", estId);
 
     if (error) {
-      alert("Error: " + error.message);
+      flash("err", "Error: " + error.message);
     } else {
       loadData();
       if (selectedEstimacion?.id === estId) {
@@ -306,6 +309,7 @@ export default function EstimacionesPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 

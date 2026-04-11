@@ -4,6 +4,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { ArrowLeft, TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Avance {
   id: string;
@@ -29,6 +31,7 @@ function semanaActualISO(): string {
 const fmt2 = (n: number) => (n || 0).toFixed(1) + "%";
 
 export default function AvanceObrasPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const { obras: obrasCat, loading: loadingObras } = useObrasCatalogo();
   const [avances, setAvances] = useState<Avance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,9 +82,9 @@ export default function AvanceObrasPage() {
 
   async function guardar(obra_nombre: string, obra_id: string | null) {
     const d = getDraft(obra_nombre);
-    if (!d.pct?.trim()) { alert("Porcentaje es requerido"); return; }
+    if (!d.pct?.trim()) { flash("err", "Porcentaje es requerido"); return; }
     const pct = parseFloat(d.pct);
-    if (isNaN(pct) || pct < 0 || pct > 100) { alert("Porcentaje debe estar entre 0 y 100"); return; }
+    if (isNaN(pct) || pct < 0 || pct > 100) { flash("err", "Porcentaje debe estar entre 0 y 100"); return; }
     setSaving(true);
     try {
       const existente = semanaActual.get(obra_nombre);
@@ -104,7 +107,7 @@ export default function AvanceObrasPage() {
       setDraft(prev => { const c = { ...prev }; delete c[obra_nombre]; return c; });
       await cargar();
     } catch (e: any) {
-      alert("Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -114,6 +117,7 @@ export default function AvanceObrasPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">

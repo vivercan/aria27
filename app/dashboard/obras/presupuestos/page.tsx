@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Partida {
   id: string;
@@ -27,6 +29,7 @@ export default function PresupuestosPage() {
   const { obras: obrasCat } = useObrasCatalogo();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" });
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { loadData(); }, []);
 
@@ -41,15 +44,15 @@ export default function PresupuestosPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre.trim()) { alert("Selecciona una obra"); return; }
-    if (!form.descripcion.trim()) { alert("Descripción es requerida"); return; }
-    if (isNaN(form.cantidad) || form.cantidad <= 0) { alert("Cantidad debe ser mayor a 0"); return; }
-    if (isNaN(form.precio_unitario) || form.precio_unitario <= 0) { alert("Precio unitario debe ser mayor a 0"); return; }
+    if (!form.obra_nombre.trim()) { flash("err", "Selecciona una obra"); return; }
+    if (!form.descripcion.trim()) { flash("err", "Descripción es requerida"); return; }
+    if (isNaN(form.cantidad) || form.cantidad <= 0) { flash("err", "Cantidad debe ser mayor a 0"); return; }
+    if (isNaN(form.precio_unitario) || form.precio_unitario <= 0) { flash("err", "Precio unitario debe ser mayor a 0"); return; }
     const importe = form.cantidad * form.precio_unitario;
 
     const { error } = await supabase.from("presupuestos_partidas").insert({ ...form, importe, descripcion: form.descripcion.trim() });
-    if (error) alert("Error: " + error?.message);
-    else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); }
+    if (error) flash("err", "Error: " + error?.message);
+    else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); flash("ok", "Partida guardada correctamente"); }
   }
 
   const filtered = partidas.filter(p => {
@@ -70,6 +73,7 @@ export default function PresupuestosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 

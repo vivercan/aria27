@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import {
   Plus, Search, Edit2, Trash2, Check, XCircle,
@@ -85,6 +86,7 @@ export default function MantenimientoPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadAll(); }, []);
 
@@ -175,9 +177,14 @@ export default function MantenimientoPage() {
   }
 
   async function eliminarOrden(id: string) {
-    if (!confirm("¿Eliminar esta orden de trabajo?")) return;
-    const { error } = await supabase.from("mantenimiento_ordenes").delete().eq("id", id);
-    if (error) flash("err", error.message); else { flash("ok", "Orden eliminada"); loadAll(); }
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar esta orden de trabajo?",
+      onOk: async () => {
+        const { error } = await supabase.from("mantenimiento_ordenes").delete().eq("id", id);
+        if (error) flash("err", error.message); else { flash("ok", "Orden eliminada"); loadAll(); }
+      }
+    });
   }
 
   /* ── CRUD Programas ── */
@@ -617,6 +624,13 @@ export default function MantenimientoPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -50,6 +52,7 @@ interface ResultadoBusqueda {
 }
 
 export default function CotizacionesIAPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [requisiciones, setRequisiciones] = useState<Requisicion[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReq, setSelectedReq] = useState<Requisicion | null>(null);
@@ -144,7 +147,7 @@ export default function CotizacionesIAPage() {
       fecha: new Date().toISOString().split("T")[0]
     });
     setSavingQuote(false);
-    if (error) { alert("Error al guardar cotización: " + error.message); return; }
+    if (error) { flash("err", "Error al guardar cotización: " + error.message); return; }
     setShowQuoteModal(false);
     setQuoteForm({ requisicion_id: "", supplier_name: "", total: "", notas: "", vigencia_dias: "15" });
     loadRequisiciones();
@@ -158,6 +161,7 @@ export default function CotizacionesIAPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/requisiciones" />

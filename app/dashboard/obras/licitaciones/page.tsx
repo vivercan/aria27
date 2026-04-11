@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Licitacion {
   id: string;
@@ -40,6 +42,7 @@ const EMPTY_FORM = {
 };
 
 export default function LicitacionesPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -82,7 +85,7 @@ export default function LicitacionesPage() {
   };
 
   const guardar = async () => {
-    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
+    if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setSaving(true);
     const record = {
       obra_nombre: form.obra_nombre, dependencia: form.dependencia, numero_licitacion: form.numero_licitacion,
@@ -154,6 +157,7 @@ export default function LicitacionesPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <FlashBanner msg={msg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>

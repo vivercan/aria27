@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft, Search, Package, ChevronRight,
   Truck, Tag, Box, Loader2, X, Plus, FileSpreadsheet, Building2,
@@ -16,6 +18,7 @@ const PAGE_SIZE = 50;
 const UNITS = ["PIEZA","LITRO","METRO","METRO_CUBICO","METRO_CUADRADO","KILO","TONELADA","SACO","CUBETA_19L","ROLLO","TRAMO","JUEGO","PAR","CAJA","PAQUETE","VIAJE","SERVICIO","GLOBAL","LOTE","GALON","BOLSA","BOTE"];
 
 export default function ProductosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [products,setProducts]=useState<Product[]>([]);
   const [loading,setLoading]=useState(true);
   const [search,setSearch]=useState("");
@@ -135,11 +138,11 @@ export default function ProductosPage() {
       if(error)throw error;
       if(inserted&&newForm.supplierId){
         const { error: psErr } = await supabase.from("product_suppliers").insert({product_id:inserted.id,supplier_id:parseInt(newForm.supplierId)});
-        if (psErr) { alert("Producto creado, pero error al vincular proveedor: " + psErr.message); }
+        if (psErr) { flash("warn", "Producto creado, pero error al vincular proveedor: " + psErr.message); }
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
-    }catch(e:any){console.error(e);alert("Error: "+e?.message);}
+    }catch(e:any){console.error(e);flash("err", "Error: "+e?.message);}
     finally{setSavingNew(false);}
   };
 
@@ -214,6 +217,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">

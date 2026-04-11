@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob } from "@/lib/storage";
 import {
@@ -63,6 +64,7 @@ export default function BibliotecaPlantillasPage() {
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { cargar(); }, []);
 
@@ -171,33 +173,43 @@ export default function BibliotecaPlantillasPage() {
 
   const toggleActivo = async (p: Plantilla) => {
     const nuevo = !p.activo;
-    if (!confirm(`¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`)) return;
-    const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
-    if (error) { flash("err", error.message); return; }
-    flash("ok", `Plantilla → ${nuevo ? "ACTIVA" : "INACTIVA"}`);
-    cargar();
+    setConfirmState({
+      open: true,
+      msg: `¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`,
+      onOk: async () => {
+        const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
+        if (error) { flash("err", error.message); return; }
+        flash("ok", `Plantilla → ${nuevo ? "ACTIVA" : "INACTIVA"}`);
+        cargar();
+      }
+    });
   };
 
   const eliminar = async (p: Plantilla) => {
-    if (!confirm(`¿Eliminar definitivamente "${p.nombre}"? Se respalda en deleted_records.`)) return;
-    try {
-      if (p.archivo_url) {
-        await deleteRowAndBlob({
-          table: "plantillas_globales",
-          id: p.id,
-          userEmail: "anon",
-          bucket: "expedientes",
-          blobUrlField: "archivo_url",
-        });
-      } else {
-        const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
-        if (error) throw new Error(error.message);
+    setConfirmState({
+      open: true,
+      msg: `¿Eliminar definitivamente "${p.nombre}"? Se respalda en deleted_records.`,
+      onOk: async () => {
+        try {
+          if (p.archivo_url) {
+            await deleteRowAndBlob({
+              table: "plantillas_globales",
+              id: p.id,
+              userEmail: "anon",
+              bucket: "expedientes",
+              blobUrlField: "archivo_url",
+            });
+          } else {
+            const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
+            if (error) throw new Error(error.message);
+          }
+          flash("ok", "Plantilla eliminada");
+          cargar();
+        } catch (e: any) {
+          flash("err", "Error: " + e.message);
+        }
       }
-      flash("ok", "Plantilla eliminada");
-      cargar();
-    } catch (e: any) {
-      flash("err", "Error: " + e.message);
-    }
+    });
   };
 
   const filtradas = items.filter(p => {
@@ -377,6 +389,13 @@ export default function BibliotecaPlantillasPage() {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

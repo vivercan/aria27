@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, XCircle, Filter, Plus, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -20,6 +22,7 @@ export default function ChecadasPage() {
   const hoy = new Date().toISOString().split("T")[0];
   const [fechaInicio, setFechaInicio] = useState(hoy);
   const [fechaFin, setFechaFin] = useState(hoy);
+  const { msg, flash } = useFlashMessage();
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -93,7 +96,7 @@ export default function ChecadasPage() {
     });
     setSaving(false);
     if (error) {
-      alert("No se pudo registrar la asistencia: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar la asistencia: " + (error.message ?? "error desconocido"));
       return;
     }
     setShowModal(false);
@@ -103,6 +106,7 @@ export default function ChecadasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       <div className="flex-none p-6 border-b border-white/10">
         <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento

@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface SirocRegistro {
   id: string;
@@ -57,6 +60,8 @@ function colorEstado(e: string) {
 }
 
 export default function SirocRegistrosPage() {
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [registros, setRegistros] = useState<SirocRegistro[]>([]);
   const [obras, setObras] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +103,7 @@ export default function SirocRegistrosPage() {
   }
 
   async function guardar() {
-    if (!validar()) { alert("Por favor corrige los errores en el formulario"); return; }
+    if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
     const payload = {
       obra: form.obra,
@@ -128,15 +133,16 @@ export default function SirocRegistrosPage() {
     if (editando) ({ error } = await supabase.from("siroc_registros").update(payload).eq("id", editando));
     else ({ error } = await supabase.from("siroc_registros").insert(payload));
     setGuardando(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setShowForm(false); setEditando(null); setForm(EMPTY); cargar();
   }
 
   async function eliminar(id: string) {
-    if (!confirm("¿Eliminar este registro SIROC?")) return;
-    const { error } = await supabase.from("siroc_registros").delete().eq("id", id);
-    if (error) { alert("Error: " + error.message); return; }
-    cargar();
+    setConfirmState({ open: true, msg: "¿Eliminar este registro SIROC?", onOk: async () => {
+      const { error } = await supabase.from("siroc_registros").delete().eq("id", id);
+      if (error) { flash("err", "Error: " + error.message); return; }
+      cargar();
+    }});
   }
 
   function abrirEditar(r: SirocRegistro) {
@@ -160,6 +166,13 @@ export default function SirocRegistrosPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       <div className="flex items-center gap-4">
         <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">

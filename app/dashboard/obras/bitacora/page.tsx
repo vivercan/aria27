@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Obra { id: number; nombre: string; }
 interface Entrada {
@@ -35,6 +37,7 @@ const FORM_INIT = {
 };
 
 function BitacoraContent() {
+  const { msg, flash, clear } = useFlashMessage();
   const sp = useSearchParams();
   const obraQuery = sp.get("obra") || "";
   const [obras, setObras] = useState<Obra[]>([]);
@@ -64,10 +67,10 @@ function BitacoraContent() {
   }
 
   async function guardar() {
-    if (!obraSel) { alert("Selecciona una obra"); return; }
-    if (!form.fecha) { alert("Fecha es requerida"); return; }
-    if (!form.actividades?.trim()) { alert("Las actividades son requeridas"); return; }
-    if (isNaN(Number(form.personal_en_obra)) || Number(form.personal_en_obra) < 0) { alert("Personal en obra debe ser >= 0"); return; }
+    if (!obraSel) { flash("err", "Selecciona una obra"); return; }
+    if (!form.fecha) { flash("err", "Fecha es requerida"); return; }
+    if (!form.actividades?.trim()) { flash("err", "Las actividades son requeridas"); return; }
+    if (isNaN(Number(form.personal_en_obra)) || Number(form.personal_en_obra) < 0) { flash("err", "Personal en obra debe ser >= 0"); return; }
     const obra = obras.find(o => o.nombre === obraSel);
     const fotosArr = form.fotos.split(",").map(s => s.trim()).filter(Boolean);
     const payload = {
@@ -86,7 +89,7 @@ function BitacoraContent() {
       recibido_por_whatsapp: false,
     };
     const { error } = await supabase.from("bitacora_obra").insert(payload);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setForm({ ...FORM_INIT });
     setShowForm(false);
     loadEntradas();
@@ -98,6 +101,7 @@ function BitacoraContent() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg">

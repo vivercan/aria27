@@ -68,7 +68,7 @@ export default function GastosObraPage() {
   }, []);
 
   const cargarObras = async () => {
-    const { data } = await supabase.from("obras").select("nombre").order("nombre", { ascending: true });
+    const { data } = await supabase.from("centros_trabajo").select("nombre").order("nombre", { ascending: true });
     if (data) setObrasData(data);
   };
 

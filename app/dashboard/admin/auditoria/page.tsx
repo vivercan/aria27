@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import BackButton from "@/components/BackButton";
+import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
 
@@ -41,6 +42,7 @@ export default function AuditoriaPage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [restoring, setRestoring] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => {
     (async () => {
@@ -96,24 +98,29 @@ export default function AuditoriaPage() {
   }, [audit, deleted]);
 
   async function restaurarDeleted(row: DeletedRow) {
-    if (!confirm(`Restaurar ${row.source_table} · ${row.source_id}?`)) return;
-    setRestoring(row.id);
-    setMsg(null);
-    try {
-      const resp = await fetch("/api/admin/auditoria/restore", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
-        body: JSON.stringify({ deleted_id: row.id }),
-      });
-      const j = await resp.json();
-      if (!resp.ok) throw new Error(j.error || "Error al restaurar");
-      setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
-      cargar();
-    } catch (e: any) {
-      setMsg({ tipo: "err", texto: e.message });
-    } finally {
-      setRestoring(null);
-    }
+    setConfirmState({
+      open: true,
+      msg: `Restaurar ${row.source_table} · ${row.source_id}?`,
+      onOk: async () => {
+        setRestoring(row.id);
+        setMsg(null);
+        try {
+          const resp = await fetch("/api/admin/auditoria/restore", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+            body: JSON.stringify({ deleted_id: row.id }),
+          });
+          const j = await resp.json();
+          if (!resp.ok) throw new Error(j.error || "Error al restaurar");
+          setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
+          cargar();
+        } catch (e: any) {
+          setMsg({ tipo: "err", texto: e.message });
+        } finally {
+          setRestoring(null);
+        }
+      }
+    });
   }
 
   async function revertirAudit(row: AuditRow) {
@@ -121,24 +128,29 @@ export default function AuditoriaPage() {
       setMsg({ tipo: "err", texto: "Solo se puede revertir un UPDATE con snapshot previo" });
       return;
     }
-    if (!confirm(`Revertir ${row.table_name} al estado antes del cambio?`)) return;
-    setRestoring(String(row.id));
-    setMsg(null);
-    try {
-      const resp = await fetch("/api/admin/auditoria/revert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
-        body: JSON.stringify({ audit_id: row.id }),
-      });
-      const j = await resp.json();
-      if (!resp.ok) throw new Error(j.error || "Error al revertir");
-      setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
-      cargar();
-    } catch (e: any) {
-      setMsg({ tipo: "err", texto: e.message });
-    } finally {
-      setRestoring(null);
-    }
+    setConfirmState({
+      open: true,
+      msg: `Revertir ${row.table_name} al estado antes del cambio?`,
+      onOk: async () => {
+        setRestoring(String(row.id));
+        setMsg(null);
+        try {
+          const resp = await fetch("/api/admin/auditoria/revert", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+            body: JSON.stringify({ audit_id: row.id }),
+          });
+          const j = await resp.json();
+          if (!resp.ok) throw new Error(j.error || "Error al revertir");
+          setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
+          cargar();
+        } catch (e: any) {
+          setMsg({ tipo: "err", texto: e.message });
+        } finally {
+          setRestoring(null);
+        }
+      }
+    });
   }
 
   if (!esAdmin && !loading && userEmail) {
@@ -319,6 +331,13 @@ export default function AuditoriaPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

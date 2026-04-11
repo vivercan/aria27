@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 /**
  * CATÁLOGO MAESTRO DE OBRAS
@@ -41,6 +44,8 @@ const STATUS = [
 const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "" };
 
 export default function CatalogoObrasPage() {
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const router = useRouter();
   const [obras, setObras] = useState<Obra[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,17 +139,28 @@ export default function CatalogoObrasPage() {
         `  • Requisiciones abiertas\n\n` +
         `El sistema NO bloquea el archivado, pero quedará registrado en el historial (updated_at).\n\n` +
         `¿Confirmas que esta obra debe pasar a "${label}"?`;
-      if (!confirm(aviso)) return;
-      if (!confirm(`Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`)) return;
+      setConfirmState({ open: true, msg: aviso, onOk: () => {
+        setConfirmState(p => ({...p, open: false}));
+        const confirmFinal = `Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`;
+        setConfirmState({ open: true, msg: confirmFinal, onOk: async () => {
+          const { error } = await supabase.from("centros_trabajo")
+            .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
+            .eq("id", o.id);
+          if (error) { flash("err", "Error: " + error.message); return; }
+          flash("ok", `Obra → ${label}`);
+          cargar();
+        }});
+      }});
     } else {
-      if (!confirm(`¿Mover la obra "${o.nombre}" al estado "${label}"?`)) return;
+      setConfirmState({ open: true, msg: `¿Mover la obra "${o.nombre}" al estado "${label}"?`, onOk: async () => {
+        const { error } = await supabase.from("centros_trabajo")
+          .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
+          .eq("id", o.id);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        flash("ok", `Obra → ${label}`);
+        cargar();
+      }});
     }
-    const { error } = await supabase.from("centros_trabajo")
-      .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
-      .eq("id", o.id);
-    if (error) { flash("err", "Error: " + error.message); return; }
-    flash("ok", `Obra → ${label}`);
-    cargar();
   };
 
   // Filtros
@@ -170,6 +186,13 @@ export default function CatalogoObrasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard/obras" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Obras

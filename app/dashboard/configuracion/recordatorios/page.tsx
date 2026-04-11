@@ -1,6 +1,8 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import FlashBanner from "@/components/FlashBanner";
 import { useDeletePermission } from "@/lib/use-delete-permission";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -23,6 +25,7 @@ const EMPTY = { empleado_nombre: "", tipo: "BITACORA", fecha_hora: "", canal: "W
 export default function RecordatoriosPage() {
   const [records, setRecords] = useState<Recordatorio[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
@@ -50,10 +53,11 @@ export default function RecordatoriosPage() {
     if (!validar()) return;
     setSaving(true);
     const { error } = await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
-    if (error) { alert("Error al crear recordatorio: " + error.message); setSaving(false); return; }
+    if (error) { flash("err", "Error al crear recordatorio: " + error.message); setSaving(false); return; }
     const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
     setRecords(data || []);
     setForm(EMPTY); setShowForm(false); setSaving(false);
+    flash("ok", "Recordatorio creado");
   };
 
   const eliminar = async (id: string) => {
@@ -73,6 +77,7 @@ export default function RecordatoriosPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <FlashBanner msg={msg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>

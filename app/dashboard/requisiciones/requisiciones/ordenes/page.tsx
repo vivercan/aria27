@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
   ArrowLeft, Loader2, Package, Search, Filter,
@@ -44,6 +46,7 @@ type Requisicion = {
 };
 
 export default function OrdenesCompraPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [orders, setOrders] = useState<PO[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -110,15 +113,15 @@ export default function OrdenesCompraPage() {
         if (!reRes.ok) {
           const errTxt = await reRes.text().catch(() => "");
           console.error("registrar-entrega fallo", reRes.status, errTxt);
-          alert("Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
+          flash("warn", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
-      } catch (e) { console.error("Error creando entrega:", e); alert("Error red registrar-entrega: " + (e as any)?.message); }
+      } catch (e) { console.error("Error creando entrega:", e); flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
     }
-    
+
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
     if (updErr) {
       setUpdatingStatus(false);
-      alert("No se pudo actualizar la orden: " + (updErr.message ?? "error desconocido"));
+      flash("err", "No se pudo actualizar la orden: " + (updErr.message ?? "error desconocido"));
       return;
     }
     setSelectedPO({ ...selectedPO, ...updates });
@@ -167,6 +170,7 @@ export default function OrdenesCompraPage() {
     const StatusIcon = st.icon;
     return (
       <div className="h-full flex flex-col">
+        <FlashBanner msg={msg} />
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <button onClick={closeDetail} className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-slate-400" /></button>
           <div className="flex-1 min-w-0">
@@ -242,6 +246,7 @@ export default function OrdenesCompraPage() {
 
   return (
     <div className="h-full flex flex-col">
+      <FlashBanner msg={msg} />
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
         <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-slate-400 text-sm">{orders.length} órdenes generadas</p></div>

@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { Plus, DollarSign, Calendar, User, X, ArrowLeft, Loader2, Wallet, TrendingDown } from "lucide-react";
 
 interface Prestamo {
@@ -23,6 +25,7 @@ export default function PrestamosPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", monto: "", descuento: "", semanas: "", motivo: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash } = useFlashMessage();
 
   useEffect(() => {
     cargarDatos();
@@ -75,7 +78,7 @@ export default function PrestamosPage() {
       status: "ACTIVO",
     });
     if (error) {
-      alert("No se pudo registrar el préstamo: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar el préstamo: " + (error.message ?? "error desconocido"));
       return;
     }
 
@@ -88,6 +91,7 @@ export default function PrestamosPage() {
 
   return (
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       {/* Flecha de regreso */}
               <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors inline-block w-fit mb-4">
           <ArrowLeft className="w-5 h-5 text-slate-400" />

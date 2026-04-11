@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Plus, Search, Edit2, Save, X, Loader2,
@@ -52,6 +53,7 @@ export default function ClientesPage() {
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [expedienteCli, setExpedienteCli] = useState<Cliente | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { cargar(); }, []);
 
@@ -130,11 +132,16 @@ export default function ClientesPage() {
 
   const toggleEstatus = async (c: Cliente) => {
     const nuevo = c.estatus === "ACTIVO" ? "INACTIVO" : "ACTIVO";
-    if (!confirm(`¿Marcar a "${c.nombre}" como ${nuevo}?`)) return;
-    const { error } = await supabase.from("clientes").update({ estatus: nuevo }).eq("id", c.id);
-    if (error) { flash("err", error.message); return; }
-    flash("ok", `Cliente → ${nuevo}`);
-    cargar();
+    setConfirmState({
+      open: true,
+      msg: `¿Marcar a "${c.nombre}" como ${nuevo}?`,
+      onOk: async () => {
+        const { error } = await supabase.from("clientes").update({ estatus: nuevo }).eq("id", c.id);
+        if (error) { flash("err", error.message); return; }
+        flash("ok", `Cliente → ${nuevo}`);
+        cargar();
+      }
+    });
   };
 
   const filtrados = clientes.filter(c => {
@@ -343,6 +350,13 @@ export default function ClientesPage() {
         entityType="cliente"
         entityId={expedienteCli?.id || ""}
         entityName={expedienteCli?.nombre}
+      />
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>
   );

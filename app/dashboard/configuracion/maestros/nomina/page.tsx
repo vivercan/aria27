@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { Save, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +17,7 @@ export default function NominaConfigPage() {
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { msg, flash } = useFlashMessage();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -52,8 +55,9 @@ export default function NominaConfigPage() {
     if (!validar(valor, clave)) return;
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) { console.error("Error saving configuracion:", error?.message); alert("Error: " + error?.message); setSaving(false); return; }
+    if (error) { console.error("Error saving configuracion:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setFormErrors({});
+    flash("ok", "Guardado correctamente");
     setSaving(false);
   }
 
@@ -80,6 +84,7 @@ export default function NominaConfigPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex items-center gap-2 text-sm text-slate-400">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>

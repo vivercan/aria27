@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, ArrowLeft, Sparkles, ExternalLink
 } from "lucide-react";
@@ -46,6 +48,7 @@ type ProveedorIA = {
 };
 
 export default function ComprasTramitePage() {
+  const { msg, flash, clear } = useFlashMessage();
   const router = useRouter();
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [selectedReq, setSelectedReq] = useState<Requisition | null>(null);
@@ -280,7 +283,7 @@ Responde SOLO con JSON así:
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        alert("Error solicitar-cotizacion (" + res.status + "): " + (data?.error || "").slice(0, 200));
+        flash("err", "Error solicitar-cotizacion (" + res.status + "): " + (data?.error || "").slice(0, 200));
         setSolicitando(false);
         return;
       }
@@ -312,10 +315,10 @@ Responde SOLO con JSON así:
           selected_price: prices[item.id]?.price || 0,
           selected_supplier: prices[item.id]?.supplier || ""
         }).eq("id", item.id);
-        if (itErr) { alert("Error al guardar item: " + itErr.message); setSending(false); return; }
+        if (itErr) { flash("err", "Error al guardar item: " + itErr.message); setSending(false); return; }
       }
       const { error: reqErr } = await supabase.from("requisitions").update({ purchase_status: "COTIZADO" }).eq("id", selectedReq.id);
-      if (reqErr) { alert("Error al marcar COTIZADO: " + reqErr.message); setSending(false); return; }
+      if (reqErr) { flash("err", "Error al marcar COTIZADO: " + reqErr.message); setSending(false); return; }
 
       const apRes = await fetch("/api/requisicion/authorize-purchase", {
         method: "POST",
@@ -329,18 +332,18 @@ Responde SOLO con JSON así:
       });
       if (!apRes.ok) {
         const errTxt = await apRes.text().catch(() => "");
-        alert("Error al enviar a autorizacion (" + apRes.status + "): " + errTxt.slice(0, 200));
+        flash("err", "Error al enviar a autorizacion (" + apRes.status + "): " + errTxt.slice(0, 200));
         setSending(false);
         return;
       }
 
-      alert("✅ Enviado a autorización");
+      flash("ok", "✅ Enviado a autorización");
       setSelectedReq(null);
       setItems([]);
       setProveedoresIA([]);
       loadData();
     } catch (e) {
-      alert("Error al enviar");
+      flash("err", "Error al enviar");
     } finally {
       setSending(false);
     }
@@ -396,6 +399,7 @@ Responde SOLO con JSON así:
 
   return (
     <div className="max-w-7xl mx-auto space-y-3 text-sm">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
         <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
           <ArrowLeft className="w-4 h-4 text-slate-400" />
@@ -784,14 +788,14 @@ Responde SOLO con JSON así:
                 });
                 if (!ecRes.ok) {
                   const errTxt = await ecRes.text().catch(() => "");
-                  alert("Error enviando comparativa (" + ecRes.status + "): " + errTxt.slice(0, 250));
+                  flash("err", "Error enviando comparativa (" + ecRes.status + "): " + errTxt.slice(0, 250));
                   setSending(false);
                   return;
                 }
                 const ecJson = await ecRes.json().catch(() => ({}));
-                alert("Comparativa enviada a Direccion (" + (ecJson.enviado_a || "ok") + ")");
+                flash("ok", "Comparativa enviada a Direccion (" + (ecJson.enviado_a || "ok") + ")");
                 setSelectedReq(null); setItems([]); loadData();
-              } catch { alert("Error al enviar"); }
+              } catch { flash("err", "Error al enviar"); }
               finally { setSending(false); }
             }} disabled={!allItemsHaveMinQuotes() || sending}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">

@@ -1,6 +1,8 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import FlashBanner from "@/components/FlashBanner";
 import { useDeletePermission } from "@/lib/use-delete-permission";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +23,7 @@ interface Alerta {
 export default function AlertasPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
@@ -35,14 +38,14 @@ export default function AlertasPage() {
 
   const marcarNotificado = async (id: string) => {
     const { error } = await supabase.from("alertas_atraso").update({ notificado: true }).eq("id", id);
-    if (error) { console.error("Error updating alerta:", error?.message); alert("Error: " + error?.message); return; }
+    if (error) { console.error("Error updating alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.map(a => a.id === id ? { ...a, notificado: true } : a));
   };
 
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("alertas_atraso").delete().eq("id", id);
-    if (error) { console.error("Error deleting alerta:", error?.message); alert("Error: " + error?.message); return; }
+    if (error) { console.error("Error deleting alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.filter(a => a.id !== id));
   };
 
@@ -59,6 +62,7 @@ export default function AlertasPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <FlashBanner msg={msg} />
       <div className="flex items-center gap-3">
         <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
         <div>

@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { CheckCircle, XCircle, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
 
 type Requisition = {
@@ -26,6 +28,7 @@ type Item = {
 };
 
 export default function AuthorizeRequisicionesPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [Requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [selectedReq, setSelectedReq] = useState<Requisition | null>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -69,8 +72,8 @@ export default function AuthorizeRequisicionesPage() {
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
         }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
-        if (updErr) { alert("Error al devolver requisición: " + updErr.message); setProcessing(false); return; }
-        if (!rows || rows.length === 0) { alert("Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
+        if (updErr) { flash("err", "Error al devolver requisición: " + updErr.message); setProcessing(false); return; }
+        if (!rows || rows.length === 0) { flash("err", "Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       } else if (selectedReq.authorization_comments && selectedReq.status === "EN_AUTORIZACION") {
         // APROBADA o RECHAZADA con token valido: usar endpoint approve-purchase
         const apiAction = action === "APROBADA" ? "AUTORIZADA" : "RECHAZADA";
@@ -79,7 +82,7 @@ export default function AuthorizeRequisicionesPage() {
         if (!res.ok) {
           const text = await res.text();
           console.error("Error en approve-purchase:", text);
-          alert("Error al procesar: " + res.status);
+          flash("err", "Error al procesar: " + res.status);
         }
       } else {
         // Fallback: PATCH directo con OPTIMISTIC LOCK sobre status
@@ -89,12 +92,12 @@ export default function AuthorizeRequisicionesPage() {
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
         }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
-        if (updErr) { alert("Error al procesar autorización: " + updErr.message); setProcessing(false); return; }
-        if (!rows || rows.length === 0) { alert("Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
+        if (updErr) { flash("err", "Error al procesar autorización: " + updErr.message); setProcessing(false); return; }
+        if (!rows || rows.length === 0) { flash("err", "Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       }
     } catch (err: any) {
       console.error("Error en handleAction:", err);
-      alert("Error: " + err?.message);
+      flash("err", "Error: " + err?.message);
     }
 
     setSelectedReq(null);
@@ -106,6 +109,7 @@ export default function AuthorizeRequisicionesPage() {
 
   return (
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col">
+      <FlashBanner msg={msg} />
       <div className="flex items-center gap-4 mb-6">
         <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5 text-slate-400" />

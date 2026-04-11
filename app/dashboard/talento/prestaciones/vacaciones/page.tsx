@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, Calendar, Sun, User, Plus, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Vacacion {
@@ -39,6 +41,7 @@ export default function VacacionesPage() {
   const [empleados, setEmpleados] = useState<{id: string; full_name: string}[]>([]);
   const [form, setForm] = useState({ employee_id: "", fecha_inicio: "", fecha_fin: "", motivo: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash } = useFlashMessage();
 
   useEffect(() => { cargarDatos(); }, []);
 
@@ -74,8 +77,8 @@ export default function VacacionesPage() {
       .eq("status", "PENDIENTE")
       .select("id")
       .maybeSingle();
-    if (solErr) { alert("Error al aprobar: " + solErr.message); return; }
-    if (!solRow) { alert("Esta solicitud ya fue procesada por otro usuario. Recarga."); cargarDatos(); return; }
+    if (solErr) { flash("err", "Error al aprobar: " + solErr.message); return; }
+    if (!solRow) { flash("err", "Esta solicitud ya fue procesada por otro usuario. Recarga."); cargarDatos(); return; }
 
     // Fase 2: sumar días tomados con OPTIMISTIC LOCK para evitar race
     // (read → modify → write sin lock perdería días si dos aprobadores concurrentes).
@@ -86,8 +89,8 @@ export default function VacacionesPage() {
       .eq("employee_id", employee_id)
       .eq("anio", anio)
       .maybeSingle();
-    if (readErr) { alert("Aprobada, pero error leyendo días: " + readErr.message); cargarDatos(); return; }
-    if (!vac) { alert("Aprobada, pero no existe registro de vacaciones para este empleado/año."); cargarDatos(); return; }
+    if (readErr) { flash("err", "Aprobada, pero error leyendo días: " + readErr.message); cargarDatos(); return; }
+    if (!vac) { flash("err", "Aprobada, pero no existe registro de vacaciones para este empleado/año."); cargarDatos(); return; }
 
     const expected = vac.dias_tomados;
     const nuevoTomados = (expected || 0) + dias;
@@ -99,16 +102,16 @@ export default function VacacionesPage() {
       .eq("dias_tomados", expected)
       .select("dias_tomados")
       .maybeSingle();
-    if (vacErr) { alert("Aprobada, pero error al sumar días tomados: " + vacErr.message); }
+    if (vacErr) { flash("err", "Aprobada, pero error al sumar días tomados: " + vacErr.message); }
     else if (!updRow) {
-      alert("Aprobada, pero los días tomados fueron modificados por otro usuario. Recarga y verifica el saldo.");
+      flash("err", "Aprobada, pero los días tomados fueron modificados por otro usuario. Recarga y verifica el saldo.");
     }
     cargarDatos();
   };
 
   const rechazarSolicitud = async (id: string) => {
     const { error } = await supabase.from("solicitudes_vacaciones").update({ status: "RECHAZADA" }).eq("id", id);
-    if (error) { alert("Error al rechazar: " + error.message); return; }
+    if (error) { flash("err", "Error al rechazar: " + error.message); return; }
     cargarDatos();
   };
 
@@ -143,7 +146,7 @@ export default function VacacionesPage() {
       motivo: form.motivo,
       status: "PENDIENTE"
     });
-    if (error) { alert("Error al crear solicitud: " + error.message); return; }
+    if (error) { flash("err", "Error al crear solicitud: " + error.message); return; }
     setShowModal(false);
     setForm({ employee_id: "", fecha_inicio: "", fecha_fin: "", motivo: "" });
     cargarDatos();
@@ -185,6 +188,7 @@ export default function VacacionesPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

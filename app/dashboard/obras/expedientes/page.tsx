@@ -6,6 +6,8 @@ import { uploadAndInsert, buildPath } from "@/lib/storage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft,
   FolderOpen,
@@ -81,6 +83,7 @@ interface Tarea {
 const AÑOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
 
 export default function ExpedientesPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -236,7 +239,7 @@ export default function ExpedientesPage() {
   };
 
   const crearSubcarpeta = async () => {
-    if (!carpetaAnioSeleccionada) { alert("Selecciona una carpeta padre"); return; }
+    if (!carpetaAnioSeleccionada) { flash("err", "Selecciona una carpeta padre"); return; }
     if (!validarSubcarpeta()) return;
     const { error } = await supabase.from("expedientes_carpetas").insert({
       obra_id: null,
@@ -247,7 +250,7 @@ export default function ExpedientesPage() {
       orden: subcarpetas.length,
     });
     if (error) {
-      alert("Error al crear subcarpeta: " + error.message);
+      flash("err", "Error al crear subcarpeta: " + error.message);
       return;
     }
     setNuevaSubcarpetaNombre("");
@@ -264,7 +267,7 @@ export default function ExpedientesPage() {
     if (!id) return;
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
     if (error) {
-      alert("Error: " + error.message);
+      flash("err", "Error: " + error.message);
       return;
     }
     setDeleteCarpetaModal({ open: false, id: "", nombre: "", isSub: false });
@@ -283,7 +286,7 @@ export default function ExpedientesPage() {
       .update({ nombre: nuevo.trim() })
       .eq("id", id);
     if (error) {
-      alert("Error al renombrar: " + error.message);
+      flash("err", "Error al renombrar: " + error.message);
       return;
     }
     if (isSub && carpetaAnioSeleccionada) {
@@ -352,7 +355,7 @@ export default function ExpedientesPage() {
     const ids = targets.map(a => a.id);
     const { error } = await supabase.from("expedientes_archivos").delete().in("id", ids);
     if (error) {
-      alert("Error al eliminar: " + error.message);
+      flash("err", "Error al eliminar: " + error.message);
       return;
     }
     setDeleteArchivoModal({ open: false, archivos: [] });
@@ -415,7 +418,7 @@ export default function ExpedientesPage() {
         dispararAnalisis(nuevoRow.id);
       }
     } catch (err: any) {
-      alert(err?.message || "Error al subir archivo");
+      flash("err", err?.message || "Error al subir archivo");
     }
   };
 
@@ -466,7 +469,7 @@ export default function ExpedientesPage() {
     const file = e.target.files[0];
     const anio = anioSeleccionado as number;
     const rootId = await getOrCreateRootCarpeta(anio);
-    if (!rootId) { alert("Error al preparar carpeta raíz"); return; }
+    if (!rootId) { flash("err", "Error al preparar carpeta raíz"); return; }
     const path = buildPath({ module: "expedientes", scope: ["anio", String(anio), "sueltos"], file });
     try {
       const result = await uploadAndInsert({
@@ -481,7 +484,7 @@ export default function ExpedientesPage() {
         .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
       if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
     } catch (err: any) {
-      alert(err?.message || "Error al subir archivo");
+      flash("err", err?.message || "Error al subir archivo");
     }
     e.target.value = "";
   };
@@ -509,7 +512,7 @@ export default function ExpedientesPage() {
         orden: carpetasAnio.length,
       });
       if (error) {
-        alert("Error al crear carpeta del año: " + error.message);
+        flash("err", "Error al crear carpeta del año: " + error.message);
         return;
       }
       setNuevaCarpetaAnioNombre("");
@@ -597,7 +600,7 @@ export default function ExpedientesPage() {
 
       if (error) {
         console.error("Error creating carpeta:", error?.message);
-        alert("Error al crear carpeta: " + error.message);
+        flash("err", "Error al crear carpeta: " + error.message);
         return;
       }
 
@@ -620,7 +623,7 @@ export default function ExpedientesPage() {
 
     if (error) {
       console.error("Error creating tarea:", error?.message);
-      alert("Error al crear tarea: " + error.message);
+      flash("err", "Error al crear tarea: " + error.message);
       return;
     }
 
@@ -638,7 +641,7 @@ export default function ExpedientesPage() {
 
     if (error) {
       console.error("Error updating tarea status:", error?.message);
-      alert("Error al cambiar estado de tarea: " + error.message);
+      flash("err", "Error al cambiar estado de tarea: " + error.message);
       return;
     }
 
@@ -685,7 +688,7 @@ export default function ExpedientesPage() {
       });
       loadArchivos(carpetaSeleccionada.id);
     } catch (err: any) {
-      alert(err?.message || "Error al subir archivo");
+      flash("err", err?.message || "Error al subir archivo");
     }
   };
 
@@ -722,6 +725,7 @@ export default function ExpedientesPage() {
     };
     return (
       <div className="space-y-6">
+        <FlashBanner msg={msg} />
         <div className="flex items-center gap-4">
           <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -786,6 +790,7 @@ export default function ExpedientesPage() {
     const todosSeleccionados = archivos.length > 0 && archivosSeleccionados.size === archivos.length;
     return (
       <div className="space-y-6 max-w-5xl mx-auto">
+        <FlashBanner msg={msg} />
         {deleteCarpetaModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
@@ -1273,6 +1278,7 @@ export default function ExpedientesPage() {
   // Vista: Expediente de Obra
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

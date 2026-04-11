@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
 
 interface Entrega {
@@ -26,6 +28,7 @@ interface Obra { id: string; name: string; }
 interface Empleado { id: string; full_name: string; }
 
 export default function EntregasPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [entregas, setEntregas] = useState<Entrega[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -101,7 +104,7 @@ export default function EntregasPage() {
       observaciones: form.observaciones,
       materiales_recibidos: form.materiales.filter(m => m.producto)
     });
-    if (error) { console.error(error); alert("Error al guardar"); return; }
+    if (error) { console.error(error); flash("err", "Error al guardar"); return; }
     setShowModal(false);
     setForm({ fecha_entrega: new Date().toISOString().split("T")[0], hora_entrega: new Date().toTimeString().slice(0, 5), proveedor_nombre: "", obra_nombre: "", recibido_por_nombre: "", status: "COMPLETA", observaciones: "", materiales: [{ producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }] });
     cargarDatos();
@@ -129,6 +132,7 @@ export default function EntregasPage() {
 
   return (
     <div className="h-full flex flex-col">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-4">
