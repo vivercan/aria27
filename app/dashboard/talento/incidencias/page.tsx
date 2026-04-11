@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { Plus, Search, AlertCircle, Clock, Calendar, UserX, CheckCircle2 , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Incidencia {
   id: string;
@@ -43,7 +43,7 @@ export default function IncidenciasPage() {
       setIncidencias(inc || []);
       const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
       setEmpleados(emps || []);
-    } catch (e) { /* error handled */ } finally { setLoading(false); }
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   }
 
   async function guardar() {
@@ -89,7 +89,7 @@ export default function IncidenciasPage() {
     switch (tipo) {
       case "FALTA": return { color: "bg-red-500/20 text-red-400", icon: "\u2715" };
       case "RETARDO": return { color: "bg-amber-500/20 text-amber-400", icon: "\u23F0" };
-      case "PERMISO": return { color: "bg-blue-500/20 text-blue-400", icon: "\uD83D\uDCCB" };
+      case "PERMISO": return { color: "bg-aria-primary-light text-aria-accent", icon: "\uD83D\uDCCB" };
       case "INCAPACIDAD": return { color: "bg-violet-500/20 text-violet-400", icon: "\uD83C\uDFE5" };
       default: return { color: "bg-slate-500/20 text-slate-400", icon: "?" };
     }
@@ -97,7 +97,7 @@ export default function IncidenciasPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <AriaBackButton href="/dashboard/talento" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
@@ -105,7 +105,7 @@ export default function IncidenciasPage() {
           <h1 className="text-2xl font-bold text-white">Incidencias</h1>
           <p className="text-slate-400 text-sm">Faltas, retardos, permisos e incapacidades</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Registrar Incidencia
         </button>
       </div>
@@ -114,7 +114,7 @@ export default function IncidenciasPage() {
         {[
           { label: "Faltas", value: faltas, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Retardos", value: retardos, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Permisos", value: permisos, icon: Calendar, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Permisos", value: permisos, icon: Calendar, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Total", value: incidencias.length, icon: AlertCircle, color: "text-violet-400", bg: "bg-violet-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -152,7 +152,7 @@ export default function IncidenciasPage() {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Guardar</button>
+            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -161,11 +161,11 @@ export default function IncidenciasPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..." className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..." className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "FALTA", "RETARDO", "PERMISO", "INCAPACIDAD"].map(f => (
-            <button key={f} onClick={() => setFilterTipo(f)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+            <button key={f} onClick={() => setFilterTipo(f)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
               {f}
             </button>
           ))}
@@ -187,7 +187,7 @@ export default function IncidenciasPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={6} className="p-8 text-center text-slate-400">Sin incidencias registradas</td></tr>
               ) : filtered.map(i => {

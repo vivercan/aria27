@@ -1,17 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search, FileText } from "lucide-react";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
-
-interface CentroRow {
-  nombre?: string;
-  name?: string;
-}
+import { ArrowLeft, Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search } from "lucide-react";
 
 interface SirocRegistro {
   id: string;
@@ -40,7 +34,7 @@ interface SirocRegistro {
   created_at: string;
 }
 
-const EMPTY: Record<string, string | number | boolean> = {
+const EMPTY: any = {
   obra: "", registro_patronal: "", numero_siroc: "", clase_riesgo: "III",
   tipo_obra: "", modalidad: "PROPIA", fecha_inicio: "", fecha_fin_estimada: "",
   fecha_fin_real: "", importe_total: 0, monto_ejercido: 0, superficie_construccion: 0,
@@ -56,7 +50,7 @@ const INCIDENCIAS = ["", "SUSPENSION", "REANUDACION", "MODIFICACION_IMPORTE", "A
 
 function colorEstado(e: string) {
   switch (e) {
-    case "REGISTRADA": return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+    case "REGISTRADA": return "bg-aria-primary-light text-aria-accent border-aria-primary/40";
     case "EN_CURSO": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
     case "SUSPENDIDA": return "bg-amber-500/20 text-amber-300 border-amber-500/40";
     case "TERMINADA": return "bg-slate-500/20 text-slate-300 border-slate-500/40";
@@ -101,9 +95,9 @@ export default function SirocRegistrosPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: CentroRow) => o.nombre || o.name || "").filter(Boolean).sort());
+    setObras((ct || []).map((o: any) => o.nombre).sort());
     const { data, error } = await supabase.from("siroc_registros").select("*").order("created_at", { ascending: false });
-    
+    if (error) console.error("siroc_registros error:", error);
     setRegistros(data || []);
     setLoading(false);
   }
@@ -172,15 +166,9 @@ export default function SirocRegistrosPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
+      <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/obras" />
+        <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
           <p className="text-slate-400 mt-1">Registro estructurado de obras ante IMSS.</p>
@@ -199,7 +187,7 @@ export default function SirocRegistrosPage() {
           { l: "En curso", v: stats.enCurso, c: "text-emerald-300" },
           { l: "Suspendidas", v: stats.suspendidas, c: "text-amber-300" },
           { l: "Terminadas", v: stats.terminadas, c: "text-slate-300" },
-          { l: "Importe total", v: `$${stats.importeTotal.toLocaleString("es-MX")}`, c: "text-blue-300" },
+          { l: "Importe total", v: `$${stats.importeTotal.toLocaleString("es-MX")}`, c: "text-aria-accent" },
         ].map((k, i) => (
           <div key={i} className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
             <div className="text-xs text-slate-400 uppercase">{k.l}</div>
@@ -217,10 +205,7 @@ export default function SirocRegistrosPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-red-400" /></div>
       ) : filtradas.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-slate-400">No hay registros SIROC.</p>
-        </div>
+        <div className="text-center py-12 text-slate-400">No hay registros SIROC.</div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-700/50">
           <table className="w-full text-sm">
@@ -312,6 +297,12 @@ export default function SirocRegistrosPage() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -26,11 +25,6 @@ interface Remision {
   created_at: string;
 }
 
-interface CentroRow {
-  nombre?: string;
-  name?: string;
-}
-
 interface Cilindro {
   id: string;
   remision_id: string;
@@ -43,12 +37,10 @@ interface Cilindro {
   created_at: string;
 }
 
-const EMPTY_REM: Record<string, string | number | boolean> = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
-const EMPTY_CIL: Record<string, string | number | boolean> = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
+const EMPTY_REM: any = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
+const EMPTY_CIL: any = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
 
 export default function ConcretoRemisionesPage() {
-  const { msg, flash, clear } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [remisiones, setRemisiones] = useState<Remision[]>([]);
   const [cilindros, setCilindros] = useState<Cilindro[]>([]);
   const [obras, setObras] = useState<string[]>([]);
@@ -64,6 +56,8 @@ export default function ConcretoRemisionesPage() {
   const [userEmail, setUserEmail] = useState("");
   const [formRemErrors, setFormRemErrors] = useState<Record<string, string>>({});
   const [formCilErrors, setFormCilErrors] = useState<Record<string, string>>({});
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => {
     if (typeof window !== "undefined") setUserEmail(localStorage.getItem("userEmail") || "");
@@ -106,9 +100,9 @@ export default function ConcretoRemisionesPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: CentroRow) => o.nombre || o.name || "").filter(Boolean).sort());
+    setObras((ct || []).map((o: any) => o.nombre).sort());
     const { data: rems, error } = await supabase.from("concreto_remisiones").select("*").order("fecha_colado", { ascending: false });
-    
+    if (error) console.error("concreto_remisiones error:", error);
     setRemisiones(rems || []);
     const { data: cils } = await supabase.from("concreto_cilindros").select("*").order("dias_edad");
     setCilindros(cils || []);
@@ -141,16 +135,21 @@ export default function ConcretoRemisionesPage() {
     setGuardando(false);
     if (error) { flash("err", "Error: " + error.message); return; }
     setShowFormRem(false); setEditando(null); setFormRem(EMPTY_REM); cargar();
+    flash("ok", editando ? "Remisión actualizada" : "Remisión guardada");
   }
 
   async function eliminarRem(id: string) {
-    setConfirmState({ open: true, msg: "¿Eliminar esta remisión y sus pruebas de cilindro?", onOk: async () => {
-      await supabase.from("concreto_cilindros").delete().eq("remision_id", id);
-      const { error } = await supabase.from("concreto_remisiones").delete().eq("id", id);
-      if (error) { flash("err", "Error: " + error.message); return; }
-      cargar();
-    }});
-    return;
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar esta remisión y sus pruebas de cilindro?",
+      onOk: async () => {
+        await supabase.from("concreto_cilindros").delete().eq("remision_id", id);
+        const { error } = await supabase.from("concreto_remisiones").delete().eq("id", id);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        cargar();
+        flash("ok", "Remisión eliminada");
+      }
+    });
   }
 
   async function guardarCil() {
@@ -169,13 +168,19 @@ export default function ConcretoRemisionesPage() {
     setGuardando(false);
     if (error) { flash("err", "Error: " + error.message); return; }
     setFormCil(EMPTY_CIL); cargar();
+    flash("ok", "Prueba de cilindro guardada");
   }
 
   async function eliminarCil(id: string) {
-    setConfirmState({ open: true, msg: "¿Eliminar esta prueba?", onOk: async () => {
-      await supabase.from("concreto_cilindros").delete().eq("id", id);
-      cargar();
-    }});
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar esta prueba?",
+      onOk: async () => {
+        await supabase.from("concreto_cilindros").delete().eq("id", id);
+        cargar();
+        flash("ok", "Prueba eliminada");
+      }
+    });
   }
 
   function abrirEditarRem(r: Remision) {
@@ -201,15 +206,10 @@ export default function ConcretoRemisionesPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
+      <ConfirmModal open={confirmState.open} message={confirmState.msg} onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }} onCancel={() => setConfirmState(p => ({...p, open: false}))} />
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/obras" />
+        <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Droplet className="w-8 h-8 text-sky-400" />Control de Concreto · Remisiones</h1>
           <p className="text-slate-400 mt-1">Remisiones de colado y pruebas de cilindro 7/14/28 días.</p>
@@ -245,10 +245,7 @@ export default function ConcretoRemisionesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-sky-400" /></div>
       ) : filtradas.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-slate-400">No hay remisiones registradas.</p>
-        </div>
+        <div className="text-center py-12 text-slate-400">No hay remisiones registradas.</div>
       ) : (
         <div className="space-y-4">
           {filtradas.map(r => {

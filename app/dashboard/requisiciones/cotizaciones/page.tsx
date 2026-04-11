@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface ReqItem {
   id: string;
@@ -48,7 +48,7 @@ interface ResultadoBusqueda {
   proveedores_internos: ProveedorInterno[];
   proveedores_web: ProveedorWeb[];
   recomendacion: string;
-  proveedores_bd: Record<string, unknown>[];
+  proveedores_bd: any[];
 }
 
 export default function CotizacionesIAPage() {
@@ -126,8 +126,8 @@ export default function CotizacionesIAPage() {
       } else {
         setError(data.error || "Error en la búsqueda");
       }
-    } catch (e: unknown) {
-      setError(((e as Error)?.message) || "Error de conexión");
+    } catch (e: any) {
+      setError(e?.message || "Error de conexión");
     } finally {
       setBuscando(false);
     }
@@ -161,7 +161,7 @@ export default function CotizacionesIAPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/requisiciones" />
@@ -194,13 +194,13 @@ export default function CotizacionesIAPage() {
                   onClick={() => buscarProveedores(req)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedReq?.id === req.id
-                      ? "bg-blue-500/20 border-blue-500"
+                      ? "bg-aria-primary-light border-aria-primary"
                       : "bg-white/5 border-white/10 hover:bg-white/10"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <span className="font-mono text-sm text-blue-400">{req.folio}</span>
+                      <span className="font-mono text-sm text-aria-accent">{req.folio}</span>
                       <p className="text-white font-medium">{req.cost_center_name}</p>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs text-white ${getUrgencyColor(req.urgency)}`}>
@@ -241,7 +241,7 @@ export default function CotizacionesIAPage() {
             </div>
           ) : buscando ? (
             <div className="text-center py-20 bg-white/5 rounded-xl">
-              <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-blue-400" />
+              <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-aria-accent" />
               <p className="text-white font-medium">Analizando productos...</p>
               <p className="text-slate-400 text-sm">Buscando proveedores en Aguascalientes</p>
             </div>
@@ -301,14 +301,14 @@ export default function CotizacionesIAPage() {
               {resultado.proveedores_web?.length > 0 && (
                 <div>
                   <h3 className="text-white font-medium mb-2 flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-blue-400" />
+                    <Globe className="w-4 h-4 text-aria-accent" />
                     Encontrados en Internet (Aguascalientes)
                   </h3>
                   <div className="space-y-3">
                     {resultado.proveedores_web.map((p, i) => (
                       <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10">
                         <h4 className="text-white font-medium flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-blue-400" />
+                          <Building2 className="w-4 h-4 text-aria-accent" />
                           {p.nombre}
                         </h4>
                         <div className="mt-2 space-y-1 text-sm">
@@ -325,7 +325,7 @@ export default function CotizacionesIAPage() {
                             </div>
                           )}
                           {p.sitio_web && (
-                            <div className="flex items-center gap-2 text-blue-400">
+                            <div className="flex items-center gap-2 text-aria-accent">
                               <ExternalLink className="w-3 h-3" />
                               <a href={p.sitio_web} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
                                 {p.sitio_web}

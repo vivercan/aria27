@@ -81,7 +81,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
     return (
       <div key={nodo.id}>
         <div
-          className={`flex items-center gap-1 px-2 py-1.5 rounded hover:bg-white/5 cursor-pointer group ${isSel ? "bg-blue-500/20" : ""}`}
+          className={`flex items-center gap-1 px-2 py-1.5 rounded hover:bg-white/5 cursor-pointer group ${isSel ? "bg-aria-primary-light" : ""}`}
           style={{ paddingLeft: `${depth * 14 + 8}px` }}
           onClick={() => onSelect?.(nodo.id, nodo.nombre)}
         >
@@ -118,7 +118,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
               onKeyDown={e => { if (e.key === "Enter") crear(nodo.id); if (e.key === "Escape") { setCreatingIn(null); setNewName(""); } }}
               onBlur={() => { if (!saving) { crear(nodo.id); } }}
               placeholder="Nombre..."
-              className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-blue-500/50 text-white text-sm focus:outline-none"
+              className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-aria-primary/50 text-white text-sm focus:outline-none"
             />
           </div>
         )}
@@ -143,7 +143,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
       </div>
       <div className="flex-1 overflow-y-auto py-2">
         {loading ? (
-          <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-aria-accent" /></div>
         ) : (
           <>
             {creatingIn === "root" && (
@@ -156,7 +156,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
                   onKeyDown={e => { if (e.key === "Enter") crear(null); if (e.key === "Escape") { setCreatingIn(null); setNewName(""); } }}
                   onBlur={() => { if (!saving) { crear(null); } }}
                   placeholder="Nombre..."
-                  className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-blue-500/50 text-white text-sm focus:outline-none"
+                  className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-aria-primary/50 text-white text-sm focus:outline-none"
                 />
               </div>
             )}

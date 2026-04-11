@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, XCircle, Filter, Plus, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Asistencia {
   id: string;
@@ -15,13 +14,6 @@ interface Asistencia {
   dentro_geocerca_entrada: boolean;
   tipo_registro: string;
   employees: { full_name: string; employee_number: string } | null;
-  employee_id?: string;
-}
-
-interface EmpleadoRow {
-  id: string;
-  full_name: string;
-  employee_number: string;
 }
 
 export default function ChecadasPage() {
@@ -30,12 +22,12 @@ export default function ChecadasPage() {
   const hoy = new Date().toISOString().split("T")[0];
   const [fechaInicio, setFechaInicio] = useState(hoy);
   const [fechaFin, setFechaFin] = useState(hoy);
-  const { msg, flash } = useFlashMessage();
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [empleadosList, setEmpleadosList] = useState<any[]>([]);
   const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargarAsistencias();
     supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fechaInicio, fechaFin]);
@@ -53,7 +45,7 @@ export default function ChecadasPage() {
     let registros: Asistencia[] = (data as any) || [];
 
     // Fallback: enriquecer registros sin nombre desde Personal (VIEW) por employee_id
-    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: Asistencia) => r.employee_id).filter(Boolean);
+    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: any) => r.employee_id).filter(Boolean);
     if (sinNombre.length > 0) {
       const { data: extras } = await supabase
         .from("Personal")
@@ -61,8 +53,8 @@ export default function ChecadasPage() {
         .in("id", Array.from(new Set(sinNombre)));
       if (extras) {
         const map: Record<string, { full_name: string; employee_number: string }> = {};
-        (extras as EmpleadoRow[]).forEach((e: EmpleadoRow) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
-        registros = registros.map((r: Asistencia) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id!] || r.employees });
+        extras.forEach((e: any) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
+        registros = registros.map((r: any) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id] || r.employees });
       }
     }
 
@@ -73,7 +65,7 @@ export default function ChecadasPage() {
   // Acumulados por empleado en el rango
   const acumulados = (() => {
     const map: Record<string, { nombre: string; numero: string; total: number; completas: number; sinSalida: number }> = {};
-    asistencias.forEach((a: Asistencia) => {
+    asistencias.forEach((a: any) => {
       const key = a.employee_id || a.employees?.employee_number || "desconocido";
       if (!map[key]) map[key] = { nombre: a.employees?.full_name || "Sin nombre", numero: a.employees?.employee_number || "—", total: 0, completas: 0, sinSalida: 0 };
       map[key].total += 1;
@@ -114,7 +106,7 @@ export default function ChecadasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-none p-6 border-b border-white/10">
         <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento
@@ -149,8 +141,8 @@ export default function ChecadasPage() {
             <p className="text-2xl font-bold text-emerald-400">{stats.completas}</p>
             <p className="text-sm text-slate-400">Completas</p>
           </div>
-          <div className="p-4 bg-blue-500/10 rounded-xl">
-            <p className="text-2xl font-bold text-blue-400">{stats.enSitio}</p>
+          <div className="p-4 bg-aria-primary/10 rounded-xl">
+            <p className="text-2xl font-bold text-aria-accent">{stats.enSitio}</p>
             <p className="text-sm text-slate-400">En sitio</p>
           </div>
           <div className="p-4 bg-red-500/10 rounded-xl">
@@ -187,8 +179,8 @@ export default function ChecadasPage() {
             {asistencias.map(a => (
               <div key={a.id} className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-emerald-500/20" : "bg-blue-500/20"}`}>
-                    {a.hora_salida ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Clock className="w-5 h-5 text-blue-400" />}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-emerald-500/20" : "bg-aria-primary-light"}`}>
+                    {a.hora_salida ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Clock className="w-5 h-5 text-aria-accent" />}
                   </div>
                   <div>
                     <p className="font-medium text-white">{a.employees?.full_name || "Sin nombre"}</p>

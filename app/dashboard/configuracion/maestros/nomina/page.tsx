@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Save, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { supabase } from "@/lib/supabase";
-import { Save, DollarSign, Loader2 } from "lucide-react";
-import Link from "next/link";
 
 interface ConfigItem {
   id: string;
@@ -15,10 +14,10 @@ interface ConfigItem {
 }
 
 export default function NominaConfigPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { msg, flash } = useFlashMessage();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export default function NominaConfigPage() {
       .from("configuracion_nomina")
       .select("*")
       .order("clave");
-    if (error) {  setLoading(false); return; }
+    if (error) { console.error("Error loading configuracion_nomina:", error?.message); setLoading(false); return; }
     if (data) setConfigs(data);
     setLoading(false);
   }
@@ -56,9 +55,8 @@ export default function NominaConfigPage() {
     if (!validar(valor, clave)) return;
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) {  flash("err", "Error: " + error?.message); setSaving(false); return; }
+    if (error) { console.error("Error saving configuracion:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setFormErrors({});
-    flash("ok", "Guardado correctamente");
     setSaving(false);
   }
 
@@ -85,7 +83,7 @@ export default function NominaConfigPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <FlashBanner msg={msg} className="mx-6 mt-3" />
+      <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-2 text-sm text-slate-400">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>
@@ -93,7 +91,9 @@ export default function NominaConfigPage() {
       </div>
 
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/configuracion/maestros" />
+        <Link href="/dashboard/configuracion/maestros" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
@@ -104,7 +104,7 @@ export default function NominaConfigPage() {
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
         {loading ? (
-          <p className="text-center text-slate-400 py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></p>
+          <p className="text-center text-slate-400 py-8"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {configs.map((cfg) => (

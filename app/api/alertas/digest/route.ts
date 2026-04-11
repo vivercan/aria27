@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
-import type { Alerta } from "@/types/database";
 
 const log = logger("ALERTAS-DIGEST");
 
 // Envía digest diario de alertas agrupadas por severidad.
 // Protegido por Bearer token (DIGEST_TOKEN) para que lo dispare cron externo (Vercel Cron, GitHub Actions, etc).
 export async function GET(req: NextRequest) {
-  // RATE LIMIT: 60 requests per minute (STANDARD tier)
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "alertas:digest", max: 60, windowMs: 60_000 });
-  if (!rl.allowed) {
-    return rateLimitResponse(rl);
-  }
-
   const auth = req.headers.get("authorization") || "";
   const expected = process.env.DIGEST_TOKEN || "";
   const isVercelCron = req.headers.get("x-vercel-cron") === "1";
@@ -23,7 +14,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const to = req.nextUrl.searchParams.get("to") || "juanviverosv@gmail.com";
+  const to = req.nextUrl.searchParams.get("to") || process.env.ADMIN_EMAIL || "juanviverosv@gmail.com";
 
   try {
     // Llamada interna al endpoint /api/alertas para reusar la lógica existente
@@ -38,7 +29,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "alertas endpoint failed" }, { status: 500 });
     }
 
-    const alertas: Alerta[] = data.alertas || [];
+    const alertas: any[] = data.alertas || [];
     const urgentes = alertas.filter(a => a.tipo === "URGENTE");
     const atencion = alertas.filter(a => a.tipo === "ATENCION");
     const info = alertas.filter(a => a.tipo === "INFO");
@@ -65,14 +56,13 @@ export async function GET(req: NextRequest) {
     log.info("digest enviado", { to, id: sent?.id, urgentes: urgentes.length, atencion: atencion.length });
     return NextResponse.json({ ok: true, id: sent?.id, urgentes: urgentes.length, atencion: atencion.length, info: info.length });
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error(String(e));
-    log.error("exception", { error: error?.message });
-    return NextResponse.json({ error: error?.message || "error interno" }, { status: 500 });
+    log.error("exception", { error: (e as Error).message });
+    return NextResponse.json({ error: (e as Error).message || "error interno" }, { status: 500 });
   }
 }
 
-function buildHtml(urgentes: Alerta[], atencion: Alerta[], info: Alerta[], base: string) {
-  const section = (titulo: string, color: string, items: Alerta[]) => {
+function buildHtml(urgentes: any[], atencion: any[], info: any[], base: string) {
+  const section = (titulo: string, color: string, items: any[]) => {
     if (items.length === 0) return "";
     const rows = items.slice(0, 20).map(a => `
       <tr>

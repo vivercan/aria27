@@ -4,42 +4,6 @@ import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
-interface OCRow {
-  obra_nombre?: string;
-  total?: number | string;
-  categoria?: string;
-}
-
-interface GastoRow {
-  obra?: string;
-  monto?: number | string;
-  categoria?: string;
-}
-
-interface CentroRow {
-  id: string;
-  code?: string;
-  codigo?: string;
-  name?: string;
-  nombre?: string;
-  active?: boolean;
-  activo?: boolean;
-  budget?: number | string;
-  presupuesto?: number | string;
-  client?: string;
-  cliente?: string;
-  status?: string;
-  estado?: string;
-  start_date?: string;
-  fecha_inicio?: string;
-  end_date?: string;
-  fecha_fin?: string;
-  description?: string;
-  descripcion?: string;
-  location?: string;
-  direccion?: string;
-}
-
 interface CosteoObra {
   id: string;
   obra: string;
@@ -74,32 +38,32 @@ export default function CosteoPage() {
       const obraMap: Record<string, { materiales: number; mano_obra: number; subcontratos: number; indirectos: number }> = {};
 
       // Sumar OCs por obra
-      (ocs || []).forEach((oc: OCRow) => {
+      (ocs || []).forEach((oc: any) => {
         const key = oc.obra_nombre || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
-        obraMap[key].materiales += Number(oc.total) || 0;
+        obraMap[key].materiales += oc.total || 0;
       });
 
       // Sumar gastos por obra y categoría
-      (gastos || []).forEach((g: GastoRow) => {
+      (gastos || []).forEach((g: any) => {
         const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         const cat = (g.categoria || "").toLowerCase();
         if (cat.includes("mano") || cat.includes("salario") || cat.includes("nomina")) {
-          obraMap[key].mano_obra += Number(g.monto) || 0;
+          obraMap[key].mano_obra += g.monto || 0;
         } else if (cat.includes("sub")) {
-          obraMap[key].subcontratos += Number(g.monto) || 0;
+          obraMap[key].subcontratos += g.monto || 0;
         } else if (cat.includes("indirect") || cat.includes("admin")) {
-          obraMap[key].indirectos += Number(g.monto) || 0;
+          obraMap[key].indirectos += g.monto || 0;
         } else {
-          obraMap[key].materiales += Number(g.monto) || 0;
+          obraMap[key].materiales += g.monto || 0;
         }
       });
 
-      const result = (centers || []).map((c: CentroRow) => {
-        const nombre = c.name || c.nombre || "";
+      const result = (centers || []).map((c: any) => {
+        const nombre = c.name || c.nombre;
         const costos = obraMap[nombre] || { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
-        const presupuesto = Number(c.presupuesto || c.budget) || 0;
+        const presupuesto = c.presupuesto || c.budget || 0;
         const totalReal = costos.materiales + costos.mano_obra + costos.subcontratos + costos.indirectos;
         const diferencia = presupuesto - totalReal;
         const porcentaje = presupuesto > 0 ? (totalReal / presupuesto) * 100 : 0;
@@ -116,7 +80,7 @@ export default function CosteoPage() {
       });
 
       setObras(result);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -145,7 +109,7 @@ export default function CosteoPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Presupuesto Total", value: `$${totalPresupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: BarChart3, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Presupuesto Total", value: `$${totalPresupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Costo Real", value: `$${totalReal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
           { label: "Diferencia", value: `$${totalDiferencia.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
           { label: "Obras", value: obras.length, icon: HardHat, color: "text-amber-400", bg: "bg-amber-500/10" },
@@ -161,7 +125,7 @@ export default function CosteoPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar obra..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
@@ -182,14 +146,14 @@ export default function CosteoPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin datos de costeo</td></tr>
               ) : filtered.map(o => (
                 <tr key={o.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
                   <td className="p-3 text-white font-medium">{o.obra}</td>
                   <td className="p-3 text-right text-slate-300">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-blue-400">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-aria-accent">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-cyan-400">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>

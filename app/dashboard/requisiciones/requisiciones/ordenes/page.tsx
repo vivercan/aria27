@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
   ArrowLeft, Loader2, Package, Search, Filter,
@@ -12,6 +10,8 @@ import {
   PackageCheck, Banknote
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 type PO = {
   id: number;
@@ -86,7 +86,7 @@ export default function OrdenesCompraPage() {
     if (!selectedPO || !poReq) return;
     setUpdatingStatus(true);
     
-    const updates: Record<string, unknown> = { status: newStatus };
+    const updates: any = { status: newStatus };
     if (newStatus === "RECIBIDA") {
       updates.received_at = new Date().toISOString();
       
@@ -112,15 +112,12 @@ export default function OrdenesCompraPage() {
         });
         if (!reRes.ok) {
           const errTxt = await reRes.text().catch(() => "");
-
+          console.error("registrar-entrega fallo", reRes.status, errTxt);
           flash("err", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        flash("err", "Error red registrar-entrega: " + msg);
-      }
+      } catch (e) { console.error("Error creando entrega:", e); flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
     }
-
+    
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
     if (updErr) {
       setUpdatingStatus(false);
@@ -158,26 +155,22 @@ export default function OrdenesCompraPage() {
     montoPendiente: orders.filter(o => o.status !== "RECIBIDA" && o.status !== "PAGADA").reduce((s, o) => s + (o.total || 0), 0),
   };
 
-  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: typeof FileText }> = {
-    GENERADA: { label: "Generada", color: "text-blue-400", bg: "bg-blue-500/20", icon: FileText },
+  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
+    GENERADA: { label: "Generada", color: "text-aria-accent", bg: "bg-aria-primary-light", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
     RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },
     PAGADA: { label: "Pagada", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: CheckCircle2 },
   };
   const getStatus = (s: string) => statusConfig[s] || statusConfig.GENERADA;
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   if (selectedPO) {
     const st = getStatus(selectedPO.status);
     const StatusIcon = st.icon;
     return (
       <div className="h-full flex flex-col">
-        <FlashBanner msg={msg} />
+        <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <button onClick={closeDetail} className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-slate-400" /></button>
           <div className="flex-1 min-w-0">
@@ -190,7 +183,7 @@ export default function OrdenesCompraPage() {
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
         </div>
-        {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div> : (
+        {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
@@ -224,7 +217,7 @@ export default function OrdenesCompraPage() {
             </div>
           </div>
         )}
-        <div className="shrink-0 border-t border-white/[0.08] bg-[#0a1628]/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
+        <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
           <p className="text-slate-500 text-xs mb-2">Cambiar estado:</p>
           <div className="flex gap-2">
             {selectedPO.status === "GENERADA" && (
@@ -253,13 +246,13 @@ export default function OrdenesCompraPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-3" />
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
         <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-slate-400 text-sm">{orders.length} órdenes generadas</p></div>
       </div>
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
-        <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center"><p className="text-blue-400 font-bold text-lg">{stats.generadas}</p><p className="text-slate-500 text-[9px]">Generadas</p></div>
+        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-slate-500 text-[9px]">Generadas</p></div>
         <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-slate-500 text-[9px]">En Tránsito</p></div>
         <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-slate-500 text-[9px]">Recibidas</p></div>
         <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-slate-500 text-[9px]">Pendiente</p></div>

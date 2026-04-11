@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
@@ -25,7 +24,7 @@ export default function MatrizSalarialPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("salario_diario", { ascending: false });
-      if (error) {  setLoading(false); return; }
+      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };
@@ -63,7 +62,7 @@ export default function MatrizSalarialPage() {
 
       <div className="flex-shrink-0 grid grid-cols-3 gap-4 mb-6">
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-          <Users className="w-5 h-5 text-blue-400 mb-2" />
+          <Users className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold text-white">{empleados.length}</p>
           <p className="text-xs text-slate-400">Empleados Activos</p>
         </div>
@@ -80,7 +79,7 @@ export default function MatrizSalarialPage() {
       </div>
 
       <div className="flex-1 overflow-auto space-y-4">
-        {loading ? <div className="flex justify-center py-8"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div> :
+        {loading ? <div className="flex justify-center py-8"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div> :
           Object.entries(groups).sort(([a], [b]) => a.localeCompare(b)).map(([group, emps]) => (
             <div key={group} className="rounded-xl border border-white/10 overflow-hidden">
               <div className="px-4 py-3 bg-white/5 flex items-center justify-between">
@@ -101,7 +100,7 @@ export default function MatrizSalarialPage() {
                 <tbody>
                   {emps.map(e => (
                     <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
-                      <td className="px-4 py-2 text-blue-400 font-mono text-xs">{e.employee_number}</td>
+                      <td className="px-4 py-2 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                       <td className="px-4 py-2 text-white">{e.full_name}</td>
                       <td className="px-4 py-2 text-slate-300">{e.position || "-"}</td>
                       <td className="px-4 py-2 text-right text-emerald-400 font-mono">${(e.salario_diario || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>

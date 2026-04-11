@@ -1,8 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft,
   Package,
@@ -22,8 +23,6 @@ import {
   Eye,
   Download,
 } from "lucide-react";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 
 // ====== TYPES ======
 interface Obra {
@@ -49,7 +48,7 @@ interface Entrega {
   folio: string;
   fecha_entrega: string;
   proveedor_nombre: string;
-  materiales_recibidos: Record<string, unknown>[];
+  materiales_recibidos: any[];
   status: string;
   foto_url?: string | null;
 }
@@ -136,7 +135,7 @@ export default function InventarioObraPage() {
   // ====== LOADERS ======
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
-    
+    if (error) { console.error("Error loading obras:", error.message); }
     setObras(data || []);
     setLoading(false);
   };
@@ -144,7 +143,7 @@ export default function InventarioObraPage() {
   const loadInventario = async (obraId: number) => {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
-    if (error) {  return; }
+    if (error) { console.error("Error loading inventario:", error.message); return; }
     // Enriquecer con último usuario de movimientos
     const items: ItemInventario[] = data || [];
     if (items.length > 0) {
@@ -170,7 +169,7 @@ export default function InventarioObraPage() {
     const { data, error } = await supabase
       .from("entregas").select("*").eq("obra_nombre", obraNombre)
       .eq("status", "RECIBIDO").order("fecha_entrega", { ascending: false }).limit(10);
-    if (error) {  return; }
+    if (error) { console.error("Error loading entregas:", error.message); return; }
     setEntregas(data || []);
   };
 
@@ -196,8 +195,8 @@ export default function InventarioObraPage() {
         return null;
       }
       return data.url;
-    } catch (e: unknown) {
-      flash("err", "Error al subir foto: " + (((e as Error)?.message) || "error"));
+    } catch (e: any) {
+      flash("err", "Error al subir foto: " + (e?.message || "error"));
       return null;
     }
   };
@@ -511,7 +510,7 @@ export default function InventarioObraPage() {
       });
     }
     loadInventario(obraSeleccionada.id);
-    flash("ok", "Materiales importados al inventario");
+    flash("err", "Materiales importados al inventario");
   };
 
   // ====== AJUSTAR INVENTARIO (con foto opcional) ======
@@ -603,7 +602,7 @@ export default function InventarioObraPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
       </div>
     );
   }
@@ -613,7 +612,9 @@ export default function InventarioObraPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Inventario por Obra</h1>
             <p className="text-slate-400 text-sm">Selecciona una obra para ver su inventario</p>
@@ -649,7 +650,7 @@ export default function InventarioObraPage() {
   // Vista: Inventario de Obra
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -674,7 +675,7 @@ export default function InventarioObraPage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white/5 rounded-xl border border-white/10">
           <div className="flex items-center gap-3">
-            <Package className="w-8 h-8 text-blue-400" />
+            <Package className="w-8 h-8 text-aria-accent" />
             <div>
               <p className="text-2xl font-bold text-white">{totalItems}</p>
               <p className="text-sm text-slate-400">Productos</p>
@@ -712,7 +713,7 @@ export default function InventarioObraPage() {
                 placeholder="Buscar material..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
               />
             </div>
           </div>
@@ -780,10 +781,10 @@ export default function InventarioObraPage() {
                         </button>
                         <button
                           onClick={() => abrirAjuste(item)}
-                          className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg transition-colors"
+                          className="p-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 rounded-lg transition-colors"
                           title="Ajustar"
                         >
-                          <Plus className="w-4 h-4 text-blue-400" />
+                          <Plus className="w-4 h-4 text-aria-accent" />
                         </button>
                       </div>
                     </td>
@@ -806,7 +807,7 @@ export default function InventarioObraPage() {
         {/* Entregas para importar */}
         <div className="space-y-4">
           <h2 className="font-semibold text-white flex items-center gap-2">
-            <Truck className="w-5 h-5 text-blue-400" />
+            <Truck className="w-5 h-5 text-aria-accent" />
             Entregas Recientes
           </h2>
 
@@ -821,7 +822,7 @@ export default function InventarioObraPage() {
                   <div className="flex items-center gap-2">
                     {entrega.foto_url && (
                       <button onClick={() => setFotoAmpliadaUrl(entrega.foto_url!)} className="p-1">
-                        <Camera className="w-4 h-4 text-blue-400" />
+                        <Camera className="w-4 h-4 text-aria-accent" />
                       </button>
                     )}
                     <span className="text-xs text-slate-400">
@@ -869,7 +870,7 @@ export default function InventarioObraPage() {
                 value={nuevoNombre}
                 onChange={(e) => buscarEnCatalogo(e.target.value)}
                 placeholder="Ej: Arena sílica saco 25kg"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
               />
               {formErrors.nuevoNombre && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoNombre}</p>}
               {sugerencias.length > 0 && (
@@ -909,14 +910,14 @@ export default function InventarioObraPage() {
                       <p className="text-amber-300 mt-1">⚠ Ya existe en el inventario de esta obra</p>
                     )}
                     {validacionResult.matchExacto && (
-                      <p className="text-blue-300 mt-1">→ Coincide con: <span className="font-medium">{validacionResult.matchExacto.name}</span> ({validacionResult.matchExacto.unit})</p>
+                      <p className="text-aria-accent mt-1">→ Coincide con: <span className="font-medium">{validacionResult.matchExacto.name}</span> ({validacionResult.matchExacto.unit})</p>
                     )}
                     {!validacionResult.matchExacto && validacionResult.sugerencias?.length > 0 && (
                       <div className="mt-1">
                         <p className="text-slate-400 text-xs">Productos similares:</p>
-                        {validacionResult.sugerencias.slice(0, 3).map((s: { id: string; name: string; unit?: string; similarity: number }) => (
-                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(Number(s.id) || null); setValidacionResult(null); }}
-                            className="block text-left text-blue-300 hover:text-blue-200 text-xs mt-0.5">
+                        {validacionResult.sugerencias.slice(0, 3).map((s: any) => (
+                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(s.id); setValidacionResult(null); }}
+                            className="block text-left text-aria-accent hover:text-aria-accent text-xs mt-0.5">
                             → {s.name} ({s.unit}) — {s.similarity}% similar
                           </button>
                         ))}
@@ -934,7 +935,7 @@ export default function InventarioObraPage() {
                 <select
                   value={nuevoUnidad}
                   onChange={(e) => setNuevoUnidad(e.target.value)}
-                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
                 >
                   {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
@@ -946,7 +947,7 @@ export default function InventarioObraPage() {
                   min={1}
                   value={nuevoCantidad}
                   onChange={(e) => setNuevoCantidad(Number(e.target.value))}
-                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
                 />
                 {formErrors.nuevoCantidad && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoCantidad}</p>}
               </div>
@@ -968,7 +969,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputNuevoRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-blue-400/50 hover:text-blue-400 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-aria-accent/50 hover:text-aria-accent transition-colors"
                 >
                   <Camera className="w-5 h-5" />
                   Subir foto
@@ -1023,7 +1024,7 @@ export default function InventarioObraPage() {
               min={1}
               value={entradaCantidad}
               onChange={(e) => setEntradaCantidad(Number(e.target.value))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-blue-500 mb-3"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary mb-3"
             />
             <p className="text-center text-sm text-slate-400 mb-3">
               Nuevo total: <span className="text-emerald-400 font-bold">{entradaItem.cantidad_disponible + entradaCantidad}</span> {entradaItem.unidad}
@@ -1035,7 +1036,7 @@ export default function InventarioObraPage() {
               value={entradaMotivo}
               onChange={(e) => setEntradaMotivo(e.target.value)}
               placeholder="Ej: Entrega OC-2026-00015, Proveedor Cemex"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 mb-3"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary mb-3"
             />
 
             {/* Foto evidencia */}
@@ -1106,7 +1107,7 @@ export default function InventarioObraPage() {
                 type="number"
                 value={ajusteCantidad}
                 onChange={(e) => setAjusteCantidad(Number(e.target.value))}
-                className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-blue-500"
+                className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary"
               />
               <button onClick={() => setAjusteCantidad(ajusteCantidad + 1)} className="p-3 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg">
                 <Plus className="w-5 h-5 text-emerald-400" />
@@ -1124,7 +1125,7 @@ export default function InventarioObraPage() {
               placeholder="Motivo del ajuste (opcional)"
               value={ajusteMotivo}
               onChange={(e) => setAjusteMotivo(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 mb-3"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary mb-3"
             />
 
             {/* Foto opcional para ajuste */}
@@ -1140,7 +1141,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputAjusteRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-blue-400/50 text-sm"
+                  className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-aria-accent/50 text-sm"
                 >
                   <Camera className="w-4 h-4" />
                   Subir foto
@@ -1160,7 +1161,7 @@ export default function InventarioObraPage() {
               <button
                 onClick={ajustarInventario}
                 disabled={ajusteCantidad === 0 || guardando}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
+                className="px-4 py-2 bg-aria-primary hover:bg-aria-primary disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
               >
                 {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
                 Guardar Ajuste
@@ -1233,7 +1234,7 @@ export default function InventarioObraPage() {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-blue-600 rounded-full border border-white/10 hover:bg-blue-500 transition-colors"
+                className="p-2 bg-aria-primary rounded-full border border-white/10 hover:bg-aria-primary-hover transition-colors"
                 title="Descargar foto"
                 onClick={(e) => e.stopPropagation()}
               >

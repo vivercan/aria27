@@ -1,12 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X, FileText } from "lucide-react";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { ArrowLeft, Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X } from "lucide-react";
 
 interface Bimestre {
   id: string;
@@ -52,7 +51,7 @@ function bimestreActual(): { anio: number; bimestre: string } {
   return { anio, bimestre: codes[m] };
 }
 
-const EMPTY: Record<string, string | number | boolean> = {
+const EMPTY: any = {
   siroc_registro_id: "", anio: new Date().getFullYear(), bimestre: bimestreActual().bimestre,
   monto_ejercido_periodo: 0, monto_ejercido_acumulado: 0, trabajadores_promedio: 0,
   fecha_reporte: new Date().toISOString().slice(0, 10), estatus: "PRESENTADO", observaciones: ""
@@ -91,7 +90,7 @@ export default function SirocBimestralesPage() {
     const { data: regs } = await supabase.from("siroc_registros").select("id, obra, numero_siroc, importe_total").order("obra");
     setRegistros(regs || []);
     const { data, error } = await supabase.from("siroc_bimestrales").select("*").order("anio", { ascending: false }).order("bimestre");
-    
+    if (error) console.error("siroc_bimestrales error:", error);
     setBimestres(data || []);
     setLoading(false);
   }
@@ -137,15 +136,9 @@ export default function SirocBimestralesPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
+      <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/obras/siroc/registros" />
+        <Link href="/dashboard/obras/siroc/registros" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
           <p className="text-slate-400 mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>
@@ -173,10 +166,7 @@ export default function SirocBimestralesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>
       ) : bimestres.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-slate-400">No hay reportes bimestrales.</p>
-        </div>
+        <div className="text-center py-12 text-slate-400">No hay reportes bimestrales.</div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-700/50">
           <table className="w-full text-sm">
@@ -279,6 +269,12 @@ export default function SirocBimestralesPage() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

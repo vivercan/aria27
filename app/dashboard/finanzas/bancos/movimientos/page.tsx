@@ -1,12 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowLeft, Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import ConfirmModal from "@/components/ConfirmModal";
 
 interface Cuenta { id: string; banco: string; cuenta: string; empresa: string; }
 interface Movimiento {
@@ -32,7 +31,6 @@ interface OC { id: string; po_number: string | null; total: number | null; creat
 const FORM_INIT = { cuenta_id: "", fecha_movimiento: new Date().toISOString().slice(0,10), monto: 0, concepto: "", referencia: "", tipo_movimiento: "ABONO", notas: "" };
 
 export default function MovimientosBancariosPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [movs, setMovs] = useState<Movimiento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +42,7 @@ export default function MovimientosBancariosPage() {
   const [cobrosSugeridos, setCobrosSugeridos] = useState<Cobro[]>([]);
   const [ocsSugeridas, setOcsSugeridas] = useState<OC[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadAll(); }, []);
@@ -118,7 +117,7 @@ export default function MovimientosBancariosPage() {
 
   async function aplicarMatch(tipo: "cobro" | "oc", id: string, ref: string) {
     if (!matchModal) return;
-    const update: Record<string, unknown> = { status_match: "MATCHED", referencia: ref };
+    const update: any = { status_match: "MATCHED", referencia: ref };
     if (tipo === "cobro") update.cobro_id = id;
     else update.oc_id = id;
     const { error } = await supabase.from("conciliacion_bancaria").update(update).eq("id", matchModal.id);
@@ -152,14 +151,16 @@ export default function MovimientosBancariosPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/finanzas/bancos" />
+        <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/10 rounded-lg">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white">Movimientos Bancarios · Conciliación</h1>
           <p className="text-slate-400 text-sm">Alta manual + match con cobros y órdenes de compra</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg flex items-center gap-2 text-sm">
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/30 text-aria-accent rounded-lg flex items-center gap-2 text-sm">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? "Cancelar" : "Nuevo movimiento"}
         </button>
@@ -222,7 +223,7 @@ export default function MovimientosBancariosPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={crearMovimiento} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Guardar</button>
+            <button onClick={crearMovimiento} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -254,7 +255,7 @@ export default function MovimientosBancariosPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {loading && <tr><td colSpan={7} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>}
+            {loading && <tr><td colSpan={7} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>}
             {!loading && movsFiltrados.map(m => {
               const status = m.status_match || "PENDIENTE";
               return (
@@ -276,7 +277,7 @@ export default function MovimientosBancariosPage() {
                   <td className="px-3 py-2 text-center">
                     {status === "MATCHED"
                       ? <button onClick={() => desconciliar(m)} className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs hover:bg-red-500/30">Desconciliar</button>
-                      : <button onClick={() => abrirMatch(m)} className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs hover:bg-blue-500/30 inline-flex items-center gap-1"><Link2 className="w-3 h-3" />Conciliar</button>}
+                      : <button onClick={() => abrirMatch(m)} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 inline-flex items-center gap-1"><Link2 className="w-3 h-3" />Conciliar</button>}
                   </td>
                 </tr>
               );
@@ -340,7 +341,10 @@ export default function MovimientosBancariosPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

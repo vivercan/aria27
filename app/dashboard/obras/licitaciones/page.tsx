@@ -1,15 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import { formatMoneyShort as fmt } from "@/lib/format-utils";
 
 interface Licitacion {
   id: string;
@@ -30,7 +28,7 @@ interface Licitacion {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  EN_PROCESO: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  EN_PROCESO: "bg-aria-primary-light text-aria-accent border-aria-primary/30",
   ENVIADA: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   PERDIDA: "bg-red-500/20 text-red-300 border-red-500/30",
@@ -78,7 +76,7 @@ export default function LicitacionesPage() {
   const loadData = async () => {
     const { data, error } = await supabase.from("licitaciones").select("*").order("created_at", { ascending: false });
     if (error) {
-
+      console.error("Error loading licitaciones:", error?.message);
       setLoading(false);
       return;
     }
@@ -98,14 +96,14 @@ export default function LicitacionesPage() {
     if (editId) {
       const { error } = await supabase.from("licitaciones").update(record).eq("id", editId);
       if (error) {
-
+        console.error("Error updating licitacion:", error?.message);
         setSaving(false);
         return;
       }
     } else {
       const { error } = await supabase.from("licitaciones").insert(record);
       if (error) {
-
+        console.error("Error creating licitacion:", error?.message);
         setSaving(false);
         return;
       }
@@ -128,7 +126,7 @@ export default function LicitacionesPage() {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("licitaciones").delete().eq("id", id);
     if (error) {
-
+      console.error("Error deleting licitacion:", error?.message);
       return;
     }
     loadData();
@@ -148,26 +146,27 @@ export default function LicitacionesPage() {
     perdidas: licitaciones.filter(l => l.status === "PERDIDA").length,
   };
 
+  const fmt = (n: number) => `$${(n||0).toLocaleString("es-MX", { minimumFractionDigits: 0 })}`;
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-3 -mt-3 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/obras" />
+          <Link href="/dashboard/obras" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
             <h1 className="text-2xl font-bold">Licitaciones</h1>
             <p className="text-sm text-slate-400">Control de procesos de licitación</p>
           </div>
         </div>
-        <button onClick={() => { setForm(EMPTY_FORM); setEditId(null); setShowForm(true); }} className="flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-semibold hover:bg-blue-400 transition">
+        <button onClick={() => { setForm(EMPTY_FORM); setEditId(null); setShowForm(true); }} className="flex items-center gap-2 rounded-xl bg-aria-primary px-4 py-2.5 text-sm font-semibold hover:bg-aria-primary-hover transition">
           <Plus className="w-4 h-4" /> Nueva Licitación
         </button>
       </div>
@@ -195,7 +194,7 @@ export default function LicitacionesPage() {
           <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar obra, dependencia, número..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         {["TODOS","EN_PROCESO","ENVIADA","GANADA","PERDIDA","CANCELADA"].map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${filter === s ? "bg-blue-500 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${filter === s ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
             {s === "TODOS" ? "Todos" : s.replace("_"," ")}
           </button>
         ))}
@@ -208,7 +207,7 @@ export default function LicitacionesPage() {
           <div>Obra</div><div>Dependencia</div><div>No. Licitación</div><div>Apertura</div><div>Monto Est.</div><div>Status</div><div></div>
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-sm text-white/40">
             <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -240,34 +239,34 @@ export default function LicitacionesPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Obra *</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} />
                 {formErrors.obra_nombre && <p className="text-red-400 text-xs mt-1">{formErrors.obra_nombre}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Dependencia *</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.dependencia} onChange={e => setForm({...form, dependencia: e.target.value})} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.dependencia} onChange={e => setForm({...form, dependencia: e.target.value})} />
                 {formErrors.dependencia && <p className="text-red-400 text-xs mt-1">{formErrors.dependencia}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">No. Licitación</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.numero_licitacion} onChange={e => setForm({...form, numero_licitacion: e.target.value})} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.numero_licitacion} onChange={e => setForm({...form, numero_licitacion: e.target.value})} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Monto Estimado</label>
-                <input type="number" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: e.target.value})} />
+                <input type="number" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: e.target.value})} />
                 {formErrors.monto_estimado && <p className="text-red-400 text-xs mt-1">{formErrors.monto_estimado}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Fecha Apertura</label>
-                <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.fecha_apertura} onChange={e => setForm({...form, fecha_apertura: e.target.value})} />
+                <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.fecha_apertura} onChange={e => setForm({...form, fecha_apertura: e.target.value})} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Fecha Cierre</label>
-                <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.fecha_cierre} onChange={e => setForm({...form, fecha_cierre: e.target.value})} />
+                <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.fecha_cierre} onChange={e => setForm({...form, fecha_cierre: e.target.value})} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Status</label>
-                <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
+                <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
                   <option value="EN_PROCESO">En Proceso</option><option value="ENVIADA">Enviada</option>
                   <option value="GANADA">Ganada</option><option value="PERDIDA">Perdida</option>
                   <option value="CANCELADA">Cancelada</option><option value="DESIERTA">Desierta</option>
@@ -275,16 +274,16 @@ export default function LicitacionesPage() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Analista</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.analista_nombre} onChange={e => setForm({...form, analista_nombre: e.target.value})} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.analista_nombre} onChange={e => setForm({...form, analista_nombre: e.target.value})} />
               </div>
               <div className="col-span-2 space-y-1">
                 <label className="text-xs text-white/60">Notas</label>
-                <textarea className="w-full h-16 resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} />
+                <textarea className="w-full h-16 resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl bg-white/5 text-sm hover:bg-white/10 transition">Cancelar</button>
-              <button onClick={guardar} disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-500 text-sm font-semibold hover:bg-blue-400 transition">
+              <button onClick={guardar} disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-aria-primary text-sm font-semibold hover:bg-aria-primary-hover transition">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {editId ? "Guardar" : "Crear"}
               </button>
             </div>

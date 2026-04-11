@@ -1,10 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
-import { fmt } from "@/lib/format-utils";
+import { ArrowLeft, Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
@@ -32,6 +30,8 @@ interface ObraRow {
 }
 
 const CATS = ["MATERIALES", "MANO_OBRA", "HERRAMIENTA", "SUBCONTRATO", "INDIRECTOS", "OTROS"];
+
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
   if (presupuesto <= 0) return "SIN_PRESUPUESTO";
@@ -88,7 +88,7 @@ export default function ControlObrasPage() {
       setNomina((nh.data as any[]) || []);
       setCobros((co.data as any[]) || []);
       setAvancesFis((av.data as any[]) || []);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setLoading(false);
   }
 
@@ -178,14 +178,16 @@ export default function ControlObrasPage() {
     a.click();
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20">
+          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-aria-primary/20 border border-cyan-500/20">
             <Activity className="w-7 h-7 text-cyan-400" />
           </div>
           <div>
@@ -200,9 +202,9 @@ export default function ControlObrasPage() {
 
       {/* Totales */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+        <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">
           <p className="text-slate-400 text-xs">Obras</p>
-          <p className="text-xl font-bold text-blue-300">{totales.obras}</p>
+          <p className="text-xl font-bold text-aria-accent">{totales.obras}</p>
         </div>
         <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
           <p className="text-slate-400 text-xs">Presupuesto</p>
@@ -325,7 +327,7 @@ export default function ControlObrasPage() {
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${semColor[f.semaforo]}`}>{semLabel[f.semaforo]}</span>
                     </td>
                     <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
-                      <a href={`/dashboard/obras/reporte?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 text-[10px]">
+                      <a href={`/dashboard/obras/reporte?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-aria-primary/10 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-light text-[10px]">
                         <FileText className="w-3 h-3" /> PDF
                       </a>
                       <a href={`/dashboard/obras/bitacora?obra=${encodeURIComponent(f.nombre)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[10px] ml-1">
@@ -346,8 +348,7 @@ export default function ControlObrasPage() {
                               a.download = `reporte-${f.nombre}-${new Date().toISOString().slice(0,10)}.xlsx`;
                               a.click();
                               URL.revokeObjectURL(url);
-                            })
-                            .catch(() => {});
+                            });
                         }}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-[10px] ml-1"
                       >
@@ -381,10 +382,10 @@ export default function ControlObrasPage() {
         </div>
       </div>
 
-      <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start gap-3">
-        <TrendingUp className="w-5 h-5 text-blue-400 mt-0.5" />
+      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
+        <TrendingUp className="w-5 h-5 text-aria-accent mt-0.5" />
         <div className="text-xs text-slate-400">
-          <p className="text-blue-300 font-medium mb-1">Cómo se calcula</p>
+          <p className="text-aria-accent font-medium mb-1">Cómo se calcula</p>
           <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Cobrado:</b> suma de (monto - saldo) en cobros_manuales no canceladas vinculadas a la obra del catálogo. <b>Margen Real:</b> Cobrado − Gasto Total. <b>Avance Fin:</b> Gasto Total / Presupuesto. <b>Avance Físico:</b> último % capturado en /obras/avance por obra. <b>Δ Fís−Fin:</b> avance físico − avance financiero (positivo = obra adelantada al gasto, negativo = sobrecosto encubierto).</p>
         </div>
       </div>

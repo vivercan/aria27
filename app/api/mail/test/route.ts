@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await resend.emails.send({
       from: "ARIA27 <noreply@mail.jjcrm27.com>",
-      to: ["juanviverosv@gmail.com"],
+      to: [process.env.ADMIN_EMAIL || "juanviverosv@gmail.com"],
       subject: "✅ ARIA27 — Email de prueba",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0f172a;border-radius:12px;color:#e2e8f0;">
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     log.info("Test email enviado", { id: data?.id });
     return NextResponse.json({ ok: true, id: data?.id });
   } catch (e: unknown) {
-    log.error("Exception en test email", { error: ((e as Error)?.message) });
-    return NextResponse.json({ error: ((e as Error)?.message) || "Error interno" }, { status: 500 });
+    log.error("Exception en test email", { error: (e as Error).message });
+    return NextResponse.json({ error: (e as Error).message || "Error interno" }, { status: 500 });
   }
 }

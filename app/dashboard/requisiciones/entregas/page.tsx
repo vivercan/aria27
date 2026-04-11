@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
 
 interface Entrega {
   id: string;
@@ -17,7 +16,7 @@ interface Entrega {
   recibido_por_nombre: string;
   status: string;
   observaciones: string;
-  materiales_recibidos: Record<string, unknown>[];
+  materiales_recibidos: any[];
   purchase_order_id: number | null;
   purchase_order_folio: string | null;
   foto_url: string | null;
@@ -71,7 +70,7 @@ export default function EntregasPage() {
     setForm({...form, materiales: [...form.materiales, { producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }]});
   };
 
-  const actualizarMaterial = (idx: number, campo: string, valor: string | number) => {
+  const actualizarMaterial = (idx: number, campo: string, valor: any) => {
     const materiales = [...form.materiales];
     materiales[idx] = {...materiales[idx], [campo]: valor};
     setForm({...form, materiales});
@@ -105,7 +104,7 @@ export default function EntregasPage() {
       observaciones: form.observaciones,
       materiales_recibidos: form.materiales.filter(m => m.producto)
     });
-    if (error) {  flash("err", "Error al guardar"); return; }
+    if (error) { console.error(error); flash("err", "Error al guardar"); return; }
     setShowModal(false);
     setForm({ fecha_entrega: new Date().toISOString().split("T")[0], hora_entrega: new Date().toTimeString().slice(0, 5), proveedor_nombre: "", obra_nombre: "", recibido_por_nombre: "", status: "COMPLETA", observaciones: "", materiales: [{ producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }] });
     cargarDatos();
@@ -133,28 +132,30 @@ export default function EntregasPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-3" />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/requisiciones" />
-          <div className="p-3 rounded-xl bg-blue-500/20">
-            <Truck className="w-6 h-6 text-blue-400" />
+          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div className="p-3 rounded-xl bg-aria-primary-light">
+            <Truck className="w-6 h-6 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Entregas de Material</h1>
             <p className="text-slate-400 text-sm">{entregas.length} entregas registradas</p>
           </div>
         </div>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium">
+        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">
           <Plus className="w-4 h-4" /> Nueva Entrega
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
-        <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
-          <p className="text-blue-400 font-bold text-lg">{stats.total}</p>
+        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center">
+          <p className="text-aria-accent font-bold text-lg">{stats.total}</p>
           <p className="text-slate-500 text-[9px]">Total</p>
         </div>
         <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
@@ -175,7 +176,7 @@ export default function EntregasPage() {
       <div className="relative mb-4 shrink-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input type="text" placeholder="Buscar por folio, proveedor, obra o OC..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:border-aria-primary focus:outline-none" />
       </div>
 
       {/* Lista */}
@@ -188,12 +189,12 @@ export default function EntregasPage() {
           <div key={e.id} className="p-4 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-blue-500/20">
-                  <Package className="w-5 h-5 text-blue-400" />
+                <div className="p-3 rounded-xl bg-aria-primary-light">
+                  <Package className="w-5 h-5 text-aria-accent" />
                 </div>
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-blue-400 font-mono font-bold">{e.folio}</span>
+                    <span className="text-aria-accent font-mono font-bold">{e.folio}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${getStatusColor(e.status)}`}>{e.status}</span>
                     {e.purchase_order_folio && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 flex items-center gap-1">
@@ -227,9 +228,9 @@ export default function EntregasPage() {
       {/* Modal Nueva Entrega */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Entrega de Material</h2>
-            <div className="text-blue-400 font-mono mb-4">Folio: {folio}</div>
+            <div className="text-aria-accent font-mono mb-4">Folio: {folio}</div>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-sm text-slate-400 mb-1">Fecha</label>
@@ -269,7 +270,7 @@ export default function EntregasPage() {
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm text-slate-400 font-medium">Materiales</label>
-                <button onClick={agregarMaterial} className="text-xs text-blue-400 hover:text-blue-300">+ Agregar</button>
+                <button onClick={agregarMaterial} className="text-xs text-aria-accent hover:text-aria-accent">+ Agregar</button>
               </div>
               <div className="space-y-2">
                 {form.materiales.map((m, idx) => (
@@ -289,7 +290,7 @@ export default function EntregasPage() {
             </div>
             <div className="flex justify-end gap-3">
               <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarEntrega} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium"><Check className="w-4 h-4 inline mr-2" />Guardar</button>
+              <button onClick={guardarEntrega} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium"><Check className="w-4 h-4 inline mr-2" />Guardar</button>
             </div>
           </div>
         </div>
@@ -298,10 +299,10 @@ export default function EntregasPage() {
       {/* Modal Detalle */}
       {showDetalle && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Detalle de Entrega</h2>
-              <span className="text-blue-400 font-mono">{showDetalle.folio}</span>
+              <span className="text-aria-accent font-mono">{showDetalle.folio}</span>
             </div>
             
             {/* Vínculo a OC */}
@@ -344,10 +345,10 @@ export default function EntregasPage() {
               <div className="mb-4">
                 <span className="text-slate-400 text-sm">Materiales:</span>
                 <div className="mt-2 space-y-1">
-                  {showDetalle.materiales_recibidos.map((m: Record<string, unknown>, i: number) => (
+                  {showDetalle.materiales_recibidos.map((m: any, i: number) => (
                     <div key={i} className="flex justify-between text-sm bg-white/5 px-3 py-2 rounded">
-                      <span className="text-white">{String(m.producto || m.product_name || "")}</span>
-                      <span className="text-slate-400">{String(m.quantity || m.cantidad_recibida || "")} {String(m.unit || "")}</span>
+                      <span className="text-white">{m.producto || m.product_name}</span>
+                      <span className="text-slate-400">{m.quantity || m.cantidad_recibida} {m.unit || ""}</span>
                     </div>
                   ))}
                 </div>

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { validateApiUser } from "@/lib/auth-api";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
 
@@ -21,10 +20,6 @@ async function requireAdmin(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "admin:auditoria-restore", max: 5, windowMs: 60_000 });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 

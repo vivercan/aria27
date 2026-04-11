@@ -1,12 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import { Printer, FileDown, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Printer, FileDown, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Requisition {
   id: string;
@@ -247,7 +246,7 @@ export default function RequisicionesStatusPage() {
 
   const getStatusColor = (status: string) => {
     if (status?.includes("FINALIZADA")) return "bg-emerald-500/20 text-emerald-400";
-    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-blue-500/20 text-blue-400";
+    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-aria-primary-light text-aria-accent";
     if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
     if (status?.includes("COTIZA")) return "bg-purple-500/20 text-purple-400";
@@ -264,10 +263,12 @@ export default function RequisicionesStatusPage() {
 
   return (
     <div className="space-y-4">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Estatus de Requisiciones</h1>
             <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>
@@ -308,7 +309,7 @@ export default function RequisicionesStatusPage() {
 
       {loading ? (
         <div className="text-center py-10">
-          <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-400" />
+          <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
         </div>
       ) : (
         <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
@@ -407,7 +408,7 @@ export default function RequisicionesStatusPage() {
       {/* Modal Detalle */}
       {detailReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetailReq(null)}>
-          <div className="bg-[#0a1628] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-aria-bg rounded-2xl border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/10">
               <div>
                 <h3 className="text-lg font-bold text-white">{detailReq.folio}</h3>
@@ -431,7 +432,7 @@ export default function RequisicionesStatusPage() {
               <div>
                 <p className="text-xs font-medium text-slate-400 mb-2">MATERIALES</p>
                 {loadingDetail ? (
-                  <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-blue-400" /></div>
+                  <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-aria-accent" /></div>
                 ) : (
                   <div className="rounded-xl border border-white/10 overflow-hidden">
                     <table className="w-full">
@@ -463,7 +464,7 @@ export default function RequisicionesStatusPage() {
       {/* Modal Eliminar — confirmación con "Borrar" */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0a1628] p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
+          <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
             {/* Icono de advertencia */}
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">

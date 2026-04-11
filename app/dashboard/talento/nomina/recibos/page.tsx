@@ -1,28 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import ConfirmModal from "@/components/ConfirmModal";
 import {
-  Printer, FileText, Download, CheckCircle,
+  ArrowLeft, Printer, FileText, Download, CheckCircle,
   AlertTriangle, User, Building2, DollarSign,
   CreditCard, Banknote, Lock, Unlock, Loader2, ChevronLeft, ChevronRight, Calendar, Search
 } from "lucide-react";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
-
-interface PersonalRow {
-  id: string;
-  banco?: string;
-  clabe?: string;
-  numero_cuenta?: string;
-}
-
-interface NominaRow {
-  employee_id: string;
-  status?: string;
-}
 
 interface NominaRecord {
   id: string;
@@ -77,7 +62,6 @@ const fmtFecha = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es
 const fmtFechaCorta = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
 export default function RecibosNominaPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [nominas, setNominas] = useState<NominaRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refDate, setRefDate] = useState<Date>(new Date());
@@ -112,18 +96,18 @@ export default function RecibosNominaPage() {
 
     if (nominasData && nominasData.length > 0) {
       // Batch query bancarios — una sola query .in() en vez de N+1
-      const empIds = (nominasData as NominaRow[]).map((n: NominaRow) => n.employee_id);
+      const empIds = nominasData.map((n: any) => n.employee_id);
       const { data: empBank } = await supabase
         .from("Personal")
         .select("id, banco, clabe, numero_cuenta")
         .in("id", empIds);
-      const bankMap = new Map((empBank || []).map((e: PersonalRow) => [e.id, e]));
-      const merged = (nominasData as NominaRow[]).map((n: NominaRow) => {
-        const b: PersonalRow = bankMap.get(n.employee_id) || { id: "" };
+      const bankMap = new Map((empBank || []).map((e: any) => [e.id, e]));
+      const merged = nominasData.map((n: any) => {
+        const b: any = bankMap.get(n.employee_id) || {};
         return { ...n, banco: b.banco, clabe: b.clabe, numero_cuenta: b.numero_cuenta };
       });
-      setNominas(merged as NominaRecord[]);
-      setNominaStatus((nominasData as any)[0]?.status === "CONFIRMADA" ? "CONFIRMADA" : "GENERADA");
+      setNominas(merged as any);
+      setNominaStatus(nominasData[0].status === "CONFIRMADA" ? "CONFIRMADA" : "GENERADA");
     } else {
       setNominas([]);
       setNominaStatus("GENERADA");
@@ -160,8 +144,8 @@ export default function RecibosNominaPage() {
                 .eq("anio", semanaInfo.anio)
                 .eq("status", "CONFIRMADA")
                 .select("id");
-              if (unlockErr) { flash("err", "Error: " + unlockErr.message); setMensaje({ tipo: "error", texto: "No se pudo desbloquear: " + unlockErr.message }); return; }
-              if (!unlockRows || unlockRows.length === 0) { flash("err", "Error: La nómina ya no estaba CONFIRMADA"); setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
+              if (unlockErr) { setMensaje({ tipo: "error", texto: "No se pudo desbloquear: " + unlockErr.message }); return; }
+              if (!unlockRows || unlockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
 
               await supabase.from("audit_log").insert({
                 tabla: "nomina_historico",
@@ -170,7 +154,6 @@ export default function RecibosNominaPage() {
                 usuario: localStorage.getItem("userEmail") || "unknown",
               });
 
-              flash("ok", "Nómina desbloqueada correctamente");
               setNominaStatus("GENERADA");
               setShowConfirmModal(false);
               setMotivoModificacion("");
@@ -205,10 +188,9 @@ export default function RecibosNominaPage() {
                 .eq("status", "GENERADA")
                 .select("id");
               setConfirmando(false);
-              if (lockErr) { flash("err", "Error: " + lockErr.message); setMensaje({ tipo: "error", texto: "No se pudo confirmar: " + lockErr.message }); return; }
-              if (!lockRows || lockRows.length === 0) { flash("err", "Error: La nómina ya no estaba GENERADA"); setMensaje({ tipo: "error", texto: "La nómina ya no estaba GENERADA. Recarga." }); return; }
+              if (lockErr) { setMensaje({ tipo: "error", texto: "No se pudo confirmar: " + lockErr.message }); return; }
+              if (!lockRows || lockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba GENERADA. Recarga." }); return; }
 
-              flash("ok", "Nómina confirmada correctamente");
               setNominaStatus("CONFIRMADA");
               setMensaje({ tipo: "success", texto: `Nómina CONFIRMADA exitosamente (${lockRows.length} recibos)` });
             }
@@ -252,8 +234,8 @@ export default function RecibosNominaPage() {
       a.click();
       URL.revokeObjectURL(url);
       setMensaje({ tipo: "success", texto: `Exportado: Nomina_Sem${semanaInfo.semana}_${semanaInfo.anio}.xlsx` });
-    } catch (e: unknown) {
-      setMensaje({ tipo: "error", texto: ((e as Error)?.message) || "Error exportando" });
+    } catch (e: any) {
+      setMensaje({ tipo: "error", texto: e?.message || "Error exportando" });
     }
     setExportando(false);
   };
@@ -328,7 +310,7 @@ export default function RecibosNominaPage() {
             </div>
             <div>
               <p className="text-xs text-gray-500 uppercase">Horas Extra</p>
-              <p className="font-bold text-2xl text-blue-600">{nomina.horas_extra || 0}</p>
+              <p className="font-bold text-2xl text-aria-primary">{nomina.horas_extra || 0}</p>
             </div>
           </div>
         </div>
@@ -454,10 +436,11 @@ export default function RecibosNominaPage() {
       `}</style>
 
       <div className="max-w-7xl mx-auto space-y-6 no-print">
-        <FlashBanner msg={msg} />
         <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <AriaBackButton href="/dashboard/talento/nomina" />
+            <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            </Link>
             <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
               <FileText className="w-7 h-7 text-violet-400" />
             </div>
@@ -487,7 +470,7 @@ export default function RecibosNominaPage() {
               Excel
             </button>
 
-            <button onClick={handlePrintAll} disabled={nominas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 text-blue-300 hover:from-blue-500/30 hover:to-cyan-500/30 disabled:opacity-50">
+            <button onClick={handlePrintAll} disabled={nominas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary/20 to-cyan-500/20 border border-aria-primary/30 text-aria-accent hover:from-aria-primary/30 hover:to-cyan-500/30 disabled:opacity-50">
               <Printer className="w-4 h-4" />
               Imprimir Todos ({filtradas.length})
             </button>
@@ -517,13 +500,13 @@ export default function RecibosNominaPage() {
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
         ) : nominas.length === 0 ? (
           <div className="p-12 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
             <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-white mb-2">No hay nómina generada para semana {semanaInfo.semana}/{semanaInfo.anio}</h3>
             <p className="text-slate-400">Genera la nómina desde Pre-Nómina o navega a otra semana</p>
-            <Link href="/dashboard/talento/nomina/pre-nomina" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white font-medium">
+            <Link href="/dashboard/talento/nomina/pre-nomina" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">
               Ir a Pre-Nómina
             </Link>
           </div>

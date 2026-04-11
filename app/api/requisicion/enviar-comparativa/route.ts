@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
-import type { CotSupplierComputed, CotQuote, CotItemDetail, DbUser } from "@/types/database";
 const log = logger("ENVIAR-COMPARATIVA");
 
 export async function POST(req: NextRequest) {
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
     const { data: reqData, error: reqLookupErr } = await supabase
       .from("requisitions").select("created_by").eq("id", requisition_id).single();
     if (reqLookupErr || !reqData) {
-      log.error("Lookup requisicion fallo", { id: requisition_id, error: reqLookupErr?.message, code: (reqLookupErr as { code?: string })?.code });
+      log.error("Lookup requisicion fallo", { id: requisition_id, error: reqLookupErr?.message, code: (reqLookupErr as any)?.code });
       return NextResponse.json({ error: `Lookup requisicion fallo: ${reqLookupErr?.message || 'no encontrada'}` }, { status: reqLookupErr ? 500 : 404 });
     }
     const solicitante = reqData?.created_by || "N/A";
@@ -59,10 +58,10 @@ export async function POST(req: NextRequest) {
 
     // Si vienen quotes con totales calculados (capturar/page.tsx), usarlos como fuente de verdad.
     // Si vienen suppliers con items_prices (tramite/page.tsx legado), recalcular con tax_rate por columna o 16% default.
-    let supTotals: CotSupplierComputed[];
+    let supTotals: any[];
     if (supList.length > 0) {
-      supTotals = supList.map((s: CotSupplierComputed) => {
-        const subtotal = itemsDet.reduce((sum: number, item: CotItemDetail) => sum + ((s.items_prices?.[item.product_name] || 0) * (item.quantity || 1)), 0);
+      supTotals = supList.map((s: any) => {
+        const subtotal = itemsDet.reduce((sum: number, item: any) => sum + ((s.items_prices?.[item.product_name] || 0) * (item.quantity || 1)), 0);
         const taxRate = typeof s.tax_rate === "number" ? s.tax_rate : 16;
         const iva = +(subtotal * (taxRate / 100)).toFixed(2);
         const total = +(subtotal + iva).toFixed(2);
@@ -72,7 +71,7 @@ export async function POST(req: NextRequest) {
       });
     } else {
       // Usar quotes (flujo capturar): cada quote ya trae subtotal, iva, total, advance
-      supTotals = (quotes || []).map((q: CotQuote) => ({
+      supTotals = (quotes || []).map((q: any) => ({
         supplier: q.supplier,
         subtotal: Number(q.subtotal ?? q.total ?? 0),
         iva: Number(q.iva ?? 0),
@@ -87,9 +86,9 @@ export async function POST(req: NextRequest) {
         items_prices: {},
       }));
     }
-    const bestTot = supTotals.length > 0 ? Math.min(...supTotals.filter((s: CotSupplierComputed) => s.total > 0).map((s: CotSupplierComputed) => s.total)) : 0;
+    const bestTot = supTotals.length > 0 ? Math.min(...supTotals.filter((s: any) => s.total > 0).map((s: any) => s.total)) : 0;
 
-    const mejor = supTotals.find((s: CotSupplierComputed) => s.total === bestTot) || (quotes?.[0] ? quotes.reduce((m: CotQuote, q: CotQuote) => q.total! < m.total! ? q : m, quotes[0]) : { supplier: "N/A", total: 0 });
+    const mejor = supTotals.find((s: any) => s.total === bestTot) || (quotes?.[0] ? quotes.reduce((m: any, q: any) => q.total < m.total ? q : m, quotes[0]) : { supplier: "N/A", total: 0 });
 
     // Guardar total estimado (mejor proveedor) en Requisiciones para visualización en Estatus
     if (bestTot > 0) {
@@ -99,12 +98,12 @@ export async function POST(req: NextRequest) {
 
     const linkAutorizar = `https://aria.jjcrm27.com/autorizar/${token}`;
 
-    const supH = supTotals.map((s: CotSupplierComputed) => `<th style="padding:8px;text-align:center;${s.total === bestTot && bestTot > 0 ? "background:#16a34a;color:white" : "background:#1e3a5f;color:white"};font-size:12px;border:1px solid #334155">${s.supplier}</th>`).join("");
+    const supH = supTotals.map((s: any) => `<th style="padding:8px;text-align:center;${s.total === bestTot && bestTot > 0 ? "background:#16a34a;color:white" : "background:#1e3a5f;color:white"};font-size:12px;border:1px solid #334155">${s.supplier}</th>`).join("");
 
-    const prodRows = itemsDet.map((item: CotItemDetail, idx: number) => {
-      const allP = supTotals.map((s: CotSupplierComputed) => s.items_prices?.[item.product_name] || 0).filter((p: number) => p > 0);
+    const prodRows = itemsDet.map((item: any, idx: number) => {
+      const allP = supTotals.map((s: any) => s.items_prices?.[item.product_name] || 0).filter((p: number) => p > 0);
       const bestP = allP.length > 0 ? Math.min(...allP) : 0;
-      const cells = supTotals.map((s: CotSupplierComputed) => {
+      const cells = supTotals.map((s: any) => {
         const p = s.items_prices?.[item.product_name] || 0;
         const bg = p > 0 && p === bestP ? "background:#dcfce7;" : s.total === bestTot && bestTot > 0 ? "background:#f0fdf4;" : "";
         return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${p > 0 ? "$ " + p.toLocaleString("es-MX", {minimumFractionDigits: 2}) : "-"}</td>`;
@@ -112,27 +111,27 @@ export async function POST(req: NextRequest) {
       return `<tr><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${idx+1}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${item.product_name}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.quantity}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.unit || "PZA"}</td>${cells}</tr>`;
     }).join("");
 
-    const mkRow = (lbl: string, fn: (s: CotSupplierComputed) => number, bold: boolean) => `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">${lbl}</td>${supTotals.map((s: CotSupplierComputed) => { const v = fn(s); const bg = s.total === bestTot && bestTot > 0 ? (bold ? "background:#16a34a;color:white;" : "background:#dcfce7;") : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;${bold?"font-weight:bold;":""}font-size:12px;${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
+    const mkRow = (lbl: string, fn: (s: any) => number, bold: boolean) => `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">${lbl}</td>${supTotals.map((s: any) => { const v = fn(s); const bg = s.total === bestTot && bestTot > 0 ? (bold ? "background:#16a34a;color:white;" : "background:#dcfce7;") : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;${bold?"font-weight:bold;":""}font-size:12px;${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
 
-    const ivaLabelRow = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">I.V.A.</td>${supTotals.map((s: CotSupplierComputed) => { const bg = s.total === bestTot && bestTot > 0 ? "background:#dcfce7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva || 0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
-    const advanceR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#b45309">ANTICIPO</td>${supTotals.map((s: CotSupplierComputed) => { const pct = s.advance_percentage || 0; const amt = s.advance_amount || 0; const bg = s.total === bestTot && bestTot > 0 ? "background:#fef3c7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
-    const rebajaR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#7c3aed">¿REBAJAN IVA?</td>${supTotals.map((s: CotSupplierComputed) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva ? "background:#16a34a;color:white" : "background:#dc2626;color:white"}">${s.rebaja_iva ? "SI" : "NO"}</td>`).join("")}</tr>`;
-    const obsR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">OBSERVACIONES</td>${supTotals.map((s: CotSupplierComputed) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones || s.entrega || "-"}</td>`).join("")}</tr>`;
+    const ivaLabelRow = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">I.V.A.</td>${supTotals.map((s: any) => { const bg = s.total === bestTot && bestTot > 0 ? "background:#dcfce7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva || 0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
+    const advanceR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#b45309">ANTICIPO</td>${supTotals.map((s: any) => { const pct = s.advance_percentage || 0; const amt = s.advance_amount || 0; const bg = s.total === bestTot && bestTot > 0 ? "background:#fef3c7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
+    const rebajaR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#7c3aed">¿REBAJAN IVA?</td>${supTotals.map((s: any) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva ? "background:#16a34a;color:white" : "background:#dc2626;color:white"}">${s.rebaja_iva ? "SI" : "NO"}</td>`).join("")}</tr>`;
+    const obsR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">OBSERVACIONES</td>${supTotals.map((s: any) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones || s.entrega || "-"}</td>`).join("")}</tr>`;
 
-    const emailHTML = `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${folio} ${obra}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${supH}</tr></thead><tbody>${prodRows}${mkRow("SUBTOTAL",(s: CotSupplierComputed)=>s.subtotal,false)}${ivaLabelRow}${mkRow("TOTAL",(s: CotSupplierComputed)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-weight:bold">VER COMPARATIVA Y AUTORIZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 - Grupo Constructor Urbano Avante</p></div>`;
+    const emailHTML = `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${folio} ${obra}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${supH}</tr></thead><tbody>${prodRows}${mkRow("SUBTOTAL",(s: any)=>s.subtotal,false)}${ivaLabelRow}${mkRow("TOTAL",(s: any)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-weight:bold">VER COMPARATIVA Y AUTORIZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 - Grupo Constructor Urbano Avante</p></div>`;
 
-    let emailResult: { id?: string; error?: unknown } | null = null;
+    let emailResult: any = null;
     let emailError: string | null = null;
     try {
       emailResult = await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML });
-      if ((emailResult as { error?: unknown })?.error) {
-        emailError = (emailResult as { error?: { message?: string } }).error?.message || JSON.stringify((emailResult as { error?: unknown }).error);
+      if ((emailResult as any)?.error) {
+        emailError = (emailResult as any).error?.message || JSON.stringify((emailResult as any).error);
         log.error("Resend email error", { id: requisition_id, error: emailError });
       } else {
-        log.info("Email enviado", { to: director.email, id: (emailResult as { data?: { id?: string } })?.data?.id });
+        log.info("Email enviado", { to: director.email, id: (emailResult as any)?.data?.id });
       }
-    } catch (e: unknown) {
-      emailError = (e as { message?: string })?.message || String(e);
+    } catch (e: any) {
+      emailError = e?.message || String(e);
       log.error("Resend exception", { id: requisition_id, error: emailError });
     }
 
@@ -158,11 +157,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       enviado_a: director.email,
-      email: emailError ? { ok: false, error: emailError } : { ok: true, id: (emailResult as { data?: { id?: string } })?.data?.id || null },
+      email: emailError ? { ok: false, error: emailError } : { ok: true, id: (emailResult as any)?.data?.id || null },
       whatsapp: waResult,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("[COMPARATIVA] Error:", error);
-    return NextResponse.json({ error: (error as { message?: string })?.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

@@ -9,7 +9,7 @@
 // - Contador de fallos por email para detección de brute-force
 
 import { NextRequest, NextResponse } from "next/server";
-// Removed client import - use getSupabaseAdmin instead
+import { supabase } from "@/lib/supabase";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 
@@ -36,9 +36,7 @@ function clearFailedAttempts(email: string) {
 }
 
 function isValidEmail(email: string): boolean {
-  // Reforzada: mínimo 3 chars local, dominio con al menos 2 segmentos, TLD 2-10 chars
-  // Rechaza: a@b.c, user@localhost, emails con chars peligrosos
-  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,10})+$/.test(email) && email.length <= 254;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 export interface AuthResult {
@@ -80,9 +78,7 @@ export async function validateApiAuth(
     return { authorized: false, error: "Demasiados intentos fallidos. Intenta en unos minutos." };
   }
 
-  const sb = getSupabaseAdmin();
-  if (!sb) return { authorized: false, error: "Servicio no disponible" };
-  const { data: user, error } = await sb
+  const { data: user, error } = await supabase
     .from("Users")
     .select("email, role, name, phone")
     .eq("email", userEmail)
@@ -122,9 +118,9 @@ export async function validateApiAuth(
 /**
  * Helper para extraer user_email de body JSON o query params
  */
-export function extractUserEmail(req: NextRequest, body?: Record<string, unknown>): string | null {
+export function extractUserEmail(req: NextRequest, body?: any): string | null {
   // 1. Intentar del body
-  if (body?.user_email) return String(body.user_email);
+  if (body?.user_email) return body.user_email;
 
   // 2. Intentar del query param
   const emailParam = req.nextUrl.searchParams.get("user_email");

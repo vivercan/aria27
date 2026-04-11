@@ -19,13 +19,13 @@ export default function TabsListaCarpetas({ lista, scope }: TabsListaCarpetasPro
       <div className="flex gap-2 mb-3 flex-shrink-0">
         <button
           onClick={() => setTab("lista")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "lista" ? "bg-blue-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "lista" ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
         >
           <List className="w-4 h-4" /> Lista
         </button>
         <button
           onClick={() => setTab("carpetas")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "carpetas" ? "bg-blue-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "carpetas" ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
         >
           <FolderIcon className="w-4 h-4" /> Carpetas
         </button>

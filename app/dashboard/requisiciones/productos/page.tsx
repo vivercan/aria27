@@ -1,16 +1,15 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import {
-  Search, Package, ChevronRight,
+  ArrowLeft, Search, Package, ChevronRight,
   Truck, Tag, Box, Loader2, X, Plus, FileSpreadsheet, Building2,
   Upload, Sparkles, Save, Check, AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Product { id:number; sku:string; name:string; description:string|null; unit:string; category:string|null; }
 interface SupplierInfo { id:number; name:string; }
@@ -143,7 +142,7 @@ export default function ProductosPage() {
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
-    } catch(e: unknown) { flash("err", "Error: " + (((e as Error)?.message) || "desconocido")); }
+    }catch(e:any){console.error(e);flash("err", "Error: "+e?.message);}
     finally{setSavingNew(false);}
   };
 
@@ -176,9 +175,9 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       const parsed=JSON.parse(text);
       if(!Array.isArray(parsed))throw new Error("La IA no devolvió un array");
       setParsedProducts(parsed);
-    }catch(e:unknown){
-
-      setParseError(((e as Error)?.message)||"Error procesando el archivo");
+    }catch(e:any){
+      console.error("Error parsing:",e);
+      setParseError(e?.message||"Error procesando el archivo");
     }finally{setParsing(false);}
   };
 
@@ -207,10 +206,10 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             product_id:productId,supplier_id:parseInt(uploadSuppId),
             precio_referencia:p.price||null
           });
-          if (psErr) {  continue; }
+          if (psErr) { console.error("Error link product_supplier:", psErr); continue; }
         }
         saved++;setSavedCount(saved);
-      } catch (e) { /* error handled */ }
+      }catch(e){console.error("Error saving product:",e);}
     }
     setSavingParsed(false);
     setTimeout(()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setUploadSuppId("");setSavedCount(0);loadProducts(currentPage);},1500);
@@ -218,12 +217,12 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <AriaBackButton href="/dashboard/requisiciones" />
+            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-cyan-400"/>Catálogo de Productos</h1>
             <span className="text-xs text-slate-500 ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>
@@ -259,7 +258,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* TABLA */}
       <div className="flex-1 overflow-auto min-h-0" onClick={()=>showExportMenu&&setShowExportMenu(false)}>
-        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-blue-400"/><span className="ml-2 text-slate-400 text-sm">Cargando...</span></div>
+        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/><span className="ml-2 text-slate-400 text-sm">Cargando...</span></div>
         ):products.length===0?(<div className="text-center py-12"><Package className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
         ):(
           <table className="w-full">
@@ -317,13 +316,13 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                 <button onClick={()=>setSelectedProduct(null)} className="p-1.5 hover:bg-white/10 rounded-lg ml-2"><X className="w-4 h-4 text-slate-400"/></button>
               </div>
               <div className="flex gap-1.5 mt-2">
-                {selectedProduct.category&&<span className="text-[10px] px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded flex items-center gap-1"><Tag className="w-2.5 h-2.5"/>{selectedProduct.category}</span>}
+                {selectedProduct.category&&<span className="text-[10px] px-1.5 py-0.5 bg-aria-primary/10 text-aria-accent rounded flex items-center gap-1"><Tag className="w-2.5 h-2.5"/>{selectedProduct.category}</span>}
                 <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/10 text-slate-400 rounded flex items-center gap-1"><Box className="w-2.5 h-2.5"/>{selectedProduct.unit}</span>
               </div>
             </div>
             <div className="p-4">
               <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-emerald-400"/>Proveedores<span className="ml-auto text-[10px] text-slate-500">{loadingDetail?"...":productSuppliers.length}</span></h3>
-              {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-blue-400"/></div>
+              {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-aria-accent"/></div>
               ):productSuppliers.length===0?(<div className="text-center py-4 bg-white/[0.02] rounded-lg border border-white/[0.04]"><Truck className="w-6 h-6 text-slate-600 mx-auto mb-1"/><p className="text-slate-500 text-xs">Sin proveedores</p></div>
               ):(<div className="space-y-1.5">{productSuppliers.map((ps:any,idx:number)=>(<div key={idx} className={`p-2.5 rounded-lg border ${ps.es_proveedor_preferido?"bg-emerald-500/[0.06] border-emerald-500/20":"bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04]"}`}>
                 <div className="flex items-center gap-2">

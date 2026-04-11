@@ -31,13 +31,7 @@ interface FacturaFiles {
   pdf: string | null;
 }
 
-interface FacturaUploadFiles {
-  xml: File | null;
-  pdf: File | null;
-}
-
 export default function FacturacionPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -46,15 +40,16 @@ export default function FacturacionPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "",
-    metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO" as "INGRESO" | "EGRESO"
+    metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO"
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash, clear } = useFlashMessage();
 
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFacturaId, setUploadFacturaId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [facturaFiles, setFacturaFiles] = useState<FacturaUploadFiles>({ xml: null, pdf: null });
+  const [facturaFiles, setFacturaFiles] = useState<FacturaFiles>({ xml: null, pdf: null });
   const [uploadedFiles, setUploadedFiles] = useState<Map<string, FacturaFiles>>(new Map());
 
   useEffect(() => { loadData(); }, []);
@@ -73,7 +68,7 @@ export default function FacturacionPage() {
         }
       }
       setUploadedFiles(filesMap);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -107,7 +102,7 @@ export default function FacturacionPage() {
 
       return { xml: xmlUrl, pdf: pdfUrl };
     } catch (e) {
-
+      console.error("Error loading files:", e);
       return { xml: null, pdf: null };
     }
   }
@@ -118,7 +113,7 @@ export default function FacturacionPage() {
       const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
       if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-
+        console.error("Error parsing XML");
         return null;
       }
 
@@ -164,7 +159,7 @@ export default function FacturacionPage() {
         metodo_pago: metodoPago,
       };
     } catch (e) {
-
+      console.error("Error parsing CFDI XML:", e);
       return null;
     }
   }
@@ -204,7 +199,7 @@ export default function FacturacionPage() {
       setShowUploadModal(false);
       flash("ok", "Archivos subidos exitosamente");
     } catch (e) {
-
+      console.error("Upload error:", e);
       flash("err", "Error al subir archivos: " + (e instanceof Error ? e.message : "Desconocido"));
     } finally {
       setUploading(false);
@@ -245,7 +240,7 @@ export default function FacturacionPage() {
         folio, serie: form.serie, cliente: form.cliente, rfc_cliente: form.rfc_cliente,
         concepto: form.concepto, subtotal: form.subtotal, iva, total,
         status: "EMITIDA", obra_nombre: form.obra_nombre, fecha_emision: new Date().toISOString().split("T")[0],
-        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi, tipo: form.tipo,
+        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi, tipo: (form as any).tipo,
       });
       if (!error) return { ok: true };
       // Si fue colisión por unique constraint, reintentar una sola vez.
@@ -274,7 +269,6 @@ export default function FacturacionPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 
@@ -283,7 +277,7 @@ export default function FacturacionPage() {
             <h1 className="text-2xl font-bold text-white">Facturación</h1>
             <p className="text-slate-400 text-sm">Control de facturas emitidas — IVA 16%</p>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nueva Factura
           </button>
         </div>
@@ -315,7 +309,7 @@ export default function FacturacionPage() {
 
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total Facturado", value: `$${totalFacturado.toLocaleString()}`, icon: DollarSign, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Total Facturado", value: `$${totalFacturado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Pendiente", value: `$${(totalFacturado - totalCobrado).toLocaleString()}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
@@ -332,7 +326,7 @@ export default function FacturacionPage() {
           <h3 className="text-lg font-semibold text-white">Nueva Factura</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div><label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value as "INGRESO" | "EGRESO"})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <select value={(form as any).tipo} onChange={e => setForm({...form, tipo: e.target.value} as any)} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="INGRESO">INGRESO - Dinero que entra</option><option value="EGRESO">EGRESO - Dinero que sale</option>
               </select></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
@@ -362,7 +356,7 @@ export default function FacturacionPage() {
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Guardar</button>
+            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -372,14 +366,14 @@ export default function FacturacionPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio, cliente, UUID fiscal..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex gap-2">
             <span className="text-xs text-slate-400 py-2">Estado:</span>
             {["TODOS", "EMITIDA", "PAGADA", "CANCELADA"].map(f => (
               <button key={f} onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
                 {f}
               </button>
             ))}
@@ -414,7 +408,7 @@ export default function FacturacionPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin facturas registradas</td></tr>
               ) : filtered.map(f => {
@@ -428,15 +422,15 @@ export default function FacturacionPage() {
                     <td className="p-3 text-slate-300 text-sm">{f.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
-                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" />}
-                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" />}
+                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" title="XML" />}
+                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" title="PDF" />}
                       {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         f.status === "PAGADA" ? "bg-emerald-500/20 text-emerald-400" :
                         f.status === "CANCELADA" ? "bg-red-500/20 text-red-400" :
-                        "bg-blue-500/20 text-blue-400"
+                        "bg-aria-primary-light text-aria-accent"
                       }`}>{f.status}</span>
                     </td>
                     <td className="p-3 text-center">
@@ -446,7 +440,7 @@ export default function FacturacionPage() {
                           setFacturaFiles({ xml: null, pdf: null });
                           setShowUploadModal(true);
                         }}
-                        className="px-3 py-1.5 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 mx-auto"
+                        className="px-3 py-1.5 bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 mx-auto"
                       >
                         <Upload className="w-3 h-3" /> Adjuntar
                       </button>
@@ -528,7 +522,7 @@ export default function FacturacionPage() {
               </div>
             </div>
 
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-300">
+            <div className="p-3 bg-aria-primary/10 border border-aria-primary/20 rounded-lg text-xs text-aria-accent">
               Nota: Al subir el XML, se extraerá automáticamente el UUID fiscal y otros datos del comprobante.
             </div>
 
@@ -536,7 +530,7 @@ export default function FacturacionPage() {
               <button
                 onClick={handleUploadFiles}
                 disabled={!facturaFiles.xml && !facturaFiles.pdf || uploading}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {uploading ? "Subiendo..." : "Subir"}

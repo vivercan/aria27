@@ -1,35 +1,14 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, HeartPulse, Search, Plus, X } from "lucide-react";
 import Link from "next/link";
-
-interface EmpleadoRow {
-  id: string;
-  full_name?: string;
-  employee_number?: string;
-}
-
-interface IncapacidadRow {
-  id?: string;
-  employee_id?: string;
-  tipo?: string;
-  fecha_inicio?: string;
-  fecha_fin?: string;
-  folio_imss?: string;
-  folio?: string;
-  subtipo?: string;
-  status?: string;
-  notas?: string;
-  empleado?: EmpleadoRow;
-}
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 export default function IncapacidadesPage() {
-  const [registros, setRegistros] = useState<IncapacidadRow[]>([]);
-  const [empleados, setEmpleados] = useState<EmpleadoRow[]>([]);
+  const [registros, setRegistros] = useState<any[]>([]);
+  const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", tipo: "enfermedad", fecha_inicio: "", fecha_fin: "", folio_imss: "", notas: "" });
@@ -38,11 +17,11 @@ export default function IncapacidadesPage() {
 
   const loadData = async () => {
     const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
-    setEmpleados((emps as EmpleadoRow[]) || []);
+    setEmpleados(emps || []);
     const { data: inc } = await supabase.from("incidencias").select("*").eq("tipo", "incapacidad").order("fecha_inicio", { ascending: false });
     if (inc && emps) {
-      const empMap = Object.fromEntries((emps as EmpleadoRow[]).map((e: EmpleadoRow) => [e.id, e]));
-      setRegistros((inc as IncapacidadRow[]).map((i: IncapacidadRow) => ({ ...i, empleado: empMap[i.employee_id!] })));
+      const empMap = Object.fromEntries(emps.map((e: any) => [e.id, e]));
+      setRegistros(inc.map((i: any) => ({ ...i, empleado: empMap[i.employee_id] })));
     }
     setLoading(false);
   };
@@ -83,7 +62,7 @@ export default function IncapacidadesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
         <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Prestaciones
@@ -93,7 +72,7 @@ export default function IncapacidadesPage() {
             <h1 className="text-2xl font-bold text-white">Incapacidades</h1>
             <p className="text-slate-400 text-sm mt-1">Registro y seguimiento de incapacidades IMSS</p>
           </div>
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">
             <Plus className="w-4 h-4" /> Registrar
           </button>
         </div>
@@ -120,11 +99,11 @@ export default function IncapacidadesPage() {
             ) : registros.map(r => (
               <tr key={r.id} className="border-b border-white/5 hover:bg-white/5">
                 <td className="px-4 py-3 text-white">{r.empleado?.full_name || "—"}</td>
-                <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.subtipo === "riesgo_trabajo" ? "bg-red-500/20 text-red-400" : r.subtipo === "maternidad" ? "bg-pink-500/20 text-pink-400" : "bg-blue-500/20 text-blue-400"}`}>{r.subtipo || "Enfermedad"}</span></td>
+                <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.subtipo === "riesgo_trabajo" ? "bg-red-500/20 text-red-400" : r.subtipo === "maternidad" ? "bg-pink-500/20 text-pink-400" : "bg-aria-primary-light text-aria-accent"}`}>{r.subtipo || "Enfermedad"}</span></td>
                 <td className="px-4 py-3 text-slate-300">{r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleDateString("es-MX") : "—"}</td>
                 <td className="px-4 py-3 text-slate-300">{r.fecha_fin ? new Date(r.fecha_fin).toLocaleDateString("es-MX") : "—"}</td>
                 <td className="px-4 py-3 text-center font-mono text-white">{r.fecha_inicio && r.fecha_fin ? (Math.floor((new Date(r.fecha_fin).getTime() - new Date(r.fecha_inicio).getTime()) / (1000 * 60 * 60 * 24)) + 1) : "—"}</td>
-                <td className="px-4 py-3 text-blue-400 font-mono text-xs">{r.folio || "—"}</td>
+                <td className="px-4 py-3 text-aria-accent font-mono text-xs">{r.folio || "—"}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.status === "activa" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>{r.status || "Activa"}</span></td>
               </tr>
             ))}
@@ -166,7 +145,7 @@ export default function IncapacidadesPage() {
               </div>
               <div><label className="text-sm text-slate-400">Folio IMSS</label><input type="text" value={form.folio_imss} onChange={e => setForm({...form, folio_imss: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Número de folio" /></div>
               <div><label className="text-sm text-slate-400">Notas</label><input type="text" value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Observaciones" /></div>
-              <button onClick={handleSubmit} disabled={!form.employee_id || !form.fecha_inicio} className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded-lg font-medium">Guardar</button>
+              <button onClick={handleSubmit} disabled={!form.employee_id || !form.fecha_inicio} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-slate-600 text-white rounded-lg font-medium">Guardar</button>
             </div>
           </div>
         </div>

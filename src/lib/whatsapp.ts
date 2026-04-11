@@ -1,4 +1,64 @@
+import { createHmac } from "crypto";
+
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
+
+// ============================================
+// HMAC SIGNATURE VERIFICATION (Meta Webhooks)
+// ============================================
+export function verifyWebhookSignature(rawBody: string | Buffer, signature: string | null): boolean {
+  const secret = process.env.META_APP_SECRET;
+  if (!secret) {
+    // Grace mode: si no hay META_APP_SECRET configurado, aceptar (pero loguear warning)
+    console.warn("[WhatsApp] [WARN] META_APP_SECRET no configurado — webhook HMAC en grace mode");
+    return true;
+  }
+  if (!signature) return false;
+  const expectedSig = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex");
+  return signature === expectedSig;
+}
+
+// ============================================
+// SEND FREE-TEXT MESSAGE (con logging a wa_log)
+// ============================================
+export async function sendWhatsAppText(
+  phone: string,
+  message: string,
+  opts: { origen?: string; enviadoPor?: string } = {}
+): Promise<{ success: boolean; error?: string }> {
+  const token = process.env.WHATSAPP_ACCESS_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  if (!token || !phoneId) return { success: false, error: "WhatsApp credentials missing" };
+
+  try {
+    const res = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } }),
+    });
+    const data = await res.json();
+    const success = !data.error;
+
+    // Log a wa_log
+    try {
+      const { getSupabaseAdmin } = await import("./supabase-server");
+      const supa = getSupabaseAdmin();
+      await supa.from("wa_log").insert({
+        template: "_text",
+        phone,
+        params: [message.slice(0, 200)],
+        success,
+        message_id: data.messages?.[0]?.id || null,
+        error: data.error?.message || null,
+        origen: opts.origen || "webhook",
+        enviado_por: opts.enviadoPor || "system",
+      });
+    } catch { /* silent — no bloquear flujo por logging */ }
+
+    return success ? { success: true } : { success: false, error: data.error?.message };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error).message };
+  }
+}
 
 // ============================================
 // CONFIGURACIÓN DE PLANTILLAS APROBADAS EN META
@@ -88,12 +148,14 @@ export async function sendWhatsAppTemplate(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
+    console.error("[WhatsApp] [ERROR] Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
   // Validar plantilla existe
   const config = TEMPLATE_CONFIG[templateName];
   if (!config) {
+    console.error("[WhatsApp] [ERROR] Plantilla no configurada:", templateName);
     return { success: false, error: `Plantilla '${templateName}' no existe` };
   }
 
@@ -106,7 +168,7 @@ export async function sendWhatsAppTemplate(
   }
 
   // Construir componentes del mensaje
-  const components: Record<string, unknown>[] = [];
+  const components: any[] = [];
 
   // Body parameters
   if (params.length > 0) {
@@ -146,6 +208,8 @@ export async function sendWhatsAppTemplate(
     },
   };
 
+  console.log("[WhatsApp] [SEND] Enviando:", templateName, "->", formattedPhone);
+
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: "POST",
@@ -159,17 +223,20 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      return {
-        success: false,
-        error: data.error?.message || `HTTP ${response.status}`
+      console.error("[WhatsApp] [ERROR] Error:", data.error?.message || response.status);
+      return { 
+        success: false, 
+        error: data.error?.message || `HTTP ${response.status}` 
       };
     }
 
     const messageId = data.messages?.[0]?.id;
+    console.log("[WhatsApp] [OK] Enviado:", messageId);
     return { success: true, messageId };
 
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : String(error) };
+    console.error("[WhatsApp] [ERROR] Exception:", (error as Error).message);
+    return { success: false, error: (error as Error).message };
   }
 }
 
@@ -198,7 +265,7 @@ export async function sendWhatsAppLogged(
       enviado_por: opts.enviadoPor || null,
     });
   } catch (e: unknown) {
-    // Silently ignore wa_log write errors to avoid breaking the send operation
+    console.error("[WhatsApp] [LOG] No se pudo escribir wa_log:", (e as Error).message);
   }
   return result;
 }
@@ -229,6 +296,7 @@ export async function sendWhatsAppToMultiple(
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
+  console.log("[WhatsApp] [STATS] Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
 

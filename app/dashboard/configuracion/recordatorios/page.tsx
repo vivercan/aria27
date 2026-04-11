@@ -1,14 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
-import FlashBanner from "@/components/FlashBanner";
 import { useDeletePermission } from "@/lib/use-delete-permission";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
+import { ArrowLeft, BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Recordatorio {
   id: string;
@@ -24,9 +23,9 @@ interface Recordatorio {
 const EMPTY = { empleado_nombre: "", tipo: "BITACORA", fecha_hora: "", canal: "WHATSAPP" };
 
 export default function RecordatoriosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [records, setRecords] = useState<Recordatorio[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
-  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
@@ -58,7 +57,6 @@ export default function RecordatoriosPage() {
     const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
     setRecords(data || []);
     setForm(EMPTY); setShowForm(false); setSaving(false);
-    flash("ok", "Recordatorio creado");
   };
 
   const eliminar = async (id: string) => {
@@ -71,30 +69,30 @@ export default function RecordatoriosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "recordatorios_bitacora", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/configuracion" />
+          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
             <h1 className="text-2xl font-bold">Recordatorios</h1>
             <p className="text-sm text-slate-400">Recordatorios automáticos por WhatsApp</p>
           </div>
         </div>
-        <button onClick={() => { setForm(EMPTY); setShowForm(true); }} className="flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-semibold hover:bg-blue-400 transition">
+        <button onClick={() => { setForm(EMPTY); setShowForm(true); }} className="flex items-center gap-2 rounded-xl bg-aria-primary px-4 py-2.5 text-sm font-semibold hover:bg-aria-primary-hover transition">
           <Plus className="w-4 h-4" /> Nuevo
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-          <BookOpen className="w-5 h-5 text-blue-400 mb-2" />
+          <BookOpen className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{records.length}</p>
           <p className="text-xs text-slate-400">Total</p>
         </div>
@@ -115,7 +113,7 @@ export default function RecordatoriosPage() {
           <div>Empleado</div><div>Tipo</div><div>Fecha/Hora</div><div>Canal</div><div>Status</div><div></div>
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div>
         ) : records.length === 0 ? (
           <div className="text-center py-12 text-sm text-white/40">
             <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -143,7 +141,7 @@ export default function RecordatoriosPage() {
             <div className="space-y-3">
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Empleado *</label>
-                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.empleado_nombre} onChange={e => setForm({...form, empleado_nombre: e.target.value})} />
+                <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.empleado_nombre} onChange={e => setForm({...form, empleado_nombre: e.target.value})} />
                 {formErrors.empleado_nombre && <p className="text-red-400 text-xs mt-1">{formErrors.empleado_nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -162,12 +160,12 @@ export default function RecordatoriosPage() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Fecha y hora</label>
-                <input type="datetime-local" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-400" value={form.fecha_hora} onChange={e => setForm({...form, fecha_hora: e.target.value})} />
+                <input type="datetime-local" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.fecha_hora} onChange={e => setForm({...form, fecha_hora: e.target.value})} />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl bg-white/5 text-sm hover:bg-white/10">Cancelar</button>
-              <button onClick={guardar} disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-500 text-sm font-semibold hover:bg-blue-400">
+              <button onClick={guardar} disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-aria-primary text-sm font-semibold hover:bg-aria-primary-hover">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Crear
               </button>
             </div>

@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Calendar, Sun, User, Plus, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { Calendar, Sun, User, Plus, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Vacacion {
   id: string;
@@ -49,13 +48,13 @@ export default function VacacionesPage() {
   const cargarDatos = async () => {
     const { data: vac } = await supabase
       .from("vacaciones_empleados")
-      .select("*, employee:employee_id(full_name, position)")
+      .select("*, employee:Personal(full_name, position)")
       .eq("anio", new Date().getFullYear());
     if (vac) setVacaciones(vac);
 
     const { data: sol } = await supabase
       .from("solicitudes_vacaciones")
-      .select("*, employee:employee_id(full_name)")
+      .select("*, employee:Personal(full_name)")
       .order("created_at", { ascending: false });
     if (sol) setSolicitudes(sol);
 
@@ -138,12 +137,11 @@ export default function VacacionesPage() {
   const crearSolicitud = async () => {
     if (!validar()) return;
 
-    const dias = calcularDias();
     const { error } = await supabase.from("solicitudes_vacaciones").insert({
       employee_id: form.employee_id,
       fecha_inicio: form.fecha_inicio,
       fecha_fin: form.fecha_fin,
-      dias_solicitados: dias,
+      dias_solicitados: calcularDias(),
       motivo: form.motivo,
       status: "PENDIENTE"
     });
@@ -189,11 +187,13 @@ export default function VacacionesPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/talento/prestaciones" />
+          <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-xl bg-amber-500/20">
             <Sun className="w-6 h-6 text-amber-400" />
           </div>
@@ -335,7 +335,7 @@ export default function VacacionesPage() {
       {/* Modal Nueva Solicitud */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Solicitud de Vacaciones</h2>
             <div className="space-y-4">
               <div>

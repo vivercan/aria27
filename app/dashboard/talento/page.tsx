@@ -8,7 +8,7 @@ const subModules = [
     description: "Expedientes de colaboradores.",
     href: "/dashboard/talento/personal",
     icon: Users,
-    gradient: "from-blue-500 to-blue-600",
+    gradient: "from-aria-primary to-aria-primary",
     active: true
   },
   {
@@ -89,7 +89,7 @@ export default function TalentoPage() {
           <Link
             key={module.href}
             href={module.href}
-            className={`group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 ${module.active ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10" : "border-slate-700/30 opacity-50 pointer-events-none"}`}
+            className={`group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 ${module.active ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10" : "border-slate-700/30 opacity-50 pointer-events-none"}`}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
             <div className="relative p-6">
@@ -98,7 +98,7 @@ export default function TalentoPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
+                  <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
                     {module.title}
                   </h3>
                   {!module.active && (

@@ -1,9 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search, Download, Calendar, Building2, Filter, X, Loader2, History, FileSpreadsheet, TrendingUp } from "lucide-react";
+import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, ArrowLeft, Search, Download, Calendar, Building2, Filter, X, Loader2, History, FileSpreadsheet, TrendingUp } from "lucide-react";
 
 interface ReqHist {
   id: string;
@@ -19,7 +18,7 @@ interface ReqHist {
 
 const submodules = [
   { title: "Nueva Requisición", description: "Crear solicitud", icon: FilePlus, href: "/dashboard/requisiciones/requisiciones/nuevo", color: "from-emerald-500 to-emerald-600" },
-  { title: "Estatus", description: "Monitor de solicitudes", icon: ListChecks, href: "/dashboard/requisiciones/requisiciones/estatus", color: "from-blue-500 to-blue-600" },
+  { title: "Estatus", description: "Monitor de solicitudes", icon: ListChecks, href: "/dashboard/requisiciones/requisiciones/estatus", color: "from-aria-primary to-aria-primary" },
   { title: "Autorizar", description: "Aprobar pendientes", icon: ShieldCheck, href: "/dashboard/requisiciones/requisiciones/autorizar", color: "from-amber-500 to-amber-600" },
   { title: "Compras", description: "Cotizaciones", icon: ShoppingCart, href: "/dashboard/requisiciones/requisiciones/tramite", color: "from-purple-500 to-purple-600" },
   { title: "Órdenes de Compra", description: "OC autorizadas", icon: ClipboardList, href: "/dashboard/requisiciones/requisiciones/ordenes", color: "from-cyan-500 to-cyan-600" },
@@ -79,14 +78,14 @@ export default function RequisicionesPage() {
       link.download = `Requisiciones_ARIA_${new Date().toISOString().split("T")[0]}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setExportando(false);
   };
 
   const statusColor = (s: string) => {
     if (s?.includes("TERMINADO")) return "bg-emerald-500/20 text-emerald-400";
     if (s?.includes("FALTANTE")) return "bg-amber-500/20 text-amber-400";
-    if (s?.includes("COTIZACION")) return "bg-blue-500/20 text-blue-400";
+    if (s?.includes("COTIZACION")) return "bg-aria-primary-light text-aria-accent";
     if (s?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
     return "bg-slate-500/20 text-slate-400";
   };
@@ -104,7 +103,9 @@ export default function RequisicionesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/requisiciones" />
+          <Link href="/dashboard/requisiciones" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <ClipboardList className="w-7 h-7 text-amber-400" />
           </div>
@@ -141,15 +142,15 @@ export default function RequisicionesPage() {
               <span className="text-slate-400 text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
               <span className="text-slate-400 text-xs">Registros</span>
-              <p className="text-xl font-bold text-blue-400 mt-1">{registrosFiltrados.length}</p>
+              <p className="text-xl font-bold text-aria-accent mt-1">{registrosFiltrados.length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20">
               <span className="text-slate-400 text-xs">Obras</span>
               <p className="text-xl font-bold text-amber-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/5 border border-cyan-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-aria-primary/5 border border-cyan-500/20">
               <span className="text-slate-400 text-xs">Proveedores</span>
               <p className="text-xl font-bold text-cyan-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
             </div>

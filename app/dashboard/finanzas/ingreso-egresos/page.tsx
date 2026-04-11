@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
+  ArrowLeft, Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
   DollarSign, Filter, Calendar
 } from "lucide-react";
 
@@ -75,7 +74,9 @@ export default function IngresoEgresosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/finanzas" />
+          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Ingreso - Egresos</h1>
             <p className="text-xs text-slate-400 capitalize">{mesLabel()}</p>
@@ -87,7 +88,7 @@ export default function IngresoEgresosPage() {
             type="month"
             value={periodo}
             onChange={e => setPeriodo(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"
+            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
           />
         </div>
       </div>
@@ -110,15 +111,15 @@ export default function IngresoEgresosPage() {
           <p className="text-red-400 text-xl font-bold">{fmt(totalEgresos)}</p>
           <p className="text-red-400/50 text-xs mt-1">{gastos.length} gastos</p>
         </div>
-        <div className={`${balance >= 0 ? "bg-blue-500/10 border-blue-500/20" : "bg-orange-500/10 border-orange-500/20"} border rounded-xl p-4`}>
+        <div className={`${balance >= 0 ? "bg-aria-primary/10 border-aria-primary/20" : "bg-orange-500/10 border-orange-500/20"} border rounded-xl p-4`}>
           <div className="flex items-center gap-2 mb-1">
-            <DollarSign className={`w-4 h-4 ${balance >= 0 ? "text-blue-400" : "text-orange-400"}`} />
-            <span className={`text-xs ${balance >= 0 ? "text-blue-400/70" : "text-orange-400/70"}`}>Balance</span>
+            <DollarSign className={`w-4 h-4 ${balance >= 0 ? "text-aria-accent" : "text-orange-400"}`} />
+            <span className={`text-xs ${balance >= 0 ? "text-aria-accent/70" : "text-orange-400/70"}`}>Balance</span>
           </div>
-          <p className={`text-xl font-bold ${balance >= 0 ? "text-blue-400" : "text-orange-400"}`}>
+          <p className={`text-xl font-bold ${balance >= 0 ? "text-aria-accent" : "text-orange-400"}`}>
             {balance < 0 ? "-" : ""}{fmt(balance)}
           </p>
-          <p className={`text-xs mt-1 ${balance >= 0 ? "text-blue-400/50" : "text-orange-400/50"}`}>
+          <p className={`text-xs mt-1 ${balance >= 0 ? "text-aria-accent/50" : "text-orange-400/50"}`}>
             {balance >= 0 ? "Superávit" : "Déficit"}
           </p>
         </div>
@@ -133,8 +134,8 @@ export default function IngresoEgresosPage() {
         ].map(tab => (
           <button
             key={tab.key}
-            onClick={() => setVistaActiva(tab.key as "resumen" | "ingresos" | "egresos")}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${vistaActiva === tab.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"}`}
+            onClick={() => setVistaActiva(tab.key as any)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${vistaActiva === tab.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-slate-400 hover:text-white"}`}
           >
             {tab.label}
           </button>
@@ -145,7 +146,7 @@ export default function IngresoEgresosPage() {
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         {loading ? (
           <div className="p-8 text-center">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" />
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" />
           </div>
         ) : vistaActiva === "resumen" ? (
           <div className="p-4 space-y-4">

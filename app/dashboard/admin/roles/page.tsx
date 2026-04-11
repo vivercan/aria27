@@ -57,8 +57,8 @@ export default function RolesAdminPage() {
       }
       setAuthorized(true);
       setUsers((j.users as UserRow[]) || []);
-    } catch (e: unknown) {
-      setMsg({ tipo: "err", texto: ((e as Error)?.message) || "Error de red" });
+    } catch (e: any) {
+      setMsg({ tipo: "err", texto: e?.message || "Error de red" });
       setAuthorized(true);
     }
     setLoading(false);
@@ -91,8 +91,8 @@ export default function RolesAdminPage() {
       const j = await r.json().catch(() => ({}));
       if (!r.ok) flash("err", j.error || "Error");
       else flash("ok", `Permisos actualizados para ${u.email}`);
-    } catch (e: unknown) {
-      flash("err", ((e as Error)?.message) || "Error de red");
+    } catch (e: any) {
+      flash("err", e?.message || "Error de red");
     }
     setGuardando(null);
   };
@@ -110,7 +110,7 @@ export default function RolesAdminPage() {
   if (authorized === null || loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function RolesAdminPage() {
             value={filter}
             onChange={e => setFilter(e.target.value)}
             placeholder="Buscar usuario..."
-            className="pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600 w-64"
+            className="pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 w-64"
           />
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function RolesAdminPage() {
                           checked={active}
                           disabled={isAdminRow}
                           onChange={() => toggleModule(u, m.key)}
-                          className="w-4 h-4 accent-blue-500 disabled:opacity-50"
+                          className="w-4 h-4 accent-aria-primary disabled:opacity-50"
                           title={isAdminRow ? "Admin tiene acceso total" : m.label}
                         />
                       </td>
@@ -210,7 +210,7 @@ export default function RolesAdminPage() {
                     <button
                       onClick={() => guardar(u)}
                       disabled={guardando === u.id}
-                      className="px-3 py-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs flex items-center gap-1 mx-auto disabled:opacity-50"
+                      className="px-3 py-1.5 rounded bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 text-xs flex items-center gap-1 mx-auto disabled:opacity-50"
                     >
                       {guardando === u.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                       Guardar

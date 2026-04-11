@@ -32,7 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.example
 
 # vercel
 .vercel
@@ -66,4 +65,3 @@ ARIA27_EXTRACCION_TOTAL.txt
 .env.local
 .env.production
 
-.github/

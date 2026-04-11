@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import { ArrowLeft, Calculator, FileText, History, PenTool, Receipt } from "lucide-react";
 
 const submodulos = [
-  { nombre: "Pre-Nómina", descripcion: "Generar cálculo de nómina semanal", href: "/dashboard/talento/nomina/pre-nomina", icono: Calculator, color: "from-blue-500 to-cyan-500" },
+  { nombre: "Pre-Nómina", descripcion: "Generar cálculo de nómina semanal", href: "/dashboard/talento/nomina/pre-nomina", icono: Calculator, color: "from-aria-primary to-cyan-500" },
   { nombre: "Captura Manual", descripcion: "Ajustes y capturas manuales", href: "/dashboard/talento/nomina/manual", icono: PenTool, color: "from-violet-500 to-purple-500" },
   { nombre: "Histórico", descripcion: "Consultar nóminas anteriores", href: "/dashboard/talento/nomina/historico", icono: History, color: "from-amber-500 to-orange-500" },
   { nombre: "Recibos", descripcion: "Generar recibos de nómina", href: "/dashboard/talento/nomina/recibos", icono: Receipt, color: "from-emerald-500 to-emerald-500" },
@@ -25,7 +24,7 @@ export default function NominaPage() {
             <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${sub.color} mb-4`}>
               <sub.icono className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">{sub.nombre}</h3>
+            <h3 className="text-lg font-semibold text-white group-hover:text-aria-accent transition-colors">{sub.nombre}</h3>
             <p className="text-sm text-slate-400 mt-1">{sub.descripcion}</p>
           </Link>
         ))}

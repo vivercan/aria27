@@ -118,9 +118,9 @@ export default function DashboardPage() {
       title: "Requisiciones Hoy",
       value: stats.requisicionesHoy,
       icon: FileText,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-500/10",
-      textColor: "text-blue-400",
+      color: "from-aria-primary to-aria-primary",
+      bgColor: "bg-aria-primary/10",
+      textColor: "text-aria-accent",
     },
     {
       title: "Pendientes",
@@ -170,7 +170,7 @@ export default function DashboardPage() {
       description: "Solicitar materiales o servicios",
       href: "/dashboard/requisiciones/requisiciones",
       icon: FileText,
-      color: "from-blue-500 to-cyan-500",
+      color: "from-aria-primary to-cyan-500",
       module: "requisiciones",
     },
     {
@@ -267,7 +267,7 @@ export default function DashboardPage() {
       {/* QUICK ACTIONS */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-400" />
+          <Activity className="w-5 h-5 text-aria-accent" />
           Acciones Rápidas
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -284,11 +284,11 @@ export default function DashboardPage() {
                 <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${action.color} mb-4 shadow-lg`}>
                   <action.icon className="w-5 h-5 text-white" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-base font-semibold text-white mb-1 group-hover:text-blue-300 transition-colors">
+                <h3 className="text-base font-semibold text-white mb-1 group-hover:text-aria-accent transition-colors">
                   {action.title}
                 </h3>
                 <p className="text-sm text-slate-400">{action.description}</p>
-                <div className="mt-4 flex items-center text-sm text-blue-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center text-sm text-aria-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Ir ahora</span>
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -299,10 +299,10 @@ export default function DashboardPage() {
       </div>
 
       {/* SISTEMA INFO */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/10 border border-aria-primary/20">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-blue-500/20">
-            <AlertCircle className="w-6 h-6 text-blue-400" />
+          <div className="p-3 rounded-xl bg-aria-primary-light">
+            <AlertCircle className="w-6 h-6 text-aria-accent" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-1">Sistema ARIA - Infinity Loop</h3>

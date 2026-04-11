@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -7,15 +6,6 @@ import {
   ArrowLeft, Plus, Edit, Eye, Check, X, Download, Trash2,
   FileText, User, Calendar, DollarSign, AlertCircle
 } from "lucide-react";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
-import { formatMoney } from "@/lib/format-utils";
-import {
-  calcularAntiguedad,
-  calcularDiasVacacionesPorAntiguedad,
-  calcularPrimaAntiguedad,
-  calcularAguinaldoProporcional,
-} from "@/lib/payroll-utils";
 
 interface Empleado {
   id: string;
@@ -52,13 +42,59 @@ const TIPOS_BAJA = [
 const STATUS_COLORS: Record<string, string> = {
   BORRADOR: "bg-slate-600 text-white",
   CALCULADO: "bg-amber-600 text-white",
-  APROBADO: "bg-blue-600 text-white",
+  APROBADO: "bg-aria-primary text-white",
   PAGADO: "bg-emerald-600 text-white",
   CANCELADO: "bg-red-600 text-white",
 };
 
+function formatMoney(value: number) {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+  }).format(value);
+}
+
+function calcularAntiguedad(fechaIngreso: string, fechaBaja: string): number {
+  if (!fechaIngreso || !fechaBaja) return 0;
+  const inicio = new Date(fechaIngreso);
+  const fin = new Date(fechaBaja);
+  return Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// Tabla LFT de vacaciones por antigüedad
+function calcularDiasVacacionesPorAntiguedad(años: number): number {
+  if (años < 1) return 0;
+  if (años <= 4) return 6;
+  if (años <= 9) return 8;
+  if (años <= 14) return 10;
+  if (años <= 19) return 12;
+  if (años <= 24) return 14;
+  if (años <= 29) return 16;
+  // Cada 5 años adicionales: +2 días
+  const añosAdicionales = años - 29;
+  const ciclos = Math.floor(añosAdicionales / 5);
+  return 16 + ciclos * 2;
+}
+
+// Prima de antigüedad (LFT art 162): 12 días × salario × años completos
+function calcularPrimaAntiguedad(
+  salarioDiario: number,
+  años: number
+): number {
+  return 12 * salarioDiario * años;
+}
+
+// Aguinaldo proporcional
+function calcularAguinaldoProporcional(
+  salarioDiario: number,
+  días: number
+): number {
+  const díasEnAño = 365;
+  return (días / díasEnAño) * 15 * salarioDiario;
+}
+
 export default function FiniquitosPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [view, setView] = useState<"list" | "form" | "detail">("list");
   const [finiquitos, setFiniquitos] = useState<Finiquito[]>([]);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -231,12 +267,10 @@ export default function FiniquitosPage() {
     });
 
     if (error) {
-      flash("err", "Error: " + error.message);
       setFlashMsg({ type: "error", msg: "Error: " + error.message });
       return;
     }
 
-    flash("ok", `Finiquito ${marcarCalculado ? "calculado" : "guardado"} correctamente`);
     setFlashMsg({
       type: "success",
       msg: `Finiquito ${marcarCalculado ? "calculado" : "guardado como borrador"} exitosamente`,
@@ -277,7 +311,7 @@ export default function FiniquitosPage() {
   };
 
   const actualizarEstatus = async (id: string, nuevoStatus: string) => {
-    const updates: Record<string, unknown> = { status: nuevoStatus };
+    const updates: any = { status: nuevoStatus };
 
     if (nuevoStatus === "PAGADO") {
       updates.paid_at = new Date().toISOString();
@@ -301,12 +335,10 @@ export default function FiniquitosPage() {
     const { error } = await supabase.from("finiquitos").update(updates).eq("id", id);
 
     if (error) {
-      flash("err", "Error: " + error.message);
       setFlashMsg({ type: "error", msg: "Error: " + error.message });
       return;
     }
 
-    flash("ok", "Finiquito actualizado correctamente");
     setFlashMsg({ type: "success", msg: `Finiquito actualizado a ${nuevoStatus}` });
     setTimeout(() => {
       cargarDatos();
@@ -334,7 +366,12 @@ export default function FiniquitosPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-slate-950 pb-4">
             <div className="flex items-center gap-4 mb-4">
-              <AriaBackButton href="/dashboard/talento" />
+              <Link
+                href="/dashboard/talento"
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-400" />
+              </Link>
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-8 h-8" />
@@ -343,8 +380,6 @@ export default function FiniquitosPage() {
                 <p className="text-slate-400">Liquidación y terminación de empleados</p>
               </div>
             </div>
-
-            <FlashBanner msg={msg} />
 
             {/* Flash message */}
             {flashMsg && (
@@ -372,12 +407,12 @@ export default function FiniquitosPage() {
                   placeholder="Buscar empleado..."
                   value={searchEmployee}
                   onChange={(e) => setSearchEmployee(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-aria-primary"
                 />
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
+                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-aria-primary"
                 >
                   <option value="">Todos los Status</option>
                   {Object.keys(STATUS_COLORS).map((st) => (
@@ -392,7 +427,7 @@ export default function FiniquitosPage() {
                   resetForm();
                   setView("form");
                 }}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Nuevo Finiquito
@@ -464,10 +499,10 @@ export default function FiniquitosPage() {
                       <td className="px-4 py-3 text-center flex items-center justify-center gap-1">
                         <button
                           onClick={() => abrirDetalle(fin.id)}
-                          className="p-1 rounded hover:bg-blue-900/50 transition-colors"
+                          className="p-1 rounded hover:bg-aria-primary/20 transition-colors"
                           title="Ver"
                         >
-                          <Eye className="w-4 h-4 text-blue-400" />
+                          <Eye className="w-4 h-4 text-aria-accent" />
                         </button>
                       </td>
                     </tr>
@@ -525,7 +560,7 @@ export default function FiniquitosPage() {
                 <div key={s} className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                      s <= step ? "bg-blue-600 text-white" : "bg-slate-700 text-slate-400"
+                      s <= step ? "bg-aria-primary text-white" : "bg-slate-700 text-slate-400"
                     }`}
                   >
                     {s}
@@ -533,7 +568,7 @@ export default function FiniquitosPage() {
                   {s < 4 && (
                     <div
                       className={`h-1 w-12 mx-1 transition-colors ${
-                        s < step ? "bg-blue-600" : "bg-slate-700"
+                        s < step ? "bg-aria-primary" : "bg-slate-700"
                       }`}
                     />
                   )}
@@ -562,7 +597,7 @@ export default function FiniquitosPage() {
                     setForm({ ...form, employee_id: e.target.value });
                     setFlashMsg(null);
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                 >
                   <option value="">-- Selecciona un empleado --</option>
                   {empleados.map((emp) => (
@@ -590,7 +625,7 @@ export default function FiniquitosPage() {
                     }
                     setStep(2);
                   }}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
                 >
                   Siguiente
                 </button>
@@ -609,7 +644,7 @@ export default function FiniquitosPage() {
                   <select
                     value={form.tipo}
                     onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                   >
                     <option value="">-- Selecciona tipo --</option>
                     {TIPOS_BAJA.map((t) => (
@@ -628,7 +663,7 @@ export default function FiniquitosPage() {
                     type="date"
                     value={form.fecha_baja}
                     onChange={(e) => setForm({ ...form, fecha_baja: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                   />
                 </div>
                 <div>
@@ -639,7 +674,7 @@ export default function FiniquitosPage() {
                     value={form.motivo}
                     onChange={(e) => setForm({ ...form, motivo: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary text-sm"
                     placeholder="Describe el motivo de la baja..."
                   />
                 </div>
@@ -662,7 +697,7 @@ export default function FiniquitosPage() {
                     }
                     setStep(3);
                   }}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
                 >
                   Siguiente
                 </button>
@@ -690,7 +725,7 @@ export default function FiniquitosPage() {
                           salarios_caidos_dias: parseInt(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                     />
                     <p className="text-xs text-slate-400 mt-1">
                       Número de días de salarios caídos a pagar
@@ -715,7 +750,7 @@ export default function FiniquitosPage() {
                           deducciones_infonavit: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                     />
                   </div>
                   <div>
@@ -733,7 +768,7 @@ export default function FiniquitosPage() {
                           deducciones_prestamos: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                     />
                   </div>
                 </div>
@@ -753,7 +788,7 @@ export default function FiniquitosPage() {
                         otras_deducciones: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
                   />
                 </div>
               </div>
@@ -1148,7 +1183,7 @@ export default function FiniquitosPage() {
             {currentFiniquito.status === "CALCULADO" && (
               <button
                 onClick={() => actualizarEstatus(currentFiniquito.id, "APROBADO")}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
               >
                 Aprobar
               </button>

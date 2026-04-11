@@ -1,33 +1,12 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
+import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
 
 const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
-
-interface AsignacionRow {
-  empleado_id?: string;
-  activo_id?: string;
-  fecha_asignacion?: string;
-  notas?: string;
-}
-
-interface PersonalRow {
-  id: string;
-  full_name: string;
-  employee_number: string;
-}
-
-interface ActivoRow {
-  id: string;
-  nombre?: string;
-  name?: string;
-}
 
 export default function AsignacionPage() {
   const [asignaciones, setAsignaciones] = useState<any[]>([]);
@@ -37,7 +16,7 @@ export default function AsignacionPage() {
   const [search, setSearch] = useState("");
 
   // Shared hooks — replace manual modal/form/flash state
-  const { msg, flash, clear } = useFlashMessage();
+  const { mensaje, msg } = useFlashMessage();
   const { showModal, form, saving, openNew, closeModal, setForm, setSaving } = useEntityForm(EMPTY_ASIGNACION);
 
   useEffect(() => { load(); }, []);
@@ -50,38 +29,43 @@ export default function AsignacionPage() {
     ]);
 
     if (asigError) {
+      console.error("Error loading activos_asignaciones:", asigError?.message);
       setLoading(false);
       return;
     }
     if (actsError) {
+      console.error("Error loading activos:", actsError?.message);
       setLoading(false);
       return;
     }
     if (empsError) {
+      console.error("Error loading empleados:", empsError?.message);
       setLoading(false);
       return;
     }
 
     if (asig && asig.length > 0) {
-      const empIds = [...new Set((asig as AsignacionRow[]).map((a: AsignacionRow) => a.empleado_id).filter(Boolean))];
-      const actIds = [...new Set((asig as AsignacionRow[]).map((a: AsignacionRow) => a.activo_id).filter(Boolean))];
+      const empIds = [...new Set(asig.map((a: any) => a.empleado_id).filter(Boolean))];
+      const actIds = [...new Set(asig.map((a: any) => a.activo_id).filter(Boolean))];
       const [{ data: empData, error: empDataError }, { data: actData, error: actDataError }] = await Promise.all([
         supabase.from("Personal").select("id, full_name, employee_number").in("id", empIds),
         supabase.from("activos").select("id, nombre, name").in("id", actIds)
       ]);
 
       if (empDataError) {
+        console.error("Error loading empleado details:", empDataError?.message);
         setLoading(false);
         return;
       }
       if (actDataError) {
+        console.error("Error loading activo details:", actDataError?.message);
         setLoading(false);
         return;
       }
 
-      const empMap = Object.fromEntries((empData || []).map((e: PersonalRow) => [e.id, e]));
-      const actMap = Object.fromEntries((actData || []).map((a: ActivoRow) => [a.id, a]));
-      setAsignaciones((asig as AsignacionRow[]).map((a: AsignacionRow) => ({ ...a, empleado: empMap[a.empleado_id!], activo: actMap[a.activo_id!] })));
+      const empMap = Object.fromEntries((empData || []).map((e: any) => [e.id, e]));
+      const actMap = Object.fromEntries((actData || []).map((a: any) => [a.id, a]));
+      setAsignaciones(asig.map((a: any) => ({ ...a, empleado: empMap[a.empleado_id], activo: actMap[a.activo_id] })));
     } else {
       setAsignaciones([]);
     }
@@ -111,9 +95,9 @@ export default function AsignacionPage() {
       .eq("id", form.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { flash("err", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
+    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
     if (!lockRows || lockRows.length === 0) {
-      flash("err", "Este activo ya no está DISPONIBLE. Recarga.");
+      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
       setSaving(false); load(); return;
     }
 
@@ -128,12 +112,12 @@ export default function AsignacionPage() {
     if (error) {
       // Rollback
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
-      flash("err", "Error al crear asignación: " + error.message);
+      msg("error", "Error al crear asignación: " + error.message);
       setSaving(false);
       return;
     }
 
-    flash("ok", "Activo asignado correctamente");
+    msg("success", "Activo asignado correctamente");
     closeModal();
     load();
   };
@@ -145,14 +129,14 @@ export default function AsignacionPage() {
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) { flash("err", "Error al devolver: " + error.message); return; }
-    if (!rows || rows.length === 0) { flash("err", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
+    if (error) { msg("error", "Error al devolver: " + error.message); return; }
+    if (!rows || rows.length === 0) { msg("error", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
 
     // Liberar activo
     if (rows[0].activo_id) {
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", rows[0].activo_id);
     }
-    flash("ok", "Activo devuelto correctamente");
+    msg("success", "Activo devuelto correctamente");
     load();
   };
 
@@ -162,17 +146,13 @@ export default function AsignacionPage() {
     return a.empleado?.full_name?.toLowerCase().includes(s) || a.activo?.nombre?.toLowerCase().includes(s) || a.activo?.name?.toLowerCase().includes(s);
   });
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
+          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
             <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
@@ -183,7 +163,11 @@ export default function AsignacionPage() {
         </button>
       </div>
 
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10">
         <Search className="w-4 h-4 text-slate-400" />
@@ -191,10 +175,7 @@ export default function AsignacionPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</p>
-        </div>
+        <div className="text-center py-12 text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</div>
       ) : (
         <div className="overflow-auto max-h-[60vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">

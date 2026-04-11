@@ -4,8 +4,6 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { ClipboardList, Search, Plus, Eye, Printer, Loader2, Package, CheckCircle, X, Save, Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -37,7 +35,7 @@ export default function OrdenesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [obras, setObras] = useState<string[]>([]);
   const [proveedores, setProveedores] = useState<string[]>([]);
-  const { msg, flash, clear } = useFlashMessage();
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); cargarProveedores(); }, []);
@@ -58,6 +56,10 @@ export default function OrdenesPage() {
     setProveedores((data || []).map(s => s.name));
   };
 
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -82,10 +84,10 @@ export default function OrdenesPage() {
 
     if (editId) {
       const { error } = await supabase.from("ordenes_formato").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Orden actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("ordenes_formato").insert(payload);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Orden creada"); setShowForm(false); cargar(); }
     }
     setForm({ ...EMPTY });
     setGuardando(false);
@@ -100,7 +102,7 @@ export default function OrdenesPage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("ordenes_formato").delete().eq("id", id);
-    if (error) flash("err", error?.message ?? "Error"); else { flash("ok", "Orden eliminada"); cargar(); }
+    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Orden eliminada"); cargar(); }
   };
 
   const filtered = ordenes.filter(o =>
@@ -111,23 +113,24 @@ export default function OrdenesPage() {
     borrador: "bg-gray-500/20 text-gray-300",
     pendiente: "bg-amber-500/20 text-amber-300",
     aprobada: "bg-emerald-500/20 text-emerald-300",
-    enviada: "bg-blue-500/20 text-blue-300",
+    enviada: "bg-aria-primary-light text-aria-accent",
     completada: "bg-violet-500/20 text-violet-300",
   };
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "ordenes_formato", id: deleteModal.id, userEmail });
-      flash("ok", "Eliminado correctamente");
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
-    }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <AriaBackButton href="/dashboard/plantillas" />
 
@@ -136,7 +139,7 @@ export default function OrdenesPage() {
           <h1 className="text-2xl font-bold text-white">Formatos de Órdenes de Compra</h1>
           <p className="text-slate-400 text-sm">Gestión de formatos y plantillas de órdenes de compra</p>
         </div>
-        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Orden
         </button>
       </div>
@@ -151,17 +154,17 @@ export default function OrdenesPage() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
-                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Descripción de la orden" />
+                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Descripción de la orden" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">No. Orden</label>
-                  <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder={editId ? "" : nextNumero()} />
+                  <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder={editId ? "" : nextNumero()} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Proveedor</label>
-                  <select value={form.proveedor} onChange={e => setForm({ ...form, proveedor: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.proveedor} onChange={e => setForm({ ...form, proveedor: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     <option value="">Seleccionar proveedor</option>
                     {proveedores.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
@@ -170,29 +173,29 @@ export default function OrdenesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Obra</label>
-                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     <option value="">Seleccionar obra</option>
                     {obras.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Monto</label>
-                  <input type="number" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="0.00" />
+                  <input type="number" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Estado</label>
-                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     {ESTADOS.map(e => <option key={e} value={e}>{e.charAt(0).toUpperCase() + e.slice(1)}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-                  <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                  <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
                 </div>
               </div>
-              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {guardando ? "Guardando..." : editId ? "Actualizar Orden" : "Crear Orden"}
               </button>
@@ -222,7 +225,7 @@ export default function OrdenesPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre, número o proveedor..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
@@ -241,14 +244,14 @@ export default function OrdenesPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-slate-400">
                   {ordenes.length === 0 ? "No hay formatos de órdenes registrados." : "No se encontraron resultados."}
                 </td></tr>
               ) : filtered.map(o => (
                 <tr key={o.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                  <td className="p-3 text-blue-400 font-mono text-xs">{o.numero || "—"}</td>
+                  <td className="p-3 text-aria-accent font-mono text-xs">{o.numero || "—"}</td>
                   <td className="p-3 text-white font-medium">{o.nombre}</td>
                   <td className="p-3 text-slate-300">{o.proveedor || "—"}</td>
                   <td className="p-3 text-slate-400">{o.obra || "—"}</td>

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("EXPEDIENTES-ANALIZAR");
 const supabase = getSupabaseAdmin();
@@ -46,10 +45,6 @@ function parseJsonResponse(text: string): { paginas: number | null; resumen: str
 }
 
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "expedientes:analizar", ...RATE_LIMITS.EXPENSIVE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   // EXP-001 FIX: Verificar autenticación
   const userEmail = req.headers.get("x-user-email");
   if (!userEmail) {
@@ -128,8 +123,8 @@ export async function POST(req: NextRequest) {
           ],
         }],
       });
-      const textBlock = msg.content.find((c) => c.type === "text");
-      const parsed = parseJsonResponse((textBlock && "text" in textBlock ? String(textBlock.text) : "{}"));
+      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = parsed.paginas;
     } else if (isImage) {
@@ -155,8 +150,8 @@ export async function POST(req: NextRequest) {
           ],
         }],
       });
-      const textBlock = msg.content.find((c) => c.type === "text");
-      const parsed = parseJsonResponse((textBlock && "text" in textBlock ? String(textBlock.text) : "{}"));
+      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = 1;
     } else if (isText) {
@@ -171,7 +166,7 @@ export async function POST(req: NextRequest) {
           content: [{ type: "text", text: `${PROMPT}\n\nContenido del archivo (${nombre}):\n\n${texto}` }],
         }],
       });
-      const textBlock = msg.content.find((c) => c.type === "text");
+      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
       const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = Math.max(1, Math.ceil(texto.length / 3000));
@@ -192,8 +187,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, resumen, paginas });
-  } catch (e: unknown) {
-    log.error("analizar error", { err: ((e as Error)?.message), stack: ((e as Error)?.stack)?.slice(0, 300) });
+  } catch (e: any) {
+    log.error("analizar error", { err: e?.message, stack: e?.stack?.slice(0, 300) });
     // EXP-003 FIX: Usar archivoId del scope exterior en vez de re-consumir req.json()
     if (archivoId) {
       try {
@@ -203,6 +198,6 @@ export async function POST(req: NextRequest) {
           .eq("id", archivoId);
       } catch {}
     }
-    return NextResponse.json({ error: ((e as Error)?.message) || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
   }
 }

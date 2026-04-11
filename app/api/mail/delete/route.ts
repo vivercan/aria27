@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-DELETE");
 
-interface ImapWithSeq {
-  seq: {
-    addFlags(uids: number[], flags: string[], callback: (err: Error | null) => void): void;
-  };
-  expunge(callback: (err: Error | null) => void): void;
-}
-
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "mail:delete", ...RATE_LIMITS.EMAIL });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     const { uids, folder = "INBOX" } = await req.json();
     const creds = await getZohoCreds();
@@ -45,10 +33,10 @@ export async function POST(req: NextRequest) {
           if (err) { imap.end(); reject(err); return; }
           
           // Usar seq.addFlags en lugar de addFlags
-          (imap as unknown as ImapWithSeq).seq.addFlags(uids, ["\\Deleted"], (err: Error | null) => {
+          (imap as any).seq.addFlags(uids, ["\\Deleted"], (err: any) => {
             if (err) { imap.end(); reject(err); return; }
-
-            (imap as unknown as ImapWithSeq).expunge((err: Error | null) => {
+            
+            (imap as any).expunge((err: any) => {
               imap.end();
               if (err) reject(err);
               else resolve({ success: true, deleted: uids.length });
@@ -62,8 +50,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result);
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("Error eliminando correos:", error);
-    return NextResponse.json({ error: (error as Error)?.message || "Error al eliminar" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Error al eliminar" }, { status: 500 });
   }
 }

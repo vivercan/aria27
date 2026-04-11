@@ -1,23 +1,22 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  Plus, Search, Edit2, Phone, Mail, Building2,
+  ArrowLeft, Plus, Search, Edit2, Phone, Mail, Building2,
   MapPin, X, Save, Copy, Check, Trash2, Globe,
   MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
 } from "lucide-react";
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
-  email: string | null; address: string | null; categories: string | string[] | null;
+  email: string | null; address: string | null; categories: any;
   contact_name: string | null; credit_days: number | null; active: boolean;
   website: string | null; whatsapp: string | null; bank_name: string | null;
   bank_clabe: string | null; payment_method: string | null; razon_social: string | null;
@@ -67,7 +66,7 @@ export default function ProveedoresPage() {
   },[]);
   const categories = [...new Set(allCats.filter(Boolean))].sort();
 
-  const getCatDisplay = (cats: string | string[] | null): string[] => {
+  const getCatDisplay = (cats:any):string[] => {
     if(!cats) return [];
     if(Array.isArray(cats)) return cats.filter(Boolean);
     if(typeof cats==="string") return cats.split(",").map((c:string)=>c.trim()).filter(Boolean);
@@ -114,8 +113,7 @@ export default function ProveedoresPage() {
         if (error) { flash("err", "Error al crear proveedor: " + error.message); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    } catch(e: unknown) { flash("err", "Error: " + (((e as Error)?.message) || "desconocido")); }
-    finally { setSaving(false); }
+    }catch(e){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{
@@ -128,19 +126,19 @@ export default function ProveedoresPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "suppliers", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     loadSuppliers();
   };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <AriaBackButton href="/dashboard/requisiciones" />
+            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-emerald-400"/>Proveedores</h1>
             <span className="text-xs text-slate-500 ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>
@@ -164,7 +162,7 @@ export default function ProveedoresPage() {
       {/* TABLA */}
       <div className="flex-1 overflow-auto min-h-0">
         {loading?(
-          <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-blue-400"/></div>
+          <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/></div>
         ):filtered.length===0?(
           <div className="text-center py-12"><Building2 className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
         ):(
@@ -195,13 +193,13 @@ export default function ProveedoresPage() {
                       </div>
                     </td>
                     <td>
-                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-400 rounded">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-slate-500">+{cats.length-2}</span>}</div>}
+                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-slate-500">+{cats.length-2}</span>}</div>}
                     </td>
                     <td className="text-slate-400">
-                      {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-blue-400 flex items-center gap-1"><Phone className="w-2.5 h-2.5"/>{s.phone}</a>}
+                      {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1"><Phone className="w-2.5 h-2.5"/>{s.phone}</a>}
                     </td>
                     <td className="text-slate-400 truncate max-w-[200px]">
-                      {s.email&&<a href={`mailto:${s.email}`} className="hover:text-blue-400">{s.email}</a>}
+                      {s.email&&<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>}
                     </td>
                     <td className="text-slate-400">
                       {s.credit_days&&s.credit_days>0?<span className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded">{s.credit_days}d</span>:null}

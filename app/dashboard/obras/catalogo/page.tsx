@@ -1,13 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save } from "lucide-react";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
 
 /**
  * CATÁLOGO MAESTRO DE OBRAS
@@ -35,7 +32,7 @@ interface Obra {
 }
 
 const STATUS = [
-  { value: "EN_PLANEACION", label: "En Planeación", color: "bg-blue-500/20 text-blue-400" },
+  { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
   { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
   { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
   { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-slate-400" },
@@ -45,8 +42,6 @@ const STATUS = [
 const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "" };
 
 export default function CatalogoObrasPage() {
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const router = useRouter();
   const [obras, setObras] = useState<Obra[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +51,7 @@ export default function CatalogoObrasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
@@ -69,6 +65,12 @@ export default function CatalogoObrasPage() {
     if (!error && data) setObras(data as Obra[]);
     setLoading(false);
   };
+
+  const flash = (tipo: "ok" | "err", texto: string) => {
+    setMsg({ tipo, texto });
+    setTimeout(() => setMsg(null), 2500);
+  };
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   const resetForm = () => { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(false); setFormErrors({}); };
 
@@ -102,9 +104,9 @@ export default function CatalogoObrasPage() {
   const guardar = async () => {
     if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setSaving(true);
-    const payload = { ...form, updated_at: new Date().toISOString() };
+    const payload: any = { ...form, updated_at: new Date().toISOString() };
     if (payload.presupuesto === "" || payload.presupuesto === null) payload.presupuesto = null;
-    else payload.presupuesto = parseFloat(String(payload.presupuesto));
+    else payload.presupuesto = parseFloat(payload.presupuesto);
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
@@ -121,39 +123,32 @@ export default function CatalogoObrasPage() {
     cargar();
   };
 
+  const ejecutarCambioEstado = async (obraId: string, nuevoEstado: string, label: string) => {
+    const { error } = await supabase.from("centros_trabajo")
+      .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
+      .eq("id", obraId);
+    if (error) { flash("err", "Error: " + error.message); return; }
+    flash("ok", `Obra → ${label}`);
+    cargar();
+  };
+
   const cambiarEstado = async (o: Obra, nuevoEstado: string) => {
     const label = STATUS.find(s => s.value === nuevoEstado)?.label || nuevoEstado;
     const archivar = ["TERMINADA", "CANCELADA"].includes(nuevoEstado);
     if (archivar) {
       const aviso =
-        `ATENCIÓN — Vas a ARCHIVAR la obra "${o.nombre}" como "${label}".\n\n` +
-        `Esta obra puede tener todavía:\n` +
-        `  • Órdenes de compra activas\n` +
-        `  • Cobranza pendiente\n` +
-        `  • Personal / nómina activa\n` +
-        `  • Requisiciones abiertas\n\n` +
-        `El sistema NO bloquea el archivado, pero quedará registrado en el historial (updated_at).\n\n` +
+        `ATENCIÓN — Vas a ARCHIVAR la obra "${o.nombre}" como "${label}". ` +
+        `Esta obra puede tener OC activas, cobranza pendiente, personal/nómina activa o requisiciones abiertas. ` +
+        `El sistema NO bloquea el archivado, pero quedará registrado en el historial. ` +
         `¿Confirmas que esta obra debe pasar a "${label}"?`;
       setConfirmState({ open: true, msg: aviso, onOk: () => {
-        setConfirmState(p => ({...p, open: false}));
-        const confirmFinal = `Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`;
-        setConfirmState({ open: true, msg: confirmFinal, onOk: async () => {
-          const { error } = await supabase.from("centros_trabajo")
-            .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
-            .eq("id", o.id);
-          if (error) { flash("err", "Error: " + error.message); return; }
-          flash("ok", `Obra → ${label}`);
-          cargar();
+        setConfirmState({ open: true, msg: `Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`, onOk: () => {
+          ejecutarCambioEstado(o.id, nuevoEstado, label);
         }});
       }});
     } else {
-      setConfirmState({ open: true, msg: `¿Mover la obra "${o.nombre}" al estado "${label}"?`, onOk: async () => {
-        const { error } = await supabase.from("centros_trabajo")
-          .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
-          .eq("id", o.id);
-        if (error) { flash("err", "Error: " + error.message); return; }
-        flash("ok", `Obra → ${label}`);
-        cargar();
+      setConfirmState({ open: true, msg: `¿Mover la obra "${o.nombre}" al estado "${label}"?`, onOk: () => {
+        ejecutarCambioEstado(o.id, nuevoEstado, label);
       }});
     }
   };
@@ -181,13 +176,6 @@ export default function CatalogoObrasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={flashMsg} />
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard/obras" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Obras
@@ -201,7 +189,7 @@ export default function CatalogoObrasPage() {
             <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs">Vista Pipeline</Link>
             <button
               onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
-              className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 flex items-center gap-2"
+              className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
             >
               {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {showForm ? "Cancelar" : "Nueva Obra"}
@@ -213,7 +201,7 @@ export default function CatalogoObrasPage() {
           {[
             { label: "Total", value: stats.total, color: "text-white" },
             { label: "Activas", value: stats.activas, color: "text-emerald-400" },
-            { label: "En planeación", value: stats.planeacion, color: "text-blue-400" },
+            { label: "En planeación", value: stats.planeacion, color: "text-aria-accent" },
             { label: "Pausadas", value: stats.pausadas, color: "text-amber-400" },
             { label: "Archivadas", value: stats.archivadas, color: "text-slate-400" },
           ].map(s => (
@@ -231,7 +219,7 @@ export default function CatalogoObrasPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar por nombre o cliente…"
-              className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none"
             />
           </div>
           <select
@@ -247,6 +235,11 @@ export default function CatalogoObrasPage() {
         </div>
       </div>
 
+      {msg && (
+        <div className={`mx-6 mt-3 px-4 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
+        </div>
+      )}
 
       {showForm && (
         <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -290,7 +283,7 @@ export default function CatalogoObrasPage() {
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50">
+            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editId ? "Guardar cambios" : "Crear obra"}
             </button>
@@ -315,7 +308,7 @@ export default function CatalogoObrasPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtradas.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-slate-500">Sin obras para los filtros actuales.</td></tr>
               ) : filtradas.map(o => {
@@ -339,7 +332,7 @@ export default function CatalogoObrasPage() {
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-1 flex-wrap">
-                        <button onClick={() => abrirEdicion(o)} title="Editar" className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded">
+                        <button onClick={() => abrirEdicion(o)} title="Editar" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded">
                           <Pencil className="w-4 h-4" />
                         </button>
                         <Link href={`/dashboard/obras/expedientes?obra=${o.id}`} title="Expediente" className="p-1.5 text-violet-400/70 hover:text-violet-400 hover:bg-violet-500/10 rounded">
@@ -363,6 +356,12 @@ export default function CatalogoObrasPage() {
           </table>
         </div>
       </div>
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

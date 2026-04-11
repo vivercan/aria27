@@ -9,7 +9,7 @@ const subModules = [
     description: "Presupuesto vs Gasto Real (OC + Nómina) por obra. Semáforo de avance.",
     href: "/dashboard/obras/control",
     icon: Activity,
-    gradient: "from-cyan-500 to-blue-600",
+    gradient: "from-cyan-500 to-aria-primary",
     active: true,
   },
   {
@@ -41,7 +41,7 @@ const subModules = [
     description: "Fuente única de obras: alta, edición, archivo, historial.",
     href: "/dashboard/obras/catalogo",
     icon: BookOpen,
-    gradient: "from-sky-500 to-blue-600",
+    gradient: "from-sky-500 to-aria-primary",
     active: true,
   },
   {
@@ -49,7 +49,7 @@ const subModules = [
     description: "Vista kanban operativa de proyectos activos.",
     href: "/dashboard/obras/pipeline",
     icon: Kanban,
-    gradient: "from-blue-500 to-blue-600",
+    gradient: "from-aria-primary to-aria-primary",
     active: true,
   },
   {
@@ -148,7 +148,7 @@ export default function ObrasPage() {
   href={module.href}
   className={`group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 ${
     module.active
-      ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
+      ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
       : "border-slate-700/30 opacity-50 pointer-events-none"
   }`}
 >
@@ -159,7 +159,7 @@ export default function ObrasPage() {
     </div>
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
+        <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
           {module.title}
         </h3>
         {!module.active && (

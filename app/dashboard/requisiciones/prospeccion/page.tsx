@@ -1,14 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import {
-  Search, Loader2, Globe, Phone, Mail,
+  ArrowLeft, Search, Loader2, Globe, Phone, Mail,
   MapPin, Plus, ExternalLink, Building2, X, Check, Package
 } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface WebResult {
   nombre: string; direccion: string; telefono: string;
@@ -17,7 +16,7 @@ interface WebResult {
 
 interface ExistingSupplier {
   id: string; name: string; phone: string; email: string;
-  categories: string | string[] | null;
+  categories: any;
 }
 
 export default function ProspeccionPage() {
@@ -33,7 +32,7 @@ export default function ProspeccionPage() {
   const [savedIdxs, setSavedIdxs] = useState<number[]>([]);
   const [error, setError] = useState("");
 
-  const getCatDisplay = (cats: string | string[] | null): string[] => {
+  const getCatDisplay = (cats: any): string[] => {
     if (!cats) return [];
     if (Array.isArray(cats)) return cats.filter(Boolean);
     if (typeof cats === "string") return cats.split(",").map((c: string) => c.trim()).filter(Boolean);
@@ -76,9 +75,9 @@ export default function ProspeccionPage() {
       setWebResults(data.proveedores_web || []);
       setAnalisis(data.analisis || "");
       setRecomendacion(data.recomendacion || "");
-    } catch (e: unknown) {
-
-      setError(((e as Error)?.message) || "Error en la búsqueda");
+    } catch (e: any) {
+      console.error("Error buscando:", e);
+      setError(e?.message || "Error en la búsqueda");
     } finally {
       setSearching(false);
       setSearchDone(true);
@@ -98,9 +97,9 @@ export default function ProspeccionPage() {
       });
       if (insertErr) throw insertErr;
       setSavedIdxs(prev => [...prev, idx]);
-    } catch (e: unknown) {
-
-      flash("err", "Error: " + (((e as Error)?.message) || "No se pudo guardar"));
+    } catch (e: any) {
+      console.error("Error guardando:", e);
+      flash("err", "Error: " + (e?.message || "No se pudo guardar"));
     } finally {
       setSavingIdx(null);
     }
@@ -108,11 +107,11 @@ export default function ProspeccionPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
-          <AriaBackButton href="/dashboard/requisiciones" />
+          <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>
         </div>
         <p className="text-xs text-slate-400 mb-2 ml-7">Busca proveedores por producto o categoría. ARIA busca en tu base de datos y en la web con IA.</p>
@@ -145,7 +144,7 @@ export default function ProspeccionPage() {
 
         {searching && (
           <div className="flex flex-col items-center justify-center h-full">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-400 mb-3"/>
+            <Loader2 className="w-8 h-8 animate-spin text-aria-accent mb-3"/>
             <p className="text-white font-medium">Buscando proveedores de &quot;{searchTerm}&quot;...</p>
             <p className="text-slate-400 text-xs mt-1">La IA está buscando en la web, puede tomar 15-30 segundos</p>
           </div>
@@ -174,7 +173,7 @@ export default function ProspeccionPage() {
                     <div key={s.id} className="flex items-center gap-3 px-3 py-2 bg-emerald-500/[0.05] border border-emerald-500/10 rounded-lg text-xs">
                       <Building2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"/>
                       <span className="text-white font-medium flex-1">{s.name}</span>
-                      {getCatDisplay(s.categories).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-400 rounded">{c}</span>)}
+                      {getCatDisplay(s.categories).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}
                       {s.phone&&<span className="text-slate-400">{s.phone}</span>}
                       <Link href="/dashboard/requisiciones/proveedores" className="text-emerald-400 hover:text-emerald-300 text-[10px]">Ver →</Link>
                     </div>

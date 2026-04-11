@@ -1,15 +1,14 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, ArrowLeft, Sparkles, ExternalLink
 } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 type Requisition = {
   id: number;
@@ -62,7 +61,7 @@ export default function ComprasTramitePage() {
   
   const [buscandoIA, setBuscandoIA] = useState(false);
   const [solicitando, setSolicitando] = useState(false);
-  const [resultadoSolicitud, setResultadoSolicitud] = useState<Record<string, unknown> | null>(null);
+  const [resultadoSolicitud, setResultadoSolicitud] = useState<any>(null);
   const [proveedoresIA, setProveedoresIA] = useState<ProveedorIA[]>([]);
 
   // COTIZACIONES POR MATERIAL (hasta 5 por item)
@@ -80,9 +79,9 @@ export default function ComprasTramitePage() {
     });
   };
 
-  const initQuotes = (itemsList: RequisitionItem[]) => {
+  const initQuotes = (itemsList: any[]) => {
     const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
-    itemsList.forEach((item: RequisitionItem) => {
+    itemsList.forEach((item: any) => {
       q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
     });
     setItemQuotes(q);
@@ -134,7 +133,7 @@ export default function ComprasTramitePage() {
     initQuotes(data || []);
     
     const init: Record<number, { price: number; supplier: string }> = {};
-    (data || []).forEach((item: RequisitionItem) => {
+    (data || []).forEach((item: any) => {
       init[item.id] = { price: item.selected_price || 0, supplier: item.selected_supplier || "" };
     });
     setPrices(init);
@@ -254,11 +253,11 @@ Responde SOLO con JSON así:
             setProveedoresIA(parsed.slice(0, 5));
           }
         } catch (e) {
-
+          console.error("Error parsing:", e);
         }
       }
     } catch (e) {
-
+      console.error(e);
     } finally {
       setBuscandoIA(false);
     }
@@ -362,8 +361,11 @@ Responde SOLO con JSON así:
   if (!selectedReq) {
     return (
       <div className="space-y-4">
+        <FlashBanner msg={msg} className="mx-0 mb-2" />
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
             <p className="text-slate-500 text-sm">{requisiciones.length} pendientes</p>
@@ -398,7 +400,7 @@ Responde SOLO con JSON así:
 
   return (
     <div className="max-w-7xl mx-auto space-y-3 text-sm">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
         <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
           <ArrowLeft className="w-4 h-4 text-slate-400" />
@@ -410,7 +412,7 @@ Responde SOLO con JSON así:
       </div>
 
       {loadingItems ? (
-        <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-400" /></div>
+        <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" /></div>
       ) : (
         <>
           {/* Proveedores */}
@@ -421,7 +423,7 @@ Responde SOLO con JSON así:
                 Proveedores Relevantes ({relevantSuppliers.length})
               </h3>
               <button onClick={buscarConARIA} disabled={buscandoIA}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-medium flex items-center gap-1.5">
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-aria-primary text-white text-xs font-medium flex items-center gap-1.5">
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                 {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
@@ -472,14 +474,14 @@ Responde SOLO con JSON así:
           {resultadoSolicitud && (
             <div className={"p-3 rounded-xl border " + (resultadoSolicitud.error ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30")}>
               {resultadoSolicitud.error ? (
-                <p className="text-red-400 text-xs">{String(resultadoSolicitud.error || "")}</p>
+                <p className="text-red-400 text-xs">{resultadoSolicitud.error}</p>
               ) : (
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-emerald-400 font-medium">Solicitud enviada</span>
-                  <span className="text-white">Emails: {String(resultadoSolicitud.emailsSent || "")}</span>
-                  <span className="text-white">WhatsApp: {String(resultadoSolicitud.whatsappSent || "")}</span>
-                  <span className="text-slate-400">de {String(resultadoSolicitud.totalProveedores || "")} proveedores</span>
-                  {Array.isArray(resultadoSolicitud.errors) && <span className="text-amber-400">{(resultadoSolicitud.errors as unknown[]).length} errores</span>}
+                  <span className="text-white">Emails: {resultadoSolicitud.emailsSent}</span>
+                  <span className="text-white">WhatsApp: {resultadoSolicitud.whatsappSent}</span>
+                  <span className="text-slate-400">de {resultadoSolicitud.totalProveedores} proveedores</span>
+                  {resultadoSolicitud.errors && <span className="text-amber-400">{resultadoSolicitud.errors.length} errores</span>}
                 </div>
               )}
             </div>

@@ -2,19 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("REGISTRAR-ENTREGA");
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-
-interface MaterialItem {
-  product_name?: string;
-  producto?: string;
-  quantity?: number;
-  cantidad_recibida?: number;
-  unit?: string;
-  unidad?: string;
-}
 
 async function sendEmail(to: string, subject: string, html: string) {
   try {
@@ -26,7 +16,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e) { log.error("Error email:", e); }
 }
 
-async function actualizarInventario(obraId: number, obraNombre: string, materiales: MaterialItem[]): Promise<number> {
+async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {
   let itemsActualizados = 0;
 
   for (const mat of materiales) {
@@ -70,13 +60,6 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
 }
 
 export async function POST(req: NextRequest) {
-  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "requisicion:registrar-entrega", max: 20, windowMs: 60_000 });
-  if (!rl.allowed) {
-    return rateLimitResponse(rl);
-  }
-
   try {
     const body = await req.json();
     const {
@@ -194,8 +177,8 @@ export async function POST(req: NextRequest) {
       inventario_actualizado: itemsInventario,
       obra_id_usado: obraIdFinal
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("[REGISTRAR-ENTREGA]", error);
-    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

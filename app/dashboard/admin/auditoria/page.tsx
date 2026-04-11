@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import BackButton from "@/components/BackButton";
-import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type Tab = "audit" | "deleted";
 
@@ -14,15 +14,15 @@ interface AuditRow {
   row_pk: string | null;
   actor: string | null;
   changed_at: string;
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
+  before: any;
+  after: any;
 }
 
 interface DeletedRow {
   id: string;
   source_table: string;
   source_id: string;
-  data: Record<string, unknown>;
+  data: any;
   deleted_by: string | null;
   deleted_at: string;
   restore_notes: string | null;
@@ -31,6 +31,7 @@ interface DeletedRow {
 const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
 
 export default function AuditoriaPage() {
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [tab, setTab] = useState<Tab>("audit");
   const [loading, setLoading] = useState(true);
   const [audit, setAudit] = useState<AuditRow[]>([]);
@@ -42,7 +43,6 @@ export default function AuditoriaPage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [restoring, setRestoring] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => {
     (async () => {
@@ -114,8 +114,8 @@ export default function AuditoriaPage() {
           if (!resp.ok) throw new Error(j.error || "Error al restaurar");
           setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
           cargar();
-        } catch (e: unknown) {
-          setMsg({ tipo: "err", texto: (e as Error).message });
+        } catch (e: any) {
+          setMsg({ tipo: "err", texto: e.message });
         } finally {
           setRestoring(null);
         }
@@ -144,8 +144,8 @@ export default function AuditoriaPage() {
           if (!resp.ok) throw new Error(j.error || "Error al revertir");
           setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
           cargar();
-        } catch (e: unknown) {
-          setMsg({ tipo: "err", texto: (e as Error).message });
+        } catch (e: any) {
+          setMsg({ tipo: "err", texto: e.message });
         } finally {
           setRestoring(null);
         }
@@ -172,13 +172,13 @@ export default function AuditoriaPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BackButton />
-            <Database className="w-6 h-6 text-blue-400" />
+            <Database className="w-6 h-6 text-aria-accent" />
             <div>
               <h1 className="text-xl font-bold">Auditoría y Respaldos</h1>
               <p className="text-xs text-white/50">Historial perpetuo de cambios · {audit.length} eventos · {deleted.length} registros borrados</p>
             </div>
           </div>
-          <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-sm">
+          <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-sm">
             <RefreshCw className="w-4 h-4" /> Refrescar
           </button>
         </div>
@@ -186,13 +186,13 @@ export default function AuditoriaPage() {
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={() => setTab("audit")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "audit" ? "bg-blue-600 text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "audit" ? "bg-aria-primary text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
           >
             Cambios (audit_log)
           </button>
           <button
             onClick={() => setTab("deleted")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "deleted" ? "bg-blue-600 text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "deleted" ? "bg-aria-primary text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
           >
             Registros borrados (deleted_records)
           </button>
@@ -205,7 +205,7 @@ export default function AuditoriaPage() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar por tabla, usuario, ID, contenido..."
-              className="w-full pl-10 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none focus:border-blue-500"
+              className="w-full pl-10 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none focus:border-aria-primary"
             />
           </div>
           <select value={tabla} onChange={(e) => setTabla(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none">
@@ -335,7 +335,10 @@ export default function AuditoriaPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

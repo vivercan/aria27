@@ -114,9 +114,6 @@ export default function LoginPage() {
     }
 
     // PASO 3: Login exitoso — cargar role y permisos ANTES de redirigir
-    // ⚠️ DEUDA TÉCNICA S-01/S-04 (aceptada D-07): credenciales en localStorage/sessionStorage
-    // XSS podría exfiltrar datos. Migrar a Supabase Auth + JWT en sprint futuro.
-    // Ref: MEGA-AUDIT-12-BLOQUES-10ABR2026.html
     localStorage.setItem('userEmail', emailLower)
     sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
     if (rememberMe) {

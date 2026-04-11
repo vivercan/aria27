@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
@@ -38,7 +37,6 @@ const FORM_INIT = {
 };
 
 function BitacoraContent() {
-  const { msg, flash, clear } = useFlashMessage();
   const sp = useSearchParams();
   const obraQuery = sp.get("obra") || "";
   const [obras, setObras] = useState<Obra[]>([]);
@@ -47,6 +45,7 @@ function BitacoraContent() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ ...FORM_INIT });
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     (async () => {
@@ -62,7 +61,7 @@ function BitacoraContent() {
     let q = supabase.from("bitacora_obra").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(200);
     if (obraSel) q = q.eq("obra_nombre", obraSel);
     const { data, error } = await q;
-    
+    if (error) console.error(error.message);
     setEntradas((data as any) || []);
     setLoading(false);
   }
@@ -94,6 +93,7 @@ function BitacoraContent() {
     setForm({ ...FORM_INIT });
     setShowForm(false);
     loadEntradas();
+    flash("ok", "Entrada registrada exitosamente");
   }
 
   const totalEntradas = entradas.length;
@@ -102,10 +102,12 @@ function BitacoraContent() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-amber-400" /> Bitácora de Obra
@@ -134,7 +136,7 @@ function BitacoraContent() {
           </div>
           <div className="p-4 bg-white/5 rounded-xl border border-white/10">
             <p className="text-sm text-slate-400">Personal promedio</p>
-            <p className="text-2xl font-bold text-blue-400">{personalProm}</p>
+            <p className="text-2xl font-bold text-aria-accent">{personalProm}</p>
           </div>
           <div className="p-4 bg-white/5 rounded-xl border border-white/10">
             <p className="text-sm text-slate-400">Días con incidentes</p>
@@ -205,7 +207,7 @@ function BitacoraContent() {
                 <p className="text-xs text-slate-400">{e.obra_nombre} · {e.residente_nombre || "—"} · {e.hora_registro || ""}</p>
               </div>
               <div className="flex items-center gap-3 text-xs">
-                {e.clima && <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 rounded"><Cloud className="w-3 h-3" />{e.clima}</span>}
+                {e.clima && <span className="inline-flex items-center gap-1 px-2 py-1 bg-aria-primary-light text-aria-accent rounded"><Cloud className="w-3 h-3" />{e.clima}</span>}
                 {e.personal_en_obra !== null && <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded"><Users className="w-3 h-3" />{e.personal_en_obra}</span>}
                 {e.fotos && e.fotos.length > 0 && <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded"><Camera className="w-3 h-3" />{e.fotos.length}</span>}
               </div>

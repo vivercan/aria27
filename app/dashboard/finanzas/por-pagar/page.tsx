@@ -7,17 +7,6 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
-interface OCRow {
-  id?: string;
-  folio?: string;
-  supplier_name?: string;
-  total: number | string;
-  monto_pagado?: number | string;
-  created_at: string;
-  obra_nombre?: string;
-  dias_credito?: number | string;
-}
-
 interface CuentaPorPagar {
   id: string;
   folio: string;
@@ -33,7 +22,6 @@ interface CuentaPorPagar {
 }
 
 export default function PorPagarPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<CuentaPorPagar[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -44,6 +32,7 @@ export default function PorPagarPage() {
   const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
   const [pagoReferencia, setPagoReferencia] = useState("");
   const [pagoSaving, setPagoSaving] = useState(false);
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { loadData(); }, []);
 
@@ -52,33 +41,21 @@ export default function PorPagarPage() {
       const { data: ocs } = await supabase.from("purchase_orders").select("*").order("created_at", { ascending: false });
       const hoy = new Date();
 
-      const processed = (ocs || []).map((oc: OCRow) => {
-        const pagado = Number(oc.monto_pagado) || 0;
-        const total = Number(oc.total) || 0;
+      const processed = (ocs || []).map((oc: any) => {
+        const pagado = oc.monto_pagado || 0;
+        const total = oc.total || 0;
         const saldo = total - pagado;
-        const diasCredito = Number(oc.dias_credito) || 30;
+        const diasCredito = oc.dias_credito || 30;
         const fechaCreacion = new Date(oc.created_at);
         const fechaVenc = new Date(fechaCreacion);
         fechaVenc.setDate(fechaVenc.getDate() + diasCredito);
         const vencida = hoy > fechaVenc && saldo > 0;
 
-        return {
-          id: oc.id || "",
-          folio: oc.folio || "—",
-          supplier_name: oc.supplier_name || "—",
-          total,
-          monto_pagado: pagado,
-          saldo,
-          created_at: oc.created_at,
-          obra_nombre: oc.obra_nombre || "—",
-          dias_credito: diasCredito,
-          fecha_vencimiento: fechaVenc.toISOString(),
-          vencida
-        } as CuentaPorPagar;
-      }).filter((oc: CuentaPorPagar) => oc.saldo > 0);
+        return { ...oc, monto_pagado: pagado, saldo, dias_credito: diasCredito, fecha_vencimiento: fechaVenc.toISOString(), vencida };
+      }).filter((oc: any) => oc.saldo > 0);
 
-      setCuentas(processed as CuentaPorPagar[]);
-    } catch (e) { /* error handled */ }
+      setCuentas(processed);
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -123,8 +100,8 @@ export default function PorPagarPage() {
       });
       setPagoModal(null);
       await loadData();
-    } catch (e: unknown) {
-      flash("err", ((e as Error)?.message) || "Error desconocido al registrar pago");
+    } catch (e: any) {
+      flash("err", e?.message || "Error desconocido al registrar pago");
     } finally {
       setPagoSaving(false);
     }
@@ -132,7 +109,7 @@ export default function PorPagarPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 
@@ -144,7 +121,7 @@ export default function PorPagarPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total por Pagar", value: `$${totalPorPagar.toLocaleString()}`, icon: DollarSign, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Total por Pagar", value: `$${totalPorPagar.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Vencido", value: `$${totalVencido.toLocaleString()}`, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Cuentas Vencidas", value: vencidas.length, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Vigentes", value: porVencer.length, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -161,12 +138,12 @@ export default function PorPagarPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio o proveedor..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "VENCIDAS", "VIGENTES"].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
               {f}
             </button>
           ))}
@@ -191,7 +168,7 @@ export default function PorPagarPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin cuentas pendientes 🎉</td></tr>
               ) : filtered.map(c => {
@@ -246,13 +223,13 @@ export default function PorPagarPage() {
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
                 <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0" max={pagoModal.saldo}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
                 <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
               </div>
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Método de pago</label>
                 <select value={pagoMetodo} onChange={e => setPagoMetodo(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                   <option value="Transferencia">Transferencia</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Efectivo">Efectivo</option>
@@ -261,13 +238,13 @@ export default function PorPagarPage() {
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Referencia (opcional)</label>
                 <input type="text" value={pagoReferencia} onChange={e => setPagoReferencia(e.target.value)} placeholder="No. de referencia"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
               <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || Number(pagoMonto) <= 0}
-                className="flex-1 py-2.5 bg-blue-600 rounded-xl text-white text-sm font-medium hover:bg-blue-500 disabled:opacity-50">
+                className="flex-1 py-2.5 bg-aria-primary rounded-xl text-white text-sm font-medium hover:bg-aria-primary-hover disabled:opacity-50">
                 {pagoSaving ? "Guardando..." : "Confirmar"}
               </button>
             </div>

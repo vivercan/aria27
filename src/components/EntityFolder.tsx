@@ -91,7 +91,7 @@ export default function EntityFolder({
       .eq("activa", true)
       .order("orden", { ascending: true })
       .then(({ data }) => {
-        if (data && data.length > 0) setCategorias(data.map((r) => (r as { nombre: string }).nombre));
+        if (data && data.length > 0) setCategorias(data.map((r: any) => r.nombre));
       });
   }, []);
 
@@ -153,8 +153,8 @@ export default function EntityFolder({
       });
       flash("ok", `"${file.name}" subido`);
       cargar();
-    } catch (e: unknown) {
-      flash("err", (e instanceof Error ? e.message : String(e)) || "Error al subir");
+    } catch (e: any) {
+      flash("err", e?.message || "Error al subir");
     }
     setBusy(null);
   };
@@ -172,8 +172,8 @@ export default function EntityFolder({
       });
       flash("ok", "Documento eliminado");
       cargar();
-    } catch (e: unknown) {
-      flash("err", (e instanceof Error ? e.message : String(e)) || "Error al eliminar");
+    } catch (e: any) {
+      flash("err", e?.message || "Error al eliminar");
     }
     setBusy(null);
   };
@@ -215,8 +215,8 @@ export default function EntityFolder({
       }
       flash("ok", "Documento reemplazado");
       cargar();
-    } catch (e: unknown) {
-      flash("err", (e instanceof Error ? e.message : String(e)) || "Error al reemplazar");
+    } catch (e: any) {
+      flash("err", e?.message || "Error al reemplazar");
     }
     setBusy(null);
     setReplaceTarget(null);
@@ -279,7 +279,7 @@ export default function EntityFolder({
           <button
             onClick={() => fileRef.current?.click()}
             disabled={busy === "upload"}
-            className="px-3 py-1.5 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg text-xs font-medium flex items-center gap-1.5 disabled:opacity-50"
+            className="px-3 py-1.5 bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 rounded-lg text-xs font-medium flex items-center gap-1.5 disabled:opacity-50"
           >
             {busy === "upload" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
             Subir documento
@@ -307,7 +307,7 @@ export default function EntityFolder({
 
       <div className="p-3 max-h-80 overflow-y-auto">
         {loading ? (
-          <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-blue-400 mx-auto" /></div>
+          <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-aria-accent mx-auto" /></div>
         ) : docs.length === 0 ? (
           <p className="text-center text-xs text-slate-500 py-6">Sin documentos. Sube el primero con "Subir documento".</p>
         ) : (
@@ -331,7 +331,7 @@ export default function EntityFolder({
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Ver"
-                  className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded"
+                  className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded"
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </a>

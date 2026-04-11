@@ -1,6 +1,5 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 // ============================================================
 // API: POST /api/inventario/validar
@@ -9,14 +8,6 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 // 2. Busca fuzzy match en catálogo existente
 // 3. Valida con Claude Haiku que es material de construcción real
 // ============================================================
-
-interface Product {
-  id: string;
-  name: string;
-  unit?: string;
-  category?: string;
-  similarity?: number;
-}
 
 function toTitleCase(str: string): string {
   const exceptions = ["de", "del", "la", "las", "los", "el", "en", "a", "y", "o", "por", "para", "con"];
@@ -50,11 +41,7 @@ function levenshtein(a: string, b: string): number {
   return d[m][n];
 }
 
-export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "inventario:validar", ...RATE_LIMITS.WRITE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
+export async function POST(req: Request) {
   try {
     const email = req.headers.get("x-user-email");
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -76,11 +63,11 @@ export async function POST(req: NextRequest) {
       .select("id, name, unit, category")
       .limit(500);
 
-    let matchExacto: Product | null = null;
-    let sugerencias: Product[] = [];
+    let matchExacto: any = null;
+    let sugerencias: any[] = [];
 
     if (productos && productos.length > 0) {
-      for (const p of productos as Product[]) {
+      for (const p of productos) {
         const pLower = p.name.toLowerCase();
         if (pLower === nombreLower) {
           matchExacto = p;
@@ -93,7 +80,7 @@ export async function POST(req: NextRequest) {
           sugerencias.push({ ...p, similarity: Math.round(similarity * 100) });
         }
       }
-      sugerencias.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
+      sugerencias.sort((a, b) => b.similarity - a.similarity);
       sugerencias = sugerencias.slice(0, 5);
     }
 

@@ -5,8 +5,6 @@ import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -29,7 +27,6 @@ const TIPO_MAP: Record<string, string> = {
 
 export default function NewRequisitionPage() {
   const router = useRouter();
-  const { msg, flash, clear } = useFlashMessage();
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [selectedCostCenterId, setSelectedCostCenterId] = useState<string | null>(null);
   const [requiredDate, setRequiredDate] = useState("");
@@ -146,7 +143,7 @@ export default function NewRequisitionPage() {
     if (!center) return;
     setSending(true);
 
-    let materiales: Record<string, unknown>[] = [];
+    let materiales: any[] = [];
     if (formMode === "catalogo") {
       const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
       if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad > 0."); setSending(false); return; }
@@ -172,12 +169,10 @@ export default function NewRequisitionPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      flash("ok", "Requisición " + data.folio + " generada correctamente");
       setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
       setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments("");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
-      flash("err", "Error: " + (err instanceof Error ? err?.message : "desconocido"));
       setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición.");
     } finally { setSending(false); }
   };
@@ -186,7 +181,6 @@ export default function NewRequisitionPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
@@ -234,7 +228,7 @@ export default function NewRequisitionPage() {
           {/* INDICADOR DE MODO */}
           {subcategoria && (
             <div className={`mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${
-              formMode === "catalogo" ? "bg-blue-500/10 text-blue-300" :
+              formMode === "catalogo" ? "bg-aria-primary/10 text-aria-accent" :
               formMode === "combustible" ? "bg-amber-500/10 text-amber-300" :
               "bg-violet-500/10 text-violet-300"
             }`}>
@@ -256,7 +250,7 @@ export default function NewRequisitionPage() {
                 {searching && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
               <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-[#0a1628] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
+                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-aria-bg px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
                   <div>Cat</div><div>Descripción</div><div className="text-right">Unidad</div>
                 </div>
                 {searchResults.length === 0 ? (
@@ -275,20 +269,20 @@ export default function NewRequisitionPage() {
               </div>
               {/* AGREGAR PRODUCTO MANUAL */}
               {!showManual ? (
-                <button onClick={() => setShowManual(true)} className="mt-3 flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition">
+                <button onClick={() => setShowManual(true)} className="mt-3 flex items-center gap-2 text-xs text-aria-accent hover:text-aria-accent transition">
                   <Plus className="w-3 h-3" /> ¿No encontraste el producto? Agregar manualmente
                 </button>
               ) : (
-                <div className="mt-3 rounded-xl border border-blue-500/30 bg-blue-500/5 p-3 space-y-2">
-                  <p className="text-xs text-blue-300 font-medium">Agregar producto manual</p>
+                <div className="mt-3 rounded-xl border border-aria-primary/30 bg-aria-primary/5 p-3 space-y-2">
+                  <p className="text-xs text-aria-accent font-medium">Agregar producto manual</p>
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div className="space-y-1">
                       <label className="text-[10px] text-white/50">Nombre del producto</label>
-                      <input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-blue-400" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
+                      <input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Tornillo galvanizado 3/8..." value={manualName} onChange={e => setManualName(e.target.value)} />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-white/50">Unidad</label>
-                      <select className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-blue-400" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
+                      <select className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-1.5 text-sm outline-none focus:border-aria-accent" value={manualUnit} onChange={e => setManualUnit(e.target.value)}>
                         {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
@@ -298,7 +292,7 @@ export default function NewRequisitionPage() {
                         setMaterials(prev => [...prev, { id: manualTempId, name: manualName.trim(), unit: manualUnit || "PZA", qty: 1, observations: "" }]);
                         setManualTempId(prev => prev - 1);
                         setManualName(""); setManualUnit("PZA");
-                      }} disabled={!manualName.trim()} className="rounded-lg bg-blue-500/30 px-3 py-1.5 text-xs text-blue-300 hover:bg-blue-500/40 disabled:opacity-40 transition">
+                      }} disabled={!manualName.trim()} className="rounded-lg bg-aria-primary/30 px-3 py-1.5 text-xs text-aria-accent hover:bg-aria-primary-hover/40 disabled:opacity-40 transition">
                         <Plus className="w-3 h-3 inline mr-1" />Agregar
                       </button>
                       <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-white/5 px-2 py-1.5 text-xs text-white/50 hover:bg-white/10 transition">✕</button>

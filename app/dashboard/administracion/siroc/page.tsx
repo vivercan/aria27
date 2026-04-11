@@ -1,16 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { uploadAndInsert, uploadAndUpdate, deleteRowAndBlob, buildPath } from "@/lib/storage";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Plus, Edit2, Trash2, X, Save, Loader2,
+  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
   Search, Building2, ClipboardList
 } from "lucide-react";
 
@@ -44,7 +41,7 @@ const BIMESTRE_OPTIONS = [
 
 const ESTATUS_OPTIONS = [
   { value: "pendiente", label: "Pendiente", color: "bg-amber-500/20 text-amber-400" },
-  { value: "registrado", label: "Registrado", color: "bg-blue-500/20 text-blue-400" },
+  { value: "registrado", label: "Registrado", color: "bg-aria-primary-light text-aria-accent" },
   { value: "actualizado", label: "Actualizado", color: "bg-emerald-500/20 text-emerald-400" },
 ];
 
@@ -69,7 +66,6 @@ export default function SIROCPage() {
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     supabase.from("centros_trabajo").select("id,nombre").order("nombre").then(({ data }) => { if (data) setObras(data); });
@@ -114,13 +110,11 @@ export default function SIROCPage() {
         if (form.file) {
           const path = buildPath({ module: "siroc", scope: [form.obra_id, form.bimestre], file: form.file });
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "siroc", payload: basePayload, urlField: "documento_url" });
-          flash("ok", "Guardado correctamente");
         } else {
           const { error } = await supabase.from("siroc").insert({ ...basePayload, documento_url: form.documento_url || null });
           if (error) throw new Error(error.message);
-          flash("ok", "Guardado correctamente");
         }
-        setShowForm(false); cargar();
+        msg("success", "Registro registrado"); setShowForm(false); cargar();
       } else {
         const newPath = form.file ? buildPath({ module: "siroc", scope: [form.obra_id, form.bimestre], file: form.file }) : undefined;
         await uploadAndUpdate({
@@ -130,10 +124,10 @@ export default function SIROCPage() {
           oldUrl: form.documento_url || null,
           urlField: "documento_url",
         });
-        flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar();
+        msg("success", "Registro actualizado"); setShowForm(false); setEditId(null); cargar();
       }
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
+    } catch (e: any) {
+      msg("error", e?.message || "Error");
     }
     setGuardando(false);
   };
@@ -154,8 +148,8 @@ export default function SIROCPage() {
   const confirmDelete = async () => {
     try {
       const r = await deleteRowAndBlob({ table: "siroc", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
-      flash(r.blobDeleted ? "ok" : "err", r.blobDeleted ? "Eliminado correctamente" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: unknown) { flash("err", "Error: " + (((e as Error)?.message) || "desconocido")); }
+      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 
@@ -171,28 +165,27 @@ export default function SIROCPage() {
     return true;
   });
 
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/administracion" />
+          <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <div><h1 className="text-xl font-bold text-white">SIROC / Registro IMSS</h1><p className="text-xs text-slate-400">{registros.length} registros</p></div>
         </div>
-        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nuevo Registro</button>
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover"><Plus className="w-4 h-4" /> Nuevo Registro</button>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3"><p className="text-blue-400 text-2xl font-bold">{totalRegistros}</p><p className="text-blue-400/70 text-xs">Total Registros</p></div>
+        <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalRegistros}</p><p className="text-aria-accent/70 text-xs">Total Registros</p></div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{registrados}</p><p className="text-emerald-400/70 text-xs">Registrados</p></div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3"><p className="text-amber-400 text-2xl font-bold">{pendientes}</p><p className="text-amber-400/70 text-xs">Pendientes</p></div>
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
-        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar registro, bimestre..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" /></div>
-        <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
+        <div className="relative flex-1 max-w-xs"><Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" /><input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar registro, bimestre..." className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" /></div>
+        <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
       </div>
 
       {mensaje && (<div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>{mensaje.texto}</div>)}
@@ -209,7 +202,7 @@ export default function SIROCPage() {
             <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
           </tr></thead>
           <tbody>
-            {loading ? (<tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+            {loading ? (<tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : filtrados.length === 0 ? (<tr><td colSpan={7} className="p-8 text-center"><ClipboardList className="w-10 h-10 text-slate-600 mx-auto mb-2" /><p className="text-slate-500 text-sm">{registros.length === 0 ? "No hay registros" : "Sin resultados"}</p></td></tr>
             ) : filtrados.map(s => (
               <tr key={s.id} className="border-b border-white/5 hover:bg-white/[0.02]">
@@ -220,7 +213,7 @@ export default function SIROCPage() {
                 <td className="p-3 text-center text-sm text-white">{s.incidencias || 0}</td>
                 <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getEstatus(s.estatus)?.color || "bg-slate-500/20 text-slate-400"}`}>{getEstatus(s.estatus)?.label || s.estatus}</span></td>
                 <td className="p-3 text-center"><div className="flex items-center justify-center gap-1">
-                  <button onClick={() => editar(s)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => editar(s)} className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><Edit2 className="w-3.5 h-3.5" /></button>
                   {canDelete && <button onClick={() => setDeleteModal({ open: true, id: s.id, name: s.numero_registro })} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>}
                 </div></td>
               </tr>
@@ -257,7 +250,7 @@ export default function SIROCPage() {
             </div>
             <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
-              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:opacity-50">{guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}{editId ? "Actualizar" : "Registrar"}</button>
+              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white hover:bg-aria-primary-hover text-sm disabled:opacity-50">{guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}{editId ? "Actualizar" : "Registrar"}</button>
             </div>
           </div>
         </div>

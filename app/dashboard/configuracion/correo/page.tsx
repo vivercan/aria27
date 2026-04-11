@@ -10,8 +10,8 @@ const emailTemplates = [
     trigger: "Al crear una requisición nueva",
     recipients: "Creador + Compras + Dirección (según flujo)",
     icon: FileText,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
+    color: "text-aria-accent",
+    bg: "bg-aria-primary/10",
     description: "Notifica al creador, solicita cotización a Compras o autorización a Dirección según la subcategoría del producto.",
   },
   {
@@ -133,7 +133,7 @@ export default function CorreoPage() {
       {/* Test email */}
       <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <TestTube className="w-5 h-5 text-blue-400" />
+          <TestTube className="w-5 h-5 text-aria-accent" />
           <div>
             <p className="text-sm text-white font-medium">Enviar email de prueba</p>
             <p className="text-xs text-slate-400">Verifica que la configuración de Resend funcione correctamente</p>
@@ -146,7 +146,7 @@ export default function CorreoPage() {
           <button
             onClick={sendTestEmail}
             disabled={testSending}
-            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm font-medium hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-lg text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors disabled:opacity-50"
           >
             {testSending ? "Enviando..." : "Enviar Prueba"}
           </button>

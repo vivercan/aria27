@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { validateApiUser } from "@/lib/auth-api";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 // Whitelist duro de admins. Unica fuente de verdad server-side para este panel.
 const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
@@ -28,10 +27,6 @@ async function requireAdmin(req: NextRequest): Promise<{ ok: true; email: string
 }
 
 export async function GET(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "admin:roles", ...RATE_LIMITS.WRITE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 
@@ -45,21 +40,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "admin:roles", ...RATE_LIMITS.WRITE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 
-  let body: Record<string, unknown>;
+  let body: any;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
 
   const { id, role, permissions, email: newEmail, phone } = body || {};
   if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
   const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
-  if (role && !ALLOWED_ROLES.includes(String(role))) {
+  if (role && !ALLOWED_ROLES.includes(role)) {
     return NextResponse.json({ error: `rol invalido: ${role}` }, { status: 400 });
   }
   if (permissions && (typeof permissions !== "object" || Array.isArray(permissions))) {
@@ -73,9 +64,9 @@ export async function PATCH(req: NextRequest) {
   }
 
   const sb = getSupabaseAdmin();
-  const patch: Record<string, string | Record<string, unknown>> = {};
+  const patch: any = {};
   if (typeof role === "string") patch.role = role;
-  if (permissions !== undefined) patch.permissions = permissions as Record<string, unknown>;
+  if (permissions !== undefined) patch.permissions = permissions;
   if (typeof newEmail === "string" && newEmail.trim()) patch.email = newEmail.trim();
   if (typeof phone === "string") patch.phone = phone.trim();
 

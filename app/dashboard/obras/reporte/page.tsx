@@ -3,43 +3,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2 } from "lucide-react";
-import { fmt } from "@/lib/format-utils";
 
-interface PresupuestoPartida {
-  categoria?: string;
-  importe: number | string;
-}
-
-interface Requisition {
-  id: string;
-  folio: string;
-}
-
-interface PurchaseOrder {
-  folio?: string;
-  supplier_name?: string;
-  total: number | string;
-  status?: string;
-  requisition_id?: string;
-}
-
-const toPurchaseOrderDTO = (p: PurchaseOrder): { folio: string; supplier: string; total: number; status: string } => ({
-  folio: p.folio || "—",
-  supplier: p.supplier_name || "—",
-  total: Number(p.total) || 0,
-  status: p.status || "—",
-});
-
-interface NominaHistorico {
-  sueldo_neto: number | string;
-}
-
-interface CobroManual {
-  cliente_nombre?: string;
-  monto: number | string;
-  saldo: number | string;
-  estatus?: string;
-}
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 interface Datos {
   presupuestoCat: Record<string, number>;
@@ -83,9 +48,9 @@ function ReporteContent() {
         .eq("obra_nombre", obra);
       const presupuestoCat: Record<string, number> = {};
       CATS.forEach(c => presupuestoCat[c] = 0);
-      (pp || []).forEach((p: PresupuestoPartida) => {
+      (pp || []).forEach((p: any) => {
         const c = p.categoria || "OTROS";
-        presupuestoCat[c] = (presupuestoCat[c] || 0) + Number(p.importe || 0);
+        presupuestoCat[c] = (presupuestoCat[c] || 0) + (p.importe || 0);
       });
       const presupuesto = Object.values(presupuestoCat).reduce((s, v) => s + v, 0);
 
@@ -94,7 +59,7 @@ function ReporteContent() {
         .from("requisitions")
         .select("id,folio")
         .eq("cost_center_name", obra);
-      const reqIds = (rqData || []).map((r: Requisition) => r.id);
+      const reqIds = (rqData || []).map((r: any) => r.id);
 
       // OCs ligadas
       let topOCs: Datos["topOCs"] = [];
@@ -106,8 +71,13 @@ function ReporteContent() {
           .in("requisition_id", reqIds)
           .neq("status", "CANCELADA")
           .order("total", { ascending: false });
-        gastoOC = (pos || []).reduce((s: number, p: PurchaseOrder) => s + Number(p.total || 0), 0);
-        topOCs = (pos || []).slice(0, 5).map(toPurchaseOrderDTO);
+        gastoOC = (pos || []).reduce((s: number, p: any) => s + (p.total || 0), 0);
+        topOCs = (pos || []).slice(0, 5).map((p: any) => ({
+          folio: p.folio || "—",
+          supplier: p.supplier_name || "—",
+          total: p.total || 0,
+          status: p.status || "—",
+        }));
       }
 
       // Nómina
@@ -116,7 +86,7 @@ function ReporteContent() {
         .select("sueldo_neto")
         .eq("obra", obra)
         .eq("status", "CONFIRMADA");
-      const gastoNomina = (nom || []).reduce((s: number, n: NominaHistorico) => s + Number(n.sueldo_neto || 0), 0);
+      const gastoNomina = (nom || []).reduce((s: number, n: any) => s + (n.sueldo_neto || 0), 0);
       const totalNominaRecs = (nom || []).length;
 
       // Cobros
@@ -126,9 +96,9 @@ function ReporteContent() {
         .eq("obra_nombre", obra)
         .neq("estatus", "CANCELADO")
         .order("monto", { ascending: false });
-      const cobrado = (cobros || []).reduce((s: number, c: CobroManual) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-      const porCobrar = (cobros || []).reduce((s: number, c: CobroManual) => s + (Number(c.saldo) || 0), 0);
-      const topCobros = (cobros || []).slice(0, 5).map((c: CobroManual) => ({
+      const cobrado = (cobros || []).reduce((s: number, c: any) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+      const porCobrar = (cobros || []).reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
+      const topCobros = (cobros || []).slice(0, 5).map((c: any) => ({
         cliente: c.cliente_nombre || "—",
         monto: Number(c.monto) || 0,
         saldo: Number(c.saldo) || 0,
@@ -147,7 +117,7 @@ function ReporteContent() {
 
       const gastoTotal = gastoOC + gastoNomina;
       const margen = cobrado - gastoTotal;
-      const avance = presupuesto > 0 ? (gastoTotal / Number(presupuesto)) * 100 : 0;
+      const avance = presupuesto > 0 ? (gastoTotal / presupuesto) * 100 : 0;
       const saldo = presupuesto - gastoTotal;
       const deltaFisFin = pctFisico !== null && presupuesto > 0 ? (pctFisico - avance) : null;
 
@@ -158,7 +128,7 @@ function ReporteContent() {
         topOCs, topCobros, totalNominaRecs,
       });
     } catch (e) {
-
+      console.error(e);
     }
     setLoading(false);
   }
@@ -167,7 +137,7 @@ function ReporteContent() {
     return <div className="p-8 text-center text-slate-400">Falta parámetro <code>?obra=NOMBRE</code></div>;
   }
   if (loading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
   }
   if (!datos) {
     return <div className="p-8 text-center text-slate-400">Sin datos para {obra}</div>;
@@ -189,7 +159,7 @@ function ReporteContent() {
       {/* Toolbar (oculta en print) */}
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="text-white text-sm">Reporte ejecutivo · <b>{obra}</b></div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm">
           <Printer className="w-4 h-4" /> Imprimir / Guardar PDF
         </button>
       </div>
@@ -383,7 +353,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function ReporteObraPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}>
       <ReporteContent />
     </Suspense>
   );

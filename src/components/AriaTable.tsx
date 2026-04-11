@@ -75,7 +75,7 @@ export default function AriaTable({
           {loading ? (
             <tr>
               <td colSpan={colCount} className="py-16 text-center">
-                <Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" />
+                <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />
               </td>
             </tr>
           ) : empty ? (

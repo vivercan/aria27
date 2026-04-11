@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "whatsapp:test", ...RATE_LIMITS.EXPENSIVE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     const body = await req.json();
     const { template, params, phone } = body || {};
@@ -25,9 +20,9 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result, { status: result.success ? 200 : 500 });
-  } catch (e: unknown) {
+  } catch (e: any) {
     return NextResponse.json(
-      { success: false, error: ((e as Error)?.message) || "Error desconocido" },
+      { success: false, error: e?.message || "Error desconocido" },
       { status: 500 }
     );
   }

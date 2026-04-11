@@ -4,8 +4,6 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { Presentation, Search, Plus, Eye, Copy, Loader2, DollarSign, Calendar, X, Save, Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -35,7 +33,7 @@ export default function PropuestasPage() {
   const [form, setForm] = useState<any>({ ...EMPTY });
   const [editId, setEditId] = useState<string | null>(null);
   const [obras, setObras] = useState<string[]>([]);
-  const { msg, flash, clear } = useFlashMessage();
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); }, []);
@@ -51,6 +49,10 @@ export default function PropuestasPage() {
     setObras((data || []).map(o => o.nombre));
   };
 
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -68,10 +70,10 @@ export default function PropuestasPage() {
 
     if (editId) {
       const { error } = await supabase.from("propuestas_licitacion").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Propuesta actualizada"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("propuestas_licitacion").insert(payload);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Propuesta creada"); setShowForm(false); cargar(); }
     }
     setForm({ ...EMPTY });
     setGuardando(false);
@@ -86,7 +88,7 @@ export default function PropuestasPage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
-    if (error) flash("err", error?.message ?? "Error"); else { flash("ok", "Propuesta eliminada"); cargar(); }
+    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Propuesta eliminada"); cargar(); }
   };
 
   const filtered = propuestas.filter(p =>
@@ -95,7 +97,7 @@ export default function PropuestasPage() {
 
   const estadoColors: Record<string, string> = {
     borrador: "bg-gray-500/20 text-gray-300",
-    enviada: "bg-blue-500/20 text-blue-300",
+    enviada: "bg-aria-primary-light text-aria-accent",
     aprobada: "bg-emerald-500/20 text-emerald-300",
     rechazada: "bg-red-500/20 text-red-300",
     en_revision: "bg-amber-500/20 text-amber-300",
@@ -103,17 +105,18 @@ export default function PropuestasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "propuestas_licitacion", id: deleteModal.id, userEmail });
-      flash("ok", "Eliminado correctamente");
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
-    }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <AriaBackButton href="/dashboard/plantillas" />
 
@@ -122,7 +125,7 @@ export default function PropuestasPage() {
           <h1 className="text-2xl font-bold text-white">Propuestas de Licitación</h1>
           <p className="text-slate-400 text-sm">Paquetes de propuestas y licitaciones</p>
         </div>
-        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Propuesta
         </button>
       </div>
@@ -137,17 +140,17 @@ export default function PropuestasPage() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
-                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre de la propuesta" />
+                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Nombre de la propuesta" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Cliente</label>
-                  <input value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre del cliente" />
+                  <input value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Nombre del cliente" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Obra</label>
-                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     <option value="">Seleccionar obra</option>
                     {obras.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
@@ -156,20 +159,20 @@ export default function PropuestasPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Monto Estimado</label>
-                  <input type="number" value={form.monto_estimado} onChange={e => setForm({ ...form, monto_estimado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="0.00" />
+                  <input type="number" value={form.monto_estimado} onChange={e => setForm({ ...form, monto_estimado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Estado</label>
-                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     {ESTADOS.map(e => <option key={e} value={e}>{e.charAt(0).toUpperCase() + e.slice(1).replace("_", " ")}</option>)}
                   </select>
                 </div>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Fecha de Entrega</label>
-                <input type="date" value={form.fecha_entrega} onChange={e => setForm({ ...form, fecha_entrega: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" />
+                <input type="date" value={form.fecha_entrega} onChange={e => setForm({ ...form, fecha_entrega: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
               </div>
-              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {guardando ? "Guardando..." : editId ? "Actualizar Propuesta" : "Crear Propuesta"}
               </button>
@@ -190,7 +193,7 @@ export default function PropuestasPage() {
           <p className="text-xs text-slate-400">Monto Total Estimado</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-blue-500/10 mb-2"><Calendar className="w-4 h-4 text-blue-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><Calendar className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : propuestas.filter(p => p.estado === "enviada" || p.estado === "en_revision").length}</p>
           <p className="text-xs text-slate-400">En Proceso</p>
         </div>
@@ -199,7 +202,7 @@ export default function PropuestasPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar propuesta por nombre, cliente u obra..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
@@ -218,7 +221,7 @@ export default function PropuestasPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-slate-400">
                   {propuestas.length === 0 ? "No hay propuestas registradas. Crea tu primera propuesta." : "No se encontraron resultados."}

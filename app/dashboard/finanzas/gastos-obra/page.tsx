@@ -1,9 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
-import { DollarSign, Search, Download, Calendar, Building2, Filter, X, Loader2, TrendingUp, FileSpreadsheet, Plus, ChevronRight, Paperclip, Edit2, Trash2, Eye, MoreVertical } from "lucide-react";
+import { DollarSign, Search, Download, Calendar, Building2, Filter, X, ArrowLeft, Loader2, TrendingUp, FileSpreadsheet, Plus, ChevronRight, Paperclip, Edit2, Trash2, Eye, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
@@ -60,7 +59,7 @@ export default function GastosObraPage() {
 
   // Modals and alerts
   const [confirmModal, setConfirmModal] = useState({ open: false, id: "", titulo: "" });
-  const { msg: flash, flash: showFlash, clear: clearFlash } = useFlashMessage();
+  const { msg: flashMsg, flash, clear: clearFlash } = useFlashMessage();
   const [obrasData, setObrasData] = useState<Obra[]>([]);
 
   useEffect(() => {
@@ -163,14 +162,14 @@ export default function GastosObraPage() {
       };
 
       if (drawerMode === "create") {
-        let newData: typeof baseData & { imagen_url?: string } = baseData;
+        let newData = baseData;
 
         // Handle file upload
         if (formData.comprobante) {
           setUploadingFile(true);
           const fileName = formData.comprobante.name;
           const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } as unknown as File });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")
@@ -184,16 +183,16 @@ export default function GastosObraPage() {
 
         const { error } = await supabase.from("gastos").insert([newData]);
         if (error) throw error;
-        showFlash("ok", "Gasto creado exitosamente");
+        flash("ok", "Gasto creado exitosamente");
       } else if (drawerMode === "edit" && selectedGasto) {
-        let updateData: typeof baseData & { imagen_url?: string } = baseData;
+        let updateData = baseData;
 
         // Handle file upload for edit
         if (formData.comprobante) {
           setUploadingFile(true);
           const fileName = formData.comprobante.name;
           const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } as unknown as File });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")
@@ -207,14 +206,14 @@ export default function GastosObraPage() {
 
         const { error } = await supabase.from("gastos").update(updateData).eq("id", selectedGasto.id);
         if (error) throw error;
-        showFlash("ok", "Gasto actualizado exitosamente");
+        flash("ok", "Gasto actualizado exitosamente");
       }
 
       await cargarDatos();
       closeDrawer();
     } catch (error) {
-
-      showFlash("err", "Error al guardar el gasto");
+      console.error(error);
+      flash("err", "Error al guardar el gasto");
     } finally {
       setSubmitting(false);
     }
@@ -235,12 +234,12 @@ export default function GastosObraPage() {
       }
       const { error } = await supabase.from("gastos").delete().eq("id", id);
       if (error) throw error;
-      showFlash("ok", "Gasto eliminado exitosamente");
+      flash("ok", "Gasto eliminado exitosamente");
       await cargarDatos();
       closeDrawer();
     } catch (error) {
-
-      showFlash("err", "Error al eliminar el gasto");
+      console.error(error);
+      flash("err", "Error al eliminar el gasto");
     } finally {
       setSubmitting(false);
     }
@@ -278,24 +277,22 @@ export default function GastosObraPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-
+      console.error(e);
     }
     setExportando(false);
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /><span className="ml-3 text-white/60">Cargando gastos...</span></div>;
 
   return (
     <div className="space-y-6">
-      {flash && <FlashBanner msg={flash} />}
+      <FlashBanner msg={flashMsg} className="mx-0 mb-3" />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/finanzas" />
+          <Link href="/dashboard/finanzas" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <DollarSign className="w-7 h-7 text-emerald-400" />
           </div>
@@ -305,7 +302,7 @@ export default function GastosObraPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500/20 to-blue-500/20 border border-blue-500/30 text-blue-300 hover:from-blue-500/30 hover:to-blue-500/30 transition-all">
+          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-aria-primary/20 to-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:from-aria-primary/30 hover:to-aria-primary/30 transition-all">
             <Plus className="w-4 h-4" />
             Nuevo Gasto
           </button>
@@ -324,12 +321,12 @@ export default function GastosObraPage() {
           </div>
           <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20 backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-blue-500/20"><Filter className="w-5 h-5 text-blue-400" /></div>
+            <div className="p-2 rounded-xl bg-aria-primary-light"><Filter className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-slate-400 text-sm">Registros</span>
           </div>
-          <p className="text-2xl font-bold text-blue-400">{gastosFiltrados.length}</p>
+          <p className="text-2xl font-bold text-aria-accent">{gastosFiltrados.length}</p>
         </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-3">
@@ -559,7 +556,7 @@ export default function GastosObraPage() {
                         <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} alt="Comprobante" className="w-full h-full object-cover" />
                       </div>
                     ) : getComprobanteMimeType(selectedGasto.imagen_url) === "pdf" ? (
-                      <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm">
+                      <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-aria-accent hover:text-aria-accent text-sm">
                         <Paperclip className="w-4 h-4" />
                         Ver PDF
                       </a>
@@ -573,6 +570,7 @@ export default function GastosObraPage() {
                     type="file"
                     accept="image/*,.pdf"
                     onChange={e => setFormData({ ...formData, comprobante: e.target.files?.[0] || null })}
+                    disabled={drawerMode === "view"}
                     className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
                   />
                 )}
@@ -588,7 +586,7 @@ export default function GastosObraPage() {
                   <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
                     Cerrar
                   </button>
-                  <button onClick={switchToEdit} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition-all">
+                  <button onClick={switchToEdit} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary-light border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-hover/30 transition-all">
                     <Edit2 className="w-4 h-4" />
                     Editar
                   </button>

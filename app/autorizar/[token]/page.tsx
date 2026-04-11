@@ -42,9 +42,9 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   }
 
   const cotData = req.cotizacion_data || {};
-  const quotes: Record<string, unknown>[] = (cotData.quotes as Record<string, unknown>[]) || [];
-  const items: string[] = (cotData.items as string[]) || [];
-  const mejor = quotes.length > 0 ? quotes.reduce((min: Record<string, unknown>, q: Record<string, unknown>) => (q.total as number) < (min.total as number) ? q : min, quotes[0]) : null;
+  const quotes: any[] = cotData.quotes || [];
+  const items: string[] = cotData.items || [];
+  const mejor = quotes.length > 0 ? quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]) : null;
   const solicitante = req.created_by || "N/A";
 
   return (
@@ -133,25 +133,25 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                     </tr>
                   </thead>
                   <tbody>
-                    {quotes.map((q: Record<string, unknown>, i: number) => {
+                    {quotes.map((q: any, i: number) => {
                       const isBest = mejor && q.total === mejor.total;
                       return (
                         <tr key={i} className="row" style={{borderBottom:"1px solid #1e293b",background:isBest?"#0c1425":"transparent",transition:"background 0.15s"}}>
                           <td style={{padding:"12px 16px"}}>
                             <div style={{display:"flex",alignItems:"center",gap:10}}>
-                              <div style={{width:32,height:32,borderRadius:8,background:isBest?"#334155":"#1e293b",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:isBest?"#e2e8f0":"#475569",flexShrink:0}}>{String(q.supplier || "").charAt(0) || "#"}</div>
+                              <div style={{width:32,height:32,borderRadius:8,background:isBest?"#334155":"#1e293b",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:isBest?"#e2e8f0":"#475569",flexShrink:0}}>{q.supplier?.charAt(0) || "#"}</div>
                               <div>
-                                <p style={{color:"#e2e8f0",fontSize:13,fontWeight:600,margin:0}}>{String(q.supplier || "")}</p>
-                                {!!q.factura && <p style={{color:"#475569",fontSize:9,margin:"1px 0 0"}}>Factura</p>}
+                                <p style={{color:"#e2e8f0",fontSize:13,fontWeight:600,margin:0}}>{q.supplier}</p>
+                                {q.factura && <p style={{color:"#475569",fontSize:9,margin:"1px 0 0"}}>Factura</p>}
                               </div>
                             </div>
                           </td>
                           <td style={{padding:"12px 16px",textAlign:"right"}}>
-                            <span style={{color:isBest?"#e2e8f0":"#94a3b8",fontWeight:isBest?700:500,fontSize:14}}>${typeof q.total === 'number' ? q.total.toLocaleString('es-MX') : String(q.total || "")}</span>
+                            <span style={{color:isBest?"#e2e8f0":"#94a3b8",fontWeight:isBest?700:500,fontSize:14}}>${typeof q.total === 'number' ? q.total.toLocaleString('es-MX') : q.total}</span>
                           </td>
-                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{String(q.entrega || q.delivery || "-")}</td>
-                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{String(q.forma_pago || q.payment || "-")}</td>
-                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{String(q.credito || q.credit || "-")}</td>
+                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.entrega || q.delivery || "-"}</td>
+                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.forma_pago || q.payment || "-"}</td>
+                          <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.credito || q.credit || "-"}</td>
                           <td style={{padding:"12px 16px",textAlign:"center"}}>{isBest && (<span style={{background:"#334155",color:"#94a3b8",padding:"2px 8px",borderRadius:3,fontSize:9,fontWeight:600,letterSpacing:1}}>MEJOR</span>)}</td>
                         </tr>
                       );
@@ -165,8 +165,8 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
             {mejor && (
               <div className="fi d3" style={{background:"#111827",border:"1px solid #1e293b",borderRadius:10,padding:18,textAlign:"center",marginBottom:20}}>
                 <p style={{color:"#475569",fontSize:9,fontWeight:600,letterSpacing:2,margin:"0 0 4px"}}>MEJOR PRECIO</p>
-                <p style={{color:"#e2e8f0",fontWeight:700,fontSize:18,margin:0}}>{String(mejor.supplier || "")}</p>
-                <p style={{color:"#94a3b8",fontWeight:700,fontSize:24,margin:"4px 0 0"}}>${typeof mejor.total === 'number' ? mejor.total.toLocaleString('es-MX') : String(mejor.total || "")}</p>
+                <p style={{color:"#e2e8f0",fontWeight:700,fontSize:18,margin:0}}>{mejor.supplier}</p>
+                <p style={{color:"#94a3b8",fontWeight:700,fontSize:24,margin:"4px 0 0"}}>${typeof mejor.total === 'number' ? mejor.total.toLocaleString('es-MX') : mejor.total}</p>
               </div>
             )}
 

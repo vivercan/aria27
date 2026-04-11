@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Centro {
   id: string;
@@ -19,10 +18,10 @@ interface Centro {
 }
 
 export default function CentrosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [centros, setCentros] = useState<Centro[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const { msg, flash } = useFlashMessage();
   const [editando, setEditando] = useState<Centro | null>(null);
   const [form, setForm] = useState({ nombre: "", direccion: "", latitud: "", longitud: "", radio_metros: "100" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -31,7 +30,7 @@ export default function CentrosPage() {
 
   const cargar = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("*").order("nombre");
-    if (error) {  setLoading(false); return; }
+    if (error) { console.error("Error loading centros:", error?.message); setLoading(false); return; }
     if (data) setCentros(data);
     setLoading(false);
   };
@@ -82,13 +81,11 @@ export default function CentrosPage() {
 
     if (editando) {
       const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
-      if (error) {  flash("err", "Error: " + error?.message); return; }
-      flash("ok", "Centro actualizado");
+      if (error) { console.error("Error updating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
     } else {
       const nextNum = centros.length + 1;
       const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
-      if (error) {  flash("err", "Error: " + error?.message); return; }
-      flash("ok", "Centro creado");
+      if (error) { console.error("Error creating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
     }
     setShowModal(false);
     cargar();
@@ -96,7 +93,7 @@ export default function CentrosPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} className="mx-6 mt-3" />
+      <FlashBanner msg={msg} className="p-6 pb-0" />
       <div className="flex-none p-6 border-b border-white/10">
         <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Maestros
@@ -106,7 +103,7 @@ export default function CentrosPage() {
             <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
             <p className="text-slate-400">Obras con coordenadas GPS para geolocalización</p>
           </div>
-          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg">
             <Plus className="w-4 h-4" /> Nuevo Centro
           </button>
         </div>
@@ -114,7 +111,7 @@ export default function CentrosPage() {
 
       <div className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="text-center py-12 text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></div>
+          <div className="text-center py-12 text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></div>
         ) : centros.length === 0 ? (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 mx-auto text-slate-600 mb-4" />
@@ -198,7 +195,7 @@ export default function CentrosPage() {
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
               <p className="text-xs text-slate-500">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
-              <button onClick={guardar} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
+              <button onClick={guardar} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center justify-center gap-2">
                 <Save className="w-4 h-4" /> Guardar
               </button>
             </div>

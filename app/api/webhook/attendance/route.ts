@@ -4,11 +4,12 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { validateMetaSignature, getWebhookVerifyToken } from "@/lib/webhook-hmac";
+import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
 const log = logger("WEBHOOK-ATTENDANCE");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
+const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // ============== UTILIDADES ==============
@@ -28,13 +29,7 @@ function formatDistance(meters: number): string {
 }
 
 async function sendWhatsApp(phone: string, message: string) {
-  try {
-    await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } })
-    });
-  } catch (e) { log.error("Error WhatsApp:", e); }
+  await sendWhatsAppText(phone, message, { origen: "webhook-attendance", enviadoPor: "system" });
 }
 
 function getWeekNumber(date: Date): number {
@@ -194,17 +189,8 @@ Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dic
   }
 }
 
-interface InventarioData {
-  material: string;
-  cantidad?: number;
-  unidad?: string;
-  obra?: string;
-  _caption?: string;
-  proveedor?: string;
-}
-
 // ============== MANEJAR ENTRADA DE INVENTARIO VÍA WHATSAPP ==============
-async function handleInventarioWhatsApp(from: string, phone10: string, invData: InventarioData, imageUrl: string) {
+async function handleInventarioWhatsApp(from: string, phone10: string, invData: any, imageUrl: string) {
   const material = invData.material;
   const cantidad = invData.cantidad || 1;
   const unidad = invData.unidad || "PZA";
@@ -319,17 +305,8 @@ async function findEmpleado(phone10: string, fullPhone: string) {
   return data?.[0] || null;
 }
 
-interface GastoData {
-  fecha?: string;
-  obra?: string;
-  descripcion?: string;
-  proveedor?: string;
-  monto?: number;
-  categoria?: string;
-}
-
 // ============== MANEJAR GASTO ==============
-async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
+async function handleGasto(from: string, phone10: string, gastoData: any, imageUrl?: string) {
   const today = new Date();
   const fecha = gastoData.fecha || today.toISOString().split("T")[0];
   const semana = getWeekNumber(today);
@@ -597,8 +574,7 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
 // ============== WEBHOOK PRINCIPAL ==============
 export async function GET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
-  const verifyToken = getWebhookVerifyToken();
-  if (p.get("hub.mode") === "subscribe" && verifyToken && p.get("hub.verify_token") === verifyToken) {
+  if (p.get("hub.mode") === "subscribe" && p.get("hub.verify_token") === VERIFY_TOKEN) {
     return new NextResponse(p.get("hub.challenge"), { status: 200 });
   }
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -606,11 +582,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // HMAC SHA256 validation — Meta firma cada request con App Secret
+    // HMAC signature verification (Meta webhook security)
     const rawBody = await request.text();
     const signature = request.headers.get("x-hub-signature-256");
-    if (!validateMetaSignature(rawBody, signature)) {
-      log.warn("HMAC validation failed", { hasSignature: !!signature });
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      log.warn("HMAC signature inválida", { signature });
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
 

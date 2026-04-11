@@ -8,7 +8,7 @@ const subModules = [
     description: "Plantillas de documentos.",
     href: "/dashboard/plantillas/biblioteca",
     icon: Library,
-    gradient: "from-blue-500 to-blue-600"
+    gradient: "from-aria-primary to-aria-primary"
   },
   {
     title: "Documentos",
@@ -46,7 +46,7 @@ export default function PlantillasPage() {
           <Link
             key={module.href}
             href={module.href}
-            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
+            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
             
@@ -56,7 +56,7 @@ export default function PlantillasPage() {
               </div>
               
               <div className="space-y-2">
-                <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
+                <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
                   {module.title}
                 </h3>
                 <p className="text-sm text-slate-400 leading-relaxed">{module.description}</p>

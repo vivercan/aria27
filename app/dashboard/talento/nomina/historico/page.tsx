@@ -1,9 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { History, Search, Filter, Download, Users, DollarSign, Calendar, ChevronDown, X, Loader2 } from "lucide-react";
+import { History, ArrowLeft, Search, Filter, Download, Users, DollarSign, Calendar, ChevronDown, X, Loader2 } from "lucide-react";
 
 interface NominaRegistro {
   id: string;
@@ -132,14 +131,16 @@ export default function HistoricoNominaPage() {
   const formatDateShort = (d: string) => d ? new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "";
   const limpiarFiltros = () => { setFiltroSemana(""); setFiltroEmpleado(""); setBusqueda(""); setFiltroAnio(""); };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/talento/nomina" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
             <History className="w-7 h-7 text-violet-400" />
           </div>
@@ -187,7 +188,7 @@ export default function HistoricoNominaPage() {
 
       {/* Totales */}
       <div className="grid grid-cols-6 gap-3">
-        <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
           <p className="text-slate-400 text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
         </div>

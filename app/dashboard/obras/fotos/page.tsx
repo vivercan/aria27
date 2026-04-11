@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from '@/lib/storage';
-import { useDeletePermission } from '@/lib/use-delete-permission';
 import AriaBackButton from '@/components/AriaBackButton';
 import {
   Camera,
@@ -37,7 +36,6 @@ interface LightboxState {
 }
 
 export default function FotosPage() {
-  const { userEmail } = useDeletePermission();
   const [obras, setObras] = useState<Obra[]>([]);
   const [selectedObraId, setSelectedObraId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -65,7 +63,7 @@ export default function FotosPage() {
           setSelectedObraId(data[0].id);
         }
       } catch (err) {
-
+        console.error('Error loading obras:', err);
         setError('Failed to load obras');
       } finally {
         setLoadingObras(false);
@@ -95,7 +93,7 @@ export default function FotosPage() {
         if (err) throw err;
         setPhotos(data || []);
       } catch (err) {
-
+        console.error('Error loading photos:', err);
         setError('Failed to load photos');
       } finally {
         setLoadingPhotos(false);
@@ -161,7 +159,7 @@ export default function FotosPage() {
           fileInputRef.current.value = '';
         }
       } catch (err) {
-
+        console.error('Error uploading photos:', err);
         setError('Failed to upload photos. Please try again.');
       } finally {
         setUploading(false);
@@ -178,7 +176,7 @@ export default function FotosPage() {
           bucket: 'expedientes',
           table: 'expedientes_archivos',
           id: photoId,
-          userEmail,
+          userEmail: typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'anon' : 'anon',
           blobUrlField: 'url',
         });
 
@@ -197,7 +195,7 @@ export default function FotosPage() {
 
         setConfirmDelete(null);
       } catch (err) {
-
+        console.error('Error deleting photo:', err);
         setError('Failed to delete photo');
       }
     },

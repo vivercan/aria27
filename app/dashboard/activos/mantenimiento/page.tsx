@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { supabase } from "@/lib/supabase";
 import {
   Plus, Search, Edit2, Trash2, Check, XCircle,
@@ -10,7 +7,7 @@ import {
   Clock, CheckCircle2, Settings, Package, DollarSign, Play,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
-import { formatMoney as fmt } from "@/lib/format-utils";
+import ConfirmModal from "@/components/ConfirmModal";
 
 /* ────────── types ────────── */
 interface Orden {
@@ -31,7 +28,6 @@ interface Programa {
   created_at: string; activo_nombre?: string;
 }
 interface Activo { id: string; nombre: string; tipo: string | null; ubicacion: string | null; }
-interface ActivoRow { id: string; nombre: string; tipo?: string; ubicacion?: string; }
 
 /* ────────── constants ────────── */
 const TABS = ["Órdenes", "Programas", "Historial"] as const;
@@ -42,11 +38,11 @@ const PRIORIDAD = ["BAJA", "NORMAL", "ALTA", "URGENTE"] as const;
 const ESTATUS_ORDEN = ["ABIERTA", "EN_PROCESO", "COMPLETADA", "CANCELADA", "ESPERANDO_REFACCIONES"] as const;
 
 const PRIO_COLORS: Record<string, string> = {
-  BAJA: "bg-slate-500/20 text-slate-400", NORMAL: "bg-blue-500/20 text-blue-400",
+  BAJA: "bg-slate-500/20 text-slate-400", NORMAL: "bg-aria-primary-light text-aria-accent",
   ALTA: "bg-amber-500/20 text-amber-400", URGENTE: "bg-red-500/20 text-red-400",
 };
 const EST_COLORS: Record<string, string> = {
-  ABIERTA: "bg-blue-500/20 text-blue-400", EN_PROCESO: "bg-amber-500/20 text-amber-400",
+  ABIERTA: "bg-aria-primary-light text-aria-accent", EN_PROCESO: "bg-amber-500/20 text-amber-400",
   COMPLETADA: "bg-emerald-500/20 text-emerald-400", CANCELADA: "bg-slate-500/20 text-slate-400",
   ESPERANDO_REFACCIONES: "bg-purple-500/20 text-purple-400",
 };
@@ -65,6 +61,7 @@ const PROG_INIT = {
   frecuencia_km: "", descripcion: "", proveedor: "", costo_estimado: "",
 };
 
+const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string | null) => { if (!d) return "—"; try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 const diasPara = (d: string | null) => { if (!d) return null; return Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); };
 
@@ -87,8 +84,9 @@ export default function MantenimientoPage() {
   const [editProgId, setEditProgId] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
-  const { msg, flash, clear } = useFlashMessage();
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
 
   useEffect(() => { loadAll(); }, []);
 
@@ -101,8 +99,8 @@ export default function MantenimientoPage() {
     ]);
     const activosArr = (aRes.data || []) as Activo[];
     const aMap = Object.fromEntries(activosArr.map(a => [a.id, a.nombre]));
-    setOrdenes((oRes.data || []).map((o: Orden) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })));
-    setProgramas((pRes.data || []).map((p: Programa) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })));
+    setOrdenes((oRes.data || []).map((o: any) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })));
+    setProgramas((pRes.data || []).map((p: any) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })));
     setActivos(activosArr);
     setLoading(false);
   }
@@ -128,7 +126,7 @@ export default function MantenimientoPage() {
     const costo = parseFloat(ordenForm.costo_estimado);
     if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       activo_id: ordenForm.activo_id,
       tipo: ordenForm.tipo,
       prioridad: ordenForm.prioridad,
@@ -171,7 +169,7 @@ export default function MantenimientoPage() {
   }
 
   async function cambiarEstatus(o: Orden, nuevoEstatus: string) {
-    const payload: Record<string, unknown> = { estatus: nuevoEstatus };
+    const payload: any = { estatus: nuevoEstatus };
     if (nuevoEstatus === "EN_PROCESO" && !o.fecha_inicio) payload.fecha_inicio = new Date().toISOString().slice(0, 10);
     if (nuevoEstatus === "COMPLETADA") payload.fecha_fin = new Date().toISOString().slice(0, 10);
     const { error } = await supabase.from("mantenimiento_ordenes").update(payload).eq("id", o.id);
@@ -198,7 +196,7 @@ export default function MantenimientoPage() {
     const costo = parseFloat(progForm.costo_estimado);
     if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       activo_id: progForm.activo_id,
       nombre: progForm.nombre.trim(),
       tipo: progForm.tipo,
@@ -281,7 +279,6 @@ export default function MantenimientoPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/activos" />
@@ -293,11 +290,17 @@ export default function MantenimientoPage() {
         </div>
       </div>
 
+      {msg && (
+        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
+        </div>
+      )}
+
       {/* Stats */}
       <div className="flex-none px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
-            { label: "OTs Abiertas", value: stats.abiertas, icon: ClipboardList, color: "text-blue-400", bg: "bg-blue-500/10" },
+            { label: "OTs Abiertas", value: stats.abiertas, icon: ClipboardList, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Completadas", value: stats.completadas, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
             { label: "Urgentes", value: stats.urgentes, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
             { label: "Costo del Mes", value: fmt(stats.costoMes), icon: DollarSign, color: "text-amber-400", bg: "bg-amber-500/10" },
@@ -410,7 +413,7 @@ export default function MantenimientoPage() {
                             {o.estatus === "ESPERANDO_REFACCIONES" && (
                               <button onClick={() => cambiarEstatus(o, "EN_PROCESO")} className="p-1 bg-amber-500/10 hover:bg-amber-500/20 rounded text-amber-400" title="Reanudar"><Play className="w-3.5 h-3.5" /></button>
                             )}
-                            <button onClick={() => editarOrden(o)} className="p-1 bg-blue-500/10 hover:bg-blue-500/20 rounded text-blue-400" title="Editar"><Edit2 className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => editarOrden(o)} className="p-1 bg-aria-primary/10 hover:bg-aria-primary-light rounded text-aria-accent" title="Editar"><Edit2 className="w-3.5 h-3.5" /></button>
                             <button onClick={() => eliminarOrden(o.id)} className="p-1 bg-red-500/10 hover:bg-red-500/20 rounded text-red-400" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
@@ -466,7 +469,7 @@ export default function MantenimientoPage() {
                         <button onClick={() => generarOrdenDesdePrograma(p)} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 rounded-lg text-xs text-orange-400 transition-colors" disabled={!p.activo}>
                           <ClipboardList className="w-3 h-3" /> Generar OT
                         </button>
-                        <button onClick={() => editarProg(p)} className="flex items-center gap-1 px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-xs text-blue-400 transition-colors">
+                        <button onClick={() => editarProg(p)} className="flex items-center gap-1 px-2 py-1.5 bg-aria-primary/10 hover:bg-aria-primary-light rounded-lg text-xs text-aria-accent transition-colors">
                           <Edit2 className="w-3 h-3" />
                         </button>
                         <button onClick={() => toggleProg(p)} className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${p.activo ? "bg-slate-500/10 hover:bg-slate-500/20 text-slate-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
@@ -625,7 +628,10 @@ export default function MantenimientoPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

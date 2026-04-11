@@ -1,22 +1,12 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { fmt } from "@/lib/format-utils";
 
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-
-interface CobroRow {
-  cliente_nombre?: string;
-  obra_nombre?: string;
-  monto: number | string;
-  saldo: number | string;
-  estatus?: string;
-  created_at: string;
-}
 
 interface Row {
   cliente: string;
@@ -51,7 +41,7 @@ function Content() {
       .lte("created_at", hasta + "T23:59:59")
       .neq("estatus", "CANCELADO")
       .order("created_at", { ascending: true });
-    setRows((data || []).map((c: CobroRow) => ({
+    setRows((data || []).map((c: any) => ({
       cliente: c.cliente_nombre || "—",
       obra: c.obra_nombre || "—",
       monto: Number(c.monto) || 0,
@@ -76,13 +66,13 @@ function Content() {
 
   const fechaGen = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <>
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/reportes" />
+          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Cobranza mensual · <b>{MESES[mes-1]} {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">
@@ -92,7 +82,7 @@ function Content() {
           <select value={anio} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10">
             {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
           </select>
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>
 
@@ -203,5 +193,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function Page() {
-  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}><Content /></Suspense>;
+  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}><Content /></Suspense>;
 }

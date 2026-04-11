@@ -36,7 +36,7 @@ export default function AccessGuard({ moduleKey, subKey, children }: AccessGuard
         No tienes permisos para acceder a este módulo. 
         Contacta al administrador si necesitas acceso.
       </p>
-      <Link href="/dashboard" className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+      <Link href="/dashboard" className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-lg hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
         <ArrowLeft className="w-4 h-4" />
         Volver al Dashboard
       </Link>

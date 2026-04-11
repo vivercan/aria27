@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("AUTORIZAR-PICKING");
 
 // Status enum para flujo de requisiciones
@@ -17,26 +16,7 @@ const REQUISITION_STATUS = {
   RECHAZADA_DIRECCION: "RECHAZADA_DIRECCION",
 } as const;
 
-interface SelectionItem {
-  supplier_name: string;
-  total_price?: number;
-  forma_pago?: string;
-  dias_credito?: number;
-  item_id: string;
-  unit_price?: number;
-  product_name?: string;
-  quantity?: number;
-  unit?: string;
-}
-
-export async function POST(req: NextRequest) {
-  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "requisicion:autorizar-picking", max: 20, windowMs: 60_000 });
-  if (!rl.allowed) {
-    return rateLimitResponse(rl);
-  }
-
+export async function POST(req: Request) {
   try {
     // Validación básica: verificar que el request viene con datos esperados
     const body = await req.json();
@@ -61,7 +41,7 @@ export async function POST(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Group by supplier
-    const grouped: Record<string, SelectionItem[]> = {};
+    const grouped: Record<string, any[]> = {};
     for (const sel of selections) {
       if (!grouped[sel.supplier_name]) grouped[sel.supplier_name] = [];
       grouped[sel.supplier_name].push(sel);
@@ -89,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Create one PO per supplier
     for (const [supplierName, supplierItems] of Object.entries(grouped)) {
       const ocFolio = `OC-${new Date().getFullYear()}-${String(nextNum).padStart(5, "0")}`;
-      const total = supplierItems.reduce((s: number, i: SelectionItem) => s + (i.total_price || 0), 0);
+      const total = supplierItems.reduce((s: number, i: any) => s + (i.total_price || 0), 0);
 
       if (total <= 0) {
         log.warn(`[AUTORIZAR-PICKING] Proveedor ${supplierName} con total $0 â verificar precios`);
@@ -165,11 +145,11 @@ export async function POST(req: NextRequest) {
             <p><strong style="color:#94a3b8">Total:</strong> <span style="color:#34d399;font-size:20px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p>
             <hr style="border-color:#334155;margin:20px 0">
             <p style="color:#94a3b8;font-weight:bold">&Oacute;rdenes de Compra:</p>
-            ${Object.entries(grouped).map(([name, sitems]: [string, SelectionItem[]]) => {
-              const t = sitems.reduce((s: number, i: SelectionItem) => s + (i.total_price || 0), 0);
+            ${Object.entries(grouped).map(([name, sitems]: [string, any[]]) => {
+              const t = sitems.reduce((s: number, i: any) => s + (i.total_price || 0), 0);
               return `<div style="background:#1e293b;padding:12px;border-radius:6px;margin:8px 0">
                 <p style="margin:0;color:white;font-weight:bold">${name} - $${t.toLocaleString()}</p>
-                ${sitems.map((i: SelectionItem) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}
+                ${sitems.map((i: any) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}
               </div>`;
             }).join("")}
           </div>
@@ -178,8 +158,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, purchase_orders: ocFolios.length, folios: ocFolios });
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("[AUTORIZAR-PICKING]", error);
-    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

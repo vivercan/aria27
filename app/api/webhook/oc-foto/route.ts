@@ -4,20 +4,14 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { validateMetaSignature, getWebhookVerifyToken } from "@/lib/webhook-hmac";
+import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
 const log = logger("WEBHOOK-OC-FOTO");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
+const VERIFY_TOKEN = "aria27_oc_foto_verify";
 
 async function sendWhatsApp(phone: string, message: string) {
-  try {
-    await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ messaging_product: "whatsapp", to: phone, type: "text", text: { body: message } }),
-    });
-  } catch (e) { log.error("Error WA:", e); }
+  await sendWhatsAppText(phone, message, { origen: "webhook-oc-foto", enviadoPor: "system" });
 }
 
 // Verificación del webhook
@@ -26,9 +20,9 @@ export async function GET(req: NextRequest) {
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
-  const verifyToken = getWebhookVerifyToken();
 
-  if (mode === "subscribe" && verifyToken && token === verifyToken) {
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+
     return new NextResponse(challenge, { status: 200 });
   }
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -37,11 +31,11 @@ export async function GET(req: NextRequest) {
 // Recibir mensajes
 export async function POST(req: NextRequest) {
   try {
-    // HMAC SHA256 validation — Meta firma cada request con App Secret
+    // HMAC signature verification (Meta webhook security)
     const rawBody = await req.text();
     const signature = req.headers.get("x-hub-signature-256");
-    if (!validateMetaSignature(rawBody, signature)) {
-      log.warn("HMAC validation failed", { hasSignature: !!signature });
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      log.warn("HMAC signature inválida", { signature });
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
 
@@ -151,8 +145,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ status: "ok", folio: folioOC });
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("Error webhook OC-foto:", error);
-    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

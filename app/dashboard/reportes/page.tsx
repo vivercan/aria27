@@ -1,20 +1,19 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
-import { FileText, Users, Building2, DollarSign } from "lucide-react";
+import { ArrowLeft, FileText, Users, Building2, DollarSign } from "lucide-react";
 
 const REPORTES = [
   { href: "/dashboard/reportes/cobranza-mensual", titulo: "Cobranza Mensual", desc: "Facturado, cobrado y por cobrar del mes agrupado por obra.", icon: DollarSign, color: "from-emerald-500 to-teal-600" },
   { href: "/dashboard/reportes/nomina-semanal", titulo: "Nómina Semanal", desc: "Nómina consolidada de la semana con detalle por empleado y obra.", icon: Users, color: "from-violet-500 to-purple-600" },
   { href: "/dashboard/reportes/estado-cuenta-proveedor", titulo: "Estado de Cuenta Proveedor", desc: "OCs, cuentas por pagar y saldo pendiente por proveedor.", icon: Building2, color: "from-amber-500 to-orange-600" },
-  { href: "/dashboard/obras/reporte", titulo: "Reporte Ejecutivo de Obra", desc: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.", icon: FileText, color: "from-blue-500 to-cyan-600" },
+  { href: "/dashboard/obras/reporte", titulo: "Reporte Ejecutivo de Obra", desc: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.", icon: FileText, color: "from-aria-primary to-cyan-600" },
 ];
 
 export default function ReportesHub() {
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
       <div className="flex items-center gap-3 mb-6 flex-shrink-0">
-        <AriaBackButton href="/dashboard" />
+        <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Reportes PDF</h1>
           <p className="text-sm text-slate-400">Genera y guarda reportes ejecutivos con un clic</p>

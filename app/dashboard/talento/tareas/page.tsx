@@ -1,15 +1,14 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import ConfirmModal from "@/components/ConfirmModal";
 import {
-  Plus, Edit2, X, Save, Loader2, ClipboardList,
+  ArrowLeft, Plus, Edit2, X, Save, Loader2, ClipboardList,
   User, Calendar, TrendingUp, Flag, Search, Trash2, CheckCircle2
 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Tarea {
   id: string;
@@ -47,7 +46,7 @@ const PRIORIDADES = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 function colorEstatus(e: string) {
   switch (e) {
     case "PENDIENTE": return "bg-slate-500/20 text-slate-300 border-slate-500/40";
-    case "EN_PROGRESO": return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+    case "EN_PROGRESO": return "bg-aria-primary-light text-aria-accent border-aria-primary/40";
     case "COMPLETADA": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
     case "CANCELADA": return "bg-rose-500/20 text-rose-300 border-rose-500/40";
     default: return "bg-slate-500/20 text-slate-300 border-slate-500/40";
@@ -76,8 +75,9 @@ export default function TareasTalentoPage() {
   const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
   const [userEmail, setUserEmail] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const { msg, flash } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const [confirmState, setConfirmState] = useState<{open: boolean; id: string}>({open: false, id: ""});
+  const closeConfirm = () => setConfirmState({open: false, id: ""});
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -98,7 +98,7 @@ export default function TareasTalentoPage() {
       .from("tareas_asignadas")
       .select("*")
       .order("created_at", { ascending: false });
-    
+    if (error) console.error("tareas_asignadas error:", error);
     setTareas(data || []);
     setLoading(false);
   }
@@ -143,15 +143,14 @@ export default function TareasTalentoPage() {
   }
 
   async function eliminar(id: string) {
-    setConfirmState({
-      open: true,
-      msg: "¿Eliminar esta tarea?",
-      onOk: async () => {
-        const { error } = await supabase.from("tareas_asignadas").delete().eq("id", id);
-        if (error) { flash("err", "Error: " + error.message); return; }
-        cargar();
-      }
-    });
+    setConfirmState({open: true, id});
+  }
+
+  async function confirmarEliminar() {
+    const { error } = await supabase.from("tareas_asignadas").delete().eq("id", confirmState.id);
+    closeConfirm();
+    if (error) { flash("err", "Error: " + error.message); return; }
+    cargar();
   }
 
   async function cambiarAvance(id: string, nuevoAvance: number) {
@@ -197,15 +196,10 @@ export default function TareasTalentoPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/talento" />
+        <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/10">
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <ClipboardList className="w-8 h-8 text-fuchsia-400" />
@@ -232,7 +226,7 @@ export default function TareasTalentoPage() {
         </div>
         <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
           <div className="text-xs text-slate-400 uppercase">En progreso</div>
-          <div className="text-2xl font-bold text-blue-300">{stats.enProgreso}</div>
+          <div className="text-2xl font-bold text-aria-accent">{stats.enProgreso}</div>
         </div>
         <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
           <div className="text-xs text-slate-400 uppercase">Completadas</div>
@@ -428,6 +422,13 @@ export default function TareasTalentoPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message="¿Eliminar esta tarea?"
+        onConfirm={confirmarEliminar}
+        onCancel={closeConfirm}
+      />
     </div>
   );
 }

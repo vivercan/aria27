@@ -1,8 +1,5 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { Suspense } from "react";
@@ -11,10 +8,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Plus, Save, Send, Trash2, Loader2,
+  ArrowLeft, Plus, Save, Send, Trash2, Loader2,
   Package, Clock, CreditCard, FileText, X,
   Banknote, Receipt, Truck
 } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 type ReqItem = {
   id: number;
@@ -194,11 +193,9 @@ function CapturarContent() {
       if (stErr) throw stErr;
       resetForm();
       await loadAll();
-    } catch (e: unknown) {
-      let msg = "";
-      if (e instanceof Error) msg = e.message;
-      else if (e && typeof e === "object" && "error_description" in e) msg = String((e as Record<string, unknown>).error_description);
-      else msg = JSON.stringify(e);
+    } catch (e: any) {
+      console.error("[capturar] guardarCotizacion error:", e);
+      const msg = e?.message || e?.error_description || JSON.stringify(e);
       flash("err", "Error al guardar cotizacion: " + msg);
     } finally {
       setSaving(false);
@@ -275,16 +272,12 @@ function CapturarContent() {
   const pagoLabel = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
   if (!reqId) return (
     <div className="text-center py-20 text-slate-400">
       <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="mb-2">Selecciona una requisición desde Trámite</p>
-      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-blue-400 hover:underline text-sm">
+      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-aria-accent hover:underline text-sm">
         ← Ir a Trámite
       </Link>
     </div>
@@ -294,7 +287,7 @@ function CapturarContent() {
     <div className="text-center py-20 text-slate-400">
       <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="mb-2">No se encontr\u00f3 la requisici\u00f3n</p>
-      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-blue-400 hover:underline text-sm">
+      <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-aria-accent hover:underline text-sm">
         \u2190 Ver requisiciones activas
       </Link>
     </div>
@@ -302,10 +295,12 @@ function CapturarContent() {
 
   return (
     <div className="space-y-4">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <AriaBackButton href="/dashboard/requisiciones/requisiciones/tramite" />
+        <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">Capturar Cotizaciones</h1>
           <p className="text-slate-400 text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
@@ -573,7 +568,7 @@ function CapturarContent() {
           <div className="flex items-center justify-between pt-2 border-t border-white/10">
             <span className="text-emerald-400 font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formSubtotal() <= 0}
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium flex items-center gap-2 disabled:opacity-50">
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-aria-primary text-white font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Guardar cotizacion
             </button>
@@ -601,7 +596,7 @@ function CapturarContent() {
 
 export default function CapturarCotizacionPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}>
       <CapturarContent />
     </Suspense>
   );

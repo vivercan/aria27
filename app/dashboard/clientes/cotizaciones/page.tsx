@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
-import { fmt } from "@/lib/format-utils";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -46,6 +45,8 @@ const FORM_INIT = {
 const ITEM_INIT: Item = { concepto: "", unidad: "PZA", cantidad: 1, precio_unitario: 0, importe: 0, orden: 0 };
 
 export default function CotizacionesClientesPage() {
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [cots, setCots] = useState<Cotizacion[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -57,8 +58,6 @@ export default function CotizacionesClientesPage() {
   const [form, setForm] = useState({ ...FORM_INIT });
   const [items, setItems] = useState<Item[]>([{ ...ITEM_INIT }]);
   const [saving, setSaving] = useState(false);
-  const { msg, flash } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { cargar(); }, []);
 
@@ -86,7 +85,7 @@ export default function CotizacionesClientesPage() {
       setCots(cotsConVencidas);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -106,7 +105,7 @@ export default function CotizacionesClientesPage() {
       fecha: c.fecha,
       vigencia_dias: c.vigencia_dias || 30,
       moneda: c.moneda || "MXN",
-      estatus: (c.estatus as (typeof ESTATUS)[number]) || "BORRADOR",
+      estatus: (c.estatus as any) || "BORRADOR",
       notas: c.notas || "",
       iva_pct: c.subtotal > 0 ? Math.round((Number(c.iva) / Number(c.subtotal)) * 100) : 16,
     });
@@ -159,7 +158,7 @@ export default function CotizacionesClientesPage() {
       folio = `COT-${yr}-${String((count || 0) + 1).padStart(4, "0")}`;
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       folio,
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
@@ -207,10 +206,9 @@ export default function CotizacionesClientesPage() {
       setEditId(null);
       setForm({ ...FORM_INIT });
       setItems([{ ...ITEM_INIT }]);
-      flash("ok", editId ? "Cotización actualizada" : "Cotización creada");
       await cargar();
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
+    } catch (e: any) {
+      flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -225,6 +223,7 @@ export default function CotizacionesClientesPage() {
     const its = (itemsRes.data as any[]) || [];
     const cliExtra = (cliRes as any).data || {};
 
+    const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
     const fechaLimite = new Date(c.fecha);
     fechaLimite.setDate(fechaLimite.getDate() + (c.vigencia_dias || 30));
     const vence = fechaLimite.toISOString().split("T")[0];
@@ -319,11 +318,10 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
     if (nuevo === "CANCELADA") {
       setConfirmState({
         open: true,
-        msg: `¿Cancelar cotización ${c.folio}?`,
+        msg: `Cancelar cotización ${c.folio}?`,
         onOk: async () => {
           const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
           if (error) { flash("err", "Error: " + error.message); return; }
-          flash("ok", "Cotización cancelada");
           await cargar();
         }
       });
@@ -331,7 +329,6 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
     }
     const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
     if (error) { flash("err", "Error: " + error.message); return; }
-    flash("ok", "Estatus actualizado");
 
     // Bloque 12: al APROBAR, generar cobro_manual auto vinculado a esta cotizacion (idempotente)
     if (nuevo === "APROBADA") {
@@ -344,7 +341,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         if (!existente) {
           const monto = Number(c.total) || 0;
           if (monto > 0 && c.cliente_id) {
-            const payload: Record<string, unknown> = {
+            const payload: any = {
               cliente_id: c.cliente_id,
               cliente_nombre: c.cliente_nombre,
               obra_id: c.obra_id || null,
@@ -360,11 +357,11 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
               created_by: (typeof window !== "undefined" && localStorage.getItem("userEmail")) || null,
             };
             const { error: ce } = await supabase.from("cobros_manuales").insert(payload);
-            
+            if (ce) console.warn("[Bloque12] No se pudo generar cobro auto:", ce.message);
           }
         }
-      } catch (e: unknown) {
-
+      } catch (e: any) {
+        console.warn("[Bloque12] Error generando cobro auto:", e?.message);
       }
     }
 
@@ -387,22 +384,22 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <AriaBackButton href="/dashboard/clientes" />
-      <FlashBanner msg={msg} className="mx-6" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Cotizaciones a Cliente</h1>
           <p className="text-slate-400 text-sm">Cotizaciones formales a clientes — bloqueadas para clientes INACTIVOS</p>
         </div>
-        <button onClick={abrirNuevo} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={abrirNuevo} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Cotización
         </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Vigente", value: `$${totTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: FileText, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Total Vigente", value: `$${totTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Aprobadas", value: `$${totAprobado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Enviadas", value: `$${totEnviado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Registros", value: cots.length, icon: AlertTriangle, color: "text-violet-400", bg: "bg-violet-500/10" },
@@ -419,12 +416,12 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar folio, cliente, obra..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2 flex-wrap">
           {(["TODOS", ...ESTATUS] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
               {f}
             </button>
           ))}
@@ -447,7 +444,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-slate-400">Sin cotizaciones</td></tr>
               ) : filtered.map(c => (
@@ -470,7 +467,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                         <Printer className="w-3 h-3" />
                       </button>
                       <button onClick={() => abrirEdicion(c)} disabled={["CANCELADA"].includes(c.estatus)}
-                        className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30 disabled:opacity-30">
+                        className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 disabled:opacity-30">
                         Editar
                       </button>
                     </div>
@@ -532,7 +529,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs text-slate-400">Conceptos</label>
-                <button onClick={agregarItem} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30 flex items-center gap-1">
+                <button onClick={agregarItem} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 flex items-center gap-1">
                   <Plus className="w-3 h-3" /> Agregar línea
                 </button>
               </div>
@@ -577,7 +574,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
-                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
+                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as any })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -614,7 +611,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                 Cancelar
               </button>
               <button onClick={guardar} disabled={saving}
-                className="flex-1 py-2.5 bg-blue-600 rounded-xl text-white text-sm font-medium hover:bg-blue-500 disabled:opacity-50">
+                className="flex-1 py-2.5 bg-aria-primary rounded-xl text-white text-sm font-medium hover:bg-aria-primary-hover disabled:opacity-50">
                 {saving ? "Guardando..." : (editId ? "Actualizar" : "Crear Cotización")}
               </button>
             </div>
@@ -625,7 +622,10 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { watermarkWithDate } from "@/lib/image-watermark";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 /**
  * POST /api/inventario/watermark
@@ -14,10 +13,6 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
  *   - path: ruta en el bucket (ej: "OFICINA/productos/12345_cemento.jpg")
  */
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "inventario:watermark", ...RATE_LIMITS.EXPENSIVE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -62,9 +57,9 @@ export async function POST(req: NextRequest) {
       url: urlData?.publicUrl || null,
       size: watermarked.length,
     });
-  } catch (e: unknown) {
+  } catch (e: any) {
     return NextResponse.json(
-      { error: ((e as Error)?.message) || "error procesando imagen" },
+      { error: e?.message || "error procesando imagen" },
       { status: 500 }
     );
   }

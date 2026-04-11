@@ -1,26 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-INBOX");
 
-interface EmailData {
-  seqno?: number;
-  from?: string;
-  to?: string;
-  subject?: string;
-  date?: string;
-  uid?: number;
-  flags?: string[];
-  seen?: boolean;
-}
-
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "mail:inbox", ...RATE_LIMITS.EMAIL });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     const { folder = "INBOX", limit = 25 } = await req.json();
     const creds = await getZohoCreds();
@@ -28,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
     }
     const { email, password } = creds;
-    const emails = await new Promise<EmailData[]>((resolve, reject) => {
+    const emails = await new Promise<any[]>((resolve, reject) => {
       const imap = new Imap({
         user: email,
         password: password,
@@ -39,7 +23,7 @@ export async function POST(req: NextRequest) {
         connTimeout: 15000,
         authTimeout: 15000,
       });
-      const messages: EmailData[] = [];
+      const messages: any[] = [];
       imap.once("ready", () => {
         imap.openBox(folder, true, (err, box) => {
           if (err) { imap.end(); reject(err); return; }
@@ -52,7 +36,7 @@ export async function POST(req: NextRequest) {
             struct: true,
           });
           fetch.on("message", (msg, seqno) => {
-            const emailData: EmailData = { seqno };
+            const emailData: any = { seqno };
             msg.on("body", (stream) => {
               let buffer = "";
               stream.on("data", (chunk) => { buffer += chunk.toString("utf8"); });
@@ -81,8 +65,8 @@ export async function POST(req: NextRequest) {
       imap.connect();
     });
     return NextResponse.json({ emails, count: emails.length });
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("IMAP Error:", error);
-    return NextResponse.json({ error: (error as Error)?.message || "Error al conectar con Zoho" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Error al conectar con Zoho" }, { status: 500 });
   }
 }

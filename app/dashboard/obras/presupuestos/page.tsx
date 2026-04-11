@@ -1,24 +1,11 @@
 "use client";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
-
-interface PartidaRow {
-  id?: string;
-  obra_nombre?: string;
-  clave?: string;
-  descripcion?: string;
-  unidad?: string;
-  cantidad?: number | string;
-  precio_unitario?: number | string;
-  importe?: number | string;
-  categoria?: string;
-  created_at?: string;
-}
 
 interface Partida {
   id: string;
@@ -34,6 +21,7 @@ interface Partida {
 }
 
 export default function PresupuestosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -42,7 +30,6 @@ export default function PresupuestosPage() {
   const { obras: obrasCat } = useObrasCatalogo();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" });
-  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { loadData(); }, []);
 
@@ -50,9 +37,9 @@ export default function PresupuestosPage() {
     try {
       const { data } = await supabase.from("presupuestos_partidas").select("*").order("obra_nombre").order("clave");
       setPartidas(data || []);
-      const obrasUnicas = [...new Set((data || []).map((p: PartidaRow) => p.obra_nombre).filter(Boolean))];
+      const obrasUnicas = [...new Set((data || []).map((p: any) => p.obra_nombre).filter(Boolean))];
       setObras(obrasUnicas as string[]);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -65,7 +52,7 @@ export default function PresupuestosPage() {
 
     const { error } = await supabase.from("presupuestos_partidas").insert({ ...form, importe, descripcion: form.descripcion.trim() });
     if (error) flash("err", "Error: " + error?.message);
-    else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); flash("ok", "Partida guardada correctamente"); }
+    else { setShowForm(false); setForm({ obra_nombre: "", clave: "", descripcion: "", unidad: "LOTE", cantidad: 0, precio_unitario: 0, categoria: "MATERIALES" }); loadData(); }
   }
 
   const filtered = partidas.filter(p => {
@@ -86,7 +73,7 @@ export default function PresupuestosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 
@@ -95,7 +82,7 @@ export default function PresupuestosPage() {
             <h1 className="text-2xl font-bold text-white">Presupuestos de Obra</h1>
             <p className="text-slate-400 text-sm">Catálogo de partidas con precios unitarios por obra</p>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nueva Partida
           </button>
         </div>
@@ -103,7 +90,7 @@ export default function PresupuestosPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Presupuesto", value: `$${totalPresupuesto.toLocaleString()}`, icon: DollarSign, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Total Presupuesto", value: `$${totalPresupuesto.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Partidas", value: filtered.length, icon: Layers, color: "text-violet-400", bg: "bg-violet-500/10" },
           { label: "Obras", value: obras.length, icon: BarChart3, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Categorías", value: categorias.length, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
@@ -161,7 +148,7 @@ export default function PresupuestosPage() {
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Guardar</button>
+            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -171,7 +158,7 @@ export default function PresupuestosPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por clave o descripción..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <select value={filterObra} onChange={e => setFilterObra(e.target.value)} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none">
           <option value="TODAS">Todas las obras</option>
@@ -196,7 +183,7 @@ export default function PresupuestosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin partidas registradas</td></tr>
               ) : filtered.map(p => (

@@ -1,19 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { Resend } from "resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("REQ-VALIDATE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
-
-interface RequisionItem {
-  product_name: string;
-  unit: string;
-  quantity: number;
-  comments?: string | null;
-}
 
 async function getUserByRole(role: string) {
   const { data } = await supabase.from("Users").select("*").eq("role", role).single();
@@ -25,14 +17,7 @@ async function getUserByEmail(email: string) {
   return data;
 }
 
-export async function GET(request: NextRequest) {
-  // RATE LIMIT: 60 requests per minute (STANDARD tier)
-  const clientId = getClientIdentifier(request);
-  const rl = checkRateLimit(clientId, { key: "requisicion:validate", max: 60, windowMs: 60_000 });
-  if (!rl.allowed) {
-    return rateLimitResponse(rl);
-  }
-
+export async function GET(request: Request) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY!);
     const { searchParams } = new URL(request.url);
@@ -61,7 +46,7 @@ export async function GET(request: NextRequest) {
     // Si no viene action, mostrar página de validación con botones
     if (!action) {
       const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
-      const materialesHtml = (items || []).map((m: RequisionItem) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+      const materialesHtml = (items || []).map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
 
       return new Response(`<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Validar ${req.folio}</title></head>
 <body style="font-family:Arial,sans-serif;margin:0;background:#0f172a;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px">
@@ -111,7 +96,7 @@ export async function GET(request: NextRequest) {
       const fechaReq = new Date(req.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
       const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
-      const materialesHtml = (items || []).map((m: RequisionItem) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+      const materialesHtml = (items || []).map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
       const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
 
       if (comprasUser) {
@@ -121,7 +106,7 @@ export async function GET(request: NextRequest) {
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
         });
         if (comprasUser.phone) {
-          const materialesResumen = (items || []).map((m: RequisionItem) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
+          const materialesResumen = (items || []).map((m: any) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
         await sendWhatsAppLogged("requisicion_compras", [req.folio, req.cost_center_name, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-validada", enviadoPor: "validate-link" });
         }
       }

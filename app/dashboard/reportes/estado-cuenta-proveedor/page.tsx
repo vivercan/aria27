@@ -1,25 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { fmt } from "@/lib/format-utils";
 
-interface SupplierRow {
-  name?: string;
-}
-
-interface PORow {
-  po_number?: string;
-  created_at: string;
-  obra_nombre?: string;
-  total: number | string;
-  monto_pagado?: number | string;
-  status?: string;
-  supplier_name?: string;
-}
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 interface OC {
   folio: string;
@@ -44,7 +30,7 @@ function Content() {
 
   async function cargarProveedores() {
     const { data } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
-    setProveedores((data || []).map((p: SupplierRow) => p.name).filter(Boolean) as string[]);
+    setProveedores((data || []).map((p: any) => p.name).filter(Boolean));
   }
 
   async function cargar() {
@@ -55,7 +41,7 @@ function Content() {
       .eq("supplier_name", proveedor)
       .neq("status", "CANCELADA")
       .order("created_at", { ascending: false });
-    setOcs((pos || []).map((p: PORow) => {
+    setOcs((pos || []).map((p: any) => {
       const total = Number(p.total) || 0;
       const pagado = Number(p.monto_pagado) || 0;
       return {
@@ -80,7 +66,7 @@ function Content() {
   if (!proveedor) {
     return (
       <div className="p-8 max-w-2xl mx-auto">
-        <Link href="/dashboard/reportes" className="inline-flex items-center gap-2 text-blue-400 mb-4"><ArrowLeft className="w-4 h-4" /> Volver</Link>
+        <Link href="/dashboard/reportes" className="inline-flex items-center gap-2 text-aria-accent mb-4"><ArrowLeft className="w-4 h-4" /> Volver</Link>
         <h1 className="text-2xl font-bold text-white mb-4">Estado de cuenta por proveedor</h1>
         <p className="text-slate-400 mb-4">Selecciona un proveedor:</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">
@@ -92,16 +78,16 @@ function Content() {
     );
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <>
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/reportes/estado-cuenta-proveedor" />
+          <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Estado de cuenta · <b>{proveedor}</b></div>
         </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
       </div>
 
       <div className="report-page mx-auto bg-white text-slate-900" style={{ maxWidth: "850px", padding: "32px", fontFamily: "Arial, sans-serif" }}>
@@ -191,5 +177,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function Page() {
-  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}><Content /></Suspense>;
+  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}><Content /></Suspense>;
 }

@@ -14,6 +14,10 @@ interface ThemeColors {
   textMuted: string;
   accent: string;
   accentBg: string;
+  // Nuevos — colores primarios de acción (botones)
+  primary: string;
+  primaryHover: string;
+  primaryLight: string;
 }
 
 interface ThemeContextType {
@@ -35,6 +39,9 @@ const originalDarkColors: ThemeColors = {
   textMuted: "#94a3b8",
   accent: "#22d3ee",
   accentBg: "rgba(34,211,238,0.1)",
+  primary: "#2563eb",
+  primaryHover: "#1d4ed8",
+  primaryLight: "rgba(37,99,235,0.2)",
 };
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -59,6 +66,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#f9a8d4",
       accent: "#ec4899",
       accentBg: "rgba(236,72,153,0.2)",
+      primary: "#db2777",
+      primaryHover: "#be185d",
+      primaryLight: "rgba(219,39,119,0.2)",
     },
     halloween: {
       bg: "#0d0d0d",
@@ -70,6 +80,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#fdba74",
       accent: "#f97316",
       accentBg: "rgba(249,115,22,0.2)",
+      primary: "#ea580c",
+      primaryHover: "#c2410c",
+      primaryLight: "rgba(234,88,12,0.2)",
     },
     christmas: {
       bg: "#0a1a0a",
@@ -81,6 +94,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#86efac",
       accent: "#ef4444",
       accentBg: "rgba(239,68,68,0.2)",
+      primary: "#dc2626",
+      primaryHover: "#b91c1c",
+      primaryLight: "rgba(220,38,38,0.2)",
     },
     diademuertos: {
       bg: "#1a0a1a",
@@ -92,6 +108,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#c4b5fd",
       accent: "#f97316",
       accentBg: "rgba(168,85,247,0.2)",
+      primary: "#7c3aed",
+      primaryHover: "#6d28d9",
+      primaryLight: "rgba(124,58,237,0.2)",
     },
   },
   light: {
@@ -105,6 +124,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#475569",
       accent: "#0891b2",
       accentBg: "rgba(8,145,178,0.15)",
+      primary: "#2563eb",
+      primaryHover: "#1d4ed8",
+      primaryLight: "rgba(37,99,235,0.15)",
     },
     valentine: {
       bg: "#fce7f3",
@@ -116,6 +138,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#9d174d",
       accent: "#db2777",
       accentBg: "rgba(219,39,119,0.15)",
+      primary: "#db2777",
+      primaryHover: "#be185d",
+      primaryLight: "rgba(219,39,119,0.15)",
     },
     halloween: {
       bg: "#fef3c7",
@@ -127,6 +152,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#9a3412",
       accent: "#ea580c",
       accentBg: "rgba(234,88,12,0.15)",
+      primary: "#ea580c",
+      primaryHover: "#c2410c",
+      primaryLight: "rgba(234,88,12,0.15)",
     },
     christmas: {
       bg: "#dcfce7",
@@ -138,6 +166,9 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#166534",
       accent: "#dc2626",
       accentBg: "rgba(220,38,38,0.15)",
+      primary: "#dc2626",
+      primaryHover: "#b91c1c",
+      primaryLight: "rgba(220,38,38,0.15)",
     },
     diademuertos: {
       bg: "#f3e8ff",
@@ -149,9 +180,31 @@ const themeColors: Record<Theme, Record<Season, ThemeColors>> = {
       textMuted: "#6b21a8",
       accent: "#ea580c",
       accentBg: "rgba(168,85,247,0.15)",
+      primary: "#7c3aed",
+      primaryHover: "#6d28d9",
+      primaryLight: "rgba(124,58,237,0.15)",
     },
   },
 };
+
+/**
+ * Inyecta CSS custom properties en :root para que Tailwind y globals.css
+ * puedan referenciar colores del tema sin hardcodear valores.
+ */
+function injectCSSVariables(colors: ThemeColors) {
+  const root = document.documentElement;
+  root.style.setProperty("--aria-bg", colors.bg);
+  root.style.setProperty("--aria-sidebar", colors.sidebar);
+  root.style.setProperty("--aria-card", colors.card);
+  root.style.setProperty("--aria-card-border", colors.cardBorder);
+  root.style.setProperty("--aria-text", colors.text);
+  root.style.setProperty("--aria-muted", colors.textMuted);
+  root.style.setProperty("--aria-accent", colors.accent);
+  root.style.setProperty("--aria-accent-bg", colors.accentBg);
+  root.style.setProperty("--aria-primary", colors.primary);
+  root.style.setProperty("--aria-primary-hover", colors.primaryHover);
+  root.style.setProperty("--aria-primary-light", colors.primaryLight);
+}
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
@@ -164,6 +217,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (savedSeason && ["normal", "valentine", "halloween", "christmas", "diademuertos"].includes(savedSeason)) setSeasonState(savedSeason);
   }, []);
 
+  const colors = themeColors[theme][season];
+
+  // Inyectar CSS variables cada vez que cambie el tema/temporada
+  useEffect(() => {
+    injectCSSVariables(colors);
+  }, [colors]);
+
   const setTheme = (t: Theme) => {
     setThemeState(t);
     localStorage.setItem("aria-theme", t);
@@ -173,8 +233,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setSeasonState(s);
     localStorage.setItem("aria-season", s);
   };
-
-  const colors = themeColors[theme][season];
 
   return (
     <ThemeContext.Provider value={{ theme, season, setTheme, setSeason, colors }}>

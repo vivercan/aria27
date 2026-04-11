@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -123,7 +122,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: userEmail })
         });
-      } catch (e) { /* error handled */ }
+      } catch (e) { console.error("Error heartbeat:", e); }
     };
 
     // Actualizar inmediatamente al cargar

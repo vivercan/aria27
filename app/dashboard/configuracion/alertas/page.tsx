@@ -1,14 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
-import FlashBanner from "@/components/FlashBanner";
 import { useDeletePermission } from "@/lib/use-delete-permission";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Alerta {
   id: string;
@@ -22,16 +21,16 @@ interface Alerta {
 }
 
 export default function AlertasPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
-  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
-      if (error) {  setLoading(false); return; }
+      if (error) { console.error("Error loading alertas:", error?.message); setLoading(false); return; }
       setAlertas(data || []);
       setLoading(false);
     });
@@ -39,14 +38,14 @@ export default function AlertasPage() {
 
   const marcarNotificado = async (id: string) => {
     const { error } = await supabase.from("alertas_atraso").update({ notificado: true }).eq("id", id);
-    if (error) {  flash("err", "Error: " + error?.message); return; }
+    if (error) { console.error("Error updating alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.map(a => a.id === id ? { ...a, notificado: true } : a));
   };
 
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("alertas_atraso").delete().eq("id", id);
-    if (error) {  flash("err", "Error: " + error?.message); return; }
+    if (error) { console.error("Error deleting alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.filter(a => a.id !== id));
   };
 
@@ -54,7 +53,7 @@ export default function AlertasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "alertas_atraso", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     // Reload alertas
     const { data } = await supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false });
@@ -63,9 +62,9 @@ export default function AlertasPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mb-4" />
       <div className="flex items-center gap-3">
-        <AriaBackButton href="/dashboard/configuracion" />
+        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
           <h1 className="text-2xl font-bold">Alertas de Atraso</h1>
           <p className="text-sm text-slate-400">Monitoreo de actividades atrasadas en obra</p>
@@ -74,7 +73,7 @@ export default function AlertasPage() {
 
       <div className="grid grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-          <Bell className="w-5 h-5 text-blue-400 mb-2" />
+          <Bell className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length}</p>
           <p className="text-xs text-slate-400">Total alertas</p>
         </div>
@@ -95,7 +94,7 @@ export default function AlertasPage() {
           <div>Obra / Actividad</div><div>Días atraso</div><div>Detectada</div><div>Estado</div><div></div>
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div>
         ) : alertas.length === 0 ? (
           <div className="text-center py-12 text-sm text-white/40">
             <CheckCircle2 className="w-10 h-10 mx-auto mb-3 opacity-30" />

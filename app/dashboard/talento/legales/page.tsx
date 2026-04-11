@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Empleado {
   id: string;
@@ -35,7 +34,7 @@ export default function LegalesPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").order("employee_number");
-      if (error) {  setLoading(false); return; }
+      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };
@@ -57,7 +56,7 @@ export default function LegalesPage() {
   };
 
 
-  const startEdit = (e: Empleado) => {
+  const startEdit = (e: any) => {
     setEditingId(e.id);
     setEditForm({ rfc: e.rfc || "", curp: e.curp || "", nss: e.nss || "", tipo_contrato: e.tipo_contrato || "" });
   };
@@ -80,7 +79,7 @@ export default function LegalesPage() {
       nss: editForm.nss || null,
       tipo_contrato: editForm.tipo_contrato || null
     }).eq("id", editingId);
-    if (error) {  flash("err", "Error: " + error?.message); setSaving(false); return; }
+    if (error) { console.error("Error saving legal info:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setSaving(false);
     setEditingId(null);
     window.location.reload();
@@ -88,7 +87,7 @@ export default function LegalesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
         <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento
@@ -124,12 +123,12 @@ export default function LegalesPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Sin resultados</td></tr>
             ) : filtered.map(e => (
               <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
-                <td className="px-4 py-3 text-blue-400 font-mono text-xs">{e.employee_number}</td>
+                <td className="px-4 py-3 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                 <td className="px-4 py-3 text-white font-medium">{e.full_name}</td>
                 <td className="px-4 py-3 text-slate-300">{e.empresa || "-"}</td>
                 <td className="px-4 py-3 text-slate-300">{e.tipo_contrato || "Indefinido"}</td>
@@ -160,7 +159,7 @@ export default function LegalesPage() {
                         </div>
                       </div>
                     ) : (
-                      <button onClick={() => startEdit(e)} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs hover:bg-blue-500/30">
+                      <button onClick={() => startEdit(e)} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30">
                         <Edit2 className="w-3 h-3" />
                       </button>
                     )}

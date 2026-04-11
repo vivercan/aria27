@@ -1,15 +1,12 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Search, Plus, Edit2, X, Save, User, Building2,
+  ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2,
   Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 
 interface Empleado {
   id: string;
@@ -76,7 +73,6 @@ const EMPTY_FORM = {
 };
 
 export default function PersonalPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [centros, setCentros] = useState<CentroTrabajo[]>([]);
@@ -195,10 +191,8 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
-        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: "Error al crear: " + error?.message });
       } else {
-        flash("ok", "Empleado " + empNumber + " creado correctamente");
         setMensaje({ tipo: "success", texto: "Empleado " + empNumber + " creado correctamente" });
         setEditando(null);
         cargarDatos();
@@ -209,10 +203,8 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
-        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: "Error: " + error?.message });
       } else {
-        flash("ok", "Empleado actualizado correctamente");
         setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
         setEditando(null);
         cargarDatos();
@@ -240,7 +232,7 @@ export default function PersonalPage() {
         <select
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-blue-500 focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}>
+          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-aria-primary focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}>
           <option value="">{"\u2014 Seleccionar \u2014"}</option>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -250,7 +242,7 @@ export default function PersonalPage() {
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}
+          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}
         />
       )}
       {formErrors[field] && <p className="text-red-400 text-xs mt-1">{formErrors[field]}</p>}
@@ -259,11 +251,13 @@ export default function PersonalPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/talento" />
+          <Link href="/dashboard/talento"
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Personal</h1>
             <p className="text-xs text-slate-400">{empleados.length} empleados activos</p>
@@ -282,7 +276,7 @@ export default function PersonalPage() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar..."
-              className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-blue-500 focus:outline-none placeholder-slate-600"
+              className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-aria-primary focus:outline-none placeholder-slate-600"
             />
           </div>
         </div>
@@ -314,7 +308,7 @@ export default function PersonalPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+              <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : empFiltrados.length === 0 ? (
               <tr><td colSpan={8} className="p-8 text-center text-slate-500 text-sm">
                 {busqueda ? "Sin resultados para la b\u00fasqueda" : "No hay empleados registrados"}
@@ -354,7 +348,7 @@ export default function PersonalPage() {
                         <FolderOpen className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => abrirEdicion(e)} title="Editar"
-                        className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                        className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -386,7 +380,7 @@ export default function PersonalPage() {
               <div className="flex items-center gap-3">
                 {editando === "nuevo"
                   ? <UserPlus className="w-5 h-5 text-emerald-400" />
-                  : <Edit2 className="w-5 h-5 text-blue-400" />}
+                  : <Edit2 className="w-5 h-5 text-aria-accent" />}
                 <h2 className="text-lg font-bold text-white">
                   {editando === "nuevo" ? "Nuevo Empleado" : "Editar Empleado"}
                 </h2>
@@ -405,9 +399,9 @@ export default function PersonalPage() {
                 { key: "bancario", label: "Bancario", icon: CreditCard },
                 { key: "fiscal", label: "Fiscal", icon: Shield },
               ].map(t => (
-                <button key={t.key} onClick={() => setTab(t.key as "general" | "laboral" | "bancario" | "fiscal")}
+                <button key={t.key} onClick={() => setTab(t.key as any)}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                    tab === t.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"
+                    tab === t.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-slate-400 hover:text-white"
                   }`}>
                   <t.icon className="w-4 h-4" />
                   {t.label}
@@ -453,8 +447,8 @@ export default function PersonalPage() {
                   <Field label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
                   <Field label={"CLABE (18 d\u00edgitos)"} field="clabe" placeholder="012345678901234567" />
                   <Field label={"N\u00famero de cuenta"} field="numero_cuenta" />
-                  <div className="col-span-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <p className="text-blue-400 text-xs">
+                  <div className="col-span-2 p-3 rounded-lg bg-aria-primary/10 border border-aria-primary/20">
+                    <p className="text-aria-accent text-xs">
                       {"Los datos bancarios se usan para la dispersi\u00f3n de n\u00f3mina. Verifica CLABE y banco con el empleado."}
                     </p>
                   </div>
@@ -492,7 +486,7 @@ export default function PersonalPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm disabled:opacity-50 ${
                     editando === "nuevo"
                       ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-blue-600 hover:bg-blue-700"
+                      : "bg-aria-primary hover:bg-aria-primary-hover"
                   }`}>
                   {guardando
                     ? <Loader2 className="w-4 h-4 animate-spin" />

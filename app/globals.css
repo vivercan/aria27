@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== ARIA27 DESIGN TOKENS (CSS Custom Properties) =====
+ * Estos valores son los DEFAULTS. ThemeContext los sobreescribe
+ * dinámicamente via document.documentElement.style.setProperty().
+ * Cambiar un color aquí O en ThemeContext cascada a TODO el sistema.
+ */
+:root {
+  --aria-bg: #0a1628;
+  --aria-sidebar: #0a1628;
+  --aria-card: rgba(255,255,255,0.05);
+  --aria-card-border: rgba(255,255,255,0.1);
+  --aria-text: #ffffff;
+  --aria-muted: #94a3b8;
+  --aria-accent: #22d3ee;
+  --aria-accent-bg: rgba(34,211,238,0.1);
+  --aria-primary: #2563eb;
+  --aria-primary-hover: #1d4ed8;
+  --aria-primary-light: rgba(37,99,235,0.2);
+}
+
 @layer base {
   body {
     @apply bg-slate-950 text-slate-100;
@@ -9,6 +28,7 @@
     min-height: 100vh;
   }
 }
+
 /* Ocultar flechas (spinners) de inputs type="number" */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -34,43 +54,43 @@ input[type="date"],
 input[type="datetime-local"],
 input[type="time"] {
   color-scheme: dark;
-  background-color: rgba(0, 20, 40, 0.9);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: var(--aria-bg);
+  color: var(--aria-text);
+  border: 1px solid var(--aria-card-border);
   border-radius: 12px;
 }
 
 input[type="date"]:focus,
 input[type="datetime-local"]:focus,
 input[type="time"]:focus {
-  border-color: rgba(56, 189, 248, 0.5);
+  border-color: var(--aria-accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
+  box-shadow: 0 0 0 2px var(--aria-accent-bg);
 }
 
 /* Dropdowns / Selects */
 select {
-  background-color: rgba(0, 20, 40, 0.9);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: var(--aria-bg);
+  color: var(--aria-text);
+  border: 1px solid var(--aria-card-border);
   border-radius: 12px;
   cursor: pointer;
 }
 
 select:focus {
-  border-color: rgba(56, 189, 248, 0.5);
+  border-color: var(--aria-accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
+  box-shadow: 0 0 0 2px var(--aria-accent-bg);
 }
 
 select option {
-  background-color: #0a1628;
-  color: white;
+  background-color: var(--aria-bg);
+  color: var(--aria-text);
   padding: 12px;
 }
 
 select option:hover,
 select option:checked {
-  background-color: #1e3a5f;
-  background: linear-gradient(#1e4976, #1e4976);
+  background-color: var(--aria-sidebar);
+  background: linear-gradient(var(--aria-primary), var(--aria-primary));
 }

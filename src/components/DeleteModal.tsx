@@ -27,7 +27,7 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0a1628] p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
+      <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
             <Trash2 className="w-6 h-6 text-red-400" />

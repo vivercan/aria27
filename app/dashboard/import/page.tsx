@@ -1,11 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
+import { ArrowLeft, Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
 
 type Entity = "suppliers" | "products" | "employees" | "obras";
 
@@ -119,10 +116,9 @@ function parseCSV(text: string): Record<string, string>[] {
 export default function ImportCSV() {
   const [entity, setEntity] = useState<Entity>("suppliers");
   const [csvText, setCsvText] = useState("");
-  const [dryRun, setDryRun] = useState<null | { valid: Record<string, unknown>[]; invalid: { row: number; err: string }[] }>(null);
+  const [dryRun, setDryRun] = useState<null | { valid: any[]; invalid: { row: number; err: string }[] }>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<null | { ok: number; fail: number; errors: string[] }>(null);
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   const def = DEFS[entity];
 
@@ -134,13 +130,13 @@ export default function ImportCSV() {
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    f.text().then(t => { setCsvText(t); resetAll(); }).catch(() => {});
+    f.text().then(t => { setCsvText(t); resetAll(); });
   }
 
   function runDryRun() {
     setResult(null);
     const rows = parseCSV(csvText);
-    const valid: Record<string, unknown>[] = [];
+    const valid: any[] = [];
     const invalid: { row: number; err: string }[] = [];
     rows.forEach((r, i) => {
       const missing = def.required.filter(k => !r[k] || !r[k].trim());
@@ -150,8 +146,8 @@ export default function ImportCSV() {
       }
       try {
         valid.push(def.mapRow(r));
-      } catch (e: unknown) {
-        invalid.push({ row: i + 2, err: ((e as Error)?.message) || "Error al parsear" });
+      } catch (e: any) {
+        invalid.push({ row: i + 2, err: e?.message || "Error al parsear" });
       }
     });
     setDryRun({ valid, invalid });
@@ -163,20 +159,18 @@ export default function ImportCSV() {
     setResult(null);
     let ok = 0, fail = 0;
     const errors: string[] = [];
-    const chunks: Record<string, unknown>[][] = [];
+    const chunks: any[][] = [];
     for (let i = 0; i < dryRun.valid.length; i += 50) chunks.push(dryRun.valid.slice(i, i + 50));
     for (const chunk of chunks) {
       const { error } = await supabase.from(def.table).insert(chunk);
       if (error) {
         fail += chunk.length;
         errors.push(error.message);
-        flash("err", error.message);
       } else {
         ok += chunk.length;
       }
     }
     setResult({ ok, fail, errors: errors.slice(0, 5) });
-    if (ok > 0) flash("ok", `${ok} registros importados correctamente`);
     setImporting(false);
   }
 
@@ -192,9 +186,8 @@ export default function ImportCSV() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
-      <FlashBanner msg={flashMsg} />
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <AriaBackButton href="/dashboard" />
+        <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Importar CSV</h1>
           <p className="text-sm text-slate-400">Carga masiva con validación (dry-run) antes de insertar</p>
@@ -205,7 +198,7 @@ export default function ImportCSV() {
         <div className="flex gap-2 flex-wrap">
           {(Object.keys(DEFS) as Entity[]).map(k => (
             <button key={k} onClick={() => { setEntity(k); setCsvText(""); resetAll(); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${entity === k ? "bg-blue-600 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${entity === k ? "bg-aria-primary text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}>
               {DEFS[k].label}
             </button>
           ))}
@@ -214,7 +207,7 @@ export default function ImportCSV() {
         <div className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h3 className="text-white font-semibold">{def.label} → <code className="text-xs text-blue-400">{def.table}</code></h3>
+              <h3 className="text-white font-semibold">{def.label} → <code className="text-xs text-aria-accent">{def.table}</code></h3>
               <p className="text-xs text-slate-400">Requeridas: <b>{def.required.join(", ")}</b> · Opcionales: {def.optional.join(", ")}</p>
             </div>
             <button onClick={downloadSample} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-white">
@@ -223,7 +216,7 @@ export default function ImportCSV() {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer text-white text-sm">
+            <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover cursor-pointer text-white text-sm">
               <Upload className="w-4 h-4" /> Cargar CSV
               <input type="file" accept=".csv,text/csv" onChange={handleFile} className="hidden" />
             </label>

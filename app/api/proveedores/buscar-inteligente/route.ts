@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("BUSCAR-INTELIGENTE");
 
 const supabase = getSupabaseAdmin();
@@ -11,22 +10,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-interface ProductInput {
-  nombre?: string;
-  product_name?: string;
-  cantidad?: number;
-  quantity?: number;
-  unidad?: string;
-  unit?: string;
-  categoria?: string;
-  category?: string;
-}
-
 export async function POST(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "proveedores:buscar", ...RATE_LIMITS.WRITE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     const { productos, requisicion_id, user_email } = await req.json();
 
@@ -50,7 +34,7 @@ export async function POST(req: NextRequest) {
       .eq("status", "ACTIVO");
 
     // 2. Preparar lista de productos para el análisis
-    const listaProductos = productos.map((p: ProductInput) =>
+    const listaProductos = productos.map((p: any) => 
       `- ${p.nombre || p.product_name} (${p.cantidad || p.quantity} ${p.unidad || p.unit || 'pzas'}) - Categoría: ${p.categoria || p.category || 'General'}`
     ).join("\n");
 
@@ -151,10 +135,10 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
 
     // 7. Filtrar proveedores duplicados con los existentes
     if (resultado.proveedores_web && Array.isArray(resultado.proveedores_web)) {
-      resultado.proveedores_web = resultado.proveedores_web.filter((p: Record<string, unknown>) => {
-        const nombreIA = (String(p.nombre) || "").toLowerCase().trim() || "";
-        return !nombresExistentes.some(existente =>
-          existente.includes(nombreIA) ||
+      resultado.proveedores_web = resultado.proveedores_web.filter((p: any) => {
+        const nombreIA = p.nombre?.toLowerCase().trim() || "";
+        return !nombresExistentes.some(existente => 
+          existente.includes(nombreIA) || 
           nombreIA.includes(existente) ||
           existente === nombreIA
         );
@@ -167,11 +151,11 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
       total_encontrados: resultado.proveedores_web?.length || 0
     });
 
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("Error en búsqueda inteligente:", error);
-    return NextResponse.json({
-      error: (error as Error)?.message || "Error en búsqueda",
-      success: false
+    return NextResponse.json({ 
+      error: error?.message || "Error en búsqueda",
+      success: false 
     }, { status: 500 });
   }
 }

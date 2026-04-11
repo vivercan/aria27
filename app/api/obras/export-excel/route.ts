@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import {
   authenticateRequest,
   fetchObraData,
@@ -16,10 +15,6 @@ const log = logger("OBRAS-EXPORT-EXCEL");
 const supabase = getSupabaseAdmin();
 
 export async function GET(req: NextRequest) {
-  const clientId = getClientIdentifier(req);
-  const rl = checkRateLimit(clientId, { key: "obras:export", ...RATE_LIMITS.EXPENSIVE });
-  if (!rl.allowed) return rateLimitResponse(rl);
-
   try {
     // Authenticate user
     const userEmail = await authenticateRequest(req, supabase);
@@ -60,10 +55,10 @@ export async function GET(req: NextRequest) {
     log.info("export done", { obra, sheets: 7, bytes: (await wb.xlsx.writeBuffer() as any).byteLength });
 
     return response;
-  } catch (e: unknown) {
-    log.error("export fail", { err: ((e as Error)?.message) });
+  } catch (e: any) {
+    log.error("export fail", { err: e?.message });
     return NextResponse.json(
-      { error: ((e as Error)?.message) || "Error interno" },
+      { error: e?.message || "Error interno" },
       { status: 500 }
     );
   }

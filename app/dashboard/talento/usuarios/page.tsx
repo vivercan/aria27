@@ -1,14 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
-import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface User {
   id: string;
@@ -33,7 +32,6 @@ const MODULOS = [
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
-  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [loading, setLoading] = useState(true);
@@ -45,6 +43,7 @@ export default function UsuariosPage() {
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -95,8 +94,8 @@ export default function UsuariosPage() {
         flash("err", "No se pudo guardar el usuario: " + (j.error || "error desconocido"));
         return;
       }
-    } catch (e: unknown) {
-      flash("err", "Error de red: " + (((e as Error)?.message) || "desconocido"));
+    } catch (e: any) {
+      flash("err", "Error de red: " + (e?.message || "desconocido"));
       return;
     }
     setEditingId(null);
@@ -159,7 +158,7 @@ export default function UsuariosPage() {
   const getRoleColor = (role: string) => {
     switch(role) {
       case "admin": return "bg-purple-500/20 text-purple-400";
-      case "validador": return "bg-blue-500/20 text-blue-400";
+      case "validador": return "bg-aria-primary-light text-aria-accent";
       case "compras": return "bg-emerald-500/20 text-emerald-400";
       case "operador": return "bg-orange-500/20 text-orange-400";
       default: return "bg-slate-500/20 text-slate-400";
@@ -173,7 +172,6 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
       {/* Modal de confirmación de borrado */}
       {deletingUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
@@ -221,7 +219,9 @@ export default function UsuariosPage() {
 
       {/* Header */}
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/talento" />
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Users className="w-7 h-7 text-purple-400" />
@@ -239,7 +239,7 @@ export default function UsuariosPage() {
         ) : (
           <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
             <table className="w-full">
-              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-white/10">
+              <thead className="sticky top-0 bg-aria-bg z-10 border-b border-white/10">
                 <tr className="bg-white/[0.02]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Nombre</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">Email</th>

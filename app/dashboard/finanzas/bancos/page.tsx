@@ -1,5 +1,7 @@
 "use client";
 import DeleteModal from "@/components/DeleteModal";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
@@ -7,9 +9,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
-import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import ConfirmModal from "@/components/ConfirmModal";
 
 interface CuentaBancaria {
   id: string;
@@ -29,16 +29,16 @@ interface CuentaBancaria {
 const FORM_INIT = { banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" };
 
 export default function BancosPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg, flash, clear } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [showInactivas, setShowInactivas] = useState(false);
   const [form, setForm] = useState({ ...FORM_INIT });
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadData(); }, []);
 
@@ -108,7 +108,7 @@ export default function BancosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "cuentas_bancarias", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({ open: false, id: "", name: "" });
     loadData();
   };
@@ -118,7 +118,7 @@ export default function BancosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 
@@ -136,7 +136,7 @@ export default function BancosPage() {
           </label>
           <button
             onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
-            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2"
           >
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? "Cancelar" : "Nueva Cuenta"}
@@ -147,7 +147,7 @@ export default function BancosPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Activas", value: cuentas.filter(c => c.activa !== false).length, icon: CreditCard, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Activas", value: cuentas.filter(c => c.activa !== false).length, icon: CreditCard, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Inactivas", value: cuentas.filter(c => c.activa === false).length, icon: Power, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Saldo total (vista)", value: `$${totalSaldo.toLocaleString()}`, icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Bancos", value: new Set(cuentas.map(c => c.banco)).size, icon: Building2, color: "text-violet-400", bg: "bg-violet-500/10" },
@@ -178,7 +178,7 @@ export default function BancosPage() {
                   value={(form as any)[f.key]}
                   onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none"
                 />
               </div>
             ))}
@@ -206,7 +206,7 @@ export default function BancosPage() {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">{editId ? "Guardar cambios" : "Crear cuenta"}</button>
+            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">{editId ? "Guardar cambios" : "Crear cuenta"}</button>
             <button onClick={resetForm} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function BancosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : cuentasMostradas.length === 0 ? (
                 <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin cuentas. Agrega la primera con "Nueva Cuenta".</td></tr>
               ) : cuentasMostradas.map(c => (
@@ -243,13 +243,13 @@ export default function BancosPage() {
                   <td className="p-3 text-white font-medium">{c.banco}</td>
                   <td className="p-3 text-slate-300 font-mono text-xs">{c.cuenta}</td>
                   <td className="p-3 text-slate-400 font-mono text-xs">{c.clabe}</td>
-                  <td className="p-3"><span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-xs rounded-full">{c.empresa}</span></td>
+                  <td className="p-3"><span className="px-2 py-0.5 bg-aria-primary/10 text-aria-accent text-xs rounded-full">{c.empresa}</span></td>
                   <td className="p-3 text-slate-300">{c.tipo}</td>
                   <td className="p-3 text-right text-emerald-400 font-medium">${(c.saldo || 0).toLocaleString()}</td>
                   <td className="p-3 text-slate-500 text-xs">{c.updated_at ? new Date(c.updated_at).toLocaleDateString("es-MX") : (c.created_at ? new Date(c.created_at).toLocaleDateString("es-MX") : "—")}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <button onClick={() => abrirEdicion(c)} title="Editar" className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg">
+                      <button onClick={() => abrirEdicion(c)} title="Editar" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded-lg">
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button onClick={() => toggleActiva(c)} title={c.activa === false ? "Reactivar" : "Desactivar"} className="p-1.5 text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg">
@@ -283,7 +283,10 @@ export default function BancosPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

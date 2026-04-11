@@ -1,9 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
-import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
-import { AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Incompleta {
   id?: string;
@@ -22,7 +21,8 @@ export default function IncompletasPage() {
   const [procesando, setProcesando] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{tipo: "success" | "error"; texto: string} | null>(null);
   const [periodo, setPeriodo] = useState<{inicio: string; fin: string} | null>(null);
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const [confirmState, setConfirmState] = useState<{open: boolean; msg: string; onOk: () => void}>({open: false, msg: "", onOk: () => {}});
+  const closeConfirm = () => setConfirmState(s => ({...s, open: false}));
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -33,7 +33,7 @@ export default function IncompletasPage() {
       setSinRegistro(data.sinRegistro || []);
       setPeriodo(data.periodo || null);
     } catch (error) {
-
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -103,24 +103,25 @@ export default function IncompletasPage() {
       open: true,
       msg: `¿Crear ${sinRegistro.length} asistencias faltantes con horario 08:00-18:00?`,
       onOk: async () => {
+        closeConfirm();
         let creadas = 0;
-        for (const item of sinRegistro) {
-          setProcesando(`${item.employee_id}-${item.fecha}`);
-          try {
-            const res = await fetch("/api/asistencias/incompletas", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                employee_id: item.employee_id,
-                fecha: item.fecha,
-                hora_entrada: "08:00",
-                hora_salida: "18:00"
-              })
-            });
-            if (res.ok) creadas++;
-          } catch { /* individual failure — counted by not incrementing */ }
-        }
-
+    for (const item of sinRegistro) {
+      setProcesando(`${item.employee_id}-${item.fecha}`);
+      try {
+        const res = await fetch("/api/asistencias/incompletas", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employee_id: item.employee_id,
+            fecha: item.fecha,
+            hora_entrada: "08:00",
+            hora_salida: "18:00"
+          })
+        });
+        if (res.ok) creadas++;
+      } catch (e) {}
+    }
+    
         setProcesando(null);
         setMensaje({ tipo: "success", texto: `✓ ${creadas} asistencias creadas` });
         await cargarDatos();
@@ -134,22 +135,23 @@ export default function IncompletasPage() {
       open: true,
       msg: `¿Completar salida de ${incompletas.length} registros con hora 18:00?`,
       onOk: async () => {
+        closeConfirm();
         let completadas = 0;
-        for (const item of incompletas) {
-          setProcesando(item.id || null);
-          try {
-            const res = await fetch("/api/asistencias/incompletas", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                asistencia_id: item.id,
-                hora_salida: "18:00"
-              })
-            });
-            if (res.ok) completadas++;
-          } catch { /* individual failure — counted by not incrementing */ }
-        }
-
+    for (const item of incompletas) {
+      setProcesando(item.id || null);
+      try {
+        const res = await fetch("/api/asistencias/incompletas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            asistencia_id: item.id,
+            hora_salida: "18:00"
+          })
+        });
+        if (res.ok) completadas++;
+      } catch (e) {}
+    }
+    
         setProcesando(null);
         setMensaje({ tipo: "success", texto: `✓ ${completadas} salidas registradas` });
         await cargarDatos();
@@ -162,15 +164,11 @@ export default function IncompletasPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
-        <AriaBackButton href="/dashboard/talento/checadas" />
+        <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-amber-500/20">
             <AlertTriangle className="w-6 h-6 text-amber-400" />
@@ -178,7 +176,7 @@ export default function IncompletasPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Asistencias Pendientes</h1>
             <p className="text-slate-400 text-sm">
-              {periodo ? `Semana: ${periodo.inicio} al ${periodo.fin}` : <Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" />}
+              {periodo ? `Semana: ${periodo.inicio} al ${periodo.fin}` : <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />}
             </p>
           </div>
         </div>
@@ -219,7 +217,7 @@ export default function IncompletasPage() {
           <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">¡Todo en orden!</h3>
           <p className="text-slate-400 mb-6">No hay asistencias pendientes de completar</p>
-          <Link href="/dashboard/talento/checadas" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+          <Link href="/dashboard/talento/checadas" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-aria-primary text-white hover:bg-aria-primary transition-colors">
             Ir a Nómina
           </Link>
         </div>
@@ -294,12 +292,19 @@ export default function IncompletasPage() {
       )}
 
       {/* Nota */}
-      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-        <p className="text-blue-300 text-sm">
-          <strong>Nota:</strong> Los días sin registro se crean con horario estándar 08:00-18:00. 
+      <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">
+        <p className="text-aria-accent text-sm">
+          <strong>Nota:</strong> Los días sin registro se crean con horario estándar 08:00-18:00.
           Después de corregir, regresa a Nómina y haz clic en "Generar Pre-nómina" para actualizar.
         </p>
       </div>
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); closeConfirm(); }}
+        onCancel={closeConfirm}
+      />
     </div>
   );
 }

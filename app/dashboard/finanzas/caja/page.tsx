@@ -8,9 +8,6 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
-import { formatMoney as fmt } from "@/lib/format-utils";
 
 /* ────────── types ────────── */
 interface Fondo {
@@ -24,29 +21,6 @@ interface Movimiento {
   fecha: string; comprobante: string | null; responsable: string | null;
   categoria: string; notas: string | null; created_at: string;
   fondo_nombre?: string;
-}
-interface MovimientoRow {
-  id?: string;
-  fondo_id: string | null;
-  tipo?: string;
-  concepto?: string;
-  monto?: number | string;
-  fecha?: string;
-  comprobante?: string | null;
-  responsable?: string | null;
-  categoria?: string;
-  notas?: string | null;
-  created_at?: string;
-}
-interface CorteRow {
-  id?: string;
-  fondo_id: string | null;
-  periodo?: string;
-  fecha_inicio?: string;
-  fecha_fin?: string;
-  total_gastos?: number | string;
-  total_reposiciones?: number | string;
-  num_movimientos?: number | string;
 }
 interface Corte {
   id: string; fondo_id: string; periodo: string; fecha_inicio: string; fecha_fin: string;
@@ -70,6 +44,7 @@ const CATEGORIAS = [
 const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autorizado: "", notas: "" };
 const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "" };
 
+const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string) => { try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 
 /* ────────── component ────────── */
@@ -97,8 +72,10 @@ export default function CajaChicaPage() {
   const [corteForm, setCorteForm] = useState({ fondo_id: "", fecha_inicio: "", fecha_fin: "", periodo: "" });
 
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
+
+  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
 
   /* ── load ── */
   useEffect(() => { loadAll(); }, []);
@@ -122,11 +99,11 @@ export default function CajaChicaPage() {
       const fondoMap = Object.fromEntries(fondosRaw.map(f => [f.id, f.nombre]));
 
       setFondos(fondosRaw.map(f => ({ ...f, obra_nombre: obraMap[f.obra_id || ""] || "—", responsable_nombre: empMap[f.responsable_id || ""] || "—" })));
-      setMovimientos((mRes.data || []).map((m: MovimientoRow) => ({ ...m, fondo_nombre: fondoMap[m.fondo_id || ""] || "?" } as Movimiento)));
-      setCortes((cRes.data || []).map((c: CorteRow) => ({ ...c, fondo_nombre: fondoMap[c.fondo_id || ""] || "?" } as Corte)));
+      setMovimientos((mRes.data || []).map((m: any) => ({ ...m, fondo_nombre: fondoMap[m.fondo_id] || "?" })));
+      setCortes((cRes.data || []).map((c: any) => ({ ...c, fondo_nombre: fondoMap[c.fondo_id] || "?" })));
       setObras(obrasArr);
       setEmpleados(empleadosArr);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -149,7 +126,7 @@ export default function CajaChicaPage() {
     const monto = parseFloat(monto_autorizado);
     if (!monto || monto <= 0) { flash("err", "Monto autorizado debe ser mayor a 0"); return; }
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       nombre: nombre.trim(),
       obra_id: fondoForm.obra_id || null,
       responsable_id: fondoForm.responsable_id || null,
@@ -300,7 +277,6 @@ export default function CajaChicaPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />
@@ -312,11 +288,18 @@ export default function CajaChicaPage() {
         </div>
       </div>
 
+      {/* Flash */}
+      {msg && (
+        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
+        </div>
+      )}
+
       {/* Stats */}
       <div className="flex-none px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
-            { label: "Fondos Activos", value: stats.fondosActivos, icon: Wallet, color: "text-blue-400", bg: "bg-blue-500/10" },
+            { label: "Fondos Activos", value: stats.fondosActivos, icon: Wallet, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Saldo Disponible", value: fmt(stats.saldoTotal), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
             { label: "Autorizado Total", value: fmt(stats.autorizadoTotal), icon: FileText, color: "text-slate-300", bg: "bg-slate-500/10" },
             { label: "Gastos del Mes", value: fmt(stats.gastosMes), icon: TrendingDown, color: "text-red-400", bg: "bg-red-500/10" },
@@ -461,7 +444,7 @@ export default function CajaChicaPage() {
                             <button onClick={() => toggleFondoEstatus(f)} className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${f.estatus === "ACTIVO" ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
                               {f.estatus === "ACTIVO" ? <><AlertTriangle className="w-3 h-3" /> Suspender</> : <><Check className="w-3 h-3" /> Activar</>}
                             </button>
-                            <button onClick={() => { setTab("Movimientos"); setFilterFondo(f.id); }} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-xs text-blue-400 transition-colors">
+                            <button onClick={() => { setTab("Movimientos"); setFilterFondo(f.id); }} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-aria-primary/10 hover:bg-aria-primary-light rounded-lg text-xs text-aria-accent transition-colors">
                               <ClipboardList className="w-3 h-3" /> Movimientos
                             </button>
                           </div>
@@ -657,7 +640,7 @@ export default function CajaChicaPage() {
                           <td className="px-3 py-2.5 text-right text-white font-mono font-medium">{fmt(Number(c.saldo_final))}</td>
                           <td className="px-3 py-2.5 text-center text-slate-400">{c.num_movimientos}</td>
                           <td className="px-3 py-2.5">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${c.estatus === "ABIERTO" ? "bg-blue-500/20 text-blue-400" : "bg-slate-500/20 text-slate-400"}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${c.estatus === "ABIERTO" ? "bg-aria-primary-light text-aria-accent" : "bg-slate-500/20 text-slate-400"}`}>
                               {c.estatus === "ABIERTO" ? "Abierto" : "Cerrado"}
                             </span>
                           </td>
@@ -682,7 +665,10 @@ export default function CajaChicaPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

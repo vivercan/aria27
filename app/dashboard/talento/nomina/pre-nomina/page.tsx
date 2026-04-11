@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { Calculator, CheckCircle, ArrowLeft, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
-import { Calculator, CheckCircle, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
 
 interface Empleado {
   id: string;
@@ -33,25 +32,6 @@ interface DetalleNomina {
   sueldo_neto: number;
   pago_tarjeta: number;
   pago_efectivo: number;
-}
-
-interface AsistenciaRow {
-  employee_id: string;
-  fecha: string;
-  hora_entrada?: string;
-  hora_salida?: string;
-  horas_extra?: number;
-  falta?: boolean;
-}
-
-interface PrestamoRow {
-  employee_id: string;
-  descuento_semanal: number | string;
-}
-
-interface ConfiguracionNomina {
-  clave: string;
-  valor: string;
 }
 
 // Rango Jueves-Miércoles
@@ -86,7 +66,8 @@ export default function PreNominaPage() {
   const [filtro, setFiltro] = useState("");
   const [modoNomina, setModoNomina] = useState<string>("ONBOARDING");
   const [yaExiste, setYaExiste] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const [confirmState, setConfirmState] = useState<{open: boolean; msg: string; onOk: () => void}>({open: false, msg: "", onOk: () => {}});
+  const closeConfirm = () => setConfirmState(s => ({...s, open: false}));
 
   const semanaInfo = useMemo(() => {
     const r = getWeekRange(refDate);
@@ -98,7 +79,7 @@ export default function PreNominaPage() {
 
   const cargarEmpleados = async () => {
     const { data } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
-    if (data) setEmpleados(data as Empleado[]);
+    if (data) setEmpleados(data as any);
     setLoading(false);
   };
 
@@ -119,7 +100,7 @@ export default function PreNominaPage() {
 
     const { data: config } = await supabase.from("configuracion_nomina").select("*");
     const getConfig = (clave: string, def: number) => {
-      const c = (config || []).find((x: ConfiguracionNomina) => x.clave === clave);
+      const c = config?.find((x: any) => x.clave === clave);
       return c ? parseFloat(c.valor) : def;
     };
     const factorDoble = getConfig("factor_hora_extra_doble", 2);
@@ -142,14 +123,14 @@ export default function PreNominaPage() {
       .in("employee_id", empIds.length ? empIds : ["00000000-0000-0000-0000-000000000000"]);
 
     for (const emp of empleados) {
-      const asistEmp = (todasAsist || []).filter((a: AsistenciaRow) => a.employee_id === emp.id);
-      const completas = asistEmp.filter((a: AsistenciaRow) => a.hora_entrada && a.hora_salida);
-      const incompletas = asistEmp.filter((a: AsistenciaRow) => !a.hora_entrada || !a.hora_salida);
-      const prestEmp = (todosPrest || []).filter((p: PrestamoRow) => p.employee_id === emp.id);
+      const asistEmp = (todasAsist || []).filter((a: any) => a.employee_id === emp.id);
+      const completas = asistEmp.filter((a: any) => a.hora_entrada && a.hora_salida);
+      const incompletas = asistEmp.filter((a: any) => !a.hora_entrada || !a.hora_salida);
+      const prestEmp = (todosPrest || []).filter((p: any) => p.employee_id === emp.id);
 
       const diasTrabajados = completas.length;
       const diasIncompletos = incompletas.length;
-      const horasExtra = completas.reduce((s: number, a: AsistenciaRow) => s + (a.horas_extra || 0), 0);
+      const horasExtra = completas.reduce((s: number, a: any) => s + (a.horas_extra || 0), 0);
       const salarioDiario = emp.salario_diario || 0;
       const salarioSemanal = emp.salario_semanal || (salarioDiario * 7);
 
@@ -164,7 +145,7 @@ export default function PreNominaPage() {
 
       const pagoHorasExtra = horasExtra * (salarioDiario / 8) * factorDoble;
       const totalPercepciones = salarioBase + pagoHorasExtra;
-      const prestamoDescuento = prestEmp.reduce((s: number, p: PrestamoRow) => s + Number(p.descuento_semanal || 0), 0);
+      const prestamoDescuento = prestEmp.reduce((s: number, p: any) => s + (p.descuento_semanal || 0), 0);
       const totalDeduccionesEmp = prestamoDescuento;
       const sueldoNeto = totalPercepciones - totalDeduccionesEmp;
       const minTarjeta = emp.minimo_tarjeta || minimoTarjetaDef;
@@ -191,8 +172,9 @@ export default function PreNominaPage() {
       setConfirmState({
         open: true,
         msg: `Ya existe nómina para la semana ${semanaInfo.semana}/${semanaInfo.anio}. ¿Regenerar (sobrescribir)?`,
-        onOk: async () => {
-          await generarNomina(true);
+        onOk: () => {
+          closeConfirm();
+          generarNomina(true);
         }
       });
       return;
@@ -213,8 +195,8 @@ export default function PreNominaPage() {
         setMensaje({ tipo: "success", texto: `Nómina generada: ${data.registros} empleados | Neto ${fmtMoney(data.totales.neto)}` });
         setYaExiste(true);
       }
-    } catch (e: unknown) {
-      setMensaje({ tipo: "error", texto: ((e as Error)?.message) ?? "Error" });
+    } catch (e: any) {
+      setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
     }
     setGenerando(false);
   };
@@ -229,7 +211,7 @@ export default function PreNominaPage() {
       d.prestamo_descuento.toFixed(2), d.total_deducciones.toFixed(2), d.sueldo_neto.toFixed(2),
       d.pago_tarjeta.toFixed(2), d.pago_efectivo.toFixed(2),
     ]);
-    const csv = [headers, ...rows].map(r => r.map((c: string | number | null | undefined) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map(r => r.map((c: any) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -264,20 +246,16 @@ export default function PreNominaPage() {
     }), { bruto: 0, deducciones: 0, neto: 0, tarjeta: 0, efectivo: 0 });
   }, [filtrados]);
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6">
-      <ConfirmModal
-        open={confirmState.open}
-        message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
-      />
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/talento/nomina" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <Calculator className="w-7 h-7 text-emerald-400" />
           </div>
@@ -292,7 +270,7 @@ export default function PreNominaPage() {
           <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronLeft className="w-4 h-4 text-slate-300" /></button>
           <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
           <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronRight className="w-4 h-4 text-slate-300" /></button>
-          <button onClick={calcularPreNomina} disabled={calculando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-300 hover:from-cyan-500/30 hover:to-blue-500/30 disabled:opacity-50">
+          <button onClick={calcularPreNomina} disabled={calculando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 to-aria-primary/20 border border-cyan-500/30 text-cyan-300 hover:from-cyan-500/30 hover:to-aria-primary/30 disabled:opacity-50">
             {calculando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
             {calculando ? "Calculando..." : "Calcular"}
           </button>
@@ -311,7 +289,7 @@ export default function PreNominaPage() {
         <div className={`p-4 rounded-xl border flex items-start gap-3 ${
           mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" :
           mensaje.tipo === "error" ? "bg-red-500/10 border-red-500/30 text-red-300" :
-          "bg-blue-500/10 border-blue-500/30 text-blue-300"}`}>
+          "bg-aria-primary/10 border-aria-primary/30 text-aria-accent"}`}>
           <Info className="w-4 h-4 mt-0.5" />
           <span>{mensaje.texto}</span>
         </div>
@@ -329,7 +307,7 @@ export default function PreNominaPage() {
       {/* Totales */}
       {detalles.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
             <p className="text-slate-400 text-xs mb-1">Total Bruto</p>
             <p className="text-xl font-bold text-white">{fmtMoney(totales.bruto)}</p>
           </div>
@@ -404,9 +382,16 @@ export default function PreNominaPage() {
 
       <div className="text-xs text-slate-500 leading-relaxed">
         <strong>Nota:</strong> en modo <code className="text-amber-400">ONBOARDING</code> se paga el salario semanal completo aunque haya faltas.
-        En modo <code className="text-emerald-400">ESTRICTO</code> se descuenta cada falta. Las incidencias (días incompletos / faltas) se muestran solo como alerta.
+        En modo <code className="text-emerald-400">ESTRICTO</code> se descuento cada falta. Las incidencias (días incompletos / faltas) se muestran solo como alerta.
         El cálculo de Pre-Nómina coincide exactamente con lo que guardará "Generar Nómina".
       </div>
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); closeConfirm(); }}
+        onCancel={closeConfirm}
+      />
     </div>
   );
 }

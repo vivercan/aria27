@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { History, Loader2, ArrowDown, ArrowUp, Settings, Eye, Download, X } from "lucide-react";
+import { ArrowLeft, History, Loader2, ArrowDown, ArrowUp, Settings, Eye, Download, X } from "lucide-react";
 
 interface Movimiento {
   id: string;
@@ -41,7 +40,7 @@ function KardexContent() {
       if (obra) q = q.eq("obra_nombre", obra);
       if (producto) q = q.eq("producto_nombre", producto);
       const { data, error } = await q;
-      
+      if (error) console.error(error.message);
       setMovs(data || []);
       setLoading(false);
     })();
@@ -53,7 +52,9 @@ function KardexContent() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/obras/inventario" />
+        <Link href="/dashboard/obras/inventario" className="p-2 hover:bg-white/10 rounded-lg">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <History className="w-6 h-6 text-purple-400" /> Kardex
@@ -140,7 +141,7 @@ function KardexContent() {
           <div className="relative max-w-3xl max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
             <div className="absolute -top-3 right-8 flex items-center gap-2 z-10">
               <a href={fotoAmpliada} download target="_blank" rel="noopener noreferrer"
-                className="p-2 bg-blue-600 rounded-full border border-white/10 hover:bg-blue-500 transition-colors" title="Descargar"
+                className="p-2 bg-aria-primary rounded-full border border-white/10 hover:bg-aria-primary-hover transition-colors" title="Descargar"
                 onClick={(e) => e.stopPropagation()}>
                 <Download className="w-5 h-5 text-white" />
               </a>

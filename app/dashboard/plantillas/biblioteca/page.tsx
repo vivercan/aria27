@@ -1,16 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob } from "@/lib/storage";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import {
   ArrowLeft, Plus, Search, Edit2, Save, X, Loader2, Upload,
   FileText, Eye, Trash2, Power, Library, RefreshCw
 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 /**
  * BIBLIOTECA GLOBAL DE PLANTILLAS — Bloque 5 cierre funcional ARIA27 (7-Abr-2026)
@@ -64,7 +61,7 @@ export default function BibliotecaPlantillasPage() {
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-  const { msg: flashMsg, flash: showFlash, clear } = useFlashMessage();
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
@@ -79,16 +76,21 @@ export default function BibliotecaPlantillasPage() {
       .order("categoria")
       .order("nombre");
     if (error) {
-      if (error && 'code' in error && error.code === "42P01") {
-        showFlash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
+      if ((error as any).code === "42P01") {
+        flash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
       } else {
-        showFlash("err", error.message);
+        flash("err", error.message);
       }
       setItems([]);
     } else if (data) {
       setItems(data as Plantilla[]);
     }
     setLoading(false);
+  };
+
+  const flash = (tipo: "ok" | "err", texto: string) => {
+    setMsg({ tipo, texto });
+    setTimeout(() => setMsg(null), 2800);
   };
 
   const validar = (): boolean => {
@@ -141,7 +143,7 @@ export default function BibliotecaPlantillasPage() {
         }
         const { error } = await supabase.from("plantillas_globales").update(payload).eq("id", editId);
         if (error) throw new Error(error.message);
-        showFlash("ok", "Guardado correctamente");
+        flash("ok", "Plantilla actualizada");
       } else {
         if (file) {
           // Crear con archivo
@@ -159,55 +161,47 @@ export default function BibliotecaPlantillasPage() {
           const { error } = await supabase.from("plantillas_globales").insert({ ...payload, activo: true });
           if (error) throw new Error(error.message);
         }
-        showFlash("ok", "Guardado correctamente");
+        flash("ok", "Plantilla creada");
       }
       reset();
       cargar();
-    } catch (e: unknown) {
-      showFlash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
+    } catch (e: any) {
+      flash("err", "Error: " + e.message);
     }
     setSaving(false);
   };
 
   const toggleActivo = async (p: Plantilla) => {
     const nuevo = !p.activo;
-    setConfirmState({
-      open: true,
-      msg: `¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`,
-      onOk: async () => {
-        const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
-        if (error) { showFlash("err", "Error: " + (error?.message || "desconocido")); return; }
-        showFlash("ok", "Guardado correctamente");
-        cargar();
-      }
-    });
+    setConfirmState({ open: true, msg: `¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`, onOk: async () => {
+      const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
+      if (error) { flash("err", error.message); return; }
+      flash("ok", `Plantilla → ${nuevo ? "ACTIVA" : "INACTIVA"}`);
+      cargar();
+    }});
   };
 
   const eliminar = async (p: Plantilla) => {
-    setConfirmState({
-      open: true,
-      msg: `¿Eliminar definitivamente "${p.nombre}"? Se respalda en deleted_records.`,
-      onOk: async () => {
-        try {
-          if (p.archivo_url) {
-            await deleteRowAndBlob({
-              table: "plantillas_globales",
-              id: p.id,
-              userEmail: "anon",
-              bucket: "expedientes",
-              blobUrlField: "archivo_url",
-            });
-          } else {
-            const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
-            if (error) throw new Error(error.message);
-          }
-          showFlash("ok", "Eliminado correctamente");
-          cargar();
-        } catch (e: unknown) {
-          showFlash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
-        }
+    setConfirmState({ open: true, msg: `¿Eliminar definitivamente "${p.nombre}"? Se respalda en deleted_records.`, onOk: async () => {
+    try {
+      if (p.archivo_url) {
+        await deleteRowAndBlob({
+          table: "plantillas_globales",
+          id: p.id,
+          userEmail: "anon",
+          bucket: "expedientes",
+          blobUrlField: "archivo_url",
+        });
+      } else {
+        const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
+        if (error) throw new Error(error.message);
       }
-    });
+      flash("ok", "Plantilla eliminada");
+      cargar();
+    } catch (e: any) {
+      flash("err", "Error: " + e.message);
+    }
+    }});
   };
 
   const filtradas = items.filter(p => {
@@ -225,7 +219,6 @@ export default function BibliotecaPlantillasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard/plantillas" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Plantillas
@@ -260,7 +253,7 @@ export default function BibliotecaPlantillasPage() {
             <option value="">Todas las categorías</option>
             {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value as "ACTIVAS" | "INACTIVAS" | "TODAS")} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+          <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value as any)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
             <option value="ACTIVAS">Activas</option>
             <option value="INACTIVAS">Inactivas</option>
             <option value="TODAS">Todas</option>
@@ -271,6 +264,11 @@ export default function BibliotecaPlantillasPage() {
         </div>
       </div>
 
+      {msg && (
+        <div className={`mx-6 mt-3 px-4 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
+        </div>
+      )}
 
       {showForm && (
         <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -347,7 +345,7 @@ export default function BibliotecaPlantillasPage() {
                     <span className="px-2 py-0.5 rounded-full text-xs bg-violet-500/20 text-violet-300">{p.categoria}</span>
                   </td>
                   <td className="p-3 text-xs text-slate-400">
-                    {p.archivo_nombre && <p className="text-blue-400/80 flex items-center gap-1"><FileText className="w-3 h-3" /> {p.archivo_nombre}</p>}
+                    {p.archivo_nombre && <p className="text-aria-accent/80 flex items-center gap-1"><FileText className="w-3 h-3" /> {p.archivo_nombre}</p>}
                     {p.contenido && <p>{p.contenido.length} chars de texto</p>}
                     {!p.archivo_nombre && !p.contenido && "—"}
                   </td>
@@ -362,11 +360,11 @@ export default function BibliotecaPlantillasPage() {
                   <td className="p-3">
                     <div className="flex items-center justify-center gap-1">
                       {p.archivo_url && (
-                        <a href={p.archivo_url} target="_blank" rel="noopener noreferrer" title="Ver archivo" className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded">
+                        <a href={p.archivo_url} target="_blank" rel="noopener noreferrer" title="Ver archivo" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded">
                           <Eye className="w-4 h-4" />
                         </a>
                       )}
-                      <button onClick={() => abrirEdicion(p)} title="Editar" className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded">
+                      <button onClick={() => abrirEdicion(p)} title="Editar" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded">
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button onClick={() => toggleActivo(p)} title={p.activo ? "Dar de baja" : "Reactivar"} className="p-1.5 text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10 rounded">
@@ -383,7 +381,6 @@ export default function BibliotecaPlantillasPage() {
           </table>
         </div>
       </div>
-
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}

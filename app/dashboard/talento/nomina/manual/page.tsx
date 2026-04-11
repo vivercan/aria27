@@ -1,14 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
+import { ArrowLeft, Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
 
 interface Empleado {
   id: string;
@@ -58,7 +55,6 @@ function getWeekRange(date: Date): { inicio: string; fin: string; dias: string[]
 }
 
 export default function NominaManualPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -204,7 +200,7 @@ export default function NominaManualPage() {
   const guardarCambios = async () => {
     setGuardando(true);
     setMensaje(null);
-
+    
     try {
       for (const a of asistencias.filter(x => x.editando)) {
         if (a.nueva) {
@@ -231,15 +227,13 @@ export default function NominaManualPage() {
           if (error) throw error;
         }
       }
-
-      flash("ok", "Cambios guardados correctamente");
+      
       setMensaje({ tipo: "success", texto: "✅ Cambios guardados correctamente" });
       await cargarAsistencias();
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) ?? "desconocido"));
-      setMensaje({ tipo: "error", texto: ((e as Error)?.message) ?? "Error" });
+    } catch (e: any) {
+      setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
     }
-
+    
     setGuardando(false);
   };
 
@@ -274,12 +268,10 @@ export default function NominaManualPage() {
         pago_tarjeta: Math.min(calculo.neto, emp.minimo_tarjeta || 1096),
         pago_efectivo: Math.max(0, calculo.neto - (emp.minimo_tarjeta || 1096))
       }).eq("id", nominaExistente.id);
-
+      
       if (error) {
-        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: error?.message ?? "Error" });
       } else {
-        flash("ok", "Nómina recalculada correctamente");
         setMensaje({ tipo: "success", texto: "✅ Nómina recalculada y actualizada" });
       }
     } else {
@@ -290,25 +282,26 @@ export default function NominaManualPage() {
   const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
   const formatDate = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   const empleadoActual = empleados.find(e => e.id === empleadoSeleccionado);
   const hayEdiciones = asistencias.some(a => a.editando);
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "asistencias", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     cargarEmpleados();
   };
 
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/talento/nomina" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Edit3 className="w-7 h-7 text-amber-400" />
           </div>
@@ -364,8 +357,8 @@ export default function NominaManualPage() {
         <>
           {/* Info empleado y cálculo */}
           <div className="grid grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20">
-              <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-blue-400" /><span className="text-slate-400 text-xs">Empleado</span></div>
+            <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
+              <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-slate-400 text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
@@ -449,7 +442,7 @@ export default function NominaManualPage() {
                                   ✕
                                 </button>
                               ) : (
-                                <button onClick={() => editarAsistencia(asist.id)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                                <button onClick={() => editarAsistencia(asist.id)} className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30">
                                   <Edit3 className="w-4 h-4" />
                                 </button>
                               )}
@@ -484,10 +477,10 @@ export default function NominaManualPage() {
           </div>
 
           {/* Nota informativa */}
-          <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
+          <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-aria-accent mt-0.5" />
             <div>
-              <p className="text-blue-300 font-medium">Cómo se relaciona con Pre-Nómina y Recibos</p>
+              <p className="text-aria-accent font-medium">Cómo se relaciona con Pre-Nómina y Recibos</p>
               <p className="text-slate-400 text-sm">Esta pantalla edita <b>asistencias reales</b> de la semana seleccionada. Los cambios afectan el cálculo en Pre-Nómina la próxima vez que se Genere. Si la nómina ya está <b>CONFIRMADA</b>, primero hay que desbloquearla desde Recibos. El "Neto Estimado" mostrado aquí es solo días×salario sin incidencias/préstamos — el cálculo oficial vive en /api/nomina/generar.</p>
             </div>
           </div>

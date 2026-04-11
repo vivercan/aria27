@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ObraData {
-  partidas: Record<string, unknown>[];
-  requisitions: Record<string, unknown>[];
-  ocs: Record<string, unknown>[];
-  nomina: Record<string, unknown>[];
-  cobros: Record<string, unknown>[];
-  avances: Record<string, unknown>[];
-  bitacora: Record<string, unknown>[];
+  partidas: any[];
+  requisitions: any[];
+  ocs: any[];
+  nomina: any[];
+  cobros: any[];
+  avances: any[];
+  bitacora: any[];
 }
 
 export interface ObraKPIs {
@@ -30,7 +29,7 @@ export interface ObraKPIs {
  */
 export async function authenticateRequest(
   req: NextRequest,
-  supabase: SupabaseClient
+  supabase: any
 ): Promise<string | null> {
   let userEmail: string | null = null;
 
@@ -67,7 +66,7 @@ export async function authenticateRequest(
  * Fetches all obra data in parallel from 7 tables
  */
 export async function fetchObraData(
-  supabase: SupabaseClient,
+  supabase: any,
   obra: string
 ): Promise<ObraData> {
   const [presPart, reqs, ocs, nomina, cobros, avances, bitacora] =
@@ -128,8 +127,8 @@ export async function fetchObraData(
  * Calculates KPIs from obra data
  */
 export function calculateObraKPIs(data: ObraData): ObraKPIs {
-  const sumNum = (arr: Record<string, unknown>[], key: string): number =>
-    arr.reduce((s: number, r: Record<string, unknown>) => s + Number(r[key] || 0), 0);
+  const sumNum = (arr: any[], key: string) =>
+    arr.reduce((s, r) => s + Number(r[key] || 0), 0);
 
   const totalPpto = sumNum(data.partidas, "monto");
   const totalOC = sumNum(data.ocs, "total");
@@ -138,7 +137,7 @@ export function calculateObraKPIs(data: ObraData): ObraKPIs {
   const gastoTotal = totalOC + totalNomina;
   const margen = totalCobrado - gastoTotal;
   const saldoPpto = totalPpto - gastoTotal;
-  const ultAvance = Number(data.avances[0]?.porcentaje_avance || 0);
+  const ultAvance = data.avances[0]?.porcentaje_avance || 0;
 
   return {
     totalPpto,
@@ -232,7 +231,7 @@ export function addDataSheets(wb: ExcelJS.Workbook, data: ObraData): void {
     s3.addRow({
       ...o,
       created_at: o.created_at
-        ? new Date(String(o.created_at) || "").toLocaleDateString("es-MX")
+        ? new Date(o.created_at).toLocaleDateString("es-MX")
         : "",
     })
   );
@@ -328,7 +327,7 @@ export async function generateExcelResponse(
     .toISOString()
     .slice(0, 10)}.xlsx`;
 
-  return new NextResponse(Buffer.from(buf), {
+  return new NextResponse(buf as any, {
     status: 200,
     headers: {
       "Content-Type":

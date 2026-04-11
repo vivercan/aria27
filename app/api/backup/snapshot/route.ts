@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
       }
 
       const totalRows = count || firstPage?.length || 0;
-      const allData: Record<string, unknown>[] = [...(firstPage || [])];
+      const allData: any[] = [...(firstPage || [])];
 
       // Paginar si hay más de PAGE_SIZE filas
       if (totalRows > PAGE_SIZE) {
@@ -176,14 +176,13 @@ export async function GET(req: NextRequest) {
         size: json.length,
         ...(uploadError ? { error: uploadError } : {}),
       });
-    } catch (e: unknown) {
-      const error = e instanceof Error ? e : new Error(String(e));
+    } catch (e: any) {
       tableResults.push({
         tabla,
         rows: 0,
         pages: 0,
         size: 0,
-        error: error?.message || "error",
+        error: e?.message || "error",
       });
     }
   }
@@ -238,14 +237,12 @@ export async function GET(req: NextRequest) {
           } else {
             filesCopied++;
           }
-        } catch (fe: unknown) {
-          const error = fe instanceof Error ? fe : new Error(String(fe));
-          errorDetails.push(`${filePath}: ${error?.message || "error"}`);
+        } catch (fe: any) {
+          errorDetails.push(`${filePath}: ${fe?.message || "error"}`);
         }
       }
-    } catch (e: unknown) {
-      const error = e instanceof Error ? e : new Error(String(e));
-      errorDetails.push(`listFiles: ${error?.message || "error"}`);
+    } catch (e: any) {
+      errorDetails.push(`listFiles: ${e?.message || "error"}`);
     }
 
     storageResults.push({
@@ -291,15 +288,13 @@ export async function GET(req: NextRequest) {
           }
           deletedFolders.push(folder.name);
           log.info("backup viejo eliminado", { folder: folder.name, files: oldFiles.length });
-        } catch (delErr: unknown) {
-          const error = delErr instanceof Error ? delErr : new Error(String(delErr));
-          log.error("error eliminando backup viejo", { folder: folder.name, error: error?.message });
+        } catch (delErr: any) {
+          log.error("error eliminando backup viejo", { folder: folder.name, error: delErr?.message });
         }
       }
     }
-  } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error(String(e));
-    log.error("error en limpieza de backups", { error: error?.message });
+  } catch (e: any) {
+    log.error("error en limpieza de backups", { error: e?.message });
   }
 
   // ===============================================================

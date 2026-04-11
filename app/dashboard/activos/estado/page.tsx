@@ -1,25 +1,24 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import React from "react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2 } from "lucide-react";
+import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { supabase } from "@/lib/supabase";
-import { Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2, Package } from "lucide-react";
-import Link from "next/link";
 
 export default function EstadoActivosPage() {
   const [activos, setActivos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState("todos");
   const [saving, setSaving] = useState<string | null>(null);
-  const { msg, flash } = useFlashMessage();
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { load(); }, []);
 
   const load = async () => {
     const { data, error } = await supabase.from("activos").select("*").order("nombre");
-    if (error) {  setLoading(false); return; }
+    if (error) { console.error("Error loading activos:", error?.message); setLoading(false); return; }
     if (data) setActivos(data);
     setLoading(false);
   };
@@ -27,9 +26,8 @@ export default function EstadoActivosPage() {
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     setSaving(id);
     const { error } = await supabase.from("activos").update({ estado: nuevoEstado }).eq("id", id);
-    if (error) {  flash("err", "Error: " + error?.message); setSaving(null); return; }
+    if (error) { console.error("Error updating estado:", error?.message); flash("err", "Error: " + error?.message); setSaving(null); return; }
     setActivos(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
-    flash("ok", "Estado actualizado");
     setSaving(null);
   };
 
@@ -52,18 +50,14 @@ export default function EstadoActivosPage() {
 
   const estadoOptions = ["bueno", "mantenimiento", "reparacion", "baja"];
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} className="mx-6" />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
+          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
             <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
@@ -83,10 +77,7 @@ export default function EstadoActivosPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-          <p className="text-slate-400">No hay activos en esta categoría</p>
-        </div>
+        <div className="text-center py-12 text-slate-400">No hay activos en esta categoría</div>
       ) : (
         <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">
@@ -117,7 +108,7 @@ export default function EstadoActivosPage() {
                         <option value="">Seleccionar...</option>
                         {estadoOptions.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
-                      {saving === a.id && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+                      {saving === a.id && <Loader2 className="w-4 h-4 animate-spin text-aria-accent" />}
                     </div>
                   </td>
                 </tr>

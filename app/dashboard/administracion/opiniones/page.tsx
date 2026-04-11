@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import {
@@ -10,10 +7,13 @@ import {
   Trash2, CheckCircle2, AlertTriangle, Clock, FileText, X
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 const OPINIONES = [
   { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
-  { key: "infonavit", label: "Infonavit", desc: "Opinión de cumplimiento de aportaciones patronales.", color: "text-blue-400", bg: "bg-blue-500/10" },
+  { key: "infonavit", label: "Infonavit", desc: "Opinión de cumplimiento de aportaciones patronales.", color: "text-aria-accent", bg: "bg-aria-primary/10" },
   { key: "sat", label: "SAT (32-D)", desc: "Opinión de cumplimiento de obligaciones fiscales.", color: "text-amber-400", bg: "bg-amber-500/10" },
   { key: "sar", label: "SAR", desc: "Opinión de cumplimiento del Sistema de Ahorro para el Retiro.", color: "text-purple-400", bg: "bg-purple-500/10" },
 ];
@@ -28,14 +28,14 @@ interface OpinionDoc {
 }
 
 export default function OpinionesPage() {
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [docs, setDocs] = useState<OpinionDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<string | null>(null);
-  const { msg, flash } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadDocs(); }, []);
 
@@ -47,16 +47,15 @@ export default function OpinionesPage() {
         .eq("carpeta_id", "opiniones_cumplimiento")
         .order("created_at", { ascending: false });
       // vigencia se calcula client-side: created_at + 30 días (la columna no existe en BD)
-      const enriched = (data || []).map((d: Record<string, unknown>) => ({
+      const enriched = (data || []).map((d: any) => ({
         ...d,
         vigencia: d.created_at
-          ? new Date(new Date(String(d.created_at) || "").getTime() + 30 * 86400000).toISOString().split("T")[0]
+          ? new Date(new Date(d.created_at).getTime() + 30 * 86400000).toISOString().split("T")[0]
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
-    } catch (e: unknown) {
-      flash("err", "Error al cargar documentos: " + ((e as Error)?.message || "desconocido"));
-    } finally { setLoading(false); }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   }
 
   function triggerUpload(tipo: string) {
@@ -87,10 +86,9 @@ export default function OpinionesPage() {
       });
 
       await loadDocs();
-      flash("ok", "Archivo subido correctamente");
-    } catch (err: unknown) {
-
-      flash("err", "Error al subir: " + ((err as Error)?.message || "desconocido"));
+    } catch (err: any) {
+      console.error("Error subiendo:", err);
+      flash("err", "Error al subir: " + (err?.message || "desconocido"));
     } finally {
       setUploading(null);
       setUploadTarget(null);
@@ -108,18 +106,17 @@ export default function OpinionesPage() {
           const result = await deleteRowAndBlob({
             table: "expedientes_archivos",
             id: doc.id,
-            userEmail: (typeof window !== "undefined" ? localStorage.getItem("userEmail") : "") || "admin@aria27",
+            userEmail: "admin@aria27",
             bucket: "expedientes",
             blobUrlField: "url",
           });
           if (result.orphanPath) {
             flash("err", `Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
-          } else {
-            flash("ok", "Documento eliminado");
           }
           await loadDocs();
-        } catch (e: unknown) {
-          flash("err", "Error al eliminar: " + ((e as Error)?.message || "desconocido"));
+        } catch (e: any) {
+          console.error(e);
+          flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
         }
         finally { setDeleting(null); }
       }
@@ -130,7 +127,7 @@ export default function OpinionesPage() {
     return docs.find(d => d.tipo === tipo);
   }
 
-  function getStatus(doc: OpinionDoc | undefined): { label: string; color: string; icon: typeof AlertTriangle } {
+  function getStatus(doc: OpinionDoc | undefined): { label: string; color: string; icon: any } {
     if (!doc) return { label: "Sin documento", color: "text-red-400", icon: AlertTriangle };
     if (doc.vigencia) {
       const today = new Date();
@@ -140,11 +137,12 @@ export default function OpinionesPage() {
       if (diff <= 15) return { label: `Vence en ${diff}d`, color: "text-amber-400", icon: Clock };
       return { label: "Vigente", color: "text-emerald-400", icon: CheckCircle2 };
     }
-    return { label: "Subido", color: "text-blue-400", icon: FileText };
+    return { label: "Subido", color: "text-aria-accent", icon: FileText };
   }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <input type="file" ref={fileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png"
         onChange={handleFileUpload} />
 
@@ -174,7 +172,7 @@ export default function OpinionesPage() {
 
       {/* Cards */}
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {OPINIONES.map(op => {
@@ -223,10 +221,10 @@ export default function OpinionesPage() {
                       </>
                     )}
                     <button onClick={() => triggerUpload(op.key)} disabled={isUploading}
-                      className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
+                      className="p-1.5 rounded-lg bg-aria-primary/10 hover:bg-aria-primary-light transition-colors">
                       {isUploading
-                        ? <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
-                        : <Upload className="w-3.5 h-3.5 text-blue-400" />}
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin text-aria-accent" />
+                        : <Upload className="w-3.5 h-3.5 text-aria-accent" />}
                     </button>
                   </div>
                 </div>
@@ -248,12 +246,13 @@ export default function OpinionesPage() {
         </div>
       </div>
 
-      <FlashBanner msg={msg} className="mx-6 mb-4" />
-
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

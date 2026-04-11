@@ -8,9 +8,6 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
-import { formatMoney as fmt } from "@/lib/format-utils";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -30,7 +27,7 @@ const ESTATUS_COLORS: Record<string, string> = {
   PENDIENTE: "bg-amber-500/20 text-amber-400",
   PAGADA: "bg-emerald-500/20 text-emerald-400",
   VENCIDA: "bg-red-500/20 text-red-400",
-  PARCIAL: "bg-blue-500/20 text-blue-400",
+  PARCIAL: "bg-aria-primary-light text-aria-accent",
 };
 const FORM_INIT = {
   tipo: "IMSS", periodo: "", obra_id: "", num_trabajadores: "",
@@ -39,6 +36,7 @@ const FORM_INIT = {
   monto_pagado: "0", fecha_pago: "",
 };
 
+const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string | null) => { if (!d) return "—"; try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 const diasPara = (d: string | null) => { if (!d) return null; const diff = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); return diff; };
 
@@ -61,8 +59,9 @@ export default function SUAFinanzasPage() {
   const [pagoForm, setPagoForm] = useState({ monto: "", fecha: new Date().toISOString().slice(0, 10), banco: "", referencia: "" });
 
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   /* ── load ── */
   useEffect(() => { loadAll(); }, []);
@@ -102,7 +101,7 @@ export default function SUAFinanzasPage() {
     const obraObj = obras.find(o => o.id === form.obra_id);
 
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       tipo: form.tipo,
       periodo: form.periodo.trim(),
       obra_id: form.obra_id || null,
@@ -148,14 +147,10 @@ export default function SUAFinanzasPage() {
   }
 
   async function eliminar(id: string) {
-    setConfirmState({
-      open: true,
-      msg: "¿Eliminar esta línea de captura?",
-      onOk: async () => {
-        const { error } = await supabase.from("sua_lineas_captura").delete().eq("id", id);
-        if (error) flash("err", error.message); else { flash("ok", "Eliminada"); loadAll(); }
-      }
-    });
+    setConfirmState({ open: true, msg: "¿Eliminar esta línea de captura?", onOk: async () => {
+      const { error } = await supabase.from("sua_lineas_captura").delete().eq("id", id);
+      if (error) flash("err", error.message); else { flash("ok", "Eliminada"); loadAll(); }
+    }});
   }
 
   /* ── Pago rápido ── */
@@ -207,18 +202,23 @@ export default function SUAFinanzasPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-blue-400" /> SUA · Control Financiero
+            <Shield className="w-6 h-6 text-aria-accent" /> SUA · Control Financiero
           </h1>
           <p className="text-sm text-slate-400 mt-0.5">Líneas de captura IMSS · Infonavit · RCV · Pagos · Conciliación</p>
         </div>
       </div>
 
+      {/* Flash */}
+      {msg && (
+        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">
@@ -244,7 +244,7 @@ export default function SUAFinanzasPage() {
       <div className="flex-none px-6 pb-3 flex flex-col md:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar periodo, obra, línea de captura..." className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-blue-500/40" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar periodo, obra, línea de captura..." className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-aria-primary/40" />
         </div>
         <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
           <option value="TODOS">Todos tipos</option>
@@ -259,7 +259,7 @@ export default function SUAFinanzasPage() {
           {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
         </select>
         <button onClick={() => { setForm(FORM_INIT); setEditId(null); setShowForm(true); }}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+          className="flex items-center gap-1.5 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
           <Plus className="w-4 h-4" /> Nueva Línea
         </button>
       </div>
@@ -267,7 +267,7 @@ export default function SUAFinanzasPage() {
       {/* Table */}
       <div className="flex-1 overflow-auto px-6 pb-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+          <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -302,7 +302,7 @@ export default function SUAFinanzasPage() {
                       <td className="px-3 py-2.5 text-white font-medium whitespace-nowrap">{l.periodo}</td>
                       <td className="px-3 py-2.5">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          l.tipo === "IMSS" ? "bg-blue-500/20 text-blue-400" :
+                          l.tipo === "IMSS" ? "bg-aria-primary-light text-aria-accent" :
                           l.tipo === "INFONAVIT" ? "bg-purple-500/20 text-purple-400" :
                           l.tipo === "RCV" ? "bg-cyan-500/20 text-cyan-400" :
                           "bg-slate-500/20 text-slate-400"
@@ -340,7 +340,7 @@ export default function SUAFinanzasPage() {
                               <CreditCard className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          <button onClick={() => editar(l)} className="p-1 bg-blue-500/10 hover:bg-blue-500/20 rounded text-blue-400 transition-colors" title="Editar">
+                          <button onClick={() => editar(l)} className="p-1 bg-aria-primary/10 hover:bg-aria-primary-light rounded text-aria-accent transition-colors" title="Editar">
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button onClick={() => eliminar(l.id)} className="p-1 bg-red-500/10 hover:bg-red-500/20 rounded text-red-400 transition-colors" title="Eliminar">
@@ -385,7 +385,7 @@ export default function SUAFinanzasPage() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Periodo *</label>
-                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
+                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Trabajadores</label>
@@ -408,7 +408,7 @@ export default function SUAFinanzasPage() {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Monto base *</label>
-                  <input type="number" step="0.01" min="0.01" required value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500/40" />
+                  <input type="number" step="0.01" min="0.01" required value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Recargos</label>
@@ -419,8 +419,8 @@ export default function SUAFinanzasPage() {
                   <input type="number" step="0.01" min="0" value={form.actualizacion} onChange={e => setForm({ ...form, actualizacion: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex justify-between items-center">
-                <span className="text-xs text-blue-400">Total calculado</span>
+              <div className="p-3 bg-aria-primary/10 border border-aria-primary/20 rounded-lg flex justify-between items-center">
+                <span className="text-xs text-aria-accent">Total calculado</span>
                 <span className="text-lg font-bold text-white">{fmt(totalComputed)}</span>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -440,7 +440,7 @@ export default function SUAFinanzasPage() {
             </div>
             <div className="flex justify-end gap-2 p-5 border-t border-white/[0.06]">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
-              <button onClick={guardar} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+              <button onClick={guardar} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editId ? "Actualizar" : "Registrar"}
               </button>
@@ -490,7 +490,6 @@ export default function SUAFinanzasPage() {
           </div>
         </div>
       )}
-
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}

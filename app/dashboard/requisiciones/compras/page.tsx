@@ -1,28 +1,21 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import FlashBanner from "@/components/FlashBanner";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft, Loader2, Package, Clock, CreditCard, Banknote,
   Receipt, Truck, Check, ShoppingCart, ChevronRight, AlertCircle,
   CheckCircle2, Star, Zap, X
 } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 type Req = {
   id: number; folio: string; cost_center_name: string;
   urgency: string; status: string; created_at: string;
 };
 type Item = { id: number; product_name: string; unit: string; quantity: number; };
-interface ItemRow {
-  id?: number;
-  product_name?: string;
-  unit?: string;
-  quantity?: number;
-}
 type Quote = {
   id: number; requisition_id: number; supplier_name: string; total: number;
   dias_credito: number; dias_entrega: number; forma_pago: string;
@@ -68,7 +61,7 @@ export default function ComprasPickingPage() {
     const { data: qs } = await supabase.from("quotations").select("*").eq("requisition_id", req.id);
     setQuotations((qs || []) as Quote[]);
 
-    const ids = (its || []).map((i: ItemRow) => i.id).filter(Boolean) as number[];
+    const ids = (its || []).map((i: any) => i.id);
     if (ids.length > 0) {
       const { data: iqs } = await supabase.from("requisition_item_quotes").select("*").in("requisition_item_id", ids);
       setItemQuotes((iqs || []) as ItemQuote[]);
@@ -141,59 +134,61 @@ export default function ComprasPickingPage() {
       return;
     }
 
+    const doAuthorize = async () => {
+      setAuthorizing(true);
+      try {
+        const res = await fetch("/api/requisicion/autorizar-picking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requisition_id: selectedReq!.id,
+            folio: selectedReq!.folio,
+            obra: selectedReq!.cost_center_name,
+            urgency: selectedReq!.urgency,
+            selections: Object.entries(selections).map(([itemId, sel]) => {
+              const item = items.find(i => i.id === Number(itemId))!;
+              const info = supplierInfo[sel.supplier_name];
+              return {
+                item_id: Number(itemId),
+                product_name: item.product_name,
+                quantity: item.quantity,
+                unit: item.unit,
+                supplier_name: sel.supplier_name,
+                unit_price: sel.unit_price,
+                total_price: sel.unit_price * item.quantity,
+                forma_pago: info?.forma_pago || "TRANSFERENCIA",
+                tipo_credito: info?.tipo_credito || "CONTADO",
+                dias_credito: info?.dias_credito || 0,
+                emite_factura: info?.emite_factura ?? true,
+              };
+            })
+          })
+        });
+        if (!res.ok) {
+          const errTxt = await res.text().catch(() => "");
+          flash("err", "Error autorizar-picking (" + res.status + "): " + errTxt.slice(0, 250));
+          setAuthorizing(false);
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (data.success) {
+          flash("ok", "Compra autorizada\n" + data.purchase_orders + " orden(es) de compra generada(s)\nNotificacion enviada a Compras");
+          goBack();
+          loadReqs();
+        } else {
+          flash("err", "Error: " + (data.error || "desconocido"));
+        }
+      } catch (e) {
+        flash("err", "Error de conexion");
+      } finally {
+        setAuthorizing(false);
+      }
+    };
+
     setConfirmState({
       open: true,
       msg: "Autorizar compra por $" + grandTotal.toLocaleString() + "?\nSe generaran " + Object.keys(cart).length + " orden(es) de compra.",
-      onOk: async () => {
-        setAuthorizing(true);
-        try {
-          const res = await fetch("/api/requisicion/autorizar-picking", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              requisition_id: selectedReq!.id,
-              folio: selectedReq!.folio,
-              obra: selectedReq!.cost_center_name,
-              urgency: selectedReq!.urgency,
-              selections: Object.entries(selections).map(([itemId, sel]) => {
-                const item = items.find(i => i.id === Number(itemId))!;
-                const info = supplierInfo[sel.supplier_name];
-                return {
-                  item_id: Number(itemId),
-                  product_name: item.product_name,
-                  quantity: item.quantity,
-                  unit: item.unit,
-                  supplier_name: sel.supplier_name,
-                  unit_price: sel.unit_price,
-                  total_price: sel.unit_price * item.quantity,
-                  forma_pago: info?.forma_pago || "TRANSFERENCIA",
-                  tipo_credito: info?.tipo_credito || "CONTADO",
-                  dias_credito: info?.dias_credito || 0,
-                  emite_factura: info?.emite_factura ?? true,
-                };
-              })
-            })
-          });
-          if (!res.ok) {
-            const errTxt = await res.text().catch(() => "");
-            flash("err", "Error autorizar-picking (" + res.status + "): " + errTxt.slice(0, 250));
-            setAuthorizing(false);
-            return;
-          }
-          const data = await res.json().catch(() => ({}));
-          if (data.success) {
-            flash("ok", "Compra autorizada\n" + data.purchase_orders + " orden(es) de compra generada(s)\nNotificacion enviada a Compras");
-            goBack();
-            loadReqs();
-          } else {
-            flash("err", "Error: " + (data.error || "desconocido"));
-          }
-        } catch (e) {
-          flash("err", "Error de conexion");
-        } finally {
-          setAuthorizing(false);
-        }
-      }
+      onOk: doAuthorize
     });
   };
 
@@ -217,11 +212,7 @@ export default function ComprasPickingPage() {
     return items.filter(item => itemQuotes.some(iq => iq.requisition_item_id === item.id && iq.supplier_name === name)).length;
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   // ==========================================
   // VIEW: LIST OF PENDING REQUISITIONS
@@ -229,15 +220,11 @@ export default function ComprasPickingPage() {
   if (!selectedReq) {
     return (
       <div className="h-full flex flex-col">
-        <FlashBanner msg={msg} />
-        <ConfirmModal
-          open={confirmState.open}
-          message={confirmState.msg}
-          onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-          onCancel={() => setConfirmState(p => ({...p, open: false}))}
-        />
+        <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4">
-          <AriaBackButton href="/dashboard/requisiciones" />
+          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Autorizar Compras</h1>
             <p className="text-slate-400 text-sm">{reqs.length} requisiciones pendientes</p>
@@ -275,14 +262,18 @@ export default function ComprasPickingPage() {
   // VIEW: PICKING INTERFACE
   // ==========================================
   return (
-    <div className="h-full flex flex-col">
-      <FlashBanner msg={msg} />
+    <>
+      <FlashBanner msg={msg} className="mx-0 mb-3" />
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
+      <div className="h-full flex flex-col">
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-3 shrink-0">
         <button onClick={goBack} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
@@ -404,7 +395,7 @@ export default function ComprasPickingPage() {
                         {/* Badges */}
                         <div className="flex gap-1 mb-1.5">
                           {isBest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-emerald-500/20 text-emerald-400">💰 MEJOR</span>}
-                          {isFastest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-blue-500/20 text-blue-400">⚡ RÁPIDO</span>}
+                          {isFastest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-aria-primary-light text-aria-accent">⚡ RÁPIDO</span>}
                         </div>
 
                         {/* Price */}
@@ -441,7 +432,7 @@ export default function ComprasPickingPage() {
       </div>
 
       {/* STICKY FOOTER - CART */}
-      <div className="shrink-0 border-t border-white/[0.08] bg-[#0a1628]/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
+      <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
         {/* Cart summary */}
         {selectedCount > 0 && (
           <div className="mb-3">
@@ -480,5 +471,6 @@ export default function ComprasPickingPage() {
         </button>
       </div>
     </div>
+    </>
   );
 }

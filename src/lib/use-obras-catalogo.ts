@@ -27,7 +27,7 @@ export function useObrasCatalogo(opts: { incluirInactivas?: boolean } = {}) {
       if (cancel) return;
       const filt = opts.incluirInactivas
         ? (data || [])
-        : (data || []).filter((o: ObraCatalogo) => o.estado !== "CANCELADA" && o.estado !== "TERMINADA");
+        : (data || []).filter((o: any) => o.estado !== "CANCELADA" && o.estado !== "TERMINADA");
       setObras(filt as ObraCatalogo[]);
       setLoading(false);
     })();

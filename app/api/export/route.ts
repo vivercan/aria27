@@ -3,8 +3,6 @@ import ExcelJS from "exceljs";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const log = logger("EXPORT");
 
 const supabase = getSupabaseAdmin();
@@ -37,8 +35,7 @@ async function fetchAllRows(
       query = filterFn(query);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (query as any);
+    const { data, error } = await query;
     if (error) return { data: [], error: error?.message };
     if (!data || data.length === 0) {
       hasMore = false;

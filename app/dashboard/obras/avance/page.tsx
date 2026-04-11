@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
-import { TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
+import { ArrowLeft, TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
@@ -32,13 +31,13 @@ function semanaActualISO(): string {
 const fmt2 = (n: number) => (n || 0).toFixed(1) + "%";
 
 export default function AvanceObrasPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const { obras: obrasCat, loading: loadingObras } = useObrasCatalogo();
   const [avances, setAvances] = useState<Avance[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [semana, setSemana] = useState<string>(semanaActualISO());
   const [draft, setDraft] = useState<Record<string, { pct: string; obs: string }>>({});
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -89,7 +88,7 @@ export default function AvanceObrasPage() {
     setSaving(true);
     try {
       const existente = semanaActual.get(obra_nombre);
-      const payload: Record<string, unknown> = {
+      const payload: any = {
         obra_id: obra_id || null,
         obra_nombre,
         semana_iso: semana,
@@ -107,22 +106,25 @@ export default function AvanceObrasPage() {
       }
       setDraft(prev => { const c = { ...prev }; delete c[obra_nombre]; return c; });
       await cargar();
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
+      flash("ok", "Guardado exitosamente");
+    } catch (e: any) {
+      flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading || loadingObras) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading || loadingObras) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <AriaBackButton href="/dashboard/obras" />
+            <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            </Link>
             <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
               <TrendingUp className="w-7 h-7 text-emerald-400" />
             </div>
@@ -143,8 +145,8 @@ export default function AvanceObrasPage() {
         </div>
       </div>
 
-      <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-blue-400 mt-0.5" />
+      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
+        <AlertTriangle className="w-5 h-5 text-aria-accent mt-0.5" />
         <p className="text-xs text-slate-400">
           Captura el % de avance físico real que reporta el residente para cada obra activa en la semana seleccionada.
           El Centro de Control compara este número contra el avance financiero (Gasto Total / Presupuesto) para detectar

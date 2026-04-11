@@ -5,11 +5,8 @@
  * These hooks encapsulate common patterns for state management and form handling.
  */
 
-export { useFlashMessage } from '@/lib/use-flash-message';
-export type { FlashMsg } from '@/lib/use-flash-message';
+export { useFlashMessage } from './useFlashMessage';
+export type { FlashMessageType, UseFlashMessageReturn } from './useFlashMessage';
 
 export { useEntityForm } from './useEntityForm';
 export type { UseEntityFormReturn } from './useEntityForm';
-
-export { useObrasCatalogo } from './useObrasCatalogo';
-export type { ObraCatalogo } from './useObrasCatalogo';

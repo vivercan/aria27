@@ -1,13 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Loader2, TrendingUp, AlertTriangle, DollarSign, Wallet, Building2,
+  ArrowLeft, Loader2, TrendingUp, AlertTriangle, DollarSign, Wallet, Building2,
   FileText, ShoppingCart, Activity, RefreshCw,
 } from "lucide-react";
-import { formatMoneyShort as fmt, fmt as fmt2 } from "@/lib/format-utils";
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
@@ -16,6 +14,9 @@ interface Req { id: string; cost_center_name: string | null; }
 interface Nom { obra: string | null; sueldo_neto: number; status: string; semana_iso: string | null; }
 interface Part { obra_nombre: string; importe: number; }
 interface Av { obra_nombre: string; semana_iso: string; pct_fisico: number; }
+
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmt2 = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function isThisMonth(iso: string): boolean {
   if (!iso) return false;
@@ -55,7 +56,7 @@ export default function CeoDashboardPage() {
       setNom((n.data as any[]) || []);
       setParts((pp.data as any[]) || []);
       setAvs((a.data as any[]) || []);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setLoading(false);
   }
 
@@ -187,14 +188,16 @@ export default function CeoDashboardPage() {
     }));
   }, [cobs, pos]);
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard" />
+          <Link href="/dashboard" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Activity className="w-7 h-7 text-amber-400" />
           </div>
@@ -237,7 +240,7 @@ export default function CeoDashboardPage() {
       {/* Flujo caja 12 semanas */}
       <div className="rounded-2xl bg-white/[0.02] border border-white/10 p-5">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-blue-400" />
+          <TrendingUp className="w-5 h-5 text-aria-accent" />
           <h2 className="text-base font-bold text-white">Flujo de caja · últimas 12 semanas</h2>
           <span className="ml-auto text-xs text-slate-500">verde=cobros · naranja=gasto OC</span>
         </div>
@@ -292,7 +295,7 @@ export default function CeoDashboardPage() {
         )}
       </div>
 
-      <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-slate-400">
+      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 text-xs text-slate-400">
         Vista ejecutiva consolidada. Pipeline = cotizaciones BORRADOR/ENVIADA dentro de vigencia. Aprobado = cotizaciones APROBADA. Cobrado/Por cobrar = suma sobre cobros_manuales no canceladas. Gasto OC del mes = purchase_orders no canceladas creadas en el mes actual. Margen Real = Cobrado − (Gasto OC + Nómina CONFIRMADA). Alertas: rebasadas = gasto mayor a presupuesto; delta Fis-Fin menor a -10% = obra atrasada vs gasto.
       </div>
     </div>
@@ -301,7 +304,7 @@ export default function CeoDashboardPage() {
 
 function KpiCard({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: string; sub: string; color: string }) {
   const map: Record<string, string> = {
-    blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+    blue: "bg-aria-primary/10 border-aria-primary/20 text-aria-accent",
     emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
     teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
     amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",

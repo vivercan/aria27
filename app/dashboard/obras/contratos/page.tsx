@@ -26,7 +26,6 @@ interface Contrato {
 }
 
 export default function ContratosPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -37,6 +36,7 @@ export default function ContratosPage() {
     monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5,
     fecha_inicio: "", fecha_fin: "", descripcion: ""
   });
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { loadData(); }, []);
 
@@ -44,7 +44,7 @@ export default function ContratosPage() {
     try {
       const { data } = await supabase.from("contratos").select("*").order("created_at", { ascending: false });
       setContratos(data || []);
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -69,7 +69,7 @@ export default function ContratosPage() {
     });
 
     if (error) flash("err", "Error: " + error?.message);
-    else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", rfc_cliente: "", tipo: "OBRA_PUBLICA", monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5, fecha_inicio: "", fecha_fin: "", descripcion: "" }); loadData(); flash("ok", "Contrato guardado correctamente"); }
+    else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", rfc_cliente: "", tipo: "OBRA_PUBLICA", monto_contrato: 0, anticipo_porcentaje: 30, retencion_porcentaje: 5, fecha_inicio: "", fecha_fin: "", descripcion: "" }); loadData(); flash("ok", "Contrato guardado"); }
   }
 
   const totalContratado = contratos.reduce((s, c) => s + (c.monto_contrato || 0), 0);
@@ -85,7 +85,7 @@ export default function ContratosPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "VIGENTE": return "bg-emerald-500/20 text-emerald-400";
-      case "TERMINADO": return "bg-blue-500/20 text-blue-400";
+      case "TERMINADO": return "bg-aria-primary-light text-aria-accent";
       case "CANCELADO": return "bg-red-500/20 text-red-400";
       case "EN_FINIQUITO": return "bg-amber-500/20 text-amber-400";
       default: return "bg-slate-500/20 text-slate-400";
@@ -94,7 +94,7 @@ export default function ContratosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 
@@ -103,7 +103,7 @@ export default function ContratosPage() {
             <h1 className="text-2xl font-bold text-white">Contratos</h1>
             <p className="text-slate-400 text-sm">Control de contratos de obra — anticipos, retenciones y plazos</p>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nuevo Contrato
           </button>
         </div>
@@ -111,7 +111,7 @@ export default function ContratosPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Contratado", value: `$${totalContratado.toLocaleString()}`, icon: DollarSign, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "Total Contratado", value: `$${totalContratado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Contratos", value: contratos.length, icon: FileText, color: "text-violet-400", bg: "bg-violet-500/10" },
           { label: "Vigentes", value: vigentes, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Terminados", value: terminados, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
@@ -158,7 +158,7 @@ export default function ContratosPage() {
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">Guardar</button>
+            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
@@ -168,12 +168,12 @@ export default function ContratosPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por obra, cliente o número..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "VIGENTE", "TERMINADO", "EN_FINIQUITO", "CANCELADO"].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
               {f.replace("_", " ")}
             </button>
           ))}
@@ -197,7 +197,7 @@ export default function ContratosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin contratos registrados</td></tr>
               ) : filtered.map(c => (

@@ -1,11 +1,11 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { fmt } from "@/lib/format-utils";
+
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function weekOfYear(d: Date) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -13,18 +13,6 @@ function weekOfYear(d: Date) {
   t.setUTCDate(t.getUTCDate() + 4 - dn);
   const ys = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
   return Math.ceil((((t.getTime() - ys.getTime()) / 86400000) + 1) / 7);
-}
-
-interface NominaRow {
-  nombre?: string;
-  puesto?: string;
-  obra?: string;
-  dias_trabajados?: number | string;
-  total_percepciones?: number | string;
-  total_deducciones?: number | string;
-  sueldo_neto?: number | string;
-  fecha_inicio?: string;
-  fecha_fin?: string;
 }
 
 interface Row {
@@ -58,7 +46,7 @@ function Content() {
       .eq("anio", anio)
       .eq("semana", semana)
       .order("nombre", { ascending: true });
-    setRows((data || []).map((n: NominaRow) => ({
+    setRows((data || []).map((n: any) => ({
       nombre: n.nombre || "—",
       puesto: n.puesto || "—",
       obra: n.obra || "—",
@@ -82,19 +70,19 @@ function Content() {
   const periodo = rows[0] ? `${rows[0].fecha_inicio} → ${rows[0].fecha_fin}` : "";
   const fechaGen = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
-  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <>
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/reportes" />
+          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Nómina semanal · <b>Sem {semana} / {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">
           <input type="number" defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-16" />
           <input type="number" defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-20" />
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>
 
@@ -209,5 +197,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function Page() {
-  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>}><Content /></Suspense>;
+  return <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}><Content /></Suspense>;
 }

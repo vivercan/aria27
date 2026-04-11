@@ -4,8 +4,6 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { FileText, Search, Upload, Download, Eye, Loader2, FolderOpen, X, Save, Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -37,7 +35,7 @@ export default function DocumentosPage() {
   const [guardando, setGuardando] = useState(false);
   const [form, setForm] = useState<any>({ ...EMPTY });
   const [obras, setObras] = useState<Obra[]>([]);
-  const { msg, flash, clear } = useFlashMessage();
+  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); }, []);
@@ -53,6 +51,10 @@ export default function DocumentosPage() {
     setObras(data || []);
   };
 
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
+  };
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -71,14 +73,14 @@ export default function DocumentosPage() {
       if (obra) payload.obra_nombre = obra.nombre;
     }
     const { error } = await supabase.from("documentos_plantilla").insert(payload);
-    if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); setForm({ ...EMPTY }); cargar(); }
+    if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Documento registrado"); setShowForm(false); setForm({ ...EMPTY }); cargar(); }
     setGuardando(false);
   };
 
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("documentos_plantilla").delete().eq("id", id);
-    if (error) flash("err", error?.message ?? "Error"); else { flash("ok", "Documento eliminado"); cargar(); }
+    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Documento eliminado"); cargar(); }
   };
 
   const filtered = documentos.filter(d =>
@@ -87,17 +89,18 @@ export default function DocumentosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "documentos_plantilla", id: deleteModal.id, userEmail });
-      flash("ok", "Eliminado correctamente");
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
-    }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       <AriaBackButton href="/dashboard/plantillas" />
 
@@ -106,7 +109,7 @@ export default function DocumentosPage() {
           <h1 className="text-2xl font-bold text-white">Centro de Documentación</h1>
           <p className="text-slate-400 text-sm">Gestión y almacenamiento de documentos del proyecto</p>
         </div>
-        <button onClick={() => { setForm({ ...EMPTY }); setShowForm(true); }} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2">
+        <button onClick={() => { setForm({ ...EMPTY }); setShowForm(true); }} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Upload className="w-4 h-4" /> Subir Documento
         </button>
       </div>
@@ -121,37 +124,37 @@ export default function DocumentosPage() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
-                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Nombre del documento" />
+                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Nombre del documento" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-                  <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                  <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Categoría</label>
-                  <input value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="Ej: Legal, Técnico" />
+                  <input value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Ej: Legal, Técnico" />
                 </div>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Obra</label>
-                <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none">
+                <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                   <option value="">Sin obra específica</option>
                   {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Descripción</label>
-                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none resize-none" placeholder="Descripción opcional" />
+                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none resize-none" placeholder="Descripción opcional" />
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">URL del Archivo</label>
-                <input value={form.archivo_url} onChange={e => setForm({ ...form, archivo_url: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-blue-500/50 focus:outline-none" placeholder="https://..." />
+                <input value={form.archivo_url} onChange={e => setForm({ ...form, archivo_url: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="https://..." />
               </div>
-              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {guardando ? "Guardando..." : "Guardar Documento"}
               </button>
@@ -167,7 +170,7 @@ export default function DocumentosPage() {
           <p className="text-xs text-slate-400">Total Documentos</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flep p-2 rounded-lg bg-blue-500/10 mb-2"><FolderOpen className="w-4 h-4 text-blue-400" /></div>
+          <div className="inline-flep p-2 rounded-lg bg-aria-primary/10 mb-2"><FolderOpen className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : [...new Set(documentos.map(d => d.tipo).filter(Boolean))].length}</p>
           <p className="text-xs text-slate-400">Tipos</p>
         </div>
@@ -181,7 +184,7 @@ export default function DocumentosPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar documento por nombre, tipo u obra..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
@@ -198,7 +201,7 @@ export default function DocumentosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={5} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={5} className="p-8 text-center text-slate-400">
                   {documentos.length === 0 ? "No hay documentos registrados. Sube tu primer documento." : "No se encontraron resultados."}

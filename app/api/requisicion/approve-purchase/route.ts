@@ -4,7 +4,6 @@ import { Resend } from "resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
-import { type DbRequisition, type CotizacionData, type CotSupplier, type CotSupplierComputed, type CotQuote, type CotItemDetail } from "@/types/database";
 const log = logger("REQUISICION-APPROVE-PURCHASE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -24,15 +23,15 @@ async function getNextOCFolio(): Promise<string> {
   return `OC-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
 }
 
-function buildComparativaHTML(req: DbRequisition, token: string) {
+function buildComparativaHTML(req: any, token: string) {
   const cotData = req.cotizacion_data || {};
-  const suppliers: CotSupplier[] = cotData.suppliers || [];
-  const itemsDet: CotItemDetail[] = cotData.items_detail || (cotData.items || []).map((n: string) => ({product_name:n,quantity:1,unit:"PZA"}));
-  const quotes: CotQuote[] = cotData.quotes || [];
-  let supData: CotSupplierComputed[] = [];
+  const suppliers: any[] = cotData.suppliers || [];
+  const itemsDet: any[] = cotData.items_detail || (cotData.items || []).map((n: string) => ({product_name:n,quantity:1,unit:"PZA"}));
+  const quotes: any[] = cotData.quotes || [];
+  let supData: any[] = [];
   if (suppliers.length > 0) {
-    supData = suppliers.map((s: CotSupplier) => {
-      const sub = itemsDet.reduce((sum: number, it: CotItemDetail) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
+    supData = suppliers.map((s: any) => {
+      const sub = itemsDet.reduce((sum: number, it: any) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
       const tr = typeof s.tax_rate === "number" ? s.tax_rate : 16;
       const iva = +(sub * (tr/100)).toFixed(2);
       const total = +(sub + iva).toFixed(2);
@@ -41,7 +40,7 @@ function buildComparativaHTML(req: DbRequisition, token: string) {
       return {...s, subtotal:sub, tax_rate:tr, iva, total, advance_percentage:apct, advance_amount:aamt};
     });
   } else {
-    supData = quotes.map((q: CotQuote) => ({
+    supData = quotes.map((q: any) => ({
       supplier: q.supplier,
       subtotal: Number(q.subtotal ?? q.total ?? 0),
       tax_rate: Number(q.tax_rate ?? 16),
@@ -57,25 +56,25 @@ function buildComparativaHTML(req: DbRequisition, token: string) {
       items_prices: {},
     }));
   }
-  const bt = supData.length>0?Math.min(...supData.filter((s: CotSupplierComputed)=>s.subtotal>0).map((s: CotSupplierComputed)=>s.total)):0;
-  const sH = supData.map((s: CotSupplierComputed)=>`<th style="padding:10px 8px;text-align:center;font-size:12px;border:1px solid #334155;${s.total===bt&&bt>0?"background:#16a34a;color:white":"background:#1e3a5f;color:white"}">${s.supplier}</th>`).join("");
-  const pR = itemsDet.map((it: CotItemDetail,idx: number)=>{
-    const ap=supData.map((s: CotSupplierComputed)=>s.items_prices?.[it.product_name]||0).filter((p: number)=>p>0);
+  const bt = supData.length>0?Math.min(...supData.filter((s: any)=>s.subtotal>0).map((s: any)=>s.total)):0;
+  const sH = supData.map((s: any)=>`<th style="padding:10px 8px;text-align:center;font-size:12px;border:1px solid #334155;${s.total===bt&&bt>0?"background:#16a34a;color:white":"background:#1e3a5f;color:white"}">${s.supplier}</th>`).join("");
+  const pR = itemsDet.map((it: any,idx: number)=>{
+    const ap=supData.map((s: any)=>s.items_prices?.[it.product_name]||0).filter((p: number)=>p>0);
     const bp=ap.length>0?Math.min(...ap):0;
-    const cells=supData.map((s: CotSupplierComputed)=>{const p=s.items_prices?.[it.product_name]||0;const ib=p>0&&p===bp;const ic=s.total===bt&&bt>0;const bg=ib?"background:#bbf7d0;font-weight:bold;color:#16a34a;":ic?"background:#f0fdf4;":"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-size:13px;${bg}">${p>0?"$ "+p.toLocaleString("es-MX",{minimumFractionDigits:2}):"-"}</td>`;}).join("");
+    const cells=supData.map((s: any)=>{const p=s.items_prices?.[it.product_name]||0;const ib=p>0&&p===bp;const ic=s.total===bt&&bt>0;const bg=ib?"background:#bbf7d0;font-weight:bold;color:#16a34a;":ic?"background:#f0fdf4;":"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-size:13px;${bg}">${p>0?"$ "+p.toLocaleString("es-MX",{minimumFractionDigits:2}):"-"}</td>`;}).join("");
     return`<tr style="background:${idx%2===0?"white":"#f8fafc"}"><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;font-weight:bold;color:#7c3aed">${idx+1}</td><td style="padding:8px;border:1px solid #e2e8f0">${it.product_name}</td><td style="padding:8px;text-align:center;border:1px solid #e2e8f0">${it.quantity}</td><td style="padding:8px;text-align:center;border:1px solid #e2e8f0">${it.unit||"PZA"}</td>${cells}</tr>`;
   }).join("");
-  const mR=(l: string,fn: (s: CotSupplierComputed)=>number,b: boolean)=>`<tr style="background:#f1f5f9"><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">${l}</td>${supData.map((s: CotSupplierComputed)=>{const v=fn(s);const ic=s.total===bt&&bt>0;const bg=ic?(b?"background:#16a34a;color:white;":"background:#dcfce7;"):"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${b?"font-weight:bold;":""}${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
+  const mR=(l: string,fn: (s: any)=>number,b: boolean)=>`<tr style="background:#f1f5f9"><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">${l}</td>${supData.map((s: any)=>{const v=fn(s);const ic=s.total===bt&&bt>0;const bg=ic?(b?"background:#16a34a;color:white;":"background:#dcfce7;"):"";return`<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${b?"font-weight:bold;":""}${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
 
-  const ivaLabelRow = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">I.V.A.</td>${supData.map((s: CotSupplierComputed)=>{const ic=s.total===bt&&bt>0;const bg=ic?"background:#dcfce7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
-  const advanceR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#b45309">ANTICIPO</td>${supData.map((s: CotSupplierComputed)=>{const pct=s.advance_percentage||0;const amt=s.advance_amount||0;const ic=s.total===bt&&bt>0;const bg=ic?"background:#fef3c7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
-  const rebajaR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">&iquest;REBAJAN IVA?</td>${supData.map((s: CotSupplierComputed)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
-  const obsR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">OBSERVACIONES</td>${supData.map((s: CotSupplierComputed)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones||s.entrega||"-"}</td>`).join("")}</tr>`;
+  const ivaLabelRow = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">I.V.A.</td>${supData.map((s: any)=>{const ic=s.total===bt&&bt>0;const bg=ic?"background:#dcfce7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva||0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
+  const advanceR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#b45309">ANTICIPO</td>${supData.map((s: any)=>{const pct=s.advance_percentage||0;const amt=s.advance_amount||0;const ic=s.total===bt&&bt>0;const bg=ic?"background:#fef3c7;":"";return `<td style="padding:8px;text-align:right;border:1px solid #e2e8f0;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`;}).join("")}</tr>`;
+  const rebajaR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;color:#7c3aed">&iquest;REBAJAN IVA?</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva?"background:#16a34a;color:white":"background:#dc2626;color:white"}">${s.rebaja_iva?"SI":"NO"}</td>`).join("")}</tr>`;
+  const obsR = `<tr><td colspan="4" style="padding:8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold">OBSERVACIONES</td>${supData.map((s: any)=>`<td style="padding:8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones||s.entrega||"-"}</td>`).join("")}</tr>`;
 
   const linkAprobar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=aprobar`;
   const linkRechazar = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=rechazar`;
 
-  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: CotSupplierComputed)=>s.subtotal,false)}${ivaLabelRow}${mR("TOTAL",(s: CotSupplierComputed)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
+  return `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${req.folio} &times; ${req.cost_center_name}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${sH}</tr></thead><tbody>${pR}${mR("SUBTOTAL",(s: any)=>s.subtotal,false)}${ivaLabelRow}${mR("TOTAL",(s: any)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAprobar}" style="display:inline-block;padding:14px 48px;background:#16a34a;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">APROBAR COMPRA</a><a href="${linkRechazar}" style="display:inline-block;padding:14px 48px;background:#ef4444;color:white;text-decoration:none;border-radius:6px;font-weight:bold;margin:0 10px">RECHAZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 &times; Grupo Constructor Urbano Avante</p></div>`;
 }
 
 export async function GET(request: NextRequest) {
@@ -96,17 +95,6 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json({ error: "Token requerido" }, { status: 400 });
-    }
-
-    // Validar expiración del token (72h) — formato: UUID:epoch
-    const TOKEN_MAX_AGE_MS = 72 * 60 * 60 * 1000; // 72 horas
-    const tokenParts = token.split(":");
-    if (tokenParts.length >= 2) {
-      const tokenTimestamp = parseInt(tokenParts[tokenParts.length - 1], 10);
-      if (!isNaN(tokenTimestamp) && Date.now() - tokenTimestamp > TOKEN_MAX_AGE_MS) {
-        log.warn("Token expirado", { token: token.substring(0, 20), age_hours: ((Date.now() - tokenTimestamp) / 3600000).toFixed(1) });
-        return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x23F0;</div><h1 style="color:#f59e0b">Link Expirado</h1><p style="color:#94a3b8">Este enlace de autorizaci&oacute;n expir&oacute; despu&eacute;s de 72 horas.<br>Solicita una nueva requisici&oacute;n.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
-      }
     }
 
     // Si no viene action, redirigir a la página de autorización
@@ -140,20 +128,20 @@ export async function GET(request: NextRequest) {
     if (action === "aprobar" || action === "AUTORIZADA") {
       const ocFolio = await getNextOCFolio();
       const cotData = req.cotizacion_data || {};
-      const suppliers: CotSupplier[] = cotData.suppliers || [];
-      const quotes: CotQuote[] = cotData.quotes || [];
+      const suppliers: any[] = cotData.suppliers || [];
+      const quotes: any[] = cotData.quotes || [];
 
       let supplierName = "N/A";
       let total = 0;
-      let elegidoData: Partial<CotSupplierComputed & CotSupplier & CotQuote> = {};
+      let elegidoData: any = {};
 
       if (proveedorElegido) {
-        elegidoData = suppliers.find((s: CotSupplier) => s.supplier === proveedorElegido) || {};
+        elegidoData = suppliers.find((s: any) => s.supplier === proveedorElegido) || {};
       }
       if (!elegidoData.supplier && suppliers.length > 0) {
         const itemsDet = cotData.items_detail || [];
-        elegidoData = suppliers.reduce((best: Partial<CotSupplierComputed>, s: CotSupplier) => {
-          const sub = itemsDet.reduce((sum: number, it: CotItemDetail) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
+        elegidoData = suppliers.reduce((best: any, s: any) => {
+          const sub = itemsDet.reduce((sum: number, it: any) => sum + ((s.items_prices?.[it.product_name]||0)*(it.quantity||1)),0);
           const tr = typeof s.tax_rate === "number" ? s.tax_rate : 16;
           const iva = +(sub * (tr/100)).toFixed(2);
           const tot = +(sub + iva).toFixed(2);
@@ -164,7 +152,7 @@ export async function GET(request: NextRequest) {
         }, {});
       }
       if (!elegidoData.supplier && quotes.length > 0) {
-        elegidoData = quotes.reduce((m: CotQuote, q: CotQuote) => (q.total ?? 0) < (m.total ?? 0) ? q : m, quotes[0]);
+        elegidoData = quotes.reduce((m: any, q: any) => q.total < m.total ? q : m, quotes[0]);
       }
 
       supplierName = elegidoData.supplier || "N/A";
@@ -214,7 +202,7 @@ export async function GET(request: NextRequest) {
         advance_amount: elegAdvAmt,
         status: "GENERADA",
         payment_method: elegidoData.forma_pago || "Transferencia",
-        credit_days: (elegidoData as Record<string, unknown>).dias_credito as number || 0,
+        credit_days: elegidoData.dias_credito || 0,
         authorized_at: new Date().toISOString()
       });
       if (poInsErr) { log.error("Error insert purchase_order", { error: poInsErr.message, ocFolio }); throw new Error(`Error creando OC ${ocFolio}: ${poInsErr.message}`); }
@@ -276,8 +264,8 @@ export async function GET(request: NextRequest) {
     } else {
       return NextResponse.json({ error: `Acci\u00f3n no v\u00e1lida: ${action}` }, { status: 400 });
     }
-  } catch (error: unknown) {
+  } catch (error: any) {
     log.error("[APPROVE-PURCHASE]", { error: String(error) });
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Error interno" }, { status: 500 });
   }
 }

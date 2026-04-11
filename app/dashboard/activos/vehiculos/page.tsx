@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -7,12 +6,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Plus, Edit2, Trash2, X, Save, Loader2,
+  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
   Car, Key, Fuel, Search, MapPin, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
 
 interface Vehiculo {
@@ -55,7 +53,7 @@ export default function VehiculosPage() {
   const [expedienteVeh, setExpedienteVeh] = useState<Vehiculo|null>(null);
 
   // Shared hooks — replace manual modal/form/flash state
-  const { msg, flash, clear } = useFlashMessage();
+  const { mensaje, msg } = useFlashMessage();
   const { showModal: showForm, editId, form, saving: guardando, openNew, openEdit, closeModal, setForm, setSaving: setGuardando } = useEntityForm(EMPTY_FORM);
 
   useEffect(() => { cargar(); }, []);
@@ -66,7 +64,7 @@ export default function VehiculosPage() {
       .select("*")
       .in("tipo", ["VEHICULO", "MAQUINARIA"])
       .order("nombre");
-    
+    if (error) console.error("Error:", error?.message);
     if (data) setVehiculos(data);
     setLoading(false);
   };
@@ -90,7 +88,7 @@ export default function VehiculosPage() {
     if (!validar()) return;
     setGuardando(true);
 
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       nombre: form.nombre.trim(),
       codigo: form.codigo?.trim() || null,
       tipo: "VEHICULO",
@@ -106,12 +104,12 @@ export default function VehiculosPage() {
 
     if (editId) {
       const { error } = await supabase.from("activos").update(payload).eq("id", editId);
-      if (error) { flash("err", error?.message ?? "Error al actualizar"); }
-      else { flash("ok", "Vehículo actualizado"); closeModal(); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
+      else { msg("success", "Vehículo actualizado"); closeModal(); cargar(); }
     } else {
       const { error } = await supabase.from("activos").insert(payload);
-      if (error) { flash("err", error?.message ?? "Error al crear"); }
-      else { flash("ok", "Vehículo registrado"); closeModal(); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error al crear"); }
+      else { msg("success", "Vehículo registrado"); closeModal(); cargar(); }
     }
     setGuardando(false);
   };
@@ -130,8 +128,8 @@ export default function VehiculosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
-      flash("ok", "Vehículo eliminado");
-    } catch (e: unknown) { flash("err", ((e as Error)?.message) || "Error"); }
+      msg("success", "Vehículo eliminado");
+    } catch (e: any) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" });
     cargar();
   };
@@ -149,14 +147,16 @@ export default function VehiculosPage() {
   const operativos = vehiculos.filter(v => v.estado === "bueno").length;
   const enMant = vehiculos.filter(v => v.estado === "mantenimiento" || v.estado === "reparacion").length;
 
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
+          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Vehículos y Maquinaria</h1>
             <p className="text-xs text-slate-400">{vehiculos.length} unidades registradas</p>
@@ -172,9 +172,9 @@ export default function VehiculosPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-          <p className="text-blue-400 text-2xl font-bold">{vehiculos.length}</p>
-          <p className="text-blue-400/70 text-xs">Total</p>
+        <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3">
+          <p className="text-aria-accent text-2xl font-bold">{vehiculos.length}</p>
+          <p className="text-aria-accent/70 text-xs">Total</p>
         </div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
           <p className="text-emerald-400 text-2xl font-bold">{operativos}</p>
@@ -193,12 +193,16 @@ export default function VehiculosPage() {
           <input
             type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre, placas, marca o ubicación..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
           />
         </div>
       </div>
 
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
@@ -216,7 +220,7 @@ export default function VehiculosPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" /></td></tr>
+              <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : filtrados.length === 0 ? (
               <tr><td colSpan={7} className="p-8 text-center">
                 <Car className="w-10 h-10 text-slate-600 mx-auto mb-2" />
@@ -238,7 +242,7 @@ export default function VehiculosPage() {
                 <td className="p-3 text-center">
                   <div className="flex items-center justify-center gap-1">
                     <button onClick={() => setExpedienteVeh(v)} title="Expediente" className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => editar(v)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => editar(v)} className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><Edit2 className="w-3.5 h-3.5" /></button>
                     {canDelete && (
                       <button onClick={() => setDeleteModal({ open: true, id: v.id, name: v.nombre })} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>
                     )}

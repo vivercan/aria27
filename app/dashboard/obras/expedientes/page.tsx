@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -8,6 +7,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import {
   ArrowLeft,
@@ -30,19 +30,10 @@ import {
   CheckSquare,
   Square,
 } from "lucide-react";
-import { formatBytes } from "@/lib/format-utils";
-
-interface CentroRow {
-  id: string;
-  nombre?: string;
-  name?: string;
-  fecha_inicio?: string | null;
-}
 
 interface Obra {
   id: string;
   name: string;
-  nombre?: string;
   fecha_inicio?: string | null;
   anio?: number | null;
 }
@@ -71,6 +62,14 @@ interface Archivo {
   created_at: string;
 }
 
+function formatBytes(bytes?: number | null): string {
+  if (!bytes || bytes <= 0) return "—";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  let n = bytes;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+}
 
 interface Tarea {
   id: string;
@@ -85,7 +84,6 @@ interface Tarea {
 const AÑOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
 
 export default function ExpedientesPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -123,6 +121,8 @@ export default function ExpedientesPage() {
   const [showNuevaTarea, setShowNuevaTarea] = useState(false);
   const [nuevaCarpetaNombre, setNuevaCarpetaNombre] = useState("");
   const [nuevaTarea, setNuevaTarea] = useState({ titulo: "", responsable: "", fecha_limite: "", prioridad: "normal" });
+  const { msg, flash, clear } = useFlashMessage();
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   const loadCarpetasCounts = async () => {
     const { data } = await supabase
@@ -197,7 +197,7 @@ export default function ExpedientesPage() {
       .eq("parent_carpeta_id", parentId)
       .order("orden");
     if (error) {
-
+      console.error("Error loading subcarpetas:", error?.message);
       setSubcarpetas([]);
       return;
     }
@@ -329,7 +329,7 @@ export default function ExpedientesPage() {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
       return true;
     } catch (e) {
-
+      console.error("Error al descargar:", e);
       return false;
     }
   };
@@ -378,10 +378,10 @@ export default function ExpedientesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-email": email },
         body: JSON.stringify({ archivoId }),
-      }).catch((err) => { });
+      }).catch((err) => console.error("Error fetch análisis:", err));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
     } catch (e) {
-
+      console.error("Error al disparar análisis:", e);
     }
   };
 
@@ -419,8 +419,8 @@ export default function ExpedientesPage() {
       if (nuevoRow?.id) {
         dispararAnalisis(nuevoRow.id);
       }
-    } catch (err: unknown) {
-      flash("err", (err as Error)?.message || "Error al subir archivo");
+    } catch (err: any) {
+      flash("err", err?.message || "Error al subir archivo");
     }
   };
 
@@ -433,7 +433,7 @@ export default function ExpedientesPage() {
       .is("parent_carpeta_id", null)
       .order("orden");
     if (error) {
-
+      console.error("Error loading carpetas año:", error?.message);
       return;
     }
     setCarpetasAnio((data || []).filter(c => !c.nombre.startsWith("__root__")));
@@ -462,7 +462,7 @@ export default function ExpedientesPage() {
       .insert({ obra_id: null, obra_nombre: null, nombre: rootName, anio, orden: -1 })
       .select("id")
       .single();
-    if (error) {  return null; }
+    if (error) { console.error("Error creating root carpeta:", error.message); return null; }
     return created.id;
   };
 
@@ -485,8 +485,8 @@ export default function ExpedientesPage() {
         .from("expedientes_archivos").select("id")
         .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
       if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
-    } catch (err: unknown) {
-      flash("err", (err as Error)?.message || "Error al subir archivo");
+    } catch (err: any) {
+      flash("err", err?.message || "Error al subir archivo");
     }
     e.target.value = "";
   };
@@ -538,17 +538,14 @@ export default function ExpedientesPage() {
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre, fecha_inicio").order("nombre");
     if (error) {
-
+      console.error("Error loading obras:", error?.message);
       setLoading(false);
       return;
     }
-    const conAnio = (data || []).map((o: CentroRow) => ({
-      id: o.id || "",
-      name: o.name || o.nombre || "",
-      nombre: o.nombre,
-      fecha_inicio: o.fecha_inicio,
+    const conAnio = (data || []).map((o: any) => ({
+      ...o,
       anio: o.fecha_inicio ? new Date(o.fecha_inicio).getFullYear() : null,
-    } as Obra));
+    }));
     setObras(conAnio);
     setLoading(false);
   };
@@ -560,7 +557,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("orden");
     if (error) {
-
+      console.error("Error loading carpetas:", error?.message);
       return;
     }
     setCarpetas(data || []);
@@ -573,7 +570,7 @@ export default function ExpedientesPage() {
       .eq("carpeta_id", carpetaId)
       .order("created_at", { ascending: false });
     if (error) {
-
+      console.error("Error loading archivos:", error?.message);
       return;
     }
     setArchivos(data || []);
@@ -586,7 +583,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("fecha_limite");
     if (error) {
-
+      console.error("Error loading tareas:", error?.message);
       return;
     }
     setTareas(data || []);
@@ -604,7 +601,7 @@ export default function ExpedientesPage() {
       });
 
       if (error) {
-
+        console.error("Error creating carpeta:", error?.message);
         flash("err", "Error al crear carpeta: " + error.message);
         return;
       }
@@ -627,7 +624,7 @@ export default function ExpedientesPage() {
     });
 
     if (error) {
-
+      console.error("Error creating tarea:", error?.message);
       flash("err", "Error al crear tarea: " + error.message);
       return;
     }
@@ -645,7 +642,7 @@ export default function ExpedientesPage() {
     }).eq("id", tarea.id);
 
     if (error) {
-
+      console.error("Error updating tarea status:", error?.message);
       flash("err", "Error al cambiar estado de tarea: " + error.message);
       return;
     }
@@ -658,7 +655,7 @@ export default function ExpedientesPage() {
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
-
+      console.error("Error deleting carpeta:", error?.message);
       return;
     }
 
@@ -692,8 +689,8 @@ export default function ExpedientesPage() {
         urlField: "url",
       });
       loadArchivos(carpetaSeleccionada.id);
-    } catch (err: unknown) {
-      flash("err", (err as Error)?.message || "Error al subir archivo");
+    } catch (err: any) {
+      flash("err", err?.message || "Error al subir archivo");
     }
   };
 
@@ -708,7 +705,7 @@ export default function ExpedientesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+    } catch (e) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     setCarpetaSeleccionada(null);
     if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);
@@ -717,7 +714,7 @@ export default function ExpedientesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
       </div>
     );
   }
@@ -730,9 +727,10 @@ export default function ExpedientesPage() {
     };
     return (
       <div className="space-y-6">
-        <FlashBanner msg={msg} />
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
             <p className="text-slate-400 text-sm">Selecciona un año para ver las obras de ese periodo</p>
@@ -793,7 +791,6 @@ export default function ExpedientesPage() {
     const todosSeleccionados = archivos.length > 0 && archivosSeleccionados.size === archivos.length;
     return (
       <div className="space-y-6 max-w-5xl mx-auto">
-        <FlashBanner msg={msg} />
         {deleteCarpetaModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
@@ -915,7 +912,7 @@ export default function ExpedientesPage() {
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                     <button
                       onClick={(e) => { e.stopPropagation(); editarNombreCarpeta(sub.id, sub.nombre, true); }}
-                      className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/30 text-blue-300"
+                      className="p-1.5 rounded-lg bg-aria-primary/10 hover:bg-aria-primary-hover/30 text-aria-accent"
                       title="Renombrar"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -990,7 +987,7 @@ export default function ExpedientesPage() {
                         {` · ${archivo.tipo || "archivo"} · ${new Date(archivo.created_at).toLocaleDateString("es-MX")}`}
                       </p>
                       {analizando ? (
-                        <p className="text-xs text-blue-300/80 mt-1.5 italic flex items-center gap-1.5">
+                        <p className="text-xs text-aria-accent/80 mt-1.5 italic flex items-center gap-1.5">
                           <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
                         </p>
                       ) : archivo.resumen ? (
@@ -1115,7 +1112,7 @@ export default function ExpedientesPage() {
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                     <button
                       onClick={(e) => { e.stopPropagation(); editarNombreCarpeta(carpeta.id, carpeta.nombre, false); }}
-                      className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/30 text-blue-300"
+                      className="p-1.5 rounded-lg bg-aria-primary/10 hover:bg-aria-primary-hover/30 text-aria-accent"
                       title="Renombrar"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -1136,25 +1133,25 @@ export default function ExpedientesPage() {
 
         {obrasFiltradas.length > 0 && (
           <div>
-            <h2 className="text-sm uppercase text-blue-400 font-semibold mb-3">Obras del año</h2>
+            <h2 className="text-sm uppercase text-aria-accent font-semibold mb-3">Obras del año</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {obrasFiltradas.map((obra) => (
                 <button
                   key={obra.id}
                   onClick={() => setObraSeleccionada(obra)}
-                  className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-xl text-left transition-all group"
+                  className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-aria-primary/50 rounded-xl text-left transition-all group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
-                      <Building2 className="w-6 h-6 text-blue-400" />
+                    <div className="p-3 bg-aria-primary-light rounded-xl group-hover:bg-aria-primary-hover/30 transition-colors">
+                      <Building2 className="w-6 h-6 text-aria-accent" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">
+                      <h3 className="font-semibold text-white group-hover:text-aria-accent transition-colors">
                         {obra.name}
                       </h3>
                       <p className="text-sm text-slate-400 mt-1">Ver carpetas y tareas</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" />
+                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-aria-accent transition-colors" />
                   </div>
                 </button>
               ))}
@@ -1211,7 +1208,7 @@ export default function ExpedientesPage() {
                           <span>{new Date(archivo.created_at).toLocaleDateString("es-MX")}</span>
                         </div>
                         {analizando ? (
-                          <p className="text-xs text-blue-300/80 mt-1 italic flex items-center gap-1.5">
+                          <p className="text-xs text-aria-accent/80 mt-1 italic flex items-center gap-1.5">
                             <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
                           </p>
                         ) : archivo.resumen ? (
@@ -1281,7 +1278,8 @@ export default function ExpedientesPage() {
   // Vista: Expediente de Obra
   return (
     <div className="space-y-6">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
+      <ConfirmModal open={confirmState.open} message={confirmState.msg} onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }} onCancel={() => setConfirmState(p => ({...p, open: false}))} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -1303,7 +1301,7 @@ export default function ExpedientesPage() {
         <button
           onClick={() => setActiveTab("carpetas")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeTab === "carpetas" ? "bg-blue-500 text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
+            activeTab === "carpetas" ? "bg-aria-primary text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
           }`}
         >
           <FolderOpen className="w-4 h-4 inline mr-2" />
@@ -1312,7 +1310,7 @@ export default function ExpedientesPage() {
         <button
           onClick={() => setActiveTab("tareas")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeTab === "tareas" ? "bg-blue-500 text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
+            activeTab === "tareas" ? "bg-aria-primary text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
           }`}
         >
           <ClipboardList className="w-4 h-4 inline mr-2" />
@@ -1329,7 +1327,7 @@ export default function ExpedientesPage() {
               <h2 className="font-semibold text-white">Carpetas</h2>
               <button
                 onClick={() => setShowNuevaCarpeta(true)}
-                className="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                className="p-2 bg-aria-primary hover:bg-aria-primary rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4 text-white" />
               </button>
@@ -1342,11 +1340,11 @@ export default function ExpedientesPage() {
                   onClick={() => setCarpetaSeleccionada(carpeta)}
                   className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-3 ${
                     carpetaSeleccionada?.id === carpeta.id
-                      ? "bg-blue-500/20 border-blue-500"
+                      ? "bg-aria-primary-light border-aria-primary"
                       : "bg-white/5 hover:bg-white/10 border-transparent"
                   } border`}
                 >
-                  <FolderOpen className={`w-5 h-5 ${carpetaSeleccionada?.id === carpeta.id ? "text-blue-400" : "text-amber-400"}`} />
+                  <FolderOpen className={`w-5 h-5 ${carpetaSeleccionada?.id === carpeta.id ? "text-aria-accent" : "text-amber-400"}`} />
                   <span className="text-white font-medium">{carpeta.nombre}</span>
                 </button>
               ))}
@@ -1371,7 +1369,7 @@ export default function ExpedientesPage() {
                     {carpetaSeleccionada.nombre}
                   </h2>
                   <div className="flex gap-2">
-                    <label className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg cursor-pointer transition-colors flex items-center gap-2">
+                    <label className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg cursor-pointer transition-colors flex items-center gap-2">
                       <Upload className="w-4 h-4" />
                       <span className="text-sm font-medium">Subir archivo</span>
                       <input type="file" className="hidden" onChange={handleFileUpload} />
@@ -1394,7 +1392,7 @@ export default function ExpedientesPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                     >
-                      <FileText className="w-5 h-5 text-blue-400" />
+                      <FileText className="w-5 h-5 text-aria-accent" />
                       <div className="flex-1">
                         <p className="text-white text-sm font-medium">{archivo.nombre}</p>
                         <p className="text-slate-400 text-xs">{new Date(archivo.created_at).toLocaleDateString()}</p>
@@ -1426,7 +1424,7 @@ export default function ExpedientesPage() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowNuevaTarea(true)}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg transition-colors flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Nueva Tarea
@@ -1502,13 +1500,13 @@ export default function ExpedientesPage() {
               placeholder="Nombre de la carpeta"
               value={nuevaCarpetaNombre}
               onChange={(e) => setNuevaCarpetaNombre(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
             />
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setShowNuevaCarpeta(false)} className="px-4 py-2 text-slate-400 hover:text-white">
                 Cancelar
               </button>
-              <button onClick={crearCarpeta} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white font-medium">
+              <button onClick={crearCarpeta} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">
                 Crear
               </button>
             </div>
@@ -1532,25 +1530,25 @@ export default function ExpedientesPage() {
                 placeholder="Título de la tarea"
                 value={nuevaTarea.titulo}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, titulo: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
               />
               <input
                 type="text"
                 placeholder="Responsable"
                 value={nuevaTarea.responsable}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, responsable: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
               />
               <input
                 type="date"
                 value={nuevaTarea.fecha_limite}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, fecha_limite: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
               />
               <select
                 value={nuevaTarea.prioridad}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, prioridad: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
               >
                 <option value="normal">Prioridad Normal</option>
                 <option value="media">Prioridad Media</option>
@@ -1561,7 +1559,7 @@ export default function ExpedientesPage() {
               <button onClick={() => setShowNuevaTarea(false)} className="px-4 py-2 text-slate-400 hover:text-white">
                 Cancelar
               </button>
-              <button onClick={crearTarea} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white font-medium">
+              <button onClick={crearTarea} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">
                 Crear
               </button>
             </div>

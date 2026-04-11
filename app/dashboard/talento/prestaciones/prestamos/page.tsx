@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { Plus, DollarSign, Calendar, User, X, ArrowLeft, Loader2, Wallet, TrendingDown } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { Plus, DollarSign, Calendar, User, X, Loader2, Wallet, TrendingDown } from "lucide-react";
 
 interface Prestamo {
   id: string;
@@ -35,7 +34,7 @@ export default function PrestamosPage() {
   const cargarDatos = async () => {
     const { data: pres } = await supabase
       .from("prestamos")
-      .select("*, employee:employee_id(full_name, position)")
+      .select("*, employee:Personal(full_name, position)")
       .order("created_at", { ascending: false });
     if (pres) setPrestamos(pres);
 
@@ -92,16 +91,18 @@ export default function PrestamosPage() {
 
   return (
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
+      {msg && <FlashBanner msg={msg} className="mx-6 mt-3 absolute top-20" />}
       {/* Flecha de regreso */}
-              <AriaBackButton href="/dashboard/talento/prestaciones" />
+              <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors inline-block w-fit mb-4">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
           <p className="text-slate-400">Gestiona préstamos y descuentos semanales</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
+        <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Préstamo
         </button>
       </div>
@@ -109,7 +110,7 @@ export default function PrestamosPage() {
       {/* Resumen */}
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-blue-500/10 mb-2"><DollarSign className="w-4 h-4 text-blue-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><DollarSign className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
           <p className="text-xs text-slate-400">Préstamos Activos</p>
         </div>
@@ -128,7 +129,7 @@ export default function PrestamosPage() {
       {/* Tabla */}
       <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden flex-1 min-h-0 overflow-y-auto">
         <table className="w-full">
-          <thead className="sticky top-0 bg-[#0a1628] z-10">
+          <thead className="sticky top-0 bg-aria-bg z-10">
             <tr className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
               <th className="p-3">Empleado</th>
               <th className="p-3 text-right">Monto Original</th>
@@ -140,7 +141,7 @@ export default function PrestamosPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+              <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
             ) : prestamos.length === 0 ? (
               <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay préstamos registrados</td></tr>
             ) : (
@@ -195,7 +196,7 @@ export default function PrestamosPage() {
                 {formErrors.semanas && <p className="text-red-400 text-xs mt-1">{formErrors.semanas}</p>}
               </div>
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
-              <button onClick={crearPrestamo} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Crear Préstamo</button>
+              <button onClick={crearPrestamo} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg font-medium">Crear Préstamo</button>
             </div>
           </div>
         </div>

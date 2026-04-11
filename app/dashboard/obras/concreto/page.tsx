@@ -1,10 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Droplet, FlaskConical, Building2, TrendingUp, ArrowRight, Loader2, ChevronRight } from "lucide-react";
-import { fmt } from "@/lib/format-utils";
+import { ArrowLeft, Droplet, FlaskConical, Building2, TrendingUp, ArrowRight, Loader2, ChevronRight } from "lucide-react";
 
 interface Remision {
   id: string;
@@ -36,11 +34,6 @@ interface Cilindro {
   created_at: string;
 }
 
-interface CentroRow {
-  nombre?: string;
-  name?: string;
-}
-
 interface ObraResumen {
   obra: string;
   remisiones: number;
@@ -52,6 +45,7 @@ interface ObraResumen {
   pct_cumplimiento: number;
 }
 
+const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtNum = (n: number) => (n || 0).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 export default function ConcretoPage() {
@@ -78,12 +72,11 @@ export default function ConcretoPage() {
       setCilindros((cils || []) as Cilindro[]);
       setObras(
         (centros || [])
-          .map((c: CentroRow) => c.nombre || c.name || "")
-          .filter(Boolean)
+          .map((c: any) => c.nombre)
           .sort()
       );
-    } catch {
-      // Data load failed — page shows empty state naturally
+    } catch (e) {
+      console.error("Error cargando datos:", e);
     }
     setLoading(false);
   }
@@ -156,7 +149,7 @@ export default function ConcretoPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
       </div>
     );
   }
@@ -166,16 +159,18 @@ export default function ConcretoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20">
-            <Droplet className="w-7 h-7 text-blue-400" />
+          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-primary/20 to-cyan-500/20 border border-aria-primary/20">
+            <Droplet className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Control de Concreto</h1>
             <p className="text-slate-400 text-sm">Colados, pruebas de resistencia y gestión de cilindros de prueba</p>
           </div>
         </div>
-        <Link href="/dashboard/obras/concreto/remisiones" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 transition-all">
+        <Link href="/dashboard/obras/concreto/remisiones" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-aria-primary/10 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-light transition-all">
           <ArrowRight className="w-4 h-4" /> Gestionar Remisiones
         </Link>
       </div>
@@ -183,7 +178,7 @@ export default function ConcretoPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total m³ colados */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-aria-primary/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-slate-400 text-sm mb-1">Total m³ Colados</p>
@@ -197,14 +192,14 @@ export default function ConcretoPage() {
         </div>
 
         {/* Total remisiones */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 hover:border-blue-500/40 transition-all">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-indigo-500/10 border border-aria-primary/20 hover:border-aria-primary/40 transition-all">
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-slate-400 text-sm mb-1">Remisiones</p>
               <p className="text-3xl font-bold text-white">{kpis.totalRemisiones}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-blue-500/20">
-              <Building2 className="w-5 h-5 text-blue-400" />
+            <div className="p-2.5 rounded-xl bg-aria-primary-light">
+              <Building2 className="w-5 h-5 text-aria-accent" />
             </div>
           </div>
           <p className="text-xs text-slate-500">Colados registrados</p>
@@ -268,7 +263,7 @@ export default function ConcretoPage() {
       {resumenPorObra.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-400" />
+            <Building2 className="w-5 h-5 text-aria-accent" />
             Resumen por Obra
           </h2>
           <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
@@ -297,7 +292,7 @@ export default function ConcretoPage() {
                         <ChevronRight className="w-4 h-4 text-slate-600" />
                       </td>
                       <td className="p-4 text-right text-cyan-300">{resumen.remisiones}</td>
-                      <td className="p-4 text-right text-blue-300">{fmtNum(resumen.m3_total)}</td>
+                      <td className="p-4 text-right text-aria-accent">{fmtNum(resumen.m3_total)}</td>
                       <td className="p-4 text-right text-emerald-300">{fmt(resumen.costo_total)}</td>
                       <td className="p-4 text-center text-slate-300">{resumen.resistencia_promedio.toFixed(0)} kg/cm²</td>
                       <td className="p-4 text-center text-purple-300">{resumen.cilindros_total}</td>
@@ -344,7 +339,7 @@ export default function ConcretoPage() {
                         <td className="p-4 text-slate-300 text-xs">{new Date(rem.fecha_colado).toLocaleDateString("es-MX")}</td>
                         <td className="p-4 text-white font-medium">{rem.obra}</td>
                         <td className="p-4 text-slate-300 text-xs">{rem.proveedor}</td>
-                        <td className="p-4 text-right text-blue-300 font-medium">{fmtNum(rem.m3)}</td>
+                        <td className="p-4 text-right text-aria-accent font-medium">{fmtNum(rem.m3)}</td>
                         <td className="p-4 text-center text-slate-300 text-xs">{rem.resistencia_fc}</td>
                         <td className="p-4 text-right text-emerald-300">{fmt(rem.costo_total)}</td>
                         <td className="p-4 text-center">
@@ -370,22 +365,22 @@ export default function ConcretoPage() {
       {remisiones.length === 0 && (
         <div className="p-12 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
-              <Droplet className="w-8 h-8 text-blue-400" />
+            <div className="p-4 rounded-2xl bg-aria-primary/10 border border-aria-primary/20">
+              <Droplet className="w-8 h-8 text-aria-accent" />
             </div>
           </div>
           <p className="text-slate-400 mb-4">No hay remisiones de concreto registradas aún</p>
-          <Link href="/dashboard/obras/concreto/remisiones" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 transition-all">
+          <Link href="/dashboard/obras/concreto/remisiones" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-aria-primary/10 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-light transition-all">
             <ArrowRight className="w-4 h-4" /> Registrar Primera Remisión
           </Link>
         </div>
       )}
 
       {/* Info Footer */}
-      <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-start gap-3">
-        <TrendingUp className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
+        <TrendingUp className="w-5 h-5 text-aria-accent mt-0.5 flex-shrink-0" />
         <div className="text-xs text-slate-400 space-y-1">
-          <p className="text-blue-300 font-medium">¿Cómo funciona?</p>
+          <p className="text-aria-accent font-medium">¿Cómo funciona?</p>
           <p>
             <b>m³ Total:</b> suma de volúmenes en todas las remisiones de concreto.
             <b className="ml-2">Cilindros:</b> pruebas de resistencia (28 días) vinculadas a cada remisión.

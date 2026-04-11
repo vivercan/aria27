@@ -1,15 +1,12 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import {
-  Plus, Edit2, Trash2, X, Save, Loader2,
+  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
   ListChecks, CheckCircle2, Circle, Clock, AlertTriangle,
   Filter, Search
 } from "lucide-react";
@@ -34,7 +31,7 @@ interface Tarea {
 
 const PRIORIDAD_OPTIONS = [
   { value: "baja", label: "Baja", color: "bg-slate-500/20 text-slate-400", icon: Circle },
-  { value: "normal", label: "Normal", color: "bg-blue-500/20 text-blue-400", icon: Clock },
+  { value: "normal", label: "Normal", color: "bg-aria-primary-light text-aria-accent", icon: Clock },
   { value: "alta", label: "Alta", color: "bg-amber-500/20 text-amber-400", icon: AlertTriangle },
   { value: "urgente", label: "Urgente", color: "bg-red-500/20 text-red-400", icon: AlertTriangle },
 ];
@@ -51,7 +48,6 @@ export default function TareasPage() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -79,9 +75,14 @@ export default function TareasPage() {
       .from("tareas_obra")
       .select("*")
       .order("fecha_limite", { ascending: true });
-
+    if (error) console.error("Error loading tareas:", error?.message);
     if (data) setTareas(data);
     setLoading(false);
+  };
+
+  const msg = (tipo: "success" | "error", texto: string) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje(null), 3000);
   };
 
   const validar = (): boolean => {
@@ -97,11 +98,11 @@ export default function TareasPage() {
   };
 
   const guardar = async () => {
-    if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
+    if (!validar()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
 
     const obra = obras.find(o => o.id === Number(form.obra_id));
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       titulo: form.titulo.trim(),
       responsable: form.responsable?.trim() || null,
       fecha_limite: form.fecha_limite || null,
@@ -116,13 +117,13 @@ export default function TareasPage() {
         payload.completed_at = new Date().toISOString();
       }
       const { error } = await supabase.from("tareas_obra").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); }
-      else { flash("ok", "Tarea actualizada"); setShowForm(false); setEditId(null); cargarTareas(); }
+      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
+      else { msg("success", "Tarea actualizada"); setShowForm(false); setEditId(null); cargarTareas(); }
     } else {
       payload.status = "pendiente";
       const { error } = await supabase.from("tareas_obra").insert(payload);
-      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); }
-      else { flash("ok", "Tarea creada"); setShowForm(false); cargarTareas(); }
+      if (error) { msg("error", error?.message ?? "Error al crear"); }
+      else { msg("success", "Tarea creada"); setShowForm(false); cargarTareas(); }
     }
     setGuardando(false);
   };
@@ -133,8 +134,7 @@ export default function TareasPage() {
       status: newStatus,
       completed_at: newStatus === "completada" ? new Date().toISOString() : null,
     }).eq("id", tarea.id);
-    if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); return; }
-    flash("ok", "Estado actualizado");
+    if (error) { msg("error", error?.message ?? "Error"); return; }
     cargarTareas();
   };
 
@@ -158,9 +158,9 @@ export default function TareasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "tareas_obra", id: deleteModal.id, userEmail });
-      flash("ok", "Tarea eliminada");
-    } catch (e: unknown) {
-      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
+      msg("success", "Tarea eliminada");
+    } catch (e: any) {
+      msg("error", e?.message || "Error al eliminar");
     }
     setDeleteModal({ open: false, id: "", name: "" });
     cargarTareas();
@@ -199,15 +199,16 @@ export default function TareasPage() {
     </div>
   );
 
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/obras" />
+          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Tareas de Obra</h1>
             <p className="text-xs text-slate-400">{tareas.length} tareas registradas</p>
@@ -246,13 +247,13 @@ export default function TareasPage() {
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar tarea, responsable u obra..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
           />
         </div>
         <select
           value={filtroObra}
           onChange={e => setFiltroObra(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"
+          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
         >
           <option value="">Todas las obras</option>
           {obras.map(o => (
@@ -262,7 +263,7 @@ export default function TareasPage() {
         <select
           value={filtroStatus}
           onChange={e => setFiltroStatus(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none"
+          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
         >
           <option value="">Todos los estados</option>
           {STATUS_OPTIONS.map(s => (
@@ -295,7 +296,7 @@ export default function TareasPage() {
             {loading ? (
               <tr>
                 <td colSpan={7} className="p-8 text-center">
-                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" />
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" />
                 </td>
               </tr>
             ) : tareasFiltradas.length === 0 ? (
@@ -344,7 +345,7 @@ export default function TareasPage() {
                   </td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <button onClick={() => editar(t)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                      <button onClick={() => editar(t)} className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       {canDelete && (

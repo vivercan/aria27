@@ -1,15 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
+import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Activo {
   id: string;
@@ -55,12 +53,12 @@ interface Mantenimiento {
 }
 
 const TIPOS = ["TODOS", "VEHICULO", "MAQUINARIA", "HERRAMIENTA", "EQUIPO"];
-const ESTADOS = { DISPONIBLE: "bg-emerald-500", EN_USO: "bg-blue-500", MANTENIMIENTO: "bg-amber-500", BAJA: "bg-red-500" };
+const ESTADOS = { DISPONIBLE: "bg-emerald-500", EN_USO: "bg-aria-primary", MANTENIMIENTO: "bg-amber-500", BAJA: "bg-red-500" };
 
 export default function ActivosCatalogoPage() {
   const [tab, setTab] = useState<"inventario" | "asignaciones" | "mantenimiento">("inventario");
   const { userEmail, canDelete } = useDeletePermission();
-  const { msg, flash, clear } = useFlashMessage();
+  const { mensaje, msg } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [activos, setActivos] = useState<Activo[]>([]);
@@ -102,30 +100,35 @@ export default function ActivosCatalogoPage() {
   const cargarDatos = async () => {
     const { data: act, error: actError } = await supabase.from("activos").select("*").eq("activo", true).order("codigo");
     if (actError) {
+      console.error("Error loading activos:", actError?.message);
     } else if (act) {
       setActivos(act);
     }
 
-    const { data: asig, error: asigError } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:empleado_id(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
+    const { data: asig, error: asigError } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:Personal(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
     if (asigError) {
+      console.error("Error loading asignaciones:", asigError?.message);
     } else if (asig) {
       setAsignaciones(asig);
     }
 
     const { data: mant, error: mantError } = await supabase.from("activos_mantenimiento").select("*, activo:activos(*)").order("fecha", { ascending: false });
     if (mantError) {
+      console.error("Error loading mantenimiento:", mantError?.message);
     } else if (mant) {
       setMantenimientos(mant);
     }
 
     const { data: emps, error: empsError } = await supabase.from("Personal").select("id, full_name").eq("status", "ACTIVO").order("full_name");
     if (empsError) {
+      console.error("Error loading empleados:", empsError?.message);
     } else if (emps) {
       setEmpleados(emps);
     }
 
     const { data: obr, error: obrError } = await supabase.from("centros_trabajo").select("id, name:nombre").eq("activo", true);
     if (obrError) {
+      console.error("Error loading obras:", obrError?.message);
     } else if (obr) {
       setObras(obr);
     }
@@ -138,7 +141,7 @@ export default function ActivosCatalogoPage() {
     const errors: Record<string, string> = {};
     if (!formActivo.codigo?.toString().trim()) errors.codigo = "Código es requerido";
     if (!formActivo.nombre?.toString().trim()) errors.nombre = "Nombre es requerido";
-    if (formActivo.kilometraje && (isNaN(Number(formActivo.kilometraje)) || Number(formActivo.kilometraje) < 0)) {
+    if (formActivo.kilometraje && (isNaN(parseFloat(formActivo.kilometraje as any)) || parseFloat(formActivo.kilometraje as any) < 0)) {
       errors.kilometraje = "Kilometraje debe ser >= 0";
     }
     setErroresActivo(errors);
@@ -149,12 +152,14 @@ export default function ActivosCatalogoPage() {
     if (!validarActivo()) return;
     if (editando) {
       const { error } = await supabase.from("activos").update(formActivo).eq("id", editando.id);
-      if (error) { 
+      if (error) {
+        console.error("Error updating activo:", error?.message);
         return;
       }
     } else {
       const { error } = await supabase.from("activos").insert(formActivo);
-      if (error) { 
+      if (error) {
+        console.error("Error inserting activo:", error?.message);
         return;
       }
     }
@@ -167,7 +172,8 @@ export default function ActivosCatalogoPage() {
   const eliminarActivo = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("activos").update({ activo: false }).eq("id", id);
-    if (error) { 
+    if (error) {
+      console.error("Error deleting activo:", error?.message);
       return;
     }
     cargarDatos();
@@ -207,9 +213,9 @@ export default function ActivosCatalogoPage() {
       .eq("id", formAsignacion.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { flash("err", "Error al reservar activo: " + lockErr.message); return; }
+    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); return; }
     if (!lockRows || lockRows.length === 0) {
-      flash("err", "Este activo ya no está DISPONIBLE. Recarga.");
+      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
       cargarDatos();
       return;
     }
@@ -218,7 +224,7 @@ export default function ActivosCatalogoPage() {
     if (insertError) {
       // Rollback: liberar activo
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", formAsignacion.activo_id).eq("estado", "EN_USO");
-      flash("err", "Error al crear asignación: " + insertError.message);
+      msg("error", "Error al crear asignación: " + insertError.message);
       return;
     }
 
@@ -236,10 +242,10 @@ export default function ActivosCatalogoPage() {
     const errors: Record<string, string> = {};
     if (!formMantenimiento.activo_id?.toString().trim()) errors.activo_id = "Selecciona un activo";
     if (!formMantenimiento.descripcion?.toString().trim()) errors.descripcion = "Descripción es requerida";
-    if (formMantenimiento.costo && (isNaN(Number(formMantenimiento.costo)) || Number(formMantenimiento.costo) < 0)) {
+    if (formMantenimiento.costo && (isNaN(parseFloat(formMantenimiento.costo as any)) || parseFloat(formMantenimiento.costo as any) < 0)) {
       errors.costo = "Costo debe ser >= 0";
     }
-    if (formMantenimiento.proximo_km && (isNaN(Number(formMantenimiento.proximo_km)) || Number(formMantenimiento.proximo_km) < 0)) {
+    if (formMantenimiento.proximo_km && (isNaN(parseFloat(formMantenimiento.proximo_km as any)) || parseFloat(formMantenimiento.proximo_km as any) < 0)) {
       errors.proximo_km = "Próximo km debe ser >= 0";
     }
     setErroresMantenimiento(errors);
@@ -251,12 +257,14 @@ export default function ActivosCatalogoPage() {
 
     const { error: insertError } = await supabase.from("activos_mantenimiento").insert(formMantenimiento);
     if (insertError) {
+      console.error("Error inserting mantenimiento:", insertError?.message);
       return;
     }
 
     if (formMantenimiento.tipo === "CORRECTIVO") {
       const { error: updateError } = await supabase.from("activos").update({ estado: "MANTENIMIENTO" }).eq("id", formMantenimiento.activo_id);
       if (updateError) {
+        console.error("Error updating activo estado:", updateError?.message);
         return;
       }
     }
@@ -291,9 +299,9 @@ export default function ActivosCatalogoPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "activos_empresa", id: deleteModal.id, userEmail });
-      setDeleteModal({open:false,id:"",name:""});
-      cargarDatos();
-    } catch (e) { /* handled by backupAndDelete */ }
+    } catch (e) { console.error(e); }
+    setDeleteModal({open:false,id:"",name:""});
+    cargarDatos();
   };
 
   return (
@@ -301,7 +309,9 @@ export default function ActivosCatalogoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/activos" />
+          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
             <p className="text-slate-400 text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
@@ -323,9 +333,13 @@ export default function ActivosCatalogoPage() {
         ))}
       </div>
 
-      <FlashBanner msg={msg} />
+      {mensaje && (
+        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {mensaje.texto}
+        </div>
+      )}
 
-      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div> : (
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
         <>
           {/* ==================== TAB INVENTARIO ==================== */}
           {tab === "inventario" && (
@@ -386,7 +400,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
                               <button onClick={() => setExpedienteActivo(activo)} title="Expediente" className="p-1.5 rounded bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-4 h-4" /></button>
-                              <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><Edit2 className="w-4 h-4" /></button>
                               {canDelete && (<button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>)}
                             </div>
                           </td>
@@ -405,7 +419,7 @@ export default function ActivosCatalogoPage() {
               <div className="flex justify-between items-center">
                 <p className="text-slate-400">{activosDisponibles.length} activos disponibles para asignar</p>
                 <button onClick={() => setShowModalAsignacion(true)} disabled={activosDisponibles.length === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 rounded-lg text-white font-medium">
+                  className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-slate-600 rounded-lg text-white font-medium">
                   <Plus className="w-4 h-4" /> Nueva Asignación
                 </button>
               </div>
@@ -513,7 +527,7 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL ACTIVO ==================== */}
       {showModalActivo && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
             <div className="grid grid-cols-2 gap-4">
               <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
@@ -539,7 +553,7 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL ASIGNACION ==================== */}
       {showModalAsignacion && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Asignación</h2>
             <div className="space-y-4">
               <div><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
@@ -550,7 +564,7 @@ export default function ActivosCatalogoPage() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarAsignacion} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium">Asignar</button>
+              <button onClick={guardarAsignacion} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">Asignar</button>
             </div>
           </div>
         </div>
@@ -559,7 +573,7 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL MANTENIMIENTO ==================== */}
       {showModalMantenimiento && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a1628] border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>

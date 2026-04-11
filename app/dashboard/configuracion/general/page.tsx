@@ -1,11 +1,8 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
 import Link from "next/link";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 
 interface Param { id: string; clave: string; valor: string; descripcion: string; updated_at: string; }
 interface UserInfo { id: string; name: string; email: string; role: string; phone: string; active: boolean; }
@@ -30,15 +27,14 @@ export default function ConfigGeneralPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [edited, setEdited] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     Promise.all([
       supabase.from("configuracion_nomina").select("*").order("clave"),
       supabase.from("users").select("*").order("name")
     ]).then(([{ data: p, error: pError }, { data: u, error: uError }]) => {
-      if (pError) {  setLoading(false); return; }
-      if (uError) {  setLoading(false); return; }
+      if (pError) { console.error("Error loading configuracion_nomina:", pError?.message); setLoading(false); return; }
+      if (uError) { console.error("Error loading users:", uError?.message); setLoading(false); return; }
       setParams(p || []);
       setUsers((u || []) as UserInfo[]);
       setLoading(false);
@@ -54,11 +50,10 @@ export default function ConfigGeneralPage() {
     if (newVal === undefined || newVal === param.valor) return;
     setSaving(param.id);
     const { error } = await supabase.from("configuracion_nomina").update({ valor: newVal, updated_at: new Date().toISOString() }).eq("id", param.id);
-    if (error) {  setSaving(null); flash("err", "Error: " + (error?.message || "desconocido")); return; }
+    if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
     setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
     setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
     setSaving(null);
-    flash("ok", "Guardado correctamente");
     setMsg(`✅ ${param.clave} actualizado`);
     setTimeout(() => setMsg(null), 2000);
   };
@@ -68,15 +63,14 @@ export default function ConfigGeneralPage() {
     for (const param of params) {
       if (edited[param.id] !== undefined && edited[param.id] !== param.valor) {
         const { error } = await supabase.from("configuracion_nomina").update({ valor: edited[param.id], updated_at: new Date().toISOString() }).eq("id", param.id);
-        if (error) {  setSaving(null); flash("err", "Error: " + (error?.message || "desconocido")); return; }
+        if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
       }
     }
     const { data, error: selectError } = await supabase.from("configuracion_nomina").select("*").order("clave");
-    if (selectError) {  setSaving(null); flash("err", "Error: " + (selectError?.message || "desconocido")); return; }
+    if (selectError) { console.error("Error loading configuracion:", selectError?.message); setSaving(null); return; }
     setParams(data || []);
     setEdited({});
     setSaving(null);
-    flash("ok", "Guardado correctamente");
     setMsg("✅ Configuración guardada");
     setTimeout(() => setMsg(null), 2000);
   };
@@ -88,22 +82,17 @@ export default function ConfigGeneralPage() {
 
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-300", direccion: "bg-amber-500/20 text-amber-300",
-    compras: "bg-blue-500/20 text-blue-300", validador: "bg-emerald-500/20 text-emerald-300",
+    compras: "bg-aria-primary-light text-aria-accent", validador: "bg-emerald-500/20 text-emerald-300",
     usuario: "bg-slate-500/20 text-slate-300"
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/configuracion" />
+          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
             <h1 className="text-2xl font-bold">Configuración General</h1>
             <p className="text-sm text-slate-400">Parámetros del sistema y usuarios</p>
@@ -121,7 +110,7 @@ export default function ConfigGeneralPage() {
       {/* PARAMETROS DE NOMINA */}
       <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Settings className="w-5 h-5 text-blue-400" />
+          <Settings className="w-5 h-5 text-aria-accent" />
           <h2 className="text-lg font-semibold">Parámetros de Nómina</h2>
           <span className="text-xs text-slate-400 ml-auto">{params.length} parámetros</span>
         </div>
@@ -132,7 +121,7 @@ export default function ConfigGeneralPage() {
             return (
               <div key={p.id} className={`flex items-center gap-3 rounded-xl p-3 transition ${isEdited ? "bg-amber-500/10 border border-amber-500/20" : "bg-black/20 border border-transparent"}`}>
                 <div className="p-2 rounded-lg bg-white/5">
-                  <Icon className="w-4 h-4 text-blue-400" />
+                  <Icon className="w-4 h-4 text-aria-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-400 truncate">{p.descripcion}</p>

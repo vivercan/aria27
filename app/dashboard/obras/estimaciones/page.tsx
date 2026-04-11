@@ -18,7 +18,6 @@ interface Estimacion {
   importe_contrato: number;
   pct_avance: number;
   anticipo_pct: number;
-  amortizacion_anticipo?: number;
   retencion_pct: number;
   monto_retencion: number;
   iva_pct: number;
@@ -54,13 +53,7 @@ interface FormPartida {
   cantidad_periodo: number;
 }
 
-interface ObraInfo {
-  id: string;
-  nombre: string;
-}
-
 export default function EstimacionesPage() {
-  const { msg, flash, clear } = useFlashMessage();
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [partidas, setPartidas] = useState<Map<string, Partida[]>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -88,6 +81,7 @@ export default function EstimacionesPage() {
     partidas: [] as FormPartida[],
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     loadData();
@@ -102,8 +96,8 @@ export default function EstimacionesPage() {
 
       setEstimaciones(ests || []);
 
-      const obraNames = [...new Set((ests || []).map((e: Estimacion) => {
-        const match = obrasCat.find((o: ObraInfo) => o.id === e.obra_id);
+      const obraNames = [...new Set((ests || []).map((e: any) => {
+        const match = obrasCat.find((o: any) => o.id === e.obra_id);
         return match?.nombre || "Obra no identificada";
       }))];
       setObras(obraNames as string[]);
@@ -120,7 +114,7 @@ export default function EstimacionesPage() {
         setPartidas(pMap);
       }
     } catch (e) {
-
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -137,9 +131,9 @@ export default function EstimacionesPage() {
     setForm({ ...form, partidas: form.partidas.filter((_, i) => i !== idx) });
   }
 
-  function updatePartida(idx: number, field: keyof FormPartida, value: string | number) {
+  function updatePartida(idx: number, field: keyof FormPartida, value: any) {
     const newPartidas = [...form.partidas];
-    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(String(value)) || 0 };
+    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(value) || 0 };
     setForm({ ...form, partidas: newPartidas });
   }
 
@@ -243,6 +237,8 @@ export default function EstimacionesPage() {
       return;
     }
 
+    flash("ok", "Estimación creada exitosamente");
+
     setShowForm(false);
     setForm({
       obra_nombre: "",
@@ -276,11 +272,12 @@ export default function EstimacionesPage() {
       if (selectedEstimacion?.id === estId) {
         setShowDetail(false);
       }
+      flash("ok", "Estado actualizado");
     }
   }
 
   const getObraNombre = (obraId: string) => {
-    const obra = obrasCat.find((o: ObraInfo) => o.id === obraId);
+    const obra = obrasCat.find((o: any) => o.id === obraId);
     return obra?.nombre || "Obra no identificada";
   };
 
@@ -297,7 +294,7 @@ export default function EstimacionesPage() {
       case "BORRADOR":
         return "bg-slate-500/20 text-slate-400";
       case "PRESENTADA":
-        return "bg-blue-500/20 text-blue-400";
+        return "bg-aria-primary-light text-aria-accent";
       case "APROBADA":
         return "bg-emerald-500/20 text-emerald-400";
       case "COBRADA":
@@ -314,7 +311,7 @@ export default function EstimacionesPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
 
@@ -325,7 +322,7 @@ export default function EstimacionesPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Nueva Estimación
           </button>
@@ -338,8 +335,8 @@ export default function EstimacionesPage() {
             label: "Este Periodo",
             value: `$${totalFacturable.toLocaleString()}`,
             icon: DollarSign,
-            color: "text-blue-400",
-            bg: "bg-blue-500/10",
+            color: "text-aria-accent",
+            bg: "bg-aria-primary/10",
           },
           {
             label: "Acumulado",
@@ -383,13 +380,13 @@ export default function EstimacionesPage() {
               <select
                 value={form.obra_id}
                 onChange={(e) => {
-                  const obra = obrasCat.find((o: ObraInfo) => o.id === e.target.value);
+                  const obra = obrasCat.find((o: any) => o.id === e.target.value);
                   setForm({ ...form, obra_id: e.target.value, obra_nombre: obra?.nombre || "" });
                 }}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
               >
                 <option value="">-- Selecciona obra --</option>
-                {obrasCat.map((o: ObraInfo) => (
+                {obrasCat.map((o: any) => (
                   <option key={o.id} value={o.id}>
                     {o.nombre}
                   </option>
@@ -571,7 +568,7 @@ export default function EstimacionesPage() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={guardar}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium"
+              className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium"
             >
               Guardar Estimación
             </button>
@@ -606,7 +603,7 @@ export default function EstimacionesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por obra o número..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none"
           />
         </div>
         <select
@@ -655,7 +652,7 @@ export default function EstimacionesPage() {
               {loading ? (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-slate-400">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" />
+                    <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -686,7 +683,7 @@ export default function EstimacionesPage() {
                           setSelectedEstimacion(e);
                           setShowDetail(true);
                         }}
-                        className="text-blue-400 hover:text-blue-300 text-xs font-medium"
+                        className="text-aria-accent hover:text-aria-accent text-xs font-medium"
                       >
                         Ver
                       </button>
@@ -796,9 +793,9 @@ export default function EstimacionesPage() {
               </div>
 
               {selectedEstimacion.notas && (
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                  <p className="text-xs text-blue-300 font-medium mb-1">Notas:</p>
-                  <p className="text-sm text-blue-100">{selectedEstimacion.notas}</p>
+                <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-lg p-3">
+                  <p className="text-xs text-aria-accent font-medium mb-1">Notas:</p>
+                  <p className="text-sm text-aria-accent">{selectedEstimacion.notas}</p>
                 </div>
               )}
 
@@ -807,7 +804,7 @@ export default function EstimacionesPage() {
                 {selectedEstimacion.status === "BORRADOR" && (
                   <button
                     onClick={() => cambiarStatus(selectedEstimacion.id, "PRESENTADA")}
-                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Presentar
                   </button>

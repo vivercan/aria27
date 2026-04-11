@@ -1,10 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
-import { Building2, DollarSign } from "lucide-react";
+import { Building2, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const items = [
-  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-blue-500 to-cyan-500" },
+  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-aria-primary to-cyan-500" },
   { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-emerald-500" },
 ];
 
@@ -12,7 +11,7 @@ export default function MaestrosPage() {
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
       <div className="flex items-center gap-3">
-        <AriaBackButton href="/dashboard/configuracion" />
+        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
           <h1 className="text-2xl font-bold">Datos Maestros</h1>
           <p className="text-sm text-slate-400">Configuración base del sistema</p>

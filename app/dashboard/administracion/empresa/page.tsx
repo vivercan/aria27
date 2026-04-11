@@ -1,12 +1,9 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import {
-  Building2, MapPin, FileText, Users, Loader2,
+  ArrowLeft, Building2, MapPin, FileText, Users, Loader2,
   Edit2, Save, X, Briefcase, FolderOpen
 } from "lucide-react";
 
@@ -38,7 +35,6 @@ export default function EmpresaPage() {
   const [form, setForm] = useState<any>({});
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
-  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -86,20 +82,21 @@ export default function EmpresaPage() {
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     const { error } = await supabase.from("empresas").update(payload).eq("id", editEmpresa.id);
-    if (error) { flash("err", error?.message ?? "Error"); }
-    else { flash("ok", "Guardado correctamente"); setEditEmpresa(null); cargar(); }
+    if (error) { msg("error", error?.message ?? "Error"); }
+    else { msg("success", "Empresa actualizada"); setEditEmpresa(null); cargar(); }
     setGuardando(false);
   };
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   const activas = centros.filter(c => c.estado === "ACTIVA").length;
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <AriaBackButton href="/dashboard/administracion" />
+        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <div>
           <h1 className="text-xl font-bold text-white">Datos de Empresa</h1>
           <p className="text-xs text-slate-400">Información de GCU Avante y centros de costo</p>
@@ -115,7 +112,7 @@ export default function EmpresaPage() {
       <div className="flex-1 overflow-y-auto space-y-4">
         {loading ? (
           <div className="p-8 text-center">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-400" />
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" />
           </div>
         ) : (
           <>
@@ -145,7 +142,7 @@ export default function EmpresaPage() {
                     </Link>
                     <button
                       onClick={() => iniciarEdicion(emp)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 text-xs"
                     >
                       <Edit2 className="w-3.5 h-3.5" /> Editar
                     </button>

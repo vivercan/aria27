@@ -1,5 +1,4 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 
 import { Receipt, PieChart, FileSpreadsheet, Landmark, Wallet, CreditCard, HandCoins, Building2, ArrowLeftRight } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +9,7 @@ const subModules = [
     description: "Registro y control de gastos por obra.",
     href: "/dashboard/finanzas/gastos-obra",
     icon: Receipt,
-    gradient: "from-blue-500 to-blue-600",
+    gradient: "from-aria-primary to-aria-primary",
     active: true,
   },
   {
@@ -93,7 +92,7 @@ export default function FinanzasPage() {
   href={module.href}
   className={`group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 ${
     module.active
-      ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
+      ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
       : "border-slate-700/30 opacity-50 pointer-events-none"
   }`}
 >
@@ -104,7 +103,7 @@ export default function FinanzasPage() {
     </div>
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
+        <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
           {module.title}
         </h3>
         {!module.active && (

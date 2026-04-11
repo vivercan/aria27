@@ -8,7 +8,7 @@ const subModules = [
     description: "Solicitudes de materiales para obra.",
     href: "/dashboard/requisiciones/requisiciones",
     icon: FileText,
-    gradient: "from-blue-500 to-blue-600",
+    gradient: "from-aria-primary to-aria-primary",
     badge: "ACTIVO"
   },
   {
@@ -76,7 +76,7 @@ export default function RequisicionesPage() {
           <Link
             key={module.href}
             href={module.href}
-            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
+            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
             <div className="relative p-6">
@@ -85,7 +85,7 @@ export default function RequisicionesPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors">
+                  <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
                     {module.title}
                   </h3>
                   {module.badge && (

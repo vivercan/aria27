@@ -1,32 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("AUTHORIZE-PURCHASE");
 
 const BASE_URL = "https://aria.jjcrm27.com";
-
-interface ItemInput {
-  product_name?: string;
-  name?: string;
-  nombre?: string;
-  quantity?: number;
-  cantidad?: number;
-  unit?: string;
-  unidad?: string;
-  selected_price?: number;
-  unit_price?: number;
-  selected_supplier?: string;
-}
-
-interface CotizacionItem {
-  product_name: string;
-  quantity: number;
-  unit: string;
-  unit_price: number;
-}
 
 // Obtener usuario por ROL (dinamico)
 async function getUserByRole(role: string) {
@@ -35,14 +14,7 @@ async function getUserByRole(role: string) {
   return data;
 }
 
-export async function POST(request: NextRequest) {
-  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
-  const clientId = getClientIdentifier(request);
-  const rl = checkRateLimit(clientId, { key: "requisicion:authorize-purchase", max: 20, windowMs: 60_000 });
-  if (!rl.allowed) {
-    return rateLimitResponse(rl);
-  }
-
+export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
 
   try {
@@ -54,8 +26,8 @@ export async function POST(request: NextRequest) {
     const reqId = body.requisitionId || body.requisition?.id;
     const cotizacion = body.cotizacion || {
       supplier_name: body.items?.[0]?.selected_supplier || "Varios",
-      items: (body.items || []).map((item: ItemInput) => ({
-        product_name: item.product_name || item.name || item.nombre || "",
+      items: (body.items || []).map((item: any) => ({
+        product_name: item.product_name || item.name || item.nombre,
         quantity: item.quantity || item.cantidad || 1,
         unit: item.unit || item.unidad || "PZA",
         unit_price: item.selected_price || item.unit_price || 0
@@ -77,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = crypto.randomUUID();
-    const total = body.total || cotizacion.items.reduce((sum: number, item: CotizacionItem) => sum + (item.quantity * item.unit_price), 0);
+    const total = body.total || cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
 
     const { error: updateError } = await supabase.from("requisitions").update({
       status: "EN_AUTORIZACION",
@@ -95,7 +67,7 @@ export async function POST(request: NextRequest) {
     const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`;
     const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`;
 
-    const itemsHtml = cotizacion.items.map((item: CotizacionItem) =>
+    const itemsHtml = cotizacion.items.map((item: any) => 
       `<tr><td style="padding:10px;border:1px solid #e2e8f0">${item.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${item.quantity} ${item.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${item.unit_price.toLocaleString()}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${(item.quantity * item.unit_price).toLocaleString()}</td></tr>`
     ).join("");
 
@@ -140,7 +112,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (autorizadorUser.phone) {
-        const materialesWA = cotizacion.items.map((item: CotizacionItem) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
+        const materialesWA = cotizacion.items.map((item: any) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
         await sendWhatsAppLogged("compra_autorizar", [req.folio, req.cost_center_name, req.created_by || "N/A", urgencyText, materialesWA, `$${total.toLocaleString()}`], autorizadorUser.phone, { origen: "compra-autorizar", enviadoPor: "authorize-purchase", buttonToken: token });
       }
     }
@@ -151,8 +123,8 @@ export async function POST(request: NextRequest) {
       total 
     });
 
-  } catch (error: unknown) {
-    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
 

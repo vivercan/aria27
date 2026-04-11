@@ -1,16 +1,13 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import FlashBanner from "@/components/FlashBanner";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Plus, Search, Edit2, Save, X, Loader2,
   Users, Power, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import ConfirmModal from "@/components/ConfirmModal";
 
 /**
  * MÓDULO CLIENTES — Bloque 5 cierre funcional ARIA27 (7-Abr-2026)
@@ -53,10 +50,10 @@ export default function ClientesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [expedienteCli, setExpedienteCli] = useState<Cliente | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -67,7 +64,7 @@ export default function ClientesPage() {
       .select("*")
       .order("nombre");
     if (error) {
-      if (error && 'code' in error && error.code === "42P01") {
+      if ((error as any).code === "42P01") {
         flash("err", "Falta crear tabla clientes. Ver sql/clientes_plantillas.sql");
       } else {
         flash("err", error.message);
@@ -79,6 +76,10 @@ export default function ClientesPage() {
     setLoading(false);
   };
 
+  const flash = (tipo: "ok" | "err", texto: string) => {
+    setMsg({ tipo, texto });
+    setTimeout(() => setMsg(null), 2800);
+  };
 
   const reset = () => { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(false); };
 
@@ -110,7 +111,7 @@ export default function ClientesPage() {
   const guardar = async () => {
     if (!validar()) return;
     setSaving(true);
-    const payload = { ...form };
+    const payload: any = { ...form };
     payload.dias_credito = parseInt(payload.dias_credito) || 0;
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
     payload.estatus = form.estatus || "ACTIVO";
@@ -118,11 +119,11 @@ export default function ClientesPage() {
     if (editId) {
       const { error } = await supabase.from("clientes").update(payload).eq("id", editId);
       if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
-      flash("ok", "Guardado correctamente");
+      flash("ok", "Cliente actualizado");
     } else {
       const { error } = await supabase.from("clientes").insert(payload);
       if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
-      flash("ok", "Guardado correctamente");
+      flash("ok", "Cliente creado");
     }
     setSaving(false);
     reset();
@@ -136,8 +137,8 @@ export default function ClientesPage() {
       msg: `¿Marcar a "${c.nombre}" como ${nuevo}?`,
       onOk: async () => {
         const { error } = await supabase.from("clientes").update({ estatus: nuevo }).eq("id", c.id);
-        if (error) { flash("err", "Error: " + error.message); return; }
-        flash("ok", "Guardado correctamente");
+        if (error) { flash("err", error.message); return; }
+        flash("ok", `Cliente → ${nuevo}`);
         cargar();
       }
     });
@@ -164,7 +165,6 @@ export default function ClientesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <FlashBanner msg={msg} />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Dashboard
@@ -179,7 +179,7 @@ export default function ClientesPage() {
           <div className="flex gap-2">
             <a
               href="/dashboard/clientes/cotizaciones"
-              className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-sm font-medium hover:bg-blue-500/30 flex items-center gap-2"
+              className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
             >
               Cotizaciones
             </a>
@@ -218,7 +218,7 @@ export default function ClientesPage() {
           </div>
           <select
             value={filtroEstatus}
-            onChange={e => setFiltroEstatus(e.target.value as "ACTIVOS" | "INACTIVOS" | "TODOS")}
+            onChange={e => setFiltroEstatus(e.target.value as any)}
             className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm"
           >
             <option value="ACTIVOS">Solo activos</option>
@@ -315,7 +315,7 @@ export default function ClientesPage() {
                   <td className="p-3 text-slate-300">{c.contacto || "—"}</td>
                   <td className="p-3 text-slate-400 text-xs">
                     {c.telefono && <p>{c.telefono}</p>}
-                    {c.email && <p className="text-blue-400/80">{c.email}</p>}
+                    {c.email && <p className="text-aria-accent/80">{c.email}</p>}
                     {!c.telefono && !c.email && "—"}
                   </td>
                   <td className="p-3 text-right text-amber-400">{c.dias_credito > 0 ? `${c.dias_credito} d` : "—"}</td>
@@ -329,7 +329,7 @@ export default function ClientesPage() {
                       <button onClick={() => setExpedienteCli(c)} title="Expediente" className="p-1.5 text-violet-400/70 hover:text-violet-400 hover:bg-violet-500/10 rounded">
                         <FolderOpen className="w-4 h-4" />
                       </button>
-                      <button onClick={() => abrirEdicion(c)} title="Editar" className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded">
+                      <button onClick={() => abrirEdicion(c)} title="Editar" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded">
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button onClick={() => toggleEstatus(c)} title={c.estatus === "ACTIVO" ? "Inactivar" : "Reactivar"} className="p-1.5 text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10 rounded">
@@ -355,7 +355,10 @@ export default function ClientesPage() {
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onConfirm={() => {
+          confirmState.onOk();
+          setConfirmState(p => ({...p, open: false}));
+        }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>

@@ -1,11 +1,10 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { CheckCircle, XCircle, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { CheckCircle, XCircle, MessageSquare, Loader2 } from "lucide-react";
 
 type Requisition = {
   id: number;
@@ -82,7 +81,7 @@ export default function AuthorizeRequisicionesPage() {
         const res = await fetch(url);
         if (!res.ok) {
           const text = await res.text();
-
+          console.error("Error en approve-purchase:", text);
           flash("err", "Error al procesar: " + res.status);
         }
       } else {
@@ -96,9 +95,9 @@ export default function AuthorizeRequisicionesPage() {
         if (updErr) { flash("err", "Error al procesar autorización: " + updErr.message); setProcessing(false); return; }
         if (!rows || rows.length === 0) { flash("err", "Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       }
-    } catch (err: unknown) {
-
-      flash("err", "Error: " + ((err as Error)?.message));
+    } catch (err: any) {
+      console.error("Error en handleAction:", err);
+      flash("err", "Error: " + err?.message);
     }
 
     setSelectedReq(null);
@@ -110,9 +109,11 @@ export default function AuthorizeRequisicionesPage() {
 
   return (
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col">
-      <FlashBanner msg={msg} />
+      <FlashBanner msg={msg} className="mx-0 mb-4" />
       <div className="flex items-center gap-4 mb-6">
-        <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
+        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        </Link>
         <div>
           <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
           <p className="text-white/60 text-sm">Revisar y aprobar solicitudes pendientes.</p>
@@ -125,7 +126,7 @@ export default function AuthorizeRequisicionesPage() {
           <h2 className="text-lg font-semibold mb-4">Pendientes ({Requisiciones.length})</h2>
           <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
-              <div className="text-center py-4 text-white/50"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></div>
+              <div className="text-center py-4 text-white/50"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></div>
             ) : Requisiciones.length === 0 ? (
               <div className="text-center py-4 text-white/50">No hay requisiciones pendientes</div>
             ) : (

@@ -1,36 +1,26 @@
 "use client";
-import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Gift, Calculator, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-interface EmpleadoRow {
-  id?: string;
-  full_name?: string;
-  employee_number?: string;
-  salario_diario?: number | string;
-  fecha_ingreso?: string;
-  status?: string;
-}
-
 export default function AguinaldoPage() {
-  const [empleados, setEmpleados] = useState<EmpleadoRow[]>([]);
+  const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [anio, setAnio] = useState(new Date().getFullYear());
 
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
-      if (error) {  setLoading(false); return; }
-      setEmpleados((data as EmpleadoRow[]) || []);
+      if (error) { console.error("Error loading employees:", error?.message); setLoading(false); return; }
+      setEmpleados(data || []);
       setLoading(false);
     };
     load();
   }, []);
 
-  const calcAguinaldo = (emp: EmpleadoRow) => {
-    const sd = Number(emp.salario_diario) || 0;
+  const calcAguinaldo = (emp: any) => {
+    const sd = emp.salario_diario || 0;
     const ingreso = emp.fecha_ingreso ? new Date(emp.fecha_ingreso) : null;
     if (!ingreso || !sd) return { dias: 0, monto: 0, proporcional: false };
     const inicioAnio = new Date(anio, 0, 1);
@@ -84,17 +74,17 @@ export default function AguinaldoPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-blue-400 mx-auto" /></td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
             ) : empleados.map(e => {
               const calc = calcAguinaldo(e);
               return (
                 <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="px-4 py-3 text-blue-400 font-mono text-xs">{e.employee_number}</td>
+                  <td className="px-4 py-3 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                   <td className="px-4 py-3 text-white">{e.full_name}</td>
                   <td className="px-4 py-3 text-slate-300">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "—"}</td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-300">${Number(e.salario_diario || 0).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right font-mono text-slate-300">${(e.salario_diario || 0).toFixed(2)}</td>
                   <td className="px-4 py-3 text-right font-mono text-white">{calc.dias}</td>
-                  <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs ${calc.proporcional ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"}`}>{calc.proporcional ? "Proporcional" : "Completo"}</span></td>
+                  <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs ${calc.proporcional ? "bg-amber-500/20 text-amber-400" : "bg-aria-primary-light text-aria-accent"}`}>{calc.proporcional ? "Proporcional" : "Completo"}</span></td>
                   <td className="px-4 py-3 text-right font-mono text-emerald-400 font-bold">${calc.monto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                 </tr>
               );
