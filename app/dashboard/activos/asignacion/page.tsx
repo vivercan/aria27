@@ -142,7 +142,11 @@ export default function AsignacionPage() {
     return a.empleado?.full_name?.toLowerCase().includes(s) || a.activo?.nombre?.toLowerCase().includes(s) || a.activo?.name?.toLowerCase().includes(s);
   });
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -167,7 +171,10 @@ export default function AsignacionPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</div>
+        <div className="text-center py-12">
+          <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</p>
+        </div>
       ) : (
         <div className="overflow-auto max-h-[60vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { ArrowLeft, Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X, FileText } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -172,7 +172,10 @@ export default function SirocBimestralesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>
       ) : bimestres.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay reportes bimestrales.</div>
+        <div className="text-center py-12">
+          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-400">No hay reportes bimestrales.</p>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-700/50">
           <table className="w-full text-sm">

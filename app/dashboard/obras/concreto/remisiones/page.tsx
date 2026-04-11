@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle, FileText } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -239,7 +239,10 @@ export default function ConcretoRemisionesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-sky-400" /></div>
       ) : filtradas.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay remisiones registradas.</div>
+        <div className="text-center py-12">
+          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-400">No hay remisiones registradas.</p>
+        </div>
       ) : (
         <div className="space-y-4">
           {filtradas.map(r => {

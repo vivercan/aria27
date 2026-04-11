@@ -272,7 +272,11 @@ function CapturarContent() {
   const pagoLabel = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
   const creditoLabel = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : `${dc}d crédito`;
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+    </div>
+  );
   if (!reqId) return (
     <div className="text-center py-20 text-slate-400">
       <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />

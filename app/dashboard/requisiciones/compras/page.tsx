@@ -210,7 +210,11 @@ export default function ComprasPickingPage() {
     return items.filter(item => itemQuotes.some(iq => iq.requisition_item_id === item.id && iq.supplier_name === name)).length;
   };
 
-  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+    </div>
+  );
 
   // ==========================================
   // VIEW: LIST OF PENDING REQUISITIONS

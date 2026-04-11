@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2, Package } from "lucide-react";
 import Link from "next/link";
 
 export default function EstadoActivosPage() {
@@ -51,7 +51,11 @@ export default function EstadoActivosPage() {
 
   const estadoOptions = ["bueno", "mantenimiento", "reparacion", "baja"];
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+    </div>
+  );
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -78,7 +82,10 @@ export default function EstadoActivosPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay activos en esta categoría</div>
+        <div className="text-center py-12">
+          <Package className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-400">No hay activos en esta categoría</p>
+        </div>
       ) : (
         <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
           <table className="w-full text-sm">

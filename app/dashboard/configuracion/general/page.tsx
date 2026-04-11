@@ -91,7 +91,11 @@ export default function ConfigGeneralPage() {
     usuario: "bg-slate-500/20 text-slate-300"
   };
 
-  if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
