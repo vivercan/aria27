@@ -29,6 +29,7 @@ import {
   CheckSquare,
   Square,
 } from "lucide-react";
+import { formatBytes } from "@/lib/format-utils";
 
 interface Obra {
   id: string;
@@ -61,14 +62,6 @@ interface Archivo {
   created_at: string;
 }
 
-function formatBytes(bytes?: number | null): string {
-  if (!bytes || bytes <= 0) return "—";
-  const units = ["B", "KB", "MB", "GB"];
-  let i = 0;
-  let n = bytes;
-  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
-}
 
 interface Tarea {
   id: string;

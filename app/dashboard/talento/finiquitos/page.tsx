@@ -8,6 +8,13 @@ import {
 } from "lucide-react";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
+import { formatMoney } from "@/lib/format-utils";
+import {
+  calcularAntiguedad,
+  calcularDiasVacacionesPorAntiguedad,
+  calcularPrimaAntiguedad,
+  calcularAguinaldoProporcional,
+} from "@/lib/payroll-utils";
 
 interface Empleado {
   id: string;
@@ -48,53 +55,6 @@ const STATUS_COLORS: Record<string, string> = {
   PAGADO: "bg-emerald-600 text-white",
   CANCELADO: "bg-red-600 text-white",
 };
-
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
-function calcularAntiguedad(fechaIngreso: string, fechaBaja: string): number {
-  if (!fechaIngreso || !fechaBaja) return 0;
-  const inicio = new Date(fechaIngreso);
-  const fin = new Date(fechaBaja);
-  return Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-// Tabla LFT de vacaciones por antigüedad
-function calcularDiasVacacionesPorAntiguedad(años: number): number {
-  if (años < 1) return 0;
-  if (años <= 4) return 6;
-  if (años <= 9) return 8;
-  if (años <= 14) return 10;
-  if (años <= 19) return 12;
-  if (años <= 24) return 14;
-  if (años <= 29) return 16;
-  // Cada 5 años adicionales: +2 días
-  const añosAdicionales = años - 29;
-  const ciclos = Math.floor(añosAdicionales / 5);
-  return 16 + ciclos * 2;
-}
-
-// Prima de antigüedad (LFT art 162): 12 días × salario × años completos
-function calcularPrimaAntiguedad(
-  salarioDiario: number,
-  años: number
-): number {
-  return 12 * salarioDiario * años;
-}
-
-// Aguinaldo proporcional
-function calcularAguinaldoProporcional(
-  salarioDiario: number,
-  días: number
-): number {
-  const díasEnAño = 365;
-  return (días / díasEnAño) * 15 * salarioDiario;
-}
 
 export default function FiniquitosPage() {
   const { msg, flash, clear } = useFlashMessage();
