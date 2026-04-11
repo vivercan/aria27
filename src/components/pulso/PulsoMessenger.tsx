@@ -227,7 +227,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         })
       });
       cargarMensajes(convActiva.id);
-    } catch (e: any) { alert("Error al subir: " + e.message); }
+    } catch (e: unknown) { alert("Error al subir: " + (e as Error).message); }
     setSubiendoArchivo(false);
   };
 

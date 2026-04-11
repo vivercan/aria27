@@ -71,8 +71,8 @@ export default function WhatsAppLogPage() {
       const j = await res.json();
       setTestResult(j.success ? `OK msg ${j.messageId}` : `ERROR: ${j.error}`);
       load();
-    } catch (e: any) {
-      setTestResult(`ERROR: ${e.message}`);
+    } catch (e: unknown) {
+      setTestResult(`ERROR: ${(e as Error).message}`);
     } finally {
       setSending(false);
     }

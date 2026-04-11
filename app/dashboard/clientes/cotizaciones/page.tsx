@@ -207,7 +207,7 @@ export default function CotizacionesClientesPage() {
       setForm({ ...FORM_INIT });
       setItems([{ ...ITEM_INIT }]);
       await cargar();
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
@@ -360,7 +360,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             if (ce) console.warn("[Bloque12] No se pudo generar cobro auto:", ce.message);
           }
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.warn("[Bloque12] Error generando cobro auto:", e?.message);
       }
     }

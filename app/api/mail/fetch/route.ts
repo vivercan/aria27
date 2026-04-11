@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(emailContent);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

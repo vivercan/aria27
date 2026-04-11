@@ -121,7 +121,7 @@ export default function PlanosPage() {
         });
         msg("success", "Plano actualizado"); setShowForm(false); setEditId(null); cargar();
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       msg("error", e?.message || "Error");
     }
     setGuardando(false);
@@ -142,7 +142,7 @@ export default function PlanosPage() {
     try {
       const r = await deleteRowAndBlob({ table: "planos", id: deleteModal.id, userEmail, bucket: "expedientes" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: any) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

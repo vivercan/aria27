@@ -85,7 +85,7 @@ export default function InboxPage() {
       if (!r.ok) throw new Error(data.error || "Error al iniciar sesión");
       setZohoEmail(data.email);
       setLoginPass(""); // limpiar password de memoria
-    } catch (e: any) { setLoginError(e.message); }
+    } catch (e: unknown) { setLoginError((e as Error).message); }
     setLoginLoading(false);
   };
 
@@ -111,7 +111,7 @@ export default function InboxPage() {
       if (!r.ok) throw new Error(data.error || "Error al cargar");
       setEmails(data.emails || []);
       setSeleccionados(new Set());
-    } catch (e: any) { setError(e.message); }
+    } catch (e: unknown) { setError((e as Error).message); }
     setLoading(false);
   }, [carpeta, zohoEmail]);
 
@@ -146,7 +146,7 @@ export default function InboxPage() {
         body: JSON.stringify({ uids, folder: carpeta }),
       });
       cargarEmails();
-    } catch (e: any) { setError(e.message); }
+    } catch (e: unknown) { setError((e as Error).message); }
     }});
   };
 
@@ -167,7 +167,7 @@ export default function InboxPage() {
       setCompTo(""); setCompSubject(""); setCompBody("");
       setVista("lista");
       cargarEmails();
-    } catch (e: any) { flash("err", "Error: " + e.message); }
+    } catch (e: unknown) { flash("err", "Error: " + (e as Error).message); }
     setEnviando(false);
   };
 

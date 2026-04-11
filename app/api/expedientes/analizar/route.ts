@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, resumen, paginas });
-  } catch (e: any) {
+  } catch (e: unknown) {
     log.error("analizar error", { err: e?.message, stack: e?.stack?.slice(0, 300) });
     // EXP-003 FIX: Usar archivoId del scope exterior en vez de re-consumir req.json()
     if (archivoId) {

@@ -100,7 +100,7 @@ export default function PorPagarPage() {
       });
       setPagoModal(null);
       await loadData();
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", e?.message || "Error desconocido al registrar pago");
     } finally {
       setPagoSaving(false);

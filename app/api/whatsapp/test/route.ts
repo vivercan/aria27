@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result, { status: result.success ? 200 : 500 });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json(
       { success: false, error: e?.message || "Error desconocido" },
       { status: 500 }

@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
         total: (incompletas?.length || 0) + sinRegistro.length,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
       mensaje: "Salida registrada correctamente",
       asistencia: data,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
@@ -242,7 +242,7 @@ export async function PUT(req: NextRequest) {
       mensaje: "Asistencia creada correctamente",
       asistencia: data,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }
@@ -276,7 +276,7 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, mensaje: "Asistencia eliminada" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

@@ -62,7 +62,7 @@ async function getUserByRole(role: string) {
     if (error) { log.error(`Error buscando rol ${role}:`, error?.message); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return data[0];
-  } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e?.message); return null; }
+  } catch (e: unknown) { log.error(`Excepcion buscando rol ${role}:`, e?.message); return null; }
 }
 
 export async function POST(request: Request) {
@@ -157,7 +157,7 @@ export async function POST(request: Request) {
       });
       logs.push(`Email creador OK: ${usuario.email}`);
       logger("REQUISICION").info(`[REQUISICION] Email creador OK: ${usuario.email}`);
-    } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, e?.message); }
+    } catch (e: unknown) { logs.push(`Email creador ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, e?.message); }
 
     if (creatorUser?.phone) {
       await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email compras OK: ${comprasUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
-      } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, e?.message); }
+      } catch (e: unknown) { logs.push(`Email compras ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, e?.message); }
 
       if (comprasUser.phone) {
         await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
@@ -195,7 +195,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email dirección OK: ${direccionUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
-      } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
+      } catch (e: unknown) { logs.push(`Email dirección ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
 
       if (direccionUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone, { origen: "req-creada-direccion", enviadoPor: usuario.email });
@@ -213,7 +213,7 @@ export async function POST(request: Request) {
         });
         logs.push(`Email admin OK: ${adminUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email admin OK: ${adminUser.email}`);
-      } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, e?.message); }
+      } catch (e: unknown) { logs.push(`Email admin ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, e?.message); }
 
       if (adminUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone, { origen: "req-creada-admin", enviadoPor: usuario.email });
@@ -222,7 +222,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, folio, flujo, notificados, logs });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error(`ERROR:`, error);
     return NextResponse.json({ error: error?.message, logs }, { status: 500 });
   }

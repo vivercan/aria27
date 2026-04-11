@@ -95,7 +95,7 @@ export default function AuthorizeRequisicionesPage() {
         if (updErr) { flash("err", "Error al procesar autorización: " + updErr.message); setProcessing(false); return; }
         if (!rows || rows.length === 0) { flash("err", "Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error en handleAction:", err);
       flash("err", "Error: " + err?.message);
     }

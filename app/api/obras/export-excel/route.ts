@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
     log.info("export done", { obra, sheets: 7, bytes: (await wb.xlsx.writeBuffer() as any).byteLength });
 
     return response;
-  } catch (e: any) {
+  } catch (e: unknown) {
     log.error("export fail", { err: e?.message });
     return NextResponse.json(
       { error: e?.message || "Error interno" },

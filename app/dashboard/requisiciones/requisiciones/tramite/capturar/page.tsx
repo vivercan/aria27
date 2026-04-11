@@ -193,7 +193,7 @@ function CapturarContent() {
       if (stErr) throw stErr;
       resetForm();
       await loadAll();
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("[capturar] guardarCotizacion error:", e);
       const msg = e?.message || e?.error_description || JSON.stringify(e);
       flash("err", "Error al guardar cotizacion: " + msg);

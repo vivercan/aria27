@@ -159,7 +159,7 @@ export default function TareasPage() {
     try {
       await backupAndDelete({ table: "tareas_obra", id: deleteModal.id, userEmail });
       msg("success", "Tarea eliminada");
-    } catch (e: any) {
+    } catch (e: unknown) {
       msg("error", e?.message || "Error al eliminar");
     }
     setDeleteModal({ open: false, id: "", name: "" });

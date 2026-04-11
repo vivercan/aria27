@@ -230,7 +230,7 @@ export default function NominaManualPage() {
       
       setMensaje({ tipo: "success", texto: "✅ Cambios guardados correctamente" });
       await cargarAsistencias();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
     }
     

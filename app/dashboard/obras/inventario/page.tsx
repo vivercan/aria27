@@ -195,7 +195,7 @@ export default function InventarioObraPage() {
         return null;
       }
       return data.url;
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", "Error al subir foto: " + (e?.message || "error"));
       return null;
     }

@@ -75,7 +75,7 @@ export default function ProspeccionPage() {
       setWebResults(data.proveedores_web || []);
       setAnalisis(data.analisis || "");
       setRecomendacion(data.recomendacion || "");
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error buscando:", e);
       setError(e?.message || "Error en la búsqueda");
     } finally {
@@ -97,7 +97,7 @@ export default function ProspeccionPage() {
       });
       if (insertErr) throw insertErr;
       setSavedIdxs(prev => [...prev, idx]);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error guardando:", e);
       flash("err", "Error: " + (e?.message || "No se pudo guardar"));
     } finally {

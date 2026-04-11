@@ -151,7 +151,7 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
       total_encontrados: resultado.proveedores_web?.length || 0
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error en búsqueda inteligente:", error);
     return NextResponse.json({ 
       error: error?.message || "Error en búsqueda",

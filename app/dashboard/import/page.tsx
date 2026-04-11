@@ -146,7 +146,7 @@ export default function ImportCSV() {
       }
       try {
         valid.push(def.mapRow(r));
-      } catch (e: any) {
+      } catch (e: unknown) {
         invalid.push({ row: i + 2, err: e?.message || "Error al parsear" });
       }
     });

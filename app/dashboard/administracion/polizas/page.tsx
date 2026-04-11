@@ -140,7 +140,7 @@ export default function PolizasPage() {
         });
         msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar();
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       msg("error", e?.message || "Error");
     }
     setGuardando(false);
@@ -164,7 +164,7 @@ export default function PolizasPage() {
     try {
       const r = await deleteRowAndBlob({ table: "polizas_seguro", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: any) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

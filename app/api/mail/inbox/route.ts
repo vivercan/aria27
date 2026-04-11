@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       imap.connect();
     });
     return NextResponse.json({ emails, count: emails.length });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("IMAP Error:", error);
     return NextResponse.json({ error: error?.message || "Error al conectar con Zoho" }, { status: 500 });
   }

@@ -171,7 +171,7 @@ export async function GET(req: NextRequest) {
       info: alertas.filter(a => a.tipo === "INFO").length,
       alertas,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     log.error("alertas fail", { err: e?.message });
     return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
   }

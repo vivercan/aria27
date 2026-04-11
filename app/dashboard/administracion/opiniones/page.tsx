@@ -86,7 +86,7 @@ export default function OpinionesPage() {
       });
 
       await loadDocs();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error subiendo:", err);
       flash("err", "Error al subir: " + (err?.message || "desconocido"));
     } finally {
@@ -114,7 +114,7 @@ export default function OpinionesPage() {
             flash("err", `Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
           }
           await loadDocs();
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.error(e);
           flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
         }

@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             html: emailHtml,
           });
           emailsSent++;
-        } catch (e: any) {
+        } catch (e: unknown) {
           errors.push(`Email ${prov.name}: ${e?.message}`);
         }
       }
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
           );
           if (result.success) whatsappSent++;
           else errors.push(`WA ${prov.name}: ${result.error}`);
-        } catch (e: any) {
+        } catch (e: unknown) {
           errors.push(`WA ${prov.name}: ${e?.message}`);
         }
       }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       errors: errors.length > 0 ? errors : undefined,
     });
 
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ error: e?.message }, { status: 500 });
   }
 }

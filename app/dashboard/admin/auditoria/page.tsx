@@ -114,8 +114,8 @@ export default function AuditoriaPage() {
           if (!resp.ok) throw new Error(j.error || "Error al restaurar");
           setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
           cargar();
-        } catch (e: any) {
-          setMsg({ tipo: "err", texto: e.message });
+        } catch (e: unknown) {
+          setMsg({ tipo: "err", texto: (e as Error).message });
         } finally {
           setRestoring(null);
         }
@@ -144,8 +144,8 @@ export default function AuditoriaPage() {
           if (!resp.ok) throw new Error(j.error || "Error al revertir");
           setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
           cargar();
-        } catch (e: any) {
-          setMsg({ tipo: "err", texto: e.message });
+        } catch (e: unknown) {
+          setMsg({ tipo: "err", texto: (e as Error).message });
         } finally {
           setRestoring(null);
         }

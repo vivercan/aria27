@@ -107,7 +107,7 @@ export default function AvanceObrasPage() {
       setDraft(prev => { const c = { ...prev }; delete c[obra_nombre]; return c; });
       await cargar();
       flash("ok", "Guardado exitosamente");
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);

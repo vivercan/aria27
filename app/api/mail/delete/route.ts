@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error eliminando correos:", error);
     return NextResponse.json({ error: error?.message || "Error al eliminar" }, { status: 500 });
   }

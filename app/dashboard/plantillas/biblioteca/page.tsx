@@ -165,8 +165,8 @@ export default function BibliotecaPlantillasPage() {
       }
       reset();
       cargar();
-    } catch (e: any) {
-      flash("err", "Error: " + e.message);
+    } catch (e: unknown) {
+      flash("err", "Error: " + (e as Error).message);
     }
     setSaving(false);
   };
@@ -198,8 +198,8 @@ export default function BibliotecaPlantillasPage() {
       }
       flash("ok", "Plantilla eliminada");
       cargar();
-    } catch (e: any) {
-      flash("err", "Error: " + e.message);
+    } catch (e: unknown) {
+      flash("err", "Error: " + (e as Error).message);
     }
     }});
   };

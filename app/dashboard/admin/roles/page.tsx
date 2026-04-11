@@ -57,7 +57,7 @@ export default function RolesAdminPage() {
       }
       setAuthorized(true);
       setUsers((j.users as UserRow[]) || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMsg({ tipo: "err", texto: e?.message || "Error de red" });
       setAuthorized(true);
     }
@@ -91,7 +91,7 @@ export default function RolesAdminPage() {
       const j = await r.json().catch(() => ({}));
       if (!r.ok) flash("err", j.error || "Error");
       else flash("ok", `Permisos actualizados para ${u.email}`);
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", e?.message || "Error de red");
     }
     setGuardando(null);

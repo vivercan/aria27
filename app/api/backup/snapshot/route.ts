@@ -176,7 +176,7 @@ export async function GET(req: NextRequest) {
         size: json.length,
         ...(uploadError ? { error: uploadError } : {}),
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       tableResults.push({
         tabla,
         rows: 0,
@@ -237,12 +237,12 @@ export async function GET(req: NextRequest) {
           } else {
             filesCopied++;
           }
-        } catch (fe: any) {
-          errorDetails.push(`${filePath}: ${fe?.message || "error"}`);
+        } catch (fe: unknown) {
+          errorDetails.push(`${filePath}: ${(fe as Error)?.message || "error"}`);
         }
       }
-    } catch (e: any) {
-      errorDetails.push(`listFiles: ${e?.message || "error"}`);
+    } catch (e: unknown) {
+      errorDetails.push(`listFiles: ${(e as Error)?.message || "error"}`);
     }
 
     storageResults.push({
@@ -288,13 +288,13 @@ export async function GET(req: NextRequest) {
           }
           deletedFolders.push(folder.name);
           log.info("backup viejo eliminado", { folder: folder.name, files: oldFiles.length });
-        } catch (delErr: any) {
-          log.error("error eliminando backup viejo", { folder: folder.name, error: delErr?.message });
+        } catch (delErr: unknown) {
+          log.error("error eliminando backup viejo", { folder: folder.name, error: (delErr as Error)?.message });
         }
       }
     }
-  } catch (e: any) {
-    log.error("error en limpieza de backups", { error: e?.message });
+  } catch (e: unknown) {
+    log.error("error en limpieza de backups", { error: (e as Error)?.message });
   }
 
   // ===============================================================

@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ status: "ok", folio: folioOC });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error webhook OC-foto:", error);
     return NextResponse.json({ error: error?.message }, { status: 500 });
   }

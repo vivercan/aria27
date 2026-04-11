@@ -94,7 +94,7 @@ export default function UsuariosPage() {
         flash("err", "No se pudo guardar el usuario: " + (j.error || "error desconocido"));
         return;
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       flash("err", "Error de red: " + (e?.message || "desconocido"));
       return;
     }

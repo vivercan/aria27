@@ -195,7 +195,7 @@ export default function PreNominaPage() {
         setMensaje({ tipo: "success", texto: `Nómina generada: ${data.registros} empleados | Neto ${fmtMoney(data.totales.neto)}` });
         setYaExiste(true);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
     }
     setGenerando(false);

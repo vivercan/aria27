@@ -153,8 +153,8 @@ export default function EntityFolder({
       });
       flash("ok", `"${file.name}" subido`);
       cargar();
-    } catch (e: any) {
-      flash("err", e?.message || "Error al subir");
+    } catch (e: unknown) {
+      flash("err", (e as Error)?.message || "Error al subir");
     }
     setBusy(null);
   };
@@ -172,8 +172,8 @@ export default function EntityFolder({
       });
       flash("ok", "Documento eliminado");
       cargar();
-    } catch (e: any) {
-      flash("err", e?.message || "Error al eliminar");
+    } catch (e: unknown) {
+      flash("err", (e as Error)?.message || "Error al eliminar");
     }
     setBusy(null);
   };
@@ -215,8 +215,8 @@ export default function EntityFolder({
       }
       flash("ok", "Documento reemplazado");
       cargar();
-    } catch (e: any) {
-      flash("err", e?.message || "Error al reemplazar");
+    } catch (e: unknown) {
+      flash("err", (e as Error)?.message || "Error al reemplazar");
     }
     setBusy(null);
     setReplaceTarget(null);

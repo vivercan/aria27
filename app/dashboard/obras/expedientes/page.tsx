@@ -419,7 +419,7 @@ export default function ExpedientesPage() {
       if (nuevoRow?.id) {
         dispararAnalisis(nuevoRow.id);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       flash("err", err?.message || "Error al subir archivo");
     }
   };
@@ -485,7 +485,7 @@ export default function ExpedientesPage() {
         .from("expedientes_archivos").select("id")
         .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
       if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       flash("err", err?.message || "Error al subir archivo");
     }
     e.target.value = "";
@@ -689,7 +689,7 @@ export default function ExpedientesPage() {
         urlField: "url",
       });
       loadArchivos(carpetaSeleccionada.id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       flash("err", err?.message || "Error al subir archivo");
     }
   };
