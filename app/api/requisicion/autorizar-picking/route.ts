@@ -127,39 +127,46 @@ export async function POST(req: Request) {
 
     // Email
     if (compras?.email) {
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>",
-        to: compras.email,
-        subject: `Compra Autorizada ${folio} - ${obra || "N/A"} ($${grandTotal.toLocaleString()})`,
-        html: `
-          <div style="font-family:Arial;max-width:600px;margin:0 auto;background:#0f172a;color:white;padding:30px;border-radius:8px;">
-            <div style="text-align:center;margin-bottom:20px;">
-              <div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div>
-              <div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px">Operations OS</div>
+      try {
+        const emailResult = await resend.emails.send({
+          from: "ARIA27 <noreply@mail.jjcrm27.com>",
+          to: compras.email,
+          subject: `Compra Autorizada ${folio} - ${obra || "N/A"} ($${grandTotal.toLocaleString()})`,
+          html: `
+            <div style="font-family:Arial;max-width:600px;margin:0 auto;background:#0f172a;color:white;padding:30px;border-radius:8px;">
+              <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div>
+                <div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px">Operations OS</div>
+              </div>
+              <div style="background:#064e3b;padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;">
+                <p style="margin:0;font-size:20px;font-weight:bold;color:#34d399">COMPRA AUTORIZADA</p>
+              </div>
+              <p><strong style="color:#94a3b8">Requisici&oacute;n:</strong> ${folio}</p>
+              <p><strong style="color:#94a3b8">Obra:</strong> ${obra || "N/A"}</p>
+              <p><strong style="color:#94a3b8">Total:</strong> <span style="color:#34d399;font-size:20px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p>
+              <hr style="border-color:#334155;margin:20px 0">
+              <p style="color:#94a3b8;font-weight:bold">&Oacute;rdenes de Compra:</p>
+              ${Object.entries(grouped).map(([name, sitems]: [string, any[]]) => {
+                const t = sitems.reduce((s: number, i: any) => s + (i.total_price || 0), 0);
+                return `<div style="background:#1e293b;padding:12px;border-radius:6px;margin:8px 0">
+                  <p style="margin:0;color:white;font-weight:bold">${name} - $${t.toLocaleString()}</p>
+                  ${sitems.map((i: any) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}
+                </div>`;
+              }).join("")}
             </div>
-            <div style="background:#064e3b;padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;">
-              <p style="margin:0;font-size:20px;font-weight:bold;color:#34d399">COMPRA AUTORIZADA</p>
-            </div>
-            <p><strong style="color:#94a3b8">Requisici&oacute;n:</strong> ${folio}</p>
-            <p><strong style="color:#94a3b8">Obra:</strong> ${obra || "N/A"}</p>
-            <p><strong style="color:#94a3b8">Total:</strong> <span style="color:#34d399;font-size:20px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p>
-            <hr style="border-color:#334155;margin:20px 0">
-            <p style="color:#94a3b8;font-weight:bold">&Oacute;rdenes de Compra:</p>
-            ${Object.entries(grouped).map(([name, sitems]: [string, any[]]) => {
-              const t = sitems.reduce((s: number, i: any) => s + (i.total_price || 0), 0);
-              return `<div style="background:#1e293b;padding:12px;border-radius:6px;margin:8px 0">
-                <p style="margin:0;color:white;font-weight:bold">${name} - $${t.toLocaleString()}</p>
-                ${sitems.map((i: any) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}
-              </div>`;
-            }).join("")}
-          </div>
-        `
-      });
+          `
+        });
+        if ((emailResult as any)?.error) {
+          log.error("Email compras error", { folio, error: (emailResult as any).error?.message });
+        }
+      } catch (emailErr: unknown) {
+        log.error("Email compras exception", { folio, error: (emailErr as Error).message });
+      }
     }
 
     return NextResponse.json({ success: true, purchase_orders: ocFolios.length, folios: ocFolios });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("[AUTORIZAR-PICKING]", error);
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }

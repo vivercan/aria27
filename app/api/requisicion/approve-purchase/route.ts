@@ -221,21 +221,29 @@ export async function GET(request: NextRequest) {
       }
 
       if (comprasUser) {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
-          subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici&oacute;n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>`
-        });
+        try {
+          await resend.emails.send({
+            from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
+            subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
+            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici&oacute;n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>`
+          });
+        } catch (emailErr: unknown) {
+          log.error("Email compras OC exception", { ocFolio, error: (emailErr as Error).message });
+        }
         if (comprasUser.phone) {
           await sendWhatsAppLogged("oc_generada", [req.folio, ocFolio, req.cost_center_name || "N/A", supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone, { origen: "oc-generada-approve", enviadoPor: "approve-purchase" });
         }
       }
 
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
-        subject: `Tu requisici\u00f3n ${req.folio} fue autorizada - ${ocFolio}`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Autorizada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> ha sido autorizada.</p><p>OC: <strong>${ocFolio}</strong></p><p>Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p></div></div>`
-      });
+      try {
+        await resend.emails.send({
+          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
+          subject: `Tu requisici\u00f3n ${req.folio} fue autorizada - ${ocFolio}`,
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Autorizada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> ha sido autorizada.</p><p>OC: <strong>${ocFolio}</strong></p><p>Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p></div></div>`
+        });
+      } catch (emailErr: unknown) {
+        log.error("Email solicitante OC exception", { folio: req.folio, error: (emailErr as Error).message });
+      }
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
@@ -247,25 +255,33 @@ export async function GET(request: NextRequest) {
       if (rechErr) { log.error("Error rechazar requisicion", { error: rechErr.message, req: req.folio }); throw new Error(`Error rechazando requisición ${req.folio}: ${rechErr.message}`); }
 
       if (comprasUser) {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
-          subject: `RECHAZADA: ${req.folio}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
-        });
+        try {
+          await resend.emails.send({
+            from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
+            subject: `RECHAZADA: ${req.folio}`,
+            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
+          });
+        } catch (emailErr: unknown) {
+          log.error("Email compras rechazo exception", { folio: req.folio, error: (emailErr as Error).message });
+        }
       }
 
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
-        subject: `Requisici\u00f3n ${req.folio} rechazada por Direcci\u00f3n`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Rechazada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
-      });
+      try {
+        await resend.emails.send({
+          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
+          subject: `Requisici\u00f3n ${req.folio} rechazada por Direcci\u00f3n`,
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Rechazada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
+        });
+      } catch (emailErr: unknown) {
+        log.error("Email solicitante rechazo exception", { folio: req.folio, error: (emailErr as Error).message });
+      }
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x274C;</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     } else {
       return NextResponse.json({ error: `Acci\u00f3n no v\u00e1lida: ${action}` }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("[APPROVE-PURCHASE]", { error: String(error) });
-    return NextResponse.json({ error: error?.message || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }

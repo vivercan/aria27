@@ -100,14 +100,18 @@ export async function GET(request: Request) {
       const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
 
       if (comprasUser) {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
-          subject: `COTIZAR: ${req.folio} - ${urgencyText}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
-        });
+        try {
+          await resend.emails.send({
+            from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
+            subject: `COTIZAR: ${req.folio} - ${urgencyText}`,
+            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
+          });
+        } catch (emailErr: unknown) {
+          log.error("Email compras cotizar exception", { folio: req.folio, error: (emailErr as Error).message });
+        }
         if (comprasUser.phone) {
           const materialesResumen = (items || []).map((m: any) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
-        await sendWhatsAppLogged("requisicion_compras", [req.folio, req.cost_center_name, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-validada", enviadoPor: "validate-link" });
+          await sendWhatsAppLogged("requisicion_compras", [req.folio, req.cost_center_name, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-validada", enviadoPor: "validate-link" });
         }
       }
 
@@ -116,11 +120,15 @@ export async function GET(request: Request) {
       // RECHAZADA - Notificar al creador por EMAIL + WHATSAPP
       const creatorUser = await getUserByEmail(req.user_email);
       
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
-        subject: `Requisicion ${req.folio} rechazada`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada por el validador.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`
-      });
+      try {
+        await resend.emails.send({
+          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
+          subject: `Requisicion ${req.folio} rechazada`,
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada por el validador.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`
+        });
+      } catch (emailErr: unknown) {
+        log.error("Email solicitante rechazada exception", { folio: req.folio, error: (emailErr as Error).message });
+      }
 
       // WhatsApp al creador
       if (creatorUser?.phone) {

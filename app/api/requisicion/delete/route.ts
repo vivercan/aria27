@@ -123,21 +123,25 @@ export async function POST(request: NextRequest) {
         // 7. Eliminar en orden: nietos → hijos → padre
         // 7a. Eliminar entregas
         if (entregasData && entregasData.length > 0) {
-          await supabase.from("entregas").delete().eq("requisition_id", reqId);
+          const { error: delEntregas } = await supabase.from("entregas").delete().eq("requisition_id", reqId);
+          if (delEntregas) { log.error("delete-entregas-fail", { reqId, error: delEntregas.message }); errors.push(`Error eliminando entregas de ${reqData.folio || reqId}`); continue; }
         }
 
         // 7b. Eliminar cotizaciones de items
         if (itemIds.length > 0) {
-          await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
+          const { error: delQuotes } = await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
+          if (delQuotes) { log.error("delete-quotes-fail", { reqId, error: delQuotes.message }); errors.push(`Error eliminando cotizaciones de ${reqData.folio || reqId}`); continue; }
         }
 
         // 7c. Eliminar OCs
         if (posData && posData.length > 0) {
-          await supabase.from("purchase_orders").delete().eq("requisition_id", reqId);
+          const { error: delPOs } = await supabase.from("purchase_orders").delete().eq("requisition_id", reqId);
+          if (delPOs) { log.error("delete-pos-fail", { reqId, error: delPOs.message }); errors.push(`Error eliminando OCs de ${reqData.folio || reqId}`); continue; }
         }
 
         // 7d. Eliminar items
-        await supabase.from("requisition_items").delete().eq("requisition_id", reqId);
+        const { error: delItems } = await supabase.from("requisition_items").delete().eq("requisition_id", reqId);
+        if (delItems) { log.error("delete-items-fail", { reqId, error: delItems.message }); errors.push(`Error eliminando items de ${reqData.folio || reqId}`); continue; }
 
         // 7e. Eliminar requisición
         const { error: deleteError } = await supabase

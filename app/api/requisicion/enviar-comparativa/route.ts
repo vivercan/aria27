@@ -130,8 +130,8 @@ export async function POST(req: NextRequest) {
       } else {
         log.info("Email enviado", { to: director.email, id: (emailResult as any)?.data?.id });
       }
-    } catch (e: any) {
-      emailError = e?.message || String(e);
+    } catch (e: unknown) {
+      emailError = (e as Error)?.message || String(e);
       log.error("Resend exception", { id: requisition_id, error: emailError });
     }
 
@@ -160,8 +160,8 @@ export async function POST(req: NextRequest) {
       email: emailError ? { ok: false, error: emailError } : { ok: true, id: (emailResult as any)?.data?.id || null },
       whatsapp: waResult,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("[COMPARATIVA] Error:", error);
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }

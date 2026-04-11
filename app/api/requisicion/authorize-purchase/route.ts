@@ -72,44 +72,51 @@ export async function POST(request: Request) {
     ).join("");
 
     if (autorizadorUser) {
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>",
-        to: autorizadorUser.email,
-        subject: `AUTORIZAR: ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
-        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">
-          <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:25px;text-align:center">
-            <h1 style="margin:0">Solicitud de Autorizacion</h1>
-          </div>
-          <div style="background:${urgencyColor};color:white;padding:15px;text-align:center">
-            <div style="font-size:28px;font-weight:bold">${urgencyText} - $${total.toLocaleString()} MXN</div>
-          </div>
-          <div style="padding:25px">
-            <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px">
-              <p><strong>Folio:</strong> ${req.folio}</p>
-              <p><strong>Obra:</strong> ${req.cost_center_name}</p>
-              <p><strong>Solicitante:</strong> ${req.created_by}</p>
-              <p><strong>Proveedor:</strong> ${cotizacion.supplier_name}</p>
+      try {
+        const emailResult = await resend.emails.send({
+          from: "ARIA27 <noreply@mail.jjcrm27.com>",
+          to: autorizadorUser.email,
+          subject: `AUTORIZAR: ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">
+            <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:25px;text-align:center">
+              <h1 style="margin:0">Solicitud de Autorizacion</h1>
             </div>
-            <table style="width:100%;border-collapse:collapse;margin:20px 0">
-              <thead><tr style="background:#1e3a5f;color:white">
-                <th style="padding:12px;text-align:left">Material</th>
-                <th style="padding:12px">Cantidad</th>
-                <th style="padding:12px;text-align:right">P.U.</th>
-                <th style="padding:12px;text-align:right">Importe</th>
-              </tr></thead>
-              <tbody>${itemsHtml}</tbody>
-              <tfoot><tr style="background:#f1f5f9;font-weight:bold">
-                <td colspan="3" style="padding:12px;text-align:right">TOTAL:</td>
-                <td style="padding:12px;text-align:right">$${total.toLocaleString()}</td>
-              </tr></tfoot>
-            </table>
-            <div style="text-align:center;margin:30px 0">
-              <a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a>
-              <a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a>
+            <div style="background:${urgencyColor};color:white;padding:15px;text-align:center">
+              <div style="font-size:28px;font-weight:bold">${urgencyText} - $${total.toLocaleString()} MXN</div>
             </div>
-          </div>
-        </div>`
-      });
+            <div style="padding:25px">
+              <div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px">
+                <p><strong>Folio:</strong> ${req.folio}</p>
+                <p><strong>Obra:</strong> ${req.cost_center_name}</p>
+                <p><strong>Solicitante:</strong> ${req.created_by}</p>
+                <p><strong>Proveedor:</strong> ${cotizacion.supplier_name}</p>
+              </div>
+              <table style="width:100%;border-collapse:collapse;margin:20px 0">
+                <thead><tr style="background:#1e3a5f;color:white">
+                  <th style="padding:12px;text-align:left">Material</th>
+                  <th style="padding:12px">Cantidad</th>
+                  <th style="padding:12px;text-align:right">P.U.</th>
+                  <th style="padding:12px;text-align:right">Importe</th>
+                </tr></thead>
+                <tbody>${itemsHtml}</tbody>
+                <tfoot><tr style="background:#f1f5f9;font-weight:bold">
+                  <td colspan="3" style="padding:12px;text-align:right">TOTAL:</td>
+                  <td style="padding:12px;text-align:right">$${total.toLocaleString()}</td>
+                </tr></tfoot>
+              </table>
+              <div style="text-align:center;margin:30px 0">
+                <a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a>
+                <a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a>
+              </div>
+            </div>
+          </div>`
+        });
+        if ((emailResult as any)?.error) {
+          log.error("Email autorizador error", { folio: req.folio, error: (emailResult as any).error?.message });
+        }
+      } catch (emailErr: unknown) {
+        log.error("Email autorizador exception", { folio: req.folio, error: (emailErr as Error).message });
+      }
 
       if (autorizadorUser.phone) {
         const materialesWA = cotizacion.items.map((item: any) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
@@ -123,8 +130,9 @@ export async function POST(request: Request) {
       total 
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    log.error("[AUTHORIZE-PURCHASE]", error);
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }
 

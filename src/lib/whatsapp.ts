@@ -271,32 +271,36 @@ export async function sendWhatsAppLogged(
 }
 
 /**
- * Enviar a múltiples destinatarios
+ * Enviar a múltiples destinatarios (con audit trail via wa_log)
  */
 export async function sendWhatsAppToMultiple(
   templateName: string,
   params: string[],
   phones: string[],
-  buttonToken?: string
+  opts: { origen?: string; enviadoPor?: string; buttonToken?: string } = {}
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
   const results = { sent: 0, failed: 0, errors: [] as string[] };
 
   for (const phone of phones) {
     if (!phone) continue;
-    
-    const result = await sendWhatsAppTemplate(templateName, params, phone, buttonToken);
-    
+
+    const result = await sendWhatsAppLogged(
+      templateName,
+      params,
+      phone,
+      { origen: opts.origen || "batch", enviadoPor: opts.enviadoPor || "system", buttonToken: opts.buttonToken }
+    );
+
     if (result.success) {
       results.sent++;
     } else {
       results.failed++;
       results.errors.push(`${phone}: ${result.error}`);
     }
-    
+
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  console.log("[WhatsApp] [STATS] Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
 
