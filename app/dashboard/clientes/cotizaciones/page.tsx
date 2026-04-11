@@ -106,7 +106,7 @@ export default function CotizacionesClientesPage() {
       fecha: c.fecha,
       vigencia_dias: c.vigencia_dias || 30,
       moneda: c.moneda || "MXN",
-      estatus: (c.estatus as any) || "BORRADOR",
+      estatus: (c.estatus as (typeof ESTATUS)[number]) || "BORRADOR",
       notas: c.notas || "",
       iva_pct: c.subtotal > 0 ? Math.round((Number(c.iva) / Number(c.subtotal)) * 100) : 16,
     });
@@ -577,7 +577,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
-                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as any })}
+                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>

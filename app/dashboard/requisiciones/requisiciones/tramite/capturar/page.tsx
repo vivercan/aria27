@@ -195,8 +195,10 @@ function CapturarContent() {
       resetForm();
       await loadAll();
     } catch (e: unknown) {
-
-      const msg = ((e as Error)?.message) || ((e as any)?.error_description) || JSON.stringify(e);
+      let msg = "";
+      if (e instanceof Error) msg = e.message;
+      else if (e && typeof e === "object" && "error_description" in e) msg = String((e as Record<string, unknown>).error_description);
+      else msg = JSON.stringify(e);
       flash("err", "Error al guardar cotizacion: " + msg);
     } finally {
       setSaving(false);

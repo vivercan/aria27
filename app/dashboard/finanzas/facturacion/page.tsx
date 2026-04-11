@@ -46,7 +46,7 @@ export default function FacturacionPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "",
-    metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO"
+    metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO" as "INGRESO" | "EGRESO"
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -245,7 +245,7 @@ export default function FacturacionPage() {
         folio, serie: form.serie, cliente: form.cliente, rfc_cliente: form.rfc_cliente,
         concepto: form.concepto, subtotal: form.subtotal, iva, total,
         status: "EMITIDA", obra_nombre: form.obra_nombre, fecha_emision: new Date().toISOString().split("T")[0],
-        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi, tipo: (form as any).tipo,
+        metodo_pago: form.metodo_pago, uso_cfdi: form.uso_cfdi, tipo: form.tipo,
       });
       if (!error) return { ok: true };
       // Si fue colisión por unique constraint, reintentar una sola vez.
@@ -332,7 +332,7 @@ export default function FacturacionPage() {
           <h3 className="text-lg font-semibold text-white">Nueva Factura</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div><label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-              <select value={(form as any).tipo} onChange={e => setForm({...form, tipo: e.target.value} as any)} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value as "INGRESO" | "EGRESO"})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="INGRESO">INGRESO - Dinero que entra</option><option value="EGRESO">EGRESO - Dinero que sale</option>
               </select></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Cliente *</label>

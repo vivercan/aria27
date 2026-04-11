@@ -87,7 +87,7 @@ export default function CobranzaManualPage() {
       obra_id: c.obra_id || "",
       monto: Number(c.monto) || 0,
       saldo: Number(c.saldo) || 0,
-      estatus: (c.estatus as any) || "PENDIENTE",
+      estatus: (c.estatus as (typeof ESTATUS)[number]) || "PENDIENTE",
       referencia: c.referencia || "",
       metodo: c.metodo || "Transferencia",
       fecha: c.fecha || new Date().toISOString().split("T")[0],
@@ -368,7 +368,7 @@ export default function CobranzaManualPage() {
 
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
-                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as any })}
+                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>

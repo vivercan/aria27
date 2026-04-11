@@ -79,7 +79,7 @@ export default function BibliotecaPlantillasPage() {
       .order("categoria")
       .order("nombre");
     if (error) {
-      if ((error as any).code === "42P01") {
+      if (error && 'code' in error && error.code === "42P01") {
         showFlash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
       } else {
         showFlash("err", error.message);
@@ -260,7 +260,7 @@ export default function BibliotecaPlantillasPage() {
             <option value="">Todas las categorías</option>
             {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value as any)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+          <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value as "ACTIVAS" | "INACTIVAS" | "TODAS")} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
             <option value="ACTIVAS">Activas</option>
             <option value="INACTIVAS">Inactivas</option>
             <option value="TODAS">Todas</option>

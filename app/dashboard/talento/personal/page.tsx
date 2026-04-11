@@ -405,7 +405,7 @@ export default function PersonalPage() {
                 { key: "bancario", label: "Bancario", icon: CreditCard },
                 { key: "fiscal", label: "Fiscal", icon: Shield },
               ].map(t => (
-                <button key={t.key} onClick={() => setTab(t.key as any)}
+                <button key={t.key} onClick={() => setTab(t.key as "general" | "laboral" | "bancario" | "fiscal")}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
                     tab === t.key ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-400 hover:text-white"
                   }`}>

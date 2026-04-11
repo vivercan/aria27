@@ -197,7 +197,8 @@ export default function PipelinePage() {
       await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
       flash("ok", "Eliminado correctamente");
     } catch (e) {
-      flash("err", "Error: " + ((e as any)?.message || "desconocido"));
+      const msg = e instanceof Error ? e.message : String(e);
+      flash("err", "Error: " + (msg || "desconocido"));
     }
     setDeleteModal({open:false,id:"",name:""});
     cargar();

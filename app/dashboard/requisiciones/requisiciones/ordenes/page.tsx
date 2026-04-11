@@ -115,7 +115,10 @@ export default function OrdenesCompraPage() {
 
           flash("err", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
-      } catch (e) { flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        flash("err", "Error red registrar-entrega: " + msg);
+      }
     }
 
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
