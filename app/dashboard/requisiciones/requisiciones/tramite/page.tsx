@@ -79,9 +79,9 @@ export default function ComprasTramitePage() {
     });
   };
 
-  const initQuotes = (itemsList: any[]) => {
+  const initQuotes = (itemsList: RequisitionItem[]) => {
     const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
-    itemsList.forEach((item: any) => {
+    itemsList.forEach((item: RequisitionItem) => {
       q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
     });
     setItemQuotes(q);
@@ -133,7 +133,7 @@ export default function ComprasTramitePage() {
     initQuotes(data || []);
     
     const init: Record<number, { price: number; supplier: string }> = {};
-    (data || []).forEach((item: any) => {
+    (data || []).forEach((item: RequisitionItem) => {
       init[item.id] = { price: item.selected_price || 0, supplier: item.selected_supplier || "" };
     });
     setPrices(init);
@@ -511,7 +511,7 @@ Responde SOLO con JSON así:
             // Helper: set condicion en columna para TODOS los productos
             const setColumnField = (colIdx: number, field: "entrega" | "forma_pago" | "pdf_url" | "factura", value: string | boolean) => {
               items.forEach(item => {
-                updateQuote(item.id, colIdx, field as any, value as any);
+                updateQuote(item.id, colIdx, field, value as string | boolean);
               });
             };
 
@@ -542,7 +542,7 @@ Responde SOLO con JSON así:
               if (items.length === 0) return "";
               const q = (itemQuotes[items[0].id] || [])[colIdx];
               if (!q) return "";
-              return (q as any)[field] || "";
+              return ((q as Record<string, unknown>)[field] as string | undefined) || "";
             };
 
             return (
@@ -602,7 +602,7 @@ Responde SOLO con JSON así:
                                 <option value="+15 dias">+15 dias</option>
                               </select>
                               <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/10 text-[9px] text-slate-400 cursor-pointer">
-                                <input type="checkbox" checked={getColCondition(colIdx, "factura") !== false}
+                                <input type="checkbox" checked={(getColCondition(colIdx, "factura") as unknown as boolean) || false}
                                   onChange={(e) => setColumnField(colIdx, "factura", e.target.checked)}
                                   className="w-3 h-3 rounded" />
                                 <span className="text-white">Factura</span>

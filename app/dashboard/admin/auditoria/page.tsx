@@ -14,15 +14,15 @@ interface AuditRow {
   row_pk: string | null;
   actor: string | null;
   changed_at: string;
-  before: any;
-  after: any;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
 }
 
 interface DeletedRow {
   id: string;
   source_table: string;
   source_id: string;
-  data: any;
+  data: Record<string, unknown>;
   deleted_by: string | null;
   deleted_at: string;
   restore_notes: string | null;
@@ -58,8 +58,8 @@ export default function AuditoriaPage() {
       supabase.from("audit_log").select("*").order("changed_at", { ascending: false }).limit(500),
       supabase.from("deleted_records").select("*").order("deleted_at", { ascending: false }).limit(500),
     ]);
-    if (a.data) setAudit(a.data as any);
-    if (d.data) setDeleted(d.data as any);
+    if (a.data) setAudit(a.data as AuditRow[]);
+    if (d.data) setDeleted(d.data as DeletedRow[]);
     setLoading(false);
   }
 

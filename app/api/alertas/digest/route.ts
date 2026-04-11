@@ -4,6 +4,14 @@ import { logger } from "@/lib/logger";
 
 const log = logger("ALERTAS-DIGEST");
 
+interface Alerta {
+  tipo: "URGENTE" | "ATENCION" | "INFO";
+  titulo: string;
+  modulo?: string;
+  detalle?: string;
+  [key: string]: unknown;
+}
+
 // Envía digest diario de alertas agrupadas por severidad.
 // Protegido por Bearer token (DIGEST_TOKEN) para que lo dispare cron externo (Vercel Cron, GitHub Actions, etc).
 export async function GET(req: NextRequest) {
@@ -29,7 +37,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "alertas endpoint failed" }, { status: 500 });
     }
 
-    const alertas: any[] = data.alertas || [];
+    const alertas: Alerta[] = data.alertas || [];
     const urgentes = alertas.filter(a => a.tipo === "URGENTE");
     const atencion = alertas.filter(a => a.tipo === "ATENCION");
     const info = alertas.filter(a => a.tipo === "INFO");
@@ -61,8 +69,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function buildHtml(urgentes: any[], atencion: any[], info: any[], base: string) {
-  const section = (titulo: string, color: string, items: any[]) => {
+function buildHtml(urgentes: Alerta[], atencion: Alerta[], info: Alerta[], base: string) {
+  const section = (titulo: string, color: string, items: Alerta[]) => {
     if (items.length === 0) return "";
     const rows = items.slice(0, 20).map(a => `
       <tr>

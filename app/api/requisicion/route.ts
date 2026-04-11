@@ -51,17 +51,28 @@ async function getNextFolio(): Promise<string> {
   return `${prefix}${String(next).padStart(5, "0")}`;
 }
 
-async function getUserByEmail(email: string) {
-  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
-  return data;
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  phone?: string;
+  active?: boolean;
+  display_name?: string;
+  name?: string;
+  [key: string]: unknown;
 }
 
-async function getUserByRole(role: string) {
+async function getUserByEmail(email: string): Promise<User | null> {
+  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
+  return (data as User) || null;
+}
+
+async function getUserByRole(role: string): Promise<User | null> {
   try {
     const { data, error } = await supabase.from("Users").select("*").eq("role", role).eq("active", true).limit(1);
     if (error) { log.error(`Error buscando rol ${role}:`, (error as {message?: string})?.message || "Unknown error"); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
-    return data[0];
+    return (data[0] as User) || null;
   } catch (e: unknown) { log.error(`Excepcion buscando rol ${role}:`, (e as {message?: string})?.message); return null; }
 }
 
@@ -126,7 +137,7 @@ export async function POST(request: Request) {
 
     if (reqErr) throw reqErr;
 
-    const items = materiales.map((m: any) => ({
+    const items = materiales.map((m: Record<string, unknown>) => ({
       requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
       quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
     }));
@@ -140,9 +151,9 @@ export async function POST(request: Request) {
     const fechaReq = new Date(requiredDate).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     const emailFooter = `<div style="background:#0a1628;padding:15px;text-align:center;border-top:1px solid #334155"><span style="color:#64748b;font-size:11px">ARIA27 ERP - CUAVANTE</span><br><span style="color:#475569;font-size:10px">${fechaGen}</span></div>`;
 
-    const materialesHtml = materiales.map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+    const materialesHtml = materiales.map((m: Record<string, unknown>) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
     const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
-    const materialesResumen = materiales.map((m: any) => `${m.name} (${m.qty} ${m.unit})`).join(", ");
+    const materialesResumen = materiales.map((m: Record<string, unknown>) => `${m.name} (${m.qty} ${m.unit})`).join(", ");
 
     const notificados: string[] = [];
 

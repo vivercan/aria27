@@ -134,7 +134,7 @@ export default function IngresoEgresosPage() {
         ].map(tab => (
           <button
             key={tab.key}
-            onClick={() => setVistaActiva(tab.key as any)}
+            onClick={() => setVistaActiva(tab.key as "resumen" | "ingresos" | "egresos")}
             className={`px-4 py-2 text-sm font-medium transition-colors ${vistaActiva === tab.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-slate-400 hover:text-white"}`}
           >
             {tab.label}

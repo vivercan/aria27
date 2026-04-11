@@ -41,10 +41,23 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
     );
   }
 
-  const cotData = req.cotizacion_data || {};
-  const quotes: any[] = cotData.quotes || [];
-  const items: string[] = cotData.items || [];
-  const mejor = quotes.length > 0 ? quotes.reduce((min: any, q: any) => q.total < min.total ? q : min, quotes[0]) : null;
+  interface Quote {
+    supplier: string;
+    total: number;
+    factura?: boolean;
+    entrega?: string;
+    delivery?: string;
+    forma_pago?: string;
+    payment?: string;
+    credito?: string;
+    credit?: string;
+    [key: string]: unknown;
+  }
+
+  const cotData = (req as Record<string, unknown>).cotizacion_data as Record<string, unknown> || {};
+  const quotes: Quote[] = ((cotData as Record<string, unknown>).quotes as Quote[]) || [];
+  const items: string[] = ((cotData as Record<string, unknown>).items as string[]) || [];
+  const mejor = quotes.length > 0 ? quotes.reduce((min: Quote, q: Quote) => q.total < min.total ? q : min, quotes[0]) : null;
   const solicitante = req.created_by || "N/A";
 
   return (
@@ -103,8 +116,8 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                 <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid #1e293b"}}>
                   <p style={{color:"#475569",fontSize:9,fontWeight:600,letterSpacing:2,margin:"0 0 6px"}}>MATERIALES</p>
                   <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                    {items.map((item: string, i: number) => (
-                      <span key={i} style={{background:"#1e293b",color:"#94a3b8",padding:"4px 10px",borderRadius:4,fontSize:11,fontWeight:500}}>{item}</span>
+                    {items.map((item: unknown, i: number) => (
+                      <span key={i} style={{background:"#1e293b",color:"#94a3b8",padding:"4px 10px",borderRadius:4,fontSize:11,fontWeight:500}}>{String(item)}</span>
                     ))}
                   </div>
                 </div>
@@ -133,7 +146,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                     </tr>
                   </thead>
                   <tbody>
-                    {quotes.map((q: any, i: number) => {
+                    {quotes.map((q: Quote, i: number) => {
                       const isBest = mejor && q.total === mejor.total;
                       return (
                         <tr key={i} className="row" style={{borderBottom:"1px solid #1e293b",background:isBest?"#0c1425":"transparent",transition:"background 0.15s"}}>

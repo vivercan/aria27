@@ -49,13 +49,13 @@ export default function CeoDashboardPage() {
         supabase.from("presupuestos_partidas").select("obra_nombre,importe"),
         supabase.from("obra_avances").select("obra_nombre,semana_iso,pct_fisico").order("semana_iso", { ascending: false }),
       ]);
-      setCots((c.data as any[]) || []);
-      setCobs((co.data as any[]) || []);
-      setPos((p.data as any[]) || []);
-      setReqs((r.data as any[]) || []);
-      setNom((n.data as any[]) || []);
-      setParts((pp.data as any[]) || []);
-      setAvs((a.data as any[]) || []);
+      setCots((c.data as Cot[]) || []);
+      setCobs((co.data as Cob[]) || []);
+      setPos((p.data as PO[]) || []);
+      setReqs((r.data as Req[]) || []);
+      setNom((n.data as Nom[]) || []);
+      setParts((pp.data as Part[]) || []);
+      setAvs((a.data as Av[]) || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -87,8 +87,8 @@ export default function CeoDashboardPage() {
     });
     const pipelineMonto = cotsVigentes.reduce((s, c) => s + Number(c.total || 0), 0);
     const aprobadoMonto = cotsAprobadas.reduce((s, c) => s + Number(c.total || 0), 0);
-    const cobradoTotal = cobs.reduce((s, c) => s + (Number(c.monto) - Number(c.saldo) || 0), 0);
-    const porCobrarTotal = cobs.reduce((s, c) => s + (Number(c.saldo) || 0), 0);
+    const cobradoTotal = cobs.reduce((s: number, c: Cob) => s + (Number(c.monto) - Number(c.saldo) || 0), 0);
+    const porCobrarTotal = cobs.reduce((s: number, c: Cob) => s + (Number(c.saldo) || 0), 0);
     const gastoOCMes = pos.filter(p => p.status !== "CANCELADA" && isThisMonth(p.created_at)).reduce((s, p) => s + Number(p.total || 0), 0);
     const gastoOCTotal = pos.filter(p => p.status !== "CANCELADA").reduce((s, p) => s + Number(p.total || 0), 0);
     const gastoNomTotal = nom.reduce((s, x) => s + Number(x.sueldo_neto || 0), 0);
@@ -157,7 +157,7 @@ export default function CeoDashboardPage() {
     }
     const cobroPorSem = new Map<string, number>();
     const gastoPorSem = new Map<string, number>();
-    cobs.forEach(c => {
+    cobs.forEach((c: Cob) => {
       if (!c.fecha) return;
       const d = new Date(c.fecha);
       const y = d.getFullYear();
@@ -167,7 +167,7 @@ export default function CeoDashboardPage() {
       const key = `${y}-W${String(week).padStart(2, "0")}`;
       cobroPorSem.set(key, (cobroPorSem.get(key) || 0) + (Number(c.monto) - Number(c.saldo)));
     });
-    pos.filter(p => p.status !== "CANCELADA").forEach(p => {
+    pos.filter((p: PO) => p.status !== "CANCELADA").forEach((p: PO) => {
       const d = new Date(p.created_at);
       const y = d.getFullYear();
       const start = new Date(y, 0, 1);

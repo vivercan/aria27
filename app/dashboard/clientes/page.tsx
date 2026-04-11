@@ -64,7 +64,7 @@ export default function ClientesPage() {
       .select("*")
       .order("nombre");
     if (error) {
-      if ((error as any).code === "42P01") {
+      if ((error as {code?: string}).code === "42P01") {
         flash("err", "Falta crear tabla clientes. Ver sql/clientes_plantillas.sql");
       } else {
         flash("err", (error as {message?: string})?.message || "Error desconocido");
@@ -218,7 +218,7 @@ export default function ClientesPage() {
           </div>
           <select
             value={filtroEstatus}
-            onChange={e => setFiltroEstatus(e.target.value as any)}
+            onChange={e => setFiltroEstatus(e.target.value as "ACTIVOS" | "INACTIVOS" | "TODOS")}
             className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm"
           >
             <option value="ACTIVOS">Solo activos</option>

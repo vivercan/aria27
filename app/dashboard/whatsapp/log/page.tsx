@@ -112,7 +112,7 @@ export default function WhatsAppLogPage() {
           <option value="">Todas las plantillas</option>
           {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
-        <select value={filterSuccess} onChange={(e) => setFilterSuccess(e.target.value as any)} className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm">
+        <select value={filterSuccess} onChange={(e) => setFilterSuccess(e.target.value as "" | "true" | "false")} className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm">
           <option value="">Todos</option>
           <option value="true">Solo OK</option>
           <option value="false">Solo errores</option>

@@ -141,8 +141,15 @@ export default function ActivosCatalogoPage() {
     const errors: Record<string, string> = {};
     if (!formActivo.codigo?.toString().trim()) errors.codigo = "Código es requerido";
     if (!formActivo.nombre?.toString().trim()) errors.nombre = "Nombre es requerido";
-    if (formActivo.kilometraje && (isNaN(parseFloat(formActivo.kilometraje as any)) || parseFloat(formActivo.kilometraje as any) < 0)) {
-      errors.kilometraje = "Kilometraje debe ser >= 0";
+    if (typeof formActivo.kilometraje === "number") {
+      if (isNaN(formActivo.kilometraje) || formActivo.kilometraje < 0) {
+        errors.kilometraje = "Kilometraje debe ser >= 0";
+      }
+    } else if (formActivo.kilometraje !== undefined && formActivo.kilometraje !== null && formActivo.kilometraje !== "") {
+      const kmValue = parseFloat(String(formActivo.kilometraje));
+      if (isNaN(kmValue) || kmValue < 0) {
+        errors.kilometraje = "Kilometraje debe ser >= 0";
+      }
     }
     setErroresActivo(errors);
     return Object.keys(errors).length === 0;
@@ -242,11 +249,25 @@ export default function ActivosCatalogoPage() {
     const errors: Record<string, string> = {};
     if (!formMantenimiento.activo_id?.toString().trim()) errors.activo_id = "Selecciona un activo";
     if (!formMantenimiento.descripcion?.toString().trim()) errors.descripcion = "Descripción es requerida";
-    if (formMantenimiento.costo && (isNaN(parseFloat(formMantenimiento.costo as any)) || parseFloat(formMantenimiento.costo as any) < 0)) {
-      errors.costo = "Costo debe ser >= 0";
+    if (typeof formMantenimiento.costo === "number") {
+      if (isNaN(formMantenimiento.costo) || formMantenimiento.costo < 0) {
+        errors.costo = "Costo debe ser >= 0";
+      }
+    } else if (formMantenimiento.costo !== undefined && formMantenimiento.costo !== null && formMantenimiento.costo !== "") {
+      const costoValue = parseFloat(String(formMantenimiento.costo));
+      if (isNaN(costoValue) || costoValue < 0) {
+        errors.costo = "Costo debe ser >= 0";
+      }
     }
-    if (formMantenimiento.proximo_km && (isNaN(parseFloat(formMantenimiento.proximo_km as any)) || parseFloat(formMantenimiento.proximo_km as any) < 0)) {
-      errors.proximo_km = "Próximo km debe ser >= 0";
+    if (typeof formMantenimiento.proximo_km === "number") {
+      if (isNaN(formMantenimiento.proximo_km) || formMantenimiento.proximo_km < 0) {
+        errors.proximo_km = "Próximo km debe ser >= 0";
+      }
+    } else if (formMantenimiento.proximo_km !== undefined && formMantenimiento.proximo_km !== null && formMantenimiento.proximo_km !== "") {
+      const kmValue = parseFloat(String(formMantenimiento.proximo_km));
+      if (isNaN(kmValue) || kmValue < 0) {
+        errors.proximo_km = "Próximo km debe ser >= 0";
+      }
     }
     setErroresMantenimiento(errors);
     return Object.keys(errors).length === 0;

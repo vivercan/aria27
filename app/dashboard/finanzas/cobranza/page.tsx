@@ -171,7 +171,7 @@ export default function CobranzaPage() {
             ].map(f => (
               <div key={f.key}>
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
-                <input required={f.key === "obra_nombre"} value={(form as any)[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
+                <input required={f.key === "obra_nombre"} value={String((form as Record<string, unknown>)[f.key] || "")} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
               </div>
             ))}

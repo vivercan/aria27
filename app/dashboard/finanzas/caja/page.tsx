@@ -97,10 +97,10 @@ export default function CajaChicaPage() {
       const obraMap = Object.fromEntries(obrasArr.map(o => [o.id, o.nombre]));
       const empMap = Object.fromEntries(empleadosArr.map(e => [e.id, e.nombre]));
       const fondoMap = Object.fromEntries(fondosRaw.map(f => [f.id, f.nombre]));
-
+      const fondoMapTyped = fondoMap as Record<string, string>;
       setFondos(fondosRaw.map(f => ({ ...f, obra_nombre: obraMap[f.obra_id || ""] || "—", responsable_nombre: empMap[f.responsable_id || ""] || "—" })));
-      setMovimientos((mRes.data || []).map((m: any) => ({ ...m, fondo_nombre: fondoMap[m.fondo_id] || "?" })));
-      setCortes((cRes.data || []).map((c: any) => ({ ...c, fondo_nombre: fondoMap[c.fondo_id] || "?" })));
+      setMovimientos((mRes.data || []).map((m: Movimiento) => ({ ...m, fondo_nombre: fondoMapTyped[m.fondo_id] || "?" })));
+      setCortes((cRes.data || []).map((c: Corte) => ({ ...c, fondo_nombre: fondoMapTyped[c.fondo_id] || "?" })));
       setObras(obrasArr);
       setEmpleados(empleadosArr);
     } catch (e) { console.error(e); }
@@ -126,7 +126,7 @@ export default function CajaChicaPage() {
     const monto = parseFloat(monto_autorizado);
     if (!monto || monto <= 0) { flash("err", "Monto autorizado debe ser mayor a 0"); return; }
     setSaving(true);
-    const payload: any = {
+    const payload: { nombre: string; obra_id: string | null; responsable_id: string | null; monto_autorizado: number; notas: string | null; saldo_actual?: number; updated_at?: string } = {
       nombre: nombre.trim(),
       obra_id: fondoForm.obra_id || null,
       responsable_id: fondoForm.responsable_id || null,

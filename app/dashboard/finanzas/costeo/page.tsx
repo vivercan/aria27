@@ -4,6 +4,43 @@ import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
+interface CentroDeTrabajo {
+  id: string;
+  code?: string;
+  codigo?: string;
+  name?: string;
+  nombre?: string;
+  active?: boolean;
+  activo?: boolean;
+  budget?: number;
+  presupuesto?: number;
+  client?: string;
+  cliente?: string;
+  status?: string;
+  estado?: string;
+  start_date?: string;
+  fecha_inicio?: string;
+  end_date?: string;
+  fecha_fin?: string;
+  description?: string;
+  descripcion?: string;
+  location?: string;
+  direccion?: string;
+}
+
+interface PurchaseOrderRow {
+  obra_nombre?: string;
+  total?: number;
+  categoria?: string;
+  monto_pagado?: number;
+}
+
+interface GastoRow {
+  obra?: string;
+  monto?: number;
+  categoria?: string;
+}
+
 interface CosteoObra {
   id: string;
   obra: string;
@@ -38,14 +75,14 @@ export default function CosteoPage() {
       const obraMap: Record<string, { materiales: number; mano_obra: number; subcontratos: number; indirectos: number }> = {};
 
       // Sumar OCs por obra
-      (ocs || []).forEach((oc: any) => {
+      (ocs || []).forEach((oc: PurchaseOrderRow) => {
         const key = oc.obra_nombre || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         obraMap[key].materiales += oc.total || 0;
       });
 
       // Sumar gastos por obra y categoría
-      (gastos || []).forEach((g: any) => {
+      (gastos || []).forEach((g: GastoRow) => {
         const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         const cat = (g.categoria || "").toLowerCase();
@@ -60,8 +97,8 @@ export default function CosteoPage() {
         }
       });
 
-      const result = (centers || []).map((c: any) => {
-        const nombre = c.name || c.nombre;
+      const result = (centers || []).map((c: CentroDeTrabajo) => {
+        const nombre = c.name || c.nombre || "Sin nombre";
         const costos = obraMap[nombre] || { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         const presupuesto = c.presupuesto || c.budget || 0;
         const totalReal = costos.materiales + costos.mano_obra + costos.subcontratos + costos.indirectos;

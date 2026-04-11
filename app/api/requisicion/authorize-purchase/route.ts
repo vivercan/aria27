@@ -7,9 +7,45 @@ const log = logger("AUTHORIZE-PURCHASE");
 
 const BASE_URL = "https://aria.jjcrm27.com";
 
+interface CotizacionItem {
+  product_name?: string;
+  name?: string;
+  nombre?: string;
+  quantity?: number;
+  cantidad?: number;
+  unit?: string;
+  unidad?: string;
+  unit_price?: number;
+  selected_price?: number;
+  selected_supplier?: string;
+}
+
+interface CotizacionData {
+  supplier_name: string;
+  items: Array<{
+    product_name: string;
+    quantity: number;
+    unit: string;
+    unit_price: number;
+  }>;
+}
+
+interface Requisicion {
+  id: string;
+  folio: string;
+  cost_center_name: string;
+  created_by: string;
+  required_date: string;
+}
+
+interface Usuario {
+  email: string;
+  phone?: string;
+}
+
 // Obtener usuario por ROL (dinamico)
-async function getUserByRole(role: string) {
-  const { data, error } = await supabase.from("Users").select("*").eq("role", role).single();
+async function getUserByRole(role: string): Promise<Usuario | null> {
+  const { data, error } = await supabase.from("Users").select("email,phone").eq("role", role).single();
   if (error) { log.error("getUserByRole error:", error?.message); return null; }
   return data;
 }
@@ -24,32 +60,37 @@ export async function POST(request: Request) {
     // Formato A (tramite): { requisition, items, total, token }
     // Formato B (capturar): { requisitionId, cotizacion }
     const reqId = body.requisitionId || body.requisition?.id;
-    const cotizacion = body.cotizacion || {
+    const cotizacion: CotizacionData = body.cotizacion || {
       supplier_name: body.items?.[0]?.selected_supplier || "Varios",
-      items: (body.items || []).map((item: any) => ({
-        product_name: item.product_name || item.name || item.nombre,
-        quantity: item.quantity || item.cantidad || 1,
-        unit: item.unit || item.unidad || "PZA",
-        unit_price: item.selected_price || item.unit_price || 0
-      }))
+      items: (body.items || []).map((item: CotizacionItem) => {
+        const mapped = {
+          product_name: (item.product_name || item.name || item.nombre) as string,
+          quantity: (item.quantity || item.cantidad || 1) as number,
+          unit: (item.unit || item.unidad || "PZA") as string,
+          unit_price: (item.selected_price || item.unit_price || 0) as number
+        };
+        return mapped;
+      })
     };
 
     if (!reqId) {
       return NextResponse.json({ error: "Falta requisitionId o requisition" }, { status: 400 });
     }
 
-    const { data: req, error } = await supabase
+    const { data: reqRaw, error } = await supabase
       .from("requisitions")
       .select("*")
       .eq("id", reqId)
       .single();
+
+    const req = reqRaw as Requisicion | null;
 
     if (error || !req) {
       return NextResponse.json({ error: "Requisicion no encontrada" }, { status: 404 });
     }
 
     const token = crypto.randomUUID();
-    const total = body.total || cotizacion.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0);
+    const total = body.total || cotizacion.items.reduce((sum: number, item) => sum + ((item.quantity || 0) * (item.unit_price || 0)), 0);
 
     const { error: updateError } = await supabase.from("requisitions").update({
       status: "EN_AUTORIZACION",
@@ -67,8 +108,8 @@ export async function POST(request: Request) {
     const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`;
     const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`;
 
-    const itemsHtml = cotizacion.items.map((item: any) => 
-      `<tr><td style="padding:10px;border:1px solid #e2e8f0">${item.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${item.quantity} ${item.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${item.unit_price.toLocaleString()}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${(item.quantity * item.unit_price).toLocaleString()}</td></tr>`
+    const itemsHtml = cotizacion.items.map((item) =>
+      `<tr><td style="padding:10px;border:1px solid #e2e8f0">${item.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${item.quantity} ${item.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${(item.unit_price || 0).toLocaleString()}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:right">$${((item.quantity || 0) * (item.unit_price || 0)).toLocaleString()}</td></tr>`
     ).join("");
 
     if (autorizadorUser) {
@@ -111,15 +152,16 @@ export async function POST(request: Request) {
             </div>
           </div>`
         });
-        if ((emailResult as any)?.error) {
-          log.error("Email autorizador error", { folio: req.folio, error: (emailResult as any).error?.message });
+        const emailErr = emailResult as { error?: { message: string } };
+        if (emailErr?.error) {
+          log.error("Email autorizador error", { folio: req.folio, error: emailErr.error?.message });
         }
       } catch (emailErr: unknown) {
         log.error("Email autorizador exception", { folio: req.folio, error: (emailErr as Error).message });
       }
 
       if (autorizadorUser.phone) {
-        const materialesWA = cotizacion.items.map((item: any) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
+        const materialesWA = cotizacion.items.map((item) => `${item.product_name} ${item.quantity} ${item.unit}`).join(", ");
         await sendWhatsAppLogged("compra_autorizar", [req.folio, req.cost_center_name, req.created_by || "N/A", urgencyText, materialesWA, `$${total.toLocaleString()}`], autorizadorUser.phone, { origen: "compra-autorizar", enviadoPor: "authorize-purchase", buttonToken: token });
       }
     }

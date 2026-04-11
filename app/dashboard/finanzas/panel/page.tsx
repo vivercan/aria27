@@ -6,14 +6,42 @@ import { ArrowLeft, Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-re
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
+interface CobroRow {
+  cliente_nombre: string | null;
+  obra_nombre: string | null;
+  monto: number | null;
+  saldo: number | null;
+  created_at: string;
+  estatus: string;
+}
+
+interface PurchaseOrderRow {
+  supplier_name: string | null;
+  total: number | null;
+  monto_pagado: number | null;
+  status: string;
+  created_at: string;
+}
+
+interface KPIState {
+  cobrado30: number;
+  porCobrar: number;
+  vencido30: number;
+  ocPendPay: number;
+  ocPagadas30: number;
+  saldosObras: Array<{ obra: string; saldo: number }>;
+  topDeudores: Array<{ cliente: string; saldo: number }>;
+  topProveedores: Array<{ proveedor: string; saldo: number }>;
+}
+
 export default function PanelFinanzas() {
   const [loading, setLoading] = useState(true);
-  const [kpis, setKpis] = useState({
+  const [kpis, setKpis] = useState<KPIState>({
     cobrado30: 0, porCobrar: 0, vencido30: 0,
     ocPendPay: 0, ocPagadas30: 0,
-    saldosObras: [] as { obra: string; saldo: number }[],
-    topDeudores: [] as { cliente: string; saldo: number }[],
-    topProveedores: [] as { proveedor: string; saldo: number }[],
+    saldosObras: [],
+    topDeudores: [],
+    topProveedores: [],
   });
 
   useEffect(() => { cargar(); }, []);
@@ -25,20 +53,20 @@ export default function PanelFinanzas() {
 
     // Cobros
     const { data: cobs } = await supabase.from("cobros_manuales").select("cliente_nombre,obra_nombre,monto,saldo,created_at,estatus").neq("estatus", "CANCELADO");
-    const cobsRows = cobs || [];
-    const cobrado30 = cobsRows.filter((c: any) => new Date(c.created_at) >= d30).reduce((s: number, c: any) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-    const porCobrar = cobsRows.reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
-    const vencido30 = cobsRows.filter((c: any) => (Number(c.saldo) || 0) > 0 && new Date(c.created_at) < d30).reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
+    const cobsRows = (cobs || []) as CobroRow[];
+    const cobrado30 = cobsRows.filter((c) => new Date(c.created_at) >= d30).reduce((s: number, c) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+    const porCobrar = cobsRows.reduce((s: number, c) => s + (Number(c.saldo) || 0), 0);
+    const vencido30 = cobsRows.filter((c) => (Number(c.saldo) || 0) > 0 && new Date(c.created_at) < d30).reduce((s: number, c) => s + (Number(c.saldo) || 0), 0);
 
     // OCs
     const { data: pos } = await supabase.from("purchase_orders").select("supplier_name,total,monto_pagado,status,created_at").neq("status", "CANCELADA");
-    const posRows = pos || [];
-    const ocPendPay = posRows.reduce((s: number, p: any) => s + ((Number(p.total) || 0) - (Number(p.monto_pagado) || 0)), 0);
-    const ocPagadas30 = posRows.filter((p: any) => new Date(p.created_at) >= d30).reduce((s: number, p: any) => s + (Number(p.monto_pagado) || 0), 0);
+    const posRows = (pos || []) as PurchaseOrderRow[];
+    const ocPendPay = posRows.reduce((s: number, p) => s + ((Number(p.total) || 0) - (Number(p.monto_pagado) || 0)), 0);
+    const ocPagadas30 = posRows.filter((p) => new Date(p.created_at) >= d30).reduce((s: number, p) => s + (Number(p.monto_pagado) || 0), 0);
 
     // Top deudores
     const deudoresMap: Record<string, number> = {};
-    cobsRows.forEach((c: any) => {
+    cobsRows.forEach((c) => {
       const k = c.cliente_nombre || "—";
       deudoresMap[k] = (deudoresMap[k] || 0) + (Number(c.saldo) || 0);
     });
@@ -46,7 +74,7 @@ export default function PanelFinanzas() {
 
     // Top proveedores con saldo
     const provMap: Record<string, number> = {};
-    posRows.forEach((p: any) => {
+    posRows.forEach((p) => {
       const k = p.supplier_name || "—";
       const saldo = (Number(p.total) || 0) - (Number(p.monto_pagado) || 0);
       if (saldo > 0) provMap[k] = (provMap[k] || 0) + saldo;
@@ -55,7 +83,7 @@ export default function PanelFinanzas() {
 
     // Saldos por obra
     const obraMap: Record<string, number> = {};
-    cobsRows.forEach((c: any) => {
+    cobsRows.forEach((c) => {
       const k = c.obra_nombre || "—";
       obraMap[k] = (obraMap[k] || 0) + (Number(c.saldo) || 0);
     });
@@ -119,7 +147,7 @@ function KPI({ label, value, color }: { label: string; value: string; color: str
     </div>
   );
 }
-function Section({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
+function Section({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ className: string }>; children: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-white/5 border border-white/10 p-4">
       <div className="flex items-center gap-2 mb-3"><Icon className="w-4 h-4 text-slate-400" /><h3 className="text-sm font-semibold text-white">{title}</h3></div>

@@ -28,6 +28,16 @@ interface Cotizacion {
   created_at: string;
 }
 
+interface CotItem {
+  id: string;
+  concepto: string;
+  unidad: string;
+  cantidad: number;
+  precio_unitario: number;
+  importe: number;
+  orden: number;
+}
+
 const ESTATUS = ["BORRADOR", "ENVIADA", "APROBADA", "RECHAZADA", "CANCELADA", "VENCIDA"] as const;
 
 const FORM_INIT = {
@@ -105,13 +115,13 @@ export default function CotizacionesClientesPage() {
       fecha: c.fecha,
       vigencia_dias: c.vigencia_dias || 30,
       moneda: c.moneda || "MXN",
-      estatus: (c.estatus as any) || "BORRADOR",
+      estatus: (c.estatus as (typeof ESTATUS)[number]) || "BORRADOR",
       notas: c.notas || "",
       iva_pct: c.subtotal > 0 ? Math.round((Number(c.iva) / Number(c.subtotal)) * 100) : 16,
     });
     const { data: rows } = await supabase.from("cotizaciones_clientes_items")
       .select("*").eq("cotizacion_id", c.id).order("orden", { ascending: true });
-    setItems(((rows as any[]) || []).map(r => ({
+    setItems(((rows as CotItem[]) || []).map((r: CotItem) => ({
       id: r.id, concepto: r.concepto, unidad: r.unidad || "", cantidad: Number(r.cantidad), precio_unitario: Number(r.precio_unitario), importe: Number(r.importe), orden: r.orden ?? 0,
     })));
     if (!rows || rows.length === 0) setItems([{ ...ITEM_INIT }]);
@@ -158,7 +168,23 @@ export default function CotizacionesClientesPage() {
       folio = `COT-${yr}-${String((count || 0) + 1).padStart(4, "0")}`;
     }
 
-    const payload: any = {
+    interface PayloadCotizacion {
+      folio: string;
+      cliente_id: string;
+      cliente_nombre: string;
+      obra_id: string | null;
+      obra_nombre: string | null;
+      fecha: string;
+      vigencia_dias: number;
+      moneda: string;
+      subtotal: number;
+      iva: number;
+      total: number;
+      estatus: string;
+      notas: string | null;
+      created_by?: string | null;
+    }
+    const payload: PayloadCotizacion = {
       folio,
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
@@ -188,7 +214,7 @@ export default function CotizacionesClientesPage() {
       } else {
         const { data, error } = await supabase.from("cotizaciones_clientes").insert(payload).select("id").single();
         if (error) throw error;
-        cotId = (data as any).id;
+        cotId = (data as { id: string }).id;
       }
       const itemsPayload = itemsValidos.map((i, idx) => ({
         cotizacion_id: cotId,
@@ -220,8 +246,13 @@ export default function CotizacionesClientesPage() {
       supabase.from("cotizaciones_clientes_items").select("*").eq("cotizacion_id", c.id).order("orden", { ascending: true }),
       c.cliente_id ? supabase.from("clientes").select("contacto, telefono, email").eq("id", c.cliente_id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
-    const its = (itemsRes.data as any[]) || [];
-    const cliExtra = (cliRes as any).data || {};
+    const its = (itemsRes.data as CotItem[]) || [];
+    interface ClienteExtra {
+      contacto?: string;
+      telefono?: string;
+      email?: string;
+    }
+    const cliExtra = (cliRes as { data: ClienteExtra | null }).data || {};
 
     const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
     const fechaLimite = new Date(c.fecha);
@@ -341,7 +372,21 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         if (!existente) {
           const monto = Number(c.total) || 0;
           if (monto > 0 && c.cliente_id) {
-            const payload: any = {
+                const payload: {
+              cliente_id: string | null;
+              cliente_nombre: string;
+              obra_id: string | null;
+              obra_nombre: string | null;
+              monto: number;
+              saldo: number;
+              estatus: string;
+              referencia: string;
+              metodo: null;
+              fecha: string;
+              observaciones: string;
+              cotizacion_id: string;
+              created_by: string | null;
+            } = {
               cliente_id: c.cliente_id,
               cliente_nombre: c.cliente_nombre,
               obra_id: c.obra_id || null,
@@ -368,19 +413,19 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
     cargar();
   }
 
-  const clientesActivos = clientes.filter(c => c.estatus === "ACTIVO");
-  const obrasActivas = obras.filter(o => o.activo !== false);
+  const clientesActivos = clientes.filter((c: Cliente) => c.estatus === "ACTIVO");
+  const obrasActivas = obras.filter((o: Obra) => o.activo !== false);
 
-  const filtered = cots.filter(c => {
+  const filtered = cots.filter((c: Cotizacion) => {
     const q = search.toLowerCase();
     const matchSearch = !q || c.cliente_nombre?.toLowerCase().includes(q) || c.folio?.toLowerCase().includes(q) || c.obra_nombre?.toLowerCase().includes(q);
     const matchFilter = filter === "TODOS" || c.estatus === filter;
     return matchSearch && matchFilter;
   });
 
-  const totTotal = cots.filter(c => !["CANCELADA", "RECHAZADA"].includes(c.estatus)).reduce((s, c) => s + Number(c.total || 0), 0);
-  const totAprobado = cots.filter(c => c.estatus === "APROBADA").reduce((s, c) => s + Number(c.total || 0), 0);
-  const totEnviado = cots.filter(c => c.estatus === "ENVIADA").reduce((s, c) => s + Number(c.total || 0), 0);
+  const totTotal = cots.filter((c: Cotizacion) => !["CANCELADA", "RECHAZADA"].includes(c.estatus)).reduce((s: number, c: Cotizacion) => s + Number(c.total || 0), 0);
+  const totAprobado = cots.filter((c: Cotizacion) => c.estatus === "APROBADA").reduce((s: number, c: Cotizacion) => s + Number(c.total || 0), 0);
+  const totEnviado = cots.filter((c: Cotizacion) => c.estatus === "ENVIADA").reduce((s: number, c: Cotizacion) => s + Number(c.total || 0), 0);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -574,7 +619,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
-                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as any })}
+                <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>

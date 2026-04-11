@@ -1,15 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+
+export interface Partida {
+  categoria?: string;
+  concepto?: string;
+  cantidad?: number;
+  precio_unitario?: number;
+  monto: number;
+}
+
+export interface Requisition {
+  id?: string;
+  folio?: string;
+  status?: string;
+  created_at?: string;
+}
+
+export interface PurchaseOrder {
+  po_number?: string;
+  supplier_name?: string;
+  total: number;
+  status?: string;
+  created_at?: string;
+}
+
+export interface NominaRecord {
+  empleado_nombre?: string;
+  semana?: number;
+  anio?: number;
+  neto_pagar: number;
+  status?: string;
+}
+
+export interface CobroRecord {
+  folio?: string;
+  fecha?: string;
+  monto: number;
+  cliente_nombre?: string;
+  estatus?: string;
+}
+
+export interface AvanceRecord {
+  semana_iso?: string;
+  porcentaje_avance: number;
+}
+
+export interface BitacoraRecord {
+  fecha?: string;
+  clima?: string;
+  personal_en_obra?: string;
+  actividades?: string;
+  incidentes?: string;
+}
 
 export interface ObraData {
-  partidas: any[];
-  requisitions: any[];
-  ocs: any[];
-  nomina: any[];
-  cobros: any[];
-  avances: any[];
-  bitacora: any[];
+  partidas: Partida[];
+  requisitions: Requisition[];
+  ocs: PurchaseOrder[];
+  nomina: NominaRecord[];
+  cobros: CobroRecord[];
+  avances: AvanceRecord[];
+  bitacora: BitacoraRecord[];
 }
 
 export interface ObraKPIs {
@@ -29,7 +81,7 @@ export interface ObraKPIs {
  */
 export async function authenticateRequest(
   req: NextRequest,
-  supabase: any
+  supabase: SupabaseClient
 ): Promise<string | null> {
   let userEmail: string | null = null;
 
@@ -66,7 +118,7 @@ export async function authenticateRequest(
  * Fetches all obra data in parallel from 7 tables
  */
 export async function fetchObraData(
-  supabase: any,
+  supabase: SupabaseClient,
   obra: string
 ): Promise<ObraData> {
   const [presPart, reqs, ocs, nomina, cobros, avances, bitacora] =
@@ -114,26 +166,26 @@ export async function fetchObraData(
     ]);
 
   return {
-    partidas: (presPart.data as any[]) || [],
-    requisitions: (reqs.data as any[]) || [],
-    ocs: (ocs.data as any[]) || [],
-    nomina: (nomina.data as any[]) || [],
-    cobros: (cobros.data as any[]) || [],
-    avances: (avances.data as any[]) || [],
-    bitacora: (bitacora.data as any[]) || [],
+    partidas: (presPart.data as Partida[]) || [],
+    requisitions: (reqs.data as Requisition[]) || [],
+    ocs: (ocs.data as PurchaseOrder[]) || [],
+    nomina: (nomina.data as NominaRecord[]) || [],
+    cobros: (cobros.data as CobroRecord[]) || [],
+    avances: (avances.data as AvanceRecord[]) || [],
+    bitacora: (bitacora.data as BitacoraRecord[]) || [],
   };
 }
 /**
  * Calculates KPIs from obra data
  */
 export function calculateObraKPIs(data: ObraData): ObraKPIs {
-  const sumNum = (arr: any[], key: string) =>
+  const sumNum = (arr: Record<string, unknown>[], key: string) =>
     arr.reduce((s, r) => s + Number(r[key] || 0), 0);
 
-  const totalPpto = sumNum(data.partidas, "monto");
-  const totalOC = sumNum(data.ocs, "total");
-  const totalNomina = sumNum(data.nomina, "neto_pagar");
-  const totalCobrado = sumNum(data.cobros, "monto");
+  const totalPpto = sumNum(data.partidas as unknown as Record<string, unknown>[], "monto");
+  const totalOC = sumNum(data.ocs as unknown as Record<string, unknown>[], "total");
+  const totalNomina = sumNum(data.nomina as unknown as Record<string, unknown>[], "neto_pagar");
+  const totalCobrado = sumNum(data.cobros as unknown as Record<string, unknown>[], "monto");
   const gastoTotal = totalOC + totalNomina;
   const margen = totalCobrado - gastoTotal;
   const saldoPpto = totalPpto - gastoTotal;
@@ -327,7 +379,7 @@ export async function generateExcelResponse(
     .toISOString()
     .slice(0, 10)}.xlsx`;
 
-  return new NextResponse(buf as any, {
+  return new NextResponse(buf as unknown as BodyInit, {
     status: 200,
     headers: {
       "Content-Type":

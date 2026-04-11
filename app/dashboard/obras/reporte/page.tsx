@@ -48,7 +48,7 @@ function ReporteContent() {
         .eq("obra_nombre", obra);
       const presupuestoCat: Record<string, number> = {};
       CATS.forEach(c => presupuestoCat[c] = 0);
-      (pp || []).forEach((p: any) => {
+      (pp || []).forEach((p) => {
         const c = p.categoria || "OTROS";
         presupuestoCat[c] = (presupuestoCat[c] || 0) + (p.importe || 0);
       });
@@ -59,7 +59,7 @@ function ReporteContent() {
         .from("requisitions")
         .select("id,folio")
         .eq("cost_center_name", obra);
-      const reqIds = (rqData || []).map((r: any) => r.id);
+      const reqIds = (rqData || []).map((r) => r.id);
 
       // OCs ligadas
       let topOCs: Datos["topOCs"] = [];
@@ -71,8 +71,8 @@ function ReporteContent() {
           .in("requisition_id", reqIds)
           .neq("status", "CANCELADA")
           .order("total", { ascending: false });
-        gastoOC = (pos || []).reduce((s: number, p: any) => s + (p.total || 0), 0);
-        topOCs = (pos || []).slice(0, 5).map((p: any) => ({
+        gastoOC = (pos || []).reduce((s: number, p) => s + (p.total || 0), 0);
+        topOCs = (pos || []).slice(0, 5).map((p) => ({
           folio: p.folio || "—",
           supplier: p.supplier_name || "—",
           total: p.total || 0,
@@ -86,7 +86,7 @@ function ReporteContent() {
         .select("sueldo_neto")
         .eq("obra", obra)
         .eq("status", "CONFIRMADA");
-      const gastoNomina = (nom || []).reduce((s: number, n: any) => s + (n.sueldo_neto || 0), 0);
+      const gastoNomina = (nom || []).reduce((s: number, n) => s + (n.sueldo_neto || 0), 0);
       const totalNominaRecs = (nom || []).length;
 
       // Cobros
@@ -96,9 +96,9 @@ function ReporteContent() {
         .eq("obra_nombre", obra)
         .neq("estatus", "CANCELADO")
         .order("monto", { ascending: false });
-      const cobrado = (cobros || []).reduce((s: number, c: any) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-      const porCobrar = (cobros || []).reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
-      const topCobros = (cobros || []).slice(0, 5).map((c: any) => ({
+      const cobrado = (cobros || []).reduce((s: number, c) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+      const porCobrar = (cobros || []).reduce((s: number, c) => s + (Number(c.saldo) || 0), 0);
+      const topCobros = (cobros || []).slice(0, 5).map((c) => ({
         cliente: c.cliente_nombre || "—",
         monto: Number(c.monto) || 0,
         saldo: Number(c.saldo) || 0,

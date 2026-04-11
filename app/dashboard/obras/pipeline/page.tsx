@@ -23,6 +23,19 @@ interface Obra {
 
 type Modo = "manual" | "grupo" | "excel";
 
+interface ObraForm {
+  nombre: string;
+  direccion: string;
+  estado: string;
+  presupuesto: string | number;
+  presupuesto_contratado: string | number;
+  presupuesto_ampliaciones: string | number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  cliente: string;
+  descripcion: string;
+}
+
 const STATUS_OPTIONS = [
   { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
@@ -31,7 +44,7 @@ const STATUS_OPTIONS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const EMPTY = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
+const EMPTY: ObraForm = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
 
 export default function PipelinePage() {
   const [obras, setObras] = useState<Obra[]>([]);
@@ -42,11 +55,11 @@ export default function PipelinePage() {
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [modo, setModo] = useState<Modo>("manual");
-  const [form, setForm] = useState<any>({ ...EMPTY });
+  const [form, setForm] = useState<ObraForm>({ ...EMPTY });
   const [editId, setEditId] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [grupoTexto, setGrupoTexto] = useState("");
-  const [excelData, setExcelData] = useState<any[]>([]);
+  const [excelData, setExcelData] = useState<Record<string, unknown>[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -75,17 +88,29 @@ export default function PipelinePage() {
   const guardarManual = async () => {
     if (!validarManual()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
-    const payload: any = { ...form };
+
     // Calcular presupuesto total = contratado + ampliaciones (si ambos presentes)
-    const contratado = parseFloat(payload.presupuesto_contratado) || 0;
-    const ampliaciones = parseFloat(payload.presupuesto_ampliaciones) || 0;
+    const contratado = parseFloat(String(form.presupuesto_contratado)) || 0;
+    const ampliaciones = parseFloat(String(form.presupuesto_ampliaciones)) || 0;
+    let presupuesto: number | string = "";
     if (contratado > 0 || ampliaciones > 0) {
-      payload.presupuesto_contratado = contratado;
-      payload.presupuesto_ampliaciones = ampliaciones;
-      payload.presupuesto = contratado + ampliaciones;
-    } else if (payload.presupuesto) {
-      payload.presupuesto = parseFloat(payload.presupuesto);
+      presupuesto = contratado + ampliaciones;
+    } else {
+      presupuesto = form.presupuesto ? parseFloat(String(form.presupuesto)) : "";
     }
+
+    const payload: Record<string, unknown> = {
+      nombre: form.nombre,
+      direccion: form.direccion || null,
+      estado: form.estado,
+      cliente: form.cliente || null,
+      descripcion: form.descripcion || null,
+      presupuesto: presupuesto || null,
+      presupuesto_contratado: contratado > 0 ? contratado : null,
+      presupuesto_ampliaciones: ampliaciones > 0 ? ampliaciones : null,
+      fecha_inicio: form.fecha_inicio || null,
+      fecha_fin: form.fecha_fin || null
+    };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
@@ -124,15 +149,22 @@ export default function PipelinePage() {
     setGuardando(true);
     let ok = 0;
     for (const row of excelData) {
-      const payload: any = {
-        nombre: row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null,
-        direccion: row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null,
-        cliente: row["CLIENTE"] || row["cliente"] || row["Cliente"] || null,
-        presupuesto: parseFloat(row["PRESUPUESTO"] || row["presupuesto"] || row["Presupuesto"] || 0) || null,
+      const nombre = (row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null) as string | null;
+      const direccion = (row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null) as string | null;
+      const cliente = (row["CLIENTE"] || row["cliente"] || row["Cliente"] || null) as string | null;
+      const descripcion = (row["DESCRIPCION"] || row["descripcion"] || null) as string | null;
+      const presupuestoVal = row["PRESUPUESTO"] || row["presupuesto"] || row["Presupuesto"] || null;
+      const presupuesto = presupuestoVal ? parseFloat(String(presupuestoVal)) : null;
+
+      const payload: Record<string, unknown> = {
+        nombre,
+        direccion: direccion || null,
+        cliente: cliente || null,
+        presupuesto: presupuesto || null,
         estado: "ACTIVA",
-        descripcion: row["DESCRIPCION"] || row["descripcion"] || null,
+        descripcion: descripcion || null,
       };
-      if (!payload.nombre) continue;
+      if (!nombre) continue;
       const { error } = await supabase.from("centros_trabajo").insert(payload);
       if (!error) ok++;
     }
@@ -151,7 +183,7 @@ export default function PipelinePage() {
       const wb = XLSX.read(evt.target?.result, { type: "binary" });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const data = XLSX.utils.sheet_to_json(ws);
-      setExcelData(data);
+      setExcelData(data as Record<string, unknown>[]);
     };
     reader.readAsBinaryString(file);
   };
@@ -164,7 +196,18 @@ export default function PipelinePage() {
 
   const editar = (o: Obra) => {
     setEditId(o.id);
-    setForm({ nombre: o.nombre || "", direccion: o.direccion || "", estado: o.estado || "ACTIVA", presupuesto: o.presupuesto || "", presupuesto_contratado: (o as any).presupuesto_contratado || "", presupuesto_ampliaciones: (o as any).presupuesto_ampliaciones || "", fecha_inicio: o.fecha_inicio || "", fecha_fin: o.fecha_fin || "", cliente: o.cliente || "", descripcion: o.descripcion || "" });
+    setForm({
+      nombre: o.nombre || "",
+      direccion: o.direccion || "",
+      estado: o.estado || "ACTIVA",
+      presupuesto: o.presupuesto || "",
+      presupuesto_contratado: "",
+      presupuesto_ampliaciones: "",
+      fecha_inicio: o.fecha_inicio || "",
+      fecha_fin: o.fecha_fin || "",
+      cliente: o.cliente || "",
+      descripcion: o.descripcion || ""
+    });
     setModo("manual");
     setShowForm(true);
   };
@@ -172,15 +215,15 @@ export default function PipelinePage() {
   const getStatusStyle = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
   const getStatusLabel = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.label || s;
 
-  const Field = ({ label, field, type = "text", placeholder = "", options }: any) => (
+  const Field = ({ label, field, type = "text", placeholder = "", options }: { label: string; field: keyof ObraForm; type?: string; placeholder?: string; options?: Array<{ value: string; label: string }> }) => (
     <div>
       <label className="block text-xs text-slate-400 mb-1">{label}</label>
       {options ? (
-        <select value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none">
-          {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        <select value={String(form[field]) || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none">
+          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
-        <input type={type} value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" />
+        <input type={type} value={String(form[field]) || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" />
       )}
     </div>
   );
@@ -299,14 +342,14 @@ export default function PipelinePage() {
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Ampliaciones</label>
                     <input type="number" min="0" value={form.presupuesto_ampliaciones || ""} onChange={e => setForm({ ...form, presupuesto_ampliaciones: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" />
-                    {(parseFloat(form.presupuesto_contratado)||0) + (parseFloat(form.presupuesto_ampliaciones)||0) > 0 && (
-                      <div className="text-[10px] text-emerald-400 mt-1">Total: ${((parseFloat(form.presupuesto_contratado)||0) + (parseFloat(form.presupuesto_ampliaciones)||0)).toLocaleString()}</div>
+                    {(parseFloat(String(form.presupuesto_contratado))||0) + (parseFloat(String(form.presupuesto_ampliaciones))||0) > 0 && (
+                      <div className="text-[10px] text-emerald-400 mt-1">Total: ${((parseFloat(String(form.presupuesto_contratado))||0) + (parseFloat(String(form.presupuesto_ampliaciones))||0)).toLocaleString()}</div>
                     )}
                   </div>
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Estado</label>
                     <select value={form.estado || "ACTIVA"} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none">
-                      {STATUS_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div>
@@ -355,7 +398,7 @@ export default function PipelinePage() {
                           <tbody>
                             {excelData.slice(0, 5).map((row, i) => (
                               <tr key={i} className="border-t border-white/5">
-                                {Object.values(row).slice(0, 5).map((v: any, j) => <td key={j} className="p-2 text-slate-300">{String(v).substring(0, 30)}</td>)}
+                                {Object.values(row).slice(0, 5).map((v, j) => <td key={j} className="p-2 text-slate-300">{String(v).substring(0, 30)}</td>)}
                               </tr>
                             ))}
                           </tbody>

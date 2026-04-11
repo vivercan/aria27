@@ -21,6 +21,11 @@ type Archivo = {
   tamano_bytes: number | null;
 };
 
+interface ContentBlock {
+  type: string;
+  text?: string;
+}
+
 const PROMPT = `Analiza este documento y responde EXCLUSIVAMENTE con un JSON válido (sin markdown, sin texto extra) con esta forma exacta:
 {"paginas": <number|null>, "resumen": "<string de máximo 3 líneas describiendo qué es el documento y sobre qué trata>"}
 
@@ -123,7 +128,7 @@ export async function POST(req: NextRequest) {
           ],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const textBlock = msg.content.find((c: ContentBlock) => c.type === "text") as ContentBlock | undefined;
       const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = parsed.paginas;
@@ -145,12 +150,12 @@ export async function POST(req: NextRequest) {
         messages: [{
           role: "user",
           content: [
-            { type: "image", source: { type: "base64", media_type: mediaType as any, data: b64 } },
+            { type: "image", source: { type: "base64", media_type: mediaType as "image/png" | "image/jpeg" | "image/gif" | "image/webp", data: b64 } },
             { type: "text", text: PROMPT },
           ],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const textBlock = msg.content.find((c: ContentBlock) => c.type === "text") as ContentBlock | undefined;
       const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = 1;
@@ -166,7 +171,7 @@ export async function POST(req: NextRequest) {
           content: [{ type: "text", text: `${PROMPT}\n\nContenido del archivo (${nombre}):\n\n${texto}` }],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const textBlock = msg.content.find((c: ContentBlock) => c.type === "text") as ContentBlock | undefined;
       const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = Math.max(1, Math.ceil(texto.length / 3000));

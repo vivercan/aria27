@@ -50,7 +50,7 @@ function BitacoraContent() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("centros_trabajo").select("id, nombre").order("nombre");
-      setObras((data as any) || []);
+      setObras((data as Obra[]) || []);
     })();
   }, []);
 
@@ -62,7 +62,7 @@ function BitacoraContent() {
     if (obraSel) q = q.eq("obra_nombre", obraSel);
     const { data, error } = await q;
     if (error) console.error((error as {message?: string})?.message || "Error desconocido");
-    setEntradas((data as any) || []);
+    setEntradas((data as Entrada[]) || []);
     setLoading(false);
   }
 

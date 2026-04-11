@@ -8,12 +8,19 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Asistencia {
   id: string;
+  employee_id: string;
   fecha: string;
   hora_entrada: string | null;
   hora_salida: string | null;
   dentro_geocerca_entrada: boolean;
   tipo_registro: string;
   employees: { full_name: string; employee_number: string } | null;
+}
+
+interface EmpleadoInfo {
+  id: string;
+  full_name: string;
+  employee_number: string;
 }
 
 export default function ChecadasPage() {
@@ -25,7 +32,7 @@ export default function ChecadasPage() {
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [empleadosList, setEmpleadosList] = useState<any[]>([]);
+  const [empleadosList, setEmpleadosList] = useState<EmpleadoInfo[]>([]);
   const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
   const { msg, flash, clear } = useFlashMessage();
 
@@ -42,10 +49,10 @@ export default function ChecadasPage() {
       .order("fecha", { ascending: false })
       .order("hora_entrada", { ascending: true });
 
-    let registros: Asistencia[] = (data as any) || [];
+    let registros: Asistencia[] = (data as Asistencia[]) || [];
 
     // Fallback: enriquecer registros sin nombre desde Personal (VIEW) por employee_id
-    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: any) => r.employee_id).filter(Boolean);
+    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: Asistencia) => r.employee_id).filter(Boolean);
     if (sinNombre.length > 0) {
       const { data: extras } = await supabase
         .from("Personal")
@@ -53,8 +60,8 @@ export default function ChecadasPage() {
         .in("id", Array.from(new Set(sinNombre)));
       if (extras) {
         const map: Record<string, { full_name: string; employee_number: string }> = {};
-        extras.forEach((e: any) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
-        registros = registros.map((r: any) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id] || r.employees });
+        extras.forEach((e: EmpleadoInfo) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
+        registros = registros.map((r: Asistencia) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id] || r.employees });
       }
     }
 
@@ -65,7 +72,7 @@ export default function ChecadasPage() {
   // Acumulados por empleado en el rango
   const acumulados = (() => {
     const map: Record<string, { nombre: string; numero: string; total: number; completas: number; sinSalida: number }> = {};
-    asistencias.forEach((a: any) => {
+    asistencias.forEach((a: Asistencia) => {
       const key = a.employee_id || a.employees?.employee_number || "desconocido";
       if (!map[key]) map[key] = { nombre: a.employees?.full_name || "Sin nombre", numero: a.employees?.employee_number || "—", total: 0, completas: 0, sinSalida: 0 };
       map[key].total += 1;

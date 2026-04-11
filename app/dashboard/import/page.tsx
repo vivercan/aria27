@@ -116,7 +116,7 @@ function parseCSV(text: string): Record<string, string>[] {
 export default function ImportCSV() {
   const [entity, setEntity] = useState<Entity>("suppliers");
   const [csvText, setCsvText] = useState("");
-  const [dryRun, setDryRun] = useState<null | { valid: any[]; invalid: { row: number; err: string }[] }>(null);
+  const [dryRun, setDryRun] = useState<null | { valid: Record<string, unknown>[]; invalid: { row: number; err: string }[] }>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<null | { ok: number; fail: number; errors: string[] }>(null);
 
@@ -136,7 +136,7 @@ export default function ImportCSV() {
   function runDryRun() {
     setResult(null);
     const rows = parseCSV(csvText);
-    const valid: any[] = [];
+    const valid: Record<string, unknown>[] = [];
     const invalid: { row: number; err: string }[] = [];
     rows.forEach((r, i) => {
       const missing = def.required.filter(k => !r[k] || !r[k].trim());
@@ -159,7 +159,7 @@ export default function ImportCSV() {
     setResult(null);
     let ok = 0, fail = 0;
     const errors: string[] = [];
-    const chunks: any[][] = [];
+    const chunks: Record<string, unknown>[][] = [];
     for (let i = 0; i < dryRun.valid.length; i += 50) chunks.push(dryRun.valid.slice(i, i + 50));
     for (const chunk of chunks) {
       const { error } = await supabase.from(def.table).insert(chunk);

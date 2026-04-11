@@ -16,6 +16,12 @@ interface PurchaseOrder {
   status: string;
   created_at: string;
   obra_nombre: string;
+  monto_pagado?: number;
+  pagado?: number;
+  saldo?: number;
+}
+
+interface ProcessedOrder extends PurchaseOrder {
   pagado: number;
   saldo: number;
 }
@@ -46,20 +52,20 @@ export default function PagosPage() {
 
       if (error) throw error;
 
-      const processed = (ocs || []).map((oc: any) => {
+      const processed = (ocs || []).map((oc: PurchaseOrder) => {
         const pagado = oc.monto_pagado || 0;
         const total = oc.total || 0;
         return {
           ...oc,
           pagado,
           saldo: total - pagado,
-        };
+        } as ProcessedOrder;
       });
 
       setOrders(processed);
 
-      const totalSum = processed.reduce((s: number, o: any) => s + (o.total || 0), 0);
-      const pagadoSum = processed.reduce((s: number, o: any) => s + (o.pagado || 0), 0);
+      const totalSum = processed.reduce((s: number, o: ProcessedOrder) => s + (o.total || 0), 0);
+      const pagadoSum = processed.reduce((s: number, o: ProcessedOrder) => s + (o.pagado || 0), 0);
       setStats({
         total: totalSum,
         pagado: pagadoSum,
@@ -76,8 +82,10 @@ export default function PagosPage() {
   function abrirPagoModal(ocId: string) {
     const oc = orders.find(o => o.id === ocId);
     if (!oc) return;
-    setPagoModal({ ocId, total: oc.total, pagado: oc.pagado || 0, saldo: oc.saldo });
-    setPagoMonto(String(oc.saldo));
+    const pagado = oc.monto_pagado || oc.pagado || 0;
+    const saldo = oc.total - pagado;
+    setPagoModal({ ocId, total: oc.total, pagado, saldo });
+    setPagoMonto(String(saldo));
     setPagoMetodo("Transferencia");
     setPagoReferencia("");
   }
@@ -107,22 +115,24 @@ export default function PagosPage() {
   }
 
   const filtered = orders.filter(o => {
-    const matchSearch = !search || 
+    const matchSearch = !search ||
       o.folio?.toLowerCase().includes(search.toLowerCase()) ||
       o.supplier_name?.toLowerCase().includes(search.toLowerCase()) ||
       o.obra_nombre?.toLowerCase().includes(search.toLowerCase());
-    
-    const matchStatus = filterStatus === "TODOS" || 
-      (filterStatus === "PENDIENTE" && (!o.pagado || o.pagado === 0)) ||
-      (filterStatus === "PARCIAL" && o.pagado > 0 && o.pagado < o.total) ||
-      (filterStatus === "PAGADA" && o.pagado >= o.total);
-    
+
+    const pagado = o.monto_pagado || o.pagado || 0;
+    const matchStatus = filterStatus === "TODOS" ||
+      (filterStatus === "PENDIENTE" && (!pagado || pagado === 0)) ||
+      (filterStatus === "PARCIAL" && pagado > 0 && pagado < o.total) ||
+      (filterStatus === "PAGADA" && pagado >= o.total);
+
     return matchSearch && matchStatus;
   });
 
   const getStatusBadge = (oc: PurchaseOrder) => {
-    if (oc.pagado >= oc.total && oc.total > 0) return { label: "PAGADA", color: "bg-emerald-500/20 text-emerald-400" };
-    if (oc.pagado > 0) return { label: "PARCIAL", color: "bg-amber-500/20 text-amber-400" };
+    const pagado = oc.monto_pagado || oc.pagado || 0;
+    if (pagado >= oc.total && oc.total > 0) return { label: "PAGADA", color: "bg-emerald-500/20 text-emerald-400" };
+    if (pagado > 0) return { label: "PARCIAL", color: "bg-amber-500/20 text-amber-400" };
     return { label: "PENDIENTE", color: "bg-red-500/20 text-red-400" };
   };
 
@@ -198,8 +208,8 @@ export default function PagosPage() {
                     <td className="p-3 text-white">{oc.supplier_name}</td>
                     <td className="p-3 text-slate-300">{oc.obra_nombre}</td>
                     <td className="p-3 text-right text-white font-medium">${(oc.total || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-emerald-400">${(oc.pagado || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-amber-400 font-medium">${(oc.saldo || 0).toLocaleString()}</td>
+                    <td className="p-3 text-right text-emerald-400">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
+                    <td className="p-3 text-right text-amber-400 font-medium">${((oc.total || 0) - (oc.monto_pagado || oc.pagado || 0)).toLocaleString()}</td>
                     <td className="p-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>{badge.label}</span></td>
                     <td className="p-3 text-center">
                       {badge.label !== "PAGADA" && (

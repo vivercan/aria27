@@ -6,12 +6,36 @@ import Link from "next/link";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
 
+interface AsignacionRow {
+  id: string;
+  activo_id: string;
+  empleado_id: string;
+  fecha_asignacion: string;
+  estado: string;
+  notas: string | null;
+  empleado?: { id: string; full_name: string; employee_number: string };
+  activo?: { id: string; nombre?: string; name?: string };
+}
+
+interface ActivoRow {
+  id: string;
+  nombre?: string;
+  name?: string;
+}
+
+interface EmpleadoRow {
+  id: string;
+  full_name: string;
+  employee_number: string;
+  status: string;
+}
+
 const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
 
 export default function AsignacionPage() {
-  const [asignaciones, setAsignaciones] = useState<any[]>([]);
-  const [activos, setActivos] = useState<any[]>([]);
-  const [empleados, setEmpleados] = useState<any[]>([]);
+  const [asignaciones, setAsignaciones] = useState<AsignacionRow[]>([]);
+  const [activos, setActivos] = useState<ActivoRow[]>([]);
+  const [empleados, setEmpleados] = useState<EmpleadoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
@@ -45,8 +69,8 @@ export default function AsignacionPage() {
     }
 
     if (asig && asig.length > 0) {
-      const empIds = [...new Set(asig.map((a: any) => a.empleado_id).filter(Boolean))];
-      const actIds = [...new Set(asig.map((a: any) => a.activo_id).filter(Boolean))];
+      const empIds = [...new Set(asig.map((a) => a.empleado_id).filter(Boolean))];
+      const actIds = [...new Set(asig.map((a) => a.activo_id).filter(Boolean))];
       const [{ data: empData, error: empDataError }, { data: actData, error: actDataError }] = await Promise.all([
         supabase.from("Personal").select("id, full_name, employee_number").in("id", empIds),
         supabase.from("activos").select("id, nombre, name").in("id", actIds)
@@ -63,14 +87,14 @@ export default function AsignacionPage() {
         return;
       }
 
-      const empMap = Object.fromEntries((empData || []).map((e: any) => [e.id, e]));
-      const actMap = Object.fromEntries((actData || []).map((a: any) => [a.id, a]));
-      setAsignaciones(asig.map((a: any) => ({ ...a, empleado: empMap[a.empleado_id], activo: actMap[a.activo_id] })));
+      const empMap = Object.fromEntries((empData || []).map((e) => [e.id, e]) as Array<[string, EmpleadoRow]>);
+      const actMap = Object.fromEntries((actData || []).map((a) => [a.id, a]) as Array<[string, ActivoRow]>);
+      setAsignaciones(asig.map((a) => ({ ...a, empleado: empMap[a.empleado_id], activo: actMap[a.activo_id] } as AsignacionRow)));
     } else {
       setAsignaciones([]);
     }
-    setActivos(acts || []);
-    setEmpleados(emps || []);
+    setActivos((acts || []) as ActivoRow[]);
+    setEmpleados((emps || []) as EmpleadoRow[]);
     setLoading(false);
   };
 

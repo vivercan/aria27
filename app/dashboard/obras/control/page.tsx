@@ -82,12 +82,12 @@ export default function ControlObrasPage() {
         supabase.from("cobros_manuales").select("obra_nombre,monto,saldo,estatus").neq("estatus", "CANCELADO"),
         supabase.from("obra_avances").select("obra_nombre,semana_iso,pct_fisico").order("semana_iso", { ascending: false }),
       ]);
-      setPartidas((pp.data as any[]) || []);
-      setPos((po.data as any[]) || []);
-      setReqs((rq.data as any[]) || []);
-      setNomina((nh.data as any[]) || []);
-      setCobros((co.data as any[]) || []);
-      setAvancesFis((av.data as any[]) || []);
+      setPartidas((pp.data as Partida[]) || []);
+      setPos((po.data as PO[]) || []);
+      setReqs((rq.data as Req[]) || []);
+      setNomina((nh.data as NomRec[]) || []);
+      setCobros((co.data as CobroRec[]) || []);
+      setAvancesFis((av.data as AvanceRec[]) || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -116,20 +116,20 @@ export default function ControlObrasPage() {
 
     return Array.from(obras).sort().map(nombre => {
       const presupuestoCat: Record<string, number> = {};
-      CATS.forEach(c => presupuestoCat[c] = 0);
-      partidas.filter(p => p.obra_nombre === nombre).forEach(p => {
+      CATS.forEach((c: string) => presupuestoCat[c] = 0);
+      partidas.filter((p: Partida) => p.obra_nombre === nombre).forEach((p: Partida) => {
         const c = p.categoria || "OTROS";
         presupuestoCat[c] = (presupuestoCat[c] || 0) + (p.importe || 0);
       });
-      const presupuesto = Object.values(presupuestoCat).reduce((s, v) => s + v, 0);
+      const presupuesto = Object.values(presupuestoCat).reduce((s: number, v: number) => s + v, 0);
 
-      const gastoOC = pos.filter(po => po.status !== "CANCELADA" && po.requisition_id && reqMap.get(po.requisition_id) === nombre)
-        .reduce((s, po) => s + (po.total || 0), 0);
-      const gastoNomina = nomina.filter(n => n.obra === nombre).reduce((s, n) => s + (n.sueldo_neto || 0), 0);
+      const gastoOC = pos.filter((po: PO) => po.status !== "CANCELADA" && po.requisition_id && reqMap.get(po.requisition_id) === nombre)
+        .reduce((s: number, po: PO) => s + (po.total || 0), 0);
+      const gastoNomina = nomina.filter((n: NomRec) => n.obra === nombre).reduce((s: number, n: NomRec) => s + (n.sueldo_neto || 0), 0);
       const gastoTotal = gastoOC + gastoNomina;
-      const cobrosObra = cobros.filter(c => c.obra_nombre === nombre);
-      const cobrado = cobrosObra.reduce((s, c) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-      const porCobrar = cobrosObra.reduce((s, c) => s + (Number(c.saldo) || 0), 0);
+      const cobrosObra = cobros.filter((c: CobroRec) => c.obra_nombre === nombre);
+      const cobrado = cobrosObra.reduce((s: number, c: CobroRec) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+      const porCobrar = cobrosObra.reduce((s: number, c: CobroRec) => s + (Number(c.saldo) || 0), 0);
       const margen = cobrado - gastoTotal;
       const avance = presupuesto > 0 ? (gastoTotal / presupuesto) * 100 : 0;
       const saldo = presupuesto - gastoTotal;
@@ -153,17 +153,17 @@ export default function ControlObrasPage() {
   }), [filas, busqueda, filtroSem]);
 
   const totales = useMemo(() => ({
-    presupuesto: filtradas.reduce((s, f) => s + f.presupuesto, 0),
-    gastoOC: filtradas.reduce((s, f) => s + f.gastoOC, 0),
-    gastoNomina: filtradas.reduce((s, f) => s + f.gastoNomina, 0),
-    gastoTotal: filtradas.reduce((s, f) => s + f.gastoTotal, 0),
-    cobrado: filtradas.reduce((s, f) => s + f.cobrado, 0),
-    porCobrar: filtradas.reduce((s, f) => s + f.porCobrar, 0),
-    margen: filtradas.reduce((s, f) => s + f.margen, 0),
-    saldo: filtradas.reduce((s, f) => s + f.saldo, 0),
+    presupuesto: filtradas.reduce((s: number, f: ObraRow) => s + f.presupuesto, 0),
+    gastoOC: filtradas.reduce((s: number, f: ObraRow) => s + f.gastoOC, 0),
+    gastoNomina: filtradas.reduce((s: number, f: ObraRow) => s + f.gastoNomina, 0),
+    gastoTotal: filtradas.reduce((s: number, f: ObraRow) => s + f.gastoTotal, 0),
+    cobrado: filtradas.reduce((s: number, f: ObraRow) => s + f.cobrado, 0),
+    porCobrar: filtradas.reduce((s: number, f: ObraRow) => s + f.porCobrar, 0),
+    margen: filtradas.reduce((s: number, f: ObraRow) => s + f.margen, 0),
+    saldo: filtradas.reduce((s: number, f: ObraRow) => s + f.saldo, 0),
     obras: filtradas.length,
-    rebasadas: filtradas.filter(f => f.semaforo === "REBASADO").length,
-    rojas: filtradas.filter(f => f.semaforo === "ROJO").length,
+    rebasadas: filtradas.filter((f: ObraRow) => f.semaforo === "REBASADO").length,
+    rojas: filtradas.filter((f: ObraRow) => f.semaforo === "ROJO").length,
   }), [filtradas]);
 
   const exportCSV = () => {

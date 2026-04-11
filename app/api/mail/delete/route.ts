@@ -33,10 +33,12 @@ export async function POST(req: NextRequest) {
           if (err) { imap.end(); reject(err); return; }
           
           // Usar seq.addFlags en lugar de addFlags
-          (imap as any).seq.addFlags(uids, ["\\Deleted"], (err: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (imap as any).seq.addFlags(uids, ["\\Deleted"], (err: unknown) => {
             if (err) { imap.end(); reject(err); return; }
-            
-            (imap as any).expunge((err: any) => {
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (imap as any).expunge((err: unknown) => {
               imap.end();
               if (err) reject(err);
               else resolve({ success: true, deleted: uids.length });

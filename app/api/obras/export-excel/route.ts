@@ -52,7 +52,8 @@ export async function GET(req: NextRequest) {
     // Generate and return response
     const response = await generateExcelResponse(wb, obra);
 
-    log.info("export done", { obra, sheets: 7, bytes: (await wb.xlsx.writeBuffer() as any).byteLength });
+    const buffer = await wb.xlsx.writeBuffer();
+    log.info("export done", { obra, sheets: 7, bytes: (buffer as unknown as Buffer).byteLength });
 
     return response;
   } catch (e: unknown) {

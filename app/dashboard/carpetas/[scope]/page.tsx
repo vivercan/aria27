@@ -50,6 +50,7 @@ export default function CarpetasScopePage({ params }: { params: Promise<{ scope:
         <div className="col-span-8 lg:col-span-9 min-h-0 overflow-y-auto">
           {selected ? (
             <EntityFolder
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               entityType={fullScope as any}
               entityId={selected}
               entityName={selectedName}

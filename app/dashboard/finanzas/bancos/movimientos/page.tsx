@@ -53,8 +53,8 @@ export default function MovimientosBancariosPage() {
       supabase.from("cuentas_bancarias").select("id, banco, cuenta, empresa").eq("activa", true).order("banco"),
       supabase.from("conciliacion_bancaria").select("*").order("fecha_movimiento", { ascending: false }).limit(500),
     ]);
-    setCuentas((c as any) || []);
-    setMovs((m as any) || []);
+    setCuentas((c as Cuenta[]) || []);
+    setMovs((m as Movimiento[]) || []);
     setLoading(false);
   }
 
@@ -103,7 +103,7 @@ export default function MovimientosBancariosPage() {
         .gte("monto", monto - tol).lte("monto", monto + tol)
         .neq("estatus", "CANCELADO")
         .order("fecha", { ascending: false }).limit(10);
-      setCobrosSugeridos((data as any) || []);
+      setCobrosSugeridos((data as Cobro[]) || []);
     } else {
       const { data } = await supabase
         .from("purchase_orders")
@@ -111,13 +111,19 @@ export default function MovimientosBancariosPage() {
         .gte("total", monto - tol).lte("total", monto + tol)
         .neq("status", "CANCELADA")
         .order("created_at", { ascending: false }).limit(10);
-      setOcsSugeridas((data as any) || []);
+      setOcsSugeridas((data as OC[]) || []);
     }
   }
 
   async function aplicarMatch(tipo: "cobro" | "oc", id: string, ref: string) {
     if (!matchModal) return;
-    const update: any = { status_match: "MATCHED", referencia: ref };
+    interface UpdatePayload {
+      status_match: string;
+      referencia: string;
+      cobro_id?: string;
+      oc_id?: string;
+    }
+    const update: UpdatePayload = { status_match: "MATCHED", referencia: ref };
     if (tipo === "cobro") update.cobro_id = id;
     else update.oc_id = id;
     const { error } = await supabase.from("conciliacion_bancaria").update(update).eq("id", matchModal.id);

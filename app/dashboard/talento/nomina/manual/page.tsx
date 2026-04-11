@@ -95,7 +95,7 @@ export default function NominaManualPage() {
       .gte("fecha_inicio", semanaInfo.inicio)
       .lte("fecha_fin", semanaInfo.fin)
       .maybeSingle();
-    setNominaStatus((data as any)?.status || null);
+    setNominaStatus(((data as {status?: string | null}) || {}).status || null);
   };
 
   useEffect(() => {
@@ -256,7 +256,7 @@ export default function NominaManualPage() {
       .maybeSingle();
 
     if (nominaExistente) {
-      if ((nominaExistente as any).status === "CONFIRMADA") {
+      if (((nominaExistente as {status?: string}) || {}).status === "CONFIRMADA") {
         setMensaje({ tipo: "error", texto: "❌ Nómina CONFIRMADA. Desbloquéala desde Recibos antes de recalcular." });
         return;
       }

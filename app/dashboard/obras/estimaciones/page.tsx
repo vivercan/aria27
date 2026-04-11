@@ -97,8 +97,8 @@ export default function EstimacionesPage() {
 
       setEstimaciones(ests || []);
 
-      const obraNames = [...new Set((ests || []).map((e: any) => {
-        const match = obrasCat.find((o: any) => o.id === e.obra_id);
+      const obraNames = [...new Set((ests || []).map((e) => {
+        const match = obrasCat.find((o) => o.id === e.obra_id);
         return match?.nombre || "Obra no identificada";
       }))];
       setObras(obraNames as string[]);
@@ -132,9 +132,9 @@ export default function EstimacionesPage() {
     setForm({ ...form, partidas: form.partidas.filter((_, i) => i !== idx) });
   }
 
-  function updatePartida(idx: number, field: keyof FormPartida, value: any) {
+  function updatePartida(idx: number, field: keyof FormPartida, value: string | number) {
     const newPartidas = [...form.partidas];
-    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(value) || 0 };
+    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(String(value)) || 0 };
     setForm({ ...form, partidas: newPartidas });
   }
 
@@ -278,7 +278,7 @@ export default function EstimacionesPage() {
   }
 
   const getObraNombre = (obraId: string) => {
-    const obra = obrasCat.find((o: any) => o.id === obraId);
+    const obra = obrasCat.find((o) => o.id === obraId);
     return obra?.nombre || "Obra no identificada";
   };
 
@@ -381,13 +381,13 @@ export default function EstimacionesPage() {
               <select
                 value={form.obra_id}
                 onChange={(e) => {
-                  const obra = obrasCat.find((o: any) => o.id === e.target.value);
+                  const obra = obrasCat.find((o) => o.id === e.target.value);
                   setForm({ ...form, obra_id: e.target.value, obra_nombre: obra?.nombre || "" });
                 }}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
               >
                 <option value="">-- Selecciona obra --</option>
-                {obrasCat.map((o: any) => (
+                {obrasCat.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.nombre}
                   </option>

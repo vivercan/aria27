@@ -9,6 +9,13 @@ import {
   CreditCard, Banknote, Lock, Unlock, Loader2, ChevronLeft, ChevronRight, Calendar, Search
 } from "lucide-react";
 
+interface PersonalBankInfo {
+  id: string;
+  banco: string | null;
+  clabe: string | null;
+  numero_cuenta: string | null;
+}
+
 interface NominaRecord {
   id: string;
   employee_id: string;
@@ -96,17 +103,17 @@ export default function RecibosNominaPage() {
 
     if (nominasData && nominasData.length > 0) {
       // Batch query bancarios — una sola query .in() en vez de N+1
-      const empIds = nominasData.map((n: any) => n.employee_id);
+      const empIds = nominasData.map((n: typeof nominasData[number]) => n.employee_id);
       const { data: empBank } = await supabase
         .from("Personal")
         .select("id, banco, clabe, numero_cuenta")
         .in("id", empIds);
-      const bankMap = new Map((empBank || []).map((e: any) => [e.id, e]));
-      const merged = nominasData.map((n: any) => {
-        const b: any = bankMap.get(n.employee_id) || {};
+      const bankMap = new Map((empBank || []).map((e: PersonalBankInfo) => [e.id, e]));
+      const merged = nominasData.map((n: typeof nominasData[number]) => {
+        const b: PersonalBankInfo = bankMap.get(n.employee_id) || { id: "", banco: null, clabe: null, numero_cuenta: null };
         return { ...n, banco: b.banco, clabe: b.clabe, numero_cuenta: b.numero_cuenta };
       });
-      setNominas(merged as any);
+      setNominas(merged as unknown as NominaRecord[]);
       setNominaStatus(nominasData[0].status === "CONFIRMADA" ? "CONFIRMADA" : "GENERADA");
     } else {
       setNominas([]);

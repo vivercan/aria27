@@ -7,14 +7,22 @@ const log = logger("REQ-VALIDATE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
-async function getUserByRole(role: string) {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
-  return data;
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  phone?: string;
+  [key: string]: unknown;
 }
 
-async function getUserByEmail(email: string) {
+async function getUserByRole(role: string): Promise<User | null> {
+  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
+  return (data as User) || null;
+}
+
+async function getUserByEmail(email: string): Promise<User | null> {
   const { data } = await supabase.from("Users").select("*").eq("email", email).single();
-  return data;
+  return (data as User) || null;
 }
 
 export async function GET(request: Request) {
@@ -46,7 +54,7 @@ export async function GET(request: Request) {
     // Si no viene action, mostrar página de validación con botones
     if (!action) {
       const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
-      const materialesHtml = (items || []).map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+      const materialesHtml = (items || []).map((m: Record<string, unknown>) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
 
       return new Response(`<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Validar ${req.folio}</title></head>
 <body style="font-family:Arial,sans-serif;margin:0;background:#0f172a;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px">
@@ -96,7 +104,7 @@ export async function GET(request: Request) {
       const fechaReq = new Date(req.required_date).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
       const { data: items } = await supabase.from("requisition_items").select("*").eq("requisition_id", req.id);
-      const materialesHtml = (items || []).map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+      const materialesHtml = (items || []).map((m: Record<string, unknown>) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.quantity}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
       const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
 
       if (comprasUser) {
@@ -110,7 +118,7 @@ export async function GET(request: Request) {
           log.error("Email compras cotizar exception", { folio: req.folio, error: (emailErr as Error).message });
         }
         if (comprasUser.phone) {
-          const materialesResumen = (items || []).map((m: any) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
+          const materialesResumen = (items || []).map((m: Record<string, unknown>) => `${m.product_name} (${m.quantity} ${m.unit})`).join(", ");
           await sendWhatsAppLogged("requisicion_compras", [req.folio, req.cost_center_name, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-validada", enviadoPor: "validate-link" });
         }
       }

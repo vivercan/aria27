@@ -99,8 +99,8 @@ export default function MantenimientoPage() {
     ]);
     const activosArr = (aRes.data || []) as Activo[];
     const aMap = Object.fromEntries(activosArr.map(a => [a.id, a.nombre]));
-    setOrdenes((oRes.data || []).map((o: any) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })));
-    setProgramas((pRes.data || []).map((p: any) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })));
+    setOrdenes((oRes.data || []).map((o) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })) as Orden[]);
+    setProgramas((pRes.data || []).map((p) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })) as Programa[]);
     setActivos(activosArr);
     setLoading(false);
   }
@@ -126,7 +126,7 @@ export default function MantenimientoPage() {
     const costo = parseFloat(ordenForm.costo_estimado);
     if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       activo_id: ordenForm.activo_id,
       tipo: ordenForm.tipo,
       prioridad: ordenForm.prioridad,
@@ -169,7 +169,7 @@ export default function MantenimientoPage() {
   }
 
   async function cambiarEstatus(o: Orden, nuevoEstatus: string) {
-    const payload: any = { estatus: nuevoEstatus };
+    const payload: Record<string, unknown> = { estatus: nuevoEstatus };
     if (nuevoEstatus === "EN_PROCESO" && !o.fecha_inicio) payload.fecha_inicio = new Date().toISOString().slice(0, 10);
     if (nuevoEstatus === "COMPLETADA") payload.fecha_fin = new Date().toISOString().slice(0, 10);
     const { error } = await supabase.from("mantenimiento_ordenes").update(payload).eq("id", o.id);
@@ -196,7 +196,7 @@ export default function MantenimientoPage() {
     const costo = parseFloat(progForm.costo_estimado);
     if (isNaN(costo) || costo < 0) { flash("err", "Costo estimado no puede ser negativo"); return; }
     setSaving(true);
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       activo_id: progForm.activo_id,
       nombre: progForm.nombre.trim(),
       tipo: progForm.tipo,

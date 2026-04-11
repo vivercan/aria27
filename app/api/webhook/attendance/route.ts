@@ -205,7 +205,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   let obraFinal = obraNombre;
   if (!obraFinal) {
     const emp = await findEmpleado(phone10, from);
-    obraFinal = ((emp?.centro_trabajo as any)?.[0]?.nombre ?? (emp?.centro_trabajo as any)?.nombre) || null;
+    obraFinal = emp?.centro_trabajo?.nombre || null;
   }
 
   if (!obraFinal) {
@@ -293,7 +293,16 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
 }
 
 // ============== BUSCAR EMPLEADO ==============
-async function findEmpleado(phone10: string, fullPhone: string) {
+interface EmpleadoResult {
+  id: string;
+  employee_number: string;
+  full_name: string;
+  centro_trabajo_id: string;
+  geocerca_libre: boolean;
+  centro_trabajo: { nombre: string } | null;
+}
+
+async function findEmpleado(phone10: string, fullPhone: string): Promise<EmpleadoResult | null> {
   // Usar tabla base "employees" - PostgREST no resuelve JOINs en VIEWs
   const { data, error } = await supabase
     .from("employees")
@@ -302,7 +311,7 @@ async function findEmpleado(phone10: string, fullPhone: string) {
     .eq("status", "ACTIVO")
     .limit(1);
 
-  return data?.[0] || null;
+  return (data as EmpleadoResult[] | null)?.[0] || null;
 }
 
 // ============== MANEJAR GASTO ==============
@@ -313,7 +322,7 @@ async function handleGasto(from: string, phone10: string, gastoData: any, imageU
 
   const emp = await findEmpleado(phone10, from);
   const nombreSolicitante = emp?.full_name || `WhatsApp ${phone10}`;
-  const obraDefault = ((emp?.centro_trabajo as any)?.[0]?.nombre ?? (emp?.centro_trabajo as any)?.nombre) || gastoData.obra || "PENDIENTE";
+  const obraDefault = emp?.centro_trabajo?.nombre || gastoData.obra || "PENDIENTE";
 
   const { error } = await supabase.from("gastos").insert({
     fecha: fecha,

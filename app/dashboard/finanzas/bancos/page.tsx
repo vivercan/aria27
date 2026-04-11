@@ -45,7 +45,7 @@ export default function BancosPage() {
   async function loadData() {
     setLoading(true);
     const { data, error } = await supabase.from("cuentas_bancarias").select("*").order("activa", { ascending: false }).order("banco");
-    if (!error) setCuentas((data as any) || []);
+    if (!error) setCuentas((data as CuentaBancaria[]) || []);
     setLoading(false);
   }
 
@@ -75,7 +75,7 @@ export default function BancosPage() {
     if (!form.cuenta?.trim()) { flash("err", "Número de cuenta es requerido"); return; }
     if (!form.titular?.trim()) { flash("err", "Titular es requerido"); return; }
     if (isNaN(form.saldo) || form.saldo < 0) { flash("err", "Saldo debe ser >= 0"); return; }
-    const payload = { ...form, updated_at: new Date().toISOString() } as any;
+    const payload = { ...form, updated_at: new Date().toISOString() } as Record<string, unknown>;
     if (editId) {
       const { error } = await supabase.from("cuentas_bancarias").update(payload).eq("id", editId);
       if (error) { flash("err", "Error al actualizar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
@@ -175,7 +175,7 @@ export default function BancosPage() {
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
                 <input
                   required={f.key === "banco" || f.key === "cuenta" || f.key === "titular"}
-                  value={(form as any)[f.key]}
+                  value={String((form as Record<string, unknown>)[f.key] || "")}
                   onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none"

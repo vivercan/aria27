@@ -51,7 +51,7 @@ export default function HistoricoNominaPage() {
     if (filas.length === 0) return;
     const headers = Object.keys(filas[0]);
     const csv = "\uFEFF" + headers.join(",") + "\n" + filas.map(f => headers.map(h => {
-      const v = (f as any)[h]; return typeof v === "string" && v.includes(",") ? `"${v}"` : v ?? "";
+      const v = (f as Record<string, unknown>)[h]; return typeof v === "string" && v.includes(",") ? `"${v}"` : v ?? "";
     }).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);

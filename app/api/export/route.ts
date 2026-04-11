@@ -10,17 +10,15 @@ const supabase = getSupabaseAdmin();
 const PAGE_SIZE = 1000;
 
 /** Fetches ALL rows from a table, paginating in chunks of PAGE_SIZE to bypass Supabase default limit */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchAllRows(
   client: SupabaseClient,
   table: string,
   orderCol: string,
   ascending: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filterFn?: (q: any) => any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<{ data: any[]; error: string | null }> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allRows: any[] = [];
+): Promise<{ data: Record<string, unknown>[]; error: string | null }> {
+  const allRows: Record<string, unknown>[] = [];
   let offset = 0;
   let hasMore = true;
 
@@ -108,15 +106,15 @@ export async function POST(req: NextRequest) {
       let total = 0;
       (data || []).forEach((g, idx) => {
         const row = sheet.getRow(5 + idx);
-        row.getCell(1).value = g.fecha || "";
-        row.getCell(2).value = g.semana || "";
-        row.getCell(3).value = g.obra || "";
-        row.getCell(4).value = g.solicitante || "";
-        row.getCell(5).value = g.descripcion || "";
-        row.getCell(6).value = g.proveedor || "";
-        row.getCell(7).value = g.monto || 0;
+        row.getCell(1).value = (g.fecha as string) || "";
+        row.getCell(2).value = (g.semana as string) || "";
+        row.getCell(3).value = (g.obra as string) || "";
+        row.getCell(4).value = (g.solicitante as string) || "";
+        row.getCell(5).value = (g.descripcion as string) || "";
+        row.getCell(6).value = (g.proveedor as string) || "";
+        row.getCell(7).value = (Number(g.monto) || 0);
         row.getCell(7).numFmt = '"$"#,##0.00';
-        total += g.monto || 0;
+        total += Number(g.monto) || 0;
         
         const bg = idx % 2 === 0 ? "F8FAFC" : "FFFFFF";
         for (let i = 1; i <= 7; i++) {
@@ -154,7 +152,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Obtener semanas y empleados SOLO de los datos existentes
-      const semanasUnicas = [...new Set((allData || []).map(r => r.semana))].sort((a, b) => b - a);
+      const semanasUnicas = [...new Set((allData || []).map(r => r.semana))].sort((a, b) => Number(b) - Number(a));
       const empleadosUnicos = [...new Set((allData || []).map(r => r.nombre))].sort();
 
       // ═══════════════════════════════════════════════════════════
@@ -175,7 +173,7 @@ export async function POST(req: NextRequest) {
       sheetResumen.getCell("A2").alignment = { horizontal: "center" };
 
       // Métricas
-      const totalGeneral = (allData || []).reduce((s, r) => s + (r.sueldo_total || 0), 0);
+      const totalGeneral = (allData || []).reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
       
       sheetResumen.getCell("A4").value = "MÉTRICAS";
       sheetResumen.getCell("A4").font = { size: 14, bold: true, color: { argb: "8B5CF6" } };
@@ -205,9 +203,9 @@ export async function POST(req: NextRequest) {
 
       semanasUnicas.forEach((sem, idx) => {
         const regs = (allData || []).filter(r => r.semana === sem);
-        const total = regs.reduce((s, r) => s + (r.sueldo_total || 0), 0);
+        const total = regs.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
         const row = sheetResumen.getRow(13 + idx);
-        row.getCell(1).value = sem;
+        row.getCell(1).value = (sem as number);
         row.getCell(2).value = regs.length;
         row.getCell(3).value = total;
         row.getCell(3).numFmt = '"$"#,##0.00';
@@ -234,7 +232,7 @@ export async function POST(req: NextRequest) {
       sheetDetalle.getRow(1).height = 32;
 
       sheetDetalle.mergeCells("A2:F2");
-      const totalFiltrado = filteredData.reduce((s, r) => s + (r.sueldo_total || 0), 0);
+      const totalFiltrado = filteredData.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
       sheetDetalle.getCell("A2").value = `${filteredData.length} registros | Total: $${totalFiltrado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
       sheetDetalle.getCell("A2").alignment = { horizontal: "center" };
 
@@ -248,14 +246,14 @@ export async function POST(req: NextRequest) {
 
       filteredData.forEach((r, idx) => {
         const row = sheetDetalle.getRow(5 + idx);
-        row.getCell(1).value = r.semana;
-        row.getCell(2).value = r.nombre || "";
-        row.getCell(3).value = r.puesto || "";
-        row.getCell(4).value = r.salario_mensual || 0;
+        row.getCell(1).value = (r.semana as number);
+        row.getCell(2).value = (r.nombre as string) || "";
+        row.getCell(3).value = (r.puesto as string) || "";
+        row.getCell(4).value = Number(r.salario_mensual) || 0;
         row.getCell(4).numFmt = '"$"#,##0.00';
-        row.getCell(5).value = r.salario_semanal || 0;
+        row.getCell(5).value = Number(r.salario_semanal) || 0;
         row.getCell(5).numFmt = '"$"#,##0.00';
-        row.getCell(6).value = r.sueldo_total || 0;
+        row.getCell(6).value = Number(r.sueldo_total) || 0;
         row.getCell(6).numFmt = '"$"#,##0.00';
         
         const bg = idx % 2 === 0 ? "F8FAFC" : "FFFFFF";
@@ -296,9 +294,9 @@ export async function POST(req: NextRequest) {
       });
 
       // Agrupar por empleado SOLO con los datos existentes
-      const empData = empleadosUnicos.map(emp => {
+      const empData = empleadosUnicos.map((emp: unknown) => {
         const regs = (allData || []).filter(r => r.nombre === emp);
-        const total = regs.reduce((s, r) => s + (r.sueldo_total || 0), 0);
+        const total = regs.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
         return {
           nombre: emp,
           puesto: regs[0]?.puesto || "",
@@ -311,8 +309,8 @@ export async function POST(req: NextRequest) {
       let granTotal = 0;
       empData.forEach((e, idx) => {
         const row = sheetEmp.getRow(4 + idx);
-        row.getCell(1).value = e.nombre;
-        row.getCell(2).value = e.puesto;
+        row.getCell(1).value = (e.nombre as string);
+        row.getCell(2).value = (e.puesto as string);
         row.getCell(3).value = e.semanas;
         row.getCell(4).value = e.total;
         row.getCell(4).numFmt = '"$"#,##0.00';
@@ -339,11 +337,11 @@ export async function POST(req: NextRequest) {
       // ═══════════════════════════════════════════════════════════
       // PESTAÑAS POR SEMANA (solo las que existen)
       // ═══════════════════════════════════════════════════════════
-      semanasUnicas.forEach(sem => {
+      semanasUnicas.forEach((sem: unknown) => {
         const sheetSem = workbook.addWorksheet(`Sem ${sem}`);
-        const datosSem = (allData || []).filter(r => r.semana === sem).sort((a, b) => (b.sueldo_total || 0) - (a.sueldo_total || 0));
-        
-        const totalSem = datosSem.reduce((s, r) => s + (r.sueldo_total || 0), 0);
+        const datosSem = (allData || []).filter(r => r.semana === sem).sort((a, b) => (Number(b.sueldo_total) || 0) - (Number(a.sueldo_total) || 0));
+
+        const totalSem = datosSem.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
         
         sheetSem.mergeCells("A1:D1");
         sheetSem.getCell("A1").value = `SEMANA ${sem} - ${datosSem.length} empleados - Total: $${totalSem.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
@@ -362,11 +360,11 @@ export async function POST(req: NextRequest) {
 
         datosSem.forEach((r, idx) => {
           const row = sheetSem.getRow(4 + idx);
-          row.getCell(1).value = r.nombre || "";
-          row.getCell(2).value = r.puesto || "";
-          row.getCell(3).value = r.salario_semanal || 0;
+          row.getCell(1).value = (r.nombre as string) || "";
+          row.getCell(2).value = (r.puesto as string) || "";
+          row.getCell(3).value = Number(r.salario_semanal) || 0;
           row.getCell(3).numFmt = '"$"#,##0.00';
-          row.getCell(4).value = r.sueldo_total || 0;
+          row.getCell(4).value = Number(r.sueldo_total) || 0;
           row.getCell(4).numFmt = '"$"#,##0.00';
           
           const bg = idx % 2 === 0 ? "F8FAFC" : "FFFFFF";
@@ -389,17 +387,17 @@ export async function POST(req: NextRequest) {
       // ═══════════════════════════════════════════════════════════
       // PESTAÑAS POR EMPLEADO (recibos individuales)
       // ═══════════════════════════════════════════════════════════
-      empleadosUnicos.slice(0, 20).forEach(emp => {
-        const nombreCorto = emp.split(" ").slice(0, 2).join(" ").substring(0, 25);
+      empleadosUnicos.slice(0, 20).forEach((emp: unknown) => {
+        const nombreCorto = String(emp).split(" ").slice(0, 2).join(" ").substring(0, 25);
         const sheetEmpInd = workbook.addWorksheet(nombreCorto, { properties: { tabColor: { argb: "06B6D4" } } });
-        const datosEmp = (allData || []).filter(r => r.nombre === emp).sort((a, b) => b.semana - a.semana);
-        
-        const totalEmp = datosEmp.reduce((s, r) => s + (r.sueldo_total || 0), 0);
+        const datosEmp = (allData || []).filter(r => r.nombre === emp).sort((a, b) => Number(b.semana) - Number(a.semana));
+
+        const totalEmp = datosEmp.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
         const puesto = datosEmp[0]?.puesto || "";
         
         // Header con nombre completo
         sheetEmpInd.mergeCells("A1:E1");
-        sheetEmpInd.getCell("A1").value = emp.toUpperCase();
+        sheetEmpInd.getCell("A1").value = String(emp).toUpperCase();
         sheetEmpInd.getCell("A1").font = { size: 16, bold: true, color: { argb: "FFFFFF" } };
         sheetEmpInd.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "0F172A" } };
         sheetEmpInd.getCell("A1").alignment = { horizontal: "center", vertical: "middle" };
@@ -422,13 +420,13 @@ export async function POST(req: NextRequest) {
         
         datosEmp.forEach((r, idx) => {
           const row = sheetEmpInd.getRow(5 + idx);
-          row.getCell(1).value = r.semana;
-          row.getCell(2).value = r.puesto || "";
-          row.getCell(3).value = r.salario_mensual || 0;
+          row.getCell(1).value = (r.semana as number);
+          row.getCell(2).value = (r.puesto as string) || "";
+          row.getCell(3).value = Number(r.salario_mensual) || 0;
           row.getCell(3).numFmt = '"$"#,##0.00';
-          row.getCell(4).value = r.salario_semanal || 0;
+          row.getCell(4).value = Number(r.salario_semanal) || 0;
           row.getCell(4).numFmt = '"$"#,##0.00';
-          row.getCell(5).value = r.sueldo_total || 0;
+          row.getCell(5).value = Number(r.sueldo_total) || 0;
           row.getCell(5).numFmt = '"$"#,##0.00';
           
           const bg = idx % 2 === 0 ? "F0FDFA" : "FFFFFF";
@@ -499,16 +497,16 @@ export async function POST(req: NextRequest) {
       let total = 0;
       (data || []).forEach((r, idx) => {
         const row = sheet.getRow(5 + idx);
-        row.getCell(1).value = r.folio_excel || "";
-        row.getCell(2).value = r.fecha || "";
-        row.getCell(3).value = r.solicitante || "";
-        row.getCell(4).value = r.obra || "";
-        row.getCell(5).value = (r.descripcion || "").substring(0, 80);
-        row.getCell(6).value = r.proveedor || "";
-        row.getCell(7).value = r.monto || 0;
+        row.getCell(1).value = (r.folio_excel as string) || "";
+        row.getCell(2).value = (r.fecha as string) || "";
+        row.getCell(3).value = (r.solicitante as string) || "";
+        row.getCell(4).value = (r.obra as string) || "";
+        row.getCell(5).value = ((r.descripcion as string) || "").substring(0, 80);
+        row.getCell(6).value = (r.proveedor as string) || "";
+        row.getCell(7).value = Number(r.monto) || 0;
         row.getCell(7).numFmt = '"$"#,##0.00';
-        row.getCell(8).value = r.status || "";
-        total += r.monto || 0;
+        row.getCell(8).value = (r.status as string) || "";
+        total += Number(r.monto) || 0;
         
         const bg = idx % 2 === 0 ? "F8FAFC" : "FFFFFF";
         for (let i = 1; i <= 8; i++) {

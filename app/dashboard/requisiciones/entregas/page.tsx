@@ -6,6 +6,16 @@ import { ArrowLeft, Truck, Plus, Search, Check, Package, Eye, Calendar, Image, F
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
+interface Material {
+  producto: string;
+  cantidad_pedida?: number;
+  cantidad_recibida?: number;
+  observacion?: string;
+  product_name?: string;
+  quantity?: number;
+  unit?: string;
+}
+
 interface Entrega {
   id: string;
   folio: string;
@@ -16,7 +26,7 @@ interface Entrega {
   recibido_por_nombre: string;
   status: string;
   observaciones: string;
-  materiales_recibidos: any[];
+  materiales_recibidos: Material[];
   purchase_order_id: number | null;
   purchase_order_folio: string | null;
   foto_url: string | null;
@@ -70,7 +80,7 @@ export default function EntregasPage() {
     setForm({...form, materiales: [...form.materiales, { producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }]});
   };
 
-  const actualizarMaterial = (idx: number, campo: string, valor: any) => {
+  const actualizarMaterial = (idx: number, campo: string, valor: string | number) => {
     const materiales = [...form.materiales];
     materiales[idx] = {...materiales[idx], [campo]: valor};
     setForm({...form, materiales});
@@ -345,7 +355,7 @@ export default function EntregasPage() {
               <div className="mb-4">
                 <span className="text-slate-400 text-sm">Materiales:</span>
                 <div className="mt-2 space-y-1">
-                  {showDetalle.materiales_recibidos.map((m: any, i: number) => (
+                  {showDetalle.materiales_recibidos.map((m: Material, i: number) => (
                     <div key={i} className="flex justify-between text-sm bg-white/5 px-3 py-2 rounded">
                       <span className="text-white">{m.producto || m.product_name}</span>
                       <span className="text-slate-400">{m.quantity || m.cantidad_recibida} {m.unit || ""}</span>

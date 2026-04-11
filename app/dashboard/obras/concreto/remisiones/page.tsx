@@ -37,8 +37,31 @@ interface Cilindro {
   created_at: string;
 }
 
-const EMPTY_REM: any = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
-const EMPTY_CIL: any = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
+interface RemisionForm {
+  obra: string;
+  proveedor: string;
+  numero_remision: string;
+  fecha_colado: string;
+  resistencia_fc: string;
+  revenimiento: string | number;
+  m3: string | number;
+  elemento: string;
+  temperatura: string | number;
+  costo_unitario: string | number;
+  observaciones: string;
+}
+
+interface CilindroForm {
+  numero_cilindro: string;
+  fecha_prueba: string;
+  dias_edad: string | number;
+  resistencia_alcanzada: string | number;
+  cumple: boolean;
+  laboratorio: string;
+}
+
+const EMPTY_REM: RemisionForm = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
+const EMPTY_CIL: CilindroForm = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
 
 export default function ConcretoRemisionesPage() {
   const [remisiones, setRemisiones] = useState<Remision[]>([]);
@@ -50,8 +73,8 @@ export default function ConcretoRemisionesPage() {
   const [showFormCil, setShowFormCil] = useState(false);
   const [remActiva, setRemActiva] = useState<Remision | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
-  const [formRem, setFormRem] = useState<any>(EMPTY_REM);
-  const [formCil, setFormCil] = useState<any>(EMPTY_CIL);
+  const [formRem, setFormRem] = useState<RemisionForm>(EMPTY_REM);
+  const [formCil, setFormCil] = useState<CilindroForm>(EMPTY_CIL);
   const [search, setSearch] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [formRemErrors, setFormRemErrors] = useState<Record<string, string>>({});
@@ -100,7 +123,7 @@ export default function ConcretoRemisionesPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: any) => o.nombre).sort());
+    setObras((ct || []).map((o: { nombre: string }) => o.nombre).sort());
     const { data: rems, error } = await supabase.from("concreto_remisiones").select("*").order("fecha_colado", { ascending: false });
     if (error) console.error("concreto_remisiones error:", error);
     setRemisiones(rems || []);
