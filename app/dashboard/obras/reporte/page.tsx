@@ -5,6 +5,42 @@ import { supabase } from "@/lib/supabase";
 import { Printer, Loader2 } from "lucide-react";
 import { fmt } from "@/lib/format-utils";
 
+interface PresupuestoPartida {
+  categoria?: string;
+  importe: number | string;
+}
+
+interface Requisition {
+  id: string;
+  folio: string;
+}
+
+interface PurchaseOrder {
+  folio?: string;
+  supplier_name?: string;
+  total: number | string;
+  status?: string;
+  requisition_id?: string;
+}
+
+const toPurchaseOrderDTO = (p: PurchaseOrder): { folio: string; supplier: string; total: number; status: string } => ({
+  folio: p.folio || "—",
+  supplier: p.supplier_name || "—",
+  total: Number(p.total) || 0,
+  status: p.status || "—",
+});
+
+interface NominaHistorico {
+  sueldo_neto: number | string;
+}
+
+interface CobroManual {
+  cliente_nombre?: string;
+  monto: number | string;
+  saldo: number | string;
+  estatus?: string;
+}
+
 interface Datos {
   presupuestoCat: Record<string, number>;
   presupuesto: number;
@@ -47,9 +83,9 @@ function ReporteContent() {
         .eq("obra_nombre", obra);
       const presupuestoCat: Record<string, number> = {};
       CATS.forEach(c => presupuestoCat[c] = 0);
-      (pp || []).forEach((p: any) => {
+      (pp || []).forEach((p: PresupuestoPartida) => {
         const c = p.categoria || "OTROS";
-        presupuestoCat[c] = (presupuestoCat[c] || 0) + (p.importe || 0);
+        presupuestoCat[c] = (presupuestoCat[c] || 0) + Number(p.importe || 0);
       });
       const presupuesto = Object.values(presupuestoCat).reduce((s, v) => s + v, 0);
 
@@ -58,7 +94,7 @@ function ReporteContent() {
         .from("requisitions")
         .select("id,folio")
         .eq("cost_center_name", obra);
-      const reqIds = (rqData || []).map((r: any) => r.id);
+      const reqIds = (rqData || []).map((r: Requisition) => r.id);
 
       // OCs ligadas
       let topOCs: Datos["topOCs"] = [];
@@ -70,13 +106,8 @@ function ReporteContent() {
           .in("requisition_id", reqIds)
           .neq("status", "CANCELADA")
           .order("total", { ascending: false });
-        gastoOC = (pos || []).reduce((s: number, p: any) => s + (p.total || 0), 0);
-        topOCs = (pos || []).slice(0, 5).map((p: any) => ({
-          folio: p.folio || "—",
-          supplier: p.supplier_name || "—",
-          total: p.total || 0,
-          status: p.status || "—",
-        }));
+        gastoOC = (pos || []).reduce((s: number, p: PurchaseOrder) => s + Number(p.total || 0), 0);
+        topOCs = (pos || []).slice(0, 5).map(toPurchaseOrderDTO);
       }
 
       // Nómina
@@ -85,7 +116,7 @@ function ReporteContent() {
         .select("sueldo_neto")
         .eq("obra", obra)
         .eq("status", "CONFIRMADA");
-      const gastoNomina = (nom || []).reduce((s: number, n: any) => s + (n.sueldo_neto || 0), 0);
+      const gastoNomina = (nom || []).reduce((s: number, n: NominaHistorico) => s + Number(n.sueldo_neto || 0), 0);
       const totalNominaRecs = (nom || []).length;
 
       // Cobros
@@ -95,9 +126,9 @@ function ReporteContent() {
         .eq("obra_nombre", obra)
         .neq("estatus", "CANCELADO")
         .order("monto", { ascending: false });
-      const cobrado = (cobros || []).reduce((s: number, c: any) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-      const porCobrar = (cobros || []).reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
-      const topCobros = (cobros || []).slice(0, 5).map((c: any) => ({
+      const cobrado = (cobros || []).reduce((s: number, c: CobroManual) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+      const porCobrar = (cobros || []).reduce((s: number, c: CobroManual) => s + (Number(c.saldo) || 0), 0);
+      const topCobros = (cobros || []).slice(0, 5).map((c: CobroManual) => ({
         cliente: c.cliente_nombre || "—",
         monto: Number(c.monto) || 0,
         saldo: Number(c.saldo) || 0,
@@ -116,7 +147,7 @@ function ReporteContent() {
 
       const gastoTotal = gastoOC + gastoNomina;
       const margen = cobrado - gastoTotal;
-      const avance = presupuesto > 0 ? (gastoTotal / presupuesto) * 100 : 0;
+      const avance = presupuesto > 0 ? (gastoTotal / Number(presupuesto)) * 100 : 0;
       const saldo = presupuesto - gastoTotal;
       const deltaFisFin = pctFisico !== null && presupuesto > 0 ? (pctFisico - avance) : null;
 

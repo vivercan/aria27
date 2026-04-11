@@ -17,6 +17,12 @@ type Req = {
   urgency: string; status: string; created_at: string;
 };
 type Item = { id: number; product_name: string; unit: string; quantity: number; };
+interface ItemRow {
+  id?: number;
+  product_name?: string;
+  unit?: string;
+  quantity?: number;
+}
 type Quote = {
   id: number; requisition_id: number; supplier_name: string; total: number;
   dias_credito: number; dias_entrega: number; forma_pago: string;
@@ -62,7 +68,7 @@ export default function ComprasPickingPage() {
     const { data: qs } = await supabase.from("quotations").select("*").eq("requisition_id", req.id);
     setQuotations((qs || []) as Quote[]);
 
-    const ids = (its || []).map((i: any) => i.id);
+    const ids = (its || []).map((i: ItemRow) => i.id).filter(Boolean) as number[];
     if (ids.length > 0) {
       const { data: iqs } = await supabase.from("requisition_item_quotes").select("*").in("requisition_item_id", ids);
       setItemQuotes((iqs || []) as ItemQuote[]);

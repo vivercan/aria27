@@ -25,6 +25,29 @@ interface Movimiento {
   categoria: string; notas: string | null; created_at: string;
   fondo_nombre?: string;
 }
+interface MovimientoRow {
+  id?: string;
+  fondo_id: string | null;
+  tipo?: string;
+  concepto?: string;
+  monto?: number | string;
+  fecha?: string;
+  comprobante?: string | null;
+  responsable?: string | null;
+  categoria?: string;
+  notas?: string | null;
+  created_at?: string;
+}
+interface CorteRow {
+  id?: string;
+  fondo_id: string | null;
+  periodo?: string;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  total_gastos?: number | string;
+  total_reposiciones?: number | string;
+  num_movimientos?: number | string;
+}
 interface Corte {
   id: string; fondo_id: string; periodo: string; fecha_inicio: string; fecha_fin: string;
   total_gastos: number; total_reposiciones: number; num_movimientos: number;
@@ -99,8 +122,8 @@ export default function CajaChicaPage() {
       const fondoMap = Object.fromEntries(fondosRaw.map(f => [f.id, f.nombre]));
 
       setFondos(fondosRaw.map(f => ({ ...f, obra_nombre: obraMap[f.obra_id || ""] || "—", responsable_nombre: empMap[f.responsable_id || ""] || "—" })));
-      setMovimientos((mRes.data || []).map((m: any) => ({ ...m, fondo_nombre: fondoMap[m.fondo_id] || "?" })));
-      setCortes((cRes.data || []).map((c: any) => ({ ...c, fondo_nombre: fondoMap[c.fondo_id] || "?" })));
+      setMovimientos((mRes.data || []).map((m: MovimientoRow) => ({ ...m, fondo_nombre: fondoMap[m.fondo_id || ""] || "?" } as Movimiento)));
+      setCortes((cRes.data || []).map((c: CorteRow) => ({ ...c, fondo_nombre: fondoMap[c.fondo_id || ""] || "?" } as Corte)));
       setObras(obrasArr);
       setEmpleados(empleadosArr);
     } catch (e) { /* error handled */ }

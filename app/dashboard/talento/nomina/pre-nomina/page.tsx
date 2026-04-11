@@ -35,6 +35,25 @@ interface DetalleNomina {
   pago_efectivo: number;
 }
 
+interface AsistenciaRow {
+  employee_id: string;
+  fecha: string;
+  hora_entrada?: string;
+  hora_salida?: string;
+  horas_extra?: number;
+  falta?: boolean;
+}
+
+interface PrestamoRow {
+  employee_id: string;
+  descuento_semanal: number | string;
+}
+
+interface ConfiguracionNomina {
+  clave: string;
+  valor: string;
+}
+
 // Rango Jueves-Miércoles
 function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
   const d = new Date(date);
@@ -79,7 +98,7 @@ export default function PreNominaPage() {
 
   const cargarEmpleados = async () => {
     const { data } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
-    if (data) setEmpleados(data as any);
+    if (data) setEmpleados(data as Empleado[]);
     setLoading(false);
   };
 
@@ -100,7 +119,7 @@ export default function PreNominaPage() {
 
     const { data: config } = await supabase.from("configuracion_nomina").select("*");
     const getConfig = (clave: string, def: number) => {
-      const c = config?.find((x: any) => x.clave === clave);
+      const c = (config || []).find((x: ConfiguracionNomina) => x.clave === clave);
       return c ? parseFloat(c.valor) : def;
     };
     const factorDoble = getConfig("factor_hora_extra_doble", 2);
@@ -123,14 +142,14 @@ export default function PreNominaPage() {
       .in("employee_id", empIds.length ? empIds : ["00000000-0000-0000-0000-000000000000"]);
 
     for (const emp of empleados) {
-      const asistEmp = (todasAsist || []).filter((a: any) => a.employee_id === emp.id);
-      const completas = asistEmp.filter((a: any) => a.hora_entrada && a.hora_salida);
-      const incompletas = asistEmp.filter((a: any) => !a.hora_entrada || !a.hora_salida);
-      const prestEmp = (todosPrest || []).filter((p: any) => p.employee_id === emp.id);
+      const asistEmp = (todasAsist || []).filter((a: AsistenciaRow) => a.employee_id === emp.id);
+      const completas = asistEmp.filter((a: AsistenciaRow) => a.hora_entrada && a.hora_salida);
+      const incompletas = asistEmp.filter((a: AsistenciaRow) => !a.hora_entrada || !a.hora_salida);
+      const prestEmp = (todosPrest || []).filter((p: PrestamoRow) => p.employee_id === emp.id);
 
       const diasTrabajados = completas.length;
       const diasIncompletos = incompletas.length;
-      const horasExtra = completas.reduce((s: number, a: any) => s + (a.horas_extra || 0), 0);
+      const horasExtra = completas.reduce((s: number, a: AsistenciaRow) => s + (a.horas_extra || 0), 0);
       const salarioDiario = emp.salario_diario || 0;
       const salarioSemanal = emp.salario_semanal || (salarioDiario * 7);
 
@@ -145,7 +164,7 @@ export default function PreNominaPage() {
 
       const pagoHorasExtra = horasExtra * (salarioDiario / 8) * factorDoble;
       const totalPercepciones = salarioBase + pagoHorasExtra;
-      const prestamoDescuento = prestEmp.reduce((s: number, p: any) => s + (p.descuento_semanal || 0), 0);
+      const prestamoDescuento = prestEmp.reduce((s: number, p: PrestamoRow) => s + Number(p.descuento_semanal || 0), 0);
       const totalDeduccionesEmp = prestamoDescuento;
       const sueldoNeto = totalPercepciones - totalDeduccionesEmp;
       const minTarjeta = emp.minimo_tarjeta || minimoTarjetaDef;
@@ -210,7 +229,7 @@ export default function PreNominaPage() {
       d.prestamo_descuento.toFixed(2), d.total_deducciones.toFixed(2), d.sueldo_neto.toFixed(2),
       d.pago_tarjeta.toFixed(2), d.pago_efectivo.toFixed(2),
     ]);
-    const csv = [headers, ...rows].map(r => r.map((c: any) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map(r => r.map((c: string | number | null | undefined) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

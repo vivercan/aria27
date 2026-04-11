@@ -26,7 +26,21 @@ interface Obra {
 
 type Modo = "manual" | "grupo" | "excel";
 
-const STATUS_OPTIONS = [
+interface StatusOption {
+  value: string;
+  label: string;
+  color: string;
+}
+
+interface FieldProps {
+  label: string;
+  field: string;
+  type?: string;
+  placeholder?: string;
+  options?: StatusOption[];
+}
+
+const STATUS_OPTIONS: StatusOption[] = [
   { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-blue-500/20 text-blue-400" },
   { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
@@ -180,12 +194,12 @@ export default function PipelinePage() {
   const getStatusStyle = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
   const getStatusLabel = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.label || s;
 
-  const Field = ({ label, field, type = "text", placeholder = "", options }: any) => (
+  const Field = ({ label, field, type = "text", placeholder = "", options }: FieldProps) => (
     <div>
       <label className="block text-xs text-slate-400 mb-1">{label}</label>
       {options ? (
         <select value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
-          {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          {options.map((o: StatusOption) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
         <input type={type} value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600" />
@@ -317,7 +331,7 @@ export default function PipelinePage() {
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Estado</label>
                     <select value={form.estado || "ACTIVA"} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none">
-                      {STATUS_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {STATUS_OPTIONS.map((o: StatusOption) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div>
@@ -366,7 +380,7 @@ export default function PipelinePage() {
                           <tbody>
                             {excelData.slice(0, 5).map((row, i) => (
                               <tr key={i} className="border-t border-white/5">
-                                {Object.values(row).slice(0, 5).map((v: any, j) => <td key={j} className="p-2 text-slate-300">{String(v).substring(0, 30)}</td>)}
+                                {(Object.values(row) as unknown[]).slice(0, 5).map((v: unknown, j) => <td key={j} className="p-2 text-slate-300">{String(v).substring(0, 30)}</td>)}
                               </tr>
                             ))}
                           </tbody>

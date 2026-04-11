@@ -12,6 +12,18 @@ import {
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
 
+interface PersonalRow {
+  id: string;
+  banco?: string;
+  clabe?: string;
+  numero_cuenta?: string;
+}
+
+interface NominaRow {
+  employee_id: string;
+  status?: string;
+}
+
 interface NominaRecord {
   id: string;
   employee_id: string;
@@ -100,18 +112,18 @@ export default function RecibosNominaPage() {
 
     if (nominasData && nominasData.length > 0) {
       // Batch query bancarios — una sola query .in() en vez de N+1
-      const empIds = nominasData.map((n: any) => n.employee_id);
+      const empIds = (nominasData as NominaRow[]).map((n: NominaRow) => n.employee_id);
       const { data: empBank } = await supabase
         .from("Personal")
         .select("id, banco, clabe, numero_cuenta")
         .in("id", empIds);
-      const bankMap = new Map((empBank || []).map((e: any) => [e.id, e]));
-      const merged = nominasData.map((n: any) => {
-        const b: any = bankMap.get(n.employee_id) || {};
+      const bankMap = new Map((empBank || []).map((e: PersonalRow) => [e.id, e]));
+      const merged = (nominasData as NominaRow[]).map((n: NominaRow) => {
+        const b: PersonalRow = bankMap.get(n.employee_id) || { id: "" };
         return { ...n, banco: b.banco, clabe: b.clabe, numero_cuenta: b.numero_cuenta };
       });
-      setNominas(merged as any);
-      setNominaStatus(nominasData[0].status === "CONFIRMADA" ? "CONFIRMADA" : "GENERADA");
+      setNominas(merged as NominaRecord[]);
+      setNominaStatus((nominasData as any)[0]?.status === "CONFIRMADA" ? "CONFIRMADA" : "GENERADA");
     } else {
       setNominas([]);
       setNominaStatus("GENERADA");

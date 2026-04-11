@@ -7,6 +7,20 @@ import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { fmt } from "@/lib/format-utils";
 
+interface SupplierRow {
+  name?: string;
+}
+
+interface PORow {
+  po_number?: string;
+  created_at: string;
+  obra_nombre?: string;
+  total: number | string;
+  monto_pagado?: number | string;
+  status?: string;
+  supplier_name?: string;
+}
+
 interface OC {
   folio: string;
   fecha: string;
@@ -30,7 +44,7 @@ function Content() {
 
   async function cargarProveedores() {
     const { data } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
-    setProveedores((data || []).map((p: any) => p.name).filter(Boolean));
+    setProveedores((data || []).map((p: SupplierRow) => p.name).filter(Boolean) as string[]);
   }
 
   async function cargar() {
@@ -41,7 +55,7 @@ function Content() {
       .eq("supplier_name", proveedor)
       .neq("status", "CANCELADA")
       .order("created_at", { ascending: false });
-    setOcs((pos || []).map((p: any) => {
+    setOcs((pos || []).map((p: PORow) => {
       const total = Number(p.total) || 0;
       const pagado = Number(p.monto_pagado) || 0;
       return {

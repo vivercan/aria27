@@ -31,6 +31,7 @@ interface Programa {
   created_at: string; activo_nombre?: string;
 }
 interface Activo { id: string; nombre: string; tipo: string | null; ubicacion: string | null; }
+interface ActivoRow { id: string; nombre: string; tipo?: string; ubicacion?: string; }
 
 /* ────────── constants ────────── */
 const TABS = ["Órdenes", "Programas", "Historial"] as const;
@@ -100,8 +101,8 @@ export default function MantenimientoPage() {
     ]);
     const activosArr = (aRes.data || []) as Activo[];
     const aMap = Object.fromEntries(activosArr.map(a => [a.id, a.nombre]));
-    setOrdenes((oRes.data || []).map((o: any) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })));
-    setProgramas((pRes.data || []).map((p: any) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })));
+    setOrdenes((oRes.data || []).map((o: Orden) => ({ ...o, activo_nombre: aMap[o.activo_id] || "?" })));
+    setProgramas((pRes.data || []).map((p: Programa) => ({ ...p, activo_nombre: aMap[p.activo_id] || "?" })));
     setActivos(activosArr);
     setLoading(false);
   }

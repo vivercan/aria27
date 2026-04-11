@@ -17,7 +17,7 @@ interface Entrega {
   recibido_por_nombre: string;
   status: string;
   observaciones: string;
-  materiales_recibidos: any[];
+  materiales_recibidos: Record<string, unknown>[];
   purchase_order_id: number | null;
   purchase_order_folio: string | null;
   foto_url: string | null;
@@ -71,7 +71,7 @@ export default function EntregasPage() {
     setForm({...form, materiales: [...form.materiales, { producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }]});
   };
 
-  const actualizarMaterial = (idx: number, campo: string, valor: any) => {
+  const actualizarMaterial = (idx: number, campo: string, valor: string | number) => {
     const materiales = [...form.materiales];
     materiales[idx] = {...materiales[idx], [campo]: valor};
     setForm({...form, materiales});

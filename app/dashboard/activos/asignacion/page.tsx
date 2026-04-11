@@ -10,6 +10,25 @@ import { useEntityForm } from "@/hooks/useEntityForm";
 
 const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
 
+interface AsignacionRow {
+  empleado_id?: string;
+  activo_id?: string;
+  fecha_asignacion?: string;
+  notas?: string;
+}
+
+interface PersonalRow {
+  id: string;
+  full_name: string;
+  employee_number: string;
+}
+
+interface ActivoRow {
+  id: string;
+  nombre?: string;
+  name?: string;
+}
+
 export default function AsignacionPage() {
   const [asignaciones, setAsignaciones] = useState<any[]>([]);
   const [activos, setActivos] = useState<any[]>([]);
@@ -44,8 +63,8 @@ export default function AsignacionPage() {
     }
 
     if (asig && asig.length > 0) {
-      const empIds = [...new Set(asig.map((a: any) => a.empleado_id).filter(Boolean))];
-      const actIds = [...new Set(asig.map((a: any) => a.activo_id).filter(Boolean))];
+      const empIds = [...new Set((asig as AsignacionRow[]).map((a: AsignacionRow) => a.empleado_id).filter(Boolean))];
+      const actIds = [...new Set((asig as AsignacionRow[]).map((a: AsignacionRow) => a.activo_id).filter(Boolean))];
       const [{ data: empData, error: empDataError }, { data: actData, error: actDataError }] = await Promise.all([
         supabase.from("Personal").select("id, full_name, employee_number").in("id", empIds),
         supabase.from("activos").select("id, nombre, name").in("id", actIds)
@@ -60,9 +79,9 @@ export default function AsignacionPage() {
         return;
       }
 
-      const empMap = Object.fromEntries((empData || []).map((e: any) => [e.id, e]));
-      const actMap = Object.fromEntries((actData || []).map((a: any) => [a.id, a]));
-      setAsignaciones(asig.map((a: any) => ({ ...a, empleado: empMap[a.empleado_id], activo: actMap[a.activo_id] })));
+      const empMap = Object.fromEntries((empData || []).map((e: PersonalRow) => [e.id, e]));
+      const actMap = Object.fromEntries((actData || []).map((a: ActivoRow) => [a.id, a]));
+      setAsignaciones((asig as AsignacionRow[]).map((a: AsignacionRow) => ({ ...a, empleado: empMap[a.empleado_id!], activo: actMap[a.activo_id!] })));
     } else {
       setAsignaciones([]);
     }

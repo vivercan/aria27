@@ -8,6 +8,11 @@ import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
+interface CentroRow {
+  nombre?: string;
+  name?: string;
+}
+
 interface SirocRegistro {
   id: string;
   obra: string;
@@ -96,7 +101,7 @@ export default function SirocRegistrosPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: any) => o.nombre).sort());
+    setObras((ct || []).map((o: CentroRow) => o.nombre || o.name || "").filter(Boolean).sort());
     const { data, error } = await supabase.from("siroc_registros").select("*").order("created_at", { ascending: false });
     
     setRegistros(data || []);

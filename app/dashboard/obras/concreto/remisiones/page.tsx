@@ -26,6 +26,11 @@ interface Remision {
   created_at: string;
 }
 
+interface CentroRow {
+  nombre?: string;
+  name?: string;
+}
+
 interface Cilindro {
   id: string;
   remision_id: string;
@@ -101,7 +106,7 @@ export default function ConcretoRemisionesPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: any) => o.nombre).sort());
+    setObras((ct || []).map((o: CentroRow) => o.nombre || o.name || "").filter(Boolean).sort());
     const { data: rems, error } = await supabase.from("concreto_remisiones").select("*").order("fecha_colado", { ascending: false });
     
     setRemisiones(rems || []);

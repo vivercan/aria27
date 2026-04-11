@@ -15,6 +15,13 @@ interface Asistencia {
   dentro_geocerca_entrada: boolean;
   tipo_registro: string;
   employees: { full_name: string; employee_number: string } | null;
+  employee_id?: string;
+}
+
+interface EmpleadoRow {
+  id: string;
+  full_name: string;
+  employee_number: string;
 }
 
 export default function ChecadasPage() {
@@ -46,7 +53,7 @@ export default function ChecadasPage() {
     let registros: Asistencia[] = (data as any) || [];
 
     // Fallback: enriquecer registros sin nombre desde Personal (VIEW) por employee_id
-    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: any) => r.employee_id).filter(Boolean);
+    const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: Asistencia) => r.employee_id).filter(Boolean);
     if (sinNombre.length > 0) {
       const { data: extras } = await supabase
         .from("Personal")
@@ -54,8 +61,8 @@ export default function ChecadasPage() {
         .in("id", Array.from(new Set(sinNombre)));
       if (extras) {
         const map: Record<string, { full_name: string; employee_number: string }> = {};
-        extras.forEach((e: any) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
-        registros = registros.map((r: any) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id] || r.employees });
+        (extras as EmpleadoRow[]).forEach((e: EmpleadoRow) => { map[e.id] = { full_name: e.full_name, employee_number: e.employee_number }; });
+        registros = registros.map((r: Asistencia) => r.employees?.full_name ? r : { ...r, employees: map[r.employee_id!] || r.employees });
       }
     }
 
@@ -66,7 +73,7 @@ export default function ChecadasPage() {
   // Acumulados por empleado en el rango
   const acumulados = (() => {
     const map: Record<string, { nombre: string; numero: string; total: number; completas: number; sinSalida: number }> = {};
-    asistencias.forEach((a: any) => {
+    asistencias.forEach((a: Asistencia) => {
       const key = a.employee_id || a.employees?.employee_number || "desconocido";
       if (!map[key]) map[key] = { nombre: a.employees?.full_name || "Sin nombre", numero: a.employees?.employee_number || "—", total: 0, completas: 0, sinSalida: 0 };
       map[key].total += 1;

@@ -9,6 +9,15 @@ import { fmt } from "@/lib/format-utils";
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
+interface CobroRow {
+  cliente_nombre?: string;
+  obra_nombre?: string;
+  monto: number | string;
+  saldo: number | string;
+  estatus?: string;
+  created_at: string;
+}
+
 interface Row {
   cliente: string;
   obra: string;
@@ -42,7 +51,7 @@ function Content() {
       .lte("created_at", hasta + "T23:59:59")
       .neq("estatus", "CANCELADO")
       .order("created_at", { ascending: true });
-    setRows((data || []).map((c: any) => ({
+    setRows((data || []).map((c: CobroRow) => ({
       cliente: c.cliente_nombre || "—",
       obra: c.obra_nombre || "—",
       monto: Number(c.monto) || 0,

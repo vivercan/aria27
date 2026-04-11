@@ -6,6 +6,23 @@ import { supabase } from "@/lib/supabase";
 import { Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
 import { formatMoneyShort as fmt } from "@/lib/format-utils";
 
+interface CobroRow {
+  cliente_nombre?: string;
+  obra_nombre?: string;
+  monto: number | string;
+  saldo: number | string;
+  created_at: string;
+  estatus: string;
+}
+
+interface OCRow {
+  supplier_name?: string;
+  total: number | string;
+  monto_pagado: number | string;
+  status: string;
+  created_at: string;
+}
+
 export default function PanelFinanzas() {
   const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
@@ -25,20 +42,20 @@ export default function PanelFinanzas() {
 
     // Cobros
     const { data: cobs } = await supabase.from("cobros_manuales").select("cliente_nombre,obra_nombre,monto,saldo,created_at,estatus").neq("estatus", "CANCELADO");
-    const cobsRows = cobs || [];
-    const cobrado30 = cobsRows.filter((c: any) => new Date(c.created_at) >= d30).reduce((s: number, c: any) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
-    const porCobrar = cobsRows.reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
-    const vencido30 = cobsRows.filter((c: any) => (Number(c.saldo) || 0) > 0 && new Date(c.created_at) < d30).reduce((s: number, c: any) => s + (Number(c.saldo) || 0), 0);
+    const cobsRows = (cobs || []) as CobroRow[];
+    const cobrado30 = cobsRows.filter((c: CobroRow) => new Date(c.created_at) >= d30).reduce((s: number, c: CobroRow) => s + ((Number(c.monto) || 0) - (Number(c.saldo) || 0)), 0);
+    const porCobrar = cobsRows.reduce((s: number, c: CobroRow) => s + (Number(c.saldo) || 0), 0);
+    const vencido30 = cobsRows.filter((c: CobroRow) => (Number(c.saldo) || 0) > 0 && new Date(c.created_at) < d30).reduce((s: number, c: CobroRow) => s + (Number(c.saldo) || 0), 0);
 
     // OCs
     const { data: pos } = await supabase.from("purchase_orders").select("supplier_name,total,monto_pagado,status,created_at").neq("status", "CANCELADA");
-    const posRows = pos || [];
-    const ocPendPay = posRows.reduce((s: number, p: any) => s + ((Number(p.total) || 0) - (Number(p.monto_pagado) || 0)), 0);
-    const ocPagadas30 = posRows.filter((p: any) => new Date(p.created_at) >= d30).reduce((s: number, p: any) => s + (Number(p.monto_pagado) || 0), 0);
+    const posRows = (pos || []) as OCRow[];
+    const ocPendPay = posRows.reduce((s: number, p: OCRow) => s + ((Number(p.total) || 0) - (Number(p.monto_pagado) || 0)), 0);
+    const ocPagadas30 = posRows.filter((p: OCRow) => new Date(p.created_at) >= d30).reduce((s: number, p: OCRow) => s + (Number(p.monto_pagado) || 0), 0);
 
     // Top deudores
     const deudoresMap: Record<string, number> = {};
-    cobsRows.forEach((c: any) => {
+    cobsRows.forEach((c: CobroRow) => {
       const k = c.cliente_nombre || "—";
       deudoresMap[k] = (deudoresMap[k] || 0) + (Number(c.saldo) || 0);
     });
@@ -46,7 +63,7 @@ export default function PanelFinanzas() {
 
     // Top proveedores con saldo
     const provMap: Record<string, number> = {};
-    posRows.forEach((p: any) => {
+    posRows.forEach((p: OCRow) => {
       const k = p.supplier_name || "—";
       const saldo = (Number(p.total) || 0) - (Number(p.monto_pagado) || 0);
       if (saldo > 0) provMap[k] = (provMap[k] || 0) + saldo;
@@ -55,7 +72,7 @@ export default function PanelFinanzas() {
 
     // Saldos por obra
     const obraMap: Record<string, number> = {};
-    cobsRows.forEach((c: any) => {
+    cobsRows.forEach((c: CobroRow) => {
       const k = c.obra_nombre || "—";
       obraMap[k] = (obraMap[k] || 0) + (Number(c.saldo) || 0);
     });

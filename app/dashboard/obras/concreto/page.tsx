@@ -36,6 +36,11 @@ interface Cilindro {
   created_at: string;
 }
 
+interface CentroRow {
+  nombre?: string;
+  name?: string;
+}
+
 interface ObraResumen {
   obra: string;
   remisiones: number;
@@ -73,7 +78,8 @@ export default function ConcretoPage() {
       setCilindros((cils || []) as Cilindro[]);
       setObras(
         (centros || [])
-          .map((c: any) => c.nombre)
+          .map((c: CentroRow) => c.nombre || c.name || "")
+          .filter(Boolean)
           .sort()
       );
     } catch {

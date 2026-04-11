@@ -32,9 +32,17 @@ import {
 } from "lucide-react";
 import { formatBytes } from "@/lib/format-utils";
 
+interface CentroRow {
+  id: string;
+  nombre?: string;
+  name?: string;
+  fecha_inicio?: string | null;
+}
+
 interface Obra {
   id: string;
   name: string;
+  nombre?: string;
   fecha_inicio?: string | null;
   anio?: number | null;
 }
@@ -534,10 +542,13 @@ export default function ExpedientesPage() {
       setLoading(false);
       return;
     }
-    const conAnio = (data || []).map((o: any) => ({
-      ...o,
+    const conAnio = (data || []).map((o: CentroRow) => ({
+      id: o.id || "",
+      name: o.name || o.nombre || "",
+      nombre: o.nombre,
+      fecha_inicio: o.fecha_inicio,
       anio: o.fecha_inicio ? new Date(o.fecha_inicio).getFullYear() : null,
-    }));
+    } as Obra));
     setObras(conAnio);
     setLoading(false);
   };

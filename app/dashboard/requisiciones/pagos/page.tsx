@@ -7,6 +7,18 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
+interface OCRow {
+  id?: string;
+  folio?: string;
+  requisition_folio?: string;
+  supplier_name?: string;
+  total: number | string;
+  monto_pagado?: number | string;
+  status?: string;
+  created_at: string;
+  obra_nombre?: string;
+}
+
 interface PurchaseOrder {
   id: string;
   folio: string;
@@ -46,9 +58,9 @@ export default function PagosPage() {
 
       if (error) throw error;
 
-      const processed = (ocs || []).map((oc: any) => {
-        const pagado = oc.monto_pagado || 0;
-        const total = oc.total || 0;
+      const processed = (ocs || []).map((oc: OCRow) => {
+        const pagado = Number(oc.monto_pagado) || 0;
+        const total = Number(oc.total) || 0;
         return {
           ...oc,
           pagado,
@@ -56,9 +68,9 @@ export default function PagosPage() {
         };
       });
 
-      setOrders(processed);
+      setOrders(processed as PurchaseOrder[]);
 
-      const totalSum = processed.reduce((s: number, o: any) => s + (o.total || 0), 0);
+      const totalSum = processed.reduce((s: number, o: any) => s + (Number(o.total) || 0), 0);
       const pagadoSum = processed.reduce((s: number, o: any) => s + (o.pagado || 0), 0);
       setStats({
         total: totalSum,

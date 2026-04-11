@@ -7,9 +7,29 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 import { ArrowLeft, HeartPulse, Search, Plus, X } from "lucide-react";
 import Link from "next/link";
 
+interface EmpleadoRow {
+  id: string;
+  full_name?: string;
+  employee_number?: string;
+}
+
+interface IncapacidadRow {
+  id?: string;
+  employee_id?: string;
+  tipo?: string;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  folio_imss?: string;
+  folio?: string;
+  subtipo?: string;
+  status?: string;
+  notas?: string;
+  empleado?: EmpleadoRow;
+}
+
 export default function IncapacidadesPage() {
-  const [registros, setRegistros] = useState<any[]>([]);
-  const [empleados, setEmpleados] = useState<any[]>([]);
+  const [registros, setRegistros] = useState<IncapacidadRow[]>([]);
+  const [empleados, setEmpleados] = useState<EmpleadoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ employee_id: "", tipo: "enfermedad", fecha_inicio: "", fecha_fin: "", folio_imss: "", notas: "" });
@@ -18,11 +38,11 @@ export default function IncapacidadesPage() {
 
   const loadData = async () => {
     const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
-    setEmpleados(emps || []);
+    setEmpleados((emps as EmpleadoRow[]) || []);
     const { data: inc } = await supabase.from("incidencias").select("*").eq("tipo", "incapacidad").order("fecha_inicio", { ascending: false });
     if (inc && emps) {
-      const empMap = Object.fromEntries(emps.map((e: any) => [e.id, e]));
-      setRegistros(inc.map((i: any) => ({ ...i, empleado: empMap[i.employee_id] })));
+      const empMap = Object.fromEntries((emps as EmpleadoRow[]).map((e: EmpleadoRow) => [e.id, e]));
+      setRegistros((inc as IncapacidadRow[]).map((i: IncapacidadRow) => ({ ...i, empleado: empMap[i.employee_id!] })));
     }
     setLoading(false);
   };

@@ -49,7 +49,7 @@ interface Entrega {
   folio: string;
   fecha_entrega: string;
   proveedor_nombre: string;
-  materiales_recibidos: any[];
+  materiales_recibidos: Record<string, unknown>[];
   status: string;
   foto_url?: string | null;
 }
@@ -914,8 +914,8 @@ export default function InventarioObraPage() {
                     {!validacionResult.matchExacto && validacionResult.sugerencias?.length > 0 && (
                       <div className="mt-1">
                         <p className="text-slate-400 text-xs">Productos similares:</p>
-                        {validacionResult.sugerencias.slice(0, 3).map((s: any) => (
-                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(s.id); setValidacionResult(null); }}
+                        {validacionResult.sugerencias.slice(0, 3).map((s: { id: string; name: string; unit?: string; similarity: number }) => (
+                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(Number(s.id) || null); setValidacionResult(null); }}
                             className="block text-left text-blue-300 hover:text-blue-200 text-xs mt-0.5">
                             → {s.name} ({s.unit}) — {s.similarity}% similar
                           </button>

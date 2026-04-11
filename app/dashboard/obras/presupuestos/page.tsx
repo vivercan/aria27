@@ -7,6 +7,19 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
+interface PartidaRow {
+  id?: string;
+  obra_nombre?: string;
+  clave?: string;
+  descripcion?: string;
+  unidad?: string;
+  cantidad?: number | string;
+  precio_unitario?: number | string;
+  importe?: number | string;
+  categoria?: string;
+  created_at?: string;
+}
+
 interface Partida {
   id: string;
   obra_nombre: string;
@@ -37,7 +50,7 @@ export default function PresupuestosPage() {
     try {
       const { data } = await supabase.from("presupuestos_partidas").select("*").order("obra_nombre").order("clave");
       setPartidas(data || []);
-      const obrasUnicas = [...new Set((data || []).map((p: any) => p.obra_nombre).filter(Boolean))];
+      const obrasUnicas = [...new Set((data || []).map((p: PartidaRow) => p.obra_nombre).filter(Boolean))];
       setObras(obrasUnicas as string[]);
     } catch (e) { /* error handled */ }
     finally { setLoading(false); }

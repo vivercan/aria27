@@ -15,6 +15,18 @@ function weekOfYear(d: Date) {
   return Math.ceil((((t.getTime() - ys.getTime()) / 86400000) + 1) / 7);
 }
 
+interface NominaRow {
+  nombre?: string;
+  puesto?: string;
+  obra?: string;
+  dias_trabajados?: number | string;
+  total_percepciones?: number | string;
+  total_deducciones?: number | string;
+  sueldo_neto?: number | string;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+}
+
 interface Row {
   nombre: string;
   puesto: string;
@@ -46,7 +58,7 @@ function Content() {
       .eq("anio", anio)
       .eq("semana", semana)
       .order("nombre", { ascending: true });
-    setRows((data || []).map((n: any) => ({
+    setRows((data || []).map((n: NominaRow) => ({
       nombre: n.nombre || "—",
       puesto: n.puesto || "—",
       obra: n.obra || "—",

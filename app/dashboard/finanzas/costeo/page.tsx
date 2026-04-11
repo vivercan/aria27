@@ -4,6 +4,42 @@ import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
+interface OCRow {
+  obra_nombre?: string;
+  total?: number | string;
+  categoria?: string;
+}
+
+interface GastoRow {
+  obra?: string;
+  monto?: number | string;
+  categoria?: string;
+}
+
+interface CentroRow {
+  id: string;
+  code?: string;
+  codigo?: string;
+  name?: string;
+  nombre?: string;
+  active?: boolean;
+  activo?: boolean;
+  budget?: number | string;
+  presupuesto?: number | string;
+  client?: string;
+  cliente?: string;
+  status?: string;
+  estado?: string;
+  start_date?: string;
+  fecha_inicio?: string;
+  end_date?: string;
+  fecha_fin?: string;
+  description?: string;
+  descripcion?: string;
+  location?: string;
+  direccion?: string;
+}
+
 interface CosteoObra {
   id: string;
   obra: string;
@@ -38,32 +74,32 @@ export default function CosteoPage() {
       const obraMap: Record<string, { materiales: number; mano_obra: number; subcontratos: number; indirectos: number }> = {};
 
       // Sumar OCs por obra
-      (ocs || []).forEach((oc: any) => {
+      (ocs || []).forEach((oc: OCRow) => {
         const key = oc.obra_nombre || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
-        obraMap[key].materiales += oc.total || 0;
+        obraMap[key].materiales += Number(oc.total) || 0;
       });
 
       // Sumar gastos por obra y categoría
-      (gastos || []).forEach((g: any) => {
+      (gastos || []).forEach((g: GastoRow) => {
         const key = g.obra || "Sin Obra";
         if (!obraMap[key]) obraMap[key] = { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
         const cat = (g.categoria || "").toLowerCase();
         if (cat.includes("mano") || cat.includes("salario") || cat.includes("nomina")) {
-          obraMap[key].mano_obra += g.monto || 0;
+          obraMap[key].mano_obra += Number(g.monto) || 0;
         } else if (cat.includes("sub")) {
-          obraMap[key].subcontratos += g.monto || 0;
+          obraMap[key].subcontratos += Number(g.monto) || 0;
         } else if (cat.includes("indirect") || cat.includes("admin")) {
-          obraMap[key].indirectos += g.monto || 0;
+          obraMap[key].indirectos += Number(g.monto) || 0;
         } else {
-          obraMap[key].materiales += g.monto || 0;
+          obraMap[key].materiales += Number(g.monto) || 0;
         }
       });
 
-      const result = (centers || []).map((c: any) => {
-        const nombre = c.name || c.nombre;
+      const result = (centers || []).map((c: CentroRow) => {
+        const nombre = c.name || c.nombre || "";
         const costos = obraMap[nombre] || { materiales: 0, mano_obra: 0, subcontratos: 0, indirectos: 0 };
-        const presupuesto = c.presupuesto || c.budget || 0;
+        const presupuesto = Number(c.presupuesto || c.budget) || 0;
         const totalReal = costos.materiales + costos.mano_obra + costos.subcontratos + costos.indirectos;
         const diferencia = presupuesto - totalReal;
         const porcentaje = presupuesto > 0 ? (totalReal / presupuesto) * 100 : 0;
