@@ -66,10 +66,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("SMTP Error:", error);
     return NextResponse.json(
-      { error: error?.message || "Error al enviar" },
+      { error: (error as Error)?.message || "Error al enviar" },
       { status: 500 }
     );
   }

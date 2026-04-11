@@ -243,9 +243,9 @@ export async function POST(req: NextRequest) {
       } : null
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error generando nómina:", error);
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
   }
 }
 
@@ -334,8 +334,8 @@ export async function GET(req: NextRequest) {
       incidencias
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
   }
 }
 

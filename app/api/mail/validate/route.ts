@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ valid: false, error: "Contraseña incorrecta" }, { status: 401 });
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
 
     return NextResponse.json({ valid: false, error: "Error de conexión" }, { status: 500 });
   }

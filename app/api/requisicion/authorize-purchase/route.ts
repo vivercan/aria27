@@ -131,8 +131,8 @@ export async function POST(request: NextRequest) {
       total 
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
   }
 }
 

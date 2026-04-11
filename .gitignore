@@ -66,3 +66,4 @@ ARIA27_EXTRACCION_TOTAL.txt
 .env.local
 .env.production
 
+.github/

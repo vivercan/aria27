@@ -88,9 +88,9 @@ export default function OpinionesPage() {
 
       await loadDocs();
       flash("ok", "Archivo subido correctamente");
-    } catch (err: any) {
+    } catch (err: unknown) {
 
-      flash("err", "Error al subir: " + (err?.message || "desconocido"));
+      flash("err", "Error al subir: " + ((err as Error)?.message || "desconocido"));
     } finally {
       setUploading(null);
       setUploadTarget(null);

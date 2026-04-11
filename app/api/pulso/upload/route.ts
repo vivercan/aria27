@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
       archivo_nombre: file.name,
       path,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error upload pulso:", error);
-    return NextResponse.json({ error: error?.message || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }

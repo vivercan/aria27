@@ -185,8 +185,8 @@ export async function POST(req: NextRequest) {
       inventario_actualizado: itemsInventario,
       obra_id_usado: obraIdFinal
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("[REGISTRAR-ENTREGA]", error);
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 });
   }
 }

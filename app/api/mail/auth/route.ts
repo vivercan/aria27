@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
       maxAge: MAX_AGE,
     });
     return res;
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || "Error" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error)?.message || "Error" }, { status: 500 });
   }
 }
 
