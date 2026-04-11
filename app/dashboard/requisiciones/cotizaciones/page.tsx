@@ -126,8 +126,8 @@ export default function CotizacionesIAPage() {
       } else {
         setError(data.error || "Error en la búsqueda");
       }
-    } catch (e: any) {
-      setError(e?.message || "Error de conexión");
+    } catch (e: unknown) {
+      setError(((e as Error)?.message) || "Error de conexión");
     } finally {
       setBuscando(false);
     }

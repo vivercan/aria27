@@ -208,8 +208,8 @@ export default function CotizacionesClientesPage() {
       setItems([{ ...ITEM_INIT }]);
       flash("ok", editId ? "Cotización actualizada" : "Cotización creada");
       await cargar();
-    } catch (e: any) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -363,7 +363,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             
           }
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
 
       }
     }

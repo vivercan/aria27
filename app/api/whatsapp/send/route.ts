@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, messageId: data.messages?.[0]?.id });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e?.message }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ success: false, error: ((e as Error)?.message) }, { status: 500 });
   }
 }

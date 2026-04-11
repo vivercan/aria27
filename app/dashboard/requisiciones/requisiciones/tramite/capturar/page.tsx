@@ -194,9 +194,9 @@ function CapturarContent() {
       if (stErr) throw stErr;
       resetForm();
       await loadAll();
-    } catch (e: any) {
+    } catch (e: unknown) {
 
-      const msg = e?.message || e?.error_description || JSON.stringify(e);
+      const msg = ((e as Error)?.message) || ((e as any)?.error_description) || JSON.stringify(e);
       flash("err", "Error al guardar cotizacion: " + msg);
     } finally {
       setSaving(false);

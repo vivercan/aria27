@@ -131,7 +131,7 @@ export default function VehiculosPage() {
     try {
       await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
       flash("ok", "Vehículo eliminado");
-    } catch (e: any) { flash("err", e?.message || "Error"); }
+    } catch (e: unknown) { flash("err", ((e as Error)?.message) || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" });
     cargar();
   };

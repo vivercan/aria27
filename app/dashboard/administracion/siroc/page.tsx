@@ -132,8 +132,8 @@ export default function SIROCPage() {
         });
         flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar();
       }
-    } catch (e: any) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
     }
     setGuardando(false);
   };
@@ -155,7 +155,7 @@ export default function SIROCPage() {
     try {
       const r = await deleteRowAndBlob({ table: "siroc", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
       flash(r.blobDeleted ? "ok" : "err", r.blobDeleted ? "Eliminado correctamente" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: any) { flash("err", "Error: " + (e?.message || "desconocido")); }
+    } catch (e: unknown) { flash("err", "Error: " + (((e as Error)?.message) || "desconocido")); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

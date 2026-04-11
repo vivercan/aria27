@@ -192,8 +192,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, resumen, paginas });
-  } catch (e: any) {
-    log.error("analizar error", { err: e?.message, stack: e?.stack?.slice(0, 300) });
+  } catch (e: unknown) {
+    log.error("analizar error", { err: ((e as Error)?.message), stack: ((e as Error)?.stack)?.slice(0, 300) });
     // EXP-003 FIX: Usar archivoId del scope exterior en vez de re-consumir req.json()
     if (archivoId) {
       try {
@@ -203,6 +203,6 @@ export async function POST(req: NextRequest) {
           .eq("id", archivoId);
       } catch {}
     }
-    return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: ((e as Error)?.message) || "Error interno" }, { status: 500 });
   }
 }

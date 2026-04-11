@@ -114,7 +114,7 @@ export default function ProveedoresPage() {
         if (error) { flash("err", "Error al crear proveedor: " + error.message); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    } catch(e: any) { flash("err", "Error: " + (e?.message || "desconocido")); }
+    } catch(e: unknown) { flash("err", "Error: " + (((e as Error)?.message) || "desconocido")); }
     finally { setSaving(false); }
   };
 

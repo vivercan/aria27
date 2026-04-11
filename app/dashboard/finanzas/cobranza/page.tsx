@@ -107,8 +107,8 @@ export default function CobranzaPage() {
       });
       setCobroModal(null);
       await loadData();
-    } catch (e: any) {
-      flash("err", e?.message || "Error desconocido al registrar cobro");
+    } catch (e: unknown) {
+      flash("err", ((e as Error)?.message) || "Error desconocido al registrar cobro");
     } finally {
       setCobroSaving(false);
     }

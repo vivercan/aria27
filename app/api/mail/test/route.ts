@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
 
     log.info("Test email enviado", { id: data?.id });
     return NextResponse.json({ ok: true, id: data?.id });
-  } catch (e: any) {
-    log.error("Exception en test email", { error: e?.message });
-    return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
+  } catch (e: unknown) {
+    log.error("Exception en test email", { error: ((e as Error)?.message) });
+    return NextResponse.json({ error: ((e as Error)?.message) || "Error interno" }, { status: 500 });
   }
 }

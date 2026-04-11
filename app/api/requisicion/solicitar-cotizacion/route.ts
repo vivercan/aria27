@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
             html: emailHtml,
           });
           emailsSent++;
-        } catch (e: any) {
-          errors.push(`Email ${prov.name}: ${e?.message}`);
+        } catch (e: unknown) {
+          errors.push(`Email ${prov.name}: ${((e as Error)?.message)}`);
         }
       }
 
@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
           );
           if (result.success) whatsappSent++;
           else errors.push(`WA ${prov.name}: ${result.error}`);
-        } catch (e: any) {
-          errors.push(`WA ${prov.name}: ${e?.message}`);
+        } catch (e: unknown) {
+          errors.push(`WA ${prov.name}: ${((e as Error)?.message)}`);
         }
       }
     }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       errors: errors.length > 0 ? errors : undefined,
     });
 
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: ((e as Error)?.message) }, { status: 500 });
   }
 }

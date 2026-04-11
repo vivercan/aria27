@@ -88,8 +88,8 @@ export default function DocumentosPage() {
     try {
       await backupAndDelete({ table: "documentos_plantilla", id: deleteModal.id, userEmail });
       flash("ok", "Eliminado correctamente");
-    } catch (e: any) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
     }
     setDeleteModal({open:false,id:"",name:""});
     cargar();

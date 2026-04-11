@@ -163,8 +163,8 @@ export default function BibliotecaPlantillasPage() {
       }
       reset();
       cargar();
-    } catch (e: any) {
-      showFlash("err", "Error: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      showFlash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
     }
     setSaving(false);
   };
@@ -203,8 +203,8 @@ export default function BibliotecaPlantillasPage() {
           }
           showFlash("ok", "Eliminado correctamente");
           cargar();
-        } catch (e: any) {
-          showFlash("err", "Error: " + (e?.message || "desconocido"));
+        } catch (e: unknown) {
+          showFlash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
         }
       }
     });

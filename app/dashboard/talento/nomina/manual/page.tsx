@@ -235,9 +235,9 @@ export default function NominaManualPage() {
       flash("ok", "Cambios guardados correctamente");
       setMensaje({ tipo: "success", texto: "✅ Cambios guardados correctamente" });
       await cargarAsistencias();
-    } catch (e: any) {
-      flash("err", "Error: " + (e?.message ?? "desconocido"));
-      setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
+    } catch (e: unknown) {
+      flash("err", "Error: " + (((e as Error)?.message) ?? "desconocido"));
+      setMensaje({ tipo: "error", texto: ((e as Error)?.message) ?? "Error" });
     }
 
     setGuardando(false);

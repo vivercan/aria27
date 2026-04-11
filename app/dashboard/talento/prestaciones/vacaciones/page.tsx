@@ -49,13 +49,13 @@ export default function VacacionesPage() {
   const cargarDatos = async () => {
     const { data: vac } = await supabase
       .from("vacaciones_empleados")
-      .select("*, employee:Personal(full_name, position)")
+      .select("*, employee:employee_id(full_name, position)")
       .eq("anio", new Date().getFullYear());
     if (vac) setVacaciones(vac);
 
     const { data: sol } = await supabase
       .from("solicitudes_vacaciones")
-      .select("*, employee:Personal(full_name)")
+      .select("*, employee:employee_id(full_name)")
       .order("created_at", { ascending: false });
     if (sol) setSolicitudes(sol);
 

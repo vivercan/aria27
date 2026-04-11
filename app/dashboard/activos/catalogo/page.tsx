@@ -106,7 +106,7 @@ export default function ActivosCatalogoPage() {
       setActivos(act);
     }
 
-    const { data: asig, error: asigError } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:Personal(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
+    const { data: asig, error: asigError } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:empleado_id(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
     if (asigError) {
     } else if (asig) {
       setAsignaciones(asig);

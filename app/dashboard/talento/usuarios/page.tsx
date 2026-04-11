@@ -95,8 +95,8 @@ export default function UsuariosPage() {
         flash("err", "No se pudo guardar el usuario: " + (j.error || "error desconocido"));
         return;
       }
-    } catch (e: any) {
-      flash("err", "Error de red: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      flash("err", "Error de red: " + (((e as Error)?.message) || "desconocido"));
       return;
     }
     setEditingId(null);

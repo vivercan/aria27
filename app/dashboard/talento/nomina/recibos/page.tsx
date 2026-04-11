@@ -240,8 +240,8 @@ export default function RecibosNominaPage() {
       a.click();
       URL.revokeObjectURL(url);
       setMensaje({ tipo: "success", texto: `Exportado: Nomina_Sem${semanaInfo.semana}_${semanaInfo.anio}.xlsx` });
-    } catch (e: any) {
-      setMensaje({ tipo: "error", texto: e?.message || "Error exportando" });
+    } catch (e: unknown) {
+      setMensaje({ tipo: "error", texto: ((e as Error)?.message) || "Error exportando" });
     }
     setExportando(false);
   };

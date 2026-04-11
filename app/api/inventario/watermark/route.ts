@@ -62,9 +62,9 @@ export async function POST(req: NextRequest) {
       url: urlData?.publicUrl || null,
       size: watermarked.length,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json(
-      { error: e?.message || "error procesando imagen" },
+      { error: ((e as Error)?.message) || "error procesando imagen" },
       { status: 500 }
     );
   }

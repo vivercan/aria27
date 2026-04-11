@@ -146,8 +146,8 @@ export default function CobranzaManualPage() {
       setEditId(null);
       setForm({ ...FORM_INIT });
       await cargar();
-    } catch (e: any) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+    } catch (e: unknown) {
+      flash("err", "Error: " + (((e as Error)?.message) || "desconocido"));
     } finally {
       setSaving(false);
     }

@@ -150,8 +150,8 @@ export default function ImportCSV() {
       }
       try {
         valid.push(def.mapRow(r));
-      } catch (e: any) {
-        invalid.push({ row: i + 2, err: e?.message || "Error al parsear" });
+      } catch (e: unknown) {
+        invalid.push({ row: i + 2, err: ((e as Error)?.message) || "Error al parsear" });
       }
     });
     setDryRun({ valid, invalid });
