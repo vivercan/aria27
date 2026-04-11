@@ -119,7 +119,7 @@ function KPI({ label, value, color }: { label: string; value: string; color: str
     </div>
   );
 }
-function Section({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
+function Section({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-white/5 border border-white/10 p-4">
       <div className="flex items-center gap-2 mb-3"><Icon className="w-4 h-4 text-slate-400" /><h3 className="text-sm font-semibold text-white">{title}</h3></div>

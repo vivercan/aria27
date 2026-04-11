@@ -35,7 +35,7 @@ interface SirocRegistro {
   created_at: string;
 }
 
-const EMPTY: any = {
+const EMPTY: Record<string, string | number | boolean> = {
   obra: "", registro_patronal: "", numero_siroc: "", clase_riesgo: "III",
   tipo_obra: "", modalidad: "PROPIA", fecha_inicio: "", fecha_fin_estimada: "",
   fecha_fin_real: "", importe_total: 0, monto_ejercido: 0, superficie_construccion: 0,

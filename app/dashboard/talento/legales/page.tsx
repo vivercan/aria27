@@ -57,7 +57,7 @@ export default function LegalesPage() {
   };
 
 
-  const startEdit = (e: any) => {
+  const startEdit = (e: Empleado) => {
     setEditingId(e.id);
     setEditForm({ rfc: e.rfc || "", curp: e.curp || "", nss: e.nss || "", tipo_contrato: e.tipo_contrato || "" });
   };

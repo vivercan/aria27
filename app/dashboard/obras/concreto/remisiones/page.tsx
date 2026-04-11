@@ -38,8 +38,8 @@ interface Cilindro {
   created_at: string;
 }
 
-const EMPTY_REM: any = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
-const EMPTY_CIL: any = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
+const EMPTY_REM: Record<string, string | number | boolean> = { obra: "", proveedor: "", numero_remision: "", fecha_colado: "", resistencia_fc: "f'c=250 kg/cm2", revenimiento: 10, m3: 0, elemento: "", temperatura: 22, costo_unitario: 0, observaciones: "" };
+const EMPTY_CIL: Record<string, string | number | boolean> = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
 
 export default function ConcretoRemisionesPage() {
   const { msg, flash, clear } = useFlashMessage();

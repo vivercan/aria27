@@ -116,7 +116,7 @@ export default function CobranzaManualPage() {
     else if (form.saldo > 0 && form.saldo < form.monto && estatus !== "CANCELADO") estatus = "PARCIAL";
     else if (form.saldo === form.monto && estatus !== "CANCELADO") estatus = "PENDIENTE";
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
       obra_id: form.obra_id || null,

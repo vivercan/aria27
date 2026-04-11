@@ -79,16 +79,16 @@ export default function PipelinePage() {
   const guardarManual = async () => {
     if (!validarManual()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
-    const payload: any = { ...form };
+    const payload = { ...form };
     // Calcular presupuesto total = contratado + ampliaciones (si ambos presentes)
-    const contratado = parseFloat(payload.presupuesto_contratado) || 0;
-    const ampliaciones = parseFloat(payload.presupuesto_ampliaciones) || 0;
+    const contratado = parseFloat(String(payload.presupuesto_contratado)) || 0;
+    const ampliaciones = parseFloat(String(payload.presupuesto_ampliaciones)) || 0;
     if (contratado > 0 || ampliaciones > 0) {
       payload.presupuesto_contratado = contratado;
       payload.presupuesto_ampliaciones = ampliaciones;
       payload.presupuesto = contratado + ampliaciones;
     } else if (payload.presupuesto) {
-      payload.presupuesto = parseFloat(payload.presupuesto);
+      payload.presupuesto = parseFloat(String(payload.presupuesto));
     }
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
@@ -130,7 +130,7 @@ export default function PipelinePage() {
     setGuardando(true);
     let ok = 0;
     for (const row of excelData) {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         nombre: row["NOMBRE"] || row["nombre"] || row["Obra"] || row["obra"] || null,
         direccion: row["UBICACION"] || row["ubicacion"] || row["Ubicación"] || null,
         cliente: row["CLIENTE"] || row["cliente"] || row["Cliente"] || null,

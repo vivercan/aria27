@@ -118,7 +118,7 @@ export default function MovimientosBancariosPage() {
 
   async function aplicarMatch(tipo: "cobro" | "oc", id: string, ref: string) {
     if (!matchModal) return;
-    const update: any = { status_match: "MATCHED", referencia: ref };
+    const update: Record<string, unknown> = { status_match: "MATCHED", referencia: ref };
     if (tipo === "cobro") update.cobro_id = id;
     else update.oc_id = id;
     const { error } = await supabase.from("conciliacion_bancaria").update(update).eq("id", matchModal.id);

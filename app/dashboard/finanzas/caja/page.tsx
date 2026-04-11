@@ -126,7 +126,7 @@ export default function CajaChicaPage() {
     const monto = parseFloat(monto_autorizado);
     if (!monto || monto <= 0) { flash("err", "Monto autorizado debe ser mayor a 0"); return; }
     setSaving(true);
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       nombre: nombre.trim(),
       obra_id: fondoForm.obra_id || null,
       responsable_id: fondoForm.responsable_id || null,

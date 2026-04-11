@@ -101,7 +101,7 @@ export default function TareasPage() {
     setGuardando(true);
 
     const obra = obras.find(o => o.id === Number(form.obra_id));
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       titulo: form.titulo.trim(),
       responsable: form.responsable?.trim() || null,
       fecha_limite: form.fecha_limite || null,

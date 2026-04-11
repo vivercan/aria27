@@ -93,7 +93,7 @@ export default function PlanosPage() {
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
     const ext = form.file?.name?.split(".").pop()?.toLowerCase() || form.tipo_archivo || "pdf";
-    const basePayload: any = {
+    const basePayload: Record<string, unknown> = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       nombre: form.nombre.trim(), disciplina: form.disciplina,
       revision: form.revision,

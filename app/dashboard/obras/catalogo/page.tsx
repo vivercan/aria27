@@ -102,9 +102,9 @@ export default function CatalogoObrasPage() {
   const guardar = async () => {
     if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setSaving(true);
-    const payload: any = { ...form, updated_at: new Date().toISOString() };
+    const payload = { ...form, updated_at: new Date().toISOString() };
     if (payload.presupuesto === "" || payload.presupuesto === null) payload.presupuesto = null;
-    else payload.presupuesto = parseFloat(payload.presupuesto);
+    else payload.presupuesto = parseFloat(String(payload.presupuesto));
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {

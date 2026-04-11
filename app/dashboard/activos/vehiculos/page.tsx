@@ -90,7 +90,7 @@ export default function VehiculosPage() {
     if (!validar()) return;
     setGuardando(true);
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       nombre: form.nombre.trim(),
       codigo: form.codigo?.trim() || null,
       tipo: "VEHICULO",

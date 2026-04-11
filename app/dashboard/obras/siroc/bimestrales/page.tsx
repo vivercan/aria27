@@ -52,7 +52,7 @@ function bimestreActual(): { anio: number; bimestre: string } {
   return { anio, bimestre: codes[m] };
 }
 
-const EMPTY: any = {
+const EMPTY: Record<string, string | number | boolean> = {
   siroc_registro_id: "", anio: new Date().getFullYear(), bimestre: bimestreActual().bimestre,
   monto_ejercido_periodo: 0, monto_ejercido_acumulado: 0, trabajadores_promedio: 0,
   fecha_reporte: new Date().toISOString().slice(0, 10), estatus: "PRESENTADO", observaciones: ""

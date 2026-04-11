@@ -110,7 +110,7 @@ export default function ClientesPage() {
   const guardar = async () => {
     if (!validar()) return;
     setSaving(true);
-    const payload: any = { ...form };
+    const payload = { ...form };
     payload.dias_credito = parseInt(payload.dias_credito) || 0;
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
     payload.estatus = form.estatus || "ACTIVO";

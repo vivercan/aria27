@@ -102,7 +102,7 @@ export default function SUAFinanzasPage() {
     const obraObj = obras.find(o => o.id === form.obra_id);
 
     setSaving(true);
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       tipo: form.tipo,
       periodo: form.periodo.trim(),
       obra_id: form.obra_id || null,

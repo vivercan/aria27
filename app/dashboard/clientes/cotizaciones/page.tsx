@@ -159,7 +159,7 @@ export default function CotizacionesClientesPage() {
       folio = `COT-${yr}-${String((count || 0) + 1).padStart(4, "0")}`;
     }
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       folio,
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
@@ -344,7 +344,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         if (!existente) {
           const monto = Number(c.total) || 0;
           if (monto > 0 && c.cliente_id) {
-            const payload: any = {
+            const payload: Record<string, unknown> = {
               cliente_id: c.cliente_id,
               cliente_nombre: c.cliente_nombre,
               obra_id: c.obra_id || null,
