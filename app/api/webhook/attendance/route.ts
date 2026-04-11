@@ -80,7 +80,7 @@ Si no puedes leer algo, pon null en ese campo.` }
     const text = result.content?.[0]?.text || "{}";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-  } catch (error) {
+  } catch (error: unknown) {
     return null;
   }
 }
@@ -117,7 +117,7 @@ Si no parece ser un gasto, responde: {"esGasto": false}`
     const responseText = result.content?.[0]?.text || "{}";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-  } catch (error) {
+  } catch (error: unknown) {
     return null;
   }
 }
@@ -129,7 +129,7 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
     });
     const data = await response.json();
     return { url: data.url, mimeType: data.mime_type };
-  } catch (error) {
+  } catch (error: unknown) {
     return null;
   }
 }
@@ -183,7 +183,7 @@ Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dic
     const text = result.content?.[0]?.text || "{}";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("Error extractInventarioFromImage:", error);
     return null;
   }
@@ -732,7 +732,7 @@ Para *ENTRADA DE MATERIAL*:
     }
 
     return NextResponse.json({ status: "unhandled type" });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("Webhook error:", error);
     return NextResponse.json({ status: "error" }, { status: 500 });
   }

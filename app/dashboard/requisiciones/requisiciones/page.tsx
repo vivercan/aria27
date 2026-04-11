@@ -78,7 +78,7 @@ export default function RequisicionesPage() {
       link.download = `Requisiciones_ARIA_${new Date().toISOString().split("T")[0]}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setExportando(false);
   };
 

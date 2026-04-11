@@ -95,7 +95,7 @@ export default function CotizacionesClientesPage() {
       setCots(cotsConVencidas);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

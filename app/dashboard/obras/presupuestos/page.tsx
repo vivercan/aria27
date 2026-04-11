@@ -39,7 +39,7 @@ export default function PresupuestosPage() {
       setPartidas(data || []);
       const obrasUnicas = [...new Set((data || []).map((p: any) => p.obra_nombre).filter(Boolean))];
       setObras(obrasUnicas as string[]);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

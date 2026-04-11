@@ -74,7 +74,7 @@ export default function FacturacionPage() {
         }
       }
       setUploadedFiles(filesMap);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -107,7 +107,7 @@ export default function FacturacionPage() {
       }
 
       return { xml: xmlUrl, pdf: pdfUrl };
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error loading files:", e);
       return { xml: null, pdf: null };
     }
@@ -164,7 +164,7 @@ export default function FacturacionPage() {
         total: total || (subtotal + iva),
         metodo_pago: metodoPago,
       };
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error parsing CFDI XML:", e);
       return null;
     }
@@ -204,9 +204,9 @@ export default function FacturacionPage() {
       setFacturaFiles({ xml: null, pdf: null });
       setShowUploadModal(false);
       flash("ok", "Archivos subidos exitosamente");
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Upload error:", e);
-      flash("err", "Error al subir archivos: " + (e instanceof Error ? e.message : "Desconocido"));
+      flash("err", "Error al subir archivos: " + (e instanceof Error ? (e as Error).message : "Desconocido"));
     } finally {
       setUploading(false);
     }

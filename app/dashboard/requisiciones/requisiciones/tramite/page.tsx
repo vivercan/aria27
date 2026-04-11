@@ -252,11 +252,11 @@ Responde SOLO con JSON así:
             const parsed = JSON.parse(match[0]);
             setProveedoresIA(parsed.slice(0, 5));
           }
-        } catch (e) {
+        } catch (e: unknown) {
           console.error("Error parsing:", e);
         }
       }
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
     } finally {
       setBuscandoIA(false);
@@ -288,7 +288,7 @@ Responde SOLO con JSON así:
         return;
       }
       setResultadoSolicitud(data);
-    } catch (e) {
+    } catch (e: unknown) {
       setResultadoSolicitud({ error: "Error de conexion" });
     } finally {
       setSolicitando(false);
@@ -342,7 +342,7 @@ Responde SOLO con JSON así:
       setItems([]);
       setProveedoresIA([]);
       loadData();
-    } catch (e) {
+    } catch (e: unknown) {
       flash("err", "Error al enviar");
     } finally {
       setSending(false);

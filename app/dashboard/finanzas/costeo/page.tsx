@@ -117,7 +117,7 @@ export default function CosteoPage() {
       });
 
       setObras(result);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

@@ -1,4 +1,7 @@
 import sharp from "sharp";
+import { logger } from "@/lib/logger";
+
+const log = logger("WATERMARK");
 
 // ============================================================
 // Bitmap Font 5×7 — renderiza texto como pixeles puros.
@@ -192,7 +195,7 @@ export async function processAndUploadPhoto(args: {
     });
 
   if (error) {
-    console.error("[watermark] upload error:", (error as {message?: string})?.message || "Error");
+    log.error("Upload error", { error: (error as {message?: string})?.message || "Error" });
     return null;
   }
 

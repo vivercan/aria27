@@ -135,7 +135,7 @@ export default function InventarioObraPage() {
   // ====== LOADERS ======
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
-    if (error) { console.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido"); }
+    if (error) { console.error("Error loading obras:", error.message); }
     setObras(data || []);
     setLoading(false);
   };
@@ -143,7 +143,7 @@ export default function InventarioObraPage() {
   const loadInventario = async (obraId: number) => {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
-    if (error) { console.error("Error loading inventario:", (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { console.error("Error loading inventario:", error.message); return; }
     // Enriquecer con último usuario de movimientos
     const items: ItemInventario[] = data || [];
     if (items.length > 0) {
@@ -169,7 +169,7 @@ export default function InventarioObraPage() {
     const { data, error } = await supabase
       .from("entregas").select("*").eq("obra_nombre", obraNombre)
       .eq("status", "RECIBIDO").order("fecha_entrega", { ascending: false }).limit(10);
-    if (error) { console.error("Error loading entregas:", (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { console.error("Error loading entregas:", error.message); return; }
     setEntregas(data || []);
   };
 
@@ -196,7 +196,7 @@ export default function InventarioObraPage() {
       }
       return data.url;
     } catch (e: unknown) {
-      flash("err", "Error al subir foto: " + ((e as {message?: string})?.message || "error"));
+      flash("err", "Error al subir foto: " + (e?.message || "error"));
       return null;
     }
   };
@@ -328,7 +328,7 @@ export default function InventarioObraPage() {
 
       setShowNuevo(false);
       loadInventario(obraSeleccionada.id);
-    } catch (err: unknown) {
+    } catch (err) {
       flash("err", "Error inesperado: " + (err as Error).message);
     }
     setGuardando(false);
@@ -368,7 +368,7 @@ export default function InventarioObraPage() {
         .eq("cantidad_disponible", entradaItem.cantidad_disponible)
         .select("id");
 
-      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setGuardando(false); return; }
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
         flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
@@ -393,7 +393,7 @@ export default function InventarioObraPage() {
 
       setShowEntrada(false);
       loadInventario(obraSeleccionada.id);
-    } catch (err: unknown) {
+    } catch (err) {
       flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
@@ -430,7 +430,7 @@ export default function InventarioObraPage() {
         .eq("cantidad_usada", salidaItem.cantidad_usada)
         .select("id");
 
-      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setGuardando(false); return; }
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
         flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
@@ -454,7 +454,7 @@ export default function InventarioObraPage() {
 
       setShowSalida(false);
       loadInventario(obraSeleccionada.id);
-    } catch (err: unknown) {
+    } catch (err) {
       flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
@@ -550,7 +550,7 @@ export default function InventarioObraPage() {
         .eq("cantidad_usada", expectedUsada)
         .select("id");
 
-      if (error) { flash("err", "Error en ajuste: " + (error as {message?: string})?.message || "Error desconocido"); setGuardando(false); return; }
+      if (error) { flash("err", "Error en ajuste: " + error.message); setGuardando(false); return; }
       if (!rows || rows.length === 0) {
         flash("err", "Otro usuario modificó este ítem. Recarga y verifica.");
         loadInventario(obraSeleccionada.id);
@@ -575,7 +575,7 @@ export default function InventarioObraPage() {
 
       setShowAjuste(null);
       loadInventario(obraSeleccionada.id);
-    } catch (err: unknown) {
+    } catch (err) {
       flash("err", "Error: " + (err as Error).message);
     }
     setGuardando(false);
@@ -1248,3 +1248,4 @@ export default function InventarioObraPage() {
     </div>
   );
 }
+                                                                  

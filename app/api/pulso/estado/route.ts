@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("Users").update(updates).eq("email", email);
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
       .select("email, display_name, name, last_seen, status, status_message")
       .eq("active", true);
     return NextResponse.json({ usuarios: data || [] });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-ESTADO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

@@ -170,7 +170,7 @@ export async function validateApiUser(
     }
 
     return { email: user.email, role: user.role };
-  } catch (err) {
+  } catch (err: unknown) {
     log.error("validateApiUser: error al consultar BD", { email: userEmail, error: err });
     return null;
   }

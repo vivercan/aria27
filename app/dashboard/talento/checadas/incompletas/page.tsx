@@ -32,7 +32,7 @@ export default function IncompletasPage() {
       setIncompletas(data.incompletas || []);
       setSinRegistro(data.sinRegistro || []);
       setPeriodo(data.periodo || null);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error:", error);
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export default function IncompletasPage() {
         const err = await res.json();
         setMensaje({ tipo: "error", texto: err.error || "Error al registrar" });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setMensaje({ tipo: "error", texto: "Error de conexión" });
     } finally {
       setProcesando(null);
@@ -90,7 +90,7 @@ export default function IncompletasPage() {
         const err = await res.json();
         setMensaje({ tipo: "error", texto: err.error || "Error al crear" });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setMensaje({ tipo: "error", texto: "Error de conexión" });
     } finally {
       setProcesando(null);
@@ -119,7 +119,7 @@ export default function IncompletasPage() {
           })
         });
         if (res.ok) creadas++;
-      } catch (e) {}
+      } catch (e: unknown) {}
     }
     
         setProcesando(null);
@@ -149,7 +149,7 @@ export default function IncompletasPage() {
           })
         });
         if (res.ok) completadas++;
-      } catch (e) {}
+      } catch (e: unknown) {}
     }
     
         setProcesando(null);

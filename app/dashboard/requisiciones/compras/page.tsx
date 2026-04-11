@@ -178,7 +178,7 @@ export default function ComprasPickingPage() {
         } else {
           flash("err", "Error: " + (data.error || "desconocido"));
         }
-      } catch (e) {
+      } catch (e: unknown) {
         flash("err", "Error de conexion");
       } finally {
         setAuthorizing(false);

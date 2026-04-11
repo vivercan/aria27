@@ -40,7 +40,7 @@ export default function CobranzaPage() {
     try {
       const { data } = await supabase.from("estimaciones").select("*").order("created_at", { ascending: false });
       setEstimaciones(data || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

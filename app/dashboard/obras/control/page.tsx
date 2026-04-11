@@ -88,7 +88,7 @@ export default function ControlObrasPage() {
       setNomina((nh.data as NomRec[]) || []);
       setCobros((co.data as CobroRec[]) || []);
       setAvancesFis((av.data as AvanceRec[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setLoading(false);
   }
 

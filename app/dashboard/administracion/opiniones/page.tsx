@@ -54,7 +54,7 @@ export default function OpinionesPage() {
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

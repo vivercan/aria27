@@ -127,7 +127,7 @@ function ReporteContent() {
         pctFisico, semanaFisico, deltaFisFin,
         topOCs, topCobros, totalNominaRecs,
       });
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
     }
     setLoading(false);

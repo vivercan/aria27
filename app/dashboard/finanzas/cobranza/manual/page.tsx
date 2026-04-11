@@ -70,7 +70,7 @@ export default function CobranzaManualPage() {
       setCobros((c.data as Cobro[]) || []);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

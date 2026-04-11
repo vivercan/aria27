@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     }));
 
     return NextResponse.json({ conversaciones: resultado });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({ conversacion_id: conv.id, existia: false });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

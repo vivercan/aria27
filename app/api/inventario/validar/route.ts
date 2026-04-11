@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { logger } from "@/lib/logger";
+
+const log = logger("MATERIAL_VALIDAR");
 
 // ============================================================
 // API: POST /api/inventario/validar
@@ -146,9 +149,9 @@ REGLAS:
           if (parsed.nombreCorregido) nombreCorregido = parsed.nombreCorregido;
           if (parsed.razon) razon = parsed.razon;
         }
-      } catch (aiErr) {
+      } catch (aiErr: unknown) {
         // Si falla IA, usar Title Case manual sin bloquear
-        console.error("AI validation error:", aiErr);
+        log.error("AI validation error", { error: aiErr instanceof Error ? aiErr.message : String(aiErr) });
       }
     }
 
@@ -161,8 +164,8 @@ REGLAS:
       existeEnObra,
       razon,
     });
-  } catch (error) {
-    console.error("Error validar material:", error);
+  } catch (error: unknown) {
+    log.error("Error validar material", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }

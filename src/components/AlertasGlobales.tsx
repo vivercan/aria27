@@ -39,7 +39,7 @@ export default function AlertasGlobales() {
         setUserRole(data.role.toLowerCase());
         cargarAlertas(data.role.toLowerCase());
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error obteniendo rol:", error);
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function AlertasGlobales() {
       }
 
       setAlertas(alertasTemp);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error cargando alertas:", error);
     } finally {
       setLoading(false);

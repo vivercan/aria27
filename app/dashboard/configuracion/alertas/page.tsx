@@ -53,7 +53,7 @@ export default function AlertasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "alertas_atraso", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     // Reload alertas
     const { data } = await supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false });

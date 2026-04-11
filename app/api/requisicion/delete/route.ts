@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
 
         deletedCount++;
         log.info("deleted", { folio: reqData.folio, reqId });
-      } catch (err) {
+      } catch (err: unknown) {
         log.error("unexpected", { reqId, error: String(err) });
         errors.push(`Error inesperado en ${reqId}`);
       }
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       totalRequested: requisitionIds.length,
       errors: errors.length > 0 ? errors : undefined,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("general", { error: String(error) });
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }

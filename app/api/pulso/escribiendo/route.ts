@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         .eq("user_email", user_email);
     }
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-ESCRIBIENDO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       .neq("user_email", email || "");
 
     return NextResponse.json({ escribiendo: data?.map(d => d.user_email) || [] });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-ESCRIBIENDO]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

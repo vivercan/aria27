@@ -72,7 +72,7 @@ export default function PagosPage() {
         pendiente: totalSum - pagadoSum,
         ordenes: processed.length,
       });
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error cargando pagos:", e);
     } finally {
       setLoading(false);

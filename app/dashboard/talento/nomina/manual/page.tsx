@@ -289,7 +289,7 @@ export default function NominaManualPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "asistencias", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     cargarEmpleados();
   };

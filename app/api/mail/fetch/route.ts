@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
                   body: parsed.text || "",
                   html: parsed.html || "",
                 });
-              } catch (e) {
+              } catch (e: unknown) {
                 resolve({ body: "", html: "" });
               }
               imap.end();

@@ -125,7 +125,7 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
           error: "No se pudo parsear respuesta estructurada"
         };
       }
-    } catch (e) {
+    } catch (e: unknown) {
       resultado = { 
         analisis: resultadoTexto,
         proveedores_web: [],

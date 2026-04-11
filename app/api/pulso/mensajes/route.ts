@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ mensajes: mensajes || [] });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-MENSAJES]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       .eq("id", conversacion_id);
 
     return NextResponse.json({ mensaje: data });
-  } catch (error) {
+  } catch (error: unknown) {
     log.error("[PULSO-MENSAJES]", error);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

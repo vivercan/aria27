@@ -23,7 +23,6 @@ interface Estimacion {
   iva_pct: number;
   monto_iva: number;
   neto_a_cobrar: number;
-  amortizacion_anticipo?: number;
   status: string;
   fecha_presentacion: string | null;
   fecha_aprobacion: string | null;
@@ -97,8 +96,8 @@ export default function EstimacionesPage() {
 
       setEstimaciones(ests || []);
 
-      const obraNames = [...new Set((ests || []).map((e) => {
-        const match = obrasCat.find((o) => o.id === e.obra_id);
+      const obraNames = [...new Set((ests || []).map((e: any) => {
+        const match = obrasCat.find((o: any) => o.id === e.obra_id);
         return match?.nombre || "Obra no identificada";
       }))];
       setObras(obraNames as string[]);
@@ -114,7 +113,7 @@ export default function EstimacionesPage() {
         }
         setPartidas(pMap);
       }
-    } catch (e: unknown) {
+    } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
@@ -132,9 +131,9 @@ export default function EstimacionesPage() {
     setForm({ ...form, partidas: form.partidas.filter((_, i) => i !== idx) });
   }
 
-  function updatePartida(idx: number, field: keyof FormPartida, value: string | number) {
+  function updatePartida(idx: number, field: keyof FormPartida, value: any) {
     const newPartidas = [...form.partidas];
-    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(String(value)) || 0 };
+    newPartidas[idx] = { ...newPartidas[idx], [field]: field === "concepto" || field === "unidad" ? value : parseFloat(value) || 0 };
     setForm({ ...form, partidas: newPartidas });
   }
 
@@ -267,7 +266,7 @@ export default function EstimacionesPage() {
       .eq("id", estId);
 
     if (error) {
-      flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
+      flash("err", "Error: " + error.message);
     } else {
       loadData();
       if (selectedEstimacion?.id === estId) {
@@ -278,7 +277,7 @@ export default function EstimacionesPage() {
   }
 
   const getObraNombre = (obraId: string) => {
-    const obra = obrasCat.find((o) => o.id === obraId);
+    const obra = obrasCat.find((o: any) => o.id === obraId);
     return obra?.nombre || "Obra no identificada";
   };
 
@@ -381,13 +380,13 @@ export default function EstimacionesPage() {
               <select
                 value={form.obra_id}
                 onChange={(e) => {
-                  const obra = obrasCat.find((o) => o.id === e.target.value);
+                  const obra = obrasCat.find((o: any) => o.id === e.target.value);
                   setForm({ ...form, obra_id: e.target.value, obra_nombre: obra?.nombre || "" });
                 }}
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
               >
                 <option value="">-- Selecciona obra --</option>
-                {obrasCat.map((o) => (
+                {obrasCat.map((o: any) => (
                   <option key={o.id} value={o.id}>
                     {o.nombre}
                   </option>
@@ -842,3 +841,4 @@ export default function EstimacionesPage() {
     </div>
   );
 }
+                                                                                                                                                                              

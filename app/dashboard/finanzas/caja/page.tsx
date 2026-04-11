@@ -103,7 +103,7 @@ export default function CajaChicaPage() {
       setCortes((cRes.data || []).map((c: Corte) => ({ ...c, fondo_nombre: fondoMapTyped[c.fondo_id] || "?" })));
       setObras(obrasArr);
       setEmpleados(empleadosArr);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     finally { setLoading(false); }
   }
 

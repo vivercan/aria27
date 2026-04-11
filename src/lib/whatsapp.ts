@@ -150,14 +150,14 @@ export async function sendWhatsAppTemplate(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
-    console.error("[WhatsApp] [ERROR] Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
+    log.error("Credenciales faltantes", { token: !!token, phoneId: !!phoneId });
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
   // Validar plantilla existe
   const config = TEMPLATE_CONFIG[templateName];
   if (!config) {
-    console.error("[WhatsApp] [ERROR] Plantilla no configurada:", templateName);
+    log.error("Plantilla no configurada", { templateName });
     return { success: false, error: `Plantilla '${templateName}' no existe` };
   }
 
@@ -267,7 +267,7 @@ export async function sendWhatsAppLogged(
       enviado_por: opts.enviadoPor || null,
     });
   } catch (e: unknown) {
-    console.error("[WhatsApp] [LOG] No se pudo escribir wa_log:", (e as Error).message);
+    log.error("No se pudo escribir wa_log", { error: (e as Error).message });
   }
   return result;
 }

@@ -94,7 +94,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso?email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setConversaciones(data.conversaciones || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const cargarUsuarios = async () => {
@@ -126,7 +126,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       previousOnlineRef.current = currentOnline as Set<string>;
       
       setUsuarios(nuevosUsuarios);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const cargarMensajes = async (convId: string) => {
@@ -143,7 +143,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       }
       lastMsgCount.current = nuevosMsgs.length;
       setMensajes(nuevosMsgs);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const verificarEscribiendo = async (convId: string) => {
@@ -151,7 +151,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso/escribiendo?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setEscribiendo(data.escribiendo || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const notificarEscribiendo = async (escribiendoAhora: boolean) => {
@@ -162,7 +162,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversacion_id: convActiva.id, user_email: userEmail, escribiendo: escribiendoAhora })
       });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const abrirChat = async (otroEmail: string) => {
@@ -178,7 +178,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setConvActiva(conv as Conversacion);
       setVista("chat");
       lastMsgCount.current = 0;
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const enviarNudge = () => {
@@ -198,12 +198,12 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setNuevoMsg("");
       notificarEscribiendo(false);
       cargarMensajes(convActiva.id);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   const enviarArchivo = async (file: File) => {
     if (!convActiva || subiendoArchivo) return;
-    if (file.size > 10 * 1024 * 1024) { alert("Archivo muy grande (máx 10 MB)"); return; }
+    if (file.size > 10 * 1024 * 1024) { setToast("❌ Archivo muy grande (máx 10 MB)"); setTimeout(() => setToast(null), 3000); return; }
     setSubiendoArchivo(true);
     try {
       const fd = new FormData();
@@ -227,7 +227,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         })
       });
       cargarMensajes(convActiva.id);
-    } catch (e: unknown) { alert("Error al subir: " + (e as Error).message); }
+    } catch (e: unknown) { setToast("❌ Error al subir: " + (e as Error).message); setTimeout(() => setToast(null), 3000); }
     setSubiendoArchivo(false);
   };
 
@@ -300,7 +300,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: nuevoEstado, status_message: miMensaje })
       });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setVista("contactos");
   };
 
@@ -311,7 +311,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
       });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
   };
 
   // Ordenar: online primero, luego por último visto

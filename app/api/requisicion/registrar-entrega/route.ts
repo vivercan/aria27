@@ -13,7 +13,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to, subject, html }),
     });
-  } catch (e) { log.error("Error email:", e); }
+  } catch (e: unknown) { log.error("Error email:", e); }
 }
 
 async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {

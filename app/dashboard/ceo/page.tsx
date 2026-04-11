@@ -56,7 +56,7 @@ export default function CeoDashboardPage() {
       setNom((n.data as Nom[]) || []);
       setParts((pp.data as Part[]) || []);
       setAvs((a.data as Av[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setLoading(false);
   }
 

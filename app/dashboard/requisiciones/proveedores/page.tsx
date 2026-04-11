@@ -113,7 +113,7 @@ export default function ProveedoresPage() {
         if (error) { flash("err", "Error al crear proveedor: " + (error as {message?: string})?.message || "Error desconocido"); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    }catch(e){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
+    }catch (e: unknown){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{
@@ -126,7 +126,7 @@ export default function ProveedoresPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "suppliers", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     loadSuppliers();
   };

@@ -2,6 +2,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Trash2, Loader2 } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import type { FlashMsg } from "@/lib/use-flash-message";
 
 interface Carpeta {
   id: string;
@@ -27,6 +29,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   const [creatingIn, setCreatingIn] = useState<string | "root" | null>(null);
   const [newName, setNewName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<FlashMsg | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -59,7 +62,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
       created_by: email,
     });
     setSaving(false);
-    if (error) { alert("Error: " + (error as {message?: string})?.message || "Error"); return; }
+    if (error) { setMsg({tipo: "err", texto: "Error: " + (error as {message?: string})?.message || "Error"}); setTimeout(() => setMsg(null), 2500); return; }
     setNewName("");
     setCreatingIn(null);
     if (parentId) setExpanded(new Set(expanded).add(parentId));
@@ -69,7 +72,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   const borrar = async (id: string, nombre: string) => {
     if (!confirm(`Borrar "${nombre}" y todas sus subcarpetas?`)) return;
     const { error } = await supabase.from("arbol_carpetas").delete().eq("id", id);
-    if (error) { alert("Error: " + (error as {message?: string})?.message || "Error"); return; }
+    if (error) { setMsg({tipo: "err", texto: "Error: " + (error as {message?: string})?.message || "Error"}); setTimeout(() => setMsg(null), 2500); return; }
     if (selectedId === id) onSelect?.(null);
     cargar();
   };
@@ -131,6 +134,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
 
   return (
     <div className="h-full flex flex-col bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+      {msg && <FlashBanner msg={msg} className="mx-2 mt-2" />}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 flex-shrink-0">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
         <button

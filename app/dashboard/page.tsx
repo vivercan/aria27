@@ -104,7 +104,7 @@ export default function DashboardPage() {
           productosEnCatalogo: prods || 0,
           centrosDeCosto: centers || 0,
         });
-      } catch (error) {
+      } catch (error: unknown) {
       } finally {
         setLoading(false);
       }

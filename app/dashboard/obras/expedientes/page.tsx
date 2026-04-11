@@ -328,7 +328,7 @@ export default function ExpedientesPage() {
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
       return true;
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error al descargar:", e);
       return false;
     }
@@ -380,7 +380,7 @@ export default function ExpedientesPage() {
         body: JSON.stringify({ archivoId }),
       }).catch((err) => console.error("Error fetch análisis:", err));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error al disparar análisis:", e);
     }
   };
@@ -705,7 +705,7 @@ export default function ExpedientesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     setCarpetaSeleccionada(null);
     if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);

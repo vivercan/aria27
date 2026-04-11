@@ -209,7 +209,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
           if (psErr) { console.error("Error link product_supplier:", psErr); continue; }
         }
         saved++;setSavedCount(saved);
-      }catch(e){console.error("Error saving product:",e);}
+      }catch (e: unknown){console.error("Error saving product:",e);}
     }
     setSavingParsed(false);
     setTimeout(()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setUploadSuppId("");setSavedCount(0);loadProducts(currentPage);},1500);

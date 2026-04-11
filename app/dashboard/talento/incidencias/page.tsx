@@ -43,7 +43,7 @@ export default function IncidenciasPage() {
       setIncidencias(inc || []);
       const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
       setEmpleados(emps || []);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
+    } catch (e: unknown) { console.error(e); } finally { setLoading(false); }
   }
 
   async function guardar() {

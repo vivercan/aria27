@@ -150,7 +150,7 @@ export default function LicitacionesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e: unknown) { console.error(e); }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };
