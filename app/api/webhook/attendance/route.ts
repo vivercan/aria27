@@ -4,11 +4,11 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { validateMetaSignature, getWebhookVerifyToken } from "@/lib/webhook-hmac";
 const log = logger("WEBHOOK-ATTENDANCE");
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
-const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // ============== UTILIDADES ==============
@@ -579,7 +579,8 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
 // ============== WEBHOOK PRINCIPAL ==============
 export async function GET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
-  if (p.get("hub.mode") === "subscribe" && p.get("hub.verify_token") === VERIFY_TOKEN) {
+  const verifyToken = getWebhookVerifyToken();
+  if (p.get("hub.mode") === "subscribe" && verifyToken && p.get("hub.verify_token") === verifyToken) {
     return new NextResponse(p.get("hub.challenge"), { status: 200 });
   }
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -587,6 +588,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // HMAC SHA256 validation — Meta firma cada request con App Secret
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-hub-signature-256");
+    if (!validateMetaSignature(rawBody, signature)) {
+      log.warn("HMAC validation failed", { hasSignature: !!signature });
+      return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
+    }
+
     // RATE LIMIT: webhook publico — 30 req/min por IP (anti-abuso)
     const clientId = getClientIdentifier(request);
     const rl = checkRateLimit(clientId, { key: "wh:attendance", ...RATE_LIMITS.PUBLIC });
@@ -595,7 +604,7 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse(rl);
     }
 
-    const body = await request.json();
+    const body = JSON.parse(rawBody);
     const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (!message) return NextResponse.json({ status: "no message" });
 

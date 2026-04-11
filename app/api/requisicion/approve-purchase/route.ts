@@ -97,6 +97,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token requerido" }, { status: 400 });
     }
 
+    // Validar expiración del token (72h) — formato: UUID:epoch
+    const TOKEN_MAX_AGE_MS = 72 * 60 * 60 * 1000; // 72 horas
+    const tokenParts = token.split(":");
+    if (tokenParts.length >= 2) {
+      const tokenTimestamp = parseInt(tokenParts[tokenParts.length - 1], 10);
+      if (!isNaN(tokenTimestamp) && Date.now() - tokenTimestamp > TOKEN_MAX_AGE_MS) {
+        log.warn("Token expirado", { token: token.substring(0, 20), age_hours: ((Date.now() - tokenTimestamp) / 3600000).toFixed(1) });
+        return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x23F0;</div><h1 style="color:#f59e0b">Link Expirado</h1><p style="color:#94a3b8">Este enlace de autorizaci&oacute;n expir&oacute; despu&eacute;s de 72 horas.<br>Solicita una nueva requisici&oacute;n.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      }
+    }
+
     // Si no viene action, redirigir a la página de autorización
     if (!action) {
       return NextResponse.redirect(`${BASE_URL}/autorizar/${token}`);

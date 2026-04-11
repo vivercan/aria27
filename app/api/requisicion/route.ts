@@ -94,7 +94,8 @@ export async function POST(request: NextRequest) {
     }
 
     const folio = await getNextFolio();
-    const token = crypto.randomUUID();
+    // Token con timestamp para expiración (72h) — formato: UUID:epoch
+    const token = `${crypto.randomUUID()}:${Date.now()}`;
 
     // Determinar flujo: compras (default) o direccion (directo a autorización)
     let flujo = "compras";

@@ -36,7 +36,9 @@ function clearFailedAttempts(email: string) {
 }
 
 function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // Reforzada: mínimo 3 chars local, dominio con al menos 2 segmentos, TLD 2-10 chars
+  // Rechaza: a@b.c, user@localhost, emails con chars peligrosos
+  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,10})+$/.test(email) && email.length <= 254;
 }
 
 export interface AuthResult {
