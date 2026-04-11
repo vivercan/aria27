@@ -52,14 +52,14 @@ export async function PATCH(req: NextRequest) {
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 
-  let body: any;
+  let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
 
   const { id, role, permissions, email: newEmail, phone } = body || {};
   if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
   const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
-  if (role && !ALLOWED_ROLES.includes(role)) {
+  if (role && !ALLOWED_ROLES.includes(String(role))) {
     return NextResponse.json({ error: `rol invalido: ${role}` }, { status: 400 });
   }
   if (permissions && (typeof permissions !== "object" || Array.isArray(permissions))) {
@@ -73,9 +73,9 @@ export async function PATCH(req: NextRequest) {
   }
 
   const sb = getSupabaseAdmin();
-  const patch: any = {};
+  const patch: Record<string, string | Record<string, unknown>> = {};
   if (typeof role === "string") patch.role = role;
-  if (permissions !== undefined) patch.permissions = permissions;
+  if (permissions !== undefined) patch.permissions = permissions as Record<string, unknown>;
   if (typeof newEmail === "string" && newEmail.trim()) patch.email = newEmail.trim();
   if (typeof phone === "string") patch.phone = phone.trim();
 

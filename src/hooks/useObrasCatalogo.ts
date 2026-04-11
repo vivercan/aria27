@@ -21,7 +21,7 @@ import { supabase } from "@/lib/supabase";
 export interface ObraCatalogo {
   id: string;
   nombre: string;
-  [key: string]: any; // columnas extra si se piden con columns: "*"
+  [key: string]: unknown; // columnas extra si se piden con columns: "*"
 }
 
 interface UseObrasCatalogoOptions {

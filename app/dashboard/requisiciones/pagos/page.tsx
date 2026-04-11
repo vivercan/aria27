@@ -70,8 +70,8 @@ export default function PagosPage() {
 
       setOrders(processed as PurchaseOrder[]);
 
-      const totalSum = processed.reduce((s: number, o: any) => s + (Number(o.total) || 0), 0);
-      const pagadoSum = processed.reduce((s: number, o: any) => s + (o.pagado || 0), 0);
+      const totalSum = processed.reduce((s: number, o: Record<string, unknown>) => s + (Number(o.total) || 0), 0);
+      const pagadoSum = processed.reduce((s: number, o: Record<string, unknown>) => s + (Number(o.pagado) || 0), 0);
       setStats({
         total: totalSum,
         pagado: pagadoSum,

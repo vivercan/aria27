@@ -86,7 +86,7 @@ export default function OrdenesCompraPage() {
     if (!selectedPO || !poReq) return;
     setUpdatingStatus(true);
     
-    const updates: any = { status: newStatus };
+    const updates: Record<string, unknown> = { status: newStatus };
     if (newStatus === "RECIBIDA") {
       updates.received_at = new Date().toISOString();
       
@@ -158,7 +158,7 @@ export default function OrdenesCompraPage() {
     montoPendiente: orders.filter(o => o.status !== "RECIBIDA" && o.status !== "PAGADA").reduce((s, o) => s + (o.total || 0), 0),
   };
 
-  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
+  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: typeof FileText }> = {
     GENERADA: { label: "Generada", color: "text-blue-400", bg: "bg-blue-500/20", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
     RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },

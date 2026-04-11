@@ -17,7 +17,7 @@ import { EntityFolderDrawer } from "@/components/EntityFolder";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
-  email: string | null; address: string | null; categories: any;
+  email: string | null; address: string | null; categories: string | string[] | null;
   contact_name: string | null; credit_days: number | null; active: boolean;
   website: string | null; whatsapp: string | null; bank_name: string | null;
   bank_clabe: string | null; payment_method: string | null; razon_social: string | null;
@@ -67,7 +67,7 @@ export default function ProveedoresPage() {
   },[]);
   const categories = [...new Set(allCats.filter(Boolean))].sort();
 
-  const getCatDisplay = (cats:any):string[] => {
+  const getCatDisplay = (cats: string | string[] | null): string[] => {
     if(!cats) return [];
     if(Array.isArray(cats)) return cats.filter(Boolean);
     if(typeof cats==="string") return cats.split(",").map((c:string)=>c.trim()).filter(Boolean);

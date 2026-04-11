@@ -14,15 +14,15 @@ interface AuditRow {
   row_pk: string | null;
   actor: string | null;
   changed_at: string;
-  before: any;
-  after: any;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
 }
 
 interface DeletedRow {
   id: string;
   source_table: string;
   source_id: string;
-  data: any;
+  data: Record<string, unknown>;
   deleted_by: string | null;
   deleted_at: string;
   restore_notes: string | null;

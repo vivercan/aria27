@@ -4,13 +4,13 @@ import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ObraData {
-  partidas: any[];
-  requisitions: any[];
-  ocs: any[];
-  nomina: any[];
-  cobros: any[];
-  avances: any[];
-  bitacora: any[];
+  partidas: Record<string, unknown>[];
+  requisitions: Record<string, unknown>[];
+  ocs: Record<string, unknown>[];
+  nomina: Record<string, unknown>[];
+  cobros: Record<string, unknown>[];
+  avances: Record<string, unknown>[];
+  bitacora: Record<string, unknown>[];
 }
 
 export interface ObraKPIs {
@@ -128,8 +128,8 @@ export async function fetchObraData(
  * Calculates KPIs from obra data
  */
 export function calculateObraKPIs(data: ObraData): ObraKPIs {
-  const sumNum = (arr: any[], key: string) =>
-    arr.reduce((s, r) => s + Number(r[key] || 0), 0);
+  const sumNum = (arr: Record<string, unknown>[], key: string): number =>
+    arr.reduce((s: number, r: Record<string, unknown>) => s + Number(r[key] || 0), 0);
 
   const totalPpto = sumNum(data.partidas, "monto");
   const totalOC = sumNum(data.ocs, "total");
@@ -138,7 +138,7 @@ export function calculateObraKPIs(data: ObraData): ObraKPIs {
   const gastoTotal = totalOC + totalNomina;
   const margen = totalCobrado - gastoTotal;
   const saldoPpto = totalPpto - gastoTotal;
-  const ultAvance = data.avances[0]?.porcentaje_avance || 0;
+  const ultAvance = Number(data.avances[0]?.porcentaje_avance || 0);
 
   return {
     totalPpto,
@@ -232,7 +232,7 @@ export function addDataSheets(wb: ExcelJS.Workbook, data: ObraData): void {
     s3.addRow({
       ...o,
       created_at: o.created_at
-        ? new Date(o.created_at).toLocaleDateString("es-MX")
+        ? new Date(String(o.created_at) || "").toLocaleDateString("es-MX")
         : "",
     })
   );

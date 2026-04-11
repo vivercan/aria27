@@ -47,10 +47,10 @@ export default function OpinionesPage() {
         .eq("carpeta_id", "opiniones_cumplimiento")
         .order("created_at", { ascending: false });
       // vigencia se calcula client-side: created_at + 30 días (la columna no existe en BD)
-      const enriched = (data || []).map((d: any) => ({
+      const enriched = (data || []).map((d: Record<string, unknown>) => ({
         ...d,
         vigencia: d.created_at
-          ? new Date(new Date(d.created_at).getTime() + 30 * 86400000).toISOString().split("T")[0]
+          ? new Date(new Date(String(d.created_at) || "").getTime() + 30 * 86400000).toISOString().split("T")[0]
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
@@ -130,7 +130,7 @@ export default function OpinionesPage() {
     return docs.find(d => d.tipo === tipo);
   }
 
-  function getStatus(doc: OpinionDoc | undefined): { label: string; color: string; icon: any } {
+  function getStatus(doc: OpinionDoc | undefined): { label: string; color: string; icon: typeof AlertTriangle } {
     if (!doc) return { label: "Sin documento", color: "text-red-400", icon: AlertTriangle };
     if (doc.vigencia) {
       const today = new Date();

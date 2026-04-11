@@ -194,8 +194,17 @@ Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dic
   }
 }
 
+interface InventarioData {
+  material: string;
+  cantidad?: number;
+  unidad?: string;
+  obra?: string;
+  _caption?: string;
+  proveedor?: string;
+}
+
 // ============== MANEJAR ENTRADA DE INVENTARIO VÍA WHATSAPP ==============
-async function handleInventarioWhatsApp(from: string, phone10: string, invData: any, imageUrl: string) {
+async function handleInventarioWhatsApp(from: string, phone10: string, invData: InventarioData, imageUrl: string) {
   const material = invData.material;
   const cantidad = invData.cantidad || 1;
   const unidad = invData.unidad || "PZA";
@@ -310,8 +319,17 @@ async function findEmpleado(phone10: string, fullPhone: string) {
   return data?.[0] || null;
 }
 
+interface GastoData {
+  fecha?: string;
+  obra?: string;
+  descripcion?: string;
+  proveedor?: string;
+  monto?: number;
+  categoria?: string;
+}
+
 // ============== MANEJAR GASTO ==============
-async function handleGasto(from: string, phone10: string, gastoData: any, imageUrl?: string) {
+async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
   const today = new Date();
   const fecha = gastoData.fecha || today.toISOString().split("T")[0];
   const semana = getWeekNumber(today);

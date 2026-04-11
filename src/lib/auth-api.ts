@@ -122,9 +122,9 @@ export async function validateApiAuth(
 /**
  * Helper para extraer user_email de body JSON o query params
  */
-export function extractUserEmail(req: NextRequest, body?: any): string | null {
+export function extractUserEmail(req: NextRequest, body?: Record<string, unknown>): string | null {
   // 1. Intentar del body
-  if (body?.user_email) return body.user_email;
+  if (body?.user_email) return String(body.user_email);
 
   // 2. Intentar del query param
   const emailParam = req.nextUrl.searchParams.get("user_email");

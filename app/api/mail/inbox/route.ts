@@ -5,6 +5,17 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-INBOX");
 
+interface EmailData {
+  seqno?: number;
+  from?: string;
+  to?: string;
+  subject?: string;
+  date?: string;
+  uid?: number;
+  flags?: string[];
+  seen?: boolean;
+}
+
 export async function POST(req: NextRequest) {
   const clientId = getClientIdentifier(req);
   const rl = checkRateLimit(clientId, { key: "mail:inbox", ...RATE_LIMITS.EMAIL });
@@ -17,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });
     }
     const { email, password } = creds;
-    const emails = await new Promise<any[]>((resolve, reject) => {
+    const emails = await new Promise<EmailData[]>((resolve, reject) => {
       const imap = new Imap({
         user: email,
         password: password,
@@ -28,7 +39,7 @@ export async function POST(req: NextRequest) {
         connTimeout: 15000,
         authTimeout: 15000,
       });
-      const messages: any[] = [];
+      const messages: EmailData[] = [];
       imap.once("ready", () => {
         imap.openBox(folder, true, (err, box) => {
           if (err) { imap.end(); reject(err); return; }
@@ -41,7 +52,7 @@ export async function POST(req: NextRequest) {
             struct: true,
           });
           fetch.on("message", (msg, seqno) => {
-            const emailData: any = { seqno };
+            const emailData: EmailData = { seqno };
             msg.on("body", (stream) => {
               let buffer = "";
               stream.on("data", (chunk) => { buffer += chunk.toString("utf8"); });

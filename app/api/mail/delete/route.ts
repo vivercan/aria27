@@ -5,6 +5,13 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-DELETE");
 
+interface ImapWithSeq {
+  seq: {
+    addFlags(uids: number[], flags: string[], callback: (err: Error | null) => void): void;
+  };
+  expunge(callback: (err: Error | null) => void): void;
+}
+
 export async function POST(req: NextRequest) {
   const clientId = getClientIdentifier(req);
   const rl = checkRateLimit(clientId, { key: "mail:delete", ...RATE_LIMITS.EMAIL });
@@ -38,10 +45,10 @@ export async function POST(req: NextRequest) {
           if (err) { imap.end(); reject(err); return; }
           
           // Usar seq.addFlags en lugar de addFlags
-          (imap as any).seq.addFlags(uids, ["\\Deleted"], (err: any) => {
+          (imap as unknown as ImapWithSeq).seq.addFlags(uids, ["\\Deleted"], (err: Error | null) => {
             if (err) { imap.end(); reject(err); return; }
-            
-            (imap as any).expunge((err: any) => {
+
+            (imap as unknown as ImapWithSeq).expunge((err: Error | null) => {
               imap.end();
               if (err) reject(err);
               else resolve({ success: true, deleted: uids.length });

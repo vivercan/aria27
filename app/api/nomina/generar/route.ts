@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
     const minimoTarjeta = getConfig("minimo_tarjeta_default", 1096);
     const diasLaborables = 6; // Lunes a Sábado
 
-    const nominasGeneradas = [];
-    const incidenciasPorEmpleado: any[] = [];
+    const nominasGeneradas: Record<string, unknown>[] = [];
+    const incidenciasPorEmpleado: Record<string, unknown>[] = [];
 
     for (const emp of empleados || []) {
       const asistenciasEmp = asistenciasCompletas.filter(a => a.employee_id === emp.id);
@@ -222,11 +222,11 @@ export async function POST(req: NextRequest) {
 
     const totales = {
       empleados: nominasGeneradas.length,
-      bruto: nominasGeneradas.reduce((s, n) => s + n.total_percepciones, 0),
-      deducciones: nominasGeneradas.reduce((s, n) => s + n.total_deducciones, 0),
-      neto: nominasGeneradas.reduce((s, n) => s + n.sueldo_neto, 0),
-      tarjeta: nominasGeneradas.reduce((s, n) => s + n.pago_tarjeta, 0),
-      efectivo: nominasGeneradas.reduce((s, n) => s + n.pago_efectivo, 0)
+      bruto: nominasGeneradas.reduce((s, n) => s + (Number(n.total_percepciones) || 0), 0),
+      deducciones: nominasGeneradas.reduce((s, n) => s + (Number(n.total_deducciones) || 0), 0),
+      neto: nominasGeneradas.reduce((s, n) => s + (Number(n.sueldo_neto) || 0), 0),
+      tarjeta: nominasGeneradas.reduce((s, n) => s + (Number(n.pago_tarjeta) || 0), 0),
+      efectivo: nominasGeneradas.reduce((s, n) => s + (Number(n.pago_efectivo) || 0), 0)
     };
 
     return NextResponse.json({
@@ -302,7 +302,7 @@ export async function GET(req: NextRequest) {
       .lte("fecha", fin);
 
     const diasLaborables = 6;
-    const incidencias: any[] = [];
+    const incidencias: Record<string, unknown>[] = [];
 
     for (const emp of empleados || []) {
       const asistEmp = asistencias?.filter(a => a.employee_id === emp.id) || [];

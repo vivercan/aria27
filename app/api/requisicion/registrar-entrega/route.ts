@@ -7,6 +7,15 @@ const log = logger("REGISTRAR-ENTREGA");
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
+interface MaterialItem {
+  product_name?: string;
+  producto?: string;
+  quantity?: number;
+  cantidad_recibida?: number;
+  unit?: string;
+  unidad?: string;
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   try {
     await fetch("https://api.resend.com/emails", {
@@ -17,7 +26,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e) { log.error("Error email:", e); }
 }
 
-async function actualizarInventario(obraId: number, obraNombre: string, materiales: any[]): Promise<number> {
+async function actualizarInventario(obraId: number, obraNombre: string, materiales: MaterialItem[]): Promise<number> {
   let itemsActualizados = 0;
 
   for (const mat of materiales) {

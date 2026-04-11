@@ -62,7 +62,7 @@ export default function ComprasTramitePage() {
   
   const [buscandoIA, setBuscandoIA] = useState(false);
   const [solicitando, setSolicitando] = useState(false);
-  const [resultadoSolicitud, setResultadoSolicitud] = useState<any>(null);
+  const [resultadoSolicitud, setResultadoSolicitud] = useState<Record<string, unknown> | null>(null);
   const [proveedoresIA, setProveedoresIA] = useState<ProveedorIA[]>([]);
 
   // COTIZACIONES POR MATERIAL (hasta 5 por item)
@@ -80,9 +80,9 @@ export default function ComprasTramitePage() {
     });
   };
 
-  const initQuotes = (itemsList: any[]) => {
+  const initQuotes = (itemsList: RequisitionItem[]) => {
     const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
-    itemsList.forEach((item: any) => {
+    itemsList.forEach((item: RequisitionItem) => {
       q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
     });
     setItemQuotes(q);
@@ -134,7 +134,7 @@ export default function ComprasTramitePage() {
     initQuotes(data || []);
     
     const init: Record<number, { price: number; supplier: string }> = {};
-    (data || []).forEach((item: any) => {
+    (data || []).forEach((item: RequisitionItem) => {
       init[item.id] = { price: item.selected_price || 0, supplier: item.selected_supplier || "" };
     });
     setPrices(init);
@@ -472,14 +472,14 @@ Responde SOLO con JSON así:
           {resultadoSolicitud && (
             <div className={"p-3 rounded-xl border " + (resultadoSolicitud.error ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30")}>
               {resultadoSolicitud.error ? (
-                <p className="text-red-400 text-xs">{resultadoSolicitud.error}</p>
+                <p className="text-red-400 text-xs">{String(resultadoSolicitud.error || "")}</p>
               ) : (
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-emerald-400 font-medium">Solicitud enviada</span>
-                  <span className="text-white">Emails: {resultadoSolicitud.emailsSent}</span>
-                  <span className="text-white">WhatsApp: {resultadoSolicitud.whatsappSent}</span>
-                  <span className="text-slate-400">de {resultadoSolicitud.totalProveedores} proveedores</span>
-                  {resultadoSolicitud.errors && <span className="text-amber-400">{resultadoSolicitud.errors.length} errores</span>}
+                  <span className="text-white">Emails: {String(resultadoSolicitud.emailsSent || "")}</span>
+                  <span className="text-white">WhatsApp: {String(resultadoSolicitud.whatsappSent || "")}</span>
+                  <span className="text-slate-400">de {String(resultadoSolicitud.totalProveedores || "")} proveedores</span>
+                  {Array.isArray(resultadoSolicitud.errors) && <span className="text-amber-400">{(resultadoSolicitud.errors as unknown[]).length} errores</span>}
                 </div>
               )}
             </div>

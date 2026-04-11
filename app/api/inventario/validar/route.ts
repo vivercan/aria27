@@ -10,6 +10,14 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 // 3. Valida con Claude Haiku que es material de construcción real
 // ============================================================
 
+interface Product {
+  id: string;
+  name: string;
+  unit?: string;
+  category?: string;
+  similarity?: number;
+}
+
 function toTitleCase(str: string): string {
   const exceptions = ["de", "del", "la", "las", "los", "el", "en", "a", "y", "o", "por", "para", "con"];
   return str
@@ -68,11 +76,11 @@ export async function POST(req: NextRequest) {
       .select("id, name, unit, category")
       .limit(500);
 
-    let matchExacto: any = null;
-    let sugerencias: any[] = [];
+    let matchExacto: Product | null = null;
+    let sugerencias: Product[] = [];
 
     if (productos && productos.length > 0) {
-      for (const p of productos) {
+      for (const p of productos as Product[]) {
         const pLower = p.name.toLowerCase();
         if (pLower === nombreLower) {
           matchExacto = p;
@@ -85,7 +93,7 @@ export async function POST(req: NextRequest) {
           sugerencias.push({ ...p, similarity: Math.round(similarity * 100) });
         }
       }
-      sugerencias.sort((a, b) => b.similarity - a.similarity);
+      sugerencias.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
       sugerencias = sugerencias.slice(0, 5);
     }
 

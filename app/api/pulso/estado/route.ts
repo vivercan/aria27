@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
-    const updates: any = { last_seen: new Date().toISOString() };
+    const updates: Record<string, unknown> = { last_seen: new Date().toISOString() };
     if (status) updates.status = status;
     if (status_message !== undefined) updates.status_message = status_message;
 

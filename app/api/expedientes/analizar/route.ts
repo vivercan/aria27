@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
           ],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
-      const parsed = parseJsonResponse(textBlock?.text || "{}");
+      const textBlock = msg.content.find((c) => c.type === "text");
+      const parsed = parseJsonResponse((textBlock && "text" in textBlock ? String(textBlock.text) : "{}"));
       resumen = parsed.resumen;
       paginas = parsed.paginas;
     } else if (isImage) {
@@ -155,8 +155,8 @@ export async function POST(req: NextRequest) {
           ],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
-      const parsed = parseJsonResponse(textBlock?.text || "{}");
+      const textBlock = msg.content.find((c) => c.type === "text");
+      const parsed = parseJsonResponse((textBlock && "text" in textBlock ? String(textBlock.text) : "{}"));
       resumen = parsed.resumen;
       paginas = 1;
     } else if (isText) {
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
           content: [{ type: "text", text: `${PROMPT}\n\nContenido del archivo (${nombre}):\n\n${texto}` }],
         }],
       });
-      const textBlock = msg.content.find((c: any) => c.type === "text") as any;
+      const textBlock = msg.content.find((c) => c.type === "text");
       const parsed = parseJsonResponse(textBlock?.text || "{}");
       resumen = parsed.resumen;
       paginas = Math.max(1, Math.ceil(texto.length / 3000));

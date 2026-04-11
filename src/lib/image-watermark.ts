@@ -169,6 +169,7 @@ export async function downloadWhatsAppMedia(
 /**
  * Pipeline: descarga WhatsApp → watermark → Supabase Storage.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function processAndUploadPhoto(args: {
   mediaUrl: string;
   whatsappToken: string;

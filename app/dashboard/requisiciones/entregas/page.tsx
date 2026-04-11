@@ -344,10 +344,10 @@ export default function EntregasPage() {
               <div className="mb-4">
                 <span className="text-slate-400 text-sm">Materiales:</span>
                 <div className="mt-2 space-y-1">
-                  {showDetalle.materiales_recibidos.map((m: any, i: number) => (
+                  {showDetalle.materiales_recibidos.map((m: Record<string, unknown>, i: number) => (
                     <div key={i} className="flex justify-between text-sm bg-white/5 px-3 py-2 rounded">
-                      <span className="text-white">{m.producto || m.product_name}</span>
-                      <span className="text-slate-400">{m.quantity || m.cantidad_recibida} {m.unit || ""}</span>
+                      <span className="text-white">{String(m.producto || m.product_name || "")}</span>
+                      <span className="text-slate-400">{String(m.quantity || m.cantidad_recibida || "")} {String(m.unit || "")}</span>
                     </div>
                   ))}
                 </div>

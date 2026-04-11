@@ -6,6 +6,12 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
+interface ItemInput {
+  product_name: string;
+  unit: string;
+  quantity: number;
+}
+
 export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
     const daysUntil = Math.ceil((new Date(fecha_requerida).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MAÑANA" : `${daysUntil} días`;
 
-    const materialesHtml = items.map((i: any) =>
+    const materialesHtml = items.map((i: ItemInput) =>
       `<tr><td style="padding:10px;border:1px solid #e2e8f0">${i.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.quantity}</td></tr>`
     ).join("");
 

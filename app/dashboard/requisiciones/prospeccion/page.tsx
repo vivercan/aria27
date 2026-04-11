@@ -17,7 +17,7 @@ interface WebResult {
 
 interface ExistingSupplier {
   id: string; name: string; phone: string; email: string;
-  categories: any;
+  categories: string | string[] | null;
 }
 
 export default function ProspeccionPage() {
@@ -33,7 +33,7 @@ export default function ProspeccionPage() {
   const [savedIdxs, setSavedIdxs] = useState<number[]>([]);
   const [error, setError] = useState("");
 
-  const getCatDisplay = (cats: any): string[] => {
+  const getCatDisplay = (cats: string | string[] | null): string[] => {
     if (!cats) return [];
     if (Array.isArray(cats)) return cats.filter(Boolean);
     if (typeof cats === "string") return cats.split(",").map((c: string) => c.trim()).filter(Boolean);

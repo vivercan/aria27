@@ -17,6 +17,64 @@ interface Alerta {
   fecha: string;
 }
 
+interface RequisitionRow {
+  id: string;
+  folio: string;
+  created_at: string;
+  cost_center_name: string;
+}
+
+interface PurchaseOrderRow {
+  id: string;
+  po_number: string;
+  created_at: string;
+  supplier_name: string;
+  status: string;
+  obra_nombre: string | null;
+}
+
+interface CobroManualRow {
+  id: string;
+  folio: string | null;
+  monto: number | string;
+  fecha: string;
+  cliente_nombre: string;
+  estatus: string;
+}
+
+interface ConciliacionBancariaRow {
+  id: string;
+  banco: string;
+  monto: number | string;
+  fecha_movimiento: string;
+  concepto: string | null;
+  status_match: string | null;
+}
+
+interface CotizacionClienteRow {
+  id: string;
+  folio: string;
+  cliente_nombre: string;
+  total: number | string;
+  fecha_vencimiento: string;
+  status: string;
+}
+
+interface BitacoraObraRow {
+  id: string;
+  obra_nombre: string;
+  fecha: string;
+  incidentes: string | null;
+}
+
+interface InventarioObraRow {
+  id: string;
+  obra_nombre: string;
+  producto_nombre: string;
+  cantidad_disponible: number;
+  unidad: string;
+}
+
 export async function GET(req: NextRequest) {
   // RATE LIMIT: 60 requests per minute (STANDARD tier)
   const clientId = getClientIdentifier(req);
@@ -55,7 +113,7 @@ export async function GET(req: NextRequest) {
       .in("status", ["PENDIENTE_VALIDACION", "EN_VALIDACION"])
       .lt("created_at", new Date(hoy.getTime() - 2 * 86400000).toISOString())
       .limit(50);
-    (reqsPend || []).forEach((r: any) => alertas.push({
+    (reqsPend || []).forEach((r: RequisitionRow) => alertas.push({
       id: `req-${r.id}`,
       tipo: "ATENCION",
       modulo: "Requisiciones",
@@ -72,7 +130,7 @@ export async function GET(req: NextRequest) {
       .in("status", ["APROBADA", "EN_PROCESO"])
       .lt("created_at", new Date(hoy.getTime() - 7 * 86400000).toISOString())
       .limit(50);
-    (ocsAtrasadas || []).forEach((o: any) => alertas.push({
+    (ocsAtrasadas || []).forEach((o: PurchaseOrderRow) => alertas.push({
       id: `oc-${o.id}`,
       tipo: "URGENTE",
       modulo: "Órdenes de Compra",
@@ -89,7 +147,7 @@ export async function GET(req: NextRequest) {
       .eq("estatus", "PENDIENTE")
       .lt("fecha", hoy.toISOString().slice(0, 10))
       .limit(50);
-    (cobrosVenc || []).forEach((c: any) => alertas.push({
+    (cobrosVenc || []).forEach((c: CobroManualRow) => alertas.push({
       id: `cob-${c.id}`,
       tipo: "URGENTE",
       modulo: "Cobranza",
@@ -106,7 +164,7 @@ export async function GET(req: NextRequest) {
       .or("status_match.is.null,status_match.eq.PENDIENTE")
       .lt("fecha_movimiento", new Date(hoy.getTime() - 5 * 86400000).toISOString().slice(0, 10))
       .limit(50);
-    (movsPend || []).forEach((m: any) => alertas.push({
+    (movsPend || []).forEach((m: ConciliacionBancariaRow) => alertas.push({
       id: `mov-${m.id}`,
       tipo: "ATENCION",
       modulo: "Bancos",
@@ -123,7 +181,7 @@ export async function GET(req: NextRequest) {
       .eq("status", "VENCIDA")
       .gte("fecha_vencimiento", hace30.toISOString().slice(0, 10))
       .limit(50);
-    (cotsVenc || []).forEach((c: any) => alertas.push({
+    (cotsVenc || []).forEach((c: CotizacionClienteRow) => alertas.push({
       id: `cot-${c.id}`,
       tipo: "INFO",
       modulo: "Cotizaciones",
@@ -140,12 +198,12 @@ export async function GET(req: NextRequest) {
       .gte("fecha", new Date(hoy.getTime() - 2 * 86400000).toISOString().slice(0, 10))
       .not("incidentes", "is", null)
       .limit(50);
-    (bitInc || []).filter((b: any) => b.incidentes && b.incidentes.trim().length > 0).forEach((b: any) => alertas.push({
+    (bitInc || []).filter((b: BitacoraObraRow) => b.incidentes != null && b.incidentes.trim().length > 0).forEach((b: BitacoraObraRow) => alertas.push({
       id: `bit-${b.id}`,
       tipo: "URGENTE",
       modulo: "Bitácora",
       titulo: `Incidente reportado en ${b.obra_nombre}`,
-      detalle: b.incidentes.slice(0, 120),
+      detalle: (b.incidentes || "").slice(0, 120),
       link: `/dashboard/obras/bitacora?obra=${encodeURIComponent(b.obra_nombre)}`,
       fecha: b.fecha,
     }));
@@ -157,7 +215,7 @@ export async function GET(req: NextRequest) {
       .lte("cantidad_disponible", 5)
       .gt("cantidad_disponible", 0)
       .limit(30);
-    (invBajo || []).forEach((i: any) => alertas.push({
+    (invBajo || []).forEach((i: InventarioObraRow) => alertas.push({
       id: `inv-${i.id}`,
       tipo: "INFO",
       modulo: "Inventario",
