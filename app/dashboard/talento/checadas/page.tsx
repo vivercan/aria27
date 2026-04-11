@@ -96,7 +96,7 @@ export default function ChecadasPage() {
     });
     setSaving(false);
     if (error) {
-      flash("err", "No se pudo registrar la asistencia: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar la asistencia: " + (((error as {message?: string})?.message) || "Error desconocido"));
       return;
     }
     setShowModal(false);

@@ -126,7 +126,7 @@ export default function PolizasPage() {
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "polizas_seguro", payload: basePayload, urlField: "documento_url" });
         } else {
           const { error } = await supabase.from("polizas_seguro").insert({ ...basePayload, documento_url: form.documento_url || null });
-          if (error) throw new Error(error.message);
+          if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         }
         msg("success", "Póliza registrada"); setShowForm(false); cargar();
       } else {
@@ -141,7 +141,7 @@ export default function PolizasPage() {
         msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: unknown) {
-      msg("error", e?.message || "Error");
+      msg("error", (e as {message?: string})?.message || "Error");
     }
     setGuardando(false);
   };
@@ -164,7 +164,7 @@ export default function PolizasPage() {
     try {
       const r = await deleteRowAndBlob({ table: "polizas_seguro", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: unknown) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

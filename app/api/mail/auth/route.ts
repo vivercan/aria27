@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     });
     return res;
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message || "Error" }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" || "Error" }, { status: 500 });
   }
 }
 

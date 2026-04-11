@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     .from("Users")
     .select("id,email,display_name,role,permissions")
     .order("email", { ascending: true });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
   return NextResponse.json({ users: data || [] });
 }
 
@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof phone === "string") patch.phone = phone.trim();
 
   const { error } = await sb.from("Users").update(patch).eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
 
   // Log de auditoria best-effort (no rompe si la tabla no existe).
   try {

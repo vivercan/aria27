@@ -127,7 +127,7 @@ export default function CotizacionesIAPage() {
         setError(data.error || "Error en la búsqueda");
       }
     } catch (e: unknown) {
-      setError(e?.message || "Error de conexión");
+      setError((e as {message?: string})?.message || "Error de conexión");
     } finally {
       setBuscando(false);
     }
@@ -147,7 +147,7 @@ export default function CotizacionesIAPage() {
       fecha: new Date().toISOString().split("T")[0]
     });
     setSavingQuote(false);
-    if (error) { flash("err", "Error al guardar cotización: " + error.message); return; }
+    if (error) { flash("err", "Error al guardar cotización: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setShowQuoteModal(false);
     setQuoteForm({ requisicion_id: "", supplier_name: "", total: "", notas: "", vigencia_dias: "15" });
     loadRequisiciones();

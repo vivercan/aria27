@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     log.error("SMTP Error:", error);
     return NextResponse.json(
-      { error: error?.message || "Error al enviar" },
+      { error: (error as {message?: string})?.message || "Unknown error" || "Error al enviar" },
       { status: 500 }
     );
   }

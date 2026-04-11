@@ -83,6 +83,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     log.error("Error upload pulso:", error);
-    return NextResponse.json({ error: error?.message || "Error interno" }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" || "Error interno" }, { status: 500 });
   }
 }

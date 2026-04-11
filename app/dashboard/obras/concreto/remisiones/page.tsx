@@ -133,7 +133,7 @@ export default function ConcretoRemisionesPage() {
     if (editando) ({ error } = await supabase.from("concreto_remisiones").update(payload).eq("id", editando));
     else ({ error } = await supabase.from("concreto_remisiones").insert(payload));
     setGuardando(false);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setShowFormRem(false); setEditando(null); setFormRem(EMPTY_REM); cargar();
     flash("ok", editando ? "Remisión actualizada" : "Remisión guardada");
   }
@@ -145,7 +145,7 @@ export default function ConcretoRemisionesPage() {
       onOk: async () => {
         await supabase.from("concreto_cilindros").delete().eq("remision_id", id);
         const { error } = await supabase.from("concreto_remisiones").delete().eq("id", id);
-        if (error) { flash("err", "Error: " + error.message); return; }
+        if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
         cargar();
         flash("ok", "Remisión eliminada");
       }
@@ -166,7 +166,7 @@ export default function ConcretoRemisionesPage() {
     };
     const { error } = await supabase.from("concreto_cilindros").insert(payload);
     setGuardando(false);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setFormCil(EMPTY_CIL); cargar();
     flash("ok", "Prueba de cilindro guardada");
   }

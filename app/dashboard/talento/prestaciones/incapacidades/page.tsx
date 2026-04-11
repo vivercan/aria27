@@ -51,7 +51,7 @@ export default function IncapacidadesPage() {
       status: "activa"
     });
     if (error) {
-      flash("err", "No se pudo registrar la incapacidad: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar la incapacidad: " + (((error as {message?: string})?.message) || "Error desconocido"));
       return;
     }
     setShowModal(false);

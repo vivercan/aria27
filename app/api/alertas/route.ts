@@ -172,7 +172,7 @@ export async function GET(req: NextRequest) {
       alertas,
     });
   } catch (e: unknown) {
-    log.error("alertas fail", { err: e?.message });
-    return NextResponse.json({ error: e?.message || "Error interno" }, { status: 500 });
+    log.error("alertas fail", { err: (e as {message?: string})?.message });
+    return NextResponse.json({ error: (e as {message?: string})?.message || "Error interno" }, { status: 500 });
   }
 }

@@ -197,7 +197,7 @@ export default function ExpedientesPage() {
       .eq("parent_carpeta_id", parentId)
       .order("orden");
     if (error) {
-      console.error("Error loading subcarpetas:", error?.message);
+      console.error("Error loading subcarpetas:", (error as {message?: string})?.message || "Error desconocido");
       setSubcarpetas([]);
       return;
     }
@@ -252,7 +252,7 @@ export default function ExpedientesPage() {
       orden: subcarpetas.length,
     });
     if (error) {
-      flash("err", "Error al crear subcarpeta: " + error.message);
+      flash("err", "Error al crear subcarpeta: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setNuevaSubcarpetaNombre("");
@@ -269,7 +269,7 @@ export default function ExpedientesPage() {
     if (!id) return;
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
     if (error) {
-      flash("err", "Error: " + error.message);
+      flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setDeleteCarpetaModal({ open: false, id: "", nombre: "", isSub: false });
@@ -288,7 +288,7 @@ export default function ExpedientesPage() {
       .update({ nombre: nuevo.trim() })
       .eq("id", id);
     if (error) {
-      flash("err", "Error al renombrar: " + error.message);
+      flash("err", "Error al renombrar: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     if (isSub && carpetaAnioSeleccionada) {
@@ -357,7 +357,7 @@ export default function ExpedientesPage() {
     const ids = targets.map(a => a.id);
     const { error } = await supabase.from("expedientes_archivos").delete().in("id", ids);
     if (error) {
-      flash("err", "Error al eliminar: " + error.message);
+      flash("err", "Error al eliminar: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setDeleteArchivoModal({ open: false, archivos: [] });
@@ -420,7 +420,7 @@ export default function ExpedientesPage() {
         dispararAnalisis(nuevoRow.id);
       }
     } catch (err: unknown) {
-      flash("err", err?.message || "Error al subir archivo");
+      flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }
   };
 
@@ -433,7 +433,7 @@ export default function ExpedientesPage() {
       .is("parent_carpeta_id", null)
       .order("orden");
     if (error) {
-      console.error("Error loading carpetas año:", error?.message);
+      console.error("Error loading carpetas año:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setCarpetasAnio((data || []).filter(c => !c.nombre.startsWith("__root__")));
@@ -462,7 +462,7 @@ export default function ExpedientesPage() {
       .insert({ obra_id: null, obra_nombre: null, nombre: rootName, anio, orden: -1 })
       .select("id")
       .single();
-    if (error) { console.error("Error creating root carpeta:", error.message); return null; }
+    if (error) { console.error("Error creating root carpeta:", (error as {message?: string})?.message || "Error desconocido"); return null; }
     return created.id;
   };
 
@@ -486,7 +486,7 @@ export default function ExpedientesPage() {
         .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
       if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
     } catch (err: unknown) {
-      flash("err", err?.message || "Error al subir archivo");
+      flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }
     e.target.value = "";
   };
@@ -514,7 +514,7 @@ export default function ExpedientesPage() {
         orden: carpetasAnio.length,
       });
       if (error) {
-        flash("err", "Error al crear carpeta del año: " + error.message);
+        flash("err", "Error al crear carpeta del año: " + (error as {message?: string})?.message || "Error desconocido");
         return;
       }
       setNuevaCarpetaAnioNombre("");
@@ -538,7 +538,7 @@ export default function ExpedientesPage() {
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre, fecha_inicio").order("nombre");
     if (error) {
-      console.error("Error loading obras:", error?.message);
+      console.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido");
       setLoading(false);
       return;
     }
@@ -557,7 +557,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("orden");
     if (error) {
-      console.error("Error loading carpetas:", error?.message);
+      console.error("Error loading carpetas:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setCarpetas(data || []);
@@ -570,7 +570,7 @@ export default function ExpedientesPage() {
       .eq("carpeta_id", carpetaId)
       .order("created_at", { ascending: false });
     if (error) {
-      console.error("Error loading archivos:", error?.message);
+      console.error("Error loading archivos:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setArchivos(data || []);
@@ -583,7 +583,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("fecha_limite");
     if (error) {
-      console.error("Error loading tareas:", error?.message);
+      console.error("Error loading tareas:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setTareas(data || []);
@@ -601,8 +601,8 @@ export default function ExpedientesPage() {
       });
 
       if (error) {
-        console.error("Error creating carpeta:", error?.message);
-        flash("err", "Error al crear carpeta: " + error.message);
+        console.error("Error creating carpeta:", (error as {message?: string})?.message || "Error desconocido");
+        flash("err", "Error al crear carpeta: " + (error as {message?: string})?.message || "Error desconocido");
         return;
       }
 
@@ -624,8 +624,8 @@ export default function ExpedientesPage() {
     });
 
     if (error) {
-      console.error("Error creating tarea:", error?.message);
-      flash("err", "Error al crear tarea: " + error.message);
+      console.error("Error creating tarea:", (error as {message?: string})?.message || "Error desconocido");
+      flash("err", "Error al crear tarea: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
 
@@ -642,8 +642,8 @@ export default function ExpedientesPage() {
     }).eq("id", tarea.id);
 
     if (error) {
-      console.error("Error updating tarea status:", error?.message);
-      flash("err", "Error al cambiar estado de tarea: " + error.message);
+      console.error("Error updating tarea status:", (error as {message?: string})?.message || "Error desconocido");
+      flash("err", "Error al cambiar estado de tarea: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
 
@@ -655,7 +655,7 @@ export default function ExpedientesPage() {
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting carpeta:", error?.message);
+      console.error("Error deleting carpeta:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
 
@@ -690,7 +690,7 @@ export default function ExpedientesPage() {
       });
       loadArchivos(carpetaSeleccionada.id);
     } catch (err: unknown) {
-      flash("err", err?.message || "Error al subir archivo");
+      flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }
   };
 

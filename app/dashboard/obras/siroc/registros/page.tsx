@@ -133,14 +133,14 @@ export default function SirocRegistrosPage() {
     if (editando) ({ error } = await supabase.from("siroc_registros").update(payload).eq("id", editando));
     else ({ error } = await supabase.from("siroc_registros").insert(payload));
     setGuardando(false);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setShowForm(false); setEditando(null); setForm(EMPTY); cargar();
   }
 
   async function eliminar(id: string) {
     setConfirmState({ open: true, msg: "¿Eliminar este registro SIROC?", onOk: async () => {
       const { error } = await supabase.from("siroc_registros").delete().eq("id", id);
-      if (error) { flash("err", "Error: " + error.message); return; }
+      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
       cargar();
     }});
   }

@@ -88,7 +88,7 @@ export default function OpinionesPage() {
       await loadDocs();
     } catch (err: unknown) {
       console.error("Error subiendo:", err);
-      flash("err", "Error al subir: " + (err?.message || "desconocido"));
+      flash("err", "Error al subir: " + ((err as {message?: string})?.message || "desconocido"));
     } finally {
       setUploading(null);
       setUploadTarget(null);
@@ -116,7 +116,7 @@ export default function OpinionesPage() {
           await loadDocs();
         } catch (e: unknown) {
           console.error(e);
-          flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
+          flash("err", "Error al eliminar: " + ((e as {message?: string})?.message || "desconocido"));
         }
         finally { setDeleting(null); }
       }

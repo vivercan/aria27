@@ -27,6 +27,11 @@ interface Factura {
 }
 
 interface FacturaFiles {
+  xml: File | null;
+  pdf: File | null;
+}
+
+interface FacturaStorageFiles {
   xml: string | null;
   pdf: string | null;
 }
@@ -50,7 +55,7 @@ export default function FacturacionPage() {
   const [uploadFacturaId, setUploadFacturaId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [facturaFiles, setFacturaFiles] = useState<FacturaFiles>({ xml: null, pdf: null });
-  const [uploadedFiles, setUploadedFiles] = useState<Map<string, FacturaFiles>>(new Map());
+  const [uploadedFiles, setUploadedFiles] = useState<Map<string, FacturaStorageFiles>>(new Map());
 
   useEffect(() => { loadData(); }, []);
 
@@ -60,7 +65,7 @@ export default function FacturacionPage() {
       setFacturas(data || []);
 
       // Load uploaded files for each factura
-      const filesMap = new Map<string, FacturaFiles>();
+      const filesMap = new Map<string, FacturaStorageFiles>();
       for (const f of data || []) {
         const files = await loadFacturaFiles(f.id);
         if (files.xml || files.pdf) {
@@ -72,7 +77,7 @@ export default function FacturacionPage() {
     finally { setLoading(false); }
   }
 
-  async function loadFacturaFiles(facturaId: string): Promise<FacturaFiles> {
+  async function loadFacturaFiles(facturaId: string): Promise<FacturaStorageFiles> {
     try {
       const { data: xmlFiles } = await supabase.storage
         .from("finanzas")
@@ -244,7 +249,7 @@ export default function FacturacionPage() {
       });
       if (!error) return { ok: true };
       // Si fue colisión por unique constraint, reintentar una sola vez.
-      const msg = error.message || "";
+      const msg = (error as {message?: string})?.message || "Error desconocido" || "";
       const esDuplicado = /duplicate|unique|23505/i.test(msg);
       if (esDuplicado && intento < 2) return intentar(intento + 1);
       return { ok: false, err: msg };
@@ -422,8 +427,8 @@ export default function FacturacionPage() {
                     <td className="p-3 text-slate-300 text-sm">{f.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
-                      {files?.xml && <FileJson className="w-4 h-4 text-emerald-400" title="XML" />}
-                      {files?.pdf && <FileText className="w-4 h-4 text-red-400" title="PDF" />}
+                      {files?.xml && <span title="XML"><FileJson className="w-4 h-4 text-emerald-400" /></span>}
+                      {files?.pdf && <span title="PDF"><FileText className="w-4 h-4 text-red-400" /></span>}
                       {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">

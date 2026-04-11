@@ -115,13 +115,13 @@ export default function EntityFolder({
       .order("created_at", { ascending: false });
     if (error) {
       // Si la tabla no existe todavía, mostrar mensaje claro
-      if (error.message?.includes("relation") || (error as any).code === "42P01") {
+      if ((error as {message?: string})?.message?.includes("relation") || (error as {code?: string})?.code === "42P01") {
         flash("err", "Falta crear tabla entity_documents. Ver sql/entity_documents.sql");
         setDocs([]);
         setLoading(false);
         return;
       }
-      flash("err", error.message);
+      flash("err", (error as {message?: string})?.message || "Error");
     }
     setDocs((data as DocRow[]) || []);
     setLoading(false);

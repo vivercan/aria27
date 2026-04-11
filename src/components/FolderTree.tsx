@@ -59,7 +59,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
       created_by: email,
     });
     setSaving(false);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { alert("Error: " + (error as {message?: string})?.message || "Error"); return; }
     setNewName("");
     setCreatingIn(null);
     if (parentId) setExpanded(new Set(expanded).add(parentId));
@@ -69,7 +69,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   const borrar = async (id: string, nombre: string) => {
     if (!confirm(`Borrar "${nombre}" y todas sus subcarpetas?`)) return;
     const { error } = await supabase.from("arbol_carpetas").delete().eq("id", id);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { alert("Error: " + (error as {message?: string})?.message || "Error"); return; }
     if (selectedId === id) onSelect?.(null);
     cargar();
   };

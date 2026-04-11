@@ -208,7 +208,7 @@ export default function CotizacionesClientesPage() {
       setItems([{ ...ITEM_INIT }]);
       await cargar();
     } catch (e: unknown) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + ((e as {message?: string})?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -321,14 +321,14 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         msg: `Cancelar cotización ${c.folio}?`,
         onOk: async () => {
           const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
-          if (error) { flash("err", "Error: " + error.message); return; }
+          if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
           await cargar();
         }
       });
       return;
     }
     const { error } = await supabase.from("cotizaciones_clientes").update({ estatus: nuevo }).eq("id", c.id);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
 
     // Bloque 12: al APROBAR, generar cobro_manual auto vinculado a esta cotizacion (idempotente)
     if (nuevo === "APROBADA") {
@@ -361,7 +361,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
           }
         }
       } catch (e: unknown) {
-        console.warn("[Bloque12] Error generando cobro auto:", e?.message);
+        console.warn("[Bloque12] Error generando cobro auto:", (e as {message?: string})?.message);
       }
     }
 

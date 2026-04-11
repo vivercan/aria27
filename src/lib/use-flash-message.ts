@@ -6,7 +6,7 @@ import { useState, useCallback } from "react";
  * Uso:
  *   const { msg, flash } = useFlashMessage();
  *   flash("ok", "Guardado correctamente");
- *   flash("err", "Error: " + error.message);
+ *   flash("err", "Error: " + (error as {message?: string})?.message || "Error");
  *
  * En JSX:
  *   {msg && <FlashBanner msg={msg} />}

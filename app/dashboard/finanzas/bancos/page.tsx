@@ -78,10 +78,10 @@ export default function BancosPage() {
     const payload = { ...form, updated_at: new Date().toISOString() } as any;
     if (editId) {
       const { error } = await supabase.from("cuentas_bancarias").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error al actualizar: " + error.message); return; }
+      if (error) { flash("err", "Error al actualizar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     } else {
       const { error } = await supabase.from("cuentas_bancarias").insert({ ...payload, activa: true });
-      if (error) { flash("err", "Error al crear: " + error.message); return; }
+      if (error) { flash("err", "Error al crear: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     }
     resetForm();
     loadData();
@@ -95,7 +95,7 @@ export default function BancosPage() {
       msg: `¿${accion} la cuenta ${c.banco} - ${c.cuenta}?`,
       onOk: async () => {
         const { error } = await supabase.from("cuentas_bancarias").update({ activa: nueva, updated_at: new Date().toISOString() }).eq("id", c.id);
-        if (error) { flash("err", "Error: " + error.message); return; }
+        if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
         loadData();
       }
     });

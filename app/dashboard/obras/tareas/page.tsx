@@ -75,7 +75,7 @@ export default function TareasPage() {
       .from("tareas_obra")
       .select("*")
       .order("fecha_limite", { ascending: true });
-    if (error) console.error("Error loading tareas:", error?.message);
+    if (error) console.error("Error loading tareas:", (error as {message?: string})?.message || "Unknown error");
     if (data) setTareas(data);
     setLoading(false);
   };
@@ -117,12 +117,12 @@ export default function TareasPage() {
         payload.completed_at = new Date().toISOString();
       }
       const { error } = await supabase.from("tareas_obra").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
+      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al actualizar"); }
       else { msg("success", "Tarea actualizada"); setShowForm(false); setEditId(null); cargarTareas(); }
     } else {
       payload.status = "pendiente";
       const { error } = await supabase.from("tareas_obra").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error al crear"); }
+      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al crear"); }
       else { msg("success", "Tarea creada"); setShowForm(false); cargarTareas(); }
     }
     setGuardando(false);
@@ -134,7 +134,7 @@ export default function TareasPage() {
       status: newStatus,
       completed_at: newStatus === "completada" ? new Date().toISOString() : null,
     }).eq("id", tarea.id);
-    if (error) { msg("error", error?.message ?? "Error"); return; }
+    if (error) { msg("error", ((error as {message?: string})?.message) || "Error"); return; }
     cargarTareas();
   };
 
@@ -160,7 +160,7 @@ export default function TareasPage() {
       await backupAndDelete({ table: "tareas_obra", id: deleteModal.id, userEmail });
       msg("success", "Tarea eliminada");
     } catch (e: unknown) {
-      msg("error", e?.message || "Error al eliminar");
+      msg("error", (e as {message?: string})?.message || "Error al eliminar");
     }
     setDeleteModal({ open: false, id: "", name: "" });
     cargarTareas();

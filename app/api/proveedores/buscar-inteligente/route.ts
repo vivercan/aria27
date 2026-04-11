@@ -154,7 +154,7 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
   } catch (error: unknown) {
     log.error("Error en búsqueda inteligente:", error);
     return NextResponse.json({ 
-      error: error?.message || "Error en búsqueda",
+      error: (error as {message?: string})?.message || "Unknown error" || "Error en búsqueda",
       success: false 
     }, { status: 500 });
   }

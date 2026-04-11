@@ -79,7 +79,7 @@ export default function BibliotecaPlantillasPage() {
       if ((error as any).code === "42P01") {
         flash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
       } else {
-        flash("err", error.message);
+        flash("err", (error as {message?: string})?.message || "Error desconocido");
       }
       setItems([]);
     } else if (data) {
@@ -142,7 +142,7 @@ export default function BibliotecaPlantillasPage() {
           payload.archivo_nombre = file.name;
         }
         const { error } = await supabase.from("plantillas_globales").update(payload).eq("id", editId);
-        if (error) throw new Error(error.message);
+        if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         flash("ok", "Plantilla actualizada");
       } else {
         if (file) {
@@ -159,7 +159,7 @@ export default function BibliotecaPlantillasPage() {
         } else {
           // Sin archivo, solo contenido / metadatos
           const { error } = await supabase.from("plantillas_globales").insert({ ...payload, activo: true });
-          if (error) throw new Error(error.message);
+          if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         }
         flash("ok", "Plantilla creada");
       }
@@ -175,7 +175,7 @@ export default function BibliotecaPlantillasPage() {
     const nuevo = !p.activo;
     setConfirmState({ open: true, msg: `¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`, onOk: async () => {
       const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
-      if (error) { flash("err", error.message); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); return; }
       flash("ok", `Plantilla → ${nuevo ? "ACTIVA" : "INACTIVA"}`);
       cargar();
     }});
@@ -194,7 +194,7 @@ export default function BibliotecaPlantillasPage() {
         });
       } else {
         const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
-        if (error) throw new Error(error.message);
+        if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
       }
       flash("ok", "Plantilla eliminada");
       cargar();

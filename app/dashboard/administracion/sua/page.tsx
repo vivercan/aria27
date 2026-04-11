@@ -98,7 +98,7 @@ export default function SUAPage() {
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "sua_aportaciones", payload: basePayload, urlField: "documento_url" });
         } else {
           const { error } = await supabase.from("sua_aportaciones").insert({ ...basePayload, documento_url: form.documento_url || null });
-          if (error) throw new Error(error.message);
+          if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         }
         msg("success", "Aportación registrada"); setShowForm(false); cargar();
       } else {
@@ -113,7 +113,7 @@ export default function SUAPage() {
         msg("success", "Aportación actualizada"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: unknown) {
-      msg("error", e?.message || "Error");
+      msg("error", (e as {message?: string})?.message || "Error");
     }
     setGuardando(false);
   };
@@ -135,7 +135,7 @@ export default function SUAPage() {
     try {
       const r = await deleteRowAndBlob({ table: "sua_aportaciones", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: unknown) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

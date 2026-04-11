@@ -235,7 +235,7 @@ export default function RecibosNominaPage() {
       URL.revokeObjectURL(url);
       setMensaje({ tipo: "success", texto: `Exportado: Nomina_Sem${semanaInfo.semana}_${semanaInfo.anio}.xlsx` });
     } catch (e: unknown) {
-      setMensaje({ tipo: "error", texto: e?.message || "Error exportando" });
+      setMensaje({ tipo: "error", texto: (e as {message?: string})?.message || "Error exportando" });
     }
     setExportando(false);
   };

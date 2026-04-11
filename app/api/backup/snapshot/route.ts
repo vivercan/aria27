@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
           rows: 0,
           pages: 0,
           size: 0,
-          error: error.message,
+          error: (error as {message?: string})?.message || "Unknown error",
         });
         continue;
       }
@@ -182,7 +182,7 @@ export async function GET(req: NextRequest) {
         rows: 0,
         pages: 0,
         size: 0,
-        error: e?.message || "error",
+        error: (e as {message?: string})?.message || "error",
       });
     }
   }

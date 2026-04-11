@@ -78,7 +78,7 @@ export default function PrestamosPage() {
       status: "ACTIVO",
     });
     if (error) {
-      flash("err", "No se pudo registrar el préstamo: " + (error.message ?? "error desconocido"));
+      flash("err", "No se pudo registrar el préstamo: " + (((error as {message?: string})?.message) || "Error desconocido"));
       return;
     }
 

@@ -196,7 +196,7 @@ export default function PreNominaPage() {
         setYaExiste(true);
       }
     } catch (e: unknown) {
-      setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
+      setMensaje({ tipo: "error", texto: (e as {message?: string})?.message ?? "Error" });
     }
     setGenerando(false);
   };

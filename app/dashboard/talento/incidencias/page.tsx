@@ -56,7 +56,7 @@ export default function IncidenciasPage() {
       employee_name: emp?.full_name || "",
       autorizada: false,
     });
-    if (error) flash("err", "Error: " + error?.message);
+    if (error) flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
     else {
       setShowForm(false);
       setForm({ employee_id: "", tipo: "FALTA", fecha: new Date().toISOString().split("T")[0], motivo: "" });
@@ -71,7 +71,7 @@ export default function IncidenciasPage() {
       autorizada: true,
       autorizada_por: userName
     }).eq("id", id);
-    if (error) { flash("err", "Error al autorizar: " + error.message); return; }
+    if (error) { flash("err", "Error al autorizar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     loadData();
   }
 

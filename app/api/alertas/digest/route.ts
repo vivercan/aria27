@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     });
     if (error) {
       log.error("resend error", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
     }
 
     log.info("digest enviado", { to, id: sent?.id, urgentes: urgentes.length, atencion: atencion.length });

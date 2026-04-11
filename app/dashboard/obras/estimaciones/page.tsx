@@ -23,6 +23,7 @@ interface Estimacion {
   iva_pct: number;
   monto_iva: number;
   neto_a_cobrar: number;
+  amortizacion_anticipo?: number;
   status: string;
   fecha_presentacion: string | null;
   fecha_aprobacion: string | null;
@@ -266,7 +267,7 @@ export default function EstimacionesPage() {
       .eq("id", estId);
 
     if (error) {
-      flash("err", "Error: " + error.message);
+      flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
     } else {
       loadData();
       if (selectedEstimacion?.id === estId) {

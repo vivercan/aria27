@@ -56,9 +56,9 @@ export async function GET(req: NextRequest) {
 
     return response;
   } catch (e: unknown) {
-    log.error("export fail", { err: e?.message });
+    log.error("export fail", { err: (e as {message?: string})?.message });
     return NextResponse.json(
-      { error: e?.message || "Error interno" },
+      { error: (e as {message?: string})?.message || "Error interno" },
       { status: 500 }
     );
   }

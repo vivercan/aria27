@@ -122,11 +122,11 @@ export default function SUAFinanzasPage() {
       payload.monto_pagado = parseFloat(form.monto_pagado) || 0;
       payload.fecha_pago = form.fecha_pago || null;
       const { error } = await supabase.from("sua_lineas_captura").update(payload).eq("id", editId);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Línea actualizada");
     } else {
       const { error } = await supabase.from("sua_lineas_captura").insert(payload);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Línea de captura registrada");
     }
     setShowForm(false); setEditId(null); setForm(FORM_INIT);
@@ -149,7 +149,7 @@ export default function SUAFinanzasPage() {
   async function eliminar(id: string) {
     setConfirmState({ open: true, msg: "¿Eliminar esta línea de captura?", onOk: async () => {
       const { error } = await supabase.from("sua_lineas_captura").delete().eq("id", id);
-      if (error) flash("err", error.message); else { flash("ok", "Eliminada"); loadAll(); }
+      if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", "Eliminada"); loadAll(); }
     }});
   }
 
@@ -176,7 +176,7 @@ export default function SUAFinanzasPage() {
       banco: pagoForm.banco || pagoTarget.banco || null,
       referencia_pago: pagoForm.referencia || pagoTarget.referencia_pago || null,
     }).eq("id", pagoTarget.id);
-    if (error) { flash("err", error.message); setSaving(false); return; }
+    if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
     flash("ok", `Pago de ${fmt(monto)} registrado`);
     setShowPago(false); setPagoTarget(null); setSaving(false); loadAll();
   }

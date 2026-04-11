@@ -67,7 +67,7 @@ export default function ClientesPage() {
       if ((error as any).code === "42P01") {
         flash("err", "Falta crear tabla clientes. Ver sql/clientes_plantillas.sql");
       } else {
-        flash("err", error.message);
+        flash("err", (error as {message?: string})?.message || "Error desconocido");
       }
       setClientes([]);
     } else if (data) {
@@ -118,11 +118,11 @@ export default function ClientesPage() {
 
     if (editId) {
       const { error } = await supabase.from("clientes").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
+      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Cliente actualizado");
     } else {
       const { error } = await supabase.from("clientes").insert(payload);
-      if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
+      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Cliente creado");
     }
     setSaving(false);
@@ -137,7 +137,7 @@ export default function ClientesPage() {
       msg: `¿Marcar a "${c.nombre}" como ${nuevo}?`,
       onOk: async () => {
         const { error } = await supabase.from("clientes").update({ estatus: nuevo }).eq("id", c.id);
-        if (error) { flash("err", error.message); return; }
+        if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); return; }
         flash("ok", `Cliente → ${nuevo}`);
         cargar();
       }

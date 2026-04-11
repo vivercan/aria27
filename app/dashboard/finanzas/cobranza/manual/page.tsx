@@ -147,7 +147,7 @@ export default function CobranzaManualPage() {
       setForm({ ...FORM_INIT });
       await cargar();
     } catch (e: unknown) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + ((e as {message?: string})?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -160,7 +160,7 @@ export default function CobranzaManualPage() {
       msg: `Cancelar cobro de "${c.cliente_nombre}" por $${c.monto}?`,
       onOk: async () => {
         const { error } = await supabase.from("cobros_manuales").update({ estatus: "CANCELADO" }).eq("id", c.id);
-        if (error) flash("err", "Error: " + error.message);
+        if (error) flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
         else cargar();
       }
     });
@@ -178,7 +178,7 @@ export default function CobranzaManualPage() {
       msg: `Reactivar cobro de "${c.cliente_nombre}" como ${nuevo}?`,
       onOk: async () => {
         const { error } = await supabase.from("cobros_manuales").update({ estatus: nuevo }).eq("id", c.id);
-        if (error) flash("err", "Error: " + error.message);
+        if (error) flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido");
         else cargar();
       }
     });

@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
   }
 }
 
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
       asistencia: data,
     });
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
   }
 }
 
@@ -243,7 +243,7 @@ export async function PUT(req: NextRequest) {
       asistencia: data,
     });
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
   }
 }
 
@@ -277,6 +277,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true, mensaje: "Asistencia eliminada" });
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error" }, { status: 500 });
   }
 }

@@ -61,7 +61,7 @@ function BitacoraContent() {
     let q = supabase.from("bitacora_obra").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(200);
     if (obraSel) q = q.eq("obra_nombre", obraSel);
     const { data, error } = await q;
-    if (error) console.error(error.message);
+    if (error) console.error((error as {message?: string})?.message || "Error desconocido");
     setEntradas((data as any) || []);
     setLoading(false);
   }
@@ -89,7 +89,7 @@ function BitacoraContent() {
       recibido_por_whatsapp: false,
     };
     const { error } = await supabase.from("bitacora_obra").insert(payload);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setForm({ ...FORM_INIT });
     setShowForm(false);
     loadEntradas();

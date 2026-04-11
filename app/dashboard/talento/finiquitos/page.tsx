@@ -267,7 +267,7 @@ export default function FiniquitosPage() {
     });
 
     if (error) {
-      setFlashMsg({ type: "error", msg: "Error: " + error.message });
+      setFlashMsg({ type: "error", msg: "Error: " + (error as {message?: string})?.message || "Error desconocido" });
       return;
     }
 
@@ -335,7 +335,7 @@ export default function FiniquitosPage() {
     const { error } = await supabase.from("finiquitos").update(updates).eq("id", id);
 
     if (error) {
-      setFlashMsg({ type: "error", msg: "Error: " + error.message });
+      setFlashMsg({ type: "error", msg: "Error: " + (error as {message?: string})?.message || "Error desconocido" });
       return;
     }
 

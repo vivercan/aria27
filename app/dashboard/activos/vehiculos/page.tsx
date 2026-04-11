@@ -64,7 +64,7 @@ export default function VehiculosPage() {
       .select("*")
       .in("tipo", ["VEHICULO", "MAQUINARIA"])
       .order("nombre");
-    if (error) console.error("Error:", error?.message);
+    if (error) console.error("Error:", (error as {message?: string})?.message || "Unknown error");
     if (data) setVehiculos(data);
     setLoading(false);
   };
@@ -104,11 +104,11 @@ export default function VehiculosPage() {
 
     if (editId) {
       const { error } = await supabase.from("activos").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
+      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al actualizar"); }
       else { msg("success", "Vehículo actualizado"); closeModal(); cargar(); }
     } else {
       const { error } = await supabase.from("activos").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error al crear"); }
+      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al crear"); }
       else { msg("success", "Vehículo registrado"); closeModal(); cargar(); }
     }
     setGuardando(false);
@@ -129,7 +129,7 @@ export default function VehiculosPage() {
     try {
       await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
       msg("success", "Vehículo eliminado");
-    } catch (e: unknown) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" });
     cargar();
   };

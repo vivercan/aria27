@@ -97,7 +97,7 @@ export default function AuthorizeRequisicionesPage() {
       }
     } catch (err: unknown) {
       console.error("Error en handleAction:", err);
-      flash("err", "Error: " + err?.message);
+      flash("err", "Error: " + ((err as {message?: string})?.message));
     }
 
     setSelectedReq(null);

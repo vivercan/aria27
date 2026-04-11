@@ -147,7 +147,7 @@ export default function ImportCSV() {
       try {
         valid.push(def.mapRow(r));
       } catch (e: unknown) {
-        invalid.push({ row: i + 2, err: e?.message || "Error al parsear" });
+        invalid.push({ row: i + 2, err: (e as {message?: string})?.message || "Error al parsear" });
       }
     });
     setDryRun({ valid, invalid });
@@ -165,7 +165,7 @@ export default function ImportCSV() {
       const { error } = await supabase.from(def.table).insert(chunk);
       if (error) {
         fail += chunk.length;
-        errors.push(error.message);
+        errors.push((error as {message?: string})?.message || "Error desconocido");
       } else {
         ok += chunk.length;
       }

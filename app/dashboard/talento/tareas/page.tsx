@@ -135,7 +135,7 @@ export default function TareasTalentoPage() {
       ({ error } = await supabase.from("tareas_asignadas").insert(payload));
     }
     setGuardando(false);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setShowForm(false);
     setEditando(null);
     setForm(EMPTY_FORM);
@@ -149,7 +149,7 @@ export default function TareasTalentoPage() {
   async function confirmarEliminar() {
     const { error } = await supabase.from("tareas_asignadas").delete().eq("id", confirmState.id);
     closeConfirm();
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     cargar();
   }
 

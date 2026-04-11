@@ -112,7 +112,7 @@ export default function SIROCPage() {
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "siroc", payload: basePayload, urlField: "documento_url" });
         } else {
           const { error } = await supabase.from("siroc").insert({ ...basePayload, documento_url: form.documento_url || null });
-          if (error) throw new Error(error.message);
+          if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         }
         msg("success", "Registro registrado"); setShowForm(false); cargar();
       } else {
@@ -127,7 +127,7 @@ export default function SIROCPage() {
         msg("success", "Registro actualizado"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: unknown) {
-      msg("error", e?.message || "Error");
+      msg("error", (e as {message?: string})?.message || "Error");
     }
     setGuardando(false);
   };
@@ -149,7 +149,7 @@ export default function SIROCPage() {
     try {
       const r = await deleteRowAndBlob({ table: "siroc", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: unknown) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

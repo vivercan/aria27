@@ -107,7 +107,7 @@ export default function PlanosPage() {
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "planos", payload: basePayload, urlField: "url" });
         } else {
           const { error } = await supabase.from("planos").insert({ ...basePayload, url: form.url || null });
-          if (error) throw new Error(error.message);
+          if (error) throw new Error((error as {message?: string})?.message || "Error desconocido");
         }
         msg("success", "Plano registrado"); setShowForm(false); cargar();
       } else {
@@ -122,7 +122,7 @@ export default function PlanosPage() {
         msg("success", "Plano actualizado"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: unknown) {
-      msg("error", e?.message || "Error");
+      msg("error", (e as {message?: string})?.message || "Error");
     }
     setGuardando(false);
   };
@@ -142,7 +142,7 @@ export default function PlanosPage() {
     try {
       const r = await deleteRowAndBlob({ table: "planos", id: deleteModal.id, userEmail, bucket: "expedientes" });
       msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: unknown) { msg("error", e?.message || "Error"); }
+    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 

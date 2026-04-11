@@ -135,12 +135,12 @@ export default function CajaChicaPage() {
     };
     if (editFondoId) {
       const { error } = await supabase.from("caja_chica_fondos").update({ ...payload, updated_at: new Date().toISOString() }).eq("id", editFondoId);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Fondo actualizado");
     } else {
       payload.saldo_actual = monto; // saldo inicial = monto autorizado
       const { error } = await supabase.from("caja_chica_fondos").insert(payload);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Fondo creado con saldo " + fmt(monto));
     }
     setShowFondoForm(false); setEditFondoId(null); setFondoForm(FONDO_INIT);
@@ -155,7 +155,7 @@ export default function CajaChicaPage() {
   async function toggleFondoEstatus(f: Fondo) {
     const next = f.estatus === "ACTIVO" ? "SUSPENDIDO" : "ACTIVO";
     const { error } = await supabase.from("caja_chica_fondos").update({ estatus: next, updated_at: new Date().toISOString() }).eq("id", f.id);
-    if (error) flash("err", error.message); else { flash("ok", `Fondo ${next.toLowerCase()}`); loadAll(); }
+    if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", `Fondo ${next.toLowerCase()}`); loadAll(); }
   }
 
   /* ── CRUD Movimientos ── */
@@ -189,7 +189,7 @@ export default function CajaChicaPage() {
       notas: movForm.notas || null,
     };
     const { error } = await supabase.from("caja_chica_movimientos").insert(payload);
-    if (error) { flash("err", error.message); setSaving(false); return; }
+    if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
     flash("ok", `${movForm.tipo === "GASTO" ? "Gasto" : "Reposición"} registrado: ${fmt(m)}`);
     setShowMovForm(false); setMovForm(MOV_INIT); setSaving(false); loadAll();
   }
@@ -200,7 +200,7 @@ export default function CajaChicaPage() {
       msg: "¿Eliminar este movimiento? El saldo del fondo se ajustará automáticamente.",
       onOk: async () => {
         const { error } = await supabase.from("caja_chica_movimientos").delete().eq("id", id);
-        if (error) flash("err", error.message); else { flash("ok", "Movimiento eliminado"); loadAll(); }
+        if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", "Movimiento eliminado"); loadAll(); }
       }
     });
   }
@@ -234,7 +234,7 @@ export default function CajaChicaPage() {
       estatus: "ABIERTO",
     };
     const { error } = await supabase.from("caja_chica_cortes").insert(payload);
-    if (error) { flash("err", error.message); setSaving(false); return; }
+    if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
     flash("ok", `Corte generado: ${movsDelPeriodo.length} movimientos, gastos ${fmt(totalGastos)}`);
     setShowCorteForm(false); setCorteForm({ fondo_id: "", fecha_inicio: "", fecha_fin: "", periodo: "" });
     setSaving(false); loadAll();
@@ -246,7 +246,7 @@ export default function CajaChicaPage() {
       msg: `¿Cerrar corte "${c.periodo}"? No se podrá reabrir.`,
       onOk: async () => {
         const { error } = await supabase.from("caja_chica_cortes").update({ estatus: "CERRADO", cerrado_at: new Date().toISOString(), cerrado_por: "admin" }).eq("id", c.id);
-        if (error) flash("err", error.message); else { flash("ok", "Corte cerrado"); loadAll(); }
+        if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", "Corte cerrado"); loadAll(); }
       }
     });
   }

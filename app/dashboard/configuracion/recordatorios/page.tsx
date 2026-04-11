@@ -53,7 +53,7 @@ export default function RecordatoriosPage() {
     if (!validar()) return;
     setSaving(true);
     const { error } = await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
-    if (error) { flash("err", "Error al crear recordatorio: " + error.message); setSaving(false); return; }
+    if (error) { flash("err", "Error al crear recordatorio: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
     const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
     setRecords(data || []);
     setForm(EMPTY); setShowForm(false); setSaving(false);

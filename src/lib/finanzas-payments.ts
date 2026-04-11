@@ -94,8 +94,8 @@ export async function registrarPagoOC(
     .maybeSingle();
 
   if (error) {
-    log.error("registrarPagoOC update fallido", { ocId, error: error.message });
-    throw new Error(`No se pudo registrar el pago: ${error.message}`);
+    log.error("registrarPagoOC update fallido", { ocId, error: (error as {message?: string})?.message || "Error" });
+    throw new Error(`No se pudo registrar el pago: ${(error as {message?: string})?.message || "Error"}`);
   }
 
   if (!data) {
@@ -189,9 +189,9 @@ export async function registrarCobroEstimacion(
   if (error) {
     log.error("registrarCobroEstimacion update fallido", {
       estimacionId,
-      error: error.message,
+      error: (error as {message?: string})?.message || "Error",
     });
-    throw new Error(`No se pudo registrar el cobro: ${error.message}`);
+    throw new Error(`No se pudo registrar el cobro: ${(error as {message?: string})?.message || "Error"}`);
   }
 
   if (!data) {

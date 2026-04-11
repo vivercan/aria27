@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (e: unknown) {
     return NextResponse.json(
-      { error: e?.message || "error procesando imagen" },
+      { error: (e as {message?: string})?.message || "error procesando imagen" },
       { status: 500 }
     );
   }

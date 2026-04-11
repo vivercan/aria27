@@ -95,7 +95,7 @@ export default function UsuariosPage() {
         return;
       }
     } catch (e: unknown) {
-      flash("err", "Error de red: " + (e?.message || "desconocido"));
+      flash("err", "Error de red: " + ((e as {message?: string})?.message || "desconocido"));
       return;
     }
     setEditingId(null);

@@ -222,8 +222,8 @@ export default function PersonalPage() {
 
   const getEmpresaNombre = (id: string) => empresas.find(e => e.id === id)?.nombre || "\u2014";
 
-  const Field = ({ label, field, type = "text", placeholder = "", options }: {
-    label: string; field: string; type?: string; placeholder?: string;
+  const Field = ({ label, field, type = "text", placeholder = "", options, min }: {
+    label: string; field: string; type?: string; placeholder?: string; min?: string;
     options?: { value: string; label: string }[];
   }) => (
     <div>
@@ -242,6 +242,7 @@ export default function PersonalPage() {
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
           placeholder={placeholder}
+          min={min}
           className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}
         />
       )}

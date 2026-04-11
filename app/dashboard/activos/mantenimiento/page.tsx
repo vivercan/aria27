@@ -142,13 +142,13 @@ export default function MantenimientoPage() {
     };
     if (editOrdenId) {
       const { error } = await supabase.from("mantenimiento_ordenes").update(payload).eq("id", editOrdenId);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Orden actualizada");
     } else {
       payload.folio = `OT-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
       payload.fecha_solicitud = new Date().toISOString().slice(0, 10);
       const { error } = await supabase.from("mantenimiento_ordenes").insert(payload);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", `Orden ${payload.folio} creada`);
     }
     setShowOrdenForm(false); setEditOrdenId(null); setOrdenForm(ORDEN_INIT);
@@ -173,7 +173,7 @@ export default function MantenimientoPage() {
     if (nuevoEstatus === "EN_PROCESO" && !o.fecha_inicio) payload.fecha_inicio = new Date().toISOString().slice(0, 10);
     if (nuevoEstatus === "COMPLETADA") payload.fecha_fin = new Date().toISOString().slice(0, 10);
     const { error } = await supabase.from("mantenimiento_ordenes").update(payload).eq("id", o.id);
-    if (error) flash("err", error.message); else { flash("ok", `Orden ${o.folio} → ${nuevoEstatus}`); loadAll(); }
+    if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", `Orden ${o.folio} → ${nuevoEstatus}`); loadAll(); }
   }
 
   async function eliminarOrden(id: string) {
@@ -182,7 +182,7 @@ export default function MantenimientoPage() {
       msg: "¿Eliminar esta orden de trabajo?",
       onOk: async () => {
         const { error } = await supabase.from("mantenimiento_ordenes").delete().eq("id", id);
-        if (error) flash("err", error.message); else { flash("ok", "Orden eliminada"); loadAll(); }
+        if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", "Orden eliminada"); loadAll(); }
       }
     });
   }
@@ -211,11 +211,11 @@ export default function MantenimientoPage() {
     }
     if (editProgId) {
       const { error } = await supabase.from("mantenimiento_programas").update(payload).eq("id", editProgId);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Programa actualizado");
     } else {
       const { error } = await supabase.from("mantenimiento_programas").insert(payload);
-      if (error) { flash("err", error.message); setSaving(false); return; }
+      if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Programa preventivo creado");
     }
     setShowProgForm(false); setEditProgId(null); setProgForm(PROG_INIT);
@@ -235,7 +235,7 @@ export default function MantenimientoPage() {
 
   async function toggleProg(p: Programa) {
     const { error } = await supabase.from("mantenimiento_programas").update({ activo: !p.activo, updated_at: new Date().toISOString() }).eq("id", p.id);
-    if (error) flash("err", error.message); else { flash("ok", p.activo ? "Programa pausado" : "Programa activado"); loadAll(); }
+    if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", p.activo ? "Programa pausado" : "Programa activado"); loadAll(); }
   }
 
   async function generarOrdenDesdePrograma(p: Programa) {
@@ -253,7 +253,7 @@ export default function MantenimientoPage() {
       costo_estimado: p.costo_estimado,
       estatus: "ABIERTA",
     });
-    if (error) flash("err", error.message); else { flash("ok", `Orden ${folio} generada desde programa`); loadAll(); setTab("Órdenes"); }
+    if (error) flash("err", (error as {message?: string})?.message || "Error desconocido"); else { flash("ok", `Orden ${folio} generada desde programa`); loadAll(); setTab("Órdenes"); }
   }
 
   /* ── filters ── */

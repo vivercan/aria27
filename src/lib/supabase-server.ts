@@ -1,5 +1,8 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
+/** Utility type for Supabase error objects */
+export type SupaErr = { message?: string; details?: string; hint?: string; code?: string } | null;
+
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

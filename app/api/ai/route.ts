@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error desconocido";
+    const message = error instanceof Error ? (error as {message?: string})?.message || "Unknown error" : "Error desconocido";
     return NextResponse.json(
       { error: message, success: false },
       { status: 500 }

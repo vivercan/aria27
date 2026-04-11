@@ -115,7 +115,7 @@ export default function SirocBimestralesPage() {
     };
     const { error } = await supabase.from("siroc_bimestrales").insert(payload);
     setGuardando(false);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     setShowForm(false); setForm(EMPTY); cargar();
   }
 

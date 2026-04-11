@@ -108,7 +108,7 @@ export default function AvanceObrasPage() {
       await cargar();
       flash("ok", "Guardado exitosamente");
     } catch (e: unknown) {
-      flash("err", "Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + ((e as {message?: string})?.message || "desconocido"));
     } finally {
       setSaving(false);
     }

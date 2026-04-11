@@ -162,14 +162,12 @@ export default function GastosObraPage() {
       };
 
       if (drawerMode === "create") {
-        let newData = baseData;
+        let newData: any = baseData;
 
         // Handle file upload
         if (formData.comprobante) {
           setUploadingFile(true);
-          const fileName = formData.comprobante.name;
-          const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: formData.comprobante });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")
@@ -185,14 +183,12 @@ export default function GastosObraPage() {
         if (error) throw error;
         flash("ok", "Gasto creado exitosamente");
       } else if (drawerMode === "edit" && selectedGasto) {
-        let updateData = baseData;
+        let updateData: any = baseData;
 
         // Handle file upload for edit
         if (formData.comprobante) {
           setUploadingFile(true);
-          const fileName = formData.comprobante.name;
-          const fileExt = fileName.split(".").pop();
-          const path = buildPath({ module: "gastos", scope: [formData.obra], file: { name: `${Date.now()}.${fileExt}` } });
+          const path = buildPath({ module: "gastos", scope: [formData.obra], file: formData.comprobante });
 
           const { data: uploadedData, error: uploadError } = await supabase.storage
             .from("expedientes")
@@ -569,7 +565,6 @@ export default function GastosObraPage() {
                     type="file"
                     accept="image/*,.pdf"
                     onChange={e => setFormData({ ...formData, comprobante: e.target.files?.[0] || null })}
-                    disabled={drawerMode === "view"}
                     className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
                   />
                 )}

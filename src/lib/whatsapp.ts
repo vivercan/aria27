@@ -1,5 +1,7 @@
 import { createHmac } from "crypto";
+import { logger } from "@/lib/logger";
 
+const log = logger("WHATSAPP");
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
 // ============================================
@@ -208,7 +210,7 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] [SEND] Enviando:", templateName, "->", formattedPhone);
+  log.info("Enviando template", { template: templateName, phone: formattedPhone });
 
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
@@ -223,7 +225,7 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] [ERROR] Error:", data.error?.message || response.status);
+      log.error("API error", { error: data.error?.message || `HTTP ${response.status}`, template: templateName, phone: formattedPhone });
       return { 
         success: false, 
         error: data.error?.message || `HTTP ${response.status}` 
@@ -231,11 +233,11 @@ export async function sendWhatsAppTemplate(
     }
 
     const messageId = data.messages?.[0]?.id;
-    console.log("[WhatsApp] [OK] Enviado:", messageId);
+    log.info("Enviado OK", { messageId, template: templateName, phone: formattedPhone });
     return { success: true, messageId };
 
   } catch (error: unknown) {
-    console.error("[WhatsApp] [ERROR] Exception:", (error as Error).message);
+    log.error("Exception", { error: (error as Error).message, template: templateName, phone: formattedPhone });
     return { success: false, error: (error as Error).message };
   }
 }

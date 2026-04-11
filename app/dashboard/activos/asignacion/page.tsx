@@ -112,7 +112,7 @@ export default function AsignacionPage() {
     if (error) {
       // Rollback
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
-      msg("error", "Error al crear asignación: " + error.message);
+      msg("error", "Error al crear asignación: " + (error as {message?: string})?.message || "Error desconocido");
       setSaving(false);
       return;
     }
@@ -129,7 +129,7 @@ export default function AsignacionPage() {
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) { msg("error", "Error al devolver: " + error.message); return; }
+    if (error) { msg("error", "Error al devolver: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     if (!rows || rows.length === 0) { msg("error", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
 
     // Liberar activo

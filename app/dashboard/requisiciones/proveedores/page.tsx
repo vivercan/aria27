@@ -107,10 +107,10 @@ export default function ProveedoresPage() {
       const payload:any = {...form, categories: catsArr && catsArr.length>0 ? catsArr : null};
       if(editingId){
         const { error } = await supabase.from("suppliers").update(payload).eq("id",editingId);
-        if (error) { flash("err", "Error al actualizar proveedor: " + error.message); return; }
+        if (error) { flash("err", "Error al actualizar proveedor: " + (error as {message?: string})?.message || "Error desconocido"); return; }
       } else {
         const { error } = await supabase.from("suppliers").insert({...payload,active:true});
-        if (error) { flash("err", "Error al crear proveedor: " + error.message); return; }
+        if (error) { flash("err", "Error al crear proveedor: " + (error as {message?: string})?.message || "Error desconocido"); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
     }catch(e){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}

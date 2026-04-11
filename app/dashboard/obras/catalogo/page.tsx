@@ -111,11 +111,11 @@ export default function CatalogoObrasPage() {
 
     if (editId) {
       const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
+      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Obra actualizada");
     } else {
       const { error } = await supabase.from("centros_trabajo").insert(payload);
-      if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
+      if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
       flash("ok", "Obra creada");
     }
     setSaving(false);
@@ -127,7 +127,7 @@ export default function CatalogoObrasPage() {
     const { error } = await supabase.from("centros_trabajo")
       .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
       .eq("id", obraId);
-    if (error) { flash("err", "Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     flash("ok", `Obra → ${label}`);
     cargar();
   };
