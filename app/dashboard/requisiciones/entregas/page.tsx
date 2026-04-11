@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -38,6 +39,7 @@ interface Obra { id: string; name: string; }
 interface Empleado { id: string; full_name: string; }
 
 export default function EntregasPage() {
+  const log = clientLogger("ENTREGAS");
   const { msg, flash, clear } = useFlashMessage();
   const [entregas, setEntregas] = useState<Entrega[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +116,7 @@ export default function EntregasPage() {
       observaciones: form.observaciones,
       materiales_recibidos: form.materiales.filter(m => m.producto)
     });
-    if (error) { console.error(error); flash("err", "Error al guardar"); return; }
+    if (error) { log.error(String(error)); flash("err", "Error al guardar"); return; }
     setShowModal(false);
     setForm({ fecha_entrega: new Date().toISOString().split("T")[0], hora_entrega: new Date().toTimeString().slice(0, 5), proveedor_nombre: "", obra_nombre: "", recibido_por_nombre: "", status: "COMPLETA", observaciones: "", materiales: [{ producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }] });
     cargarDatos();

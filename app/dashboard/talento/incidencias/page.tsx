@@ -1,5 +1,6 @@
 "use client";
 
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, AlertCircle, Clock, Calendar, UserX, CheckCircle2 , Loader2 } from "lucide-react";
@@ -21,6 +22,7 @@ interface Incidencia {
 }
 
 export default function IncidenciasPage() {
+  const log = clientLogger("INCIDENCIAS");
   const [incidencias, setIncidencias] = useState<Incidencia[]>([]);
   const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function IncidenciasPage() {
       setIncidencias(inc || []);
       const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
       setEmpleados(emps || []);
-    } catch (e: unknown) { console.error(e); } finally { setLoading(false); }
+    } catch (e: unknown) { log.error(String(e)); } finally { setLoading(false); }
   }
 
   async function guardar() {

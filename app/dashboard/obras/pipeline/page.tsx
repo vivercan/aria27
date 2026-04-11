@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -47,6 +48,7 @@ const STATUS_OPTIONS = [
 const EMPTY: ObraForm = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
 
 export default function PipelinePage() {
+  const log = clientLogger("PIPELINE");
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -230,7 +232,7 @@ export default function PipelinePage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

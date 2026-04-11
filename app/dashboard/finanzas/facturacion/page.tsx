@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson } from "lucide-react";
@@ -38,6 +39,7 @@ interface FacturaStorageFiles {
 }
 
 export default function FacturacionPage() {
+  const log = clientLogger("FACTURACION");
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -74,7 +76,7 @@ export default function FacturacionPage() {
         }
       }
       setUploadedFiles(filesMap);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 
@@ -108,7 +110,7 @@ export default function FacturacionPage() {
 
       return { xml: xmlUrl, pdf: pdfUrl };
     } catch (e: unknown) {
-      console.error("Error loading files:", e);
+      log.error("Error loading files:", { data: e });
       return { xml: null, pdf: null };
     }
   }
@@ -119,7 +121,7 @@ export default function FacturacionPage() {
       const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
       if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-        console.error("Error parsing XML");
+        log.error("Error parsing XML");
         return null;
       }
 
@@ -165,7 +167,7 @@ export default function FacturacionPage() {
         metodo_pago: metodoPago,
       };
     } catch (e: unknown) {
-      console.error("Error parsing CFDI XML:", e);
+      log.error("Error parsing CFDI XML:", { data: e });
       return null;
     }
   }
@@ -205,7 +207,7 @@ export default function FacturacionPage() {
       setShowUploadModal(false);
       flash("ok", "Archivos subidos exitosamente");
     } catch (e: unknown) {
-      console.error("Upload error:", e);
+      log.error("Upload error:", { data: e });
       flash("err", "Error al subir archivos: " + (e instanceof Error ? (e as Error).message : "Desconocido"));
     } finally {
       setUploading(false);

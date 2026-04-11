@@ -41,14 +41,14 @@ function Content() {
       .lte("created_at", hasta + "T23:59:59")
       .neq("estatus", "CANCELADO")
       .order("created_at", { ascending: true });
-    setRows((data || []).map((c: any) => ({
-      cliente: c.cliente_nombre || "—",
-      obra: c.obra_nombre || "—",
+    setRows((data || []).map((c: Record<string, unknown>) => ({
+      cliente: (c.cliente_nombre as string) || "—",
+      obra: (c.obra_nombre as string) || "—",
       monto: Number(c.monto) || 0,
       saldo: Number(c.saldo) || 0,
       cobrado: (Number(c.monto) || 0) - (Number(c.saldo) || 0),
-      estatus: c.estatus || "—",
-      fecha: (c.created_at || "").slice(0, 10),
+      estatus: (c.estatus as string) || "—",
+      fecha: ((c.created_at as string) || "").slice(0, 10),
     })));
     setLoading(false);
   }

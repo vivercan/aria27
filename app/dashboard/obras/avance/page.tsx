@@ -88,7 +88,7 @@ export default function AvanceObrasPage() {
     setSaving(true);
     try {
       const existente = semanaActual.get(obra_nombre);
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         obra_id: obra_id || null,
         obra_nombre,
         semana_iso: semana,

@@ -8,6 +8,12 @@ export interface ObraCatalogo {
   estado: string;
 }
 
+interface ObraRow {
+  id: string;
+  nombre: string;
+  estado: string;
+}
+
 /**
  * Hook reusable para cargar la fuente única de obras (centros_trabajo).
  * Por defecto excluye CANCELADAS y TERMINADAS para inputs operativos.
@@ -27,7 +33,7 @@ export function useObrasCatalogo(opts: { incluirInactivas?: boolean } = {}) {
       if (cancel) return;
       const filt = opts.incluirInactivas
         ? (data || [])
-        : (data || []).filter((o: any) => o.estado !== "CANCELADA" && o.estado !== "TERMINADA");
+        : (data || []).filter((o: ObraRow) => o.estado !== "CANCELADA" && o.estado !== "TERMINADA");
       setObras(filt as ObraCatalogo[]);
       setLoading(false);
     })();

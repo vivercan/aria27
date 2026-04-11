@@ -3,8 +3,21 @@ import { supabase } from "@/lib/supabase";
 
 const AUTHORIZED_ROLES = ["admin", "rh", "compras", "almacen"];
 
+interface CheckAuthBody {
+  user_email?: unknown;
+  [key: string]: unknown;
+}
+
+interface SinRegistroRecord {
+  employee_id: number;
+  empleado: string;
+  numero: string;
+  fecha: string;
+  tipo: string;
+}
+
 // AUTH helper
-async function checkAuth(req: NextRequest, body?: any): Promise<{ authorized: boolean; role?: string; error?: string }> {
+async function checkAuth(req: NextRequest, body?: CheckAuthBody): Promise<{ authorized: boolean; role?: string; error?: string }> {
   const email = body?.user_email || req.nextUrl.searchParams.get("user_email");
   if (!email) return { authorized: false, error: "user_email requerido" };
 
@@ -93,7 +106,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 5. Detectar días sin registro por empleado
-    const sinRegistro: any[] = [];
+    const sinRegistro: SinRegistroRecord[] = [];
     for (const emp of empleados || []) {
       const asistenciasEmp =
         todasAsistencias?.filter((a) => a.employee_id === emp.id) || [];

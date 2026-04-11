@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -16,6 +17,7 @@ interface Part { obra_nombre: string; importe: number; }
 interface Av { obra_nombre: string; semana_iso: string; pct_fisico: number; }
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const log = clientLogger("CEO");
 const fmt2 = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function isThisMonth(iso: string): boolean {
@@ -56,7 +58,7 @@ export default function CeoDashboardPage() {
       setNom((n.data as Nom[]) || []);
       setParts((pp.data as Part[]) || []);
       setAvs((a.data as Av[]) || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setLoading(false);
   }
 

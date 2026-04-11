@@ -30,7 +30,7 @@ function Content() {
 
   async function cargarProveedores() {
     const { data } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
-    setProveedores((data || []).map((p: any) => p.name).filter(Boolean));
+    setProveedores((data || []).map((p: { name: string }) => p.name).filter(Boolean));
   }
 
   async function cargar() {
@@ -41,17 +41,17 @@ function Content() {
       .eq("supplier_name", proveedor)
       .neq("status", "CANCELADA")
       .order("created_at", { ascending: false });
-    setOcs((pos || []).map((p: any) => {
+    setOcs((pos || []).map((p: Record<string, unknown>) => {
       const total = Number(p.total) || 0;
       const pagado = Number(p.monto_pagado) || 0;
       return {
-        folio: p.po_number || "—",
-        fecha: (p.created_at || "").slice(0, 10),
-        obra: p.obra_nombre || "—",
+        folio: (p.po_number as string) || "—",
+        fecha: ((p.created_at as string) || "").slice(0, 10),
+        obra: (p.obra_nombre as string) || "—",
         total,
         pagado,
         saldo: total - pagado,
-        status: p.status || "—",
+        status: (p.status as string) || "—",
       };
     }));
     setLoading(false);

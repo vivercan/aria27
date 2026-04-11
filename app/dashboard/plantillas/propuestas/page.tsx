@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -22,6 +23,7 @@ const ESTADOS = ["borrador", "enviada", "en_revision", "aprobada", "rechazada"];
 const EMPTY = { nombre: "", cliente: "", obra: "", monto_estimado: "", estado: "borrador", fecha_entrega: "" };
 
 export default function PropuestasPage() {
+  const log = clientLogger("PROPUESTAS");
   const [propuestas, setPropuestas] = useState<Propuesta[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -64,8 +66,8 @@ export default function PropuestasPage() {
   const guardar = async () => {
     if (!validar()) return;
     setGuardando(true);
-    const payload: any = { ...form };
-    if (payload.monto_estimado) payload.monto_estimado = parseFloat(payload.monto_estimado);
+    const payload: Record<string, unknown> = { ...form };
+    if (payload.monto_estimado) payload.monto_estimado = parseFloat(String(payload.monto_estimado));
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
@@ -105,7 +107,7 @@ export default function PropuestasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "propuestas_licitacion", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

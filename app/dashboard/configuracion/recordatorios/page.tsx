@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -23,6 +24,7 @@ interface Recordatorio {
 const EMPTY = { empleado_nombre: "", tipo: "BITACORA", fecha_hora: "", canal: "WHATSAPP" };
 
 export default function RecordatoriosPage() {
+  const log = clientLogger("RECORDATORIOS");
   const { msg, flash, clear } = useFlashMessage();
   const [records, setRecords] = useState<Recordatorio[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
@@ -69,7 +71,7 @@ export default function RecordatoriosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "recordatorios_bitacora", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };

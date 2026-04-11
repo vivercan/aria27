@@ -8,7 +8,7 @@ interface WaLogRow {
   id: string;
   template: string;
   phone: string;
-  params: any;
+  params: Record<string, string>;
   success: boolean;
   message_id: string | null;
   error: string | null;

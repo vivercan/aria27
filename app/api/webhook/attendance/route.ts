@@ -38,8 +38,33 @@ function getWeekNumber(date: Date): number {
   return Math.ceil((days + startOfYear.getDay() + 1) / 7);
 }
 
+interface GastoData {
+  proveedor?: string;
+  monto?: number;
+  fecha?: string;
+  descripcion?: string;
+  categoria?: string;
+  obra?: string;
+  esGasto?: boolean;
+}
+
+interface InventarioData {
+  material?: string;
+  cantidad?: number;
+  unidad?: string;
+  obra?: string;
+  proveedor?: string;
+  descripcion?: string;
+  _caption?: string;
+}
+
+interface MediaInfo {
+  url: string;
+  mimeType: string;
+}
+
 // ============== CLAUDE API PARA EXTRAER DATOS DE TICKET ==============
-async function extractGastoFromImage(imageUrl: string, mediaType: string): Promise<any> {
+async function extractGastoFromImage(imageUrl: string, mediaType: string): Promise<GastoData | null> {
   try {
     const imageResponse = await fetch(imageUrl, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
@@ -85,7 +110,7 @@ Si no puedes leer algo, pon null en ese campo.` }
   }
 }
 
-async function extractGastoFromText(text: string): Promise<any> {
+async function extractGastoFromText(text: string): Promise<GastoData | null> {
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -122,7 +147,7 @@ Si no parece ser un gasto, responde: {"esGasto": false}`
   }
 }
 
-async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: string} | null> {
+async function getMediaUrl(mediaId: string): Promise<MediaInfo | null> {
   try {
     const response = await fetch(`https://graph.facebook.com/v22.0/${mediaId}`, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
@@ -135,7 +160,7 @@ async function getMediaUrl(mediaId: string): Promise<{url: string, mimeType: str
 }
 
 // ============== CLAUDE: EXTRAER DATOS DE INVENTARIO DESDE IMAGEN ==============
-async function extractInventarioFromImage(imageUrl: string, mediaType: string, caption: string): Promise<any> {
+async function extractInventarioFromImage(imageUrl: string, mediaType: string, caption: string): Promise<InventarioData | null> {
   try {
     const imageResponse = await fetch(imageUrl, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
@@ -190,7 +215,7 @@ Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dic
 }
 
 // ============== MANEJAR ENTRADA DE INVENTARIO VÍA WHATSAPP ==============
-async function handleInventarioWhatsApp(from: string, phone10: string, invData: any, imageUrl: string) {
+async function handleInventarioWhatsApp(from: string, phone10: string, invData: InventarioData, imageUrl: string) {
   const material = invData.material;
   const cantidad = invData.cantidad || 1;
   const unidad = invData.unidad || "PZA";
@@ -205,7 +230,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   let obraFinal = obraNombre;
   if (!obraFinal) {
     const emp = await findEmpleado(phone10, from);
-    obraFinal = emp?.centro_trabajo?.nombre || null;
+    obraFinal = emp?.centro_trabajo?.nombre;
   }
 
   if (!obraFinal) {
@@ -315,7 +340,7 @@ async function findEmpleado(phone10: string, fullPhone: string): Promise<Emplead
 }
 
 // ============== MANEJAR GASTO ==============
-async function handleGasto(from: string, phone10: string, gastoData: any, imageUrl?: string) {
+async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
   const today = new Date();
   const fecha = gastoData.fecha || today.toISOString().split("T")[0];
   const semana = getWeekNumber(today);

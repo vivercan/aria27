@@ -1,10 +1,12 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Gift, Calculator, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AguinaldoPage() {
+  const log = clientLogger("AGUINALDO");
   const [empleados, setEmpleados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [anio, setAnio] = useState(new Date().getFullYear());
@@ -12,16 +14,16 @@ export default function AguinaldoPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
-      if (error) { console.error("Error loading employees:", error?.message); setLoading(false); return; }
+      if (error) { log.error("Error loading employees:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };
     load();
   }, []);
 
-  const calcAguinaldo = (emp: any) => {
-    const sd = emp.salario_diario || 0;
-    const ingreso = emp.fecha_ingreso ? new Date(emp.fecha_ingreso) : null;
+  const calcAguinaldo = (emp: Record<string, unknown>) => {
+    const sd = (emp.salario_diario as number) || 0;
+    const ingreso = (emp.fecha_ingreso as string) ? new Date(emp.fecha_ingreso as string) : null;
     if (!ingreso || !sd) return { dias: 0, monto: 0, proporcional: false };
     const inicioAnio = new Date(anio, 0, 1);
     const finAnio = new Date(anio, 11, 31);

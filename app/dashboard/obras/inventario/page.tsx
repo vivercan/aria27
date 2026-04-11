@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -43,12 +44,21 @@ interface ItemInventario {
   ultimo_usuario?: string | null;
 }
 
+interface MaterialRecibido {
+  product_name?: string;
+  unit?: string;
+  quantity?: number;
+  nombre?: string;
+  unidad?: string;
+  cantidad?: number;
+}
+
 interface Entrega {
   id: string;
   folio: string;
   fecha_entrega: string;
   proveedor_nombre: string;
-  materiales_recibidos: any[];
+  materiales_recibidos: MaterialRecibido[];
   status: string;
   foto_url?: string | null;
 }
@@ -70,6 +80,7 @@ const getUserEmail = () =>
   typeof window !== "undefined" ? localStorage.getItem("userEmail") || "sistema" : "sistema";
 
 export default function InventarioObraPage() {
+  const log = clientLogger("INVENTARIO");
   const { msg, flash, clear } = useFlashMessage();
   const [obras, setObras] = useState<Obra[]>([]);
   const [obraSeleccionada, setObraSeleccionada] = useState<Obra | null>(null);
@@ -135,7 +146,7 @@ export default function InventarioObraPage() {
   // ====== LOADERS ======
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
-    if (error) { console.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido"); }
+    if (error) { log.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido"); }
     setObras(data || []);
     setLoading(false);
   };
@@ -143,7 +154,7 @@ export default function InventarioObraPage() {
   const loadInventario = async (obraId: number) => {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
-    if (error) { console.error("Error loading inventario:", (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { log.error("Error loading inventario:", (error as {message?: string})?.message || "Error desconocido"); return; }
     // Enriquecer con último usuario de movimientos
     const items: ItemInventario[] = data || [];
     if (items.length > 0) {
@@ -169,7 +180,7 @@ export default function InventarioObraPage() {
     const { data, error } = await supabase
       .from("entregas").select("*").eq("obra_nombre", obraNombre)
       .eq("status", "RECIBIDO").order("fecha_entrega", { ascending: false }).limit(10);
-    if (error) { console.error("Error loading entregas:", (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { log.error("Error loading entregas:", (error as {message?: string})?.message || "Error desconocido"); return; }
     setEntregas(data || []);
   };
 
@@ -915,8 +926,8 @@ export default function InventarioObraPage() {
                     {!validacionResult.matchExacto && validacionResult.sugerencias?.length > 0 && (
                       <div className="mt-1">
                         <p className="text-slate-400 text-xs">Productos similares:</p>
-                        {validacionResult.sugerencias.slice(0, 3).map((s: any) => (
-                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(s.id); setValidacionResult(null); }}
+                        {validacionResult.sugerencias.slice(0, 3).map((s: { id: string; name: string; unit: string; similarity: number }) => (
+                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(parseInt(s.id) || null); setValidacionResult(null); }}
                             className="block text-left text-aria-accent hover:text-aria-accent text-xs mt-0.5">
                             → {s.name} ({s.unit}) — {s.similarity}% similar
                           </button>

@@ -4,6 +4,14 @@ import { logger } from "@/lib/logger";
 
 const log = logger("MATERIAL_VALIDAR");
 
+interface ProductMatch {
+  id: number;
+  name: string;
+  unit: string;
+  category: string;
+  similarity?: number;
+}
+
 // ============================================================
 // API: POST /api/inventario/validar
 // Valida un nombre de material con IA antes de darlo de alta.
@@ -66,8 +74,8 @@ export async function POST(req: Request) {
       .select("id, name, unit, category")
       .limit(500);
 
-    let matchExacto: any = null;
-    let sugerencias: any[] = [];
+    let matchExacto: ProductMatch | null = null;
+    let sugerencias: ProductMatch[] = [];
 
     if (productos && productos.length > 0) {
       for (const p of productos) {
@@ -83,7 +91,7 @@ export async function POST(req: Request) {
           sugerencias.push({ ...p, similarity: Math.round(similarity * 100) });
         }
       }
-      sugerencias.sort((a, b) => b.similarity - a.similarity);
+      sugerencias.sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
       sugerencias = sugerencias.slice(0, 5);
     }
 

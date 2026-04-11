@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarCobroEstimacion } from "@/lib/finanzas-payments";
@@ -23,6 +24,7 @@ interface Estimacion {
 }
 
 export default function CobranzaPage() {
+  const log = clientLogger("COBRANZA");
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -40,7 +42,7 @@ export default function CobranzaPage() {
     try {
       const { data } = await supabase.from("estimaciones").select("*").order("created_at", { ascending: false });
       setEstimaciones(data || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 

@@ -10,6 +10,26 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
+interface ProductoItem {
+  nombre?: string;
+  product_name?: string;
+  cantidad?: number;
+  quantity?: number;
+  unidad?: string;
+  unit?: string;
+  categoria?: string;
+  category?: string;
+}
+
+interface ProveedorWeb {
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  sitio_web: string | null;
+  productos_relacionados: string;
+  fuente: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { productos, requisicion_id, user_email } = await req.json();
@@ -34,7 +54,7 @@ export async function POST(req: NextRequest) {
       .eq("status", "ACTIVO");
 
     // 2. Preparar lista de productos para el análisis
-    const listaProductos = productos.map((p: any) => 
+    const listaProductos = productos.map((p: ProductoItem) =>
       `- ${p.nombre || p.product_name} (${p.cantidad || p.quantity} ${p.unidad || p.unit || 'pzas'}) - Categoría: ${p.categoria || p.category || 'General'}`
     ).join("\n");
 
@@ -135,10 +155,10 @@ IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no
 
     // 7. Filtrar proveedores duplicados con los existentes
     if (resultado.proveedores_web && Array.isArray(resultado.proveedores_web)) {
-      resultado.proveedores_web = resultado.proveedores_web.filter((p: any) => {
+      resultado.proveedores_web = resultado.proveedores_web.filter((p: ProveedorWeb) => {
         const nombreIA = p.nombre?.toLowerCase().trim() || "";
-        return !nombresExistentes.some(existente => 
-          existente.includes(nombreIA) || 
+        return !nombresExistentes.some(existente =>
+          existente.includes(nombreIA) ||
           nombreIA.includes(existente) ||
           existente === nombreIA
         );

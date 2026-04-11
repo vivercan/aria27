@@ -22,7 +22,7 @@ import { FolderOpen, Upload, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, 
  */
 
 export interface EntityFolderProps {
-  entityType: "empleado" | "proveedor" | "activo" | "vehiculo" | "obra" | "empresa" | "cliente" | "plantilla";
+  entityType: string; // supports base types (empleado, proveedor, etc.) and scoped prefixes (admin:*, global:*)
   entityId: string;
   entityName?: string;
   /** email del usuario actual, para auditar uploads y eliminaciones */
@@ -44,6 +44,10 @@ interface DocRow {
   uploaded_by: string | null;
   categoria: string | null;
   created_at: string;
+}
+
+interface CategoriaRecord {
+  nombre: string;
 }
 
 const BUCKET = "expedientes";
@@ -91,7 +95,7 @@ export default function EntityFolder({
       .eq("activa", true)
       .order("orden", { ascending: true })
       .then(({ data }) => {
-        if (data && data.length > 0) setCategorias(data.map((r: any) => r.nombre));
+        if (data && data.length > 0) setCategorias(data.map((r: CategoriaRecord) => r.nombre));
       });
   }, []);
 

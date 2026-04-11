@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
@@ -33,6 +34,7 @@ interface EmpleadoRow {
 const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
 
 export default function AsignacionPage() {
+  const log = clientLogger("ASIGNACION");
   const [asignaciones, setAsignaciones] = useState<AsignacionRow[]>([]);
   const [activos, setActivos] = useState<ActivoRow[]>([]);
   const [empleados, setEmpleados] = useState<EmpleadoRow[]>([]);
@@ -53,17 +55,17 @@ export default function AsignacionPage() {
     ]);
 
     if (asigError) {
-      console.error("Error loading activos_asignaciones:", asigError?.message);
+      log.error("Error loading activos_asignaciones:", { error: asigError?.message });
       setLoading(false);
       return;
     }
     if (actsError) {
-      console.error("Error loading activos:", actsError?.message);
+      log.error("Error loading activos:", { error: actsError?.message });
       setLoading(false);
       return;
     }
     if (empsError) {
-      console.error("Error loading empleados:", empsError?.message);
+      log.error("Error loading empleados:", { error: empsError?.message });
       setLoading(false);
       return;
     }
@@ -77,12 +79,12 @@ export default function AsignacionPage() {
       ]);
 
       if (empDataError) {
-        console.error("Error loading empleado details:", empDataError?.message);
+        log.error("Error loading empleado details:", { error: empDataError?.message });
         setLoading(false);
         return;
       }
       if (actDataError) {
-        console.error("Error loading activo details:", actDataError?.message);
+        log.error("Error loading activo details:", { error: actDataError?.message });
         setLoading(false);
         return;
       }

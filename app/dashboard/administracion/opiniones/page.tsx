@@ -1,10 +1,11 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
 import {
   ScrollText, Upload, Loader2, Download,
-  Trash2, CheckCircle2, AlertTriangle, Clock, FileText, X
+  Trash2, CheckCircle2, AlertTriangle, Clock, FileText, X, LucideIcon
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -27,7 +28,14 @@ interface OpinionDoc {
   created_at: string;
 }
 
+interface StatusResult {
+  label: string;
+  color: string;
+  icon: LucideIcon;
+}
+
 export default function OpinionesPage() {
+  const log = clientLogger("OPINIONES");
   const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [docs, setDocs] = useState<OpinionDoc[]>([]);
@@ -47,14 +55,14 @@ export default function OpinionesPage() {
         .eq("carpeta_id", "opiniones_cumplimiento")
         .order("created_at", { ascending: false });
       // vigencia se calcula client-side: created_at + 30 días (la columna no existe en BD)
-      const enriched = (data || []).map((d: any) => ({
+      const enriched = (data || []).map((d: Record<string, unknown>) => ({
         ...d,
         vigencia: d.created_at
-          ? new Date(new Date(d.created_at).getTime() + 30 * 86400000).toISOString().split("T")[0]
+          ? new Date(new Date(d.created_at as string).getTime() + 30 * 86400000).toISOString().split("T")[0]
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 
@@ -87,7 +95,7 @@ export default function OpinionesPage() {
 
       await loadDocs();
     } catch (err: unknown) {
-      console.error("Error subiendo:", err);
+      log.error("Error subiendo:", { data: err });
       flash("err", "Error al subir: " + ((err as {message?: string})?.message || "desconocido"));
     } finally {
       setUploading(null);
@@ -115,7 +123,7 @@ export default function OpinionesPage() {
           }
           await loadDocs();
         } catch (e: unknown) {
-          console.error(e);
+          log.error(String(e));
           flash("err", "Error al eliminar: " + ((e as {message?: string})?.message || "desconocido"));
         }
         finally { setDeleting(null); }
@@ -127,7 +135,7 @@ export default function OpinionesPage() {
     return docs.find(d => d.tipo === tipo);
   }
 
-  function getStatus(doc: OpinionDoc | undefined): { label: string; color: string; icon: any } {
+  function getStatus(doc: OpinionDoc | undefined): StatusResult {
     if (!doc) return { label: "Sin documento", color: "text-red-400", icon: AlertTriangle };
     if (doc.vigencia) {
       const today = new Date();

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -45,6 +46,7 @@ const STATUS_OPTIONS = [
 const EMPTY_FORM = { titulo: "", responsable: "", fecha_limite: "", prioridad: "normal", obra_id: "", status: "pendiente" };
 
 export default function TareasPage() {
+  const log = clientLogger("TAREAS");
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
@@ -75,7 +77,7 @@ export default function TareasPage() {
       .from("tareas_obra")
       .select("*")
       .order("fecha_limite", { ascending: true });
-    if (error) console.error("Error loading tareas:", (error as {message?: string})?.message || "Unknown error");
+    if (error) log.error("Error loading tareas:", (error as {message?: string})?.message || "Unknown error");
     if (data) setTareas(data);
     setLoading(false);
   };
@@ -102,7 +104,7 @@ export default function TareasPage() {
     setGuardando(true);
 
     const obra = obras.find(o => o.id === Number(form.obra_id));
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       titulo: form.titulo.trim(),
       responsable: form.responsable?.trim() || null,
       fecha_limite: form.fecha_limite || null,

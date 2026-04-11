@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -64,6 +65,7 @@ function colorPrioridad(p: string) {
 }
 
 export default function TareasTalentoPage() {
+  const log = clientLogger("TAREAS");
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ export default function TareasTalentoPage() {
       .from("tareas_asignadas")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) console.error("tareas_asignadas error:", error);
+    if (error) log.error("tareas_asignadas error:", { error: error });
     setTareas(data || []);
     setLoading(false);
   }

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
@@ -29,6 +30,7 @@ interface Obra {
 const ESTATUS_OPTIONS = ["Pendiente", "Aprobado", "Pagado"];
 
 export default function GastosObraPage() {
+  const log = clientLogger("GASTOS-OBRA");
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [loading, setLoading] = useState(true);
   const [exportando, setExportando] = useState(false);
@@ -162,7 +164,7 @@ export default function GastosObraPage() {
       };
 
       if (drawerMode === "create") {
-        let newData: any = baseData;
+        let newData: Record<string, unknown> = baseData;
 
         // Handle file upload
         if (formData.comprobante) {
@@ -183,7 +185,7 @@ export default function GastosObraPage() {
         if (error) throw error;
         flash("ok", "Gasto creado exitosamente");
       } else if (drawerMode === "edit" && selectedGasto) {
-        let updateData: any = baseData;
+        let updateData: Record<string, unknown> = baseData;
 
         // Handle file upload for edit
         if (formData.comprobante) {
@@ -208,7 +210,7 @@ export default function GastosObraPage() {
       await cargarDatos();
       closeDrawer();
     } catch (error: unknown) {
-      console.error(error);
+      log.error("Error al guardar el gasto", { error });
       flash("err", "Error al guardar el gasto");
     } finally {
       setSubmitting(false);
@@ -234,7 +236,7 @@ export default function GastosObraPage() {
       await cargarDatos();
       closeDrawer();
     } catch (error: unknown) {
-      console.error(error);
+      log.error("Error al eliminar el gasto", { error });
       flash("err", "Error al eliminar el gasto");
     } finally {
       setSubmitting(false);
@@ -273,7 +275,7 @@ export default function GastosObraPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (e: unknown) {
-      console.error(e);
+      log.error("Error exportando gastos", { error: e });
     }
     setExportando(false);
   };

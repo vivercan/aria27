@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
@@ -41,6 +42,7 @@ const FORM_INIT = {
 };
 
 export default function CobranzaManualPage() {
+  const log = clientLogger("MANUAL");
   const [cobros, setCobros] = useState<Cobro[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -70,7 +72,7 @@ export default function CobranzaManualPage() {
       setCobros((c.data as Cobro[]) || []);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 
@@ -116,7 +118,7 @@ export default function CobranzaManualPage() {
     else if (form.saldo > 0 && form.saldo < form.monto && estatus !== "CANCELADO") estatus = "PARCIAL";
     else if (form.saldo === form.monto && estatus !== "CANCELADO") estatus = "PENDIENTE";
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
       obra_id: form.obra_id || null,

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -21,6 +22,7 @@ interface Alerta {
 }
 
 export default function AlertasPage() {
+  const log = clientLogger("ALERTAS");
   const { msg, flash, clear } = useFlashMessage();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
@@ -30,7 +32,7 @@ export default function AlertasPage() {
 
   useEffect(() => {
     supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
-      if (error) { console.error("Error loading alertas:", error?.message); setLoading(false); return; }
+      if (error) { log.error("Error loading alertas:", { error: error?.message }); setLoading(false); return; }
       setAlertas(data || []);
       setLoading(false);
     });
@@ -38,14 +40,14 @@ export default function AlertasPage() {
 
   const marcarNotificado = async (id: string) => {
     const { error } = await supabase.from("alertas_atraso").update({ notificado: true }).eq("id", id);
-    if (error) { console.error("Error updating alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
+    if (error) { log.error("Error updating alerta:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.map(a => a.id === id ? { ...a, notificado: true } : a));
   };
 
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("alertas_atraso").delete().eq("id", id);
-    if (error) { console.error("Error deleting alerta:", error?.message); flash("err", "Error: " + error?.message); return; }
+    if (error) { log.error("Error deleting alerta:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     setAlertas(prev => prev.filter(a => a.id !== id));
   };
 
@@ -53,7 +55,7 @@ export default function AlertasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "alertas_atraso", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     // Reload alertas
     const { data } = await supabase.from("alertas_atraso").select("*").order("created_at", { ascending: false });

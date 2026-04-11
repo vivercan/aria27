@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -7,7 +8,7 @@ import {
   ArrowLeft, Loader2, Package, Search, Filter,
   CheckCircle2, Truck, CreditCard,
   FileText, ChevronRight, Printer, FileDown,
-  PackageCheck, Banknote
+  PackageCheck, Banknote, LucideIcon
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
@@ -46,6 +47,7 @@ type Requisicion = {
 };
 
 export default function OrdenesCompraPage() {
+  const log = clientLogger("ORDENES");
   const { msg, flash, clear } = useFlashMessage();
   const [orders, setOrders] = useState<PO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ export default function OrdenesCompraPage() {
     if (!selectedPO || !poReq) return;
     setUpdatingStatus(true);
     
-    const updates: any = { status: newStatus };
+    const updates: Record<string, unknown> = { status: newStatus };
     if (newStatus === "RECIBIDA") {
       updates.received_at = new Date().toISOString();
       
@@ -112,10 +114,10 @@ export default function OrdenesCompraPage() {
         });
         if (!reRes.ok) {
           const errTxt = await reRes.text().catch(() => "");
-          console.error("registrar-entrega fallo", reRes.status, errTxt);
+          log.error("registrar-entrega fallo", { data: reRes.status, errTxt });
           flash("err", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
-      } catch (e: unknown) { console.error("Error creando entrega:", e); flash("err", "Error red registrar-entrega: " + (e as {message?: string})?.message); }
+      } catch (e: unknown) { log.error("Error creando entrega:", { data: e }); flash("err", "Error red registrar-entrega: " + (e as {message?: string})?.message); }
     }
     
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);
@@ -155,7 +157,7 @@ export default function OrdenesCompraPage() {
     montoPendiente: orders.filter(o => o.status !== "RECIBIDA" && o.status !== "PAGADA").reduce((s, o) => s + (o.total || 0), 0),
   };
 
-  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
+  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: LucideIcon }> = {
     GENERADA: { label: "Generada", color: "text-aria-accent", bg: "bg-aria-primary-light", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
     RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
@@ -55,6 +56,7 @@ interface FormPartida {
 }
 
 export default function EstimacionesPage() {
+  const log = clientLogger("ESTIMACIONES");
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [partidas, setPartidas] = useState<Map<string, Partida[]>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ export default function EstimacionesPage() {
         setPartidas(pMap);
       }
     } catch (e: unknown) {
-      console.error(e);
+      log.error(String(e));
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -22,6 +23,7 @@ interface Movimiento {
 }
 
 function KardexContent() {
+  const log = clientLogger("KARDEX");
   const sp = useSearchParams();
   const obra = sp.get("obra") || "";
   const producto = sp.get("producto") || "";
@@ -40,7 +42,7 @@ function KardexContent() {
       if (obra) q = q.eq("obra_nombre", obra);
       if (producto) q = q.eq("producto_nombre", producto);
       const { data, error } = await q;
-      if (error) console.error((error as {message?: string})?.message || "Error desconocido");
+      if (error) log.error((error as {message?: string})?.message || "Error desconocido");
       setMovs(data || []);
       setLoading(false);
     })();

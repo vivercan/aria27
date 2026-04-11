@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useRef } from "react";
 import { X, Send, MessageCircle, Minus, Users, Circle, Smile, Clock, Coffee, Moon, Paperclip, Phone } from "lucide-react";
 
@@ -40,6 +41,7 @@ const SONIDO_NUDGE = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8A
 const SONIDO_CONEXION = "data:audio/wav;base64,UklGRl9vT19teleQgAQpm+2/teleQgAQpm+3/teleQgAQpm+";
 
 export default function PulsoMessenger({ userEmail, onClose }: { userEmail: string; onClose: () => void }) {
+  const log = clientLogger("PULSOMESSENGER");
   const [vista, setVista] = useState<"contactos" | "chat" | "estado">("contactos");
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
   const [convActiva, setConvActiva] = useState<Conversacion | null>(null);
@@ -94,7 +96,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso?email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setConversaciones(data.conversaciones || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const cargarUsuarios = async () => {
@@ -126,7 +128,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       previousOnlineRef.current = currentOnline as Set<string>;
       
       setUsuarios(nuevosUsuarios);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const cargarMensajes = async (convId: string) => {
@@ -143,7 +145,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       }
       lastMsgCount.current = nuevosMsgs.length;
       setMensajes(nuevosMsgs);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const verificarEscribiendo = async (convId: string) => {
@@ -151,7 +153,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso/escribiendo?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setEscribiendo(data.escribiendo || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const notificarEscribiendo = async (escribiendoAhora: boolean) => {
@@ -162,7 +164,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversacion_id: convActiva.id, user_email: userEmail, escribiendo: escribiendoAhora })
       });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const abrirChat = async (otroEmail: string) => {
@@ -178,7 +180,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setConvActiva(conv as Conversacion);
       setVista("chat");
       lastMsgCount.current = 0;
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const enviarNudge = () => {
@@ -198,7 +200,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setNuevoMsg("");
       notificarEscribiendo(false);
       cargarMensajes(convActiva.id);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   const enviarArchivo = async (file: File) => {
@@ -300,7 +302,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: nuevoEstado, status_message: miMensaje })
       });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setVista("contactos");
   };
 
@@ -311,7 +313,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
       });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
   };
 
   // Ordenar: online primero, luego por último visto

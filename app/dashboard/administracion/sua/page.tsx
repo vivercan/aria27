@@ -81,7 +81,7 @@ export default function SUAPage() {
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
-    const basePayload: any = {
+    const basePayload: Record<string, unknown> = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       periodo: form.periodo.trim(), tipo: form.tipo,
       num_trabajadores: form.num_trabajadores ? parseInt(form.num_trabajadores) : null,

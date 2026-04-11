@@ -311,7 +311,7 @@ export default function FiniquitosPage() {
   };
 
   const actualizarEstatus = async (id: string, nuevoStatus: string) => {
-    const updates: any = { status: nuevoStatus };
+    const updates: Record<string, unknown> = { status: nuevoStatus };
 
     if (nuevoStatus === "PAGADO") {
       updates.paid_at = new Date().toISOString();

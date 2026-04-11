@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import DeleteModal from "@/components/DeleteModal";
@@ -42,6 +43,7 @@ const EMPTY_FORM = {
 };
 
 export default function LicitacionesPage() {
+  const log = clientLogger("LICITACIONES");
   const { msg, flash, clear } = useFlashMessage();
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
@@ -76,7 +78,7 @@ export default function LicitacionesPage() {
   const loadData = async () => {
     const { data, error } = await supabase.from("licitaciones").select("*").order("created_at", { ascending: false });
     if (error) {
-      console.error("Error loading licitaciones:", error?.message);
+      log.error("Error loading licitaciones:", { error: error?.message });
       setLoading(false);
       return;
     }
@@ -96,14 +98,14 @@ export default function LicitacionesPage() {
     if (editId) {
       const { error } = await supabase.from("licitaciones").update(record).eq("id", editId);
       if (error) {
-        console.error("Error updating licitacion:", error?.message);
+        log.error("Error updating licitacion:", { error: error?.message });
         setSaving(false);
         return;
       }
     } else {
       const { error } = await supabase.from("licitaciones").insert(record);
       if (error) {
-        console.error("Error creating licitacion:", error?.message);
+        log.error("Error creating licitacion:", { error: error?.message });
         setSaving(false);
         return;
       }
@@ -126,7 +128,7 @@ export default function LicitacionesPage() {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("licitaciones").delete().eq("id", id);
     if (error) {
-      console.error("Error deleting licitacion:", error?.message);
+      log.error("Error deleting licitacion:", { error: error?.message });
       return;
     }
     loadData();
@@ -150,7 +152,7 @@ export default function LicitacionesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };

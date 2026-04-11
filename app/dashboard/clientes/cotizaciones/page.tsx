@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
@@ -55,6 +56,7 @@ const FORM_INIT = {
 const ITEM_INIT: Item = { concepto: "", unidad: "PZA", cantidad: 1, precio_unitario: 0, importe: 0, orden: 0 };
 
 export default function CotizacionesClientesPage() {
+  const log = clientLogger("COTIZACIONES");
   const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [cots, setCots] = useState<Cotizacion[]>([]);
@@ -95,7 +97,7 @@ export default function CotizacionesClientesPage() {
       setCots(cotsConVencidas);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 

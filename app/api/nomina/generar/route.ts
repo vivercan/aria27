@@ -7,6 +7,14 @@ const log = logger("NOMINA-GENERAR");
 
 const supabase = getSupabaseAdmin();
 
+interface IncidenciaRecord {
+  empleado: string;
+  diasTrabajados: number;
+  diasIncompletos: number;
+  diasFalta: number;
+  detalle: Array<{ fecha: string; entrada: string | null; salida: string | null }>;
+}
+
 function getWeekNumber(date: Date): number {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -129,7 +137,7 @@ export async function POST(req: NextRequest) {
     const diasLaborables = 6; // Lunes a Sábado
 
     const nominasGeneradas = [];
-    const incidenciasPorEmpleado: any[] = [];
+    const incidenciasPorEmpleado: IncidenciaRecord[] = [];
 
     for (const emp of empleados || []) {
       const asistenciasEmp = asistenciasCompletas.filter(a => a.employee_id === emp.id);
@@ -302,19 +310,19 @@ export async function GET(req: NextRequest) {
       .lte("fecha", fin);
 
     const diasLaborables = 6;
-    const incidencias: any[] = [];
+    const incidencias: IncidenciaRecord[] = [];
 
     for (const emp of empleados || []) {
       const asistEmp = asistencias?.filter(a => a.employee_id === emp.id) || [];
       const completas = asistEmp.filter(a => a.hora_entrada && a.hora_salida);
       const incompletas = asistEmp.filter(a => !a.hora_entrada || !a.hora_salida);
-      
+
       if (incompletas.length > 0 || completas.length < diasLaborables) {
         incidencias.push({
           empleado: emp.full_name,
-          diasCompletos: completas.length,
+          diasTrabajados: completas.length,
           diasIncompletos: incompletas.length,
-          diasSinRegistro: diasLaborables - completas.length - incompletas.length,
+          diasFalta: diasLaborables - completas.length - incompletas.length,
           detalle: incompletas.map(a => ({
             fecha: a.fecha,
             entrada: a.hora_entrada || "SIN ENTRADA",

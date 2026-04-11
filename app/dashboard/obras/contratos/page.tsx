@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Building2 , Loader2 } from "lucide-react";
@@ -26,6 +27,7 @@ interface Contrato {
 }
 
 export default function ContratosPage() {
+  const log = clientLogger("CONTRATOS");
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -44,7 +46,7 @@ export default function ContratosPage() {
     try {
       const { data } = await supabase.from("contratos").select("*").order("created_at", { ascending: false });
       setContratos(data || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 

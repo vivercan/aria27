@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { AlertTriangle, X, ChevronRight, Building2, FileWarning } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -14,6 +15,7 @@ interface Alerta {
 }
 
 export default function AlertasGlobales() {
+  const log = clientLogger("ALERTASGLOBALES");
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
   const [minimizado, setMinimizado] = useState(false);
@@ -40,7 +42,7 @@ export default function AlertasGlobales() {
         cargarAlertas(data.role.toLowerCase());
       }
     } catch (error: unknown) {
-      console.error("Error obteniendo rol:", error);
+      log.error("Error obteniendo rol:", { error: error });
       setLoading(false);
     }
   }
@@ -95,7 +97,7 @@ export default function AlertasGlobales() {
 
       setAlertas(alertasTemp);
     } catch (error: unknown) {
-      console.error("Error cargando alertas:", error);
+      log.error("Error cargando alertas:", { error: error });
     } finally {
       setLoading(false);
     }

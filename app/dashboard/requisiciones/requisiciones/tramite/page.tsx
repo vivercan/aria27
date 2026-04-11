@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -48,6 +49,7 @@ type ProveedorIA = {
 };
 
 export default function ComprasTramitePage() {
+  const log = clientLogger("TRAMITE");
   const { msg, flash, clear } = useFlashMessage();
   const router = useRouter();
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
@@ -253,11 +255,11 @@ Responde SOLO con JSON así:
             setProveedoresIA(parsed.slice(0, 5));
           }
         } catch (e: unknown) {
-          console.error("Error parsing:", e);
+          log.error("Error parsing:", { data: e });
         }
       }
     } catch (e: unknown) {
-      console.error(e);
+      log.error(String(e));
     } finally {
       setBuscandoIA(false);
     }

@@ -61,7 +61,7 @@ export default function ComprasPickingPage() {
     const { data: qs } = await supabase.from("quotations").select("*").eq("requisition_id", req.id);
     setQuotations((qs || []) as Quote[]);
 
-    const ids = (its || []).map((i: any) => i.id);
+    const ids = (its || []).map((i: { id: string }) => i.id);
     if (ids.length > 0) {
       const { data: iqs } = await supabase.from("requisition_item_quotes").select("*").in("requisition_item_id", ids);
       setItemQuotes((iqs || []) as ItemQuote[]);

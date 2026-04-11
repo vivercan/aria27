@@ -35,8 +35,7 @@ export default function DocumentacionPage() {
         <div className="col-span-8 lg:col-span-9 min-h-0 overflow-y-auto">
           {selected ? (
             <EntityFolder
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              entityType={SCOPE as any}
+              entityType={SCOPE}
               entityId={selected}
               entityName={selectedName}
               title={`Documentos · ${selectedName}`}

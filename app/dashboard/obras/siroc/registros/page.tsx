@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -34,7 +35,7 @@ interface SirocRegistro {
   created_at: string;
 }
 
-const EMPTY: any = {
+const EMPTY: Record<string, unknown> = {
   obra: "", registro_patronal: "", numero_siroc: "", clase_riesgo: "III",
   tipo_obra: "", modalidad: "PROPIA", fecha_inicio: "", fecha_fin_estimada: "",
   fecha_fin_real: "", importe_total: 0, monto_ejercido: 0, superficie_construccion: 0,
@@ -60,6 +61,7 @@ function colorEstado(e: string) {
 }
 
 export default function SirocRegistrosPage() {
+  const log = clientLogger("REGISTROS");
   const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [registros, setRegistros] = useState<SirocRegistro[]>([]);
@@ -95,9 +97,9 @@ export default function SirocRegistrosPage() {
   async function cargar() {
     setLoading(true);
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
-    setObras((ct || []).map((o: any) => o.nombre).sort());
+    setObras((ct || []).map((o: { nombre: string }) => o.nombre).sort());
     const { data, error } = await supabase.from("siroc_registros").select("*").order("created_at", { ascending: false });
-    if (error) console.error("siroc_registros error:", error);
+    if (error) log.error("siroc_registros error:", { error: error });
     setRegistros(data || []);
     setLoading(false);
   }

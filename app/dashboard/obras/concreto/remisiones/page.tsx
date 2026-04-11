@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -64,6 +65,7 @@ const EMPTY_REM: RemisionForm = { obra: "", proveedor: "", numero_remision: "", 
 const EMPTY_CIL: CilindroForm = { numero_cilindro: "", fecha_prueba: "", dias_edad: 28, resistencia_alcanzada: 0, cumple: true, laboratorio: "" };
 
 export default function ConcretoRemisionesPage() {
+  const log = clientLogger("REMISIONES");
   const [remisiones, setRemisiones] = useState<Remision[]>([]);
   const [cilindros, setCilindros] = useState<Cilindro[]>([]);
   const [obras, setObras] = useState<string[]>([]);
@@ -125,7 +127,7 @@ export default function ConcretoRemisionesPage() {
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
     setObras((ct || []).map((o: { nombre: string }) => o.nombre).sort());
     const { data: rems, error } = await supabase.from("concreto_remisiones").select("*").order("fecha_colado", { ascending: false });
-    if (error) console.error("concreto_remisiones error:", error);
+    if (error) log.error("concreto_remisiones error:", { error: error });
     setRemisiones(rems || []);
     const { data: cils } = await supabase.from("concreto_cilindros").select("*").order("dias_edad");
     setCilindros(cils || []);

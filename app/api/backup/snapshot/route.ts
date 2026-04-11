@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
       }
 
       const totalRows = count || firstPage?.length || 0;
-      const allData: any[] = [...(firstPage || [])];
+      const allData: Record<string, unknown>[] = [...(firstPage || [])];
 
       // Paginar si hay más de PAGE_SIZE filas
       if (totalRows > PAGE_SIZE) {

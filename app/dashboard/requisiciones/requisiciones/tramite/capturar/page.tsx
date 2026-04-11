@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -42,6 +43,7 @@ type QuoteRow = {
 };
 
 function CapturarContent() {
+  const log = clientLogger("CAPTURAR");
   const { msg, flash, clear } = useFlashMessage();
   const searchParams = useSearchParams();
   const reqId = searchParams.get("req");
@@ -194,7 +196,7 @@ function CapturarContent() {
       resetForm();
       await loadAll();
     } catch (e: unknown) {
-      console.error("[capturar] guardarCotizacion error:", e);
+      log.error("[capturar] guardarCotizacion error:", { data: e });
       const err = e as {message?: string; error_description?: string} | null;
       const msg = err?.message || err?.error_description || JSON.stringify(e);
       flash("err", "Error al guardar cotizacion: " + msg);

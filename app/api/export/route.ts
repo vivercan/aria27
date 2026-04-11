@@ -10,7 +10,6 @@ const supabase = getSupabaseAdmin();
 const PAGE_SIZE = 1000;
 
 /** Fetches ALL rows from a table, paginating in chunks of PAGE_SIZE to bypass Supabase default limit */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchAllRows(
   client: SupabaseClient,
   table: string,

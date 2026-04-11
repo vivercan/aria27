@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -29,6 +30,7 @@ interface Asistencia {
 }
 
 function getWeekRange(date: Date): { inicio: string; fin: string; dias: string[] } {
+  const log = clientLogger("MANUAL");
   const d = new Date(date);
   const day = d.getDay();
   const diffToThursday = day >= 4 ? day - 4 : day + 3;
@@ -55,6 +57,7 @@ function getWeekRange(date: Date): { inicio: string; fin: string; dias: string[]
 }
 
 export default function NominaManualPage() {
+  const log = clientLogger("NOMINA_MANUAL");
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -289,7 +292,7 @@ export default function NominaManualPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "asistencias", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargarEmpleados();
   };

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import { useState, useEffect } from "react";
@@ -21,6 +22,7 @@ interface Partida {
 }
 
 export default function PresupuestosPage() {
+  const log = clientLogger("PRESUPUESTOS");
   const { msg, flash, clear } = useFlashMessage();
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,9 +39,9 @@ export default function PresupuestosPage() {
     try {
       const { data } = await supabase.from("presupuestos_partidas").select("*").order("obra_nombre").order("clave");
       setPartidas(data || []);
-      const obrasUnicas = [...new Set((data || []).map((p: any) => p.obra_nombre).filter(Boolean))];
+      const obrasUnicas = [...new Set((data || []).map((p: Record<string, unknown>) => (p.obra_nombre as string)).filter(Boolean))];
       setObras(obrasUnicas as string[]);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 

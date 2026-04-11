@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import React from "react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -8,6 +9,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
 export default function EstadoActivosPage() {
+  const log = clientLogger("ESTADO");
   const [activos, setActivos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState("todos");
@@ -18,7 +20,7 @@ export default function EstadoActivosPage() {
 
   const load = async () => {
     const { data, error } = await supabase.from("activos").select("*").order("nombre");
-    if (error) { console.error("Error loading activos:", error?.message); setLoading(false); return; }
+    if (error) { log.error("Error loading activos:", { error: error?.message }); setLoading(false); return; }
     if (data) setActivos(data);
     setLoading(false);
   };
@@ -26,7 +28,7 @@ export default function EstadoActivosPage() {
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     setSaving(id);
     const { error } = await supabase.from("activos").update({ estado: nuevoEstado }).eq("id", id);
-    if (error) { console.error("Error updating estado:", error?.message); flash("err", "Error: " + error?.message); setSaving(null); return; }
+    if (error) { log.error("Error updating estado:", { error: error?.message }); flash("err", "Error: " + error?.message); setSaving(null); return; }
     setActivos(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
     setSaving(null);
   };

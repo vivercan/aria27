@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
@@ -25,6 +26,7 @@ const submodules = [
 ];
 
 export default function RequisicionesPage() {
+  const log = clientLogger("REQUISICIONES");
   const [registros, setRegistros] = useState<ReqHist[]>([]);
   const [loading, setLoading] = useState(true);
   const [exportando, setExportando] = useState(false);
@@ -78,7 +80,7 @@ export default function RequisicionesPage() {
       link.download = `Requisiciones_ARIA_${new Date().toISOString().split("T")[0]}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setExportando(false);
   };
 

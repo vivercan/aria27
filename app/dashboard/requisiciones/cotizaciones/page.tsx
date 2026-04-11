@@ -48,7 +48,7 @@ interface ResultadoBusqueda {
   proveedores_internos: ProveedorInterno[];
   proveedores_web: ProveedorWeb[];
   recomendacion: string;
-  proveedores_bd: any[];
+  proveedores_bd: Record<string, unknown>[];
 }
 
 export default function CotizacionesIAPage() {

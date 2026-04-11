@@ -45,11 +45,26 @@ const ESTATUS_OPTIONS = [
   { value: "actualizado", label: "Actualizado", color: "bg-emerald-500/20 text-emerald-400" },
 ];
 
-const EMPTY_FORM = {
+interface SIROCForm {
+  obra_id: string;
+  numero_registro: string;
+  fecha_registro: string;
+  clasificacion_riesgo: string;
+  bimestre: string;
+  num_trabajadores: string | number;
+  incidencias: string | number;
+  estatus: string;
+  documento_url: string;
+  responsable: string;
+  observaciones: string;
+  file: File | null;
+}
+
+const EMPTY_FORM: SIROCForm = {
   obra_id: "", numero_registro: "", fecha_registro: "", clasificacion_riesgo: "",
   bimestre: "01-02", num_trabajadores: "", incidencias: "0",
   estatus: "pendiente", documento_url: "", responsable: "",
-  observaciones: "", file: null as File | null,
+  observaciones: "", file: null,
 };
 
 export default function SIROCPage() {
@@ -60,7 +75,7 @@ export default function SIROCPage() {
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<any>({ ...EMPTY_FORM });
+  const [form, setForm] = useState<SIROCForm>({ ...EMPTY_FORM });
   const [editId, setEditId] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -84,8 +99,8 @@ export default function SIROCPage() {
     const errors: Record<string, string> = {};
     if (!form.obra_id?.trim()) errors.obra_id = "Selecciona una obra";
     if (!form.numero_registro?.trim()) errors.numero_registro = "El número de registro es obligatorio";
-    if (form.num_trabajadores && (isNaN(parseInt(form.num_trabajadores)) || parseInt(form.num_trabajadores) < 0)) errors.num_trabajadores = "Trabajadores debe ser >= 0";
-    if (form.incidencias && (isNaN(parseInt(form.incidencias)) || parseInt(form.incidencias) < 0)) errors.incidencias = "Incidencias debe ser >= 0";
+    if (form.num_trabajadores && (isNaN(parseInt(String(form.num_trabajadores))) || parseInt(String(form.num_trabajadores)) < 0)) errors.num_trabajadores = "Trabajadores debe ser >= 0";
+    if (form.incidencias && (isNaN(parseInt(String(form.incidencias))) || parseInt(String(form.incidencias)) < 0)) errors.incidencias = "Incidencias debe ser >= 0";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -95,12 +110,12 @@ export default function SIROCPage() {
 
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
-    const basePayload: any = {
+    const basePayload: Record<string, unknown> = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       numero_registro: form.numero_registro.trim(), fecha_registro: form.fecha_registro || null,
       clasificacion_riesgo: form.clasificacion_riesgo?.trim() || null,
-      bimestre: form.bimestre, num_trabajadores: form.num_trabajadores ? parseInt(form.num_trabajadores) : null,
-      incidencias: parseInt(form.incidencias) || 0, estatus: form.estatus,
+      bimestre: form.bimestre, num_trabajadores: form.num_trabajadores ? parseInt(String(form.num_trabajadores)) : null,
+      incidencias: parseInt(String(form.incidencias)) || 0, estatus: form.estatus,
       responsable: form.responsable?.trim() || null,
       observaciones: form.observaciones?.trim() || null,
     };

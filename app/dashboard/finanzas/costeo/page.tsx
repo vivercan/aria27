@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
@@ -55,6 +56,7 @@ interface CosteoObra {
 }
 
 export default function CosteoPage() {
+  const log = clientLogger("COSTEO");
   const [obras, setObras] = useState<CosteoObra[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -117,7 +119,7 @@ export default function CosteoPage() {
       });
 
       setObras(result);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -29,6 +30,20 @@ interface Vehiculo {
   created_at: string;
 }
 
+interface VehiclePayload {
+  nombre: string;
+  codigo: string | null;
+  tipo: string;
+  marca: string | null;
+  modelo: string | null;
+  anio: number | null;
+  placas: string | null;
+  estado: string;
+  ubicacion_actual: string | null;
+  kilometraje: number | null;
+  combustible: string | null;
+}
+
 const ESTADO_OPTIONS = [
   { value: "bueno", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" },
   { value: "mantenimiento", label: "En Mantenimiento", color: "bg-amber-500/20 text-amber-400" },
@@ -45,6 +60,7 @@ const EMPTY_FORM = {
 };
 
 export default function VehiculosPage() {
+  const log = clientLogger("VEHICULOS");
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
@@ -64,7 +80,7 @@ export default function VehiculosPage() {
       .select("*")
       .in("tipo", ["VEHICULO", "MAQUINARIA"])
       .order("nombre");
-    if (error) console.error("Error:", (error as {message?: string})?.message || "Unknown error");
+    if (error) log.error("Error:", (error as {message?: string})?.message || "Unknown error");
     if (data) setVehiculos(data);
     setLoading(false);
   };
@@ -88,7 +104,7 @@ export default function VehiculosPage() {
     if (!validar()) return;
     setGuardando(true);
 
-    const payload: any = {
+    const payload: VehiclePayload = {
       nombre: form.nombre.trim(),
       codigo: form.codigo?.trim() || null,
       tipo: "VEHICULO",

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -37,6 +38,7 @@ const FORM_INIT = {
 };
 
 function BitacoraContent() {
+  const log = clientLogger("BITACORA");
   const sp = useSearchParams();
   const obraQuery = sp.get("obra") || "";
   const [obras, setObras] = useState<Obra[]>([]);
@@ -61,7 +63,7 @@ function BitacoraContent() {
     let q = supabase.from("bitacora_obra").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(200);
     if (obraSel) q = q.eq("obra_nombre", obraSel);
     const { data, error } = await q;
-    if (error) console.error((error as {message?: string})?.message || "Error desconocido");
+    if (error) log.error((error as {message?: string})?.message || "Error desconocido");
     setEntradas((data as Entrada[]) || []);
     setLoading(false);
   }

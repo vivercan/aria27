@@ -143,7 +143,7 @@ export default function NewRequisitionPage() {
     if (!center) return;
     setSending(true);
 
-    let materiales: any[] = [];
+    let materiales: Record<string, unknown>[] = [];
     if (formMode === "catalogo") {
       const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
       if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad > 0."); setSending(false); return; }

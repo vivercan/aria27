@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
@@ -21,6 +22,7 @@ const getIcon = (clave: string) => {
 };
 
 export default function ConfigGeneralPage() {
+  const log = clientLogger("GENERAL");
   const [params, setParams] = useState<Param[]>([]);
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +35,8 @@ export default function ConfigGeneralPage() {
       supabase.from("configuracion_nomina").select("*").order("clave"),
       supabase.from("users").select("*").order("name")
     ]).then(([{ data: p, error: pError }, { data: u, error: uError }]) => {
-      if (pError) { console.error("Error loading configuracion_nomina:", pError?.message); setLoading(false); return; }
-      if (uError) { console.error("Error loading users:", uError?.message); setLoading(false); return; }
+      if (pError) { log.error("Error loading configuracion_nomina:", { error: pError?.message }); setLoading(false); return; }
+      if (uError) { log.error("Error loading users:", { error: uError?.message }); setLoading(false); return; }
       setParams(p || []);
       setUsers((u || []) as UserInfo[]);
       setLoading(false);
@@ -50,7 +52,7 @@ export default function ConfigGeneralPage() {
     if (newVal === undefined || newVal === param.valor) return;
     setSaving(param.id);
     const { error } = await supabase.from("configuracion_nomina").update({ valor: newVal, updated_at: new Date().toISOString() }).eq("id", param.id);
-    if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
+    if (error) { log.error("Error saving param:", { error: error?.message }); setSaving(null); return; }
     setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
     setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
     setSaving(null);
@@ -63,11 +65,11 @@ export default function ConfigGeneralPage() {
     for (const param of params) {
       if (edited[param.id] !== undefined && edited[param.id] !== param.valor) {
         const { error } = await supabase.from("configuracion_nomina").update({ valor: edited[param.id], updated_at: new Date().toISOString() }).eq("id", param.id);
-        if (error) { console.error("Error saving param:", error?.message); setSaving(null); return; }
+        if (error) { log.error("Error saving param:", { error: error?.message }); setSaving(null); return; }
       }
     }
     const { data, error: selectError } = await supabase.from("configuracion_nomina").select("*").order("clave");
-    if (selectError) { console.error("Error loading configuracion:", selectError?.message); setSaving(null); return; }
+    if (selectError) { log.error("Error loading configuracion:", { error: selectError?.message }); setSaving(null); return; }
     setParams(data || []);
     setEdited({});
     setSaving(null);

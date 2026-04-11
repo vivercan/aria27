@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from '@/lib/storage';
 import AriaBackButton from '@/components/AriaBackButton';
+import { clientLogger } from '@/lib/client-logger';
+const log = clientLogger('FOTOS');
 import {
   Camera,
   Upload,
@@ -63,7 +65,7 @@ export default function FotosPage() {
           setSelectedObraId(data[0].id);
         }
       } catch (err: unknown) {
-        console.error('Error loading obras:', err);
+        log.error('Error loading obras', { error: err });
         setError('Failed to load obras');
       } finally {
         setLoadingObras(false);
@@ -93,7 +95,7 @@ export default function FotosPage() {
         if (err) throw err;
         setPhotos(data || []);
       } catch (err: unknown) {
-        console.error('Error loading photos:', err);
+        log.error('Error loading photos', { error: err });
         setError('Failed to load photos');
       } finally {
         setLoadingPhotos(false);
@@ -159,7 +161,7 @@ export default function FotosPage() {
           fileInputRef.current.value = '';
         }
       } catch (err: unknown) {
-        console.error('Error uploading photos:', err);
+        log.error('Error uploading photos', { error: err });
         setError('Failed to upload photos. Please try again.');
       } finally {
         setUploading(false);
@@ -195,7 +197,7 @@ export default function FotosPage() {
 
         setConfirmDelete(null);
       } catch (err: unknown) {
-        console.error('Error deleting photo:', err);
+        log.error('Error deleting photo', { error: err });
         setError('Failed to delete photo');
       }
     },

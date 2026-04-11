@@ -124,7 +124,7 @@ export default function BibliotecaPlantillasPage() {
     if (!validar()) return;
     setSaving(true);
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       nombre: form.nombre.trim(),
       categoria: form.categoria,
       descripcion: form.descripcion || null,

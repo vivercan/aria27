@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -63,6 +64,7 @@ interface Archivo {
 }
 
 function formatBytes(bytes?: number | null): string {
+  const log = clientLogger("EXPEDIENTES");
   if (!bytes || bytes <= 0) return "—";
   const units = ["B", "KB", "MB", "GB"];
   let i = 0;
@@ -84,6 +86,7 @@ interface Tarea {
 const AÑOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
 
 export default function ExpedientesPage() {
+  const log = clientLogger("EXPEDIENTES");
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -197,7 +200,7 @@ export default function ExpedientesPage() {
       .eq("parent_carpeta_id", parentId)
       .order("orden");
     if (error) {
-      console.error("Error loading subcarpetas:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading subcarpetas:", (error as {message?: string})?.message || "Error desconocido");
       setSubcarpetas([]);
       return;
     }
@@ -329,7 +332,7 @@ export default function ExpedientesPage() {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
       return true;
     } catch (e: unknown) {
-      console.error("Error al descargar:", e);
+      log.error("Error al descargar:", { data: e });
       return false;
     }
   };
@@ -378,10 +381,10 @@ export default function ExpedientesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-email": email },
         body: JSON.stringify({ archivoId }),
-      }).catch((err) => console.error("Error fetch análisis:", err));
+      }).catch((err) => log.error("Error fetch análisis:", { data: err }));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
     } catch (e: unknown) {
-      console.error("Error al disparar análisis:", e);
+      log.error("Error al disparar análisis:", { data: e });
     }
   };
 
@@ -433,7 +436,7 @@ export default function ExpedientesPage() {
       .is("parent_carpeta_id", null)
       .order("orden");
     if (error) {
-      console.error("Error loading carpetas año:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading carpetas año:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setCarpetasAnio((data || []).filter(c => !c.nombre.startsWith("__root__")));
@@ -462,7 +465,7 @@ export default function ExpedientesPage() {
       .insert({ obra_id: null, obra_nombre: null, nombre: rootName, anio, orden: -1 })
       .select("id")
       .single();
-    if (error) { console.error("Error creating root carpeta:", (error as {message?: string})?.message || "Error desconocido"); return null; }
+    if (error) { log.error("Error creating root carpeta:", (error as {message?: string})?.message || "Error desconocido"); return null; }
     return created.id;
   };
 
@@ -538,15 +541,15 @@ export default function ExpedientesPage() {
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre, fecha_inicio").order("nombre");
     if (error) {
-      console.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading obras:", (error as {message?: string})?.message || "Error desconocido");
       setLoading(false);
       return;
     }
-    const conAnio = (data || []).map((o: any) => ({
+    const conAnio = (data || []).map((o: Record<string, unknown>) => ({
       ...o,
-      anio: o.fecha_inicio ? new Date(o.fecha_inicio).getFullYear() : null,
-    }));
-    setObras(conAnio);
+      anio: (o.fecha_inicio as string) ? new Date(o.fecha_inicio as string).getFullYear() : null,
+    })) as (Record<string, unknown> & { anio: number | null })[];
+    setObras(conAnio as any);
     setLoading(false);
   };
 
@@ -557,7 +560,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("orden");
     if (error) {
-      console.error("Error loading carpetas:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading carpetas:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setCarpetas(data || []);
@@ -570,7 +573,7 @@ export default function ExpedientesPage() {
       .eq("carpeta_id", carpetaId)
       .order("created_at", { ascending: false });
     if (error) {
-      console.error("Error loading archivos:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading archivos:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setArchivos(data || []);
@@ -583,7 +586,7 @@ export default function ExpedientesPage() {
       .eq("obra_id", obraId)
       .order("fecha_limite");
     if (error) {
-      console.error("Error loading tareas:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading tareas:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setTareas(data || []);
@@ -601,7 +604,7 @@ export default function ExpedientesPage() {
       });
 
       if (error) {
-        console.error("Error creating carpeta:", (error as {message?: string})?.message || "Error desconocido");
+        log.error("Error creating carpeta:", (error as {message?: string})?.message || "Error desconocido");
         flash("err", "Error al crear carpeta: " + (error as {message?: string})?.message || "Error desconocido");
         return;
       }
@@ -624,7 +627,7 @@ export default function ExpedientesPage() {
     });
 
     if (error) {
-      console.error("Error creating tarea:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error creating tarea:", (error as {message?: string})?.message || "Error desconocido");
       flash("err", "Error al crear tarea: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
@@ -642,7 +645,7 @@ export default function ExpedientesPage() {
     }).eq("id", tarea.id);
 
     if (error) {
-      console.error("Error updating tarea status:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error updating tarea status:", (error as {message?: string})?.message || "Error desconocido");
       flash("err", "Error al cambiar estado de tarea: " + (error as {message?: string})?.message || "Error desconocido");
       return;
     }
@@ -655,7 +658,7 @@ export default function ExpedientesPage() {
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting carpeta:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error deleting carpeta:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
 
@@ -705,7 +708,7 @@ export default function ExpedientesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "expedientes_carpetas", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     setCarpetaSeleccionada(null);
     if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);

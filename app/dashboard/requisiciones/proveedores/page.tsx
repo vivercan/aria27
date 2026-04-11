@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -16,7 +17,7 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
-  email: string | null; address: string | null; categories: any;
+  email: string | null; address: string | null; categories: string[] | string | null;
   contact_name: string | null; credit_days: number | null; active: boolean;
   website: string | null; whatsapp: string | null; bank_name: string | null;
   bank_clabe: string | null; payment_method: string | null; razon_social: string | null;
@@ -30,6 +31,7 @@ const EMPTY_FORM = {
 };
 
 export default function ProveedoresPage() {
+  const log = clientLogger("PROVEEDORES");
   const { msg, flash, clear } = useFlashMessage();
   const [suppliers,setSuppliers] = useState<Supplier[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
@@ -113,7 +115,7 @@ export default function ProveedoresPage() {
         if (error) { flash("err", "Error al crear proveedor: " + (error as {message?: string})?.message || "Error desconocido"); return; }
       }
       setShowModal(false);setEditingId(null);setForm(EMPTY_FORM);await loadSuppliers();
-    }catch (e: unknown){console.error(e);flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
+    }catch (e: unknown){log.error(String(e));flash("err", "Error: "+(e as Error).message);}finally{setSaving(false);}
   };
 
   const handleDelete = async(id:string,name:string)=>{
@@ -126,7 +128,7 @@ export default function ProveedoresPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "suppliers", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     loadSuppliers();
   };

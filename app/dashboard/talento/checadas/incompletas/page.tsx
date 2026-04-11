@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
@@ -15,6 +16,7 @@ interface Incompleta {
 }
 
 export default function IncompletasPage() {
+  const log = clientLogger("INCOMPLETAS");
   const [incompletas, setIncompletas] = useState<Incompleta[]>([]);
   const [sinRegistro, setSinRegistro] = useState<Incompleta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ export default function IncompletasPage() {
       setSinRegistro(data.sinRegistro || []);
       setPeriodo(data.periodo || null);
     } catch (error: unknown) {
-      console.error("Error:", error);
+      log.error("Error:", { error: error });
     } finally {
       setLoading(false);
     }

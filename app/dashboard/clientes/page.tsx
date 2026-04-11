@@ -111,10 +111,10 @@ export default function ClientesPage() {
   const guardar = async () => {
     if (!validar()) return;
     setSaving(true);
-    const payload: any = { ...form };
-    payload.dias_credito = parseInt(payload.dias_credito) || 0;
+    const payload: Record<string, unknown> = { ...form };
+    payload.dias_credito = parseInt(String(payload.dias_credito)) || 0;
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
-    payload.estatus = form.estatus || "ACTIVO";
+    payload.estatus = (form.estatus as string) || "ACTIVO";
 
     if (editId) {
       const { error } = await supabase.from("clientes").update(payload).eq("id", editId);

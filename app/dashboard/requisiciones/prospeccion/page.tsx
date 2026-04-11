@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -16,10 +17,11 @@ interface WebResult {
 
 interface ExistingSupplier {
   id: string; name: string; phone: string; email: string;
-  categories: any;
+  categories: string[] | string | null;
 }
 
 export default function ProspeccionPage() {
+  const log = clientLogger("PROSPECCION");
   const { msg, flash, clear } = useFlashMessage();
   const [searchTerm, setSearchTerm] = useState("");
   const [searching, setSearching] = useState(false);
@@ -32,7 +34,7 @@ export default function ProspeccionPage() {
   const [savedIdxs, setSavedIdxs] = useState<number[]>([]);
   const [error, setError] = useState("");
 
-  const getCatDisplay = (cats: any): string[] => {
+  const getCatDisplay = (cats: string[] | string | null): string[] => {
     if (!cats) return [];
     if (Array.isArray(cats)) return cats.filter(Boolean);
     if (typeof cats === "string") return cats.split(",").map((c: string) => c.trim()).filter(Boolean);
@@ -76,7 +78,7 @@ export default function ProspeccionPage() {
       setAnalisis(data.analisis || "");
       setRecomendacion(data.recomendacion || "");
     } catch (e: unknown) {
-      console.error("Error buscando:", e);
+      log.error("Error buscando:", { data: e });
       setError((e as {message?: string})?.message || "Error en la búsqueda");
     } finally {
       setSearching(false);
@@ -98,7 +100,7 @@ export default function ProspeccionPage() {
       if (insertErr) throw insertErr;
       setSavedIdxs(prev => [...prev, idx]);
     } catch (e: unknown) {
-      console.error("Error guardando:", e);
+      log.error("Error guardando:", { data: e });
       flash("err", "Error: " + ((e as {message?: string})?.message || "No se pudo guardar"));
     } finally {
       setSavingIdx(null);

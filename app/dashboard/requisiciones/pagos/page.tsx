@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
@@ -27,6 +28,7 @@ interface ProcessedOrder extends PurchaseOrder {
 }
 
 export default function PagosPage() {
+  const log = clientLogger("PAGOS");
   const { msg, flash, clear } = useFlashMessage();
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function PagosPage() {
         ordenes: processed.length,
       });
     } catch (e: unknown) {
-      console.error("Error cargando pagos:", e);
+      log.error("Error cargando pagos:", { data: e });
     } finally {
       setLoading(false);
     }

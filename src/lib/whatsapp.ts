@@ -4,6 +4,13 @@ import { logger } from "@/lib/logger";
 const log = logger("WHATSAPP");
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
 
+interface WhatsAppComponent {
+  type: "body" | "button";
+  sub_type?: string;
+  index?: string;
+  parameters: Array<{ type: string; text?: string }>;
+}
+
 // ============================================
 // HMAC SIGNATURE VERIFICATION (Meta Webhooks)
 // ============================================
@@ -170,7 +177,7 @@ export async function sendWhatsAppTemplate(
   }
 
   // Construir componentes del mensaje
-  const components: any[] = [];
+  const components: WhatsAppComponent[] = [];
 
   // Body parameters
   if (params.length > 0) {
@@ -188,7 +195,7 @@ export async function sendWhatsAppTemplate(
       index: "0",
       parameters: [{ type: "text", text: buttonToken }],
     });
-    
+
     if (config.buttonCount === 2) {
       components.push({
         type: "button",

@@ -3,6 +3,16 @@ import Imap from "imap";
 import { simpleParser } from "mailparser";
 import { getZohoCreds } from "../_zoho-creds";
 
+interface ParsedEmailContent {
+  body: string;
+  html: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface ImapFetchable extends Record<string, any> {
+  bodies: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { uid, folder = "INBOX" } = await req.json();
@@ -15,7 +25,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "uid requerido" }, { status: 400 });
     }
 
-    const emailContent = await new Promise<any>((resolve, reject) => {
+    const emailContent = await new Promise<ParsedEmailContent>((resolve, reject) => {
       const imap = new Imap({
         user: email,
         password: password,
@@ -27,22 +37,23 @@ export async function POST(req: NextRequest) {
         authTimeout: 15000,
       });
 
-      imap.once("ready", () => {
-        imap.openBox(folder, true, (err) => {
-          if (err) { imap.end(); reject(err); return; }
+      (imap as any).once("ready", () => {
+        (imap as any).openBox(folder, true, (err: unknown) => {
+          if (err) { (imap as any).end(); reject(err); return; }
 
-          // @ts-ignore - fetch exists on imap
-          const f = imap.fetch([uid], { bodies: "" });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const f: any = ((imap as any) as Record<string, any>).fetch([uid], { bodies: "" } as ImapFetchable);
           let buffer = Buffer.alloc(0);
 
-          f.on("message", (msg: any) => {
-            msg.on("body", (stream: any) => {
-              stream.on("data", (chunk: Buffer) => {
+          (f as any).on("message", (msg: unknown) => {
+            const message = msg as any;
+            (message.on as (event: string, callback: (stream: unknown) => void) => void)("body", (stream: unknown) => {
+              (stream as any).on("data", (chunk: Buffer) => {
                 buffer = Buffer.concat([buffer, chunk]);
               });
             });
 
-            msg.once("end", async () => {
+            (message.once as (event: string, callback: () => Promise<void>) => void)("end", async () => {
               try {
                 const parsed = await simpleParser(buffer);
                 resolve({
@@ -52,19 +63,19 @@ export async function POST(req: NextRequest) {
               } catch (e: unknown) {
                 resolve({ body: "", html: "" });
               }
-              imap.end();
+              (imap as any).end();
             });
           });
 
-          f.once("error", (fetchErr: Error) => { 
-            imap.end(); 
-            reject(fetchErr); 
+          (f as any).once("error", (fetchErr: Error) => {
+            (imap as any).end();
+            reject(fetchErr);
           });
         });
       });
 
-      imap.once("error", (err: Error) => reject(err));
-      imap.connect();
+      (imap as any).once("error", (err: Error) => reject(err));
+      (imap as any).connect();
     });
 
     return NextResponse.json(emailContent);

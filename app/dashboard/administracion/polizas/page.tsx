@@ -46,11 +46,27 @@ const ESTATUS_OPTIONS = [
   { value: "cancelada", label: "Cancelada", color: "bg-slate-500/20 text-slate-400" },
 ];
 
-const EMPTY_FORM = {
+interface PolizaForm {
+  obra_id: string;
+  numero_poliza: string;
+  tipo: string;
+  aseguradora: string;
+  fecha_inicio: string;
+  fecha_vencimiento: string;
+  cobertura: string;
+  prima: string | number;
+  estatus: string;
+  documento_url: string;
+  contacto: string;
+  observaciones: string;
+  file: File | null;
+}
+
+const EMPTY_FORM: PolizaForm = {
   obra_id: "", numero_poliza: "", tipo: "RC", aseguradora: "",
   fecha_inicio: "", fecha_vencimiento: "", cobertura: "", prima: "",
   estatus: "vigente", documento_url: "", contacto: "",
-  observaciones: "", file: null as File | null,
+  observaciones: "", file: null,
 };
 
 export default function PolizasPage() {
@@ -61,7 +77,7 @@ export default function PolizasPage() {
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<any>({ ...EMPTY_FORM });
+  const [form, setForm] = useState<PolizaForm>({ ...EMPTY_FORM });
   const [editId, setEditId] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -98,7 +114,7 @@ export default function PolizasPage() {
     if (!form.obra_id?.trim()) errors.obra_id = "Selecciona una obra";
     if (!form.numero_poliza?.trim()) errors.numero_poliza = "El número de póliza es obligatorio";
     if (!form.aseguradora?.trim()) errors.aseguradora = "La aseguradora es obligatoria";
-    if (form.prima && (isNaN(parseFloat(form.prima)) || parseFloat(form.prima) < 0)) errors.prima = "Prima debe ser >= 0";
+    if (form.prima && (isNaN(parseFloat(String(form.prima))) || parseFloat(String(form.prima)) < 0)) errors.prima = "Prima debe ser >= 0";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -109,12 +125,12 @@ export default function PolizasPage() {
     setGuardando(true);
     const obra = obras.find(o => String(o.id) === form.obra_id);
     const estatusActualizado = getEstatusActualizado(form.estatus, form.fecha_vencimiento);
-    const basePayload: any = {
+    const basePayload: Record<string, unknown> = {
       obra_id: form.obra_id, obra_nombre: obra?.nombre || "",
       numero_poliza: form.numero_poliza.trim(), tipo: form.tipo,
       aseguradora: form.aseguradora.trim(), fecha_inicio: form.fecha_inicio || null,
       fecha_vencimiento: form.fecha_vencimiento || null, cobertura: form.cobertura?.trim() || null,
-      prima: form.prima ? parseFloat(form.prima) : null,
+      prima: form.prima ? parseFloat(String(form.prima)) : null,
       estatus: estatusActualizado,
       contacto: form.contacto?.trim() || null, observaciones: form.observaciones?.trim() || null,
     };

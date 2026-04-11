@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -46,6 +47,7 @@ interface ObraResumen {
 }
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const log = clientLogger("CONCRETO");
 const fmtNum = (n: number) => (n || 0).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 export default function ConcretoPage() {
@@ -72,11 +74,11 @@ export default function ConcretoPage() {
       setCilindros((cils || []) as Cilindro[]);
       setObras(
         (centros || [])
-          .map((c: any) => c.nombre)
+          .map((c: { nombre: string }) => c.nombre)
           .sort()
       );
     } catch (e: unknown) {
-      console.error("Error cargando datos:", e);
+      log.error("Error cargando datos:", { data: e });
     }
     setLoading(false);
   }

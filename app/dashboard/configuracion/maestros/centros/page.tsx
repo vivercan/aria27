@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
@@ -18,6 +19,7 @@ interface Centro {
 }
 
 export default function CentrosPage() {
+  const log = clientLogger("CENTROS");
   const { msg, flash, clear } = useFlashMessage();
   const [centros, setCentros] = useState<Centro[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function CentrosPage() {
 
   const cargar = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("*").order("nombre");
-    if (error) { console.error("Error loading centros:", error?.message); setLoading(false); return; }
+    if (error) { log.error("Error loading centros:", { error: error?.message }); setLoading(false); return; }
     if (data) setCentros(data);
     setLoading(false);
   };
@@ -81,11 +83,11 @@ export default function CentrosPage() {
 
     if (editando) {
       const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
-      if (error) { console.error("Error updating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
+      if (error) { log.error("Error updating centro:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     } else {
       const nextNum = centros.length + 1;
       const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
-      if (error) { console.error("Error creating centro:", error?.message); flash("err", "Error: " + error?.message); return; }
+      if (error) { log.error("Error creating centro:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     }
     setShowModal(false);
     cargar();

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
@@ -22,6 +23,7 @@ interface Empleado {
 }
 
 export default function LegalesPage() {
+  const log = clientLogger("LEGALES");
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function LegalesPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").order("employee_number");
-      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
+      if (error) { log.error("Error loading empleados:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };
@@ -56,9 +58,9 @@ export default function LegalesPage() {
   };
 
 
-  const startEdit = (e: any) => {
-    setEditingId(e.id);
-    setEditForm({ rfc: e.rfc || "", curp: e.curp || "", nss: e.nss || "", tipo_contrato: e.tipo_contrato || "" });
+  const startEdit = (e: Record<string, unknown>) => {
+    setEditingId((e.id as string) || "");
+    setEditForm({ rfc: (e.rfc as string) || "", curp: (e.curp as string) || "", nss: (e.nss as string) || "", tipo_contrato: (e.tipo_contrato as string) || "" });
   };
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -79,7 +81,7 @@ export default function LegalesPage() {
       nss: editForm.nss || null,
       tipo_contrato: editForm.tipo_contrato || null
     }).eq("id", editingId);
-    if (error) { console.error("Error saving legal info:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
+    if (error) { log.error("Error saving legal info:", { error: error?.message }); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setSaving(false);
     setEditingId(null);
     window.location.reload();
@@ -159,7 +161,7 @@ export default function LegalesPage() {
                         </div>
                       </div>
                     ) : (
-                      <button onClick={() => startEdit(e)} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30">
+                      <button onClick={() => startEdit(e as unknown as Record<string, unknown>)} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30">
                         <Edit2 className="w-3 h-3" />
                       </button>
                     )}

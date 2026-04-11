@@ -78,7 +78,7 @@ export default function EmpresaPage() {
   const guardar = async () => {
     if (!editEmpresa || !validar()) return;
     setGuardando(true);
-    const payload: any = { ...form };
+    const payload: Record<string, string | null> = { ...form };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     const { error } = await supabase.from("empresas").update(payload).eq("id", editEmpresa.id);

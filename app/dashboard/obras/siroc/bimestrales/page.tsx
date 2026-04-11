@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -51,13 +52,14 @@ function bimestreActual(): { anio: number; bimestre: string } {
   return { anio, bimestre: codes[m] };
 }
 
-const EMPTY: any = {
+const EMPTY: Record<string, unknown> = {
   siroc_registro_id: "", anio: new Date().getFullYear(), bimestre: bimestreActual().bimestre,
   monto_ejercido_periodo: 0, monto_ejercido_acumulado: 0, trabajadores_promedio: 0,
   fecha_reporte: new Date().toISOString().slice(0, 10), estatus: "PRESENTADO", observaciones: ""
 };
 
 export default function SirocBimestralesPage() {
+  const log = clientLogger("BIMESTRALES");
   const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [bimestres, setBimestres] = useState<Bimestre[]>([]);
@@ -90,7 +92,7 @@ export default function SirocBimestralesPage() {
     const { data: regs } = await supabase.from("siroc_registros").select("id, obra, numero_siroc, importe_total").order("obra");
     setRegistros(regs || []);
     const { data, error } = await supabase.from("siroc_bimestrales").select("*").order("anio", { ascending: false }).order("bimestre");
-    if (error) console.error("siroc_bimestrales error:", error);
+    if (error) log.error("siroc_bimestrales error:", { error: error });
     setBimestres(data || []);
     setLoading(false);
   }

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
@@ -29,6 +30,7 @@ interface CuentaBancaria {
 const FORM_INIT = { banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" };
 
 export default function BancosPage() {
+  const log = clientLogger("BANCOS");
   const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const { msg, flash, clear } = useFlashMessage();
@@ -108,7 +110,7 @@ export default function BancosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "cuentas_bancarias", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({ open: false, id: "", name: "" });
     loadData();
   };

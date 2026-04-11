@@ -20,8 +20,8 @@ export default function IncapacidadesPage() {
     setEmpleados(emps || []);
     const { data: inc } = await supabase.from("incidencias").select("*").eq("tipo", "incapacidad").order("fecha_inicio", { ascending: false });
     if (inc && emps) {
-      const empMap = Object.fromEntries(emps.map((e: any) => [e.id, e]));
-      setRegistros(inc.map((i: any) => ({ ...i, empleado: empMap[i.employee_id] })));
+      const empMap = Object.fromEntries(emps.map((e: { id: string }) => [e.id, e]));
+      setRegistros(inc.map((i: Record<string, unknown>) => ({ ...i, empleado: empMap[(i.employee_id as string)] })));
     }
     setLoading(false);
   };

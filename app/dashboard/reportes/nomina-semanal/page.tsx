@@ -46,17 +46,17 @@ function Content() {
       .eq("anio", anio)
       .eq("semana", semana)
       .order("nombre", { ascending: true });
-    setRows((data || []).map((n: any) => ({
-      nombre: n.nombre || "—",
-      puesto: n.puesto || "—",
-      obra: n.obra || "—",
+    setRows((data || []).map((n: Record<string, unknown>) => ({
+      nombre: (n.nombre as string) || "—",
+      puesto: (n.puesto as string) || "—",
+      obra: (n.obra as string) || "—",
       dias: Number(n.dias_trabajados) || 0,
       percepciones: Number(n.total_percepciones) || 0,
       deducciones: Number(n.total_deducciones) || 0,
       sueldo_neto: Number(n.sueldo_neto) || 0,
-      fecha_inicio: (n.fecha_inicio || "").slice(0, 10),
-      fecha_fin: (n.fecha_fin || "").slice(0, 10),
-    })));
+      fecha_inicio: ((n.fecha_inicio as string) || "").slice(0, 10),
+      fecha_fin: ((n.fecha_fin as string) || "").slice(0, 10),
+    })) as Row[]);
     setLoading(false);
   }
 

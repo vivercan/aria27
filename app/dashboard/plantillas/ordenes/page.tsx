@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -23,6 +24,7 @@ const ESTADOS = ["borrador", "pendiente", "aprobada", "enviada", "completada"];
 const EMPTY = { nombre: "", numero: "", proveedor: "", obra: "", monto: "", estado: "borrador", fecha: "" };
 
 export default function OrdenesPage() {
+  const log = clientLogger("ORDENES");
   const [ordenes, setOrdenes] = useState<OrdenFormato[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -77,8 +79,8 @@ export default function OrdenesPage() {
   const guardar = async () => {
     if (!validar()) return;
     setGuardando(true);
-    const payload: any = { ...form };
-    if (payload.monto) payload.monto = parseFloat(payload.monto);
+    const payload: Record<string, unknown> = { ...form };
+    if (payload.monto) payload.monto = parseFloat(String(payload.monto));
     if (!payload.numero && !editId) payload.numero = nextNumero();
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
@@ -119,7 +121,7 @@ export default function OrdenesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "ordenes_formato", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

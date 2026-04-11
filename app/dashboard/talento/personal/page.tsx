@@ -170,12 +170,12 @@ export default function PersonalPage() {
 
     setGuardando(true);
 
-    const saveData: any = { ...form };
+    const saveData: Record<string, unknown> = { ...form };
     Object.keys(saveData).forEach(k => {
       if (saveData[k] === "") saveData[k] = null;
     });
     ["salario_diario", "salario_semanal", "salary_monthly", "minimo_tarjeta"].forEach(k => {
-      if (saveData[k]) saveData[k] = parseFloat(saveData[k]);
+      if (saveData[k]) saveData[k] = parseFloat(String(saveData[k]));
     });
 
     if (editando === "nuevo") {

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
@@ -17,6 +18,7 @@ interface Empleado {
 }
 
 export default function MatrizSalarialPage() {
+  const log = clientLogger("MATRIZ");
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
   const [groupBy, setGroupBy] = useState<"position" | "empresa" | "department">("empresa");
@@ -24,7 +26,7 @@ export default function MatrizSalarialPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("salario_diario", { ascending: false });
-      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
+      if (error) { log.error("Error loading empleados:", { error: error?.message }); setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };

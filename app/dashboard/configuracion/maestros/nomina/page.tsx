@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Save, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
@@ -14,6 +15,7 @@ interface ConfigItem {
 }
 
 export default function NominaConfigPage() {
+  const log = clientLogger("NOMINA");
   const { msg, flash, clear } = useFlashMessage();
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function NominaConfigPage() {
       .from("configuracion_nomina")
       .select("*")
       .order("clave");
-    if (error) { console.error("Error loading configuracion_nomina:", error?.message); setLoading(false); return; }
+    if (error) { log.error("Error loading configuracion_nomina:", { error: error?.message }); setLoading(false); return; }
     if (data) setConfigs(data);
     setLoading(false);
   }
@@ -55,7 +57,7 @@ export default function NominaConfigPage() {
     if (!validar(valor, clave)) return;
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) { console.error("Error saving configuracion:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
+    if (error) { log.error("Error saving configuracion:", { error: error?.message }); flash("err", "Error: " + error?.message); setSaving(false); return; }
     setFormErrors({});
     setSaving(false);
   }

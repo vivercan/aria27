@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
 
 const log = logger("WATERMARK");
@@ -175,7 +176,7 @@ export async function downloadWhatsAppMedia(
 export async function processAndUploadPhoto(args: {
   mediaUrl: string;
   whatsappToken: string;
-  supabase: any;
+  supabase: SupabaseClient;
   bucket: string;
   storagePath: string;
   date?: Date;

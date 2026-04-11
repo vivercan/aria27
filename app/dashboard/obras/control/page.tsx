@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +33,7 @@ interface ObraRow {
 const CATS = ["MATERIALES", "MANO_OBRA", "HERRAMIENTA", "SUBCONTRATO", "INDIRECTOS", "OTROS"];
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const log = clientLogger("CONTROL");
 
 function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
   if (presupuesto <= 0) return "SIN_PRESUPUESTO";
@@ -88,7 +90,7 @@ export default function ControlObrasPage() {
       setNomina((nh.data as NomRec[]) || []);
       setCobros((co.data as CobroRec[]) || []);
       setAvancesFis((av.data as AvanceRec[]) || []);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setLoading(false);
   }
 

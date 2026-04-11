@@ -1,10 +1,12 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2 } from "lucide-react";
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const log = clientLogger("REPORTE");
 
 interface Datos {
   presupuestoCat: Record<string, number>;
@@ -128,7 +130,7 @@ function ReporteContent() {
         topOCs, topCobros, totalNominaRecs,
       });
     } catch (e: unknown) {
-      console.error(e);
+      log.error(String(e));
     }
     setLoading(false);
   }

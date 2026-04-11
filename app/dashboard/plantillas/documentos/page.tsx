@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -25,6 +26,7 @@ const TIPOS = ["Contrato", "Plano", "Licencia", "Permiso", "Factura", "Reporte",
 const EMPTY = { nombre: "", tipo: "Contrato", categoria: "", descripcion: "", archivo_url: "", obra_id: "", obra_nombre: "" };
 
 export default function DocumentosPage() {
+  const log = clientLogger("DOCUMENTOS");
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -66,7 +68,7 @@ export default function DocumentosPage() {
   const guardar = async () => {
     if (!validar()) return;
     setGuardando(true);
-    const payload: any = { ...form };
+    const payload: Record<string, unknown> = { ...form };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
     if (payload.obra_id) {
       const obra = obras.find(o => o.id === payload.obra_id);
@@ -89,7 +91,7 @@ export default function DocumentosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "documentos_plantilla", id: deleteModal.id, userEmail });
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -64,6 +65,7 @@ const searchableItems = [
 ];
 
 function ThemeToggle() {
+  const log = clientLogger("PAGE");
   const { theme, setTheme } = useTheme();
   return (
     <button
@@ -77,6 +79,7 @@ function ThemeToggle() {
 }
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
+  const log = clientLogger("DASHBOARD");
   const { theme, season, colors } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
@@ -122,7 +125,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: userEmail })
         });
-      } catch (e: unknown) { console.error("Error heartbeat:", e); }
+      } catch (e: unknown) { log.error("Error heartbeat:", { data: e }); }
     };
 
     // Actualizar inmediatamente al cargar

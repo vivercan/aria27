@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
@@ -22,6 +23,7 @@ interface CuentaPorPagar {
 }
 
 export default function PorPagarPage() {
+  const log = clientLogger("POR-PAGAR");
   const [cuentas, setCuentas] = useState<CuentaPorPagar[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -41,21 +43,33 @@ export default function PorPagarPage() {
       const { data: ocs } = await supabase.from("purchase_orders").select("*").order("created_at", { ascending: false });
       const hoy = new Date();
 
-      const processed = (ocs || []).map((oc: any) => {
-        const pagado = oc.monto_pagado || 0;
-        const total = oc.total || 0;
+      const processed = (ocs || []).map((oc: Record<string, unknown>) => {
+        const pagado = (oc.monto_pagado as number) || 0;
+        const total = (oc.total as number) || 0;
         const saldo = total - pagado;
-        const diasCredito = oc.dias_credito || 30;
-        const fechaCreacion = new Date(oc.created_at);
+        const diasCredito = (oc.dias_credito as number) || 30;
+        const fechaCreacion = new Date(oc.created_at as string);
         const fechaVenc = new Date(fechaCreacion);
         fechaVenc.setDate(fechaVenc.getDate() + diasCredito);
         const vencida = hoy > fechaVenc && saldo > 0;
 
-        return { ...oc, monto_pagado: pagado, saldo, dias_credito: diasCredito, fecha_vencimiento: fechaVenc.toISOString(), vencida };
-      }).filter((oc: any) => oc.saldo > 0);
+        return {
+          id: (oc.id as string) || "",
+          folio: (oc.po_number as string) || "",
+          supplier_name: (oc.supplier_name as string) || "",
+          total,
+          monto_pagado: pagado,
+          saldo,
+          created_at: (oc.created_at as string) || "",
+          obra_nombre: (oc.obra_nombre as string) || "",
+          dias_credito: diasCredito,
+          fecha_vencimiento: fechaVenc.toISOString(),
+          vencida,
+        } as CuentaPorPagar;
+      }).filter((oc: CuentaPorPagar) => oc.saldo > 0);
 
       setCuentas(processed);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error("Error loading cuentas por pagar", { error: e }); }
     finally { setLoading(false); }
   }
 

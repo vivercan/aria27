@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -18,6 +19,7 @@ const PAGE_SIZE = 50;
 const UNITS = ["PIEZA","LITRO","METRO","METRO_CUBICO","METRO_CUADRADO","KILO","TONELADA","SACO","CUBETA_19L","ROLLO","TRAMO","JUEGO","PAR","CAJA","PAQUETE","VIAJE","SERVICIO","GLOBAL","LOTE","GALON","BOLSA","BOTE"];
 
 export default function ProductosPage() {
+  const log = clientLogger("PRODUCTOS");
   const { msg, flash, clear } = useFlashMessage();
   const [products,setProducts]=useState<Product[]>([]);
   const [loading,setLoading]=useState(true);
@@ -142,7 +144,7 @@ export default function ProductosPage() {
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
-    }catch(e:unknown){console.error(e);flash("err", "Error: "+(e as Error)?.message);}
+    }catch(e:unknown){log.error(String(e));flash("err", "Error: "+(e as Error)?.message);}
     finally{setSavingNew(false);}
   };
 
@@ -176,7 +178,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       if(!Array.isArray(parsed))throw new Error("La IA no devolvió un array");
       setParsedProducts(parsed);
     }catch(e:unknown){
-      console.error("Error parsing:",e);
+      log.error("Error parsing:", { data: e });
       setParseError((e as Error)?.message||"Error procesando el archivo");
     }finally{setParsing(false);}
   };
@@ -206,10 +208,10 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             product_id:productId,supplier_id:parseInt(uploadSuppId),
             precio_referencia:p.price||null
           });
-          if (psErr) { console.error("Error link product_supplier:", psErr); continue; }
+          if (psErr) { log.error("Error link product_supplier:", { data: psErr }); continue; }
         }
         saved++;setSavedCount(saved);
-      }catch (e: unknown){console.error("Error saving product:",e);}
+      }catch (e: unknown){log.error("Error saving product:", { data: e });}
     }
     setSavingParsed(false);
     setTimeout(()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setUploadSuppId("");setSavedCount(0);loadProducts(currentPage);},1500);

@@ -1,4 +1,5 @@
 "use client";
+import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -43,6 +44,7 @@ const CATEGORIAS = [
 
 const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autorizado: "", notas: "" };
 const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "" };
+  const log = clientLogger("CAJA");
 
 const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string) => { try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
@@ -103,7 +105,7 @@ export default function CajaChicaPage() {
       setCortes((cRes.data || []).map((c: Corte) => ({ ...c, fondo_nombre: fondoMapTyped[c.fondo_id] || "?" })));
       setObras(obrasArr);
       setEmpleados(empleadosArr);
-    } catch (e: unknown) { console.error(e); }
+    } catch (e: unknown) { log.error(String(e)); }
     finally { setLoading(false); }
   }
 
