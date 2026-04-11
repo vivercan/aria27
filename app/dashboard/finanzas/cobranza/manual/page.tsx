@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -38,6 +41,7 @@ const FORM_INIT = {
 };
 
 export default function CobranzaManualPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [cobros, setCobros] = useState<Cobro[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
@@ -48,6 +52,7 @@ export default function CobranzaManualPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { cargar(); }, []);
 
@@ -60,7 +65,7 @@ export default function CobranzaManualPage() {
         supabase.from("centros_trabajo").select("id, nombre, activo").order("nombre", { ascending: true }),
       ]);
       if (c.error?.code === "42P01" || c.error?.code === "PGRST205") {
-        alert("Falta crear tabla cobros_manuales. Ver SQL aplicado en Supabase.");
+        flash("err", "Falta crear tabla cobros_manuales. Ver SQL aplicado en Supabase.");
       }
       setCobros((c.data as Cobro[]) || []);
       setClientes((cli.data as Cliente[]) || []);
@@ -92,16 +97,16 @@ export default function CobranzaManualPage() {
   }
 
   async function guardar() {
-    if (!form.cliente_id) { alert("Selecciona un cliente"); return; }
+    if (!form.cliente_id) { flash("err", "Selecciona un cliente"); return; }
     const cli = clientes.find(c => c.id === form.cliente_id);
-    if (!cli) { alert("Cliente no encontrado"); return; }
+    if (!cli) { flash("err", "Cliente no encontrado"); return; }
     if (cli.estatus !== "ACTIVO") {
-      alert(`El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cobranza.`);
+      flash("err", `El cliente "${cli.nombre}" está INACTIVO. No se permite registrar nueva cobranza.`);
       return;
     }
-    if (!form.monto || isNaN(form.monto) || form.monto <= 0) { alert("Monto debe ser un número mayor a 0"); return; }
-    if (isNaN(form.saldo) || form.saldo < 0 || form.saldo > form.monto) { alert("Saldo debe estar entre 0 y monto"); return; }
-    if (!form.fecha) { alert("Fecha es requerida"); return; }
+    if (!form.monto || isNaN(form.monto) || form.monto <= 0) { flash("err", "Monto debe ser un número mayor a 0"); return; }
+    if (isNaN(form.saldo) || form.saldo < 0 || form.saldo > form.monto) { flash("err", "Saldo debe estar entre 0 y monto"); return; }
+    if (!form.fecha) { flash("err", "Fecha es requerida"); return; }
 
     const obra = form.obra_id ? obras.find(o => o.id === form.obra_id) : null;
 
@@ -142,7 +147,7 @@ export default function CobranzaManualPage() {
       setForm({ ...FORM_INIT });
       await cargar();
     } catch (e: any) {
-      alert("Error: " + (e?.message || "desconocido"));
+      flash("err", "Error: " + (e?.message || "desconocido"));
     } finally {
       setSaving(false);
     }
@@ -150,10 +155,15 @@ export default function CobranzaManualPage() {
 
   async function cancelarCobro(c: Cobro) {
     if (c.estatus === "CANCELADO") return;
-    if (!confirm(`Cancelar cobro de "${c.cliente_nombre}" por $${c.monto}?`)) return;
-    const { error } = await supabase.from("cobros_manuales").update({ estatus: "CANCELADO" }).eq("id", c.id);
-    if (error) alert("Error: " + error.message);
-    else cargar();
+    setConfirmState({
+      open: true,
+      msg: `Cancelar cobro de "${c.cliente_nombre}" por $${c.monto}?`,
+      onOk: async () => {
+        const { error } = await supabase.from("cobros_manuales").update({ estatus: "CANCELADO" }).eq("id", c.id);
+        if (error) flash("err", "Error: " + error.message);
+        else cargar();
+      }
+    });
   }
 
   async function reactivarCobro(c: Cobro) {
@@ -163,10 +173,15 @@ export default function CobranzaManualPage() {
     if (Number(c.saldo) === 0) nuevo = "PAGADO";
     else if (Number(c.saldo) > 0 && Number(c.saldo) < Number(c.monto)) nuevo = "PARCIAL";
     else nuevo = "PENDIENTE";
-    if (!confirm(`Reactivar cobro de "${c.cliente_nombre}" como ${nuevo}?`)) return;
-    const { error } = await supabase.from("cobros_manuales").update({ estatus: nuevo }).eq("id", c.id);
-    if (error) alert("Error: " + error.message);
-    else cargar();
+    setConfirmState({
+      open: true,
+      msg: `Reactivar cobro de "${c.cliente_nombre}" como ${nuevo}?`,
+      onOk: async () => {
+        const { error } = await supabase.from("cobros_manuales").update({ estatus: nuevo }).eq("id", c.id);
+        if (error) flash("err", "Error: " + error.message);
+        else cargar();
+      }
+    });
   }
 
   const clientesActivos = clientes.filter(c => c.estatus === "ACTIVO");
@@ -185,6 +200,7 @@ export default function CobranzaManualPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       <AriaBackButton href="/dashboard/finanzas" />
 
       <div className="flex items-center justify-between">
@@ -385,6 +401,13 @@ export default function CobranzaManualPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

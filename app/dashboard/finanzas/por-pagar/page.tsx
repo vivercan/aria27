@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
 import { DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface CuentaPorPagar {
   id: string;
@@ -20,6 +22,7 @@ interface CuentaPorPagar {
 }
 
 export default function PorPagarPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<CuentaPorPagar[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -98,7 +101,7 @@ export default function PorPagarPage() {
       setPagoModal(null);
       await loadData();
     } catch (e: any) {
-      alert(e?.message || "Error desconocido al registrar pago");
+      flash("err", e?.message || "Error desconocido al registrar pago");
     } finally {
       setPagoSaving(false);
     }
@@ -106,6 +109,7 @@ export default function PorPagarPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 

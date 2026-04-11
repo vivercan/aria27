@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle, Loader2, Upload, Download, X, File, FileJson } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Factura {
   id: string;
@@ -35,6 +37,7 @@ interface FacturaUploadFiles {
 }
 
 export default function FacturacionPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [facturas, setFacturas] = useState<Factura[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -199,10 +202,10 @@ export default function FacturacionPage() {
 
       setFacturaFiles({ xml: null, pdf: null });
       setShowUploadModal(false);
-      alert("Archivos subidos exitosamente");
+      flash("ok", "Archivos subidos exitosamente");
     } catch (e) {
       console.error("Upload error:", e);
-      alert("Error al subir archivos: " + (e instanceof Error ? e.message : "Desconocido"));
+      flash("err", "Error al subir archivos: " + (e instanceof Error ? e.message : "Desconocido"));
     } finally {
       setUploading(false);
     }
@@ -253,7 +256,7 @@ export default function FacturacionPage() {
     };
 
     const r = await intentar(1);
-    if (!r.ok) { alert("Error: " + r.err); return; }
+    if (!r.ok) { flash("err", "Error: " + r.err); return; }
     setShowForm(false);
     setForm({ serie: "A", cliente: "", rfc_cliente: "", concepto: "", subtotal: 0, obra_nombre: "", metodo_pago: "PUE", uso_cfdi: "G03", tipo: "EGRESO" });
     loadData();
@@ -271,6 +274,7 @@ export default function FacturacionPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 

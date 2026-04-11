@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Cuenta { id: string; banco: string; cuenta: string; empresa: string; }
 interface Movimiento {
@@ -28,6 +31,7 @@ interface OC { id: string; po_number: string | null; total: number | null; creat
 const FORM_INIT = { cuenta_id: "", fecha_movimiento: new Date().toISOString().slice(0,10), monto: 0, concepto: "", referencia: "", tipo_movimiento: "ABONO", notas: "" };
 
 export default function MovimientosBancariosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [movs, setMovs] = useState<Movimiento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +43,7 @@ export default function MovimientosBancariosPage() {
   const [cobrosSugeridos, setCobrosSugeridos] = useState<Cobro[]>([]);
   const [ocsSugeridas, setOcsSugeridas] = useState<OC[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadAll(); }, []);
 
@@ -78,7 +83,7 @@ export default function MovimientosBancariosPage() {
       status_match: "PENDIENTE",
     };
     const { error } = await supabase.from("conciliacion_bancaria").insert(payload);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setForm({ ...FORM_INIT });
     setShowForm(false);
     loadAll();
@@ -116,18 +121,23 @@ export default function MovimientosBancariosPage() {
     if (tipo === "cobro") update.cobro_id = id;
     else update.oc_id = id;
     const { error } = await supabase.from("conciliacion_bancaria").update(update).eq("id", matchModal.id);
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { flash("err", "Error: " + error.message); return; }
     setMatchModal(null);
     loadAll();
   }
 
   async function desconciliar(m: Movimiento) {
-    if (!confirm("¿Quitar la conciliación de este movimiento?")) return;
-    const { error } = await supabase.from("conciliacion_bancaria")
-      .update({ status_match: "PENDIENTE", cobro_id: null, oc_id: null })
-      .eq("id", m.id);
-    if (error) { alert("Error: " + error.message); return; }
-    loadAll();
+    setConfirmState({
+      open: true,
+      msg: "¿Quitar la conciliación de este movimiento?",
+      onOk: async () => {
+        const { error } = await supabase.from("conciliacion_bancaria")
+          .update({ status_match: "PENDIENTE", cobro_id: null, oc_id: null })
+          .eq("id", m.id);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        loadAll();
+      }
+    });
   }
 
   const movsFiltrados = movs.filter(m => {
@@ -141,6 +151,7 @@ export default function MovimientosBancariosPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       <div className="flex items-center gap-4">
         <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/10 rounded-lg">
           <ArrowLeft className="w-5 h-5 text-slate-400" />
@@ -326,6 +337,13 @@ export default function MovimientosBancariosPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

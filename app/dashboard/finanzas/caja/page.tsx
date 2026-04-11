@@ -7,6 +7,7 @@ import {
   DollarSign, FileText, Lock, Calendar, Tag, AlertTriangle,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
 
 /* ────────── types ────────── */
 interface Fondo {
@@ -71,6 +72,7 @@ export default function CajaChicaPage() {
   const [corteForm, setCorteForm] = useState({ fondo_id: "", fecha_inicio: "", fecha_fin: "", periodo: "" });
 
   const [saving, setSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
 
   const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
@@ -193,9 +195,14 @@ export default function CajaChicaPage() {
   }
 
   async function eliminarMov(id: string) {
-    if (!confirm("¿Eliminar este movimiento? El saldo del fondo se ajustará automáticamente.")) return;
-    const { error } = await supabase.from("caja_chica_movimientos").delete().eq("id", id);
-    if (error) flash("err", error.message); else { flash("ok", "Movimiento eliminado"); loadAll(); }
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar este movimiento? El saldo del fondo se ajustará automáticamente.",
+      onOk: async () => {
+        const { error } = await supabase.from("caja_chica_movimientos").delete().eq("id", id);
+        if (error) flash("err", error.message); else { flash("ok", "Movimiento eliminado"); loadAll(); }
+      }
+    });
   }
 
   /* ── Cortes ── */
@@ -234,9 +241,14 @@ export default function CajaChicaPage() {
   }
 
   async function cerrarCorte(c: Corte) {
-    if (!confirm(`¿Cerrar corte "${c.periodo}"? No se podrá reabrir.`)) return;
-    const { error } = await supabase.from("caja_chica_cortes").update({ estatus: "CERRADO", cerrado_at: new Date().toISOString(), cerrado_por: "admin" }).eq("id", c.id);
-    if (error) flash("err", error.message); else { flash("ok", "Corte cerrado"); loadAll(); }
+    setConfirmState({
+      open: true,
+      msg: `¿Cerrar corte "${c.periodo}"? No se podrá reabrir.`,
+      onOk: async () => {
+        const { error } = await supabase.from("caja_chica_cortes").update({ estatus: "CERRADO", cerrado_at: new Date().toISOString(), cerrado_por: "admin" }).eq("id", c.id);
+        if (error) flash("err", error.message); else { flash("ok", "Corte cerrado"); loadAll(); }
+      }
+    });
   }
 
   /* ── filtered data ── */
@@ -649,6 +661,13 @@ export default function CajaChicaPage() {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

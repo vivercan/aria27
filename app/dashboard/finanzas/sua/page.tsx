@@ -7,6 +7,7 @@ import {
   FileText, TrendingDown, Clock, CreditCard, Building2,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import ConfirmModal from "@/components/ConfirmModal";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -59,6 +60,7 @@ export default function SUAFinanzasPage() {
 
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
   const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
 
   /* ── load ── */
@@ -145,9 +147,14 @@ export default function SUAFinanzasPage() {
   }
 
   async function eliminar(id: string) {
-    if (!confirm("¿Eliminar esta línea de captura?")) return;
-    const { error } = await supabase.from("sua_lineas_captura").delete().eq("id", id);
-    if (error) flash("err", error.message); else { flash("ok", "Eliminada"); loadAll(); }
+    setConfirmState({
+      open: true,
+      msg: "¿Eliminar esta línea de captura?",
+      onOk: async () => {
+        const { error } = await supabase.from("sua_lineas_captura").delete().eq("id", id);
+        if (error) flash("err", error.message); else { flash("ok", "Eliminada"); loadAll(); }
+      }
+    });
   }
 
   /* ── Pago rápido ── */
@@ -199,6 +206,11 @@ export default function SUAFinanzasPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      {msg && (
+        <div className={`fixed top-4 right-4 px-4 py-3 rounded-lg text-white z-50 ${msg.tipo === "ok" ? "bg-emerald-600" : "bg-red-600"}`}>
+          {msg.texto}
+        </div>
+      )}
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />
@@ -487,6 +499,13 @@ export default function SUAFinanzasPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+      />
     </div>
   );
 }

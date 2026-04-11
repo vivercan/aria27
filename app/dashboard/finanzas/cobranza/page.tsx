@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { registrarCobroEstimacion } from "@/lib/finanzas-payments";
 import { DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle, X, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
 
 interface Estimacion {
   id: string;
@@ -21,6 +23,7 @@ interface Estimacion {
 }
 
 export default function CobranzaPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [estimaciones, setEstimaciones] = useState<Estimacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -42,9 +45,9 @@ export default function CobranzaPage() {
   }
 
   async function guardar() {
-    if (!form.obra_nombre?.trim()) { alert("Nombre de obra es requerido"); return; }
-    if (isNaN(form.monto_estimado) || form.monto_estimado <= 0) { alert("Monto estimado debe ser mayor a 0"); return; }
-    if (isNaN(form.retencion_fondo) || form.retencion_fondo < 0 || form.retencion_fondo > 100) { alert("% Retención debe estar entre 0 y 100"); return; }
+    if (!form.obra_nombre?.trim()) { flash("err", "Nombre de obra es requerido"); return; }
+    if (isNaN(form.monto_estimado) || form.monto_estimado <= 0) { flash("err", "Monto estimado debe ser mayor a 0"); return; }
+    if (isNaN(form.retencion_fondo) || form.retencion_fondo < 0 || form.retencion_fondo > 100) { flash("err", "% Retención debe estar entre 0 y 100"); return; }
     // Folio derivado del max(numero) + 1 por obra. NOTA: sin unique constraint en
     // (obra_nombre, numero) sigue habiendo riesgo de colisión bajo concurrencia.
     // Mitigado a nivel cliente; deuda P1: añadir unique index en BD.
@@ -70,7 +73,7 @@ export default function CobranzaPage() {
       fecha_presentacion: new Date().toISOString().split("T")[0],
     });
 
-    if (error) alert("Error: " + error?.message);
+    if (error) flash("err", "Error: " + error?.message);
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 }); loadData(); }
   }
 
@@ -91,8 +94,8 @@ export default function CobranzaPage() {
   async function confirmarCobro() {
     if (!cobroModal) return;
     const montoCobrado = parseFloat(cobroMonto);
-    if (isNaN(montoCobrado) || montoCobrado <= 0) { alert("Monto a cobrar debe ser mayor a 0"); return; }
-    if (montoCobrado > cobroModal.pendiente) { alert(`Monto no puede exceder pendiente de $${cobroModal.pendiente.toLocaleString()}`); return; }
+    if (isNaN(montoCobrado) || montoCobrado <= 0) { flash("err", "Monto a cobrar debe ser mayor a 0"); return; }
+    if (montoCobrado > cobroModal.pendiente) { flash("err", `Monto no puede exceder pendiente de $${cobroModal.pendiente.toLocaleString()}`); return; }
     setCobroSaving(true);
     try {
       await registrarCobroEstimacion({
@@ -105,7 +108,7 @@ export default function CobranzaPage() {
       setCobroModal(null);
       await loadData();
     } catch (e: any) {
-      alert(e?.message || "Error desconocido al registrar cobro");
+      flash("err", e?.message || "Error desconocido al registrar cobro");
     } finally {
       setCobroSaving(false);
     }
@@ -124,6 +127,7 @@ export default function CobranzaPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       <AriaBackButton href="/dashboard/finanzas" />
 
       <div className="flex items-center justify-between">

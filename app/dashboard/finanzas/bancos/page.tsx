@@ -7,6 +7,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface CuentaBancaria {
   id: string;
@@ -26,6 +29,7 @@ interface CuentaBancaria {
 const FORM_INIT = { banco: "", cuenta: "", clabe: "", titular: "", tipo: "Cheques", saldo: 0, moneda: "MXN", empresa: "AVANTE" };
 
 export default function BancosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
@@ -34,6 +38,7 @@ export default function BancosPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [showInactivas, setShowInactivas] = useState(false);
   const [form, setForm] = useState({ ...FORM_INIT });
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   useEffect(() => { loadData(); }, []);
 
@@ -66,17 +71,17 @@ export default function BancosPage() {
   }
 
   async function guardar() {
-    if (!form.banco?.trim()) { alert("Banco es requerido"); return; }
-    if (!form.cuenta?.trim()) { alert("Número de cuenta es requerido"); return; }
-    if (!form.titular?.trim()) { alert("Titular es requerido"); return; }
-    if (isNaN(form.saldo) || form.saldo < 0) { alert("Saldo debe ser >= 0"); return; }
+    if (!form.banco?.trim()) { flash("err", "Banco es requerido"); return; }
+    if (!form.cuenta?.trim()) { flash("err", "Número de cuenta es requerido"); return; }
+    if (!form.titular?.trim()) { flash("err", "Titular es requerido"); return; }
+    if (isNaN(form.saldo) || form.saldo < 0) { flash("err", "Saldo debe ser >= 0"); return; }
     const payload = { ...form, updated_at: new Date().toISOString() } as any;
     if (editId) {
       const { error } = await supabase.from("cuentas_bancarias").update(payload).eq("id", editId);
-      if (error) { alert("Error al actualizar: " + error.message); return; }
+      if (error) { flash("err", "Error al actualizar: " + error.message); return; }
     } else {
       const { error } = await supabase.from("cuentas_bancarias").insert({ ...payload, activa: true });
-      if (error) { alert("Error al crear: " + error.message); return; }
+      if (error) { flash("err", "Error al crear: " + error.message); return; }
     }
     resetForm();
     loadData();
@@ -85,10 +90,15 @@ export default function BancosPage() {
   async function toggleActiva(c: CuentaBancaria) {
     const nueva = !c.activa;
     const accion = nueva ? "reactivar" : "desactivar";
-    if (!confirm(`¿${accion} la cuenta ${c.banco} - ${c.cuenta}?`)) return;
-    const { error } = await supabase.from("cuentas_bancarias").update({ activa: nueva, updated_at: new Date().toISOString() }).eq("id", c.id);
-    if (error) { alert("Error: " + error.message); return; }
-    loadData();
+    setConfirmState({
+      open: true,
+      msg: `¿${accion} la cuenta ${c.banco} - ${c.cuenta}?`,
+      onOk: async () => {
+        const { error } = await supabase.from("cuentas_bancarias").update({ activa: nueva, updated_at: new Date().toISOString() }).eq("id", c.id);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        loadData();
+      }
+    });
   }
 
   async function eliminar(c: CuentaBancaria) {
@@ -108,6 +118,7 @@ export default function BancosPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />
 
@@ -267,6 +278,13 @@ export default function BancosPage() {
         onConfirm={confirmDelete}
         count={1}
         itemLabel={`Cuenta Bancaria ${deleteModal.name}`}
+      />
+
+      <ConfirmModal
+        open={confirmState.open}
+        message={confirmState.msg}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
+        onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
     </div>
   );
