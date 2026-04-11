@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
         imap.openBox(folder, true, (err) => {
           if (err) { imap.end(); reject(err); return; }
 
-          // @ts-ignore - fetch exists on imap
-          const f = imap.fetch([uid], { bodies: "" });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- imap typings incomplete for .fetch()
+          const f = (imap as any).fetch([uid], { bodies: "" });
           let buffer = Buffer.alloc(0);
 
           f.on("message", (msg: any) => {
