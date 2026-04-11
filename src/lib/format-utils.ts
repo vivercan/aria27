@@ -11,6 +11,16 @@ export function formatMoney(value: number): string {
   }).format(value);
 }
 
+/** Formato moneda MXN corto (sin decimales): $1,235 */
+export function formatMoneyShort(value: number): string {
+  return `$${(value || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+/** Formato moneda MXN con 2 decimales sin Intl: $1,234.56 */
+export function fmt(value: number): string {
+  return `$${(value || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 /** Formato bytes legible: 1.5 MB, 320 KB, etc. Acepta null/undefined → "—" */
 export function formatBytes(bytes?: number | null): string {
   if (!bytes || bytes <= 0) return "—";

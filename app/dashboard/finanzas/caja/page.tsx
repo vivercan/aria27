@@ -10,6 +10,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
+import { formatMoney as fmt } from "@/lib/format-utils";
 
 /* ────────── types ────────── */
 interface Fondo {
@@ -46,7 +47,6 @@ const CATEGORIAS = [
 const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autorizado: "", notas: "" };
 const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "" };
 
-const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string) => { try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 
 /* ────────── component ────────── */

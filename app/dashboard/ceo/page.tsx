@@ -7,6 +7,7 @@ import {
   Loader2, TrendingUp, AlertTriangle, DollarSign, Wallet, Building2,
   FileText, ShoppingCart, Activity, RefreshCw,
 } from "lucide-react";
+import { formatMoneyShort as fmt, fmt as fmt2 } from "@/lib/format-utils";
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
@@ -15,9 +16,6 @@ interface Req { id: string; cost_center_name: string | null; }
 interface Nom { obra: string | null; sueldo_neto: number; status: string; semana_iso: string | null; }
 interface Part { obra_nombre: string; importe: number; }
 interface Av { obra_nombre: string; semana_iso: string; pct_fisico: number; }
-
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-const fmt2 = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function isThisMonth(iso: string): boolean {
   if (!iso) return false;

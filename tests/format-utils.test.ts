@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatMoney, formatBytes } from "../src/lib/format-utils";
+import { formatMoney, formatMoneyShort, fmt, formatBytes } from "../src/lib/format-utils";
 
 describe("formatMoney", () => {
   it("formats positive amounts as MXN currency", () => {
@@ -26,6 +26,34 @@ describe("formatMoney", () => {
   it("handles large numbers", () => {
     const result = formatMoney(1000000);
     expect(result).toContain("1,000,000.00");
+  });
+});
+
+describe("formatMoneyShort", () => {
+  it("formats without decimals", () => {
+    expect(formatMoneyShort(1234.56)).toBe("$1,235");
+  });
+
+  it("handles 0 and falsy", () => {
+    expect(formatMoneyShort(0)).toBe("$0");
+  });
+
+  it("formats large numbers", () => {
+    expect(formatMoneyShort(1000000)).toBe("$1,000,000");
+  });
+});
+
+describe("fmt", () => {
+  it("formats with 2 decimal places", () => {
+    expect(fmt(1234.5)).toBe("$1,234.50");
+  });
+
+  it("handles 0", () => {
+    expect(fmt(0)).toBe("$0.00");
+  });
+
+  it("formats normally", () => {
+    expect(fmt(99.99)).toBe("$99.99");
   });
 });
 

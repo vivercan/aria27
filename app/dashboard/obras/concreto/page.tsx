@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Droplet, FlaskConical, Building2, TrendingUp, ArrowRight, Loader2, ChevronRight } from "lucide-react";
+import { fmt } from "@/lib/format-utils";
 
 interface Remision {
   id: string;
@@ -46,7 +47,6 @@ interface ObraResumen {
   pct_cumplimiento: number;
 }
 
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtNum = (n: number) => (n || 0).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 export default function ConcretoPage() {

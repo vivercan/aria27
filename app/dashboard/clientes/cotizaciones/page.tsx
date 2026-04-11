@@ -6,6 +6,7 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
 import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle, Trash2, Printer } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmt } from "@/lib/format-utils";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -224,7 +225,6 @@ export default function CotizacionesClientesPage() {
     const its = (itemsRes.data as any[]) || [];
     const cliExtra = (cliRes as any).data || {};
 
-    const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
     const fechaLimite = new Date(c.fecha);
     fechaLimite.setDate(fechaLimite.getDate() + (c.vigencia_dias || 30));
     const vence = fechaLimite.toISOString().split("T")[0];

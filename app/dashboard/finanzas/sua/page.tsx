@@ -10,6 +10,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
+import { formatMoney as fmt } from "@/lib/format-utils";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -38,7 +39,6 @@ const FORM_INIT = {
   monto_pagado: "0", fecha_pago: "",
 };
 
-const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string | null) => { if (!d) return "—"; try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 const diasPara = (d: string | null) => { if (!d) return null; const diff = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); return diff; };
 

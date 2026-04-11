@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { fmt } from "@/lib/format-utils";
 
 interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
@@ -31,8 +32,6 @@ interface ObraRow {
 }
 
 const CATS = ["MATERIALES", "MANO_OBRA", "HERRAMIENTA", "SUBCONTRATO", "INDIRECTOS", "OTROS"];
-
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
   if (presupuesto <= 0) return "SIN_PRESUPUESTO";

@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
-
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+import { formatMoneyShort as fmt } from "@/lib/format-utils";
 
 export default function PanelFinanzas() {
   const [loading, setLoading] = useState(true);

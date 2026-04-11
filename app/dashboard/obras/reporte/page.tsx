@@ -3,8 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2 } from "lucide-react";
-
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+import { fmt } from "@/lib/format-utils";
 
 interface Datos {
   presupuestoCat: Record<string, number>;

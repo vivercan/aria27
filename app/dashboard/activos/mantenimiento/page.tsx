@@ -10,6 +10,7 @@ import {
   Clock, CheckCircle2, Settings, Package, DollarSign, Play,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { formatMoney as fmt } from "@/lib/format-utils";
 
 /* ────────── types ────────── */
 interface Orden {
@@ -63,7 +64,6 @@ const PROG_INIT = {
   frecuencia_km: "", descripcion: "", proveedor: "", costo_estimado: "",
 };
 
-const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 const fmtDate = (d: string | null) => { if (!d) return "—"; try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
 const diasPara = (d: string | null) => { if (!d) return null; return Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); };
 

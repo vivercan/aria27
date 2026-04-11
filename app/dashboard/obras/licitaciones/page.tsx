@@ -9,6 +9,7 @@ import { Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, 
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import { formatMoneyShort as fmt } from "@/lib/format-utils";
 
 interface Licitacion {
   id: string;
@@ -147,7 +148,6 @@ export default function LicitacionesPage() {
     perdidas: licitaciones.filter(l => l.status === "PERDIDA").length,
   };
 
-  const fmt = (n: number) => `$${(n||0).toLocaleString("es-MX", { minimumFractionDigits: 0 })}`;
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });
