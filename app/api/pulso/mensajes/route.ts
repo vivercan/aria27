@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO-MENSAJES");
 
 // AUTH helper: verificar que el email existe en Users
@@ -16,6 +17,9 @@ async function verifyUser(email: string | null): Promise<boolean> {
 
 export async function GET(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:mensajes", ...RATE_LIMITS.CHAT });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const convId = req.nextUrl.searchParams.get("conversacion_id");
     const email = req.nextUrl.searchParams.get("email");
 
@@ -50,6 +54,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:mensajes", ...RATE_LIMITS.CHAT });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const {
       conversacion_id,
       sender_email,
@@ -88,10 +95,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error?.message }, { status: 500 });
 
     // Actualizar timestamp de conversación
-    await supabase
+    const { error: err1 } = await supabase
       .from("pulso_conversaciones")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversacion_id);
+    if (err1) log.error("update pulso_conversaciones.updated_at failed", { error: err1.message });
 
     return NextResponse.json({ mensaje: data });
   } catch (error: unknown) {

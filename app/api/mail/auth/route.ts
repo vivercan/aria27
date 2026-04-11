@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const COOKIE_NAME = "zoho_creds";
 const MAX_AGE = 60 * 60 * 8; // 8 horas (jornada laboral)
@@ -12,6 +13,9 @@ const MAX_AGE = 60 * 60 * 8; // 8 horas (jornada laboral)
  */
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:auth", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const { email, password } = await req.json();
     if (!email || !password) {
       return NextResponse.json({ error: "Email y password requeridos" }, { status: 400 });
@@ -34,7 +38,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:auth", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const res = NextResponse.json({ ok: true });
   res.cookies.set(COOKIE_NAME, "", {
     httpOnly: true,

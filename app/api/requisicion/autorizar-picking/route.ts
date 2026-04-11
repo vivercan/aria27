@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("AUTORIZAR-PICKING");
 
 // Status enum para flujo de requisiciones
@@ -18,6 +19,10 @@ const REQUISITION_STATUS = {
 
 export async function POST(req: Request) {
   try {
+    const nextReq = new NextRequest(req);
+    const rl = checkRateLimit(getClientIdentifier(nextReq), { key: "req:auth-picking", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     // Validación básica: verificar que el request viene con datos esperados
     const body = await req.json();
     const { requisition_id, folio, obra, urgency, selections, user_email } = body;
@@ -37,8 +42,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
     }
 
-    const { Resend } = await import("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { getResend } = await import("@/lib/resend");
+    const resend = getResend();
 
     interface Selection {
       supplier_name: string;

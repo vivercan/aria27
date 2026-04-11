@@ -3,12 +3,16 @@ import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("NOMINA-EXPORT");
 
 const supabase = getSupabaseAdmin();
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "nomina:export", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
   // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
   let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");

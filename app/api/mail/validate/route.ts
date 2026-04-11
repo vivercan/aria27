@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:validate", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
 
   let email = "";
   let password = "";

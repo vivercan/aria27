@@ -140,6 +140,35 @@ export function unauthorizedResponse(message: string = "No autorizado"): NextRes
   return NextResponse.json({ error: message }, { status: 403 });
 }
 
+// ---------------------------------------------------------------------------
+// requireAdmin — gate centralizado para rutas /api/admin/*
+// Extrae email del header x-user-email, valida existencia en BD y verifica
+// que el usuario sea admin (whitelist env o rol en BD).
+// ---------------------------------------------------------------------------
+
+const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
+
+export type AdminAuthOk = { ok: true; email: string };
+export type AdminAuthFail = { ok: false; res: NextResponse };
+export type AdminAuthResult = AdminAuthOk | AdminAuthFail;
+
+export async function requireAdmin(req: NextRequest): Promise<AdminAuthResult> {
+  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  if (!email) {
+    return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
+  }
+
+  const user = await validateApiUser(email);
+  if (!user) {
+    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+  }
+
+  if (ADMIN_EMAILS.includes(email)) return { ok: true, email };
+  if (user.role === "admin" || user.role === "Administrador") return { ok: true, email };
+
+  return { ok: false, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+}
+
 /**
  * Valida que un usuario existe en la tabla Users sin cambiar la lógica de roles.
  * Este helper es para backend validation de API requests que usan x-user-email header.

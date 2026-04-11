@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("EXPEDIENTES-ANALIZAR");
 const supabase = getSupabaseAdmin();
@@ -50,6 +51,9 @@ function parseJsonResponse(text: string): { paginas: number | null; resumen: str
 }
 
 export async function POST(req: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "exp:analizar", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   // EXP-001 FIX: Verificar autenticación
   const userEmail = req.headers.get("x-user-email");
   if (!userEmail) {
@@ -86,10 +90,11 @@ export async function POST(req: NextRequest) {
 
     // EXP-009 FIX: Validar tamaño antes de descargar
     if (a.tamano_bytes && a.tamano_bytes > MAX_FILE_SIZE) {
-      await supabase.from("expedientes_archivos").update({
+      const { error: errSize } = await supabase.from("expedientes_archivos").update({
         resumen: `(Archivo demasiado grande para análisis: ${(a.tamano_bytes / 1024 / 1024).toFixed(1)}MB, máximo ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
         analizado_at: new Date().toISOString(),
       }).eq("id", a.id);
+      if (errSize) log.error("update expedientes_archivos (size check) failed", { error: errSize.message });
       return NextResponse.json({ ok: false, reason: "file-too-large" });
     }
 
@@ -98,10 +103,11 @@ export async function POST(req: NextRequest) {
     const isText = tipo.startsWith("text/") || ["txt", "md", "csv"].includes(ext);
 
     // Marcar que estamos analizando (evita polling duplicado)
-    await supabase
+    const { error: errMark } = await supabase
       .from("expedientes_archivos")
       .update({ analizado_at: new Date().toISOString() })
       .eq("id", a.id);
+    if (errMark) log.error("update expedientes_archivos (mark analyzing) failed", { error: errMark.message });
 
     let resumen: string | null = null;
     let paginas: number | null = null;
@@ -109,9 +115,10 @@ export async function POST(req: NextRequest) {
     if (isPdf) {
       const pdfRes = await fetch(a.url);
       if (!pdfRes.ok) {
-        await supabase.from("expedientes_archivos").update({
+        const { error: errDl1 } = await supabase.from("expedientes_archivos").update({
           resumen: "(No se pudo descargar el archivo para análisis)",
         }).eq("id", a.id);
+        if (errDl1) log.error("update expedientes_archivos (pdf download failed) failed", { error: errDl1.message });
         return NextResponse.json({ ok: false, reason: "download-failed" });
       }
       const buf = Buffer.from(await pdfRes.arrayBuffer());
@@ -135,9 +142,10 @@ export async function POST(req: NextRequest) {
     } else if (isImage) {
       const imgRes = await fetch(a.url);
       if (!imgRes.ok) {
-        await supabase.from("expedientes_archivos").update({
+        const { error: errDl2 } = await supabase.from("expedientes_archivos").update({
           resumen: "(No se pudo descargar la imagen para análisis)",
         }).eq("id", a.id);
+        if (errDl2) log.error("update expedientes_archivos (image download failed) failed", { error: errDl2.message });
         return NextResponse.json({ ok: false, reason: "download-failed" });
       }
       const buf = Buffer.from(await imgRes.arrayBuffer());

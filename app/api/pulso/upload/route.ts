@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO-UPLOAD");
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -25,6 +26,9 @@ function sanitize(s: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:upload", ...RATE_LIMITS.CHAT });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const senderEmail = formData.get("sender_email") as string | null;

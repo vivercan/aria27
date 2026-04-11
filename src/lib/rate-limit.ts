@@ -116,8 +116,14 @@ export const RATE_LIMITS = {
   EMAIL: { max: 10, windowMs: 60_000 },
   /** Escrituras CRUD: 60 por minuto por usuario */
   WRITE: { max: 60, windowMs: 60_000 },
+  /** Lecturas / GETs: 120 por minuto por usuario */
+  READ: { max: 120, windowMs: 60_000 },
   /** Operaciones costosas (AI, reportes): 20 por 5 min */
   EXPENSIVE: { max: 20, windowMs: 5 * 60_000 },
   /** Rutas públicas (approve-purchase por token): 30 por minuto por IP */
   PUBLIC: { max: 30, windowMs: 60_000 },
+  /** Admin: 30 por minuto por usuario */
+  ADMIN: { max: 30, windowMs: 60_000 },
+  /** Chat/messaging (pulso): 180 por minuto por usuario */
+  CHAT: { max: 180, windowMs: 60_000 },
 } as const;

@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("EXPORT");
 
 const supabase = getSupabaseAdmin();
@@ -50,6 +51,9 @@ async function fetchAllRows(
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "export:main", ...RATE_LIMITS.EXPENSIVE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
   // AUTH CHECK - agregado 22-Feb-2026
   const authHeader = req.headers.get("authorization");
   if (!authHeader) {

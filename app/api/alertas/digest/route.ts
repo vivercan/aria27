@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("ALERTAS-DIGEST");
 
@@ -15,6 +16,9 @@ interface Alerta {
 // Envía digest diario de alertas agrupadas por severidad.
 // Protegido por Bearer token (DIGEST_TOKEN) para que lo dispare cron externo (Vercel Cron, GitHub Actions, etc).
 export async function GET(req: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "alertas:digest", ...RATE_LIMITS.READ });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const auth = req.headers.get("authorization") || "";
   const expected = process.env.DIGEST_TOKEN || "";
   const isVercelCron = req.headers.get("x-vercel-cron") === "1";
@@ -49,7 +53,7 @@ export async function GET(req: NextRequest) {
 
     const html = buildHtml(urgentes, atencion, info, base);
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = getResend();
     const { data: sent, error } = await resend.emails.send({
       from: "ARIA27 <noreply@mail.jjcrm27.com>",
       to: [to],

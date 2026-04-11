@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const AUTHORIZED_ROLES = ["admin", "rh", "compras", "almacen"];
 
@@ -52,6 +53,9 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 // GET: Obtener asistencias incompletas Y días sin registro
 export async function GET(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     // AUTH CHECK
     const auth = await checkAuth(req);
     if (!auth.authorized) {
@@ -152,6 +156,9 @@ export async function GET(req: NextRequest) {
 // POST: Completar salida manualmente
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const body = await req.json();
 
     // AUTH CHECK
@@ -197,6 +204,9 @@ export async function POST(req: NextRequest) {
 // PUT: Crear asistencia completa para día faltante
 export async function PUT(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const body = await req.json();
 
     // AUTH CHECK
@@ -263,6 +273,9 @@ export async function PUT(req: NextRequest) {
 // DELETE: Eliminar asistencia
 export async function DELETE(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     // AUTH CHECK - solo admin y rh pueden eliminar
     const auth = await checkAuth(req);
     if (!auth.authorized) {

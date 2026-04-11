@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO");
 
 // AUTH helper: verificar que el email existe en Users
@@ -16,6 +17,9 @@ async function verifyUser(email: string | null): Promise<boolean> {
 
 export async function GET(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:main", ...RATE_LIMITS.CHAT });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const email = req.nextUrl.searchParams.get("email");
     if (!email) return NextResponse.json({ error: "Email requerido" }, { status: 400 });
 
@@ -80,6 +84,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:main", ...RATE_LIMITS.CHAT });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const { participantes, nombre, es_grupo } = await req.json();
 
     // AUTH: Verificar que al menos el primer participante es usuario del sistema
@@ -122,12 +129,13 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error?.message }, { status: 500 });
 
     // Agregar participantes
-    await supabase.from("pulso_participantes").insert(
+    const { error: err1 } = await supabase.from("pulso_participantes").insert(
       participantes.map((email: string) => ({
         conversacion_id: conv.id,
         user_email: email
       }))
     );
+    if (err1) log.error("insert pulso_participantes failed", { error: err1.message });
 
     return NextResponse.json({ conversacion_id: conv.id, existia: false });
   } catch (error: unknown) {

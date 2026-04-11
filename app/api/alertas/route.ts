@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("ALERTAS");
 const supabase = getSupabaseAdmin();
@@ -76,6 +77,9 @@ interface InventarioBajo {
 
 export async function GET(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "alertas:list", ...RATE_LIMITS.READ });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     // AUTH
     let userEmail: string | null = null;
     const authHeader = req.headers.get("authorization");

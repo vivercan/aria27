@@ -278,14 +278,15 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   let saldoPost = 0;
   if (existe) {
     saldoPost = Number(existe.cantidad_disponible) + cantidad;
-    await supabase.from("inventario_obra").update({
+    const { error: errInvUpd } = await supabase.from("inventario_obra").update({
       cantidad_disponible: saldoPost,
       ultimo_movimiento: new Date().toISOString(),
       foto_url: imageUrl,
     }).eq("id", existe.id);
+    if (errInvUpd) log.error("update inventario_obra failed", { error: errInvUpd.message });
   } else {
     saldoPost = cantidad;
-    await supabase.from("inventario_obra").insert({
+    const { error: errInvIns } = await supabase.from("inventario_obra").insert({
       obra_id: obraRow.id,
       obra_nombre: obraRow.nombre,
       producto_nombre: material,
@@ -295,10 +296,11 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
       ultimo_movimiento: new Date().toISOString(),
       foto_url: imageUrl,
     });
+    if (errInvIns) log.error("insert inventario_obra failed", { error: errInvIns.message });
   }
 
   // Registrar movimiento con foto
-  await supabase.from("inventario_movimientos").insert({
+  const { error: errMovIns } = await supabase.from("inventario_movimientos").insert({
     obra_id: obraRow.id,
     obra_nombre: obraRow.nombre,
     producto_nombre: material,
@@ -312,6 +314,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
     usuario: `WhatsApp ${phone10}`,
     foto_url: imageUrl,
   });
+  if (errMovIns) log.error("insert inventario_movimientos failed", { error: errMovIns.message });
 
   const provLine = invData.proveedor ? `🏪 ${invData.proveedor}\n` : "";
   await sendWhatsApp(from, `✅ *INVENTARIO ACTUALIZADO*\n\n📦 ${material}\n📏 +${cantidad} ${unidad}\n🏗️ ${obraRow.nombre}\n${provLine}📊 Saldo: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n¡Registrado!`);
@@ -440,7 +443,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   // ========== LÓGICA CORREGIDA ==========
   // CASO 1: No tiene registro hoy → ENTRADA
   if (!asistenciaHoy) {
-    await supabase.from("asistencias").insert({
+    const { error: errAsis1 } = await supabase.from("asistencias").insert({
       employee_id: emp.id,
       fecha: today,
       hora_entrada: hora,
@@ -451,6 +454,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       centro_nombre: workCenter.nombre,
       notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)}`
     });
+    if (errAsis1) log.error("insert asistencias (clock-in) failed", { error: errAsis1.message });
 
     const geoIcon = dentroGeocerca ? "✅" : "⚠️";
     const distText = formatDistance(distance);
@@ -468,7 +472,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
 
   // CASO 2: Tiene registro SIN salida → SALIDA
   if (asistenciaHoy && !asistenciaHoy.hora_salida) {
-    await supabase.from("asistencias").update({
+    const { error: errAsis2 } = await supabase.from("asistencias").update({
       hora_salida: hora,
       latitud_salida: lat,
       longitud_salida: lng,
@@ -476,6 +480,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       distancia_salida: Math.round(distance),
       notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${formatDistance(distance)}`
     }).eq("id", asistenciaHoy.id);
+    if (errAsis2) log.error("update asistencias (clock-out) failed", { error: errAsis2.message });
 
     // Calcular horas trabajadas
     const [hE, mE] = asistenciaHoy.hora_entrada.split(":").map(Number);
@@ -511,9 +516,10 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     
     if (esAutomatico) {
       // Sobrescribir: eliminar el registro automático y crear uno real
-      await supabase.from("asistencias").delete().eq("id", asistenciaHoy.id);
-      
-      await supabase.from("asistencias").insert({
+      const { error: errAsis3 } = await supabase.from("asistencias").delete().eq("id", asistenciaHoy.id);
+      if (errAsis3) log.error("delete asistencias (replace auto-record) failed", { error: errAsis3.message });
+
+      const { error: errAsis4 } = await supabase.from("asistencias").insert({
         employee_id: emp.id,
         fecha: today,
         hora_entrada: hora,
@@ -525,6 +531,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
         centro_nombre: workCenter.nombre,
         notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)} (reemplazó registro automático)`
       });
+      if (errAsis4) log.error("insert asistencias (replace auto-record) failed", { error: errAsis4.message });
 
       const geoIcon = dentroGeocerca ? "✅" : "⚠️";
       const distText = formatDistance(distance);
@@ -577,10 +584,11 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
 
   if (entregaExistente) {
     // Actualizar con foto
-    await supabase
+    const { error: errEnt1 } = await supabase
       .from("entregas")
       .update({ foto_url: imageUrl })
       .eq("id", entregaExistente.id);
+    if (errEnt1) log.error("update entregas foto failed", { error: errEnt1.message });
 
     await sendWhatsApp(from, `✅ *FOTO GUARDADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${entregaExistente.folio}\n📷 Evidencia actualizada\n\n¡Gracias!`);
   } else {
@@ -588,7 +596,7 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
     const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
     const nuevoFolio = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
 
-    await supabase.from("entregas").insert({
+    const { error: errEnt2 } = await supabase.from("entregas").insert({
       folio: nuevoFolio,
       fecha_entrega: new Date().toISOString().split("T")[0],
       hora_entrega: new Date().toTimeString().slice(0, 5),
@@ -600,6 +608,7 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
       foto_url: imageUrl,
       recibido_por_nombre: "Via WhatsApp"
     });
+    if (errEnt2) log.error("insert entregas failed", { error: errEnt2.message });
 
     await sendWhatsApp(from, `✅ *ENTREGA REGISTRADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${nuevoFolio}\n📷 Foto guardada\n🏪 ${oc.supplier_name}\n\n¡Gracias!`);
   }

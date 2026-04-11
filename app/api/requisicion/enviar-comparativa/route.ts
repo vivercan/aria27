@@ -72,8 +72,8 @@ interface WhatsAppResult {
 
 export async function POST(req: NextRequest) {
   try {
-    const { Resend } = await import("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { getResend } = await import("@/lib/resend");
+    const resend = getResend();
     const body = await req.json();
     const { requisition_id, folio, obra, quotes, items, items_detail, suppliers, user_email } = body;
 
@@ -175,7 +175,8 @@ export async function POST(req: NextRequest) {
       if (montoErr) log.error("Error guardando monto estimado", { id: requisition_id, error: montoErr.message });
     }
 
-    const linkAutorizar = `https://aria.jjcrm27.com/autorizar/${token}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
+    const linkAutorizar = `${baseUrl}/autorizar/${token}`;
 
     const supH = supTotals.map((s) => `<th style="padding:8px;text-align:center;${s.total === bestTot && bestTot > 0 ? "background:#16a34a;color:white" : "background:#1e3a5f;color:white"};font-size:12px;border:1px solid #334155">${s.supplier}</th>`).join("");
 

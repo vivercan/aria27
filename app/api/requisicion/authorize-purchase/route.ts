@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import { NextResponse, NextRequest } from "next/server";
+import { getResend } from "@/lib/resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("AUTHORIZE-PURCHASE");
 
-const BASE_URL = "https://aria.jjcrm27.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 interface CotizacionItem {
   product_name?: string;
@@ -51,7 +52,11 @@ async function getUserByRole(role: string): Promise<Usuario | null> {
 }
 
 export async function POST(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const req = new NextRequest(request);
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "req:auth-purchase", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
+  const resend = getResend();
 
   try {
     const body = await request.json();

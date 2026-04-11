@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("BACKUP-SNAPSHOT");
 
@@ -17,6 +18,9 @@ const SKIP_BUCKETS = ["backups"]; // No respaldar el propio bucket de backups
 const SKIP_TABLES = ["schema_migrations", "supabase_migrations"]; // Sistema
 
 export async function GET(req: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(req), { key: "backup:snapshot", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const auth = req.headers.get("authorization") || "";
   const expected = process.env.BACKUP_TOKEN || "";
   const isVercelCron = req.headers.get("x-vercel-cron") === "1";

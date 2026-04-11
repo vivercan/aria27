@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
+import { getResend } from "@/lib/resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
     return rateLimitResponse(rl);
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const resend = getResend();
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");

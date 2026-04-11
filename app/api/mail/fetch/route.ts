@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 import { getZohoCreds } from "../_zoho-creds";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 interface ParsedEmailContent {
   body: string;
@@ -15,6 +16,9 @@ interface ImapFetchable extends Record<string, any> {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:fetch", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const { uid, folder = "INBOX" } = await req.json();
     const creds = await getZohoCreds();
     if (!creds) {

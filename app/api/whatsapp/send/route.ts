@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/whatsapp/send — enviar mensaje de texto libre por WhatsApp
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "wa:send", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const email = req.headers.get("x-user-email");
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 

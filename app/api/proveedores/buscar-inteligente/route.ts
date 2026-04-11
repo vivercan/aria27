@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("BUSCAR-INTELIGENTE");
 
 const supabase = getSupabaseAdmin();
@@ -32,6 +33,9 @@ interface ProveedorWeb {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "prov:buscar-ai", ...RATE_LIMITS.EXPENSIVE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const { productos, requisicion_id, user_email } = await req.json();
 
     // Auth check: verificar usuario y rol

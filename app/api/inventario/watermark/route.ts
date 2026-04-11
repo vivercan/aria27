@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { watermarkWithDate } from "@/lib/image-watermark";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 /**
  * POST /api/inventario/watermark
@@ -14,6 +15,9 @@ import { watermarkWithDate } from "@/lib/image-watermark";
  */
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "inv:watermark", ...RATE_LIMITS.EXPENSIVE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const bucket = (formData.get("bucket") as string) || "inventario";

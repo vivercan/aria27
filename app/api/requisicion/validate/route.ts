@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { Resend } from "resend";
+import { getResend } from "@/lib/resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("REQ-VALIDATE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -27,7 +28,11 @@ async function getUserByEmail(email: string): Promise<User | null> {
 
 export async function GET(request: Request) {
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY!);
+    const nReq = new NextRequest(request);
+    const rl = checkRateLimit(getClientIdentifier(nReq), { key: "req:validate", ...RATE_LIMITS.READ });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
+    const resend = getResend();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
     const action = searchParams.get("action");

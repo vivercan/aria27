@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
 import { getZohoCreds } from "../_zoho-creds";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("MAIL-DELETE");
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:delete", ...RATE_LIMITS.WRITE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     const { uids, folder = "INBOX" } = await req.json();
     const creds = await getZohoCreds();
     if (!creds) {
