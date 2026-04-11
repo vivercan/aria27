@@ -1,9 +1,10 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, History, Loader2, ArrowDown, ArrowUp, Settings, Eye, Download, X } from "lucide-react";
+import { History, Loader2, ArrowDown, ArrowUp, Settings, Eye, Download, X } from "lucide-react";
 
 interface Movimiento {
   id: string;
@@ -52,9 +53,7 @@ function KardexContent() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras/inventario" className="p-2 hover:bg-white/10 rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+        <AriaBackButton href="/dashboard/obras/inventario" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <History className="w-6 h-6 text-purple-400" /> Kardex

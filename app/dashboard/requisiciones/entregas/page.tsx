@@ -1,10 +1,11 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { ArrowLeft, Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
+import { Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
 
 interface Entrega {
   id: string;
@@ -136,9 +137,7 @@ export default function EntregasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones" />
           <div className="p-3 rounded-xl bg-blue-500/20">
             <Truck className="w-6 h-6 text-blue-400" />
           </div>

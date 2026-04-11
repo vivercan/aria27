@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -612,9 +613,7 @@ export default function InventarioObraPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-2xl font-bold text-white">Inventario por Obra</h1>
             <p className="text-slate-400 text-sm">Selecciona una obra para ver su inventario</p>

@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
 
@@ -193,7 +194,7 @@ export default function ImportCSV() {
     <div className="h-full flex flex-col overflow-hidden p-6">
       <FlashBanner msg={flashMsg} />
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard" />
         <div>
           <h1 className="text-2xl font-bold text-white">Importar CSV</h1>
           <p className="text-sm text-slate-400">Carga masiva con validación (dry-run) antes de insertar</p>

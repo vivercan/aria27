@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -230,9 +231,7 @@ export default function ComprasPickingPage() {
           onCancel={() => setConfirmState(p => ({...p, open: false}))}
         />
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones" />
           <div>
             <h1 className="text-xl font-bold text-white">Autorizar Compras</h1>
             <p className="text-slate-400 text-sm">{reqs.length} requisiciones pendientes</p>

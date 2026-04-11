@@ -1,9 +1,10 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
+import { BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 
@@ -104,9 +105,7 @@ function BitacoraContent() {
       <FlashBanner msg={msg} />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-amber-400" /> Bitácora de Obra

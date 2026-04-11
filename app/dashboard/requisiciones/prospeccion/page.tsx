@@ -1,10 +1,11 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import {
-  ArrowLeft, Search, Loader2, Globe, Phone, Mail,
+  Search, Loader2, Globe, Phone, Mail,
   MapPin, Plus, ExternalLink, Building2, X, Check, Package
 } from "lucide-react";
 import Link from "next/link";
@@ -111,7 +112,7 @@ export default function ProspeccionPage() {
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
-          <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+          <AriaBackButton href="/dashboard/requisiciones" />
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>
         </div>
         <p className="text-xs text-slate-400 mb-2 ml-7">Busca proveedores por producto o categoría. ARIA busca en tu base de datos y en la web con IA.</p>

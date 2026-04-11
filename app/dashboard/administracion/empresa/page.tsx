@@ -1,11 +1,12 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
 import {
-  ArrowLeft, Building2, MapPin, FileText, Users, Loader2,
+  Building2, MapPin, FileText, Users, Loader2,
   Edit2, Save, X, Briefcase, FolderOpen
 } from "lucide-react";
 
@@ -98,9 +99,7 @@ export default function EmpresaPage() {
       <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
+        <AriaBackButton href="/dashboard/administracion" />
         <div>
           <h1 className="text-xl font-bold text-white">Datos de Empresa</h1>
           <p className="text-xs text-slate-400">Información de GCU Avante y centros de costo</p>

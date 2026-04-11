@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
+import { Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
@@ -68,7 +69,7 @@ export default function PanelFinanzas() {
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard/finanzas" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Wallet className="w-6 h-6 text-emerald-400" /> Panel Finanzas</h1>
           <p className="text-sm text-slate-400">Vista director financiero · cobranza, cuentas por pagar y saldos</p>

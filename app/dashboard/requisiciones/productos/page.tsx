@@ -1,10 +1,11 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import {
-  ArrowLeft, Search, Package, ChevronRight,
+  Search, Package, ChevronRight,
   Truck, Tag, Box, Loader2, X, Plus, FileSpreadsheet, Building2,
   Upload, Sparkles, Save, Check, AlertCircle
 } from "lucide-react";
@@ -222,7 +223,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+            <AriaBackButton href="/dashboard/requisiciones" />
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-cyan-400"/>Catálogo de Productos</h1>
             <span className="text-xs text-slate-500 ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>

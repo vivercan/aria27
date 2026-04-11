@@ -1,9 +1,10 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
+  Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
   DollarSign, Filter, Calendar
 } from "lucide-react";
 
@@ -74,9 +75,7 @@ export default function IngresoEgresosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/finanzas" />
           <div>
             <h1 className="text-xl font-bold text-white">Ingreso - Egresos</h1>
             <p className="text-xs text-slate-400 capitalize">{mesLabel()}</p>

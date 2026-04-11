@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from "@/lib/storage";
-import { DollarSign, Search, Download, Calendar, Building2, Filter, X, ArrowLeft, Loader2, TrendingUp, FileSpreadsheet, Plus, ChevronRight, Paperclip, Edit2, Trash2, Eye, MoreVertical } from "lucide-react";
+import { DollarSign, Search, Download, Calendar, Building2, Filter, X, Loader2, TrendingUp, FileSpreadsheet, Plus, ChevronRight, Paperclip, Edit2, Trash2, Eye, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
@@ -294,9 +295,7 @@ export default function GastosObraPage() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/finanzas" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/finanzas" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <DollarSign className="w-7 h-7 text-emerald-400" />
           </div>

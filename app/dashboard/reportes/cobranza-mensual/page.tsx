@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Printer, Loader2, ArrowLeft } from "lucide-react";
+import { Printer, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -72,7 +73,7 @@ function Content() {
     <>
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <AriaBackButton href="/dashboard/reportes" />
           <div className="text-white text-sm">Cobranza mensual · <b>{MESES[mes-1]} {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">

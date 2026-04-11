@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { ArrowLeft, Printer, FileDown, Loader2, Trash2 } from "lucide-react";
+import { Printer, FileDown, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -266,9 +267,7 @@ export default function RequisicionesStatusPage() {
       <FlashBanner msg={msg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
             <h1 className="text-xl font-bold text-white">Estatus de Requisiciones</h1>
             <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>

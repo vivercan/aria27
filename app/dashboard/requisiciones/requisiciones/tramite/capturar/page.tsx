@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -10,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Save, Send, Trash2, Loader2,
+  Plus, Save, Send, Trash2, Loader2,
   Package, Clock, CreditCard, FileText, X,
   Banknote, Receipt, Truck
 } from "lucide-react";
@@ -302,9 +303,7 @@ function CapturarContent() {
       <FlashBanner msg={msg} />
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+        <AriaBackButton href="/dashboard/requisiciones/requisiciones/tramite" />
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">Capturar Cotizaciones</h1>
           <p className="text-slate-400 text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>

@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -9,7 +10,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
+  Plus, Edit2, Trash2, X, Save, Loader2,
   Search, Shield, AlertTriangle, Calendar
 } from "lucide-react";
 
@@ -192,7 +193,7 @@ export default function PolizasPage() {
       <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/administracion" />
           <div><h1 className="text-xl font-bold text-white">Pólizas de Seguro</h1><p className="text-xs text-slate-400">{polizas.length} pólizas registradas</p></div>
         </div>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"><Plus className="w-4 h-4" /> Nueva Póliza</button>

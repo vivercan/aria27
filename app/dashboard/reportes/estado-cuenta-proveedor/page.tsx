@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -84,7 +85,7 @@ function Content() {
     <>
       <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <AriaBackButton href="/dashboard/reportes/estado-cuenta-proveedor" />
           <div className="text-white text-sm">Estado de cuenta · <b>{proveedor}</b></div>
         </div>
         <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>

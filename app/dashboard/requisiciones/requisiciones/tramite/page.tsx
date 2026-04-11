@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -362,9 +363,7 @@ Responde SOLO con JSON así:
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
             <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
             <p className="text-slate-500 text-sm">{requisiciones.length} pendientes</p>

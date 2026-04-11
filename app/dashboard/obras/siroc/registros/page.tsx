@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search, FileText } from "lucide-react";
+import { Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search, FileText } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -174,7 +175,7 @@ export default function SirocRegistrosPage() {
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard/obras" />
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
           <p className="text-slate-400 mt-1">Registro estructurado de obras ante IMSS.</p>

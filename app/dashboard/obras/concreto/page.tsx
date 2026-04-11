@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Droplet, FlaskConical, Building2, TrendingUp, ArrowRight, Loader2, ChevronRight } from "lucide-react";
+import { Droplet, FlaskConical, Building2, TrendingUp, ArrowRight, Loader2, ChevronRight } from "lucide-react";
 
 interface Remision {
   id: string;
@@ -75,8 +76,8 @@ export default function ConcretoPage() {
           .map((c: any) => c.nombre)
           .sort()
       );
-    } catch (e) {
-
+    } catch {
+      // Data load failed — page shows empty state naturally
     }
     setLoading(false);
   }
@@ -159,9 +160,7 @@ export default function ConcretoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20">
             <Droplet className="w-7 h-7 text-blue-400" />
           </div>

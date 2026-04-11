@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X, FileText } from "lucide-react";
+import { Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X, FileText } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
@@ -144,7 +145,7 @@ export default function SirocBimestralesPage() {
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras/siroc/registros" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard/obras/siroc/registros" />
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
           <p className="text-slate-400 mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>

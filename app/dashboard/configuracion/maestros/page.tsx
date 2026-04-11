@@ -1,5 +1,6 @@
 "use client";
-import { Building2, DollarSign, ArrowLeft } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
+import { Building2, DollarSign } from "lucide-react";
 import Link from "next/link";
 
 const items = [
@@ -11,7 +12,7 @@ export default function MaestrosPage() {
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+        <AriaBackButton href="/dashboard/configuracion" />
         <div>
           <h1 className="text-2xl font-bold">Datos Maestros</h1>
           <p className="text-sm text-slate-400">Configuración base del sistema</p>

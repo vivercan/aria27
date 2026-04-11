@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
+import { Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -153,9 +154,7 @@ export default function MovimientosBancariosPage() {
     <div className="space-y-6">
       <FlashBanner msg={msg} />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/10 rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+        <AriaBackButton href="/dashboard/finanzas/bancos" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white">Movimientos Bancarios · Conciliación</h1>
           <p className="text-slate-400 text-sm">Alta manual + match con cobros y órdenes de compra</p>

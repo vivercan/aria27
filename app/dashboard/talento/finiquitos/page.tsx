@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -333,12 +334,7 @@ export default function FiniquitosPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-slate-950 pb-4">
             <div className="flex items-center gap-4 mb-4">
-              <Link
-                href="/dashboard/talento"
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-400" />
-              </Link>
+              <AriaBackButton href="/dashboard/talento" />
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-8 h-8" />

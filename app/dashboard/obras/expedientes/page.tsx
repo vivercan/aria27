@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -720,9 +721,7 @@ export default function ExpedientesPage() {
       <div className="space-y-6">
         <FlashBanner msg={msg} />
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
             <p className="text-slate-400 text-sm">Selecciona un año para ver las obras de ese periodo</p>

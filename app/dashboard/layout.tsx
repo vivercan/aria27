@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import AlertasGlobales from "@/components/AlertasGlobales";
 import { useState, useEffect } from "react";
 import Link from "next/link";

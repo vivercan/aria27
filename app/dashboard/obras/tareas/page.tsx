@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -8,7 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
 import {
-  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
+  Plus, Edit2, Trash2, X, Save, Loader2,
   ListChecks, CheckCircle2, Circle, Clock, AlertTriangle,
   Filter, Search
 } from "lucide-react";
@@ -206,9 +207,7 @@ export default function TareasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-xl font-bold text-white">Tareas de Obra</h1>
             <p className="text-xs text-slate-400">{tareas.length} tareas registradas</p>

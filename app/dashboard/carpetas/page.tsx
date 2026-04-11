@@ -1,6 +1,7 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
-import { ArrowLeft, FolderTree, HardHat, Users, DollarSign, Landmark, UserCheck, Truck, ClipboardList, FileStack } from "lucide-react";
+import { FolderTree, HardHat, Users, DollarSign, Landmark, UserCheck, Truck, ClipboardList, FileStack } from "lucide-react";
 
 const scopes = [
   { scope: "obras-general", title: "Obras", desc: "Carpetas generales de obras", icon: HardHat, gradient: "from-orange-500 to-red-600" },
@@ -18,9 +19,7 @@ export default function CarpetasHubPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
+        <AriaBackButton href="/dashboard" />
         <div>
           <h1 className="text-3xl font-bold text-white">Carpetas Personalizadas</h1>
           <p className="text-slate-400 mt-1">Organiza archivos jerárquicamente por cualquier criterio en cualquier módulo.</p>

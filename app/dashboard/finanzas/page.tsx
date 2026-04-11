@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 
 import { Receipt, PieChart, FileSpreadsheet, Landmark, Wallet, CreditCard, HandCoins, Building2, ArrowLeftRight } from "lucide-react";
 import Link from "next/link";

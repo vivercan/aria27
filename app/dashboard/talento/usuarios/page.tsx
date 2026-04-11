@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -7,7 +8,7 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 
 interface User {
   id: string;
@@ -220,9 +221,7 @@ export default function UsuariosPage() {
 
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+        <AriaBackButton href="/dashboard/talento" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Users className="w-7 h-7 text-purple-400" />

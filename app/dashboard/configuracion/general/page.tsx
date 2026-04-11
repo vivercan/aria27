@@ -1,7 +1,8 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
+import { Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
 import Link from "next/link";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
@@ -102,7 +103,7 @@ export default function ConfigGeneralPage() {
       <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/configuracion" />
           <div>
             <h1 className="text-2xl font-bold">Configuración General</h1>
             <p className="text-sm text-slate-400">Parámetros del sistema y usuarios</p>

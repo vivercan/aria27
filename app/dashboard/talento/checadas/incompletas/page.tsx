@@ -1,8 +1,9 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
 
 interface Incompleta {
   id?: string;
@@ -117,7 +118,7 @@ export default function IncompletasPage() {
               })
             });
             if (res.ok) creadas++;
-          } catch (e) {}
+          } catch { /* individual failure — counted by not incrementing */ }
         }
 
         setProcesando(null);
@@ -146,7 +147,7 @@ export default function IncompletasPage() {
               })
             });
             if (res.ok) completadas++;
-          } catch (e) {}
+          } catch { /* individual failure — counted by not incrementing */ }
         }
 
         setProcesando(null);
@@ -169,9 +170,7 @@ export default function IncompletasPage() {
       />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
-        <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+        <AriaBackButton href="/dashboard/talento/checadas" />
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-amber-500/20">
             <AlertTriangle className="w-6 h-6 text-amber-400" />

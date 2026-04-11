@@ -1,7 +1,8 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
+import { UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import FlashBanner from "@/components/FlashBanner";
@@ -152,7 +153,7 @@ export default function AsignacionPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          <AriaBackButton href="/dashboard/activos" />
           <div>
             <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
             <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>

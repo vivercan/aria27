@@ -1,10 +1,11 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
-import { Plus, DollarSign, Calendar, User, X, ArrowLeft, Loader2, Wallet, TrendingDown } from "lucide-react";
+import { Plus, DollarSign, Calendar, User, X, Loader2, Wallet, TrendingDown } from "lucide-react";
 
 interface Prestamo {
   id: string;
@@ -93,9 +94,7 @@ export default function PrestamosPage() {
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
       <FlashBanner msg={msg} />
       {/* Flecha de regreso */}
-              <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors inline-block w-fit mb-4">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
-        </Link>
+              <AriaBackButton href="/dashboard/talento/prestaciones" />
 
       <div className="flex items-center justify-between">
         <div>

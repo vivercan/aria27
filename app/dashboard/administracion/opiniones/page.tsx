@@ -54,8 +54,9 @@ export default function OpinionesPage() {
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
-    } catch (e) { /* error handled */ }
-    finally { setLoading(false); }
+    } catch (e: unknown) {
+      flash("err", "Error al cargar documentos: " + ((e as Error)?.message || "desconocido"));
+    } finally { setLoading(false); }
   }
 
   function triggerUpload(tipo: string) {
@@ -107,7 +108,7 @@ export default function OpinionesPage() {
           const result = await deleteRowAndBlob({
             table: "expedientes_archivos",
             id: doc.id,
-            userEmail: "admin@aria27",
+            userEmail: (typeof window !== "undefined" ? localStorage.getItem("userEmail") : "") || "admin@aria27",
             bucket: "expedientes",
             blobUrlField: "url",
           });
@@ -117,9 +118,8 @@ export default function OpinionesPage() {
             flash("ok", "Documento eliminado");
           }
           await loadDocs();
-        } catch (e: any) {
-
-          flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
+        } catch (e: unknown) {
+          flash("err", "Error al eliminar: " + ((e as Error)?.message || "desconocido"));
         }
         finally { setDeleting(null); }
       }

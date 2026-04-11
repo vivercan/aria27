@@ -1,4 +1,5 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -14,9 +15,7 @@ export default function DocumentacionPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
+        <AriaBackButton href="/dashboard/administracion" />
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">Documentación Legal</h1>
           <p className="text-xs text-slate-400">Carpetas jerárquicas (Avante / Denivel / Terracret o las que necesites)</p>

@@ -1,10 +1,11 @@
 "use client";
+import AriaBackButton from "@/components/AriaBackButton";
 import React from "react";
 import { useState, useEffect } from "react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2, Package } from "lucide-react";
+import { Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2, Package } from "lucide-react";
 import Link from "next/link";
 
 export default function EstadoActivosPage() {
@@ -62,7 +63,7 @@ export default function EstadoActivosPage() {
       <FlashBanner msg={msg} className="mx-6" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          <AriaBackButton href="/dashboard/activos" />
           <div>
             <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
             <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
