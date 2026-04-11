@@ -187,8 +187,8 @@ export default function ControlObrasPage() {
           <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-aria-primary/20 border border-cyan-500/20">
-            <Activity className="w-7 h-7 text-cyan-400" />
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-accent/20 to-aria-primary/20 border border-aria-accent/20">
+            <Activity className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Centro de Control de Obras</h1>
@@ -206,9 +206,9 @@ export default function ControlObrasPage() {
           <p className="text-slate-400 text-xs">Obras</p>
           <p className="text-xl font-bold text-aria-accent">{totales.obras}</p>
         </div>
-        <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+        <div className="p-4 rounded-xl bg-aria-accent-bg border border-aria-accent/20">
           <p className="text-slate-400 text-xs">Presupuesto</p>
-          <p className="text-lg font-bold text-cyan-300">{fmt(totales.presupuesto)}</p>
+          <p className="text-lg font-bold text-aria-accent">{fmt(totales.presupuesto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
           <p className="text-slate-400 text-xs">Gasto OC</p>
@@ -249,9 +249,9 @@ export default function ControlObrasPage() {
       <div className="flex gap-3 items-center">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar obra..." className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50" />
+          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar obra..." className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50" />
         </div>
-        <select value={filtroSem} onChange={e => setFiltroSem(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
+        <select value={filtroSem} onChange={e => setFiltroSem(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los semáforos</option>
           <option value="VERDE">🟢 Verde (&lt;70%)</option>
           <option value="AMARILLO">🟡 Amarillo (70-90%)</option>
@@ -293,7 +293,7 @@ export default function ControlObrasPage() {
                       {expandida === f.nombre ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
                       {f.nombre}
                     </td>
-                    <td className="p-3 text-right text-cyan-300">{fmt(f.presupuesto)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmt(f.presupuesto)}</td>
                     <td className="p-3 text-right text-orange-300">{fmt(f.gastoOC)}</td>
                     <td className="p-3 text-right text-violet-300">{fmt(f.gastoNomina)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmt(f.gastoTotal)}</td>

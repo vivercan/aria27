@@ -304,7 +304,7 @@ export default function SUAFinanzasPage() {
                         <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
                           l.tipo === "IMSS" ? "bg-aria-primary-light text-aria-accent" :
                           l.tipo === "INFONAVIT" ? "bg-purple-500/20 text-purple-400" :
-                          l.tipo === "RCV" ? "bg-cyan-500/20 text-cyan-400" :
+                          l.tipo === "RCV" ? "bg-aria-accent-bg text-aria-accent" :
                           "bg-slate-500/20 text-slate-400"
                         }`}>{l.tipo}</span>
                       </td>

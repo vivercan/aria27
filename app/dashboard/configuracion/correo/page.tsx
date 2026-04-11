@@ -50,8 +50,8 @@ const emailTemplates = [
     trigger: "Al validar una requisición",
     recipients: "Compras (aprobación) o Solicitante (rechazo)",
     icon: Zap,
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
+    color: "text-aria-accent",
+    bg: "bg-aria-accent-bg",
     description: "Confirma validación de requisición o notifica rechazo con motivo al solicitante original.",
   },
   {

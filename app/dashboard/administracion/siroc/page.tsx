@@ -209,7 +209,7 @@ export default function SIROCPage() {
                 <td className="p-3"><p className="text-white text-sm font-medium">{s.numero_registro}</p><p className="text-slate-500 text-xs">{s.responsable || "â"}</p></td>
                 <td className="p-3 text-slate-400 text-sm">{s.obra_nombre || "â"}</td>
                 <td className="p-3 text-center text-sm text-white">{getBimestre(s.bimestre)?.label || s.bimestre}</td>
-                <td className="p-3 text-center text-sm text-cyan-400 font-medium">{s.num_trabajadores || "â"}</td>
+                <td className="p-3 text-center text-sm text-aria-accent font-medium">{s.num_trabajadores || "â"}</td>
                 <td className="p-3 text-center text-sm text-white">{s.incidencias || 0}</td>
                 <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getEstatus(s.estatus)?.color || "bg-slate-500/20 text-slate-400"}`}>{getEstatus(s.estatus)?.label || s.estatus}</span></td>
                 <td className="p-3 text-center"><div className="flex items-center justify-center gap-1">
@@ -240,8 +240,8 @@ export default function SIROCPage() {
                 <div><label className="block text-xs text-slate-400 mb-1">Clasificación Riesgo</label><input type="text" value={form.clasificacion_riesgo} onChange={e => setForm({ ...form, clasificacion_riesgo: e.target.value })} placeholder="I, II, III, IV, V" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} />{formErrors.num_trabajadores && <p className="text-red-400 text-xs mt-1">{formErrors.num_trabajadores}</p>}</div>
-                <div><label className="block text-xs text-slate-400 mb-1">Incidencias</label><input type="number" value={form.incidencias} onChange={e => setForm({ ...form, incidencias: e.target.value })} placeholder="0" className={inputClass} />{formErrors.incidencias && <p className="text-red-400 text-xs mt-1">{formErrors.incidencias}</p>}</div>
+                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} />{formErrors.num_trabajadores && <p className="text-red-400 text-xs mt-1">{formErrors.num_trabajadores}</p>}</div>
+                <div><label className="block text-xs text-slate-400 mb-1">Incidencias</label><input type="number" min="0" value={form.incidencias} onChange={e => setForm({ ...form, incidencias: e.target.value })} placeholder="0" className={inputClass} />{formErrors.incidencias && <p className="text-red-400 text-xs mt-1">{formErrors.incidencias}</p>}</div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Estatus</label><select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className={inputClass}>{ESTATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
               <div><label className="block text-xs text-slate-400 mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>

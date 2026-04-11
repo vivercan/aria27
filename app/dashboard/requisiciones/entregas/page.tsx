@@ -197,7 +197,7 @@ export default function EntregasPage() {
                     <span className="text-aria-accent font-mono font-bold">{e.folio}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${getStatusColor(e.status)}`}>{e.status}</span>
                     {e.purchase_order_folio && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aria-accent-bg text-aria-accent flex items-center gap-1">
                         <FileText className="w-3 h-3" />{e.purchase_order_folio}
                       </span>
                     )}
@@ -276,8 +276,8 @@ export default function EntregasPage() {
                 {form.materiales.map((m, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                     <input type="text" placeholder="Producto" value={m.producto} onChange={e => actualizarMaterial(idx, "producto", e.target.value)} className="col-span-5 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm" />
-                    <input type="number" placeholder="Pedido" value={m.cantidad_pedida || ""} onChange={e => actualizarMaterial(idx, "cantidad_pedida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
-                    <input type="number" placeholder="Recibido" value={m.cantidad_recibida || ""} onChange={e => actualizarMaterial(idx, "cantidad_recibida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
+                    <input type="number" min="0" placeholder="Pedido" value={m.cantidad_pedida || ""} onChange={e => actualizarMaterial(idx, "cantidad_pedida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
+                    <input type="number" min="0" placeholder="Recibido" value={m.cantidad_recibida || ""} onChange={e => actualizarMaterial(idx, "cantidad_recibida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
                     <input type="text" placeholder="Nota" value={m.observacion} onChange={e => actualizarMaterial(idx, "observacion", e.target.value)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm" />
                     <button onClick={() => eliminarMaterial(idx)} className="col-span-1 text-red-400 hover:text-red-300 text-center">×</button>
                   </div>
@@ -307,13 +307,13 @@ export default function EntregasPage() {
             
             {/* Vínculo a OC */}
             {showDetalle.purchase_order_folio && (
-              <div className="mb-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+              <div className="mb-4 p-3 rounded-xl bg-aria-accent-bg border border-aria-accent/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-cyan-400" />
-                    <span className="text-cyan-400 font-medium">Orden de Compra: {showDetalle.purchase_order_folio}</span>
+                    <FileText className="w-5 h-5 text-aria-accent" />
+                    <span className="text-aria-accent font-medium">Orden de Compra: {showDetalle.purchase_order_folio}</span>
                   </div>
-                  <Link href="/dashboard/requisiciones/requisiciones/ordenes" className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-sm">
+                  <Link href="/dashboard/requisiciones/requisiciones/ordenes" className="flex items-center gap-1 text-aria-accent hover:text-aria-accent text-sm">
                     Ver OC <ExternalLink className="w-3 h-3" />
                   </Link>
                 </div>

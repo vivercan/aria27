@@ -159,7 +159,7 @@ export default function PropuestasPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Monto Estimado</label>
-                  <input type="number" value={form.monto_estimado} onChange={e => setForm({ ...form, monto_estimado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
+                  <input type="number" min="0" value={form.monto_estimado} onChange={e => setForm({ ...form, monto_estimado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Estado</label>

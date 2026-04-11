@@ -9,7 +9,7 @@ const subModules = [
     description: "Presupuesto vs Gasto Real (OC + Nómina) por obra. Semáforo de avance.",
     href: "/dashboard/obras/control",
     icon: Activity,
-    gradient: "from-cyan-500 to-aria-primary",
+    gradient: "from-aria-accent to-aria-primary",
     active: true,
   },
   {
@@ -41,7 +41,7 @@ const subModules = [
     description: "Fuente única de obras: alta, edición, archivo, historial.",
     href: "/dashboard/obras/catalogo",
     icon: BookOpen,
-    gradient: "from-sky-500 to-aria-primary",
+    gradient: "from-aria-accent to-aria-primary",
     active: true,
   },
   {
@@ -89,7 +89,7 @@ const subModules = [
     description: "Presupuestos y estimaciones.",
     href: "/dashboard/obras/presupuestos",
     icon: Calculator,
-    gradient: "from-cyan-500 to-cyan-600",
+    gradient: "from-aria-accent to-aria-accent",
     active: true,
   },
   {

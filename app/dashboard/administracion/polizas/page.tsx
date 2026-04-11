@@ -260,7 +260,7 @@ export default function PolizasPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Cobertura</label><input type="text" value={form.cobertura} onChange={e => setForm({ ...form, cobertura: e.target.value })} placeholder="Monto de cobertura" className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Prima</label><input type="number" step="0.01" value={form.prima} onChange={e => setForm({ ...form, prima: e.target.value })} placeholder="0.00" className={inputClass} />{formErrors.prima && <p className="text-red-400 text-xs mt-1">{formErrors.prima}</p>}</div>
+                <div><label className="block text-xs text-slate-400 mb-1">Prima</label><input type="number" min="0" step="0.01" value={form.prima} onChange={e => setForm({ ...form, prima: e.target.value })} placeholder="0.00" className={inputClass} />{formErrors.prima && <p className="text-red-400 text-xs mt-1">{formErrors.prima}</p>}</div>
               </div>
               <div><label className="block text-xs text-slate-400 mb-1">Contacto</label><input type="text" value={form.contacto} onChange={e => setForm({ ...form, contacto: e.target.value })} placeholder="Nombre, teléfono" className={inputClass} /></div>
               <div><label className="block text-xs text-slate-400 mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>

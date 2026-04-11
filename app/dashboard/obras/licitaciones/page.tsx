@@ -253,7 +253,7 @@ export default function LicitacionesPage() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Monto Estimado</label>
-                <input type="number" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: e.target.value})} />
+                <input type="number" min="0" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: e.target.value})} />
                 {formErrors.monto_estimado && <p className="text-red-400 text-xs mt-1">{formErrors.monto_estimado}</p>}
               </div>
               <div className="space-y-1">

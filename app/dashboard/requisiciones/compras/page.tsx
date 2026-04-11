@@ -249,7 +249,7 @@ export default function ComprasPickingPage() {
               <p className="text-slate-400 text-sm">{req.cost_center_name}</p>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-slate-500 text-xs">{new Date(req.created_at).toLocaleDateString("es-MX")}</span>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-aria-accent transition-colors" />
               </div>
             </button>
           ))}
@@ -305,7 +305,7 @@ export default function ComprasPickingPage() {
               });
               const bestTotal = Math.min(...suppliers.map(s => supplierTotal(s)));
               return (
-                <div key={name} className={`min-w-[170px] snap-start p-3 rounded-xl border transition-all ${allSelected ? "bg-cyan-500/10 border-cyan-500/40" : "bg-white/[0.03] border-white/[0.08]"}`}>
+                <div key={name} className={`min-w-[170px] snap-start p-3 rounded-xl border transition-all ${allSelected ? "bg-aria-accent-bg border-aria-accent/40" : "bg-white/[0.03] border-white/[0.08]"}`}>
                   <p className="text-white font-semibold text-sm truncate">{name}</p>
                   <p className={`text-lg font-bold mt-1 ${total === bestTotal ? "text-emerald-400" : "text-white"}`}>
                     ${total.toLocaleString()}
@@ -321,7 +321,7 @@ export default function ComprasPickingPage() {
                     </span>
                   </div>
                   <button onClick={() => selectAllFrom(name)}
-                    className="w-full mt-2 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs font-medium hover:bg-cyan-500/30 transition-colors flex items-center justify-center gap-1">
+                    className="w-full mt-2 py-1.5 rounded-lg bg-aria-accent-bg text-aria-accent text-xs font-medium hover:bg-aria-accent/30 transition-colors flex items-center justify-center gap-1">
                     <ShoppingCart className="w-3 h-3" /> Todo de aquí
                   </button>
                 </div>

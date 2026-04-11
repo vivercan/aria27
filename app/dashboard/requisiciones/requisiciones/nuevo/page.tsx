@@ -196,25 +196,25 @@ export default function NewRequisitionPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Obra / Centro</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
+              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
                 <option value="">Seleccione...</option>
                 {costCenters.map((c,i) => <option key={c.id} value={c.id}>{i+1}. {c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Fecha Requerida *</label>
-              <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
+              <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Solicitante</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={solicitante} onChange={e => setSolicitante(e.target.value)}>
+              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={solicitante} onChange={e => setSolicitante(e.target.value)}>
                 <option value="">Seleccione...</option>
                 {solicitantes.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Tipo / Subcategoría</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
+              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
                 <option value="">MATERIALES (por defecto)</option>
                 {subcategorias.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -222,7 +222,7 @@ export default function NewRequisitionPage() {
           </div>
           <div className="mt-4 space-y-1">
             <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
-            <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-sky-400" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
+            <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
           </div>
 
           {/* INDICADOR DE MODO */}
@@ -260,7 +260,7 @@ export default function NewRequisitionPage() {
                   return (
                     <div key={p.id} onClick={() => isSel ? setMaterials(prev=>prev.filter(m=>m.id!==p.id)) : addMaterial(p)}
                       className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/5 border-l-2 border-transparent"}`}>
-                      <div className="text-cyan-400/80 text-[10px] truncate">{shortCat(p.category)}</div>
+                      <div className="text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
                       <div className={`truncate ${isSel ? "text-emerald-300 font-medium" : ""}`}>{p.name}</div>
                       <div className="text-white/60 truncate text-right">{p.unit}</div>
                     </div>

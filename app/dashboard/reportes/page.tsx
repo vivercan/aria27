@@ -6,7 +6,7 @@ const REPORTES = [
   { href: "/dashboard/reportes/cobranza-mensual", titulo: "Cobranza Mensual", desc: "Facturado, cobrado y por cobrar del mes agrupado por obra.", icon: DollarSign, color: "from-emerald-500 to-teal-600" },
   { href: "/dashboard/reportes/nomina-semanal", titulo: "Nómina Semanal", desc: "Nómina consolidada de la semana con detalle por empleado y obra.", icon: Users, color: "from-violet-500 to-purple-600" },
   { href: "/dashboard/reportes/estado-cuenta-proveedor", titulo: "Estado de Cuenta Proveedor", desc: "OCs, cuentas por pagar y saldo pendiente por proveedor.", icon: Building2, color: "from-amber-500 to-orange-600" },
-  { href: "/dashboard/obras/reporte", titulo: "Reporte Ejecutivo de Obra", desc: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.", icon: FileText, color: "from-aria-primary to-cyan-600" },
+  { href: "/dashboard/obras/reporte", titulo: "Reporte Ejecutivo de Obra", desc: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.", icon: FileText, color: "from-aria-primary to-aria-accent" },
 ];
 
 export default function ReportesHub() {

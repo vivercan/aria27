@@ -186,9 +186,8 @@ export default function AvanceObrasPage() {
                     </td>
                     <td className="p-3 text-center">
                       <input
-                        type="number"
+                        type="number" min="0"
                         required
-                        min="0"
                         max="100"
                         step="0.1"
                         value={d.pct}

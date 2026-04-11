@@ -380,9 +380,9 @@ Responde SOLO con JSON así:
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {requisiciones.map(req => (
               <button key={req.id} onClick={() => { setSelectedReq(req); loadItems(req.id); }}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 text-left">
+                className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-aria-accent/50 text-left">
                 <div className="flex justify-between mb-2">
-                  <span className="font-mono text-cyan-400 text-sm">{req.folio}</span>
+                  <span className="font-mono text-aria-accent text-sm">{req.folio}</span>
                   <span className={`px-2 py-0.5 rounded text-xs text-white ${getUrgencyBadge(req.required_date).color}`}>{getUrgencyBadge(req.required_date).text}</span>
                 </div>
                 <p className="text-white font-medium text-sm">{req.cost_center_name}</p>
@@ -419,11 +419,11 @@ Responde SOLO con JSON así:
           <div className="p-3 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-cyan-400" />
+                <Building2 className="w-4 h-4 text-aria-accent" />
                 Proveedores Relevantes ({relevantSuppliers.length})
               </h3>
               <button onClick={buscarConARIA} disabled={buscandoIA}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-aria-primary text-white text-xs font-medium flex items-center gap-1.5">
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-aria-accent to-aria-primary text-white text-xs font-medium flex items-center gap-1.5">
                 {buscandoIA ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                 {buscandoIA ? "..." : "Buscar + con ARIA"}
               </button>
@@ -445,7 +445,7 @@ Responde SOLO con JSON así:
                   <p className="text-white font-medium text-xs truncate" title={s.name}>{s.name}</p>
                   <p className="text-slate-500 text-[10px]">{s.categories?.[0] || "General"}</p>
                   {s.phone && <p className="text-slate-400 text-[10px]">{s.phone}</p>}
-                  <p className="text-cyan-400 text-[10px]">{s.credit_days ? `${s.credit_days}d` : "Contado"}</p>
+                  <p className="text-aria-accent text-[10px]">{s.credit_days ? `${s.credit_days}d` : "Contado"}</p>
                 </div>
               ))}
             </div>
@@ -453,14 +453,14 @@ Responde SOLO con JSON así:
             {proveedoresIA.length > 0 && (
               <>
                 <div className="flex items-center gap-2 my-2">
-                  <div className="flex-1 h-px bg-cyan-500/30"></div>
-                  <span className="text-cyan-400 text-[10px]"><Sparkles className="w-3 h-3 inline" /> ARIA ({proveedoresIA.length})</span>
-                  <div className="flex-1 h-px bg-cyan-500/30"></div>
+                  <div className="flex-1 h-px bg-aria-accent/30"></div>
+                  <span className="text-aria-accent text-[10px]"><Sparkles className="w-3 h-3 inline" /> ARIA ({proveedoresIA.length})</span>
+                  <div className="flex-1 h-px bg-aria-accent/30"></div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   {proveedoresIA.map((p, i) => (
-                    <div key={i} className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
-                      <p className="text-cyan-400 font-medium text-xs truncate">{p.nombre}</p>
+                    <div key={i} className="p-2 rounded-lg bg-aria-accent-bg border border-aria-accent/30">
+                      <p className="text-aria-accent font-medium text-xs truncate">{p.nombre}</p>
                       {p.telefono && <p className="text-slate-400 text-[10px]">{p.telefono}</p>}
                       {p.especialidad && <p className="text-slate-500 text-[10px]">{p.especialidad}</p>}
                     </div>
@@ -636,7 +636,7 @@ Responde SOLO con JSON así:
                     return (
                       <React.Fragment key={item.id}>
                         <div className="px-3 py-2 border-b border-r border-white/5 flex items-center gap-2">
-                          <span className="text-cyan-400 font-bold text-xs">{idx + 1}</span>
+                          <span className="text-aria-accent font-bold text-xs">{idx + 1}</span>
                           <div>
                             <p className="text-white text-xs font-medium leading-tight">{item.product_name}</p>
                             <p className="text-slate-600 text-[9px]">{item.category}</p>
@@ -655,7 +655,7 @@ Responde SOLO con JSON así:
                               {sup ? (
                                 <div className="w-full flex items-center gap-1">
                                   <span className="text-slate-500 text-[9px]">$</span>
-                                  <input type="number" placeholder="0"
+                                  <input type="number" min="0" placeholder="0"
                                     value={price || ""}
                                     onChange={(e) => updateQuote(item.id, colIdx, "price", parseFloat(e.target.value) || 0)}
                                     className={`w-full px-1.5 py-1 rounded text-xs text-right border ${isCellBest ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold" : "bg-black/30 border-white/10 text-white"}`} />

@@ -171,7 +171,7 @@ export default function PlanosPage() {
 
       <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalPlanos}</p><p className="text-aria-accent/70 text-xs">Total Planos</p></div>
-        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3"><p className="text-cyan-400 text-2xl font-bold">{arquitectura}</p><p className="text-cyan-400/70 text-xs">Arquitectura</p></div>
+        <div className="bg-aria-accent-bg border border-aria-accent/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{arquitectura}</p><p className="text-aria-accent/70 text-xs">Arquitectura</p></div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaRecepcion}</p><p className="text-emerald-400/70 text-xs">Última Recepción</p></div>
       </div>
 
@@ -201,7 +201,7 @@ export default function PlanosPage() {
                 <td className="p-3"><p className="text-white text-sm font-medium">{p.nombre}</p><p className="text-slate-500 text-xs">{p.responsable || "â"}</p></td>
                 <td className="p-3 text-slate-400 text-sm">{p.obra_nombre || "â"}</td>
                 <td className="p-3 text-center text-sm text-white">{getDisciplina(p.disciplina)?.label || p.disciplina}</td>
-                <td className="p-3 text-center text-sm text-cyan-400 font-medium">{p.revision || "â"}</td>
+                <td className="p-3 text-center text-sm text-aria-accent font-medium">{p.revision || "â"}</td>
                 <td className="p-3 text-center text-xs text-slate-400">{p.tipo_archivo?.toUpperCase() || "â"}</td>
                 <td className="p-3 text-center text-xs text-slate-400">{p.fecha_recepcion ? new Date(p.fecha_recepcion + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "â"}</td>
                 <td className="p-3 text-center"><div className="flex items-center justify-center gap-1">

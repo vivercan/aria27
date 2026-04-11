@@ -153,7 +153,7 @@ export default function PrestamosPage() {
                   </td>
                   <td className="p-3 text-right text-white">{formatMoney(p.monto_original)}</td>
                   <td className="p-3 text-right text-amber-400">{formatMoney(p.monto_pendiente)}</td>
-                  <td className="p-3 text-right text-cyan-400">{formatMoney(p.descuento_semanal)}</td>
+                  <td className="p-3 text-right text-aria-accent">{formatMoney(p.descuento_semanal)}</td>
                   <td className="p-3 text-slate-300 text-sm">{p.motivo}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
@@ -184,15 +184,15 @@ export default function PrestamosPage() {
                 {formErrors.employee_id && <p className="text-red-400 text-xs mt-1">{formErrors.employee_id}</p>}
               </div>
               <div>
-                <input type="number" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.monto ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.monto ? "border-red-500/50" : "border-white/20"}`} />
                 {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
               </div>
               <div>
-                <input type="number" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.descuento ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.descuento ? "border-red-500/50" : "border-white/20"}`} />
                 {formErrors.descuento && <p className="text-red-400 text-xs mt-1">{formErrors.descuento}</p>}
               </div>
               <div>
-                <input type="number" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.semanas ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.semanas ? "border-red-500/50" : "border-white/20"}`} />
                 {formErrors.semanas && <p className="text-red-400 text-xs mt-1">{formErrors.semanas}</p>}
               </div>
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />

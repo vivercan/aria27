@@ -190,7 +190,7 @@ export default function CentrosPage() {
               </div>
               <div>
                 <label className="text-sm text-slate-400">Radio geocerca (metros)</label>
-                <input type="number" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
+                <input type="number" min="0" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>

@@ -195,9 +195,8 @@ export default function BancosPage() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Saldo {editId ? "actual" : "inicial"} *</label>
               <input
-                type="number"
+                type="number" min="0"
                 required
-                min="0"
                 step="0.01"
                 value={form.saldo}
                 onChange={e => setForm({ ...form, saldo: parseFloat(e.target.value) || 0 })}

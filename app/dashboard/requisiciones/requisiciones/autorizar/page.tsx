@@ -135,9 +135,9 @@ export default function AuthorizeRequisicionesPage() {
                   <button
                     key={r.id}
                     onClick={() => selectReq(r)}
-                    className={`w-full text-left rounded-xl p-3 transition ${selectedReq?.id === r.id ? "bg-sky-500/20 border border-sky-500/50" : "bg-white/5 hover:bg-white/10"}`}
+                    className={`w-full text-left rounded-xl p-3 transition ${selectedReq?.id === r.id ? "bg-aria-accent-bg border border-aria-accent/50" : "bg-white/5 hover:bg-white/10"}`}
                   >
-                    <div className="font-mono text-xs text-sky-400">{r.folio}</div>
+                    <div className="font-mono text-xs text-aria-accent">{r.folio}</div>
                     <div className="text-sm font-medium">{r.cost_center_name}</div>
                     <div className="text-xs text-white/50">Para: {new Date(r.required_date).toLocaleDateString("es-MX")}</div>
                   </button>
@@ -189,7 +189,7 @@ export default function AuthorizeRequisicionesPage() {
               <div className="space-y-2 mb-4 shrink-0">
                 <label className="text-xs text-white/70">Comentarios de autorizacion</label>
                 <textarea
-                  className="w-full h-20 rounded-xl bg-black/30 border border-white/15 px-3 py-2 text-sm outline-none focus:border-sky-400"
+                  className="w-full h-20 rounded-xl bg-black/30 border border-white/15 px-3 py-2 text-sm outline-none focus:border-aria-accent"
                   placeholder="Opcional: agregar comentarios..."
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}

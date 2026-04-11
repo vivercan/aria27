@@ -716,8 +716,7 @@ export default function FiniquitosPage() {
                       Salarios Caídos (días)
                     </label>
                     <input
-                      type="number"
-                      min="0"
+                      type="number" min="0"
                       value={form.salarios_caidos_dias}
                       onChange={(e) =>
                         setForm({
@@ -740,8 +739,7 @@ export default function FiniquitosPage() {
                       Deducciones INFONAVIT
                     </label>
                     <input
-                      type="number"
-                      min="0"
+                      type="number" min="0"
                       step="0.01"
                       value={form.deducciones_infonavit}
                       onChange={(e) =>
@@ -758,8 +756,7 @@ export default function FiniquitosPage() {
                       Deducciones Préstamos
                     </label>
                     <input
-                      type="number"
-                      min="0"
+                      type="number" min="0"
                       step="0.01"
                       value={form.deducciones_prestamos}
                       onChange={(e) =>
@@ -778,8 +775,7 @@ export default function FiniquitosPage() {
                     Otras Deducciones
                   </label>
                   <input
-                    type="number"
-                    min="0"
+                    type="number" min="0"
                     step="0.01"
                     value={form.otras_deducciones}
                     onChange={(e) =>

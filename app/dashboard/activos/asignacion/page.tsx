@@ -146,7 +146,7 @@ export default function AsignacionPage() {
     return a.empleado?.full_name?.toLowerCase().includes(s) || a.activo?.nombre?.toLowerCase().includes(s) || a.activo?.name?.toLowerCase().includes(s);
   });
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-cyan-400" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
     <div className="space-y-6">
@@ -158,7 +158,7 @@ export default function AsignacionPage() {
             <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
           </div>
         </div>
-        <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors">
+        <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30 transition-colors">
           <Plus className="w-4 h-4" /> Asignar
         </button>
       </div>
@@ -242,7 +242,7 @@ export default function AsignacionPage() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => closeModal()} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
-              <button onClick={handleAsignar} disabled={saving || !form.activo_id || !form.empleado_id} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
+              <button onClick={handleAsignar} disabled={saving || !form.activo_id || !form.empleado_id} className="flex items-center gap-2 px-4 py-2 bg-aria-accent text-white rounded-lg text-sm hover:bg-aria-accent/80 disabled:opacity-50">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Asignar
               </button>
             </div>

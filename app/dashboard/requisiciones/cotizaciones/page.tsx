@@ -165,7 +165,7 @@ export default function CotizacionesIAPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/requisiciones" />
-        <button onClick={() => setShowQuoteModal(true)} className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Registrar Cotización</button>
+        <button onClick={() => setShowQuoteModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30 text-sm ml-auto"><Plus className="w-4 h-4" /> Registrar Cotización</button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-amber-400" />
@@ -380,11 +380,11 @@ export default function CotizacionesIAPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-400">Total *</label>
-                  <input type="number" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
+                  <input type="number" min="0" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-400">Vigencia (días)</label>
-                  <input type="number" value={quoteForm.vigencia_dias} onChange={e => setQuoteForm({...quoteForm, vigencia_dias: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                  <input type="number" min="0" value={quoteForm.vigencia_dias} onChange={e => setQuoteForm({...quoteForm, vigencia_dias: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
                 </div>
               </div>
               <div>
@@ -394,7 +394,7 @@ export default function CotizacionesIAPage() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setShowQuoteModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
-              <button onClick={handleSaveQuote} disabled={savingQuote || !quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total} className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50">
+              <button onClick={handleSaveQuote} disabled={savingQuote || !quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total} className="flex items-center gap-2 px-4 py-2 bg-aria-accent text-white rounded-lg text-sm hover:bg-aria-accent/80 disabled:opacity-50">
                 {savingQuote ? "Guardando..." : "Guardar"}
               </button>
             </div>

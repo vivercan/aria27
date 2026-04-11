@@ -9,7 +9,7 @@ const scopes = [
   { scope: "finanzas-general", title: "Finanzas", desc: "Carpetas financieras generales", icon: DollarSign, gradient: "from-emerald-500 to-green-600" },
   { scope: "finanzas-bancos", title: "Finanzas · Bancos", desc: "Estados de cuenta y conciliaciones", icon: Landmark, gradient: "from-emerald-500 to-teal-600" },
   { scope: "clientes-general", title: "Clientes", desc: "Documentación de clientes", icon: UserCheck, gradient: "from-purple-500 to-fuchsia-600" },
-  { scope: "activos-general", title: "Activos", desc: "Activos, vehículos y equipos", icon: Truck, gradient: "from-cyan-500 to-sky-600" },
+  { scope: "activos-general", title: "Activos", desc: "Activos, vehículos y equipos", icon: Truck, gradient: "from-aria-accent to-aria-accent" },
   { scope: "requisiciones-general", title: "Requisiciones", desc: "Requisiciones y órdenes de compra", icon: ClipboardList, gradient: "from-amber-500 to-orange-500" },
   { scope: "plantillas-general", title: "Plantillas", desc: "Plantillas y formatos", icon: FileStack, gradient: "from-slate-500 to-slate-700" },
 ];

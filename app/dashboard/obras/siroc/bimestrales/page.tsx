@@ -195,7 +195,7 @@ export default function SirocBimestralesPage() {
                     <td className="p-3 text-slate-300">{b.anio}</td>
                     <td className="p-3 text-slate-300">{BIMESTRES.find(x => x.code === b.bimestre)?.label || b.bimestre}</td>
                     <td className="p-3 text-right text-white">${(Number(b.monto_ejercido_periodo) || 0).toLocaleString("es-MX")}</td>
-                    <td className="p-3 text-right text-sky-300">${(Number(b.monto_ejercido_acumulado) || 0).toLocaleString("es-MX")}</td>
+                    <td className="p-3 text-right text-aria-accent">${(Number(b.monto_ejercido_acumulado) || 0).toLocaleString("es-MX")}</td>
                     <td className="p-3 text-center text-slate-300">{b.trabajadores_promedio}</td>
                     <td className="p-3 text-slate-300">{b.fecha_reporte ? new Date(b.fecha_reporte).toLocaleDateString("es-MX") : "—"}</td>
                     <td className={`p-3 ${vencido ? "text-rose-400 font-bold" : "text-slate-300"}`}>{b.plazo_limite ? new Date(b.plazo_limite).toLocaleDateString("es-MX") : "—"}</td>
@@ -237,7 +237,7 @@ export default function SirocBimestralesPage() {
                 {formErrors.siroc_registro_id && <p className="text-red-400 text-xs mt-1">{formErrors.siroc_registro_id}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400 mb-1 block">Año *</label><input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Año *</label><input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
                 <div>
                   <label className="text-sm text-slate-400 mb-1 block">Bimestre *</label>
                   <select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500">
@@ -245,9 +245,9 @@ export default function SirocBimestralesPage() {
                   </select>
                   {formErrors.bimestre && <p className="text-red-400 text-xs mt-1">{formErrors.bimestre}</p>}
                 </div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido del periodo ($)</label><input type="number" value={form.monto_ejercido_periodo} onChange={e => setForm({ ...form, monto_ejercido_periodo: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acumulado ($)</label><input type="number" value={form.monto_ejercido_acumulado} onChange={e => setForm({ ...form, monto_ejercido_acumulado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Trabajadores promedio</label><input type="number" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido del periodo ($)</label><input type="number" min="0" value={form.monto_ejercido_periodo} onChange={e => setForm({ ...form, monto_ejercido_periodo: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acumulado ($)</label><input type="number" min="0" value={form.monto_ejercido_acumulado} onChange={e => setForm({ ...form, monto_ejercido_acumulado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-slate-400 mb-1 block">Trabajadores promedio</label><input type="number" min="0" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
                 <div><label className="text-sm text-slate-400 mb-1 block">Fecha de reporte</label><input type="date" value={form.fecha_reporte} onChange={e => setForm({ ...form, fecha_reporte: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
                 <div className="col-span-2">
                   <label className="text-sm text-slate-400 mb-1 block">Estatus</label>

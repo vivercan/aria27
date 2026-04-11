@@ -321,7 +321,7 @@ export default function GastosObraPage() {
           </div>
           <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-aria-primary-light"><Filter className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-slate-400 text-sm">Registros</span>
@@ -417,7 +417,7 @@ export default function GastosObraPage() {
                   <span className="text-emerald-400 font-bold">{formatMoney(o.total)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
                 </div>
               </div>
             ))}
@@ -519,13 +519,12 @@ export default function GastosObraPage() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Monto *</label>
                 <input
-                  type="number"
+                  type="number" min="0"
                   value={formData.monto}
                   onChange={e => setFormData({ ...formData, monto: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="0.00"
                   step="0.01"
-                  min="0"
                   className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 />
                 {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}

@@ -65,11 +65,11 @@ export default function EstadoActivosPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-aria-accent-bg text-aria-accent" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
             Todos ({activos.length})
           </button>
         {Object.entries(estados).map(([est, count]) => (
-          <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-aria-accent-bg text-aria-accent" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
             {getIcon(est)} {est} ({count as number})
           </button>
         ))}

@@ -80,8 +80,8 @@ function Content() {
           <div className="text-white text-sm">Nómina semanal · <b>Sem {semana} / {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">
-          <input type="number" defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-16" />
-          <input type="number" defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-20" />
+          <input type="number"  defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-16" />
+          <input type="number"  defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-20" />
           <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>

@@ -48,7 +48,7 @@ const EST_COLORS: Record<string, string> = {
 };
 const TIPO_COLORS: Record<string, string> = {
   PREVENTIVO: "bg-emerald-500/20 text-emerald-400", CORRECTIVO: "bg-red-500/20 text-red-400",
-  PREDICTIVO: "bg-cyan-500/20 text-cyan-400", EMERGENCIA: "bg-red-600/30 text-red-300",
+  PREDICTIVO: "bg-aria-accent-bg text-aria-accent", EMERGENCIA: "bg-red-600/30 text-red-300",
 };
 
 const ORDEN_INIT = {

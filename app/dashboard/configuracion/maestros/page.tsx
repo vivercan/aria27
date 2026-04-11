@@ -3,7 +3,7 @@ import { Building2, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const items = [
-  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-aria-primary to-cyan-500" },
+  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-aria-primary to-aria-accent" },
   { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-emerald-500" },
 ];
 

@@ -21,7 +21,7 @@ const submodules = [
   { title: "Estatus", description: "Monitor de solicitudes", icon: ListChecks, href: "/dashboard/requisiciones/requisiciones/estatus", color: "from-aria-primary to-aria-primary" },
   { title: "Autorizar", description: "Aprobar pendientes", icon: ShieldCheck, href: "/dashboard/requisiciones/requisiciones/autorizar", color: "from-amber-500 to-amber-600" },
   { title: "Compras", description: "Cotizaciones", icon: ShoppingCart, href: "/dashboard/requisiciones/requisiciones/tramite", color: "from-purple-500 to-purple-600" },
-  { title: "Órdenes de Compra", description: "OC autorizadas", icon: ClipboardList, href: "/dashboard/requisiciones/requisiciones/ordenes", color: "from-cyan-500 to-cyan-600" },
+  { title: "Órdenes de Compra", description: "OC autorizadas", icon: ClipboardList, href: "/dashboard/requisiciones/requisiciones/ordenes", color: "from-aria-accent to-aria-accent" },
 ];
 
 export default function RequisicionesPage() {
@@ -142,7 +142,7 @@ export default function RequisicionesPage() {
               <span className="text-slate-400 text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
               <span className="text-slate-400 text-xs">Registros</span>
               <p className="text-xl font-bold text-aria-accent mt-1">{registrosFiltrados.length}</p>
             </div>
@@ -150,9 +150,9 @@ export default function RequisicionesPage() {
               <span className="text-slate-400 text-xs">Obras</span>
               <p className="text-xl font-bold text-amber-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-aria-primary/5 border border-cyan-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-accent/10 to-aria-primary/5 border border-aria-accent/20">
               <span className="text-slate-400 text-xs">Proveedores</span>
-              <p className="text-xl font-bold text-cyan-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
+              <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
               <span className="text-slate-400 text-xs">Solicitantes</span>
@@ -205,7 +205,7 @@ export default function RequisicionesPage() {
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-amber-400" />Detalle de Requisiciones
               </h2>
-              {loading ? <div className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-cyan-400" /></div> : (
+              {loading ? <div className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></div> : (
                 <div className="max-h-[400px] overflow-y-auto rounded-xl">
                   <table className="w-full text-sm">
                     <thead className="sticky top-0 z-10">
@@ -222,7 +222,7 @@ export default function RequisicionesPage() {
                     <tbody className="divide-y divide-white/5">
                       {registrosFiltrados.slice(0, 150).map((r, idx) => (
                         <tr key={r.id} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors`}>
-                          <td className="px-3 py-2.5 text-cyan-400 font-mono text-xs">{r.folio_excel}</td>
+                          <td className="px-3 py-2.5 text-aria-accent font-mono text-xs">{r.folio_excel}</td>
                           <td className="px-3 py-2.5 text-slate-300 text-xs">{r.fecha || "—"}</td>
                           <td className="px-3 py-2.5 text-slate-300 text-xs truncate max-w-[100px]">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</td>
                           <td className="px-3 py-2.5"><span className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs truncate block max-w-[100px]">{r.obra?.substring(0,18) || "—"}</span></td>

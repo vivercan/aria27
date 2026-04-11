@@ -260,7 +260,7 @@ export default function CeoDashboardPage() {
       {/* Top obras por margen */}
       <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-cyan-400" />
+          <Building2 className="w-5 h-5 text-aria-accent" />
           <h2 className="text-base font-bold text-white">Top 5 obras por margen real</h2>
         </div>
         {topMargen.length === 0 ? (
@@ -282,7 +282,7 @@ export default function CeoDashboardPage() {
               {topMargen.map(o => (
                 <tr key={o.nombre} className="border-b border-white/5">
                   <td className="p-3 text-white font-medium">{o.nombre}</td>
-                  <td className="p-3 text-right text-cyan-300">{fmt2(o.presupuesto)}</td>
+                  <td className="p-3 text-right text-aria-accent">{fmt2(o.presupuesto)}</td>
                   <td className="p-3 text-right text-orange-300">{fmt2(o.gastoTotal)}</td>
                   <td className="p-3 text-right text-emerald-300">{fmt2(o.cobrado)}</td>
                   <td className={`p-3 text-right font-bold ${o.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt2(o.margen)}</td>

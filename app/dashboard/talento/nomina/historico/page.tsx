@@ -163,19 +163,19 @@ export default function HistoricoNominaPage() {
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input type="text" placeholder="Buscar nombre/puesto/obra..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50" />
+          <input type="text" placeholder="Buscar nombre/puesto/obra..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50" />
         </div>
-        <select value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
+        <select value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los años</option>
           {anios.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
-        <select value={filtroSemana} onChange={e => setFiltroSemana(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
+        <select value={filtroSemana} onChange={e => setFiltroSemana(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todas las semanas</option>
           {semanas.map(s => (
             <option key={`${s.anio}-${s.semana}`} value={`${s.anio}-${s.semana}`}>Sem {s.semana} / {s.anio} - {formatMoney(s.total)}</option>
           ))}
         </select>
-        <select value={filtroEmpleado} onChange={e => setFiltroEmpleado(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50">
+        <select value={filtroEmpleado} onChange={e => setFiltroEmpleado(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los empleados</option>
           {empleados.map(e => <option key={e} value={e}>{e}</option>)}
         </select>
@@ -188,7 +188,7 @@ export default function HistoricoNominaPage() {
 
       {/* Totales */}
       <div className="grid grid-cols-6 gap-3">
-        <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
           <p className="text-slate-400 text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
         </div>
@@ -239,7 +239,7 @@ export default function HistoricoNominaPage() {
                   <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
                     <td className="p-4 text-white font-medium">{e.nombre}</td>
                     <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{e.puesto}</span></td>
-                    <td className="p-4 text-center text-cyan-400 font-bold">{e.semanas}</td>
+                    <td className="p-4 text-center text-aria-accent font-bold">{e.semanas}</td>
                     <td className="p-4 text-right text-white">{formatMoney(e.totalBruto)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(e.totalDeducciones)}</td>
                     <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(e.totalNeto)}</td>
@@ -250,7 +250,7 @@ export default function HistoricoNominaPage() {
               ) : (
                 registrosFiltrados.map((r, i) => (
                   <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 text-xs font-medium">{r.semana}/{r.anio}</span></td>
+                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-aria-accent-bg text-aria-accent text-xs font-medium">{r.semana}/{r.anio}</span></td>
                     <td className="p-4 text-slate-400 text-xs whitespace-nowrap">{formatDateShort(r.fecha_inicio)} – {formatDateShort(r.fecha_fin)}</td>
                     <td className="p-4 text-white font-medium">{r.nombre}</td>
                     <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{r.puesto}</span></td>

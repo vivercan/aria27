@@ -943,8 +943,7 @@ export default function InventarioObraPage() {
               <div>
                 <label className="block text-sm text-slate-300 mb-1">Cantidad inicial *</label>
                 <input
-                  type="number"
-                  min={1}
+                  type="number" min={1}
                   value={nuevoCantidad}
                   onChange={(e) => setNuevoCantidad(Number(e.target.value))}
                   className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
@@ -1020,8 +1019,7 @@ export default function InventarioObraPage() {
 
             <label className="block text-sm text-slate-300 mb-1">Cantidad recibida *</label>
             <input
-              type="number"
-              min={1}
+              type="number" min={1}
               value={entradaCantidad}
               onChange={(e) => setEntradaCantidad(Number(e.target.value))}
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary mb-3"
@@ -1104,7 +1102,7 @@ export default function InventarioObraPage() {
                 <Minus className="w-5 h-5 text-red-400" />
               </button>
               <input
-                type="number"
+                type="number" min="0"
                 value={ajusteCantidad}
                 onChange={(e) => setAjusteCantidad(Number(e.target.value))}
                 className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary"
@@ -1187,8 +1185,7 @@ export default function InventarioObraPage() {
 
             <label className="block text-sm text-slate-300 mb-1">Cantidad a retirar *</label>
             <input
-              type="number"
-              min={1}
+              type="number" min={1}
               max={salidaItem.cantidad_disponible}
               value={salidaCantidad}
               onChange={(e) => setSalidaCantidad(Number(e.target.value))}

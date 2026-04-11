@@ -150,9 +150,9 @@ export default function DashboardPage() {
       title: "Productos",
       value: stats.productosEnCatalogo.toLocaleString(),
       icon: Package,
-      color: "from-cyan-500 to-teal-500",
-      bgColor: "bg-cyan-500/10",
-      textColor: "text-cyan-400",
+      color: "from-aria-accent to-teal-500",
+      bgColor: "bg-aria-accent-bg",
+      textColor: "text-aria-accent",
     },
     {
       title: "Obras Activas",
@@ -170,7 +170,7 @@ export default function DashboardPage() {
       description: "Solicitar materiales o servicios",
       href: "/dashboard/requisiciones/requisiciones",
       icon: FileText,
-      color: "from-aria-primary to-cyan-500",
+      color: "from-aria-primary to-aria-accent",
       module: "requisiciones",
     },
     {
@@ -299,7 +299,7 @@ export default function DashboardPage() {
       </div>
 
       {/* SISTEMA INFO */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/10 border border-aria-primary/20">
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/10 border border-aria-primary/20">
         <div className="flex items-start gap-4">
           <div className="p-3 rounded-xl bg-aria-primary-light">
             <AlertCircle className="w-6 h-6 text-aria-accent" />

@@ -306,7 +306,7 @@ function CapturarContent() {
           <p className="text-slate-400 text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-cyan-400">{quotes.length}</p>
+          <p className="text-2xl font-bold text-aria-accent">{quotes.length}</p>
           <p className="text-slate-500 text-xs">cotizaciones</p>
         </div>
       </div>
@@ -314,7 +314,7 @@ function CapturarContent() {
       {/* ITEMS DE LA REQUISICION */}
       <div className="p-3 rounded-xl bg-white/5 border border-white/10">
         <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
-          <Package className="w-4 h-4 text-cyan-400" /> Materiales solicitados ({items.length})
+          <Package className="w-4 h-4 text-aria-accent" /> Materiales solicitados ({items.length})
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {items.map(i => (
@@ -381,7 +381,7 @@ function CapturarContent() {
       {/* BOTON AGREGAR */}
       {!showForm && (
         <button onClick={() => setShowForm(true)}
-          className="w-full p-4 rounded-xl border-2 border-dashed border-white/20 hover:border-cyan-500/50 text-slate-400 hover:text-cyan-400 transition-all flex items-center justify-center gap-2">
+          className="w-full p-4 rounded-xl border-2 border-dashed border-white/20 hover:border-aria-accent/50 text-slate-400 hover:text-aria-accent transition-all flex items-center justify-center gap-2">
           <Plus className="w-5 h-5" />
           <span className="font-medium">Agregar cotizacion de proveedor</span>
         </button>
@@ -389,9 +389,9 @@ function CapturarContent() {
 
       {/* FORMULARIO NUEVA COTIZACION */}
       {showForm && (
-        <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/30 space-y-4">
+        <div className="p-4 rounded-xl bg-aria-accent-bg border border-aria-accent/30 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-cyan-400 font-semibold flex items-center gap-2">
+            <h3 className="text-aria-accent font-semibold flex items-center gap-2">
               <Plus className="w-4 h-4" /> Nueva cotizacion
             </h3>
             <button onClick={resetForm} className="p-1 rounded hover:bg-white/10">
@@ -407,7 +407,7 @@ function CapturarContent() {
               value={supplierName}
               onChange={(e) => setSupplierName(e.target.value)}
               placeholder="Nombre del proveedor..."
-              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none"
+              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"
             />
             <datalist id="suppliers-list">
               {suppliers.map(s => <option key={s.id} value={s.name} />)}
@@ -420,7 +420,7 @@ function CapturarContent() {
             <div>
               <label className="text-slate-400 text-xs block mb-1">Forma de pago</label>
               <select value={formaPago} onChange={(e) => setFormaPago(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none">
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none">
                 <option value="TRANSFERENCIA">Transferencia</option>
                 <option value="EFECTIVO">Efectivo</option>
                 <option value="CHEQUE">Cheque</option>
@@ -432,11 +432,11 @@ function CapturarContent() {
               <label className="text-slate-400 text-xs block mb-1">Condiciones</label>
               <div className="flex gap-1">
                 <button type="button" onClick={() => { setTipoCredito("CONTADO"); setDiasCredito(0); }}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CONTADO" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CONTADO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
                   Contado
                 </button>
                 <button type="button" onClick={() => setTipoCredito("CREDITO")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CREDITO" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CREDITO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
                   Crédito
                 </button>
               </div>
@@ -463,16 +463,16 @@ function CapturarContent() {
             {tipoCredito === "CREDITO" && (
               <div>
                 <label className="text-slate-400 text-xs block mb-1">Días de crédito</label>
-                <input type="number" value={diasCredito} onChange={(e) => setDiasCredito(parseInt(e.target.value) || 0)}
+                <input type="number" min="0" value={diasCredito} onChange={(e) => setDiasCredito(parseInt(e.target.value) || 0)}
                   placeholder="15, 30, 60..."
-                  className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+                  className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
               </div>
             )}
             <div className={tipoCredito === "CONTADO" ? "col-span-2" : ""}>
               <label className="text-slate-400 text-xs block mb-1">Días de entrega</label>
-              <input type="number" value={diasEntrega} onChange={(e) => setDiasEntrega(parseInt(e.target.value) || 0)}
+              <input type="number" min="0" value={diasEntrega} onChange={(e) => setDiasEntrega(parseInt(e.target.value) || 0)}
                 placeholder="1, 3, 5..."
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
             </div>
           </div>
 
@@ -482,7 +482,7 @@ function CapturarContent() {
               <label className="text-slate-400 text-xs block mb-1">IVA (%)</label>
               <input type="number" min="0" max="100" step="0.01" value={taxRate}
                 onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
               <p className="text-[10px] text-slate-500 mt-1">Default 16%. Si el proveedor emite Nota, se guarda como 0%.</p>
             </div>
             <div>
@@ -518,16 +518,16 @@ function CapturarContent() {
                       <td className="p-2 text-white text-xs">{item.product_name}</td>
                       <td className="p-2 text-slate-400 text-xs">{item.quantity} {item.unit}</td>
                       <td className="p-2">
-                        <input type="number" placeholder="$0" step="0.0001"
+                        <input type="number" min="0" placeholder="$0" step="0.0001"
                           value={itemPrices[item.id] ? Number(itemPrices[item.id].toFixed(4)) : ""}
                           onChange={(e) => setUnitWithoutTax(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none" />
+                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-aria-accent outline-none" />
                       </td>
                       <td className="p-2">
-                        <input type="number" placeholder="$0" step="0.0001"
+                        <input type="number" min="0" placeholder="$0" step="0.0001"
                           value={itemPrices[item.id] ? Number(unitWithTax(item.id).toFixed(4)) : ""}
                           onChange={(e) => setUnitWithTax(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-cyan-500 outline-none" />
+                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-aria-accent outline-none" />
                       </td>
                       <td className="p-2 text-right text-emerald-400 text-xs font-medium">
                         {itemPrices[item.id] ? `$${(itemPrices[item.id] * item.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : ""}
@@ -543,7 +543,7 @@ function CapturarContent() {
           <div>
             <label className="text-slate-400 text-xs block mb-1">Notas</label>
             <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Observaciones..."
-              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none" />
+              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
           </div>
 
           {/* Resumen */}
@@ -568,7 +568,7 @@ function CapturarContent() {
           <div className="flex items-center justify-between pt-2 border-t border-white/10">
             <span className="text-emerald-400 font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formSubtotal() <= 0}
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-aria-primary text-white font-medium flex items-center gap-2 disabled:opacity-50">
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-aria-accent to-aria-primary text-white font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Guardar cotizacion
             </button>

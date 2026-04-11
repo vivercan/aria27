@@ -338,7 +338,7 @@ export default function FacturacionPage() {
             <div className="md:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Concepto</label>
               <input value={form.concepto} onChange={e => setForm({...form, concepto: e.target.value})} placeholder="Descripción del servicio" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
             <div><label className="text-xs text-slate-400 mb-1 block">Subtotal (sin IVA) *</label>
-              <input type="number" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />{formErrors.subtotal && <p className="text-red-400 text-xs mt-1">{formErrors.subtotal}</p>}</div>
+              <input type="number" min="0" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />{formErrors.subtotal && <p className="text-red-400 text-xs mt-1">{formErrors.subtotal}</p>}</div>
             <div><label className="text-xs text-slate-400 mb-1 block">Método Pago</label>
               <select value={form.metodo_pago} onChange={e => setForm({...form, metodo_pago: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
                 <option value="PUE">PUE - Pago en una sola exhibición</option><option value="PPD">PPD - Pago en parcialidades</option>

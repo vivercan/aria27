@@ -285,7 +285,7 @@ export default function VehiculosPage() {
                 </div>
                 <div>
                   <label className="block text-xs text-slate-400 mb-1">Año</label>
-                  <input type="number" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} placeholder="2024" className={inputClass} />
+                  <input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} placeholder="2024" className={inputClass} />
                   {formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function VehiculosPage() {
                 </div>
                 <div>
                   <label className="block text-xs text-slate-400 mb-1">Kilometraje</label>
-                  <input type="number" value={form.kilometraje} onChange={e => setForm({ ...form, kilometraje: e.target.value })} placeholder="0" className={inputClass} />
+                  <input type="number" min="0" value={form.kilometraje} onChange={e => setForm({ ...form, kilometraje: e.target.value })} placeholder="0" className={inputClass} />
                   {formErrors.kilometraje && <p className="text-red-400 text-xs mt-1">{formErrors.kilometraje}</p>}
                 </div>
               </div>

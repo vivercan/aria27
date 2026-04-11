@@ -274,7 +274,7 @@ export default function ProveedoresPage() {
                       <option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CHEQUE">Cheque</option><option value="CREDITO">Crédito</option><option value="TARJETA">Tarjeta</option>
                     </select>
                   </div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Días crédito</label><input type="number" value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white focus:border-emerald-500/50 outline-none" min={0}/></div>
+                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white focus:border-emerald-500/50 outline-none" min={0}/></div>
                   <div><label className="text-[11px] text-slate-400 mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="Aguascalientes"/></div>
                 </div>
               </div>

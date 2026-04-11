@@ -210,7 +210,7 @@ export default function MovimientosBancariosPage() {
             </div>
             <div>
               <label className="text-xs text-slate-400">Monto *</label>
-              <input type="number" value={form.monto} onChange={e => setForm({ ...form, monto: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
             </div>
             <div className="md:col-span-2">

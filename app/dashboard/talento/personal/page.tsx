@@ -324,7 +324,7 @@ export default function PersonalPage() {
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       getEmpresaNombre(e.empresa_id).includes("Avante") ? "bg-yellow-500/20 text-yellow-400" :
                       getEmpresaNombre(e.empresa_id).includes("Denivel") ? "bg-purple-500/20 text-purple-400" :
-                      getEmpresaNombre(e.empresa_id).includes("Terracret") ? "bg-cyan-500/20 text-cyan-400" :
+                      getEmpresaNombre(e.empresa_id).includes("Terracret") ? "bg-aria-accent-bg text-aria-accent" :
                       "bg-slate-500/20 text-slate-400"
                     }`}>{getEmpresaNombre(e.empresa_id)}</span>
                   </td>
@@ -427,10 +427,10 @@ export default function PersonalPage() {
               )}
               {tab === "laboral" && (
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Salario diario" field="salario_diario" type="number" />
-                  <Field label="Salario semanal" field="salario_semanal" type="number" />
-                  <Field label="Salario mensual" field="salary_monthly" type="number" />
-                  <Field label={"M\u00ednimo tarjeta"} field="minimo_tarjeta" type="number" />
+                  <Field label="Salario diario" field="salario_diario" type="number" min="0" />
+                  <Field label="Salario semanal" field="salario_semanal" type="number" min="0" />
+                  <Field label="Salario mensual" field="salary_monthly" type="number" min="0" />
+                  <Field label={"M\u00ednimo tarjeta"} field="minimo_tarjeta" type="number" min="0" />
                   <Field label={"Tipo n\u00f3mina"} field="tipo_nomina"
                     options={[
                       { value: "semanal", label: "Semanal" },

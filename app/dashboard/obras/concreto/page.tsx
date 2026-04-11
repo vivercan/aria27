@@ -162,7 +162,7 @@ export default function ConcretoPage() {
           <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
             <ArrowLeft className="w-5 h-5 text-slate-400" />
           </Link>
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-primary/20 to-cyan-500/20 border border-aria-primary/20">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-primary/20 to-aria-accent/20 border border-aria-primary/20">
             <Droplet className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
@@ -178,14 +178,14 @@ export default function ConcretoPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total m³ colados */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-aria-primary/10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-accent/10 to-aria-primary/10 border border-aria-accent/20 hover:border-aria-accent/40 transition-all">
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-slate-400 text-sm mb-1">Total m³ Colados</p>
               <p className="text-3xl font-bold text-white">{fmtNum(kpis.totalM3)}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-cyan-500/20">
-              <Droplet className="w-5 h-5 text-cyan-400" />
+            <div className="p-2.5 rounded-xl bg-aria-accent-bg">
+              <Droplet className="w-5 h-5 text-aria-accent" />
             </div>
           </div>
           <p className="text-xs text-slate-500">Volumen total de concreto colado</p>
@@ -240,7 +240,7 @@ export default function ConcretoPage() {
         <select
           value={filtroObra}
           onChange={e => setFiltroObra(e.target.value)}
-          className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50"
+          className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50"
         >
           <option value="">Todas las obras</option>
           {obras.map(obra => (
@@ -291,7 +291,7 @@ export default function ConcretoPage() {
                         {resumen.obra}
                         <ChevronRight className="w-4 h-4 text-slate-600" />
                       </td>
-                      <td className="p-4 text-right text-cyan-300">{resumen.remisiones}</td>
+                      <td className="p-4 text-right text-aria-accent">{resumen.remisiones}</td>
                       <td className="p-4 text-right text-aria-accent">{fmtNum(resumen.m3_total)}</td>
                       <td className="p-4 text-right text-emerald-300">{fmt(resumen.costo_total)}</td>
                       <td className="p-4 text-center text-slate-300">{resumen.resistencia_promedio.toFixed(0)} kg/cm²</td>
@@ -314,7 +314,7 @@ export default function ConcretoPage() {
       {ultimasRemisiones.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Droplet className="w-5 h-5 text-cyan-400" />
+            <Droplet className="w-5 h-5 text-aria-accent" />
             Últimas Remisiones ({ultimasRemisiones.length})
           </h2>
           <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">

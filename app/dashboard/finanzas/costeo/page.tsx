@@ -155,7 +155,7 @@ export default function CosteoPage() {
                   <td className="p-3 text-right text-slate-300">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-aria-accent">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-cyan-400">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-aria-accent">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-emerald-400" : "text-red-400"}`}>

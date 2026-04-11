@@ -420,8 +420,7 @@ export default function EstimacionesPage() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Importe Total Contrato</label>
               <input
-                type="number"
-                min="0.01"
+                type="number" min="0.01"
                 step="0.01"
                 value={form.importe_contrato}
                 onChange={(e) => setForm({ ...form, importe_contrato: parseFloat(e.target.value) || 0 })}
@@ -432,8 +431,7 @@ export default function EstimacionesPage() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">% Anticipo</label>
               <input
-                type="number"
-                min="0"
+                type="number" min="0"
                 max="100"
                 step="0.01"
                 value={form.anticipo_pct}
@@ -445,8 +443,7 @@ export default function EstimacionesPage() {
             <div>
               <label className="text-xs text-slate-400 mb-1 block">% Retención</label>
               <input
-                type="number"
-                min="0"
+                type="number" min="0"
                 max="100"
                 step="0.01"
                 value={form.retencion_pct}
@@ -522,8 +519,7 @@ export default function EstimacionesPage() {
                       <div>
                         <label className="text-xs text-slate-400 mb-1 block">Cant. Contrato</label>
                         <input
-                          type="number"
-                          min="0"
+                          type="number" min="0"
                           step="0.01"
                           value={p.cantidad_contrato}
                           onChange={(e) => updatePartida(idx, "cantidad_contrato", e.target.value)}
@@ -533,8 +529,7 @@ export default function EstimacionesPage() {
                       <div>
                         <label className="text-xs text-slate-400 mb-1 block">P.U.</label>
                         <input
-                          type="number"
-                          min="0.01"
+                          type="number" min="0.01"
                           step="0.01"
                           value={p.precio_unitario}
                           onChange={(e) => updatePartida(idx, "precio_unitario", e.target.value)}
@@ -544,8 +539,7 @@ export default function EstimacionesPage() {
                       <div>
                         <label className="text-xs text-slate-400 mb-1 block">Cant. Este Período</label>
                         <input
-                          type="number"
-                          min="0"
+                          type="number" min="0"
                           step="0.01"
                           value={p.cantidad_periodo}
                           onChange={(e) => updatePartida(idx, "cantidad_periodo", e.target.value)}

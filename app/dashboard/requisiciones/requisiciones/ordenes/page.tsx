@@ -258,13 +258,13 @@ export default function OrdenesCompraPage() {
         <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-slate-500 text-[9px]">Pendiente</p></div>
       </div>
       <div className="flex gap-2 mb-3 shrink-0">
-        <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..." className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-cyan-500 outline-none" /></div>
-        <button onClick={() => setShowFilters(!showFilters)} className={`px-3 rounded-xl border flex items-center gap-1.5 text-sm transition-colors ${showFilters ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-400" : "bg-white/5 border-white/10 text-slate-400"}`}><Filter className="w-4 h-4" /></button>
+        <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..." className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-aria-accent outline-none" /></div>
+        <button onClick={() => setShowFilters(!showFilters)} className={`px-3 rounded-xl border flex items-center gap-1.5 text-sm transition-colors ${showFilters ? "bg-aria-accent-bg border-aria-accent/40 text-aria-accent" : "bg-white/5 border-white/10 text-slate-400"}`}><Filter className="w-4 h-4" /></button>
       </div>
       {showFilters && (
         <div className="flex gap-2 mb-3 shrink-0">
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none"><option value="TODOS">Todos los estados</option><option value="GENERADA">Generadas</option><option value="EN_TRANSITO">En Tránsito</option><option value="RECIBIDA">Recibidas</option><option value="PAGADA">Pagadas</option></select>
-          <select value={filterProveedor} onChange={(e) => setFilterProveedor(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-cyan-500 outline-none"><option value="TODOS">Todos los proveedores</option>{proveedores.map(p => <option key={p} value={p}>{p}</option>)}</select>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los estados</option><option value="GENERADA">Generadas</option><option value="EN_TRANSITO">En Tránsito</option><option value="RECIBIDA">Recibidas</option><option value="PAGADA">Pagadas</option></select>
+          <select value={filterProveedor} onChange={(e) => setFilterProveedor(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los proveedores</option>{proveedores.map(p => <option key={p} value={p}>{p}</option>)}</select>
         </div>
       )}
       <div className="flex-1 overflow-y-auto space-y-2">
@@ -273,7 +273,7 @@ export default function OrdenesCompraPage() {
           return (<button key={po.id} onClick={() => openDetail(po)} className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all text-left group">
             <div className="flex items-center justify-between mb-2"><span className="text-white font-bold">{po.folio}</span><span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${st.bg} ${st.color}`}><StatusIcon className="w-3 h-3" />{st.label}</span></div>
             <p className="text-slate-400 text-sm">{po.supplier_name}</p>
-            <div className="flex items-center justify-between mt-2"><span className="text-emerald-400 font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-slate-500 text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" /></div></div>
+            <div className="flex items-center justify-between mt-2"><span className="text-emerald-400 font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-slate-500 text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-aria-accent transition-colors" /></div></div>
           </button>);
         })}
       </div>

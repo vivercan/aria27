@@ -266,7 +266,7 @@ export default function CatalogoObrasPage() {
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Presupuesto</label>
-              <input type="number" value={form.presupuesto} onChange={e => setForm({ ...form, presupuesto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <input type="number" min="0" value={form.presupuesto} onChange={e => setForm({ ...form, presupuesto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
               {formErrors.presupuesto && <p className="text-red-400 text-xs mt-1">{formErrors.presupuesto}</p>}
             </div>
             <div>

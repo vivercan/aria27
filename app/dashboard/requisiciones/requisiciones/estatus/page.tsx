@@ -350,7 +350,7 @@ export default function RequisicionesStatusPage() {
                       </td>
                     )}
                     <td className="p-3">
-                      <button onClick={() => openDetail(req)} className="font-mono text-cyan-400 text-sm hover:text-cyan-300 hover:underline transition">{req.folio}</button>
+                      <button onClick={() => openDetail(req)} className="font-mono text-aria-accent text-sm hover:text-aria-accent hover:underline transition">{req.folio}</button>
                     </td>
                     <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
                     <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
@@ -367,7 +367,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePrintClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all disabled:opacity-50"
+                          className="p-2 rounded-lg bg-white/5 hover:bg-aria-accent-bg text-slate-400 hover:text-aria-accent transition-all disabled:opacity-50"
                           title="Imprimir"
                         >
                           {loadingPrint === req.id ? (
@@ -454,7 +454,7 @@ export default function RequisicionesStatusPage() {
               </div>
             </div>
             <div className="p-4 border-t border-white/10 flex justify-end gap-2">
-              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-sm text-slate-300 hover:text-cyan-400 transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-aria-accent-bg text-sm text-slate-300 hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
               <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-sm text-slate-300 hover:text-emerald-400 transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>

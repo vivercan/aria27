@@ -41,7 +41,7 @@ const subModules = [
     description: "Control de aportaciones IMSS, Infonavit y SUA.",
     href: "/dashboard/administracion/sua",
     icon: Calculator,
-    gradient: "from-cyan-500 to-teal-600",
+    gradient: "from-aria-accent to-teal-600",
     active: true,
   },
   {

@@ -141,7 +141,7 @@ export default function LoginPage() {
   if (checkingSession) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center" style={{ background: '#020617' }}>
-        <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
+        <svg className="animate-spin h-6 w-6 text-aria-primary" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
@@ -173,7 +173,7 @@ export default function LoginPage() {
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   disabled={loading}
                   required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-500 disabled:opacity-50"
+                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-slate-500 disabled:opacity-50"
                   style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)' }}
                   placeholder="usuario@gcuavante.com"
                 />
@@ -184,7 +184,7 @@ export default function LoginPage() {
                   onChange={(e) => { setPass(e.target.value); setError(''); }}
                   disabled={loading}
                   required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 placeholder:text-slate-400 disabled:opacity-50"
+                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-slate-400 disabled:opacity-50"
                   style={{ padding: '8px 12px', fontSize: '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: '0.25em' }}
                   placeholder="••••••••"
                 />
@@ -194,7 +194,7 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 text-aria-primary focus:ring-aria-primary/30 focus:ring-offset-0 cursor-pointer"
                     style={{ accentColor: '#3b82f6' }}
                   />
                   <span className="text-[11px] text-slate-500">Mantener sesión iniciada</span>

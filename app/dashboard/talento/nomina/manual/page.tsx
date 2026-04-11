@@ -330,12 +330,12 @@ export default function NominaManualPage() {
             placeholder="Filtrar empleados por nombre/puesto..."
             value={filtroEmp}
             onChange={e => setFiltroEmp(e.target.value)}
-            className="flex-1 max-w-xs px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 text-sm"
+            className="flex-1 max-w-xs px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50 text-sm"
           />
           <select
             value={empleadoSeleccionado}
             onChange={e => setEmpleadoSeleccionado(e.target.value)}
-            className="flex-1 max-w-md px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50"
+            className="flex-1 max-w-md px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50"
           >
             <option value="">-- Selecciona un empleado --</option>
             {empleados
@@ -357,7 +357,7 @@ export default function NominaManualPage() {
         <>
           {/* Info empleado y cálculo */}
           <div className="grid grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
               <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-slate-400 text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
@@ -425,7 +425,7 @@ export default function NominaManualPage() {
                             {asist.editando ? (
                               <input type="time" value={asist.hora_salida?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_salida", e.target.value)} className="px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-center w-24" />
                             ) : (
-                              <span className="text-cyan-400">{asist.hora_salida?.substring(0,5)}</span>
+                              <span className="text-aria-accent">{asist.hora_salida?.substring(0,5)}</span>
                             )}
                           </td>
                           <td className="p-4">

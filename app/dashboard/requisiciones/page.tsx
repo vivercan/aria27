@@ -31,7 +31,7 @@ const subModules = [
     description: "Cotizaciones y comparativas.",
     href: "/dashboard/requisiciones/compras",
     icon: ShoppingCart,
-    gradient: "from-cyan-500 to-cyan-600"
+    gradient: "from-aria-accent to-aria-accent"
   },
   {
     title: "Pagos",

@@ -223,7 +223,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
             <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
-            <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-cyan-400"/>Catálogo de Productos</h1>
+            <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-aria-accent"/>Catálogo de Productos</h1>
             <span className="text-xs text-slate-500 ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -238,14 +238,14 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                 {category&&<button onClick={()=>exportToExcel("category")} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-white/[0.08]">Solo: {category}</button>}
               </div>)}
             </div>
-            <button onClick={()=>setShowNewModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30"><Plus className="w-3 h-3"/>Nuevo</button>
+            <button onClick={()=>setShowNewModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30"><Plus className="w-3 h-3"/>Nuevo</button>
           </div>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"/>
             <input type="text" placeholder="Buscar nombre, SKU..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-cyan-500/50 outline-none"/>
+              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-aria-accent/50 outline-none"/>
             {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-slate-400"/></button>}
           </div>
           <select value={category} onChange={e=>setCategory(e.target.value)}
@@ -276,7 +276,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               {products.map(p=>{const supps=supplierMap[p.id]||[];return(
                 <tr key={p.id} onClick={()=>openDetail(p)} className="border-b border-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-colors group h-[30px]">
                   <td className="pl-4 text-slate-500 font-mono text-[11px]">{p.sku||"—"}</td>
-                  <td className="text-white group-hover:text-cyan-300 transition-colors pr-2">{p.name}</td>
+                  <td className="text-white group-hover:text-aria-accent transition-colors pr-2">{p.name}</td>
                   <td>{p.category&&<span className="text-[10px] px-1.5 py-0.5 bg-white/[0.06] rounded text-slate-400">{p.category}</span>}</td>
                   <td className="text-slate-400">{p.unit}</td>
                   <td>{supps.length>0?(<div className="flex gap-1 items-center">{supps.slice(0,2).map(s=>(<span key={s.id} className="text-[10px] px-1 py-0.5 bg-emerald-500/10 text-emerald-400 rounded truncate max-w-[100px]" title={s.name}>{s.name.length>14?s.name.substring(0,14)+"…":s.name}</span>))}{supps.length>2&&<span className="text-[10px] text-slate-500">+{supps.length-2}</span>}</div>):<span className="text-[10px] text-slate-600">—</span>}</td>
@@ -294,7 +294,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         <div className="flex items-center gap-0.5">
           <button onClick={()=>goToPage(1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">«</button>
           <button onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">‹</button>
-          {Array.from({length:Math.min(5,totalPages)},(_,i)=>{let p:number;if(totalPages<=5)p=i+1;else if(currentPage<=3)p=i+1;else if(currentPage>=totalPages-2)p=totalPages-4+i;else p=currentPage-2+i;return<button key={p} onClick={()=>goToPage(p)} className={`w-6 h-6 rounded ${p===currentPage?"bg-cyan-500/20 text-cyan-400 font-bold":"text-slate-400 hover:bg-white/10"}`}>{p}</button>;})}
+          {Array.from({length:Math.min(5,totalPages)},(_,i)=>{let p:number;if(totalPages<=5)p=i+1;else if(currentPage<=3)p=i+1;else if(currentPage>=totalPages-2)p=totalPages-4+i;else p=currentPage-2+i;return<button key={p} onClick={()=>goToPage(p)} className={`w-6 h-6 rounded ${p===currentPage?"bg-aria-accent-bg text-aria-accent font-bold":"text-slate-400 hover:bg-white/10"}`}>{p}</button>;})}
           <button onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">›</button>
           <button onClick={()=>goToPage(totalPages)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">»</button>
         </div>
@@ -309,7 +309,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-white/[0.06] p-4 z-10">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] text-cyan-400 font-mono">{selectedProduct.sku}</p>
+                  <p className="text-[11px] text-aria-accent font-mono">{selectedProduct.sku}</p>
                   <h2 className="text-base font-bold text-white leading-tight mt-0.5">{selectedProduct.name}</h2>
                   {selectedProduct.description&&<p className="text-xs text-slate-400 mt-0.5">{selectedProduct.description}</p>}
                 </div>
@@ -355,7 +355,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                 <div>
                   <label className="text-[11px] text-slate-400 mb-0.5 block">SKU *</label>
                   <input value={newForm.sku} onChange={e=>{const v=e.target.value.toUpperCase();setNewForm(p=>({...p,sku:v}));checkSku(v);}}
-                    className={`w-full px-2.5 py-1.5 text-xs bg-white/5 border rounded-lg text-white font-mono uppercase outline-none ${skuError?"border-red-500/50":"border-white/10 focus:border-cyan-500/50"}`} placeholder="MATE-0001"/>
+                    className={`w-full px-2.5 py-1.5 text-xs bg-white/5 border rounded-lg text-white font-mono uppercase outline-none ${skuError?"border-red-500/50":"border-white/10 focus:border-aria-accent/50"}`} placeholder="MATE-0001"/>
                   {skuError&&<p className="text-[10px] text-red-400 mt-0.5 flex items-center gap-0.5"><AlertCircle className="w-2.5 h-2.5"/>{skuError}</p>}
                 </div>
                 <div>
@@ -375,7 +375,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               <div>
                 <label className="text-[11px] text-slate-400 mb-0.5 block">Nombre del producto *</label>
                 <input value={newForm.name} onChange={e=>setNewForm(p=>({...p,name:e.target.value}))}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none focus:border-cyan-500/50" placeholder="Ej: Varilla corrugada 3/8 grado 42"/>
+                  className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none focus:border-aria-accent/50" placeholder="Ej: Varilla corrugada 3/8 grado 42"/>
               </div>
               <div>
                 <label className="text-[11px] text-slate-400 mb-0.5 block">Descripción</label>
@@ -394,7 +394,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <div className="flex justify-end gap-2 p-4 border-t border-white/10">
               <button onClick={()=>setShowNewModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/10 rounded-lg">Cancelar</button>
               <button onClick={handleNewProduct} disabled={savingNew||!newForm.name.trim()||!newForm.sku.trim()||!!skuError}
-                className="px-3 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1">
+                className="px-3 py-1.5 text-xs bg-aria-accent/80 hover:bg-aria-accent/80 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1">
                 <Save className="w-3 h-3"/>{savingNew?"Guardando...":"Crear Producto"}
               </button>
             </div>

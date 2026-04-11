@@ -41,7 +41,7 @@ const subModules = [
     description: "Conciliaciones y movimientos bancarios.",
     href: "/dashboard/finanzas/bancos",
     icon: Landmark,
-    gradient: "from-cyan-500 to-cyan-600",
+    gradient: "from-aria-accent to-aria-accent",
     active: true,
   },
   {

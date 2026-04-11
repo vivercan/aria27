@@ -72,7 +72,7 @@ const subModules = [
     description: "Tabulador de sueldos.",
     href: "/dashboard/talento/matriz",
     icon: BarChart3,
-    gradient: "from-cyan-500 to-cyan-600",
+    gradient: "from-aria-accent to-aria-accent",
     active: true
   }
 ];

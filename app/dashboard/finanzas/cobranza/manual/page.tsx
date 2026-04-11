@@ -347,7 +347,7 @@ export default function CobranzaManualPage() {
               </div>
               <div>
                 <label className="text-xs text-slate-400 mb-1 block">Saldo pendiente</label>
-                <input type="number" step="0.01" min={0} max={form.monto} value={form.saldo}
+                <input type="number"  step="0.01" min={0} max={form.monto} value={form.saldo}
                   onChange={e => setForm({ ...form, saldo: parseFloat(e.target.value) || 0 })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
                 <p className="text-[11px] text-slate-500 mt-1">Cobrado: ${(form.monto - form.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>

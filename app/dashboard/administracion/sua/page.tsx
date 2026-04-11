@@ -197,7 +197,7 @@ export default function SUAPage() {
                 <td className="p-3"><p className="text-white text-sm font-medium">{a.periodo}</p><p className="text-slate-500 text-xs">{a.responsable || "â"}</p></td>
                 <td className="p-3 text-slate-400 text-sm">{a.obra_nombre || "â"}</td>
                 <td className="p-3 text-center text-sm text-white">{getTipo(a.tipo)?.label || a.tipo}</td>
-                <td className="p-3 text-center text-sm text-cyan-400 font-medium">{a.num_trabajadores || "â"}</td>
+                <td className="p-3 text-center text-sm text-aria-accent font-medium">{a.num_trabajadores || "â"}</td>
                 <td className="p-3 text-right text-sm text-white font-medium">{formatCurrency(a.monto || 0)}</td>
                 <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getEstatus(a.estatus)?.color || "bg-slate-500/20 text-slate-400"}`}>{getEstatus(a.estatus)?.label || a.estatus}</span></td>
                 <td className="p-3 text-center"><div className="flex items-center justify-center gap-1">
@@ -224,8 +224,8 @@ export default function SUAPage() {
                 <div><label className="block text-xs text-slate-400 mb-1">Tipo</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className={inputClass}>{TIPO_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} /></div>
-                <div><label className="block text-xs text-slate-400 mb-1">Monto *</label><input type="number" step="0.01" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} placeholder="0.00" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Trabajadores</label><input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} /></div>
+                <div><label className="block text-xs text-slate-400 mb-1">Monto *</label><input type="number" min="0" step="0.01" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} placeholder="0.00" className={inputClass} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-xs text-slate-400 mb-1">Fecha pago</label><input type="date" value={form.fecha_pago} onChange={e => setForm({ ...form, fecha_pago: e.target.value })} className={inputClass} /></div>

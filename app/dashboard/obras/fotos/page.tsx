@@ -245,7 +245,7 @@ export default function FotosPage() {
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/obras" />
-            <Camera className="h-5 w-5 text-cyan-400" />
+            <Camera className="h-5 w-5 text-aria-accent" />
             <h1 className="text-xl font-semibold">Galería de Fotos</h1>
           </div>
 
@@ -257,7 +257,7 @@ export default function FotosPage() {
               <button
                 onClick={handleUploadClick}
                 disabled={uploading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-accent/80 hover:bg-aria-accent/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {uploading ? (
                   <>
@@ -310,7 +310,7 @@ export default function FotosPage() {
                   onClick={() => setSelectedObraId(obra.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                     selectedObraId === obra.id
-                      ? 'bg-cyan-600/30 border border-cyan-500/50 text-white'
+                      ? 'bg-aria-accent/80/30 border border-aria-accent/50 text-white'
                       : 'border border-white/[0.06] text-white/70 hover:bg-white/[0.05]'
                   }`}
                 >
@@ -337,7 +337,7 @@ export default function FotosPage() {
           ) : loadingPhotos ? (
             // Loading state
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-aria-accent" />
             </div>
           ) : photos.length === 0 ? (
             // Empty state - no photos
@@ -351,7 +351,7 @@ export default function FotosPage() {
                 <button
                   onClick={handleUploadClick}
                   disabled={uploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 transition-colors text-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-accent/80 hover:bg-aria-accent/80 disabled:opacity-50 transition-colors text-sm"
                 >
                   <Upload className="h-4 w-4" />
                   <span>Subir primera foto</span>
@@ -366,7 +366,7 @@ export default function FotosPage() {
                   {photos.map((photo, index) => (
                     <div
                       key={photo.id}
-                      className="group relative aspect-square rounded-lg overflow-hidden border border-white/[0.06] hover:border-cyan-500/50 transition-all bg-white/[0.03]"
+                      className="group relative aspect-square rounded-lg overflow-hidden border border-white/[0.06] hover:border-aria-accent/50 transition-all bg-white/[0.03]"
                     >
                       {/* Image */}
                       <img

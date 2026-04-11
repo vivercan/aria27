@@ -470,7 +470,7 @@ export default function RecibosNominaPage() {
               Excel
             </button>
 
-            <button onClick={handlePrintAll} disabled={nominas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary/20 to-cyan-500/20 border border-aria-primary/30 text-aria-accent hover:from-aria-primary/30 hover:to-cyan-500/30 disabled:opacity-50">
+            <button onClick={handlePrintAll} disabled={nominas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary/20 to-aria-accent/20 border border-aria-primary/30 text-aria-accent hover:from-aria-primary/30 hover:to-aria-accent/30 disabled:opacity-50">
               <Printer className="w-4 h-4" />
               Imprimir Todos ({filtradas.length})
             </button>

@@ -270,7 +270,7 @@ export default function PreNominaPage() {
           <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronLeft className="w-4 h-4 text-slate-300" /></button>
           <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
           <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronRight className="w-4 h-4 text-slate-300" /></button>
-          <button onClick={calcularPreNomina} disabled={calculando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 to-aria-primary/20 border border-cyan-500/30 text-cyan-300 hover:from-cyan-500/30 hover:to-aria-primary/30 disabled:opacity-50">
+          <button onClick={calcularPreNomina} disabled={calculando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-accent/20 to-aria-primary/20 border border-aria-accent/30 text-aria-accent hover:from-aria-accent/30 hover:to-aria-primary/30 disabled:opacity-50">
             {calculando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
             {calculando ? "Calculando..." : "Calcular"}
           </button>
@@ -307,7 +307,7 @@ export default function PreNominaPage() {
       {/* Totales */}
       {detalles.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-cyan-500/5 border border-aria-primary/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
             <p className="text-slate-400 text-xs mb-1">Total Bruto</p>
             <p className="text-xl font-bold text-white">{fmtMoney(totales.bruto)}</p>
           </div>
@@ -365,9 +365,9 @@ export default function PreNominaPage() {
                     <td className="p-3 text-center"><span className={`font-bold ${d.dias_trabajados >= 6 ? "text-emerald-400" : d.dias_trabajados >= 4 ? "text-amber-400" : "text-red-400"}`}>{d.dias_trabajados}</span></td>
                     <td className="p-3 text-center text-amber-300">{d.dias_incompletos || ""}</td>
                     <td className="p-3 text-center text-red-300">{d.dias_falta || ""}</td>
-                    <td className="p-3 text-right text-cyan-300">{d.horas_extra ? d.horas_extra.toFixed(1) : ""}</td>
+                    <td className="p-3 text-right text-aria-accent">{d.horas_extra ? d.horas_extra.toFixed(1) : ""}</td>
                     <td className="p-3 text-right text-white">{fmtMoney(d.salario_base)}</td>
-                    <td className="p-3 text-right text-cyan-400">{fmtMoney(d.pago_horas_extra)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmtMoney(d.pago_horas_extra)}</td>
                     <td className="p-3 text-right text-red-400">{d.prestamo_descuento ? fmtMoney(d.prestamo_descuento) : "—"}</td>
                     <td className="p-3 text-right text-emerald-400 font-bold">{fmtMoney(d.sueldo_neto)}</td>
                     <td className="p-3 text-right text-purple-400">{fmtMoney(d.pago_tarjeta)}</td>
