@@ -9,12 +9,15 @@ const supabase = getSupabaseAdmin();
 
 const PAGE_SIZE = 1000;
 
-/** Fetches ALL rows from a table, paginating in chunks of PAGE_SIZE to bypass Supabase default limit */
+/** Fetches ALL rows from a table, paginating in chunks of PAGE_SIZE to bypass Supabase default limit.
+ *  filterFn uses `any` because without generated Database types (supabase gen types),
+ *  PostgrestFilterBuilder generics cannot be resolved — will be fixed post-gen. */
 async function fetchAllRows(
   client: SupabaseClient,
   table: string,
   orderCol: string,
   ascending: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filterFn?: (q: any) => any
 ): Promise<{ data: Record<string, unknown>[]; error: string | null }> {
   const allRows: Record<string, unknown>[] = [];
