@@ -40,7 +40,7 @@ function KardexContent() {
       if (obra) q = q.eq("obra_nombre", obra);
       if (producto) q = q.eq("producto_nombre", producto);
       const { data, error } = await q;
-      if (error) console.error(error.message);
+      
       setMovs(data || []);
       setLoading(false);
     })();

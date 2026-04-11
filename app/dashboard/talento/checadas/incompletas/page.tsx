@@ -32,7 +32,7 @@ export default function IncompletasPage() {
       setSinRegistro(data.sinRegistro || []);
       setPeriodo(data.periodo || null);
     } catch (error) {
-      console.error("Error:", error);
+
     } finally {
       setLoading(false);
     }

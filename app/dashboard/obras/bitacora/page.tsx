@@ -61,7 +61,7 @@ function BitacoraContent() {
     let q = supabase.from("bitacora_obra").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(200);
     if (obraSel) q = q.eq("obra_nombre", obraSel);
     const { data, error } = await q;
-    if (error) console.error(error.message);
+    
     setEntradas((data as any) || []);
     setLoading(false);
   }

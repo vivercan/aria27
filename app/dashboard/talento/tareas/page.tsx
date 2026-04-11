@@ -97,7 +97,7 @@ export default function TareasTalentoPage() {
       .from("tareas_asignadas")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) console.error("tareas_asignadas error:", error);
+    
     setTareas(data || []);
     setLoading(false);
   }

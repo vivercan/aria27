@@ -65,7 +65,7 @@ export default function FotosPage() {
           setSelectedObraId(data[0].id);
         }
       } catch (err) {
-        console.error('Error loading obras:', err);
+
         setError('Failed to load obras');
       } finally {
         setLoadingObras(false);
@@ -95,7 +95,7 @@ export default function FotosPage() {
         if (err) throw err;
         setPhotos(data || []);
       } catch (err) {
-        console.error('Error loading photos:', err);
+
         setError('Failed to load photos');
       } finally {
         setLoadingPhotos(false);
@@ -161,7 +161,7 @@ export default function FotosPage() {
           fileInputRef.current.value = '';
         }
       } catch (err) {
-        console.error('Error uploading photos:', err);
+
         setError('Failed to upload photos. Please try again.');
       } finally {
         setUploading(false);
@@ -197,7 +197,7 @@ export default function FotosPage() {
 
         setConfirmDelete(null);
       } catch (err) {
-        console.error('Error deleting photo:', err);
+
         setError('Failed to delete photo');
       }
     },

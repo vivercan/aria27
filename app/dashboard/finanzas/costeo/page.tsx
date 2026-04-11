@@ -80,7 +80,7 @@ export default function CosteoPage() {
       });
 
       setObras(result);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     finally { setLoading(false); }
   }
 

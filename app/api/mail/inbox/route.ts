@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import Imap from "imap";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { getZohoCreds } from "../_zoho-creds";
 const log = logger("MAIL-INBOX");
 
 export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "mail:inbox", ...RATE_LIMITS.EMAIL });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   try {
     const { folder = "INBOX", limit = 25 } = await req.json();
     const creds = await getZohoCreds();

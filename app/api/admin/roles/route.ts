@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { validateApiUser } from "@/lib/auth-api";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 // Whitelist duro de admins. Unica fuente de verdad server-side para este panel.
 const ADMIN_EMAILS = [(process.env.ADMIN_EMAIL || "juanviverosv@gmail.com")];
@@ -27,6 +28,10 @@ async function requireAdmin(req: NextRequest): Promise<{ ok: true; email: string
 }
 
 export async function GET(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "admin:roles", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 
@@ -40,6 +45,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "admin:roles", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const auth = await requireAdmin(req);
   if (!auth.ok) return auth.res;
 

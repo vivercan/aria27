@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 // ============================================================
 // API: POST /api/inventario/validar
@@ -41,7 +42,11 @@ function levenshtein(a: string, b: string): number {
   return d[m][n];
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "inventario:validar", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   try {
     const email = req.headers.get("x-user-email");
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });

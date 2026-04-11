@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 const AUTHORIZED_ROLES = ["admin", "rh", "compras", "almacen"];
 
@@ -38,6 +39,12 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 
 // GET: Obtener asistencias incompletas Y días sin registro
 export async function GET(req: NextRequest) {
+  // RATE LIMIT: 60 requests per minute (STANDARD tier)
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "asistencias:incompletas", max: 60, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
   try {
     // AUTH CHECK
     const auth = await checkAuth(req);

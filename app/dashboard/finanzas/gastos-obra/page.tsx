@@ -212,7 +212,7 @@ export default function GastosObraPage() {
       await cargarDatos();
       closeDrawer();
     } catch (error) {
-      console.error(error);
+
       showFlash("err", "Error al guardar el gasto");
     } finally {
       setSubmitting(false);
@@ -238,7 +238,7 @@ export default function GastosObraPage() {
       await cargarDatos();
       closeDrawer();
     } catch (error) {
-      console.error(error);
+
       showFlash("err", "Error al eliminar el gasto");
     } finally {
       setSubmitting(false);
@@ -277,7 +277,7 @@ export default function GastosObraPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-      console.error(e);
+
     }
     setExportando(false);
   };

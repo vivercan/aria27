@@ -115,7 +115,7 @@ export default function EstimacionesPage() {
         setPartidas(pMap);
       }
     } catch (e) {
-      console.error(e);
+
     } finally {
       setLoading(false);
     }

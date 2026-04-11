@@ -97,7 +97,7 @@ export default function SirocRegistrosPage() {
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
     setObras((ct || []).map((o: any) => o.nombre).sort());
     const { data, error } = await supabase.from("siroc_registros").select("*").order("created_at", { ascending: false });
-    if (error) console.error("siroc_registros error:", error);
+    
     setRegistros(data || []);
     setLoading(false);
   }

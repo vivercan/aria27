@@ -94,7 +94,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso?email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setConversaciones(data.conversaciones || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const cargarUsuarios = async () => {
@@ -126,7 +126,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       previousOnlineRef.current = currentOnline as Set<string>;
       
       setUsuarios(nuevosUsuarios);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const cargarMensajes = async (convId: string) => {
@@ -143,7 +143,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       }
       lastMsgCount.current = nuevosMsgs.length;
       setMensajes(nuevosMsgs);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const verificarEscribiendo = async (convId: string) => {
@@ -151,7 +151,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       const res = await fetch(`/api/pulso/escribiendo?conversacion_id=${convId}&email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       setEscribiendo(data.escribiendo || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const notificarEscribiendo = async (escribiendoAhora: boolean) => {
@@ -162,7 +162,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversacion_id: convActiva.id, user_email: userEmail, escribiendo: escribiendoAhora })
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const abrirChat = async (otroEmail: string) => {
@@ -178,7 +178,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setConvActiva(conv as Conversacion);
       setVista("chat");
       lastMsgCount.current = 0;
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const enviarNudge = () => {
@@ -198,7 +198,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
       setNuevoMsg("");
       notificarEscribiendo(false);
       cargarMensajes(convActiva.id);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   const enviarArchivo = async (file: File) => {
@@ -300,7 +300,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: nuevoEstado, status_message: miMensaje })
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setVista("contactos");
   };
 
@@ -311,7 +311,7 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, status: miEstado, status_message: miMensaje })
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
   };
 
   // Ordenar: online primero, luego por último visto

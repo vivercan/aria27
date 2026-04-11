@@ -75,7 +75,7 @@ export default function TareasPage() {
       .from("tareas_obra")
       .select("*")
       .order("fecha_limite", { ascending: true });
-    if (error) console.error("Error loading tareas:", error?.message);
+    
     if (data) setTareas(data);
     setLoading(false);
   };

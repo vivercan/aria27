@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 const log = logger("ALERTAS-DIGEST");
 
 // Envía digest diario de alertas agrupadas por severidad.
 // Protegido por Bearer token (DIGEST_TOKEN) para que lo dispare cron externo (Vercel Cron, GitHub Actions, etc).
 export async function GET(req: NextRequest) {
+  // RATE LIMIT: 60 requests per minute (STANDARD tier)
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "alertas:digest", max: 60, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
+
   const auth = req.headers.get("authorization") || "";
   const expected = process.env.DIGEST_TOKEN || "";
   const isVercelCron = req.headers.get("x-vercel-cron") === "1";

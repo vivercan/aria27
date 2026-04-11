@@ -64,7 +64,7 @@ export default function VehiculosPage() {
       .select("*")
       .in("tipo", ["VEHICULO", "MAQUINARIA"])
       .order("nombre");
-    if (error) console.error("Error:", error?.message);
+    
     if (data) setVehiculos(data);
     setLoading(false);
   };

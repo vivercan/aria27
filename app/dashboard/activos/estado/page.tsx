@@ -18,7 +18,7 @@ export default function EstadoActivosPage() {
 
   const load = async () => {
     const { data, error } = await supabase.from("activos").select("*").order("nombre");
-    if (error) { console.error("Error loading activos:", error?.message); setLoading(false); return; }
+    if (error) {  setLoading(false); return; }
     if (data) setActivos(data);
     setLoading(false);
   };
@@ -26,7 +26,7 @@ export default function EstadoActivosPage() {
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     setSaving(id);
     const { error } = await supabase.from("activos").update({ estado: nuevoEstado }).eq("id", id);
-    if (error) { console.error("Error updating estado:", error?.message); flash("err", "Error: " + error?.message); setSaving(null); return; }
+    if (error) {  flash("err", "Error: " + error?.message); setSaving(null); return; }
     setActivos(prev => prev.map(a => a.id === id ? { ...a, estado: nuevoEstado } : a));
     flash("ok", "Estado actualizado");
     setSaving(null);

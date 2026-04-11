@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("PULSO-ESCRIBIENDO");
 
 // AUTH helper: verificar que el email existe en Users
@@ -15,6 +16,13 @@ async function verifyUser(email: string | null): Promise<boolean> {
 }
 
 export async function POST(req: NextRequest) {
+  // RATE LIMIT: 60 requests per minute (STANDARD tier)
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "pulso:escribiendo", max: 60, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
+
   try {
     const { conversacion_id, user_email, escribiendo } = await req.json();
 

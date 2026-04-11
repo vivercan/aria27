@@ -102,7 +102,7 @@ export default function ConcretoRemisionesPage() {
     const { data: ct } = await supabase.from("centros_trabajo").select("*");
     setObras((ct || []).map((o: any) => o.nombre).sort());
     const { data: rems, error } = await supabase.from("concreto_remisiones").select("*").order("fecha_colado", { ascending: false });
-    if (error) console.error("concreto_remisiones error:", error);
+    
     setRemisiones(rems || []);
     const { data: cils } = await supabase.from("concreto_cilindros").select("*").order("dias_edad");
     setCilindros(cils || []);

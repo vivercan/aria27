@@ -142,7 +142,7 @@ export default function ProductosPage() {
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);
-    }catch(e:any){console.error(e);flash("err", "Error: "+e?.message);}
+    } catch(e: any) { flash("err", "Error: " + (e?.message || "desconocido")); }
     finally{setSavingNew(false);}
   };
 
@@ -176,7 +176,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       if(!Array.isArray(parsed))throw new Error("La IA no devolvió un array");
       setParsedProducts(parsed);
     }catch(e:any){
-      console.error("Error parsing:",e);
+
       setParseError(e?.message||"Error procesando el archivo");
     }finally{setParsing(false);}
   };
@@ -206,10 +206,10 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             product_id:productId,supplier_id:parseInt(uploadSuppId),
             precio_referencia:p.price||null
           });
-          if (psErr) { console.error("Error link product_supplier:", psErr); continue; }
+          if (psErr) {  continue; }
         }
         saved++;setSavedCount(saved);
-      }catch(e){console.error("Error saving product:",e);}
+      } catch (e) { /* error handled */ }
     }
     setSavingParsed(false);
     setTimeout(()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setUploadSuppId("");setSavedCount(0);loadProducts(currentPage);},1500);

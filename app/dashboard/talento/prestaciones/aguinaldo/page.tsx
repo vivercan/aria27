@@ -12,7 +12,7 @@ export default function AguinaldoPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("full_name");
-      if (error) { console.error("Error loading employees:", error?.message); setLoading(false); return; }
+      if (error) {  setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };

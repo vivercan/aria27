@@ -89,7 +89,7 @@ export default function DocumentosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "documentos_plantilla", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("EXPORT");
 
 const supabase = getSupabaseAdmin();

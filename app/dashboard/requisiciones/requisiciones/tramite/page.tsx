@@ -253,11 +253,11 @@ Responde SOLO con JSON así:
             setProveedoresIA(parsed.slice(0, 5));
           }
         } catch (e) {
-          console.error("Error parsing:", e);
+
         }
       }
     } catch (e) {
-      console.error(e);
+
     } finally {
       setBuscandoIA(false);
     }

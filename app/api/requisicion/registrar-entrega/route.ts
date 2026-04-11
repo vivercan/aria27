@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("REGISTRAR-ENTREGA");
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -60,6 +61,13 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
 }
 
 export async function POST(req: NextRequest) {
+  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "requisicion:registrar-entrega", max: 20, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
+
   try {
     const body = await req.json();
     const {

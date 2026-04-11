@@ -29,17 +29,14 @@ export default function AsignacionPage() {
     ]);
 
     if (asigError) {
-      console.error("Error loading activos_asignaciones:", asigError?.message);
       setLoading(false);
       return;
     }
     if (actsError) {
-      console.error("Error loading activos:", actsError?.message);
       setLoading(false);
       return;
     }
     if (empsError) {
-      console.error("Error loading empleados:", empsError?.message);
       setLoading(false);
       return;
     }
@@ -53,12 +50,10 @@ export default function AsignacionPage() {
       ]);
 
       if (empDataError) {
-        console.error("Error loading empleado details:", empDataError?.message);
         setLoading(false);
         return;
       }
       if (actDataError) {
-        console.error("Error loading activo details:", actDataError?.message);
         setLoading(false);
         return;
       }

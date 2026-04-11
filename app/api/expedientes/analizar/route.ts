@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const log = logger("EXPEDIENTES-ANALIZAR");
 const supabase = getSupabaseAdmin();
@@ -45,6 +46,10 @@ function parseJsonResponse(text: string): { paginas: number | null; resumen: str
 }
 
 export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "expedientes:analizar", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   // EXP-001 FIX: Verificar autenticación
   const userEmail = req.headers.get("x-user-email");
   if (!userEmail) {

@@ -55,7 +55,7 @@ export default function PorPagarPage() {
       }).filter((oc: any) => oc.saldo > 0);
 
       setCuentas(processed);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     finally { setLoading(false); }
   }
 

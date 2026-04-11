@@ -29,7 +29,7 @@ export default function NominaConfigPage() {
       .from("configuracion_nomina")
       .select("*")
       .order("clave");
-    if (error) { console.error("Error loading configuracion_nomina:", error?.message); setLoading(false); return; }
+    if (error) {  setLoading(false); return; }
     if (data) setConfigs(data);
     setLoading(false);
   }
@@ -55,7 +55,7 @@ export default function NominaConfigPage() {
     if (!validar(valor, clave)) return;
     setSaving(true);
     const { error } = await supabase.from("configuracion_nomina").update({ valor, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) { console.error("Error saving configuracion:", error?.message); flash("err", "Error: " + error?.message); setSaving(false); return; }
+    if (error) {  flash("err", "Error: " + error?.message); setSaving(false); return; }
     setFormErrors({});
     flash("ok", "Guardado correctamente");
     setSaving(false);

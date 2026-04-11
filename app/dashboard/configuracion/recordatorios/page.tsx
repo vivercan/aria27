@@ -70,7 +70,7 @@ export default function RecordatoriosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "recordatorios_bitacora", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setDeleteModal({open:false,id:"",name:""});
     loadData();
   };

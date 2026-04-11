@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("BUSCAR-INTELIGENTE");
 
 const supabase = getSupabaseAdmin();
@@ -11,6 +12,10 @@ const anthropic = new Anthropic({
 });
 
 export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "proveedores:buscar", ...RATE_LIMITS.WRITE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   try {
     const { productos, requisicion_id, user_email } = await req.json();
 

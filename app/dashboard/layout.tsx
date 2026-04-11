@@ -122,7 +122,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: userEmail })
         });
-      } catch (e) { console.error("Error heartbeat:", e); }
+      } catch (e) { /* error handled */ }
     };
 
     // Actualizar inmediatamente al cargar

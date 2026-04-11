@@ -24,7 +24,7 @@ export default function MatrizSalarialPage() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("Personal").select("*").eq("status", "ACTIVO").order("salario_diario", { ascending: false });
-      if (error) { console.error("Error loading empleados:", error?.message); setLoading(false); return; }
+      if (error) {  setLoading(false); return; }
       setEmpleados(data || []);
       setLoading(false);
     };

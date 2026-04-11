@@ -192,7 +192,6 @@ export async function processAndUploadPhoto(args: {
     });
 
   if (error) {
-    console.error("[watermark] upload error:", error.message);
     return null;
   }
 

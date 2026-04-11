@@ -135,7 +135,7 @@ export default function InventarioObraPage() {
   // ====== LOADERS ======
   const loadObras = async () => {
     const { data, error } = await supabase.from("centros_trabajo").select("id, name:nombre").order("nombre");
-    if (error) { console.error("Error loading obras:", error.message); }
+    
     setObras(data || []);
     setLoading(false);
   };
@@ -143,7 +143,7 @@ export default function InventarioObraPage() {
   const loadInventario = async (obraId: number) => {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
-    if (error) { console.error("Error loading inventario:", error.message); return; }
+    if (error) {  return; }
     // Enriquecer con último usuario de movimientos
     const items: ItemInventario[] = data || [];
     if (items.length > 0) {
@@ -169,7 +169,7 @@ export default function InventarioObraPage() {
     const { data, error } = await supabase
       .from("entregas").select("*").eq("obra_nombre", obraNombre)
       .eq("status", "RECIBIDO").order("fecha_entrega", { ascending: false }).limit(10);
-    if (error) { console.error("Error loading entregas:", error.message); return; }
+    if (error) {  return; }
     setEntregas(data || []);
   };
 

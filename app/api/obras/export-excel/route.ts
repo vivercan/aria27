@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import {
   authenticateRequest,
   fetchObraData,
@@ -15,6 +16,10 @@ const log = logger("OBRAS-EXPORT-EXCEL");
 const supabase = getSupabaseAdmin();
 
 export async function GET(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "obras:export", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   try {
     // Authenticate user
     const userEmail = await authenticateRequest(req, supabase);

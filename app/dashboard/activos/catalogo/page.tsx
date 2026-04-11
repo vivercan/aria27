@@ -100,35 +100,30 @@ export default function ActivosCatalogoPage() {
   const cargarDatos = async () => {
     const { data: act, error: actError } = await supabase.from("activos").select("*").eq("activo", true).order("codigo");
     if (actError) {
-      console.error("Error loading activos:", actError?.message);
     } else if (act) {
       setActivos(act);
     }
 
     const { data: asig, error: asigError } = await supabase.from("activos_asignaciones").select("*, activo:activos(*), empleado:Personal(full_name)").eq("activa", true).order("fecha_asignacion", { ascending: false });
     if (asigError) {
-      console.error("Error loading asignaciones:", asigError?.message);
     } else if (asig) {
       setAsignaciones(asig);
     }
 
     const { data: mant, error: mantError } = await supabase.from("activos_mantenimiento").select("*, activo:activos(*)").order("fecha", { ascending: false });
     if (mantError) {
-      console.error("Error loading mantenimiento:", mantError?.message);
     } else if (mant) {
       setMantenimientos(mant);
     }
 
     const { data: emps, error: empsError } = await supabase.from("Personal").select("id, full_name").eq("status", "ACTIVO").order("full_name");
     if (empsError) {
-      console.error("Error loading empleados:", empsError?.message);
     } else if (emps) {
       setEmpleados(emps);
     }
 
     const { data: obr, error: obrError } = await supabase.from("centros_trabajo").select("id, name:nombre").eq("activo", true);
     if (obrError) {
-      console.error("Error loading obras:", obrError?.message);
     } else if (obr) {
       setObras(obr);
     }
@@ -152,14 +147,12 @@ export default function ActivosCatalogoPage() {
     if (!validarActivo()) return;
     if (editando) {
       const { error } = await supabase.from("activos").update(formActivo).eq("id", editando.id);
-      if (error) {
-        console.error("Error updating activo:", error?.message);
+      if (error) { 
         return;
       }
     } else {
       const { error } = await supabase.from("activos").insert(formActivo);
-      if (error) {
-        console.error("Error inserting activo:", error?.message);
+      if (error) { 
         return;
       }
     }
@@ -172,8 +165,7 @@ export default function ActivosCatalogoPage() {
   const eliminarActivo = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("activos").update({ activo: false }).eq("id", id);
-    if (error) {
-      console.error("Error deleting activo:", error?.message);
+    if (error) { 
       return;
     }
     cargarDatos();
@@ -257,14 +249,12 @@ export default function ActivosCatalogoPage() {
 
     const { error: insertError } = await supabase.from("activos_mantenimiento").insert(formMantenimiento);
     if (insertError) {
-      console.error("Error inserting mantenimiento:", insertError?.message);
       return;
     }
 
     if (formMantenimiento.tipo === "CORRECTIVO") {
       const { error: updateError } = await supabase.from("activos").update({ estado: "MANTENIMIENTO" }).eq("id", formMantenimiento.activo_id);
       if (updateError) {
-        console.error("Error updating activo estado:", updateError?.message);
         return;
       }
     }
@@ -299,9 +289,9 @@ export default function ActivosCatalogoPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "activos_empresa", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
-    setDeleteModal({open:false,id:"",name:""});
-    cargarDatos();
+      setDeleteModal({open:false,id:"",name:""});
+      cargarDatos();
+    } catch (e) { /* handled by backupAndDelete */ }
   };
 
   return (

@@ -81,7 +81,7 @@ export default function AuthorizeRequisicionesPage() {
         const res = await fetch(url);
         if (!res.ok) {
           const text = await res.text();
-          console.error("Error en approve-purchase:", text);
+
           flash("err", "Error al procesar: " + res.status);
         }
       } else {
@@ -96,7 +96,7 @@ export default function AuthorizeRequisicionesPage() {
         if (!rows || rows.length === 0) { flash("err", "Esta requisición ya fue procesada por otro autorizador. Recarga."); setProcessing(false); await loadPending(); return; }
       }
     } catch (err: any) {
-      console.error("Error en handleAction:", err);
+
       flash("err", "Error: " + err?.message);
     }
 

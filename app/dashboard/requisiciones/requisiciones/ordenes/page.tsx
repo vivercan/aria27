@@ -112,10 +112,10 @@ export default function OrdenesCompraPage() {
         });
         if (!reRes.ok) {
           const errTxt = await reRes.text().catch(() => "");
-          console.error("registrar-entrega fallo", reRes.status, errTxt);
+
           flash("err", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
-      } catch (e) { console.error("Error creando entrega:", e); flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
+      } catch (e) { flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
     }
 
     const { error: updErr } = await supabase.from("purchase_orders").update(updates).eq("id", selectedPO.id);

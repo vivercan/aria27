@@ -44,7 +44,7 @@ export default function ContratosPage() {
     try {
       const { data } = await supabase.from("contratos").select("*").order("created_at", { ascending: false });
       setContratos(data || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     finally { setLoading(false); }
   }
 

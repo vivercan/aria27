@@ -67,7 +67,7 @@ export default function PagosPage() {
         ordenes: processed.length,
       });
     } catch (e) {
-      console.error("Error cargando pagos:", e);
+
     } finally {
       setLoading(false);
     }

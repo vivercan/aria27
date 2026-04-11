@@ -54,7 +54,7 @@ export default function OpinionesPage() {
           : null,
       }));
       setDocs(enriched as OpinionDoc[]);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     finally { setLoading(false); }
   }
 
@@ -88,7 +88,7 @@ export default function OpinionesPage() {
       await loadDocs();
       flash("ok", "Archivo subido correctamente");
     } catch (err: any) {
-      console.error("Error subiendo:", err);
+
       flash("err", "Error al subir: " + (err?.message || "desconocido"));
     } finally {
       setUploading(null);
@@ -118,7 +118,7 @@ export default function OpinionesPage() {
           }
           await loadDocs();
         } catch (e: any) {
-          console.error(e);
+
           flash("err", "Error al eliminar: " + (e?.message || "desconocido"));
         }
         finally { setDeleting(null); }

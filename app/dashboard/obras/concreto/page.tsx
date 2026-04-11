@@ -76,7 +76,7 @@ export default function ConcretoPage() {
           .sort()
       );
     } catch (e) {
-      console.error("Error cargando datos:", e);
+
     }
     setLoading(false);
   }

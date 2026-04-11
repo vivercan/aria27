@@ -104,7 +104,7 @@ export default function EntregasPage() {
       observaciones: form.observaciones,
       materiales_recibidos: form.materiales.filter(m => m.producto)
     });
-    if (error) { console.error(error); flash("err", "Error al guardar"); return; }
+    if (error) {  flash("err", "Error al guardar"); return; }
     setShowModal(false);
     setForm({ fecha_entrega: new Date().toISOString().split("T")[0], hora_entrega: new Date().toTimeString().slice(0, 5), proveedor_nombre: "", obra_nombre: "", recibido_por_nombre: "", status: "COMPLETA", observaciones: "", materiales: [{ producto: "", cantidad_pedida: 0, cantidad_recibida: 0, observacion: "" }] });
     cargarDatos();

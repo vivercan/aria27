@@ -128,7 +128,7 @@ function ReporteContent() {
         topOCs, topCobros, totalNominaRecs,
       });
     } catch (e) {
-      console.error(e);
+
     }
     setLoading(false);
   }

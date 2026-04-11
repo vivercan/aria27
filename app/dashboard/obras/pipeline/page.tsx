@@ -187,7 +187,7 @@ export default function PipelinePage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

@@ -90,7 +90,7 @@ export default function SirocBimestralesPage() {
     const { data: regs } = await supabase.from("siroc_registros").select("id, obra, numero_siroc, importe_total").order("obra");
     setRegistros(regs || []);
     const { data, error } = await supabase.from("siroc_bimestrales").select("*").order("anio", { ascending: false }).order("bimestre");
-    if (error) console.error("siroc_bimestrales error:", error);
+    
     setBimestres(data || []);
     setLoading(false);
   }

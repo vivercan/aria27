@@ -85,7 +85,7 @@ export default function CotizacionesClientesPage() {
       setCots(cotsConVencidas);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     finally { setLoading(false); }
   }
 
@@ -360,11 +360,11 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
               created_by: (typeof window !== "undefined" && localStorage.getItem("userEmail")) || null,
             };
             const { error: ce } = await supabase.from("cobros_manuales").insert(payload);
-            if (ce) console.warn("[Bloque12] No se pudo generar cobro auto:", ce.message);
+            
           }
         }
       } catch (e: any) {
-        console.warn("[Bloque12] Error generando cobro auto:", e?.message);
+
       }
     }
 

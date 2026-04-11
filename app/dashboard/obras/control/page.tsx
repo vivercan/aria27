@@ -88,7 +88,7 @@ export default function ControlObrasPage() {
       setNomina((nh.data as any[]) || []);
       setCobros((co.data as any[]) || []);
       setAvancesFis((av.data as any[]) || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setLoading(false);
   }
 
@@ -348,7 +348,8 @@ export default function ControlObrasPage() {
                               a.download = `reporte-${f.nombre}-${new Date().toISOString().slice(0,10)}.xlsx`;
                               a.click();
                               URL.revokeObjectURL(url);
-                            });
+                            })
+                            .catch(() => {});
                         }}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-[10px] ml-1"
                       >

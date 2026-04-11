@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("AUTORIZAR-PICKING");
 
 // Status enum para flujo de requisiciones
@@ -16,7 +17,14 @@ const REQUISITION_STATUS = {
   RECHAZADA_DIRECCION: "RECHAZADA_DIRECCION",
 } as const;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "requisicion:autorizar-picking", max: 20, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
+
   try {
     // Validación básica: verificar que el request viene con datos esperados
     const body = await req.json();

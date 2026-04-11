@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 const log = logger("REQUISICION");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -65,7 +66,14 @@ async function getUserByRole(role: string) {
   } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e?.message); return null; }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // RATE LIMIT: 20 requests per minute (MODERATE tier for business-critical operations)
+  const clientId = getClientIdentifier(request);
+  const rl = checkRateLimit(clientId, { key: "requisicion", max: 20, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return rateLimitResponse(rl);
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY!);
   const logs: string[] = [];
 

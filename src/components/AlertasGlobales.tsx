@@ -40,7 +40,7 @@ export default function AlertasGlobales() {
         cargarAlertas(data.role.toLowerCase());
       }
     } catch (error) {
-      console.error("Error obteniendo rol:", error);
+
       setLoading(false);
     }
   }
@@ -95,7 +95,7 @@ export default function AlertasGlobales() {
 
       setAlertas(alertasTemp);
     } catch (error) {
-      console.error("Error cargando alertas:", error);
+
     } finally {
       setLoading(false);
     }

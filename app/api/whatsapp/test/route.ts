@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const clientId = getClientIdentifier(req);
+  const rl = checkRateLimit(clientId, { key: "whatsapp:test", ...RATE_LIMITS.EXPENSIVE });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   try {
     const body = await req.json();
     const { template, params, phone } = body || {};

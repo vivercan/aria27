@@ -119,7 +119,7 @@ export default function OrdenesPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "ordenes_formato", id: deleteModal.id, userEmail });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* error handled */ }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };

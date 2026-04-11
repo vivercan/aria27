@@ -88,14 +88,12 @@ export async function sendWhatsAppTemplate(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
-    console.error("[WhatsApp] [ERROR] Credenciales faltantes - TOKEN:", !!token, "PHONE_ID:", !!phoneId);
     return { success: false, error: "WhatsApp credentials missing" };
   }
 
   // Validar plantilla existe
   const config = TEMPLATE_CONFIG[templateName];
   if (!config) {
-    console.error("[WhatsApp] [ERROR] Plantilla no configurada:", templateName);
     return { success: false, error: `Plantilla '${templateName}' no existe` };
   }
 
@@ -148,8 +146,6 @@ export async function sendWhatsAppTemplate(
     },
   };
 
-  console.log("[WhatsApp] [SEND] Enviando:", templateName, "->", formattedPhone);
-
   try {
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: "POST",
@@ -163,19 +159,16 @@ export async function sendWhatsAppTemplate(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[WhatsApp] [ERROR] Error:", data.error?.message || response.status);
-      return { 
-        success: false, 
-        error: data.error?.message || `HTTP ${response.status}` 
+      return {
+        success: false,
+        error: data.error?.message || `HTTP ${response.status}`
       };
     }
 
     const messageId = data.messages?.[0]?.id;
-    console.log("[WhatsApp] [OK] Enviado:", messageId);
     return { success: true, messageId };
 
   } catch (error: any) {
-    console.error("[WhatsApp] [ERROR] Exception:", error.message);
     return { success: false, error: error.message };
   }
 }
@@ -205,7 +198,7 @@ export async function sendWhatsAppLogged(
       enviado_por: opts.enviadoPor || null,
     });
   } catch (e: any) {
-    console.error("[WhatsApp] [LOG] No se pudo escribir wa_log:", e?.message);
+    // Silently ignore wa_log write errors to avoid breaking the send operation
   }
   return result;
 }
@@ -236,7 +229,6 @@ export async function sendWhatsAppToMultiple(
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  console.log("[WhatsApp] [STATS] Batch:", results.sent, "enviados,", results.failed, "fallidos");
   return results;
 }
 

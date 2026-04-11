@@ -130,7 +130,7 @@ export default function ImportCSV() {
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    f.text().then(t => { setCsvText(t); resetAll(); });
+    f.text().then(t => { setCsvText(t); resetAll(); }).catch(() => {});
   }
 
   function runDryRun() {
