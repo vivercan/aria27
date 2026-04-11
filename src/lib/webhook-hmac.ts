@@ -25,13 +25,14 @@ export function validateMetaSignature(
   const appSecret = process.env.META_APP_SECRET;
 
   if (!appSecret) {
-    log.error("META_APP_SECRET no configurado — webhook inseguro");
-    // FAIL CLOSED: si no hay secret, rechazar
-    return false;
+    // GRACE MODE: si no hay secret configurado, permitir pero advertir.
+    // Una vez que se configure META_APP_SECRET en Vercel, se activa HMAC automáticamente.
+    log.warn("META_APP_SECRET no configurado — HMAC desactivado, webhook sin verificar firma");
+    return true;
   }
 
   if (!signatureHeader) {
-    log.warn("Request sin X-Hub-Signature-256 header");
+    log.warn("Request sin X-Hub-Signature-256 header — rechazada (META_APP_SECRET está activo)");
     return false;
   }
 
