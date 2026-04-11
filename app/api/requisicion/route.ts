@@ -4,7 +4,19 @@ import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
+import type { CotItemDetail } from "@/types/database";
 const log = logger("REQUISICION");
+
+interface Material {
+  id?: string;
+  name: string;
+  sku?: string;
+  unit: string;
+  qty: number;
+  comments?: string;
+  category?: string;
+  subcategory?: string;
+}
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
@@ -63,7 +75,11 @@ async function getUserByRole(role: string) {
     if (error) { log.error(`Error buscando rol ${role}:`, error?.message); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return data[0];
-  } catch (e: any) { log.error(`Excepcion buscando rol ${role}:`, e?.message); return null; }
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e));
+    log.error(`Excepcion buscando rol ${role}:`, error?.message);
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -135,7 +151,7 @@ export async function POST(request: NextRequest) {
 
     if (reqErr) throw reqErr;
 
-    const items = materiales.map((m: any) => ({
+    const items = materiales.map((m: Material) => ({
       requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
       quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
     }));
@@ -149,9 +165,9 @@ export async function POST(request: NextRequest) {
     const fechaReq = new Date(requiredDate).toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     const emailFooter = `<div style="background:#0a1628;padding:15px;text-align:center;border-top:1px solid #334155"><span style="color:#64748b;font-size:11px">ARIA27 ERP - CUAVANTE</span><br><span style="color:#475569;font-size:10px">${fechaGen}</span></div>`;
 
-    const materialesHtml = materiales.map((m: any) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
+    const materialesHtml = materiales.map((m: Material) => `<tr><td style="padding:10px;border:1px solid #e2e8f0">${m.name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${m.qty}</td><td style="padding:10px;border:1px solid #e2e8f0">${m.comments || "-"}</td></tr>`).join("");
     const tablaHtml = `<table style="width:100%;border-collapse:collapse;margin:20px 0"><thead><tr style="background:#1e3a5f;color:white"><th style="padding:12px;text-align:left">Material</th><th style="padding:12px">Unidad</th><th style="padding:12px">Cantidad</th><th style="padding:12px;text-align:left">Obs</th></tr></thead><tbody>${materialesHtml}</tbody></table>`;
-    const materialesResumen = materiales.map((m: any) => `${m.name} (${m.qty} ${m.unit})`).join(", ");
+    const materialesResumen = materiales.map((m: Material) => `${m.name} (${m.qty} ${m.unit})`).join(", ");
 
     const notificados: string[] = [];
 
@@ -166,7 +182,11 @@ export async function POST(request: NextRequest) {
       });
       logs.push(`Email creador OK: ${usuario.email}`);
       logger("REQUISICION").info(`[REQUISICION] Email creador OK: ${usuario.email}`);
-    } catch (e: any) { logs.push(`Email creador ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, e?.message); }
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      logs.push(`Email creador ERROR: ${error?.message}`);
+      logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, error?.message);
+    }
 
     if (creatorUser?.phone) {
       await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
@@ -183,7 +203,11 @@ export async function POST(request: NextRequest) {
         });
         logs.push(`Email compras OK: ${comprasUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
-      } catch (e: any) { logs.push(`Email compras ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, e?.message); }
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e : new Error(String(e));
+        logs.push(`Email compras ERROR: ${error?.message}`);
+        logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, error?.message);
+      }
 
       if (comprasUser.phone) {
         await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
@@ -204,7 +228,11 @@ export async function POST(request: NextRequest) {
         });
         logs.push(`Email dirección OK: ${direccionUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
-      } catch (e: any) { logs.push(`Email dirección ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, e?.message); }
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e : new Error(String(e));
+        logs.push(`Email dirección ERROR: ${error?.message}`);
+        logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, error?.message);
+      }
 
       if (direccionUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone, { origen: "req-creada-direccion", enviadoPor: usuario.email });
@@ -222,7 +250,11 @@ export async function POST(request: NextRequest) {
         });
         logs.push(`Email admin OK: ${adminUser.email}`);
         logger("REQUISICION").info(`[REQUISICION] Email admin OK: ${adminUser.email}`);
-      } catch (e: any) { logs.push(`Email admin ERROR: ${e?.message}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, e?.message); }
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e : new Error(String(e));
+        logs.push(`Email admin ERROR: ${error?.message}`);
+        logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, error?.message);
+      }
 
       if (adminUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone, { origen: "req-creada-admin", enviadoPor: usuario.email });
@@ -231,8 +263,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, folio, flujo, notificados, logs });
-  } catch (error: any) {
-    log.error(`ERROR:`, error);
-    return NextResponse.json({ error: error?.message, logs }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    log.error(`ERROR:`, err);
+    return NextResponse.json({ error: err?.message, logs }, { status: 500 });
   }
 }

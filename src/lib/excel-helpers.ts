@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ObraData {
   partidas: any[];
@@ -29,7 +30,7 @@ export interface ObraKPIs {
  */
 export async function authenticateRequest(
   req: NextRequest,
-  supabase: any
+  supabase: SupabaseClient
 ): Promise<string | null> {
   let userEmail: string | null = null;
 
@@ -66,7 +67,7 @@ export async function authenticateRequest(
  * Fetches all obra data in parallel from 7 tables
  */
 export async function fetchObraData(
-  supabase: any,
+  supabase: SupabaseClient,
   obra: string
 ): Promise<ObraData> {
   const [presPart, reqs, ocs, nomina, cobros, avances, bitacora] =
@@ -327,7 +328,7 @@ export async function generateExcelResponse(
     .toISOString()
     .slice(0, 10)}.xlsx`;
 
-  return new NextResponse(buf as any, {
+  return new NextResponse(Buffer.from(buf), {
     status: 200,
     headers: {
       "Content-Type":

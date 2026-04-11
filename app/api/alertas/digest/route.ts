@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
+import type { Alerta } from "@/types/database";
 
 const log = logger("ALERTAS-DIGEST");
 
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "alertas endpoint failed" }, { status: 500 });
     }
 
-    const alertas: any[] = data.alertas || [];
+    const alertas: Alerta[] = data.alertas || [];
     const urgentes = alertas.filter(a => a.tipo === "URGENTE");
     const atencion = alertas.filter(a => a.tipo === "ATENCION");
     const info = alertas.filter(a => a.tipo === "INFO");
@@ -63,14 +64,15 @@ export async function GET(req: NextRequest) {
 
     log.info("digest enviado", { to, id: sent?.id, urgentes: urgentes.length, atencion: atencion.length });
     return NextResponse.json({ ok: true, id: sent?.id, urgentes: urgentes.length, atencion: atencion.length, info: info.length });
-  } catch (e: any) {
-    log.error("exception", { error: e?.message });
-    return NextResponse.json({ error: e?.message || "error interno" }, { status: 500 });
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e));
+    log.error("exception", { error: error?.message });
+    return NextResponse.json({ error: error?.message || "error interno" }, { status: 500 });
   }
 }
 
-function buildHtml(urgentes: any[], atencion: any[], info: any[], base: string) {
-  const section = (titulo: string, color: string, items: any[]) => {
+function buildHtml(urgentes: Alerta[], atencion: Alerta[], info: Alerta[], base: string) {
+  const section = (titulo: string, color: string, items: Alerta[]) => {
     if (items.length === 0) return "";
     const rows = items.slice(0, 20).map(a => `
       <tr>

@@ -106,7 +106,7 @@ export async function sendWhatsAppTemplate(
   }
 
   // Construir componentes del mensaje
-  const components: any[] = [];
+  const components: Record<string, unknown>[] = [];
 
   // Body parameters
   if (params.length > 0) {
@@ -168,8 +168,8 @@ export async function sendWhatsAppTemplate(
     const messageId = data.messages?.[0]?.id;
     return { success: true, messageId };
 
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -197,7 +197,7 @@ export async function sendWhatsAppLogged(
       origen: opts.origen || null,
       enviado_por: opts.enviadoPor || null,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     // Silently ignore wa_log write errors to avoid breaking the send operation
   }
   return result;

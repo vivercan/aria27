@@ -4,8 +4,31 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/ra
 
 const AUTHORIZED_ROLES = ["admin", "rh", "compras", "almacen"];
 
+interface CheckAuthRequest {
+  user_email?: string;
+}
+
+interface IncompleteRecord {
+  id: string;
+  employee_id: string;
+  empleado: string;
+  numero: string;
+  fecha: string;
+  hora_entrada: string;
+  ubicacion: string;
+  tipo: "SIN_SALIDA";
+}
+
+interface EmployeeNoRecord {
+  employee_id: string;
+  empleado: string;
+  numero: string;
+  fecha: string;
+  tipo: "SIN_REGISTRO";
+}
+
 // AUTH helper
-async function checkAuth(req: NextRequest, body?: any): Promise<{ authorized: boolean; role?: string; error?: string }> {
+async function checkAuth(req: NextRequest, body?: CheckAuthRequest): Promise<{ authorized: boolean; role?: string; error?: string }> {
   const email = body?.user_email || req.nextUrl.searchParams.get("user_email");
   if (!email) return { authorized: false, error: "user_email requerido" };
 
@@ -100,7 +123,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 5. Detectar días sin registro por empleado
-    const sinRegistro: any[] = [];
+    const sinRegistro: EmployeeNoRecord[] = [];
     for (const emp of empleados || []) {
       const asistenciasEmp =
         todasAsistencias?.filter((a) => a.employee_id === emp.id) || [];
@@ -138,8 +161,9 @@ export async function GET(req: NextRequest) {
         total: (incompletas?.length || 0) + sinRegistro.length,
       },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err?.message }, { status: 500 });
   }
 }
 
@@ -183,8 +207,9 @@ export async function POST(req: NextRequest) {
       mensaje: "Salida registrada correctamente",
       asistencia: data,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err?.message }, { status: 500 });
   }
 }
 
@@ -249,8 +274,9 @@ export async function PUT(req: NextRequest) {
       mensaje: "Asistencia creada correctamente",
       asistencia: data,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err?.message }, { status: 500 });
   }
 }
 
@@ -283,7 +309,8 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, mensaje: "Asistencia eliminada" });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    return NextResponse.json({ error: err?.message }, { status: 500 });
   }
 }
