@@ -4,6 +4,8 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import { Presentation, Search, Plus, Eye, Copy, Loader2, DollarSign, Calendar, X, Save, Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -33,7 +35,7 @@ export default function PropuestasPage() {
   const [form, setForm] = useState<any>({ ...EMPTY });
   const [editId, setEditId] = useState<string | null>(null);
   const [obras, setObras] = useState<string[]>([]);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const { msg, flash, clear } = useFlashMessage();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); }, []);
@@ -49,10 +51,6 @@ export default function PropuestasPage() {
     setObras((data || []).map(o => o.nombre));
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
-  };
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -70,10 +68,10 @@ export default function PropuestasPage() {
 
     if (editId) {
       const { error } = await supabase.from("propuestas_licitacion").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Propuesta actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("propuestas_licitacion").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Propuesta creada"); setShowForm(false); cargar(); }
+      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); } else { flash("ok", "Guardado correctamente"); setShowForm(false); cargar(); }
     }
     setForm({ ...EMPTY });
     setGuardando(false);
@@ -88,7 +86,7 @@ export default function PropuestasPage() {
   const eliminar = async (id: string) => {
     setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
     const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
-    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Propuesta eliminada"); cargar(); }
+    if (error) flash("err", error?.message ?? "Error"); else { flash("ok", "Propuesta eliminada"); cargar(); }
   };
 
   const filtered = propuestas.filter(p =>
@@ -105,18 +103,17 @@ export default function PropuestasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "propuestas_licitacion", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+      flash("ok", "Eliminado correctamente");
+    } catch (e: any) {
+      flash("err", "Error: " + (e?.message || "desconocido"));
+    }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      {mensaje && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={msg} />
 
       <AriaBackButton href="/dashboard/plantillas" />
 

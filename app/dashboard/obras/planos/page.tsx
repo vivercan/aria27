@@ -6,6 +6,8 @@ import { uploadAndInsert, uploadAndUpdate, deleteRowAndBlob, buildPath } from "@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import {
   ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
   Search, FileText, Upload, Eye
@@ -51,6 +53,7 @@ export default function PlanosPage() {
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -109,7 +112,7 @@ export default function PlanosPage() {
           const { error } = await supabase.from("planos").insert({ ...basePayload, url: form.url || null });
           if (error) throw new Error(error.message);
         }
-        msg("success", "Plano registrado"); setShowForm(false); cargar();
+        flash("ok", "Plano registrado"); setShowForm(false); cargar();
       } else {
         const newPath = form.file ? buildPath({ module: "planos", scope: [form.obra_id, form.disciplina], file: form.file }) : undefined;
         await uploadAndUpdate({
@@ -119,10 +122,10 @@ export default function PlanosPage() {
           oldUrl: form.url || null,
           urlField: "url",
         });
-        msg("success", "Plano actualizado"); setShowForm(false); setEditId(null); cargar();
+        flash("ok", "Plano actualizado"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: any) {
-      msg("error", e?.message || "Error");
+      flash("err", "Error: " + (e?.message || "desconocido"));
     }
     setGuardando(false);
   };
@@ -141,8 +144,8 @@ export default function PlanosPage() {
   const confirmDelete = async () => {
     try {
       const r = await deleteRowAndBlob({ table: "planos", id: deleteModal.id, userEmail, bucket: "expedientes" });
-      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: any) { msg("error", e?.message || "Error"); }
+      flash(r.blobDeleted ? "ok" : "err", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { flash("err", "Error: " + (e?.message || "desconocido")); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 
@@ -161,6 +164,7 @@ export default function PlanosPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>

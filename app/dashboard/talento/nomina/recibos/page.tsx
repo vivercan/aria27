@@ -8,6 +8,8 @@ import {
   AlertTriangle, User, Building2, DollarSign,
   CreditCard, Banknote, Lock, Unlock, Loader2, ChevronLeft, ChevronRight, Calendar, Search
 } from "lucide-react";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface NominaRecord {
   id: string;
@@ -62,6 +64,7 @@ const fmtFecha = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es
 const fmtFechaCorta = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
 export default function RecibosNominaPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [nominas, setNominas] = useState<NominaRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refDate, setRefDate] = useState<Date>(new Date());
@@ -144,8 +147,8 @@ export default function RecibosNominaPage() {
                 .eq("anio", semanaInfo.anio)
                 .eq("status", "CONFIRMADA")
                 .select("id");
-              if (unlockErr) { setMensaje({ tipo: "error", texto: "No se pudo desbloquear: " + unlockErr.message }); return; }
-              if (!unlockRows || unlockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
+              if (unlockErr) { flash("err", "Error: " + unlockErr.message); setMensaje({ tipo: "error", texto: "No se pudo desbloquear: " + unlockErr.message }); return; }
+              if (!unlockRows || unlockRows.length === 0) { flash("err", "Error: La nómina ya no estaba CONFIRMADA"); setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
 
               await supabase.from("audit_log").insert({
                 tabla: "nomina_historico",
@@ -154,6 +157,7 @@ export default function RecibosNominaPage() {
                 usuario: localStorage.getItem("userEmail") || "unknown",
               });
 
+              flash("ok", "Nómina desbloqueada correctamente");
               setNominaStatus("GENERADA");
               setShowConfirmModal(false);
               setMotivoModificacion("");
@@ -188,9 +192,10 @@ export default function RecibosNominaPage() {
                 .eq("status", "GENERADA")
                 .select("id");
               setConfirmando(false);
-              if (lockErr) { setMensaje({ tipo: "error", texto: "No se pudo confirmar: " + lockErr.message }); return; }
-              if (!lockRows || lockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba GENERADA. Recarga." }); return; }
+              if (lockErr) { flash("err", "Error: " + lockErr.message); setMensaje({ tipo: "error", texto: "No se pudo confirmar: " + lockErr.message }); return; }
+              if (!lockRows || lockRows.length === 0) { flash("err", "Error: La nómina ya no estaba GENERADA"); setMensaje({ tipo: "error", texto: "La nómina ya no estaba GENERADA. Recarga." }); return; }
 
+              flash("ok", "Nómina confirmada correctamente");
               setNominaStatus("CONFIRMADA");
               setMensaje({ tipo: "success", texto: `Nómina CONFIRMADA exitosamente (${lockRows.length} recibos)` });
             }
@@ -436,6 +441,7 @@ export default function RecibosNominaPage() {
       `}</style>
 
       <div className="max-w-7xl mx-auto space-y-6 no-print">
+        <FlashBanner msg={msg} />
         <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">

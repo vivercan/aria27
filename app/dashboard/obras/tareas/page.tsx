@@ -5,6 +5,8 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import {
   ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
   ListChecks, CheckCircle2, Circle, Clock, AlertTriangle,
@@ -48,6 +50,7 @@ export default function TareasPage() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [obras, setObras] = useState<Obra[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: "", name: "" });
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -75,14 +78,9 @@ export default function TareasPage() {
       .from("tareas_obra")
       .select("*")
       .order("fecha_limite", { ascending: true });
-    
+
     if (data) setTareas(data);
     setLoading(false);
-  };
-
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
   };
 
   const validar = (): boolean => {
@@ -98,7 +96,7 @@ export default function TareasPage() {
   };
 
   const guardar = async () => {
-    if (!validar()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
+    if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
 
     const obra = obras.find(o => o.id === Number(form.obra_id));
@@ -117,13 +115,13 @@ export default function TareasPage() {
         payload.completed_at = new Date().toISOString();
       }
       const { error } = await supabase.from("tareas_obra").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
-      else { msg("success", "Tarea actualizada"); setShowForm(false); setEditId(null); cargarTareas(); }
+      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); }
+      else { flash("ok", "Tarea actualizada"); setShowForm(false); setEditId(null); cargarTareas(); }
     } else {
       payload.status = "pendiente";
       const { error } = await supabase.from("tareas_obra").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error al crear"); }
-      else { msg("success", "Tarea creada"); setShowForm(false); cargarTareas(); }
+      if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); }
+      else { flash("ok", "Tarea creada"); setShowForm(false); cargarTareas(); }
     }
     setGuardando(false);
   };
@@ -134,7 +132,8 @@ export default function TareasPage() {
       status: newStatus,
       completed_at: newStatus === "completada" ? new Date().toISOString() : null,
     }).eq("id", tarea.id);
-    if (error) { msg("error", error?.message ?? "Error"); return; }
+    if (error) { flash("err", "Error: " + (error?.message ?? "desconocido")); return; }
+    flash("ok", "Estado actualizado");
     cargarTareas();
   };
 
@@ -158,9 +157,9 @@ export default function TareasPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "tareas_obra", id: deleteModal.id, userEmail });
-      msg("success", "Tarea eliminada");
+      flash("ok", "Tarea eliminada");
     } catch (e: any) {
-      msg("error", e?.message || "Error al eliminar");
+      flash("err", "Error: " + (e?.message || "desconocido"));
     }
     setDeleteModal({ open: false, id: "", name: "" });
     cargarTareas();
@@ -203,6 +202,7 @@ export default function TareasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">

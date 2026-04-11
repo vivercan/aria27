@@ -6,6 +6,8 @@ import {
   ArrowLeft, Plus, Edit, Eye, Check, X, Download, Trash2,
   FileText, User, Calendar, DollarSign, AlertCircle
 } from "lucide-react";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface Empleado {
   id: string;
@@ -95,6 +97,7 @@ function calcularAguinaldoProporcional(
 }
 
 export default function FiniquitosPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [view, setView] = useState<"list" | "form" | "detail">("list");
   const [finiquitos, setFiniquitos] = useState<Finiquito[]>([]);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -267,10 +270,12 @@ export default function FiniquitosPage() {
     });
 
     if (error) {
+      flash("err", "Error: " + error.message);
       setFlashMsg({ type: "error", msg: "Error: " + error.message });
       return;
     }
 
+    flash("ok", `Finiquito ${marcarCalculado ? "calculado" : "guardado"} correctamente`);
     setFlashMsg({
       type: "success",
       msg: `Finiquito ${marcarCalculado ? "calculado" : "guardado como borrador"} exitosamente`,
@@ -335,10 +340,12 @@ export default function FiniquitosPage() {
     const { error } = await supabase.from("finiquitos").update(updates).eq("id", id);
 
     if (error) {
+      flash("err", "Error: " + error.message);
       setFlashMsg({ type: "error", msg: "Error: " + error.message });
       return;
     }
 
+    flash("ok", "Finiquito actualizado correctamente");
     setFlashMsg({ type: "success", msg: `Finiquito actualizado a ${nuevoStatus}` });
     setTimeout(() => {
       cargarDatos();
@@ -380,6 +387,8 @@ export default function FiniquitosPage() {
                 <p className="text-slate-400">Liquidación y terminación de empleados</p>
               </div>
             </div>
+
+            <FlashBanner msg={msg} />
 
             {/* Flash message */}
             {flashMsg && (

@@ -3,6 +3,8 @@ import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { uploadAndInsert, uploadAndUpdate, deleteRowAndBlob, buildPath } from "@/lib/storage";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -67,6 +69,7 @@ export default function PolizasPage() {
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     supabase.from("centros_trabajo").select("id,nombre").order("nombre").then(({ data }) => { if (data) setObras(data); });
@@ -124,11 +127,13 @@ export default function PolizasPage() {
         if (form.file) {
           const path = buildPath({ module: "polizas", scope: [form.obra_id, form.tipo], file: form.file });
           await uploadAndInsert({ bucket: "expedientes", path, file: form.file, table: "polizas_seguro", payload: basePayload, urlField: "documento_url" });
+          flash("ok", "Guardado correctamente");
         } else {
           const { error } = await supabase.from("polizas_seguro").insert({ ...basePayload, documento_url: form.documento_url || null });
           if (error) throw new Error(error.message);
+          flash("ok", "Guardado correctamente");
         }
-        msg("success", "Póliza registrada"); setShowForm(false); cargar();
+        setShowForm(false); cargar();
       } else {
         const newPath = form.file ? buildPath({ module: "polizas", scope: [form.obra_id, form.tipo], file: form.file }) : undefined;
         await uploadAndUpdate({
@@ -138,10 +143,10 @@ export default function PolizasPage() {
           oldUrl: form.documento_url || null,
           urlField: "documento_url",
         });
-        msg("success", "Póliza actualizada"); setShowForm(false); setEditId(null); cargar();
+        flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar();
       }
     } catch (e: any) {
-      msg("error", e?.message || "Error");
+      flash("err", "Error: " + (e?.message || "desconocido"));
     }
     setGuardando(false);
   };
@@ -163,8 +168,8 @@ export default function PolizasPage() {
   const confirmDelete = async () => {
     try {
       const r = await deleteRowAndBlob({ table: "polizas_seguro", id: deleteModal.id, userEmail, bucket: "expedientes", blobUrlField: "documento_url" });
-      msg(r.blobDeleted ? "success" : "error", r.blobDeleted ? "Eliminado" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
-    } catch (e: any) { msg("error", e?.message || "Error"); }
+      flash(r.blobDeleted ? "ok" : "err", r.blobDeleted ? "Eliminado correctamente" : `Fila borrada pero blob persiste: ${r.orphanPath || ""}`);
+    } catch (e: any) { flash("err", "Error: " + (e?.message || "desconocido")); }
     setDeleteModal({ open: false, id: "", name: "" }); cargar();
   };
 
@@ -184,6 +189,7 @@ export default function PolizasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>

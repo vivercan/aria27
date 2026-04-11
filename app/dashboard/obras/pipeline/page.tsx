@@ -7,6 +7,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Plus, Upload, Users, Edit2, Trash2, X, Save, Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface Obra {
   id: string;
@@ -49,6 +51,7 @@ export default function PipelinePage() {
   const [excelData, setExcelData] = useState<any[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -90,10 +93,10 @@ export default function PipelinePage() {
 
     if (editId) {
       const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Obra actualizada"); setShowForm(false); setEditId(null); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); flash("err", error?.message ?? "Error"); } else { msg("success", "Obra actualizada"); flash("ok", "Guardado correctamente"); setShowForm(false); setEditId(null); cargar(); }
     } else {
       const { error } = await supabase.from("centros_trabajo").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error"); } else { msg("success", "Obra creada"); setShowForm(false); cargar(); }
+      if (error) { msg("error", error?.message ?? "Error"); flash("err", error?.message ?? "Error"); } else { msg("success", "Obra creada"); flash("ok", "Guardado correctamente"); setShowForm(false); cargar(); }
     }
     setGuardando(false);
   };
@@ -111,8 +114,10 @@ export default function PipelinePage() {
         presupuesto: budget ? parseFloat(budget) : null, estado: "ACTIVA"
       });
       if (!error) ok++;
+      else flash("err", error?.message || "Error al crear obra");
     }
     msg("success", `${ok} obras creadas de ${lineas.length}`);
+    if (ok > 0) flash("ok", `${ok} obras creadas correctamente`);
     setGuardando(false);
     setShowForm(false);
     setGrupoTexto("");
@@ -135,8 +140,10 @@ export default function PipelinePage() {
       if (!payload.nombre) continue;
       const { error } = await supabase.from("centros_trabajo").insert(payload);
       if (!error) ok++;
+      else flash("err", error?.message || "Error al importar obra");
     }
     msg("success", `${ok} obras importadas de ${excelData.length}`);
+    if (ok > 0) flash("ok", `${ok} obras importadas correctamente`);
     setGuardando(false);
     setShowForm(false);
     setExcelData([]);
@@ -187,13 +194,17 @@ export default function PipelinePage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
-    } catch (e) { /* error handled */ }
+      flash("ok", "Eliminado correctamente");
+    } catch (e) {
+      flash("err", "Error: " + ((e as any)?.message || "desconocido"));
+    }
     setDeleteModal({open:false,id:"",name:""});
     cargar();
   };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -59,9 +61,8 @@ export default function SUAFinanzasPage() {
   const [pagoForm, setPagoForm] = useState({ monto: "", fecha: new Date().toISOString().slice(0, 10), banco: "", referencia: "" });
 
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   /* ── load ── */
   useEffect(() => { loadAll(); }, []);
@@ -206,11 +207,7 @@ export default function SUAFinanzasPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {msg && (
-        <div className={`fixed top-4 right-4 px-4 py-3 rounded-lg text-white z-50 ${msg.tipo === "ok" ? "bg-emerald-600" : "bg-red-600"}`}>
-          {msg.texto}
-        </div>
-      )}
+      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />
@@ -222,12 +219,6 @@ export default function SUAFinanzasPage() {
         </div>
       </div>
 
-      {/* Flash */}
-      {msg && (
-        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">

@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft, Plus, Search, Edit2, Save, X, Loader2,
@@ -50,10 +52,10 @@ export default function ClientesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [expedienteCli, setExpedienteCli] = useState<Cliente | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -76,10 +78,6 @@ export default function ClientesPage() {
     setLoading(false);
   };
 
-  const flash = (tipo: "ok" | "err", texto: string) => {
-    setMsg({ tipo, texto });
-    setTimeout(() => setMsg(null), 2800);
-  };
 
   const reset = () => { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(false); };
 
@@ -119,11 +117,11 @@ export default function ClientesPage() {
     if (editId) {
       const { error } = await supabase.from("clientes").update(payload).eq("id", editId);
       if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
-      flash("ok", "Cliente actualizado");
+      flash("ok", "Guardado correctamente");
     } else {
       const { error } = await supabase.from("clientes").insert(payload);
       if (error) { flash("err", "Error: " + error.message); setSaving(false); return; }
-      flash("ok", "Cliente creado");
+      flash("ok", "Guardado correctamente");
     }
     setSaving(false);
     reset();
@@ -137,8 +135,8 @@ export default function ClientesPage() {
       msg: `¿Marcar a "${c.nombre}" como ${nuevo}?`,
       onOk: async () => {
         const { error } = await supabase.from("clientes").update({ estatus: nuevo }).eq("id", c.id);
-        if (error) { flash("err", error.message); return; }
-        flash("ok", `Cliente → ${nuevo}`);
+        if (error) { flash("err", "Error: " + error.message); return; }
+        flash("ok", "Guardado correctamente");
         cargar();
       }
     });
@@ -165,6 +163,7 @@ export default function ClientesPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Dashboard

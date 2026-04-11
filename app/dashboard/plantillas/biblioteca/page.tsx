@@ -4,6 +4,8 @@ import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob } from "@/lib/storage";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import {
   ArrowLeft, Plus, Search, Edit2, Save, X, Loader2, Upload,
   FileText, Eye, Trash2, Power, Library, RefreshCw
@@ -61,7 +63,7 @@ export default function BibliotecaPlantillasPage() {
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  const { msg: flashMsg, flash: showFlash, clear } = useFlashMessage();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
@@ -77,20 +79,15 @@ export default function BibliotecaPlantillasPage() {
       .order("nombre");
     if (error) {
       if ((error as any).code === "42P01") {
-        flash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
+        showFlash("err", "Falta crear tabla plantillas_globales. Ver sql/clientes_plantillas.sql");
       } else {
-        flash("err", error.message);
+        showFlash("err", error.message);
       }
       setItems([]);
     } else if (data) {
       setItems(data as Plantilla[]);
     }
     setLoading(false);
-  };
-
-  const flash = (tipo: "ok" | "err", texto: string) => {
-    setMsg({ tipo, texto });
-    setTimeout(() => setMsg(null), 2800);
   };
 
   const validar = (): boolean => {
@@ -143,7 +140,7 @@ export default function BibliotecaPlantillasPage() {
         }
         const { error } = await supabase.from("plantillas_globales").update(payload).eq("id", editId);
         if (error) throw new Error(error.message);
-        flash("ok", "Plantilla actualizada");
+        showFlash("ok", "Guardado correctamente");
       } else {
         if (file) {
           // Crear con archivo
@@ -161,12 +158,12 @@ export default function BibliotecaPlantillasPage() {
           const { error } = await supabase.from("plantillas_globales").insert({ ...payload, activo: true });
           if (error) throw new Error(error.message);
         }
-        flash("ok", "Plantilla creada");
+        showFlash("ok", "Guardado correctamente");
       }
       reset();
       cargar();
     } catch (e: any) {
-      flash("err", "Error: " + e.message);
+      showFlash("err", "Error: " + (e?.message || "desconocido"));
     }
     setSaving(false);
   };
@@ -178,8 +175,8 @@ export default function BibliotecaPlantillasPage() {
       msg: `¿${nuevo ? "Reactivar" : "Dar de baja"} la plantilla "${p.nombre}"?`,
       onOk: async () => {
         const { error } = await supabase.from("plantillas_globales").update({ activo: nuevo }).eq("id", p.id);
-        if (error) { flash("err", error.message); return; }
-        flash("ok", `Plantilla → ${nuevo ? "ACTIVA" : "INACTIVA"}`);
+        if (error) { showFlash("err", "Error: " + (error?.message || "desconocido")); return; }
+        showFlash("ok", "Guardado correctamente");
         cargar();
       }
     });
@@ -203,10 +200,10 @@ export default function BibliotecaPlantillasPage() {
             const { error } = await supabase.from("plantillas_globales").delete().eq("id", p.id);
             if (error) throw new Error(error.message);
           }
-          flash("ok", "Plantilla eliminada");
+          showFlash("ok", "Eliminado correctamente");
           cargar();
         } catch (e: any) {
-          flash("err", "Error: " + e.message);
+          showFlash("err", "Error: " + (e?.message || "desconocido"));
         }
       }
     });
@@ -227,6 +224,7 @@ export default function BibliotecaPlantillasPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       <div className="flex-none p-6 pb-3 border-b border-white/10">
         <Link href="/dashboard/plantillas" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Plantillas
@@ -272,11 +270,6 @@ export default function BibliotecaPlantillasPage() {
         </div>
       </div>
 
-      {msg && (
-        <div className={`mx-6 mt-3 px-4 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
 
       {showForm && (
         <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">

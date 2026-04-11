@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 /* ────────── types ────────── */
 interface Fondo {
@@ -73,9 +75,7 @@ export default function CajaChicaPage() {
 
   const [saving, setSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
-
-  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   /* ── load ── */
   useEffect(() => { loadAll(); }, []);
@@ -277,6 +277,7 @@ export default function CajaChicaPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />
@@ -287,13 +288,6 @@ export default function CajaChicaPage() {
           <p className="text-sm text-slate-400 mt-0.5">Fondos revolventes · gastos · reposiciones · cortes</p>
         </div>
       </div>
-
-      {/* Flash */}
-      {msg && (
-        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">

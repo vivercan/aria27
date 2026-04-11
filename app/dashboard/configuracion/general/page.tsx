@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
 import Link from "next/link";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface Param { id: string; clave: string; valor: string; descripcion: string; updated_at: string; }
 interface UserInfo { id: string; name: string; email: string; role: string; phone: string; active: boolean; }
@@ -27,6 +29,7 @@ export default function ConfigGeneralPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [edited, setEdited] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     Promise.all([
@@ -50,10 +53,11 @@ export default function ConfigGeneralPage() {
     if (newVal === undefined || newVal === param.valor) return;
     setSaving(param.id);
     const { error } = await supabase.from("configuracion_nomina").update({ valor: newVal, updated_at: new Date().toISOString() }).eq("id", param.id);
-    if (error) {  setSaving(null); return; }
+    if (error) {  setSaving(null); flash("err", "Error: " + (error?.message || "desconocido")); return; }
     setParams(prev => prev.map(p => p.id === param.id ? { ...p, valor: newVal } : p));
     setEdited(prev => { const n = { ...prev }; delete n[param.id]; return n; });
     setSaving(null);
+    flash("ok", "Guardado correctamente");
     setMsg(`✅ ${param.clave} actualizado`);
     setTimeout(() => setMsg(null), 2000);
   };
@@ -63,14 +67,15 @@ export default function ConfigGeneralPage() {
     for (const param of params) {
       if (edited[param.id] !== undefined && edited[param.id] !== param.valor) {
         const { error } = await supabase.from("configuracion_nomina").update({ valor: edited[param.id], updated_at: new Date().toISOString() }).eq("id", param.id);
-        if (error) {  setSaving(null); return; }
+        if (error) {  setSaving(null); flash("err", "Error: " + (error?.message || "desconocido")); return; }
       }
     }
     const { data, error: selectError } = await supabase.from("configuracion_nomina").select("*").order("clave");
-    if (selectError) {  setSaving(null); return; }
+    if (selectError) {  setSaving(null); flash("err", "Error: " + (selectError?.message || "desconocido")); return; }
     setParams(data || []);
     setEdited({});
     setSaving(null);
+    flash("ok", "Guardado correctamente");
     setMsg("✅ Configuración guardada");
     setTimeout(() => setMsg(null), 2000);
   };
@@ -90,6 +95,7 @@ export default function ConfigGeneralPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <FlashBanner msg={flashMsg} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>

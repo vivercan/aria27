@@ -5,6 +5,8 @@ import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
@@ -27,6 +29,7 @@ const TIPO_MAP: Record<string, string> = {
 
 export default function NewRequisitionPage() {
   const router = useRouter();
+  const { msg, flash, clear } = useFlashMessage();
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [selectedCostCenterId, setSelectedCostCenterId] = useState<string | null>(null);
   const [requiredDate, setRequiredDate] = useState("");
@@ -169,10 +172,12 @@ export default function NewRequisitionPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      flash("ok", "Requisición " + data.folio + " generada correctamente");
       setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
       setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments("");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
+      flash("err", "Error: " + (err instanceof Error ? err?.message : "desconocido"));
       setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición.");
     } finally { setSending(false); }
   };
@@ -181,6 +186,7 @@ export default function NewRequisitionPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+      <FlashBanner msg={msg} />
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>

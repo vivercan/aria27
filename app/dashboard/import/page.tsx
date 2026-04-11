@@ -3,6 +3,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Upload, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 type Entity = "suppliers" | "products" | "employees" | "obras";
 
@@ -119,6 +121,7 @@ export default function ImportCSV() {
   const [dryRun, setDryRun] = useState<null | { valid: any[]; invalid: { row: number; err: string }[] }>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<null | { ok: number; fail: number; errors: string[] }>(null);
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   const def = DEFS[entity];
 
@@ -166,11 +169,13 @@ export default function ImportCSV() {
       if (error) {
         fail += chunk.length;
         errors.push(error.message);
+        flash("err", error.message);
       } else {
         ok += chunk.length;
       }
     }
     setResult({ ok, fail, errors: errors.slice(0, 5) });
+    if (ok > 0) flash("ok", `${ok} registros importados correctamente`);
     setImporting(false);
   }
 
@@ -186,6 +191,7 @@ export default function ImportCSV() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
+      <FlashBanner msg={flashMsg} />
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div>

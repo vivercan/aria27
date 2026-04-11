@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import {
   ArrowLeft, Building2, MapPin, FileText, Users, Loader2,
   Edit2, Save, X, Briefcase, FolderOpen
@@ -35,6 +37,7 @@ export default function EmpresaPage() {
   const [form, setForm] = useState<any>({});
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  const { msg: flashMsg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargar(); }, []);
 
@@ -82,8 +85,8 @@ export default function EmpresaPage() {
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     const { error } = await supabase.from("empresas").update(payload).eq("id", editEmpresa.id);
-    if (error) { msg("error", error?.message ?? "Error"); }
-    else { msg("success", "Empresa actualizada"); setEditEmpresa(null); cargar(); }
+    if (error) { flash("err", error?.message ?? "Error"); }
+    else { flash("ok", "Guardado correctamente"); setEditEmpresa(null); cargar(); }
     setGuardando(false);
   };
   const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-blue-500 focus:outline-none placeholder-slate-600";
@@ -92,6 +95,7 @@ export default function EmpresaPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={flashMsg} />
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">

@@ -7,6 +7,8 @@ import {
   Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface Empleado {
   id: string;
@@ -73,6 +75,7 @@ const EMPTY_FORM = {
 };
 
 export default function PersonalPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [centros, setCentros] = useState<CentroTrabajo[]>([]);
@@ -191,8 +194,10 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
+        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: "Error al crear: " + error?.message });
       } else {
+        flash("ok", "Empleado " + empNumber + " creado correctamente");
         setMensaje({ tipo: "success", texto: "Empleado " + empNumber + " creado correctamente" });
         setEditando(null);
         cargarDatos();
@@ -203,8 +208,10 @@ export default function PersonalPage() {
       setGuardando(false);
 
       if (error) {
+        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: "Error: " + error?.message });
       } else {
+        flash("ok", "Empleado actualizado correctamente");
         setMensaje({ tipo: "success", texto: "Empleado actualizado correctamente" });
         setEditando(null);
         cargarDatos();
@@ -251,6 +258,7 @@ export default function PersonalPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">

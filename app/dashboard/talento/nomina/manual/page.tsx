@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 
 interface Empleado {
   id: string;
@@ -55,6 +57,7 @@ function getWeekRange(date: Date): { inicio: string; fin: string; dias: string[]
 }
 
 export default function NominaManualPage() {
+  const { msg, flash, clear } = useFlashMessage();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const { userEmail, canDelete } = useDeletePermission();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
@@ -200,7 +203,7 @@ export default function NominaManualPage() {
   const guardarCambios = async () => {
     setGuardando(true);
     setMensaje(null);
-    
+
     try {
       for (const a of asistencias.filter(x => x.editando)) {
         if (a.nueva) {
@@ -227,13 +230,15 @@ export default function NominaManualPage() {
           if (error) throw error;
         }
       }
-      
+
+      flash("ok", "Cambios guardados correctamente");
       setMensaje({ tipo: "success", texto: "✅ Cambios guardados correctamente" });
       await cargarAsistencias();
     } catch (e: any) {
+      flash("err", "Error: " + (e?.message ?? "desconocido"));
       setMensaje({ tipo: "error", texto: e?.message ?? "Error" });
     }
-    
+
     setGuardando(false);
   };
 
@@ -268,10 +273,12 @@ export default function NominaManualPage() {
         pago_tarjeta: Math.min(calculo.neto, emp.minimo_tarjeta || 1096),
         pago_efectivo: Math.max(0, calculo.neto - (emp.minimo_tarjeta || 1096))
       }).eq("id", nominaExistente.id);
-      
+
       if (error) {
+        flash("err", "Error: " + (error?.message ?? "desconocido"));
         setMensaje({ tipo: "error", texto: error?.message ?? "Error" });
       } else {
+        flash("ok", "Nómina recalculada correctamente");
         setMensaje({ tipo: "success", texto: "✅ Nómina recalculada y actualizada" });
       }
     } else {
@@ -296,6 +303,7 @@ export default function NominaManualPage() {
 
   return (
     <div className="space-y-6">
+      <FlashBanner msg={msg} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
