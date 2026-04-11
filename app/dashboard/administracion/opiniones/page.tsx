@@ -112,7 +112,7 @@ export default function OpinionesPage() {
             blobUrlField: "url",
           });
           if (result.orphanPath) {
-            flash("warn", `Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
+            flash("err", `Registro eliminado pero el archivo "${result.orphanPath}" quedó huérfano en Storage. Reportar a soporte.`);
           } else {
             flash("ok", "Documento eliminado");
           }

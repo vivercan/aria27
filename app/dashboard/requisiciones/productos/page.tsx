@@ -138,7 +138,7 @@ export default function ProductosPage() {
       if(error)throw error;
       if(inserted&&newForm.supplierId){
         const { error: psErr } = await supabase.from("product_suppliers").insert({product_id:inserted.id,supplier_id:parseInt(newForm.supplierId)});
-        if (psErr) { flash("warn", "Producto creado, pero error al vincular proveedor: " + psErr.message); }
+        if (psErr) { flash("err", "Producto creado, pero error al vincular proveedor: " + psErr.message); }
       }
       setShowNewModal(false);setNewForm({sku:"",name:"",description:"",unit:"PIEZA",category:"",supplierId:""});
       loadProducts(currentPage);

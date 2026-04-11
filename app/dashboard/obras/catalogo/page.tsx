@@ -55,7 +55,6 @@ export default function CatalogoObrasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
@@ -68,11 +67,6 @@ export default function CatalogoObrasPage() {
       .order("created_at", { ascending: false });
     if (!error && data) setObras(data as Obra[]);
     setLoading(false);
-  };
-
-  const flash = (tipo: "ok" | "err", texto: string) => {
-    setMsg({ tipo, texto });
-    setTimeout(() => setMsg(null), 2500);
   };
 
   const resetForm = () => { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(false); setFormErrors({}); };
@@ -252,11 +246,6 @@ export default function CatalogoObrasPage() {
         </div>
       </div>
 
-      {msg && (
-        <div className={`mx-6 mt-3 px-4 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
 
       {showForm && (
         <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">

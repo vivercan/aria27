@@ -113,7 +113,7 @@ export default function OrdenesCompraPage() {
         if (!reRes.ok) {
           const errTxt = await reRes.text().catch(() => "");
           console.error("registrar-entrega fallo", reRes.status, errTxt);
-          flash("warn", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
+          flash("err", "Aviso: registrar entrega fallo (" + reRes.status + "). Detalle: " + errTxt.slice(0, 200));
         }
       } catch (e) { console.error("Error creando entrega:", e); flash("err", "Error red registrar-entrega: " + (e as any)?.message); }
     }

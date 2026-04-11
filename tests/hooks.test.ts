@@ -71,10 +71,10 @@ describe("useFlashMessage", () => {
     };
 
     msg("success", "Success!");
-    expect(message?.tipo).toBe("success");
+    expect((message as any)?.tipo).toBe("success");
 
     msg("error", "Error!");
-    expect(message?.tipo).toBe("error");
+    expect((message as any)?.tipo).toBe("error");
   });
 
   afterEach(() => {
