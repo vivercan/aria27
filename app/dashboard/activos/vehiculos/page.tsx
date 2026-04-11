@@ -10,7 +10,8 @@ import {
   Car, Key, Fuel, Search, MapPin, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
-import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import { useEntityForm } from "@/hooks/useEntityForm";
 
 interface Vehiculo {
@@ -53,7 +54,7 @@ export default function VehiculosPage() {
   const [expedienteVeh, setExpedienteVeh] = useState<Vehiculo|null>(null);
 
   // Shared hooks — replace manual modal/form/flash state
-  const { mensaje, msg } = useFlashMessage();
+  const { msg, flash, clear } = useFlashMessage();
   const { showModal: showForm, editId, form, saving: guardando, openNew, openEdit, closeModal, setForm, setSaving: setGuardando } = useEntityForm(EMPTY_FORM);
 
   useEffect(() => { cargar(); }, []);
@@ -104,12 +105,12 @@ export default function VehiculosPage() {
 
     if (editId) {
       const { error } = await supabase.from("activos").update(payload).eq("id", editId);
-      if (error) { msg("error", error?.message ?? "Error al actualizar"); }
-      else { msg("success", "Vehículo actualizado"); closeModal(); cargar(); }
+      if (error) { flash("err", error?.message ?? "Error al actualizar"); }
+      else { flash("ok", "Vehículo actualizado"); closeModal(); cargar(); }
     } else {
       const { error } = await supabase.from("activos").insert(payload);
-      if (error) { msg("error", error?.message ?? "Error al crear"); }
-      else { msg("success", "Vehículo registrado"); closeModal(); cargar(); }
+      if (error) { flash("err", error?.message ?? "Error al crear"); }
+      else { flash("ok", "Vehículo registrado"); closeModal(); cargar(); }
     }
     setGuardando(false);
   };
@@ -128,8 +129,8 @@ export default function VehiculosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
-      msg("success", "Vehículo eliminado");
-    } catch (e: any) { msg("error", e?.message || "Error"); }
+      flash("ok", "Vehículo eliminado");
+    } catch (e: any) { flash("err", e?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" });
     cargar();
   };
@@ -198,11 +199,7 @@ export default function VehiculosPage() {
         </div>
       </div>
 
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={msg} />
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">

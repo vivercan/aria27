@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { useFlashMessage, type FlashMessageType, type UseFlashMessageReturn } from "@/hooks/useFlashMessage";
+import { useFlashMessage, type FlashMsg } from "@/lib/use-flash-message";
 import { useEntityForm, type UseEntityFormReturn } from "@/hooks/useEntityForm";
 
 /**
@@ -7,40 +7,39 @@ import { useEntityForm, type UseEntityFormReturn } from "@/hooks/useEntityForm";
  * These tests verify pure logic without requiring @testing-library/react
  */
 
-describe("useFlashMessage", () => {
+describe("useFlashMessage (standard hook)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
 
-  it("msg() sets message with tipo and texto", () => {
-    // Simulate hook behavior with state tracking
-    let message: FlashMessageType | null = null;
+  it("flash() sets message with tipo and texto", () => {
+    let message: FlashMsg | null = null;
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
     };
 
-    msg("success", "Test message");
+    flash("ok", "Test message");
 
     expect(message).toEqual({
-      tipo: "success",
+      tipo: "ok",
       texto: "Test message",
     });
   });
 
-  it("msg() auto-clears message after 3 seconds", () => {
+  it("flash() auto-clears message after 3 seconds", () => {
     vi.useFakeTimers();
-    let message: FlashMessageType | null = null;
+    let message: FlashMsg | null = null;
     let timeoutId: NodeJS.Timeout | undefined;
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
       timeoutId = setTimeout(() => {
         message = null;
       }, 3000);
     };
 
-    msg("error", "Error occurred");
+    flash("err", "Error occurred");
     expect(message).not.toBeNull();
 
     vi.advanceTimersByTime(2999);
@@ -52,29 +51,29 @@ describe("useFlashMessage", () => {
     if (timeoutId) clearTimeout(timeoutId);
   });
 
-  it("clearMsg() immediately clears the message", () => {
-    let message: FlashMessageType | null = { tipo: "success", texto: "Test" };
+  it("clear() immediately clears the message", () => {
+    let message: FlashMsg | null = { tipo: "ok", texto: "Test" };
 
-    const clearMsg = () => {
+    const clear = () => {
       message = null;
     };
 
-    clearMsg();
+    clear();
     expect(message).toBeNull();
   });
 
-  it("supports both 'success' and 'error' tipos", () => {
-    let message: FlashMessageType | null = null;
+  it("supports both 'ok' and 'err' tipos", () => {
+    let message: FlashMsg | null = null;
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
     };
 
-    msg("success", "Success!");
-    expect((message as any)?.tipo).toBe("success");
+    flash("ok", "Success!");
+    expect((message as any)?.tipo).toBe("ok");
 
-    msg("error", "Error!");
-    expect((message as any)?.tipo).toBe("error");
+    flash("err", "Error!");
+    expect((message as any)?.tipo).toBe("err");
   });
 
   afterEach(() => {

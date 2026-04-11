@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
-import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { useFlashMessage } from "@/lib/use-flash-message";
+import FlashBanner from "@/components/FlashBanner";
 import { useEntityForm } from "@/hooks/useEntityForm";
 
 const EMPTY_ASIGNACION = { activo_id: "", empleado_id: "", notas: "" };
@@ -16,7 +17,7 @@ export default function AsignacionPage() {
   const [search, setSearch] = useState("");
 
   // Shared hooks — replace manual modal/form/flash state
-  const { mensaje, msg } = useFlashMessage();
+  const { msg, flash, clear } = useFlashMessage();
   const { showModal, form, saving, openNew, closeModal, setForm, setSaving } = useEntityForm(EMPTY_ASIGNACION);
 
   useEffect(() => { load(); }, []);
@@ -90,9 +91,9 @@ export default function AsignacionPage() {
       .eq("id", form.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
+    if (lockErr) { flash("err", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
     if (!lockRows || lockRows.length === 0) {
-      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
+      flash("err", "Este activo ya no está DISPONIBLE. Recarga.");
       setSaving(false); load(); return;
     }
 
@@ -107,12 +108,12 @@ export default function AsignacionPage() {
     if (error) {
       // Rollback
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
-      msg("error", "Error al crear asignación: " + error.message);
+      flash("err", "Error al crear asignación: " + error.message);
       setSaving(false);
       return;
     }
 
-    msg("success", "Activo asignado correctamente");
+    flash("ok", "Activo asignado correctamente");
     closeModal();
     load();
   };
@@ -124,14 +125,14 @@ export default function AsignacionPage() {
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) { msg("error", "Error al devolver: " + error.message); return; }
-    if (!rows || rows.length === 0) { msg("error", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
+    if (error) { flash("err", "Error al devolver: " + error.message); return; }
+    if (!rows || rows.length === 0) { flash("err", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
 
     // Liberar activo
     if (rows[0].activo_id) {
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", rows[0].activo_id);
     }
-    msg("success", "Activo devuelto correctamente");
+    flash("ok", "Activo devuelto correctamente");
     load();
   };
 
@@ -158,11 +159,7 @@ export default function AsignacionPage() {
         </button>
       </div>
 
-      {mensaje && (
-        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={msg} />
 
       <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10">
         <Search className="w-4 h-4 text-slate-400" />
