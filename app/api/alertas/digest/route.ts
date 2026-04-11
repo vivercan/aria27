@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Llamada interna al endpoint /api/alertas para reusar la lógica existente
-    const base = process.env.NEXT_PUBLIC_APP_URL || "https://aria.jjcrm27.com";
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
     const r = await fetch(`${base}/api/alertas`, {
       headers: { "x-user-email": to, "x-digest": "1" },
       cache: "no-store",
