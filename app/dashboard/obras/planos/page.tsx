@@ -149,7 +149,7 @@ export default function PlanosPage() {
   const getDisciplina = (d: string) => DISCIPLINA_OPTIONS.find(o => o.value === d);
   const totalPlanos = planos.length;
   const arquitectura = planos.filter(p => p.disciplina === "arquitectura").length;
-  const ultimaRecepcion = planos.length > 0 ? new Date(planos[0].fecha_recepcion).toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "â";
+  const ultimaRecepcion = planos.length > 0 ? new Date(planos[0].fecha_recepcion).toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—";
 
   const filtrados = planos.filter(p => {
     if (filtroObra && String(p.obra_id) !== filtroObra) return false;
