@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import BackButton from "@/components/BackButton";
+import AriaBackButton from "@/components/AriaBackButton";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
 
 const MODULES = [
@@ -121,7 +121,7 @@ export default function RolesAdminPage() {
         <ShieldAlert className="w-12 h-12 text-red-400" />
         <h2 className="text-xl font-bold text-white">Acceso restringido</h2>
         <p className="text-sm text-slate-400">Solo administradores pueden gestionar roles y permisos.</p>
-        <BackButton href="/dashboard" />
+        <AriaBackButton href="/dashboard" />
       </div>
     );
   }
@@ -130,7 +130,7 @@ export default function RolesAdminPage() {
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <BackButton href="/dashboard" />
+          <AriaBackButton href="/dashboard" />
           <div>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400" /> Roles y Permisos
