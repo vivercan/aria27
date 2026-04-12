@@ -20,8 +20,10 @@ export async function GET(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   const auth = req.headers.get("authorization") || "";
-  const expected = process.env.DIGEST_TOKEN || "";
-  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
+  const expected = process.env.DIGEST_TOKEN || process.env.CRON_SECRET || "";
+  const isVercelCron =
+    req.headers.get("x-vercel-cron") === "1" ||
+    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
   if (!isVercelCron && (!expected || auth !== `Bearer ${expected}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
