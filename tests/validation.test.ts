@@ -10,14 +10,14 @@ import { describe, it, expect } from "vitest";
 // ============================================
 
 /** Validates that a field is not empty or whitespace-only */
-function validateRequired(value: any): { valid: boolean; error?: string } {
+function validateRequired(value: unknown): { valid: boolean; error?: string } {
   const trimmed = String(value ?? "").trim();
   if (!trimmed) return { valid: false, error: "Campo requerido" };
   return { valid: true };
 }
 
 /** Validates that a number is greater than 0 */
-function validatePositive(value: any): { valid: boolean; error?: string } {
+function validatePositive(value: unknown): { valid: boolean; error?: string } {
   const num = Number(value);
   if (isNaN(num)) return { valid: false, error: "Debe ser un número" };
   if (num <= 0) return { valid: false, error: "Debe ser mayor a 0" };
@@ -25,7 +25,7 @@ function validatePositive(value: any): { valid: boolean; error?: string } {
 }
 
 /** Validates email format (basic RFC 5322) */
-function validateEmail(value: any): { valid: boolean; error?: string } {
+function validateEmail(value: unknown): { valid: boolean; error?: string } {
   const email = String(value ?? "").trim();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
@@ -39,7 +39,7 @@ function validateEmail(value: any): { valid: boolean; error?: string } {
  * Format: 3-4 letters + 6 digits + 3 alphanumeric
  * Example: ABC123456XYZ
  */
-function validateRFC(value: any): { valid: boolean; error?: string } {
+function validateRFC(value: unknown): { valid: boolean; error?: string } {
   const rfc = String(value ?? "").trim().toUpperCase();
   const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
   if (!rfcRegex.test(rfc)) {
@@ -53,7 +53,7 @@ function validateRFC(value: any): { valid: boolean; error?: string } {
  * All dates are ISO strings (YYYY-MM-DD)
  */
 function validateDateRange(
-  value: any,
+  value: unknown,
   startDate: string,
   endDate: string
 ): { valid: boolean; error?: string } {
@@ -82,10 +82,10 @@ function validateDateRange(
  * Composite validator: validates multiple rules for a single field
  */
 function validateField(
-  value: any,
+  value: unknown,
   rules: Array<{
     name: string;
-    validate: (v: any) => { valid: boolean; error?: string };
+    validate: (v: unknown) => { valid: boolean; error?: string };
   }>
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
