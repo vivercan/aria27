@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+himport { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -9,7 +9,7 @@ const log = logger("BACKUP-SNAPSHOT");
 // Backup completo diario — "cintas magnéticas" digitales.
 // Respalda TODAS las tablas públicas + TODOS los archivos de Storage.
 // Cada ejecución crea una carpeta con timestamp: backups/{fecha}/{...}
-// Protegido por BACKUP_TOKEN o x-vercel-cron header.
+// Protegido por BACKUP_TOKEN, CRON_SECRET, o detección de User-Agent vercel-cron.
 // ---------------------------------------------------------------------------
 
 const PAGE_SIZE = 1000; // Supabase PostgREST max por request
@@ -22,8 +22,10 @@ export async function GET(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   const auth = req.headers.get("authorization") || "";
-  const expected = process.env.BACKUP_TOKEN || "";
-  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
+  const expected = process.env.BACKUP_TOKEN || process.env.CRON_SECRET || "";
+  const isVercelCron =
+    req.headers.get("x-vercel-cron") === "1" ||
+    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
   if (!isVercelCron && (!expected || auth !== `Bearer ${expected}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
