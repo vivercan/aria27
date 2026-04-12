@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import BackButton from "@/components/BackButton";
+import AriaBackButton from "@/components/AriaBackButton";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -156,7 +156,7 @@ export default function AuditoriaPage() {
   if (!esAdmin && !loading && userEmail) {
     return (
       <div className="p-8 text-white">
-        <BackButton />
+        <AriaBackButton href="/dashboard/admin" />
         <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-6">
           <Shield className="w-8 h-8 text-red-400 mb-2" />
           <h2 className="text-lg font-bold">Acceso restringido</h2>
@@ -171,7 +171,7 @@ export default function AuditoriaPage() {
       <header className="sticky top-0 z-10 bg-slate-950/80 backdrop-blur border-b border-white/10 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BackButton />
+            <AriaBackButton href="/dashboard/admin" />
             <Database className="w-6 h-6 text-aria-accent" />
             <div>
               <h1 className="text-xl font-bold">Auditoría y Respaldos</h1>
