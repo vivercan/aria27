@@ -1,5 +1,5 @@
 "use client";
-import { Users, Clock, DollarSign, AlertCircle, FileText, BarChart3, UserCog, HandCoins, Gift, ClipboardList } from "lucide-react";
+import { Users, Clock, DollarSign, AlertCircle, FileText, BarChart3, UserCog, HandCoins, Gift, ClipboardList, FolderOpen } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -74,6 +74,14 @@ const subModules = [
     icon: BarChart3,
     gradient: "from-aria-accent to-aria-accent",
     active: true
+  },
+  {
+    title: "Mis Documentos",
+    description: "Archivos compartidos y privados por usuario.",
+    href: "/dashboard/talento/documentos",
+    icon: FolderOpen,
+    gradient: "from-sky-500 to-cyan-600",
+    active: true
   }
 ];
 
@@ -121,4 +129,3 @@ export default function TalentoPage() {
     </div>
   );
 }
-
