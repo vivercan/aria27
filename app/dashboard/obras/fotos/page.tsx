@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { uploadAndInsert, deleteRowAndBlob, buildPath } from '@/lib/storage';
+import { useDropZone } from '@/lib/use-drop-zone';
 import AriaBackButton from '@/components/AriaBackButton';
 import { clientLogger } from '@/lib/client-logger';
 const log = clientLogger('FOTOS');
@@ -17,6 +18,7 @@ import {
   Image,
   Building2,
   FolderUp,
+  Inbox,
 } from 'lucide-react';
 
 interface Obra {
@@ -114,6 +116,43 @@ export default function FotosPage() {
   const handleFolderClick = useCallback(() => {
     folderInputRef.current?.click();
   }, []);
+
+
+  /** Shared upload logic for both input and drag & drop */
+  const uploadFiles = useCallback(
+    async (files: File[]) => {
+      if (!files.length || !selectedObraId) return;
+      try {
+        setUploading(true);
+        setError(null);
+        const carpetaId = `obras:fotos:${selectedObraId}`;
+        const uploadPromises = files.map((file) => {
+          const path = buildPath({ module: 'obras-fotos', scope: [selectedObraId], file });
+          return uploadAndInsert({
+            file, bucket: 'expedientes', path,
+            table: 'expedientes_archivos',
+            payload: { carpeta_id: carpetaId, nombre: file.name, tipo: 'foto' },
+          });
+        });
+        await Promise.all(uploadPromises);
+        const { data, error: err } = await supabase
+          .from('expedientes_archivos')
+          .select('id, carpeta_id, nombre, url, tipo, created_at')
+          .eq('carpeta_id', carpetaId)
+          .order('created_at', { ascending: false });
+        if (err) throw err;
+        setPhotos(data || []);
+      } catch (err: unknown) {
+        log.error('Error uploading photos', { error: err });
+        setError('Failed to upload photos. Please try again.');
+      } finally {
+        setUploading(false);
+      }
+    },
+    [selectedObraId]
+  );
+
+  const { dragging, dropHandlers } = useDropZone(uploadFiles);
 
   const handleFileSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,14 +286,21 @@ export default function FotosPage() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-slate-950 text-white">
+    <div className={`h-full flex flex-col bg-slate-950 text-white relative ${dragging ? "ring-2 ring-inset ring-emerald-400/60" : ""}`} {...dropHandlers}>
+      {/* Drag & drop overlay */}
+      {dragging && (
+        <div className="absolute inset-0 z-30 bg-emerald-500/10 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+          <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
+          <p className="text-emerald-300 text-sm font-medium">Suelta fotos o carpetas aqu\u00ed</p>
+        </div>
+      )}
       {/* Header */}
       <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/obras" />
             <Camera className="h-5 w-5 text-aria-accent" />
-            <h1 className="text-xl font-semibold">Galería de Fotos</h1>
+            <h1 className="text-xl font-semibold">GalerÃ­a de Fotos</h1>
           </div>
 
           {selectedObraId && (
@@ -371,7 +417,7 @@ export default function FotosPage() {
                 <Image className="h-12 w-12 mx-auto text-white/30 mb-4" />
                 <h2 className="text-lg font-semibold text-white/70 mb-2">Sin fotos</h2>
                 <p className="text-sm text-white/50 mb-4">
-                  Esta obra aún no tiene fotos. Sube algunas para comenzar.
+                  Esta obra aÃºn no tiene fotos. Sube algunas para comenzar.
                 </p>
                 <button
                   onClick={handleUploadClick}
