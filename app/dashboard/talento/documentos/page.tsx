@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { buildPath } from "@/lib/storage";
 import { clientLogger } from "@/lib/client-logger";
 import {
-  ArrowLeft, Folder, FolderLock, FolderOpen, Upload, Download,
+  ArrowLeft, Folder, FolderLock, FolderOpen, Upload, Download, FolderUp,
   Loader2, File as FileIcon, Image, FileText, Trash2, Check,
   CheckSquare, Square, ChevronRight, X, Eye, Lock, Globe
 } from "lucide-react";
@@ -77,6 +77,7 @@ export default function MisDocumentosPage() {
   const [pinUnlocked, setPinUnlocked] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
 
   /* —— auto-detectar usuario actual via localStorage (patrón ARIA) —— */
   useEffect(() => {
@@ -403,11 +404,29 @@ export default function MisDocumentosPage() {
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary/80 text-white text-sm font-medium transition-colors disabled:opacity-50"
             >
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              Subir archivos
+              Archivos
+            </button>
+            <button
+              onClick={() => folderInputRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FolderUp className="w-4 h-4" />}
+              Carpeta
             </button>
             <input
               ref={fileInputRef}
               type="file"
+              multiple
+              className="hidden"
+              onChange={handleUpload}
+            />
+            {/* @ts-expect-error webkitdirectory is non-standard but widely supported */}
+            <input
+              ref={folderInputRef}
+              type="file"
+              webkitdirectory=""
+              directory=""
               multiple
               className="hidden"
               onChange={handleUpload}
