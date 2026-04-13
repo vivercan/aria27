@@ -9,15 +9,15 @@ import { FolderOpen, Upload, FolderUp, Loader2, File as FileIcon, Eye, Trash2, R
  * <EntityFolder/>
  *
  * Componente reusable para administrar el expediente documental de cualquier entidad
- * (empleado, proveedor, activo, vehÃ­culo, obra, empresa, cliente, plantilla).
+ * (empleado, proveedor, activo, vehÃÂ­culo, obra, empresa, cliente, plantilla).
  *
  * Persiste en la tabla `entity_documents` (ver SQL en
  * D:\aria27\ARIA27v2\sql\entity_documents.sql) y guarda los blobs en el bucket
- * 'expedientes' bajo la convenciÃ³n `entity_documents/{entity_type}/{entity_id}/...`.
+ * 'expedientes' bajo la convenciÃÂ³n `entity_documents/{entity_type}/{entity_id}/...`.
  *
  * Operaciones soportadas:
  *  - Listar archivos del expediente
- *  - Subir archivo(s) nuevo(s) (upload + insert atÃ³mico vÃ­a storage helper)
+ *  - Subir archivo(s) nuevo(s) (upload + insert atÃÂ³mico vÃÂ­a storage helper)
  *  - Subir carpeta completa con subcarpetas (webkitdirectory)
  *  - Reemplazar (sube uno nuevo y borra el viejo)
  *  - Eliminar (con respaldo en deleted_records y borrado del blob)
@@ -33,7 +33,7 @@ export interface EntityFolderProps {
   accept?: string;
   /** title visible. Default: "Expediente documental" */
   title?: string;
-  /** className opcional para el contenedor raÃ­z */
+  /** className opcional para el contenedor raÃÂ­z */
   className?: string;
 }
 
@@ -66,10 +66,10 @@ export const ENTITY_DOC_CATEGORIES_FALLBACK = [
   "INE",
   "Comprobante domicilio",
   "Contrato",
-  "OpiniÃ³n 32D",
+  "OpiniÃÂ³n 32D",
   "Constancia fiscal",
   "Factura",
-  "PÃ³liza",
+  "PÃÂ³liza",
   "Foto",
   "Otro",
 ] as const;
@@ -149,7 +149,7 @@ export default function EntityFolder({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityType, entityId, pendingCat, userEmail]);
 
-  const { dragging, dropHandlers } = useDropZone(processDroppedFiles);
+  const { dragging, progress: dropProgress, dropHandlers } = useDropZone(processDroppedFiles);
 
   useEffect(() => {
     supabase
@@ -181,7 +181,7 @@ export default function EntityFolder({
       .eq("entity_id", entityId)
       .order("created_at", { ascending: false });
     if (error) {
-      // Si la tabla no existe todavÃ­a, mostrar mensaje claro
+      // Si la tabla no existe todavÃÂ­a, mostrar mensaje claro
       if ((error as {message?: string})?.message?.includes("relation") || (error as {code?: string})?.code === "42P01") {
         flash("err", "Falta crear tabla entity_documents. Ver sql/entity_documents.sql");
         setDocs([]);
@@ -244,7 +244,7 @@ export default function EntityFolder({
     let fail = 0;
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
-      // Extract subfolder from webkitRelativePath: "folder/sub/file.pdf" â "folder/sub"
+      // Extract subfolder from webkitRelativePath: "folder/sub/file.pdf" Ã¢ÂÂ "folder/sub"
       const relPath = file.webkitRelativePath;
       let subfolderPrefix = "";
       if (relPath) {
@@ -285,7 +285,7 @@ export default function EntityFolder({
   };
 
   const eliminar = async (d: DocRow) => {
-    if (!confirm(`Â¿Eliminar "${d.nombre}" del expediente? Esta acciÃ³n registra respaldo en deleted_records.`)) return;
+    if (!confirm(`ÃÂ¿Eliminar "${d.nombre}" del expediente? Esta acciÃÂ³n registra respaldo en deleted_records.`)) return;
     setBusy("delete-" + d.id);
     try {
       await deleteRowAndBlob({
@@ -367,6 +367,20 @@ export default function EntityFolder({
           <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas autom\u00e1ticamente</p>
         </div>
       )}
+      {/* Scanning/uploading progress overlay */}
+      {dropProgress && (
+        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
+          <p className="text-emerald-300 text-sm font-medium">
+            {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
+          </p>
+          {dropProgress.total > 0 && (
+            <p className="text-emerald-400/60 text-xs mt-1">
+              {dropProgress.current} / {dropProgress.total} archivos
+            </p>
+          )}
+        </div>
+      )}
       <input
         ref={fileRef}
         type="file"
@@ -403,7 +417,7 @@ export default function EntityFolder({
           <div>
             <h3 className="text-sm font-semibold text-white">{title}</h3>
             <p className="text-xs text-slate-500">
-              {entityType}{entityName ? ` Â· ${entityName}` : ""} Â· {docs.length} archivo{docs.length !== 1 ? "s" : ""}
+              {entityType}{entityName ? ` ÃÂ· ${entityName}` : ""} ÃÂ· {docs.length} archivo{docs.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -411,7 +425,7 @@ export default function EntityFolder({
           <select
             value={pendingCat}
             onChange={e => setPendingCat(e.target.value as EntityDocCategory)}
-            title="CategorÃ­a del prÃ³ximo archivo a subir"
+            title="CategorÃÂ­a del prÃÂ³ximo archivo a subir"
             className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs"
           >
             {categorias.map(c => <option key={c} value={c}>{c}</option>)}
@@ -486,7 +500,7 @@ export default function EntityFolder({
           onChange={e => setFilterCat(e.target.value)}
           className="px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-[11px]"
         >
-          <option value="">Todas las categorÃ­as</option>
+          <option value="">Todas las categorÃÂ­as</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
@@ -508,8 +522,8 @@ export default function EntityFolder({
                   </div>
                   <p className="text-[11px] text-slate-500">
                     {new Date(d.created_at).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
-                    {d.size_bytes ? ` Â· ${fmtSize(d.size_bytes)}` : ""}
-                    {d.uploaded_by ? ` Â· ${d.uploaded_by}` : ""}
+                    {d.size_bytes ? ` ÃÂ· ${fmtSize(d.size_bytes)}` : ""}
+                    {d.uploaded_by ? ` ÃÂ· ${d.uploaded_by}` : ""}
                   </p>
                 </div>
                 <a
@@ -547,8 +561,8 @@ export default function EntityFolder({
 }
 
 /**
- * <EntityFolderDrawer/> â wrapper que abre EntityFolder dentro de un drawer modal.
- * Ãtil para integrarlo desde cualquier listado sin alterar la pÃ¡gina entera.
+ * <EntityFolderDrawer/> Ã¢ÂÂ wrapper que abre EntityFolder dentro de un drawer modal.
+ * ÃÂtil para integrarlo desde cualquier listado sin alterar la pÃÂ¡gina entera.
  */
 export function EntityFolderDrawer(props: EntityFolderProps & { open: boolean; onClose: () => void }) {
   const { open, onClose, ...rest } = props;
@@ -557,7 +571,7 @@ export function EntityFolderDrawer(props: EntityFolderProps & { open: boolean; o
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" onClick={onClose}>
       <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h2 className="text-lg font-bold text-white">Expediente â {rest.entityName || rest.entityId}</h2>
+          <h2 className="text-lg font-bold text-white">Expediente Ã¢ÂÂ {rest.entityName || rest.entityId}</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded text-slate-400">
             <X className="w-5 h-5" />
           </button>
