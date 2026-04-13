@@ -68,7 +68,7 @@ interface Archivo {
 
 function formatBytes(bytes?: number | null): string {
   const log = clientLogger("EXPEDIENTES");
-  if (!bytes || bytes <= 0) return "â";
+  if (!bytes || bytes <= 0) return "Ã¢ÂÂ";
   const units = ["B", "KB", "MB", "GB"];
   let i = 0;
   let n = bytes;
@@ -86,7 +86,7 @@ interface Tarea {
   status: string;
 }
 
-const AÃOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
+const AÃÂOS_FIJOS = [2026, 2025, 2024, 2023, 2022, 2021];
 
 export default function ExpedientesPage() {
   const log = clientLogger("EXPEDIENTES");
@@ -119,7 +119,7 @@ export default function ExpedientesPage() {
 
   const [carpetasPorAnio, setCarpetasPorAnio] = useState<Record<number, number>>({});
 
-  // EXP-006 FIX: bandera para prevenir doble-clic en creaciÃ³n de carpetas
+  // EXP-006 FIX: bandera para prevenir doble-clic en creaciÃÂ³n de carpetas
   const [creandoCarpeta, setCreandoCarpeta] = useState(false);
 
   // Modales
@@ -175,7 +175,7 @@ export default function ExpedientesPage() {
     }
   }, [carpetaAnioSeleccionada]);
 
-  // Polling: mientras haya archivos en anÃ¡lisis, refrescar cada 5s
+  // Polling: mientras haya archivos en anÃÂ¡lisis, refrescar cada 5s
   useEffect(() => {
     if (!carpetaAnioSeleccionada) return;
     const enAnalisis = archivos.filter(a => !a.resumen && !a.analizado_at);
@@ -186,7 +186,7 @@ export default function ExpedientesPage() {
     return () => clearInterval(t);
   }, [archivos, carpetaAnioSeleccionada]);
 
-  // Polling: archivos sueltos del aÃ±o en anÃ¡lisis
+  // Polling: archivos sueltos del aÃÂ±o en anÃÂ¡lisis
   useEffect(() => {
     if (!anioSeleccionado || anioSeleccionado === "SIN_ANIO" || carpetaAnioSeleccionada) return;
     const enAnalisis = archivosAnio.filter(a => !a.resumen && !a.analizado_at);
@@ -228,7 +228,7 @@ export default function ExpedientesPage() {
   };
 
   const irANivel = (idx: number) => {
-    // idx = -1 â raÃ­z (aÃ±o); 0..n-1 â nodos en ruta
+    // idx = -1 Ã¢ÂÂ" raÃÂ­z (aÃÂ±o); 0..n-1 Ã¢ÂÂ nodos en ruta
     if (idx < 0) {
       setCarpetaAnioSeleccionada(null);
       return;
@@ -359,7 +359,7 @@ export default function ExpedientesPage() {
     for (const a of targets) {
       await descargarArchivoForzado(a);
     }
-    // 2. Borrar rows (el archivo fÃ­sico permanece en Storage como respaldo + audit trigger captura JSON)
+    // 2. Borrar rows (el archivo fÃÂ­sico permanece en Storage como respaldo + audit trigger captura JSON)
     const ids = targets.map(a => a.id);
     const { error } = await supabase.from("expedientes_archivos").delete().in("id", ids);
     if (error) {
@@ -384,10 +384,10 @@ export default function ExpedientesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-email": email },
         body: JSON.stringify({ archivoId }),
-      }).catch((err) => log.error("Error fetch anÃ¡lisis:", { data: err }));
+      }).catch((err) => log.error("Error fetch anÃÂ¡lisis:", { data: err }));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);
     } catch (e: unknown) {
-      log.error("Error al disparar anÃ¡lisis:", { data: e });
+      log.error("Error al disparar anÃÂ¡lisis:", { data: e });
     }
   };
 
@@ -416,7 +416,7 @@ export default function ExpedientesPage() {
         urlField: "url",
       });
       await loadArchivos(carpetaAnioSeleccionada.id);
-      // Disparar anÃ¡lisis IA (fire-and-forget)
+      // Disparar anÃÂ¡lisis IA (fire-and-forget)
       const { data: nuevoRow } = await supabase
         .from("expedientes_archivos")
         .select("id")
@@ -442,11 +442,11 @@ export default function ExpedientesPage() {
       .is("parent_carpeta_id", null)
       .order("orden");
     if (error) {
-      log.error("Error loading carpetas aÃ±o:", (error as {message?: string})?.message || "Error desconocido");
+      log.error("Error loading carpetas aÃÂ±o:", (error as {message?: string})?.message || "Error desconocido");
       return;
     }
     setCarpetasAnio((data || []).filter(c => !c.nombre.startsWith("__root__")));
-    // Cargar archivos sueltos del aÃ±o
+    // Cargar archivos sueltos del aÃÂ±o
     const rootCarpeta = (data || []).find(c => c.nombre.startsWith("__root__"));
     if (rootCarpeta) {
       const { data: arcs } = await supabase.from("expedientes_archivos").select("*").eq("carpeta_id", rootCarpeta.id).order("created_at", { ascending: false });
@@ -480,7 +480,7 @@ export default function ExpedientesPage() {
     const fileArr = Array.from(e.target.files);
     const anio = anioSeleccionado as number;
     const rootId = await getOrCreateRootCarpeta(anio);
-    if (!rootId) { flash("err", "Error al preparar carpeta raÃ­z"); return; }
+    if (!rootId) { flash("err", "Error al preparar carpeta raÃÂ­z"); return; }
     for (const file of fileArr) {
     const path = buildPath({ module: "expedientes", scope: ["anio", String(anio), "sueltos"], file });
     try {
@@ -525,7 +525,7 @@ export default function ExpedientesPage() {
         orden: carpetasAnio.length,
       });
       if (error) {
-        flash("err", "Error al crear carpeta del aÃ±o: " + (error as {message?: string})?.message || "Error desconocido");
+        flash("err", "Error al crear carpeta del aÃÂ±o: " + (error as {message?: string})?.message || "Error desconocido");
         return;
       }
       setNuevaCarpetaAnioNombre("");
@@ -662,7 +662,7 @@ export default function ExpedientesPage() {
   };
 
   const eliminarCarpeta = async (id: string) => {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
+    setDeleteModal({ open: true, id, name: "" }); return; // Protected by DeleteModal
     const { error } = await supabase.from("expedientes_carpetas").delete().eq("id", id);
 
     if (error) {
@@ -726,7 +726,7 @@ export default function ExpedientesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carpetaAnioSeleccionada, anioSeleccionado, obraSeleccionada, carpetaSeleccionada]);
 
-  const { dragging: dropActive, dropHandlers } = useDropZone(handleDroppedFiles);
+  const { dragging: dropActive, progress: dropProgress, dropHandlers } = useDropZone(handleDroppedFiles);
 
   const getPrioridadColor = (prioridad: string) => {
     switch (prioridad) {
@@ -745,7 +745,7 @@ export default function ExpedientesPage() {
     if (obraSeleccionada) loadCarpetas(obraSeleccionada.id);
   };
 
-  /** Drop zone wrapper — wraps any view return to enable drag & drop */
+  /** Drop zone wrapper â wraps any view return to enable drag & drop */
   const canDrop = !!(carpetaAnioSeleccionada || (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") || (carpetaSeleccionada && obraSeleccionada));
   const DropWrap = ({ children }: { children: React.ReactNode }) => (
     <div className={`relative ${canDrop && dropActive ? "ring-2 ring-emerald-400/60 rounded-xl" : ""}`} {...(canDrop ? dropHandlers : {})}>
@@ -754,6 +754,19 @@ export default function ExpedientesPage() {
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
           <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
           <p className="text-emerald-400/60 text-xs mt-1">Se suben autom\u00e1ticamente</p>
+        </div>
+      )}
+      {canDrop && dropProgress && (
+        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
+          <p className="text-emerald-300 text-sm font-medium">
+            {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
+          </p>
+          {dropProgress.total > 0 && (
+            <p className="text-emerald-400/60 text-xs mt-1">
+              {dropProgress.current} / {dropProgress.total} archivos
+            </p>
+          )}
         </div>
       )}
       {children}
@@ -768,7 +781,7 @@ export default function ExpedientesPage() {
     );
   }
 
-  // Vista 0: Carpetas de AÃ±o (nivel superior)
+  // Vista 0: Carpetas de AÃÂ±o (nivel superior)
   if (!anioSeleccionado) {
     const countPorAnio = (anio: number | "SIN_ANIO") => {
       if (anio === "SIN_ANIO") return obras.filter(o => !o.anio).length;
@@ -782,12 +795,12 @@ export default function ExpedientesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona un aÃ±o para ver las obras de ese periodo</p>
+            <p className="text-slate-400 text-sm">Selecciona un aÃÂ±o para ver las obras de ese periodo</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {AÃOS_FIJOS.map((anio) => {
+          {AÃÂOS_FIJOS.map((anio) => {
             const count = countPorAnio(anio);
             const carpCount = carpetasPorAnio[anio] || 0;
             return (
@@ -805,7 +818,7 @@ export default function ExpedientesPage() {
                       {anio}
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {carpCount > 0 && <span className="text-amber-400/80">{carpCount} carpeta{carpCount !== 1 ? "s" : ""} Â· </span>}
+                      {carpCount > 0 && <span className="text-amber-400/80">{carpCount} carpeta{carpCount !== 1 ? "s" : ""} ÃÂ· </span>}
                       {count} {count === 1 ? "obra" : "obras"}
                     </p>
                   </div>
@@ -823,19 +836,19 @@ export default function ExpedientesPage() {
                   <FolderOpen className="w-8 h-8 text-slate-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-white text-xl">Sin aÃ±o</h3>
+                  <h3 className="font-bold text-white text-xl">Sin aÃÂ±o</h3>
                   <p className="text-xs text-slate-400 mt-0.5">{countPorAnio("SIN_ANIO")} obras</p>
                 </div>
               </div>
             </button>
           )}
         </div>
-        <p className="text-xs text-slate-500 italic">Tip: Para que una obra aparezca en su aÃ±o, asigna su fecha de inicio desde Obras â Pipeline.</p>
+        <p className="text-xs text-slate-500 italic">Tip: Para que una obra aparezca en su aÃÂ±o, asigna su fecha de inicio desde Obras Ã¢ÂÂ Pipeline.</p>
       </div>
     );
   }
 
-  // Vista 1.5: Carpeta libre del aÃ±o abierta (subcarpetas + archivos)
+  // Vista 1.5: Carpeta libre del aÃÂ±o abierta (subcarpetas + archivos)
   if (!obraSeleccionada && carpetaAnioSeleccionada) {
     const todosSeleccionados = archivos.length > 0 && archivosSeleccionados.size === archivos.length;
     return (
@@ -845,8 +858,8 @@ export default function ExpedientesPage() {
             <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
               <p className="text-slate-300 text-sm mb-4">
-                Â¿Eliminar <span className="text-amber-300 font-semibold">"{deleteCarpetaModal.nombre}"</span> y todo su contenido?
-                Los registros quedarÃ¡n respaldados en auditorÃ­a.
+                ÃÂ¿Eliminar <span className="text-amber-300 font-semibold">"{deleteCarpetaModal.nombre}"</span> y todo su contenido?
+                Los registros quedarÃÂ¡n respaldados en auditorÃÂ­a.
               </p>
               <div className="flex gap-3 justify-end">
                 <button
@@ -869,12 +882,12 @@ export default function ExpedientesPage() {
                 Eliminar {deleteArchivoModal.archivos.length === 1 ? "archivo" : `${deleteArchivoModal.archivos.length} archivos`}
               </h3>
               <p className="text-slate-300 text-sm mb-3">
-                Esta acciÃ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
-                Se descargarÃ¡ una copia a tu equipo antes de eliminar.
+                Esta acciÃÂ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
+                Se descargarÃÂ¡ una copia a tu equipo antes de eliminar.
               </p>
               <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
                 {deleteArchivoModal.archivos.map(a => (
-                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">â¢ {a.nombre}</div>
+                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
                 ))}
               </div>
               <div className="flex gap-3 justify-end">
@@ -898,7 +911,7 @@ export default function ExpedientesPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-white truncate max-w-full">{carpetaAnioSeleccionada.nombre}</h1>
             <div className="text-slate-400 text-xs flex flex-wrap items-center gap-1 mt-0.5">
-              <button onClick={() => irANivel(-1)} className="hover:text-amber-300 transition">AÃ±o {anioSeleccionado}</button>
+              <button onClick={() => irANivel(-1)} className="hover:text-amber-300 transition">AÃÂ±o {anioSeleccionado}</button>
               {rutaCarpetas.map((n, i) => (
                 <span key={n.id} className="flex items-center gap-1">
                   <ChevronRight className="w-3 h-3 opacity-60" />
@@ -907,7 +920,7 @@ export default function ExpedientesPage() {
               ))}
               <ChevronRight className="w-3 h-3 opacity-60" />
               <span className="text-white/80 truncate max-w-[140px]">{carpetaAnioSeleccionada.nombre}</span>
-              <span className="ml-2 opacity-70">Â· {subcarpetas.length} subcarpeta{subcarpetas.length === 1 ? "" : "s"} Â· {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</span>
+              <span className="ml-2 opacity-70">ÃÂ· {subcarpetas.length} subcarpeta{subcarpetas.length === 1 ? "" : "s"} ÃÂ· {archivos.length} archivo{archivos.length === 1 ? "" : "s"}</span>
             </div>
           </div>
           <button
@@ -995,7 +1008,7 @@ export default function ExpedientesPage() {
                   className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition"
                 >
                   {todosSeleccionados ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
-                  {todosSeleccionados ? "Deseleccionar todo" : "Seleccionar todo"}
+                 {todosSeleccionados ? "Deseleccionar todo" : "Seleccionar todo"}
                 </button>
               </div>
               {archivosSeleccionados.size > 0 && (
@@ -1037,8 +1050,8 @@ export default function ExpedientesPage() {
                       </a>
                       <p className="text-xs text-slate-400 mt-0.5">
                         {formatBytes(archivo.tamano_bytes)}
-                        {typeof archivo.paginas === "number" && archivo.paginas > 0 && ` Â· ${archivo.paginas} ${archivo.paginas === 1 ? "pÃ¡gina" : "pÃ¡ginas"}`}
-                        {` Â· ${archivo.tipo || "archivo"} Â· ${new Date(archivo.created_at).toLocaleDateString("es-MX")}`}
+                        {typeof archivo.paginas === "number" && archivo.paginas > 0 && ` ÃÂ· ${archivo.paginas} ${archivo.paginas === 1 ? "pÃÂ¡gina" : "pÃÂ¡ginas"}`}
+                        {`  ÃÂ· ${archivo.tipo || "archivo"} ÃÂ· ${new Date(archivo.created_at).toLocaleDateString("es-MX")}`}
                       </p>
                       {analizando ? (
                         <p className="text-xs text-aria-accent/80 mt-1.5 italic flex items-center gap-1.5">
@@ -1053,7 +1066,7 @@ export default function ExpedientesPage() {
                     <button
                       onClick={() => eliminarUnArchivo(archivo.id, archivo.nombre)}
                       className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 transition shrink-0 mt-0.5"
-                      title="Eliminar (descargarÃ¡ antes)"
+                      title="Eliminar (descargarÃÂ¡ antes)"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1067,15 +1080,15 @@ export default function ExpedientesPage() {
         {subcarpetas.length === 0 && archivos.length === 0 && (
           <div className="text-center py-16 text-slate-400 bg-white/5 rounded-xl border border-white/10">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p>Carpeta vacÃ­a</p>
-            <p className="text-sm mt-2">Crea subcarpetas o sube archivos con los botones de arriba, o arrastra aquí.</p>
+            <p>Carpeta vacÃÂ­a</p>
+            <p className="text-sm mt-2">Crea subcarpetas o sube archivos con los botones de arriba, o arrastra aquÃ­.</p>
           </div>
         )}
       </div></DropWrap>
     );
   }
 
-  // Vista 1: Carpetas libres + Obras del aÃ±o seleccionado
+  // Vista 1: Carpetas libres + Obras del aÃÂ±o seleccionado
   if (!obraSeleccionada) {
     const obrasFiltradas = obras.filter(o => anioSeleccionado === "SIN_ANIO" ? !o.anio : o.anio === anioSeleccionado);
     const puedeCrearCarpetas = anioSeleccionado !== "SIN_ANIO";
@@ -1086,8 +1099,8 @@ export default function ExpedientesPage() {
             <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
               <p className="text-slate-300 text-sm mb-4">
-                Â¿Eliminar <span className="text-amber-300 font-semibold">&quot;{deleteCarpetaModal.nombre}&quot;</span> y todo su contenido?
-                Los registros quedarÃ¡n respaldados en auditorÃ­a.
+                ÃÂ¿Eliminar <span className="text-amber-300 font-semibold">&quot;{deleteCarpetaModal.nombre}&quot;</span> y todo su contenido?
+                Los registros quedarÃÂ¡n respaldados en auditorÃÂ­a.
               </p>
               <div className="flex gap-3 justify-end">
                 <button
@@ -1108,8 +1121,8 @@ export default function ExpedientesPage() {
               <ArrowLeft className="w-5 h-5 text-slate-400" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-white">AÃ±o {anioSeleccionado === "SIN_ANIO" ? "â Sin fecha" : anioSeleccionado}</h1>
-              <p className="text-slate-400 text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} Â· {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
+              <h1 className="text-2xl font-bold text-white">AÃÂ±o {anioSeleccionado === "SIN_ANIO" ? "Ã¢ÂÂ Sin fecha" : anioSeleccionado}</h1>
+              <p className="text-slate-400 text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} ÃÂ· {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
             </div>
           </div>
           {puedeCrearCarpetas && (
@@ -1117,7 +1130,7 @@ export default function ExpedientesPage() {
               onClick={() => setShowNuevaCarpetaAnio(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition"
             >
-              <Plus className="w-4 h-4" /> Nueva carpeta del aÃ±o
+              <Plus className="w-4 h-4" /> Nueva carpeta del aÃÂ±o
             </button>
           )}
         </div>
@@ -1140,7 +1153,7 @@ export default function ExpedientesPage() {
 
         {carpetasAnio.length > 0 && (
           <div>
-            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Carpetas del aÃ±o</h2>
+            <h2 className="text-sm uppercase text-amber-400 font-semibold mb-3">Carpetas del aÃÂ±o</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {carpetasAnio.map((carpeta) => (
                 <div
@@ -1159,7 +1172,7 @@ export default function ExpedientesPage() {
                         <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">
                           {carpeta.nombre}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">Carpeta libre Â· {anioSeleccionado}</p>
+                        <p className="text-xs text-slate-400 mt-1">Carpeta libre ÃÂ· {anioSeleccionado}</p>
                       </div>
                     </div>
                   </button>
@@ -1187,7 +1200,7 @@ export default function ExpedientesPage() {
 
         {obrasFiltradas.length > 0 && (
           <div>
-            <h2 className="text-sm uppercase text-aria-accent font-semibold mb-3">Obras del aÃ±o</h2>
+            <h2 className="text-sm uppercase text-aria-accent font-semibold mb-3">Obras del aÃÂ±o</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {obrasFiltradas.map((obra) => (
                 <button
@@ -1213,11 +1226,11 @@ export default function ExpedientesPage() {
           </div>
         )}
 
-        {/* Archivos sueltos del aÃ±o */}
+        {/* Archivos sueltos del aÃÂ±o */}
         {puedeCrearCarpetas && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm uppercase text-green-400 font-semibold">Archivos del aÃ±o</h2>
+              <h2 className="text-sm uppercase text-green-400 font-semibold">Archivos del aÃÂ±o</h2>
               <div className="flex items-center gap-2">
                 {archivosAnioSeleccionados.size > 0 && (
                   <button
@@ -1262,7 +1275,7 @@ export default function ExpedientesPage() {
                         </a>
                         <div className="flex flex-wrap gap-3 text-xs text-slate-400 mt-0.5">
                           {archivo.tamano_bytes != null && <span>{formatBytes(archivo.tamano_bytes)}</span>}
-                          {(archivo.paginas ?? 0) > 0 && <span>{archivo.paginas} pÃ¡g.</span>}
+                          {(archivo.paginas ?? 0) > 0 && <span>{archivo.paginas} pÃÂ¡g.</span>}
                           <span>{archivo.tipo?.split("/").pop()}</span>
                           <span>{new Date(archivo.created_at).toLocaleDateString("es-MX")}</span>
                         </div>
@@ -1288,12 +1301,12 @@ export default function ExpedientesPage() {
                 })}
               </div>
             ) : (
-              <p className="text-slate-500 text-sm py-4 text-center">Sin archivos sueltos. Sube un archivo con el botÃ³n de arriba.</p>
+              <p className="text-slate-500 text-sm py-4 text-center">Sin archivos sueltos. Sube un archivo con el botÃÂ³n de arriba.</p>
             )}
           </div>
         )}
 
-        {/* Modal eliminar archivos del aÃ±o */}
+        {/* Modal eliminar archivos del aÃÂ±o */}
         {deleteArchivoAnioModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
@@ -1301,12 +1314,12 @@ export default function ExpedientesPage() {
                 Eliminar {deleteArchivoAnioModal.archivos.length === 1 ? "archivo" : `${deleteArchivoAnioModal.archivos.length} archivos`}
               </h3>
               <p className="text-slate-300 text-sm mb-3">
-                Esta acciÃ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
-                Se descargarÃ¡ una copia a tu equipo antes de eliminar.
+                Esta acciÃÂ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
+                Se descargarÃÂ¡ una copia a tu equipo antes de eliminar.
               </p>
               <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
                 {deleteArchivoAnioModal.archivos.map(a => (
-                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">â¢ {a.nombre}</div>
+                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
                 ))}
               </div>
               <div className="flex gap-3 justify-end">
@@ -1326,11 +1339,11 @@ export default function ExpedientesPage() {
         {carpetasAnio.length === 0 && obrasFiltradas.length === 0 && archivosAnio.length === 0 && (
           <div className="text-center py-16 text-slate-400">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p>Este aÃ±o estÃ¡ vacÃ­o</p>
-            {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botÃ³n de arriba, sube archivos, o asigna obras desde Pipeline.</p>}
+            <p>Este aÃÂ±o estÃÂ¡ vacÃÂ­o</p>
+            {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botÃÂ³n de arriba, sube archivos, o asigna obras desde Pipeline.</p>}
           </div>
         )}
-      </DropWrap></div>
+      </div></DropWrap>
     );
   }
 
@@ -1523,7 +1536,7 @@ export default function ExpedientesPage() {
                     </h3>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                       {tarea.responsable && (
-                        <span className="text-slate-400">ð¤ {tarea.responsable}</span>
+                        <span className="text-slate-400">Ã°ÂÂÂ¤ {tarea.responsable}</span>
                       )}
                       {tarea.fecha_limite && (
                         <span className="text-slate-400 flex items-center gap-1">
@@ -1592,7 +1605,7 @@ export default function ExpedientesPage() {
             <div className="space-y-4">
               <input
                 type="text"
-                placeholder="TÃ­tulo de la tarea"
+                placeholder="TÃÂ­tulo de la tarea"
                 value={nuevaTarea.titulo}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, titulo: e.target.value })}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
@@ -1639,7 +1652,7 @@ export default function ExpedientesPage() {
         count={1}
         itemLabel="Carpeta"
       />
-    </DropWrap></div>
+    </div></DropWrap>
   );
 }
 
