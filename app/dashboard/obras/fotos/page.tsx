@@ -16,6 +16,7 @@ import {
   Loader2,
   Image,
   Building2,
+  FolderUp,
 } from 'lucide-react';
 
 interface Obra {
@@ -48,6 +49,7 @@ export default function FotosPage() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
 
   // Load obras
   useEffect(() => {
@@ -107,6 +109,10 @@ export default function FotosPage() {
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
+  }, []);
+
+  const handleFolderClick = useCallback(() => {
+    folderInputRef.current?.click();
   }, []);
 
   const handleFileSelect = useCallback(
@@ -269,7 +275,24 @@ export default function FotosPage() {
                 ) : (
                   <>
                     <Upload className="h-4 w-4" />
-                    <span>Subir Fotos</span>
+                    <span>Fotos</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleFolderClick}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Subiendo...</span>
+                  </>
+                ) : (
+                  <>
+                    <FolderUp className="h-4 w-4" />
+                    <span>Carpeta</span>
                   </>
                 )}
               </button>
@@ -480,6 +503,17 @@ export default function FotosPage() {
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      {/* Hidden folder input */}
+      {/* @ts-ignore webkitdirectory is non-standard but widely supported */}
+      <input
+        ref={folderInputRef}
+        type="file"
+        webkitdirectory=""
+        directory=""
         multiple
         onChange={handleFileSelect}
         className="hidden"
