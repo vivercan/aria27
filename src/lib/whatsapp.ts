@@ -15,15 +15,29 @@ interface WhatsAppComponent {
 // HMAC SIGNATURE VERIFICATION (Meta Webhooks)
 // ============================================
 export function verifyWebhookSignature(rawBody: string | Buffer, signature: string | null): boolean {
+  // Bypass de diagnóstico: si DISABLE_WEBHOOK_HMAC=true, acepta todo (solo para debug)
+  if (process.env.DISABLE_WEBHOOK_HMAC === "true") {
+    console.warn("[WhatsApp] [WARN] DISABLE_WEBHOOK_HMAC activo — HMAC omitido");
+    return true;
+  }
   const secret = process.env.META_APP_SECRET;
   if (!secret) {
     // Grace mode: si no hay META_APP_SECRET configurado, aceptar (pero loguear warning)
     console.warn("[WhatsApp] [WARN] META_APP_SECRET no configurado — webhook HMAC en grace mode");
     return true;
   }
-  if (!signature) return false;
+  if (!signature) {
+    console.warn("[WhatsApp] [WARN] Firma ausente — posible reenvío sin cabecera x-hub-signature-256");
+    return false;
+  }
   const expectedSig = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex");
-  return signature === expectedSig;
+  const matches = signature === expectedSig;
+  if (!matches) {
+    // Log parcial para diagnóstico (nunca exponer el secret completo)
+    console.warn("[WhatsApp] [WARN] HMAC no coincide",
+      { received: signature.slice(0, 20) + "...", expected: expectedSig.slice(0, 20) + "..." });
+  }
+  return matches;
 }
 
 // ============================================
