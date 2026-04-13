@@ -78,13 +78,14 @@ export default function MisDocumentosPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* —— auto-detectar usuario actual —— */
+  /* —— auto-detectar usuario actual via localStorage (patrón ARIA) —— */
   useEffect(() => {
     (async () => {
       setAuthLoading(true);
       try {
-        const { data: authData } = await supabase.auth.getUser();
-        const email = authData.user?.email;
+        const email = typeof window !== "undefined"
+          ? localStorage.getItem("userEmail") ?? ""
+          : "";
         if (!email) { setAuthLoading(false); return; }
         setCurrentEmail(email);
 
