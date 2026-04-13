@@ -735,6 +735,8 @@ export async function POST(request: NextRequest) {
                       texto.includes("compre") ||
                       texto.includes("pagué") ||
                       texto.includes("pague") ||
+                      texto.includes("ticket") ||
+                      texto.includes("gaste") ||
                       /\$?\d+/.test(texto);
 
       if (esGasto) {
