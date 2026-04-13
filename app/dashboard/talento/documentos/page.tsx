@@ -14,7 +14,7 @@ const BUCKET = "expedientes";
 const STORAGE_PREFIX = "mis_documentos";
 const SYSTEM_UUID = "00000000-0000-0000-0000-000000000000";
 
-/* âââââ tipos âââââ */
+/* ───── tipos ───── */
 interface UserRow { id: string; display_name: string | null; name: string | null; email: string }
 interface DocRow {
   id: string; owner_user_id: string; owner_name: string; folder_type: string;
@@ -23,11 +23,11 @@ interface DocRow {
 }
 interface UploadProgress { name: string; progress: number; done: boolean; error?: string }
 
-type View = "users" | "folders" | "files";
+type View = "folders" | "files";
 
-/* âââââ helpers âââââ */
+/* ───── helpers ───── */
 function friendlySize(bytes: number | null): string {
-  if (!bytes) return "â";
+  if (!bytes) return "—";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -53,63 +53,71 @@ function getSubfolders(docs: DocRow[], currentPath: string): string[] {
   return Array.from(folders).sort();
 }
 
-/* âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+/* ═══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
-   âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+   ═══════════════════════════════════════════════════════════════ */
 export default function MisDocumentosPage() {
-  /* ââ state global ââ */
-  const [view, setView] = useState<View>("users");
-  const [users, setUsers] = useState<UserRow[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  /* —— state global —— */
+  const [view, setView] = useState<View>("folders");
+  const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [folderType, setFolderType] = useState<"compartidos" | "privados" | "publica" | null>(null);
   const [currentPath, setCurrentPath] = useState("/");
   const [docs, setDocs] = useState<DocRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadQueue, setUploadQueue] = useState<UploadProgress[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentEmail, setCurrentEmail] = useState("anon");
 
-  /* ââ PIN state ââ */
+  /* —— PIN state —— */
   const [pinRequired, setPinRequired] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState("");
-  const [unlockedUsers, setUnlockedUsers] = useState<Set<string>>(new Set());
+  const [pinUnlocked, setPinUnlocked] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* ââ cargar usuario actual ââ */
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setCurrentEmail(data.user.email);
-    });
-  }, []);
-
-  /* ââ cargar usuarios del sistema ââ */
+  /* —— auto-detectar usuario actual —— */
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, display_name, name, email")
-        .order("display_name", { ascending: true });
-      if (error) { log.error("fetch users", error.message); }
-      else { setUsers(data ?? []); }
-      setLoading(false);
+      setAuthLoading(true);
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const email = authData.user?.email;
+        if (!email) { setAuthLoading(false); return; }
+        setCurrentEmail(email);
+
+        // Buscar en tabla users por email
+        const { data: userRow, error } = await supabase
+          .from("users")
+          .select("id, display_name, name, email")
+          .eq("email", email)
+          .single();
+
+        if (error || !userRow) {
+          log.error("user lookup", error?.message ?? "No user found for " + email);
+        } else {
+          setCurrentUser(userRow);
+        }
+      } catch (err: unknown) {
+        log.error("auth init", err instanceof Error ? err.message : "Unknown");
+      }
+      setAuthLoading(false);
     })();
   }, []);
 
-  /* ââ cargar documentos cuando cambia usuario+tipo ââ */
+  /* —— cargar documentos cuando cambia tipo de carpeta —— */
   const loadDocs = useCallback(async () => {
     if (!folderType) return;
-    if (folderType !== "publica" && !selectedUser) return;
+    if (folderType !== "publica" && !currentUser) return;
     setLoading(true);
     let query = supabase
       .from("mis_documentos")
       .select("*")
       .eq("folder_type", folderType);
-    if (folderType !== "publica" && selectedUser) {
-      query = query.eq("owner_user_id", selectedUser.id);
+    if (folderType !== "publica" && currentUser) {
+      query = query.eq("owner_user_id", String(currentUser.id));
     }
     const { data, error } = await query
       .order("parent_path")
@@ -118,11 +126,11 @@ export default function MisDocumentosPage() {
     else setDocs(data ?? []);
     setSelectedIds(new Set());
     setLoading(false);
-  }, [selectedUser, folderType]);
+  }, [currentUser, folderType]);
 
   useEffect(() => { loadDocs(); }, [loadDocs]);
 
-  /* ââ handlers navegaciÃ³n ââ */
+  /* —— handlers navegación —— */
   function goBack() {
     if (view === "files" && currentPath !== "/") {
       const parts = currentPath.replace(/\/$/, "").split("/").filter(Boolean);
@@ -131,12 +139,6 @@ export default function MisDocumentosPage() {
       return;
     }
     if (view === "files") { setView("folders"); setFolderType(null); setDocs([]); setCurrentPath("/"); return; }
-    if (view === "folders") { setView("users"); setSelectedUser(null); return; }
-  }
-
-  function selectUser(u: UserRow) {
-    setSelectedUser(u);
-    setView("folders");
   }
 
   function selectFolder(type: "compartidos" | "privados" | "publica") {
@@ -146,7 +148,7 @@ export default function MisDocumentosPage() {
       setView("files");
       return;
     }
-    if (type === "privados" && !unlockedUsers.has(selectedUser!.id)) {
+    if (type === "privados" && !pinUnlocked) {
       setPinRequired(true);
       setPinInput("");
       setPinError("");
@@ -158,15 +160,15 @@ export default function MisDocumentosPage() {
   }
 
   async function verifyPin() {
-    if (!selectedUser) return;
+    if (!currentUser) return;
     const { data } = await supabase
       .from("users")
       .select("private_folder_pin")
-      .eq("id", selectedUser.id)
+      .eq("id", currentUser.id)
       .single();
     const storedPin = data?.private_folder_pin ?? "1234";
     if (pinInput === storedPin) {
-      setUnlockedUsers((prev) => new Set(prev).add(selectedUser.id));
+      setPinUnlocked(true);
       setPinRequired(false);
       setFolderType("privados");
       setCurrentPath("/");
@@ -180,11 +182,11 @@ export default function MisDocumentosPage() {
     setCurrentPath((prev) => (prev === "/" ? "/" + name + "/" : prev + name + "/"));
   }
 
-  /* ââ UPLOAD ââ */
+  /* —— UPLOAD —— */
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0 || !folderType) return;
-    if (folderType !== "publica" && !selectedUser) return;
+    if (folderType !== "publica" && !currentUser) return;
 
     setUploading(true);
     const queue: UploadProgress[] = Array.from(files).map((f) => ({
@@ -198,16 +200,15 @@ export default function MisDocumentosPage() {
         queue[i].progress = 10;
         setUploadQueue([...queue]);
 
-        // Determinar subcarpeta del archivo (webkitRelativePath si viene de carpeta)
         let subPath = currentPath;
         const relPath = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath;
         if (relPath && relPath.includes("/")) {
           const parts = relPath.split("/");
-          parts.pop(); // quitar nombre del archivo
+          parts.pop();
           subPath = currentPath === "/" ? "/" + parts.join("/") + "/" : currentPath + parts.join("/") + "/";
         }
 
-        const ownerId = folderType === "publica" ? SYSTEM_UUID : selectedUser!.id;
+        const ownerId = folderType === "publica" ? SYSTEM_UUID : String(currentUser!.id);
         const storagePath = buildPath({
           module: STORAGE_PREFIX,
           scope: [ownerId, folderType, subPath.replace(/\//g, "_")],
@@ -229,7 +230,7 @@ export default function MisDocumentosPage() {
 
         const ownerName = folderType === "publica"
           ? "Pública"
-          : (selectedUser!.display_name || selectedUser!.name || selectedUser!.email);
+          : (currentUser!.display_name || currentUser!.name || currentUser!.email);
         const { error: dbErr } = await supabase.from("mis_documentos").insert({
           owner_user_id: ownerId,
           owner_name: ownerName,
@@ -260,7 +261,7 @@ export default function MisDocumentosPage() {
     setTimeout(() => setUploadQueue([]), 3000);
   }
 
-  /* ââ DELETE ââ */
+  /* —— DELETE —— */
   async function handleDelete(docId: string) {
     const doc = docs.find((d) => d.id === docId);
     if (!doc) return;
@@ -281,7 +282,7 @@ export default function MisDocumentosPage() {
     setSelectedIds(new Set());
   }
 
-  /* ââ DOWNLOAD ââ */
+  /* —— DOWNLOAD —— */
   function downloadFile(url: string, nombre: string) {
     const a = document.createElement("a");
     a.href = url;
@@ -297,7 +298,7 @@ export default function MisDocumentosPage() {
     }
   }
 
-  /* ââ toggle selecciÃ³n ââ */
+  /* —— toggle selección —— */
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -315,7 +316,7 @@ export default function MisDocumentosPage() {
     }
   }
 
-  /* ââ datos de la vista actual ââ */
+  /* —— datos de la vista actual —— */
   const currentFiles = docs.filter((d) => d.parent_path === currentPath);
   const subfolders = getSubfolders(docs, currentPath);
   const breadcrumb = currentPath === "/"
@@ -324,13 +325,34 @@ export default function MisDocumentosPage() {
 
   const userName = (u: UserRow) => u.display_name || u.name || u.email;
 
-  /* âââ RENDER âââ */
+  /* ——— RENDER ——— */
+
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-aria-primary animate-spin" />
+      </div>
+    );
+  }
+
+  // No user found
+  if (!currentUser) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-4 text-slate-400">
+        <FolderLock className="w-16 h-16 opacity-30" />
+        <p className="text-lg font-medium">No se encontró tu usuario</p>
+        <p className="text-sm">Contacta al administrador para registrar tu cuenta.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* HEADER */}
       <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          {view !== "users" && (
+          {view === "files" && (
             <button onClick={goBack} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors">
               <ArrowLeft className="w-4 h-4 text-slate-300" />
             </button>
@@ -338,11 +360,10 @@ export default function MisDocumentosPage() {
           <div>
             <h1 className="text-xl font-bold text-white">Mis Documentos</h1>
             <p className="text-xs text-slate-400">
-              {view === "users" && "Selecciona un usuario"}
-              {view === "folders" && selectedUser && userName(selectedUser)}
+              {view === "folders" && userName(currentUser)}
               {view === "files" && (
                 <span className="flex items-center gap-1">
-                  {folderType === "publica" ? "Pública" : (selectedUser && userName(selectedUser))}
+                  {folderType === "publica" ? "Pública" : userName(currentUser)}
                   {" "}<ChevronRight className="w-3 h-3" />
                   <span className="capitalize">{folderType === "publica" ? "Pública" : folderType}</span>
                   {breadcrumb.map((b, i) => (
@@ -402,28 +423,8 @@ export default function MisDocumentosPage() {
           </div>
         )}
 
-        {/* ââ VISTA: USUARIOS ââ */}
-        {!loading && view === "users" && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {users.map((u) => (
-              <button
-                key={u.id}
-                onClick={() => selectUser(u)}
-                className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:border-aria-primary/50 hover:bg-slate-800 transition-all duration-200"
-              >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-aria-primary to-blue-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
-                  {userName(u).charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm font-medium text-white group-hover:text-aria-accent transition-colors text-center">
-                  {userName(u)}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* ââ VISTA: CARPETAS (Compartidos / Privados) ââ */}
-        {!loading && view === "folders" && selectedUser && (
+        {/* —— VISTA: CARPETAS (Compartidos / Privados / Pública) —— */}
+        {!loading && view === "folders" && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mt-8">
             <button
               onClick={() => selectFolder("compartidos")}
@@ -454,7 +455,7 @@ export default function MisDocumentosPage() {
           </div>
         )}
 
-        {/* ââ VISTA: ARCHIVOS + SUBCARPETAS ââ */}
+        {/* —— VISTA: ARCHIVOS + SUBCARPETAS —— */}
         {!loading && view === "files" && (
           <div>
             {/* Select all bar */}
@@ -469,7 +470,7 @@ export default function MisDocumentosPage() {
                 </button>
                 <span className="text-sm text-slate-400">
                   {currentFiles.length} archivo{currentFiles.length !== 1 ? "s" : ""}
-                  {subfolders.length > 0 && ` Â· ${subfolders.length} subcarpeta${subfolders.length !== 1 ? "s" : ""}`}
+                  {subfolders.length > 0 && ` · ${subfolders.length} subcarpeta${subfolders.length !== 1 ? "s" : ""}`}
                 </span>
               </div>
             )}
@@ -520,8 +521,8 @@ export default function MisDocumentosPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-white truncate">{doc.nombre}</p>
                       <p className="text-xs text-slate-500">
-                        {friendlySize(doc.size_bytes)} Â· {new Date(doc.created_at).toLocaleDateString("es-MX")}
-                        {doc.uploaded_by && ` Â· ${doc.uploaded_by}`}
+                        {friendlySize(doc.size_bytes)} · {new Date(doc.created_at).toLocaleDateString("es-MX")}
+                        {doc.uploaded_by && ` · ${doc.uploaded_by}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 flex-none">
@@ -556,7 +557,7 @@ export default function MisDocumentosPage() {
           </div>
         )}
 
-        {/* ââ UPLOAD PROGRESS OVERLAY ââ */}
+        {/* —— UPLOAD PROGRESS OVERLAY —— */}
         {uploadQueue.length > 0 && (
           <div className="fixed bottom-6 right-6 w-96 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-4 z-50">
             <div className="flex items-center justify-between mb-3">
@@ -598,7 +599,7 @@ export default function MisDocumentosPage() {
         )}
       </div>
 
-      {/* ââ PIN MODAL ââ */}
+      {/* —— PIN MODAL —— */}
       {pinRequired && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
@@ -606,7 +607,7 @@ export default function MisDocumentosPage() {
               <FolderLock className="w-12 h-12 text-amber-400" />
               <h3 className="text-lg font-bold text-white">Carpeta Privada</h3>
               <p className="text-sm text-slate-400 text-center">
-                Ingresa el PIN para acceder a los documentos privados de {selectedUser && userName(selectedUser)}.
+                Ingresa tu PIN para acceder a tus documentos privados.
               </p>
               <input
                 type="password"
