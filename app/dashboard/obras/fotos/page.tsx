@@ -118,7 +118,7 @@ export default function FotosPage() {
   }, []);
 
 
-  /** Shared upload logic for both input and drag & drop */
+  /** Shared upload logic for both input and drag & drop â sequential con concurrencia 3 */
   const uploadFiles = useCallback(
     async (files: File[]) => {
       if (!files.length || !selectedObraId) return;
@@ -126,15 +126,20 @@ export default function FotosPage() {
         setUploading(true);
         setError(null);
         const carpetaId = `obras:fotos:${selectedObraId}`;
-        const uploadPromises = files.map((file) => {
-          const path = buildPath({ module: 'obras-fotos', scope: [selectedObraId], file });
-          return uploadAndInsert({
-            file, bucket: 'expedientes', path,
-            table: 'expedientes_archivos',
-            payload: { carpeta_id: carpetaId, nombre: file.name, tipo: 'foto' },
-          });
-        });
-        await Promise.all(uploadPromises);
+        const CONCURRENCY = 3;
+        for (let i = 0; i < files.length; i += CONCURRENCY) {
+          const batch = files.slice(i, i + CONCURRENCY);
+          await Promise.all(
+            batch.map((file) => {
+              const path = buildPath({ module: 'obras-fotos', scope: [selectedObraId], file });
+              return uploadAndInsert({
+                file, bucket: 'expedientes', path,
+                table: 'expedientes_archivos',
+                payload: { carpeta_id: carpetaId, nombre: file.name, tipo: 'foto' },
+              });
+            })
+          );
+        }
         const { data, error: err } = await supabase
           .from('expedientes_archivos')
           .select('id, carpeta_id, nombre, url, tipo, created_at')
@@ -152,7 +157,7 @@ export default function FotosPage() {
     [selectedObraId]
   );
 
-  const { dragging, dropHandlers } = useDropZone(uploadFiles);
+  const { dragging, progress: dropProgress, dropHandlers } = useDropZone(uploadFiles);
 
   const handleFileSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,32 +169,31 @@ export default function FotosPage() {
         setError(null);
 
         const carpetaId = `obras:fotos:${selectedObraId}`;
-        const uploadPromises = [];
-
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const path = buildPath({
-            module: 'obras-fotos',
-            scope: [selectedObraId],
-            file,
-          });
-
-          uploadPromises.push(
-            uploadAndInsert({
-              file,
-              bucket: 'expedientes',
-              path,
-              table: 'expedientes_archivos',
-              payload: {
-                carpeta_id: carpetaId,
-                nombre: file.name,
-                tipo: 'foto',
-              },
+        const CONCURRENCY = 3;
+        const fileArr = Array.from(files);
+        for (let i = 0; i < fileArr.length; i += CONCURRENCY) {
+          const batch = fileArr.slice(i, i + CONCURRENCY);
+          await Promise.all(
+            batch.map((file) => {
+              const path = buildPath({
+                module: 'obras-fotos',
+                scope: [selectedObraId],
+                file,
+              });
+              return uploadAndInsert({
+                file,
+                bucket: 'expedientes',
+                path,
+                table: 'expedientes_archivos',
+                payload: {
+                  carpeta_id: carpetaId,
+                  nombre: file.name,
+                  tipo: 'foto',
+                },
+              });
             })
           );
         }
-
-        await Promise.all(uploadPromises);
 
         // Refresh photos
         const { data, error: err } = await supabase
@@ -294,13 +298,27 @@ export default function FotosPage() {
           <p className="text-emerald-300 text-sm font-medium">Suelta fotos o carpetas aqu\u00ed</p>
         </div>
       )}
+      {/* Scanning/uploading progress overlay */}
+      {dropProgress && (
+        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
+          <p className="text-emerald-300 text-sm font-medium">
+            {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo fotos\u2026"}
+          </p>
+          {dropProgress.total > 0 && (
+            <p className="text-emerald-400/60 text-xs mt-1">
+              {dropProgress.current} / {dropProgress.total} archivos
+            </p>
+          )}
+        </div>
+      )}
       {/* Header */}
       <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/obras" />
             <Camera className="h-5 w-5 text-aria-accent" />
-            <h1 className="text-xl font-semibold">GalerÃ­a de Fotos</h1>
+            <h1 className="text-xl font-semibold">GalerÃÂ­a de Fotos</h1>
           </div>
 
           {selectedObraId && (
@@ -417,7 +435,7 @@ export default function FotosPage() {
                 <Image className="h-12 w-12 mx-auto text-white/30 mb-4" />
                 <h2 className="text-lg font-semibold text-white/70 mb-2">Sin fotos</h2>
                 <p className="text-sm text-white/50 mb-4">
-                  Esta obra aÃºn no tiene fotos. Sube algunas para comenzar.
+                  Esta obra aÃÂºn no tiene fotos. Sube algunas para comenzar.
                 </p>
                 <button
                   onClick={handleUploadClick}
