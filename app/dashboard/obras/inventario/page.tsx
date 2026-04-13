@@ -27,13 +27,13 @@ import {
 
 // ====== TYPES ======
 interface Obra {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface ItemInventario {
   id: string;
-  obra_id: number;
+  obra_id: string;
   obra_nombre: string;
   producto_nombre: string;
   unidad: string;
@@ -280,7 +280,7 @@ export default function InventarioObraPage() {
   const seleccionarDeCatalogo = (prod: ProductoCatalogo) => {
     setNuevoNombre(prod.name);
     setNuevoUnidad(prod.unit || "PZA");
-    setNuevoProductoId(Number(prod.id) || null);
+    setNuevoProductoId(parseInt(prod.id, 10) || null);
     setSugerencias([]);
   };
 
@@ -927,7 +927,7 @@ export default function InventarioObraPage() {
                       <div className="mt-1">
                         <p className="text-slate-400 text-xs">Productos similares:</p>
                         {validacionResult.sugerencias.slice(0, 3).map((s: { id: string; name: string; unit: string; similarity: number }) => (
-                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(parseInt(s.id) || null); setValidacionResult(null); }}
+                          <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(parseInt(s.id, 10) || null); setValidacionResult(null); }}
                             className="block text-left text-aria-accent hover:text-aria-accent text-xs mt-0.5">
                             → {s.name} ({s.unit}) — {s.similarity}% similar
                           </button>
@@ -998,7 +998,7 @@ export default function InventarioObraPage() {
               <button onClick={() => setShowNuevo(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
               <button
                 onClick={guardarNuevoMaterial}
-                disabled={!nuevoNombre.trim() || nuevoCantidad <= 0 || guardando || (!nuevoProductoId && !validacionResult?.esValido)}
+                disabled={!nuevoNombre.trim() || nuevoCantidad <= 0 || guardando}
                 className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
               >
                 {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
