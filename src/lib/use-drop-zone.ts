@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useCallback } from "react";
 
-/* FileSystem API types (non-standard, used by drag & drop folder support) */
+/* ââ FileSystem API types (non-standard, drag & drop folder support) ââ */
 interface FSEntry {
   isFile: boolean;
   isDirectory: boolean;
@@ -15,13 +15,33 @@ interface FSDirEntry extends FSEntry {
   createReader(): FSDirReader;
 }
 interface FSDirReader {
-  readEntries(success: (entries: FSEntry[]) => void, error?: () => void): void;
+  readEntries(
+    success: (entries: FSEntry[]) => void,
+    error?: () => void
+  ): void;
 }
 
-/** Recursively read all files from a dropped FileSystemEntry tree */
-function readEntryRecursive(entry: FSEntry): Promise<File[]> {
-  return new Promise((resolve) => {
-    if (entry.isFile) {
+/* ââ Progress state ââ */
+export interface DropProgress {
+  phase: "scanning" | "uploading";
+  current: number;
+  total: number;
+}
+
+/* ââ Constantes ââ */
+const MAX_TOTAL_BYTES = 500 * 1024 * 1024; // 500 MB mÃ¡ximo por drop
+const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB por archivo individual
+
+/* ââ Helpers ââ */
+
+/**
+ * Recursively read all files from a dropped FileSystemEntry tree.
+ * v2: usa recursiÃ³n SECUENCIAL en vez de Promise.all para no crear
+ * miles de promesas simultÃ¡neas que revientan el event loop.
+ */
+async function readEntryRecursive(entry: FSEntry): Promise<File[]> {
+  if (entry.isFile) {
+    return new Promise((resolve) => {
       (entry as FSFileEntry).file(
         (f: File) => {
           Object.defineProperty(f, "webkitRelativePath", {
@@ -32,43 +52,56 @@ function readEntryRecursive(entry: FSEntry): Promise<File[]> {
         },
         () => resolve([])
       );
-    } else if (entry.isDirectory) {
-      const reader = (entry as FSDirEntry).createReader();
-      const allEntries: FSEntry[] = [];
-      const readBatch = () => {
-        reader.readEntries(
-          (entries) => {
-            if (entries.length === 0) {
-              Promise.all(allEntries.map(readEntryRecursive)).then((nested) =>
-                resolve(nested.flat())
-              );
-            } else {
-              allEntries.push(...entries);
-              readBatch();
-            }
-          },
-          () => resolve([])
-        );
-      };
-      readBatch();
-    } else {
-      resolve([]);
-    }
+    });
+  }
+
+  if (!entry.isDirectory) return [];
+
+  // Leer todas las entradas del directorio (puede venir en lotes)
+  const reader = (entry as FSDirEntry).createReader();
+  const allChildren: FSEntry[] = [];
+
+  await new Promise<void>((resolve) => {
+    const readBatch = () => {
+      reader.readEntries(
+        (entries) => {
+          if (entries.length === 0) {
+            resolve();
+          } else {
+            allChildren.push(...entries);
+            readBatch();
+          }
+        },
+        () => resolve()
+      );
+    };
+    readBatch();
   });
+
+  // SECUENCIAL: procesar hijos uno por uno, no todos a la vez
+  const results: File[] = [];
+  for (const child of allChildren) {
+    const files = await readEntryRecursive(child);
+    results.push(...files);
+  }
+  return results;
 }
 
 /**
  * useDropZone â hook reutilizable para drag & drop de archivos y carpetas.
  *
- * Retorna:
- * - dragging: boolean â true cuando hay archivos sobre la zona
- * - dropHandlers: props para pasar al contenedor div (onDragEnter, onDragLeave, onDragOver, onDrop)
+ * v2: RecursiÃ³n secuencial + validaciÃ³n de tamaÃ±o + indicador de progreso.
+ * Soporta carpetas pesadas (365MB+) sin crashear el navegador.
  *
  * @param onFilesDropped callback que recibe File[] con webkitRelativePath seteado
  */
-export function useDropZone(onFilesDropped: (files: File[]) => void) {
+export function useDropZone(
+  onFilesDropped: (files: File[]) => void | Promise<void>
+) {
   const [dragging, setDragging] = useState(false);
+  const [progress, setProgress] = useState<DropProgress | null>(null);
   const counter = useRef(0);
+  const processing = useRef(false);
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -96,25 +129,69 @@ export function useDropZone(onFilesDropped: (files: File[]) => void) {
       setDragging(false);
       counter.current = 0;
 
-      const items = e.dataTransfer.items;
-      if (!items || items.length === 0) return;
+      // Evitar drops concurrentes
+      if (processing.current) return;
+      processing.current = true;
 
-      const entries: FSEntry[] = [];
-      for (let i = 0; i < items.length; i++) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const entry = (items[i] as any).webkitGetAsEntry?.();
-        if (entry) entries.push(entry);
+      try {
+        const items = e.dataTransfer.items;
+        if (!items || items.length === 0) return;
+
+        // 1. Obtener entries del drop
+        const topEntries: FSEntry[] = [];
+        for (let i = 0; i < items.length; i++) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const entry = (items[i] as any).webkitGetAsEntry?.();
+          if (entry) topEntries.push(entry);
+        }
+        if (topEntries.length === 0) return;
+
+        // 2. Escanear recursivamente (secuencial, sin Promise.all masivo)
+        setProgress({ phase: "scanning", current: 0, total: 0 });
+
+        const allFiles: File[] = [];
+        let totalBytes = 0;
+
+        for (const top of topEntries) {
+          const files = await readEntryRecursive(top);
+          for (const file of files) {
+            // Validar tamaÃ±o individual
+            if (file.size > MAX_FILE_BYTES) continue;
+            // Validar acumulado
+            if (totalBytes + file.size > MAX_TOTAL_BYTES) continue;
+            totalBytes += file.size;
+            allFiles.push(file);
+          }
+          setProgress({
+            phase: "scanning",
+            current: allFiles.length,
+            total: allFiles.length,
+          });
+        }
+
+        if (allFiles.length === 0) {
+          setProgress(null);
+          return;
+        }
+
+        // 3. Entregar archivos al callback
+        setProgress({
+          phase: "uploading",
+          current: 0,
+          total: allFiles.length,
+        });
+        await onFilesDropped(allFiles);
+      } finally {
+        setProgress(null);
+        processing.current = false;
       }
-
-      const nested = await Promise.all(entries.map(readEntryRecursive));
-      const allFiles = nested.flat();
-      if (allFiles.length > 0) onFilesDropped(allFiles);
     },
     [onFilesDropped]
   );
 
   return {
     dragging,
+    progress,
     dropHandlers: { onDragEnter, onDragLeave, onDragOver, onDrop },
   };
 }
