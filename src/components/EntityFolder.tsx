@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob, extractBlobPath } from "@/lib/storage";
-import { FolderOpen, Upload, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, X } from "lucide-react";
+import { FolderOpen, Upload, FolderUp, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, X, Check } from "lucide-react";
 
 /**
  * <EntityFolder/>
@@ -16,7 +16,8 @@ import { FolderOpen, Upload, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, 
  *
  * Operaciones soportadas:
  *  - Listar archivos del expediente
- *  - Subir archivo nuevo (upload + insert atómico vía storage helper)
+ *  - Subir archivo(s) nuevo(s) (upload + insert atómico vía storage helper)
+ *  - Subir carpeta completa con subcarpetas (webkitdirectory)
  *  - Reemplazar (sube uno nuevo y borra el viejo)
  *  - Eliminar (con respaldo en deleted_records y borrado del blob)
  */
@@ -48,6 +49,13 @@ interface DocRow {
 
 interface CategoriaRecord {
   nombre: string;
+}
+
+interface UploadQueueItem {
+  name: string;
+  progress: number;
+  done: boolean;
+  error?: string;
 }
 
 const BUCKET = "expedientes";
@@ -82,11 +90,13 @@ export default function EntityFolder({
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const folderRef = useRef<HTMLInputElement>(null);
   const replaceRef = useRef<HTMLInputElement>(null);
   const [replaceTarget, setReplaceTarget] = useState<DocRow | null>(null);
   const [pendingCat, setPendingCat] = useState<EntityDocCategory>("Otro");
   const [filterCat, setFilterCat] = useState<string>("");
   const [categorias, setCategorias] = useState<string[]>([...ENTITY_DOC_CATEGORIES_FALLBACK]);
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
 
   useEffect(() => {
     supabase
@@ -131,11 +141,12 @@ export default function EntityFolder({
     setLoading(false);
   };
 
-  const subir = async (file: File) => {
-    setBusy("upload");
+  const subir = async (file: File, subfolderPrefix?: string) => {
+    const scope = [entityType, entityId];
+    if (subfolderPrefix) scope.push(subfolderPrefix);
     const path = buildPath({
       module: "entity_documents",
-      scope: [entityType, entityId],
+      scope,
       file,
     });
     try {
@@ -147,7 +158,7 @@ export default function EntityFolder({
         payload: {
           entity_type: entityType,
           entity_id: entityId,
-          nombre: file.name,
+          nombre: subfolderPrefix ? `${subfolderPrefix}/${file.name}` : file.name,
           tipo: file.type || file.name.split(".").pop() || null,
           size_bytes: file.size,
           uploaded_by: userEmail,
@@ -155,12 +166,69 @@ export default function EntityFolder({
         },
         urlField: "url",
       });
-      flash("ok", `"${file.name}" subido`);
-      cargar();
-    } catch (e: unknown) {
-      flash("err", (e as Error)?.message || "Error al subir");
+      return true;
+    } catch {
+      return false;
     }
+  };
+
+  /** Handle multi-file or folder upload */
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const fileArr = Array.from(files);
+    setBusy("upload");
+
+    // Initialize upload queue
+    const queue: UploadQueueItem[] = fileArr.map(f => ({
+      name: f.webkitRelativePath || f.name,
+      progress: 0,
+      done: false,
+    }));
+    setUploadQueue([...queue]);
+
+    let ok = 0;
+    let fail = 0;
+    for (let i = 0; i < fileArr.length; i++) {
+      const file = fileArr[i];
+      // Extract subfolder from webkitRelativePath: "folder/sub/file.pdf" → "folder/sub"
+      const relPath = file.webkitRelativePath;
+      let subfolderPrefix = "";
+      if (relPath) {
+        const parts = relPath.split("/");
+        if (parts.length > 1) {
+          subfolderPrefix = parts.slice(0, -1).join("/");
+        }
+      }
+
+      queue[i].progress = 50;
+      setUploadQueue([...queue]);
+
+      const success = await subir(file, subfolderPrefix || undefined);
+      if (success) {
+        ok++;
+        queue[i].progress = 100;
+        queue[i].done = true;
+      } else {
+        fail++;
+        queue[i].progress = 100;
+        queue[i].error = "Error";
+      }
+      setUploadQueue([...queue]);
+    }
+
+    if (fail === 0) {
+      flash("ok", `${ok} archivo${ok !== 1 ? "s" : ""} subido${ok !== 1 ? "s" : ""}`);
+    } else {
+      flash("err", `${ok} subido${ok !== 1 ? "s" : ""}, ${fail} con error`);
+    }
+    cargar();
     setBusy(null);
+    setTimeout(() => setUploadQueue([]), 3000);
+
+    // Reset inputs
+    if (fileRef.current) fileRef.current.value = "";
+    if (folderRef.current) folderRef.current.value = "";
   };
 
   const eliminar = async (d: DocRow) => {
@@ -240,11 +308,18 @@ export default function EntityFolder({
         type="file"
         className="hidden"
         accept={accept}
-        onChange={async e => {
-          const f = e.target.files?.[0];
-          if (f) await subir(f);
-          if (fileRef.current) fileRef.current.value = "";
-        }}
+        multiple
+        onChange={handleUpload}
+      />
+      {/* @ts-expect-error webkitdirectory is non-standard but widely supported */}
+      <input
+        ref={folderRef}
+        type="file"
+        webkitdirectory=""
+        directory=""
+        multiple
+        className="hidden"
+        onChange={handleUpload}
       />
       <input
         ref={replaceRef}
@@ -286,7 +361,15 @@ export default function EntityFolder({
             className="px-3 py-1.5 bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 rounded-lg text-xs font-medium flex items-center gap-1.5 disabled:opacity-50"
           >
             {busy === "upload" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-            Subir documento
+            Archivos
+          </button>
+          <button
+            onClick={() => folderRef.current?.click()}
+            disabled={busy === "upload"}
+            className="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {busy === "upload" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FolderUp className="w-3.5 h-3.5" />}
+            Carpeta
           </button>
         </div>
       </div>
@@ -294,6 +377,41 @@ export default function EntityFolder({
       {msg && (
         <div className={`mx-4 mt-3 px-3 py-2 rounded text-xs ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
           {msg.texto}
+        </div>
+      )}
+
+      {/* Upload queue progress */}
+      {uploadQueue.length > 0 && (
+        <div className="mx-4 mt-3 p-3 bg-slate-800/50 border border-white/5 rounded-lg space-y-2">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            Subiendo {uploadQueue.filter(u => u.done).length}/{uploadQueue.length}
+          </div>
+          <div className="space-y-1.5 max-h-32 overflow-y-auto">
+            {uploadQueue.map((uq, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  {uq.error ? (
+                    <X className="w-3 h-3 text-red-400 flex-none" />
+                  ) : uq.done ? (
+                    <Check className="w-3 h-3 text-emerald-400 flex-none" />
+                  ) : (
+                    <Loader2 className="w-3 h-3 text-aria-accent animate-spin flex-none" />
+                  )}
+                  <span className="text-[11px] text-slate-300 truncate flex-1">{uq.name}</span>
+                  <span className="text-[11px] text-slate-500 flex-none">{uq.progress}%</span>
+                </div>
+                <div className="h-0.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      uq.error ? "bg-red-500" : uq.done ? "bg-emerald-500" : "bg-aria-accent"
+                    }`}
+                    style={{ width: `${uq.progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -313,7 +431,7 @@ export default function EntityFolder({
         {loading ? (
           <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-aria-accent mx-auto" /></div>
         ) : docs.length === 0 ? (
-          <p className="text-center text-xs text-slate-500 py-6">Sin documentos. Sube el primero con "Subir documento".</p>
+          <p className="text-center text-xs text-slate-500 py-6">Sin documentos. Sube el primero con &quot;Archivos&quot; o &quot;Carpeta&quot;.</p>
         ) : (
           <div className="space-y-1">
             {docs.filter(d => !filterCat || (d.categoria || "Otro") === filterCat).map(d => (
