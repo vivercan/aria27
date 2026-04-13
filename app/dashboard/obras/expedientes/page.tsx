@@ -30,6 +30,7 @@ import {
   Pencil,
   CheckSquare,
   Square,
+  FolderUp,
 } from "lucide-react";
 
 interface Obra {
@@ -390,7 +391,8 @@ export default function ExpedientesPage() {
 
   const handleFileUploadCarpetaAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !carpetaAnioSeleccionada) return;
-    const file = e.target.files[0];
+    const fileArr = Array.from(e.target.files);
+    for (const file of fileArr) {
     const rutaIds = [...rutaCarpetas.map(c => c.id), carpetaAnioSeleccionada.id];
     const path = buildPath({
       module: "expedientes",
@@ -425,6 +427,8 @@ export default function ExpedientesPage() {
     } catch (err: unknown) {
       flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }
+    }
+    e.target.value = "";
   };
 
   const loadCarpetasAnio = async (anio: number) => {
@@ -471,10 +475,11 @@ export default function ExpedientesPage() {
 
   const handleFileUploadAnio = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !anioSeleccionado || anioSeleccionado === "SIN_ANIO") return;
-    const file = e.target.files[0];
+    const fileArr = Array.from(e.target.files);
     const anio = anioSeleccionado as number;
     const rootId = await getOrCreateRootCarpeta(anio);
     if (!rootId) { flash("err", "Error al preparar carpeta raíz"); return; }
+    for (const file of fileArr) {
     const path = buildPath({ module: "expedientes", scope: ["anio", String(anio), "sueltos"], file });
     try {
       const result = await uploadAndInsert({
@@ -490,6 +495,7 @@ export default function ExpedientesPage() {
       if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
     } catch (err: unknown) {
       flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
+    }
     }
     e.target.value = "";
   };
@@ -668,7 +674,8 @@ export default function ExpedientesPage() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !carpetaSeleccionada || !obraSeleccionada) return;
-    const file = e.target.files[0];
+    const fileArr = Array.from(e.target.files);
+    for (const file of fileArr) {
 
     // Path con namespace estructurado: expedientes/<obra>/<carpeta>/<ts_filename>
     const path = buildPath({
@@ -695,6 +702,8 @@ export default function ExpedientesPage() {
     } catch (err: unknown) {
       flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }
+    }
+    e.target.value = "";
   };
 
   const getPrioridadColor = (prioridad: string) => {
@@ -870,9 +879,14 @@ export default function ExpedientesPage() {
           >
             <FolderPlus className="w-4 h-4" /> Nueva subcarpeta
           </button>
-          <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition shrink-0">
-            <Plus className="w-4 h-4" /> Subir archivo
-            <input type="file" className="hidden" onChange={handleFileUploadCarpetaAnio} />
+          <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium cursor-pointer transition shrink-0">
+            <Upload className="w-4 h-4" /> Archivos
+            <input type="file" className="hidden" multiple onChange={handleFileUploadCarpetaAnio} />
+          </label>
+          <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white text-sm font-medium cursor-pointer transition shrink-0">
+            <FolderUp className="w-4 h-4" /> Carpeta
+            {/* @ts-ignore webkitdirectory */}
+            <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUploadCarpetaAnio} />
           </label>
         </div>
 
@@ -1180,9 +1194,14 @@ export default function ExpedientesPage() {
                   </button>
                 )}
                 <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300 text-xs font-medium cursor-pointer transition">
-                  <Upload className="w-3.5 h-3.5" /> Subir archivo
-                  <input type="file" className="hidden" onChange={handleFileUploadAnio} />
-                </label>
+                    <Upload className="w-3.5 h-3.5" /> Archivos
+                    <input type="file" className="hidden" multiple onChange={handleFileUploadAnio} />
+                  </label>
+                  <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-700/20 hover:bg-emerald-700/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium cursor-pointer transition">
+                    <FolderUp className="w-3.5 h-3.5" /> Carpeta
+                    {/* @ts-ignore webkitdirectory */}
+                    <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUploadAnio} />
+                  </label>
               </div>
             </div>
             {archivosAnio.length > 0 ? (
@@ -1373,10 +1392,16 @@ export default function ExpedientesPage() {
                   </h2>
                   <div className="flex gap-2">
                     <label className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg cursor-pointer transition-colors flex items-center gap-2">
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm font-medium">Subir archivo</span>
-                      <input type="file" className="hidden" onChange={handleFileUpload} />
-                    </label>
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm font-medium">Archivos</span>
+                    <input type="file" className="hidden" multiple onChange={handleFileUpload} />
+                  </label>
+                  <label className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg cursor-pointer transition-colors flex items-center gap-2">
+                    <FolderUp className="w-4 h-4" />
+                    <span className="text-sm font-medium">Carpeta</span>
+                    {/* @ts-ignore webkitdirectory */}
+                    <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUpload} />
+                  </label>
                     {canDelete && (<button
                       onClick={() => eliminarCarpeta(carpetaSeleccionada.id)}
                       className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors"
