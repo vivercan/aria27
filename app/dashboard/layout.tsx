@@ -48,6 +48,7 @@ const searchableItems = [
   { name: "Prestaciones", icon: ChevronRight, href: "/dashboard/talento/prestaciones" },
   { name: "Documentos Legales", icon: ChevronRight, href: "/dashboard/talento/legales" },
   { name: "Matriz Salarial", icon: ChevronRight, href: "/dashboard/talento/matriz" },
+  { name: "Mis Documentos", icon: ChevronRight, href: "/dashboard/talento/documentos" },
   { name: "Requisiciones", icon: ChevronRight, href: "/dashboard/requisiciones/requisiciones" },
   { name: "Productos", icon: ChevronRight, href: "/dashboard/requisiciones/productos" },
   { name: "Proveedores", icon: ChevronRight, href: "/dashboard/requisiciones/proveedores" },
