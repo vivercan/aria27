@@ -800,7 +800,7 @@ export default function ExpedientesPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        ANOS_FIJOSJOS.map((anio) => {
+        {ANOS_FIJOS.map((anio) => {
             const count = countPorAnio(anio);
             const carpCount = carpetasPorAnio[anio] || 0;
             return (
