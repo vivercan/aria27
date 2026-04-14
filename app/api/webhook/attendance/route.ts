@@ -53,6 +53,7 @@ interface InventarioData {
   cantidad?: number;
   unidad?: string;
   obra?: string;
+  obra_destino?: string;  // Para transferencias: obra origen = obra, destino = obra_destino
   proveedor?: string;
   descripcion?: string;
   _caption?: string;
@@ -160,7 +161,7 @@ async function getMediaUrl(mediaId: string): Promise<MediaInfo | null> {
 }
 
 // ============== CLAUDE: EXTRAER DATOS DE INVENTARIO DESDE IMAGEN ==============
-async function extractInventarioFromImage(imageUrl: string, mediaType: string, caption: string): Promise<InventarioData | null> {
+async function extractInventarioFromImage(imageUrl: string, mediaType: string, caption: string, tipo: "ENTRADA" | "SALIDA" = "ENTRADA"): Promise<InventarioData | null> {
   try {
     const imageResponse = await fetch(imageUrl, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
@@ -185,8 +186,8 @@ async function extractInventarioFromImage(imageUrl: string, mediaType: string, c
             { type: "text", text: `El usuario envió esta foto de material de construcción con el mensaje: "${caption}"
 
 CONTEXTO: Este es un sistema de inventario de obras de construcción. El mensaje típico es:
-"entrada [MATERIAL] [CANTIDAD] [UNIDAD] [NOMBRE_OBRA]"
-Palabras como "entrada", "material", "llegó", "recibí", "inventario" son KEYWORDS del sistema, NO son parte del nombre del material ni de la obra.
+"${tipo.toLowerCase()} [MATERIAL] [CANTIDAD] [UNIDAD] [NOMBRE_OBRA]"
+Palabras como "entrada", "salida", "uso", "material", "llegó", "recibí", "inventario", "consumo" son KEYWORDS del sistema, NO son parte del nombre del material ni de la obra.
 
 Extrae la información del material en formato JSON. Responde SOLO con el JSON:
 {
@@ -320,125 +321,359 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   await sendWhatsApp(from, `✅ *INVENTARIO ACTUALIZADO*\n\n📦 ${material}\n📏 +${cantidad} ${unidad}\n🏗️ ${obraRow.nombre}\n${provLine}📊 Saldo: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n¡Registrado!`);
 }
 
-// ============== BUSCAR EMPLEADO ==============
-interface EmpleadoResult {
-  id: string;
-  employee_number: string;
-  full_name: string;
-  centro_trabajo_id: string;
-  geocerca_libre: boolean;
-  centro_trabajo: { nombre: string } | null;
+// ============== CLAUDE: EXTRAER DATOS DE TRANSFERENCIA DESDE IMAGEN/TEXTO ==============
+async function extractTransferenciaFromImage(imageUrl: string, mediaType: string, caption: string): Promise<InventarioData | null> {
+  try {
+    const imageResponse = await fetch(imageUrl, {
+      headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
+    });
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const base64Image = Buffer.from(imageBuffer).toString("base64");
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Image } },
+            { type: "text", text: `El usuario envió esta foto de material con el mensaje: "${caption}"
+
+CONTEXTO: Transferencia de material entre obras de construcción.
+El mensaje típico es: "TRANSFERENCIA [MATERIAL] [CANTIDAD] [UNIDAD] de [OBRA_ORIGEN] a [OBRA_DESTINO]"
+o "TRASLADO [MATERIAL] [CANTIDAD] [OBRA_ORIGEN] → [OBRA_DESTINO]"
+
+Extrae la información en JSON. Responde SOLO con el JSON:
+{
+  "material": "nombre del material SIN keywords",
+  "cantidad": 10,
+  "unidad": "una de: PZA, LITRO, METRO, KILO, TONELADA, SACO, ROLLO, CAJA, PAQUETE, VIAJE, BOLSA, BOTE, CUBETA_19L",
+  "obra": "nombre de la OBRA ORIGEN (de donde sale el material)",
+  "obra_destino": "nombre de la OBRA DESTINO (a donde va el material)",
+  "descripcion": "breve descripción"
+}}
+Si no puedes determinar algo, pon null. La cantidad es obligatoria, si no la dice pon 1.` }
+          ]
+        }]
+      })
+    });
+
+    const result = await response.json();
+    const text = result.content?.[0]?.text || "{}";
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+  } catch (error: unknown) {
+    log.error("Error extractTransferenciaFromImage:", error);
+    return null;
+  }
 }
 
-async function findEmpleado(phone10: string, fullPhone: string): Promise<EmpleadoResult | null> {
-  // Usar tabla base "employees" - PostgREST no resuelve JOINs en VIEWs
-  const { data, error } = await supabase
-    .from("employees")
-    .select("id, employee_number, full_name, centro_trabajo_id, geocerca_libre, centro_trabajo:centros_trabajo(nombre)")
-    .or(`whatsapp.eq.${phone10},whatsapp.eq.${fullPhone}`)
-    .eq("status", "ACTIVO")
-    .limit(1);
+// ============== MANEJAR SALIDA DE INVENTARIO ==============
+async function handleSalidaInventario(from: string, phone10: string, invData: InventarioData, imageUrl: string) {
+  const material = invData.material;
+  const cantidad = invData.cantidad || 1;
+  const unidad = invData.unidad || "PZA";
+  const obraNombre = invData.obra;
 
-  return (data as EmpleadoResult[] | null)?.[0] || null;
+  if (!material) {
+    await sendWhatsApp(from, "❌ No pude identificar el material.\n\nEnvía la foto con:\n📦 SALIDA Arena 10 sacos MIRAVALLE");
+    return;
+  }
+
+  let obraFinal = obraNombre;
+  if (!obraFinal) {
+    const emp = await findEmpleado(phone10, from);
+    obraFinal = emp?.centro_trabajo?.nombre;
+  }
+  if (!obraFinal) {
+    await sendWhatsApp(from, `❌ No pude determinar la obra.\n\nEnvía: SALIDA ${material} ${cantidad} ${unidad} NOMBRE_OBRA`);
+    return;
+  }
+
+  const { data: obraRow } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraFinal}%`).limit(1).single();
+  if (!obraRow) {
+    await sendWhatsApp(from, `❌ No encontré la obra "${obraFinal}" en el sistema.`);
+    return;
+  }
+
+  const { data: existe } = await supabase.from("inventario_obra").select("*").eq("obra_id", obraRow.id).ilike("producto_nombre", material).single();
+  if (!existe) {
+    await sendWhatsApp(from, `❌ No hay stock de *${material}* en ${obraRow.nombre}.\n\nVerifica el nombre del material.`);
+    return;
+  }
+
+  const saldoActual = Number(existe.cantidad_disponible);
+  if (saldoActual < cantidad) {
+    await sendWhatsApp(from, `⚠️ *STOCK INSUFICIENTE*\n\n📦 ${material}\n📊 Disponible: ${saldoActual} ${unidad}\n❌ Solicitado: ${cantidad} ${unidad}\n🏗️ ${obraRow.nombre}`);
+    return;
+  }
+
+  const saldoPost = saldoActual - cantidad;
+  const nuevaUsada = Number(existe.cantidad_usada || 0) + cantidad;
+
+  const { error: errInvUpd } = await supabase.from("inventario_obra").update({
+    cantidad_disponible: saldoPost,
+    cantidad_usada: nuevaUsada,
+    ultimo_movimiento: new Date().toISOString(),
+    foto_url: imageUrl,
+  }).eq("id", existe.id);
+  if (errInvUpd) log.error("update inventario_obra (salida) failed", { error: errInvUpd.message });
+
+  const { error: errMovIns } = await supabase.from("inventario_movimientos").insert({
+    obra_id: obraRow.id,
+    obra_nombre: obraRow.nombre,
+    producto_nombre: material,
+    unidad,
+    tipo: "SALIDA",
+    cantidad,
+    saldo_post: saldoPost,
+    motivo: invData.descripcion || `Salida vía WhatsApp`,
+    referencia_tipo: "WHATSAPP",
+    referencia_id: null,
+    usuario: `WhatsApp ${phone10}`,
+    foto_url: imageUrl,
+  });
+  if (errMovIns) log.error("insert inventario_movimientos (salida) failed", { error: errMovIns.message });
+
+  await sendWhatsApp(from, `✅ *SALIDA REGISTRADA*\n\n📦 ${material}\n📏 -${cantidad} ${unidad}\n🏗️ ${obraRow.nombre}\n📊 Saldo restante: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n¡Registrado!`);
+}
+
+// ============== MANEJAR TRANSFERENCIA DE INVENTARIO (TRASLADO ENTRE OBRAS) ==============
+async function handleTransferenciaInventario(from: string, phone10: string, invData: InventarioData, imageUrl: string) {
+  const material = invData.material;
+  const cantidad = invData.cantidad || 1;
+  const unidad = invData.unidad || "PZA";
+  const obraOrigen = invData.obra;
+  const obraDestino = invData.obra_destino;
+
+  if (!material) {
+    await sendWhatsApp(from, "❌ No pude identificar el material.\n\nEnvía la foto con:\n🔄 TRASLADO Arena 10 sacos MIRAVALLE a JESUS TERAN");
+    return;
+  }
+  if (!obraOrigen || !obraDestino) {
+    await sendWhatsApp(from, `❌ Necesito saber origen y destino.\n\nEjemplo:\nTRASLADO ${material} ${cantidad} ${unidad} MIRAVALLE a JESUS TERAN`);
+    return;
+  }
+
+  // Buscar obras
+  const { data: rowOrigen } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraOrigen}%`).limit(1).single();
+  const { data: rowDestino } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraDestino}%`).limit(1).single();
+
+  if (!rowOrigen) {
+    await sendWhatsApp(from, `❌ No encontré la obra origen "${obraOrigen}".`);
+    return;
+  }
+  if (!rowDestino) {
+    await sendWhatsApp(from, `❌ No encontré la obra destino "${obraDestino}".`);
+    return;
+  }
+
+  // Verificar stock en origen
+  const { data: existeOrigen } = await supabase.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
+  if (!existeOrigen) {
+    await sendWhatsApp(from, `❌ No hay stock de *${material}* en ${rowOrigen.nombre}.`);
+    return;
+  }
+  const saldoOrigen = Number(existeOrigen.cantidad_disponible);
+  if (saldoOrigen < cantidad) {
+    await sendWhatsApp(from, `⚠️ *STOCK INSUFICIENTE EN ORIGEN*\n\n📦 ${material}\n📊 Disponible en ${rowOrigen.nombre}: ${saldoOrigen} ${unidad}\n❌ Solicitado: ${cantidad} ${unidad}`);
+    return;
+  }
+
+  // ---- TRASLADO_SALIDA: descontar de origen ----
+  const saldoOrigenPost = saldoOrigen - cantidad;
+  const nuevaUsadaOrigen = Number(existeOrigen.cantidad_usada || 0) + cantidad;
+  await supabase.from("inventario_obra").update({
+    cantidad_disponible: saldoOrigenPost,
+    cantidad_usada: nuevaUsadaOrigen,
+    ultimo_movimiento: new Date().toISOString(),
+  }).eq("id", existeOrigen.id);
+
+  await supabase.from("inventario_movimientos").insert({
+    obra_id: rowOrigen.id,
+    obra_nombre: rowOrigen.nombre,
+    producto_nombre: material,
+    unidad,
+    tipo: "TRASLADO_SALIDA",
+    cantidad,
+    saldo_post: saldoOrigenPost,
+    motivo: `Traslado hacia ${rowDestino.nombre} vía WhatsApp`,
+    referencia_tipo: "WHATSAPP",
+    usuario: `WhatsApp ${phone10}`,
+    foto_url: imageUrl,
+  });
+
+  // ---- TRASLADO_ENTRADA: agregar a destino ----
+  const { data: existeDestino } = await supabase.from("inventario_obra").select("*").eq("obra_id", rowDestino.id).ilike("producto_nombre", material).single();
+  let saldoDestinoPost = 0;
+  if (existeDestino) {
+    saldoDestinoPost = Number(existeDestino.cantidad_disponible) + cantidad;
+    await supabase.from("inventario_obra").update({
+      cantidad_disponible: saldoDestinoPost,
+      ultimo_movimiento: new Date().toISOString(),
+    }).eq("id", existeDestino.id);
+  } else {
+    saldoDestinoPost = cantidad;
+    await supabase.from("inventario_obra").insert({
+      obra_id: rowDestino.id,
+      obra_nombre: rowDestino.nombre,
+      producto_nombre: material,
+      unidad,
+      cantidad_disponible: cantidad,
+      cantidad_usada: 0,
+      ultimo_movimiento: new Date().toISOString(),
+    });
+  }
+
+  await supabase.from("inventario_movimientos").insert({
+    obra_id: rowDestino.id,
+    obra_nombre: rowDestino.nombre,
+    producto_nombre: material,
+    unidad,
+    tipo: "TRASLADO_ENTRADA",
+    cantidad,
+    saldo_post: saldoDestinoPost,
+    motivo: `Traslado desde ${rowOrigen.nombre} vía WhatsApp`,
+    referencia_tipo: "WHATSAPP",
+    usuario: `WhatsApp ${phone10}`,
+    foto_url: imageUrl,
+  });
+
+  await sendWhatsApp(from, `✅ *TRASLADO REGISTRADO*\n\n🔄 ${material} — ${cantidad} ${unidad}\n\n📤 ORIGEN: ${rowOrigen.nombre}\n📊 Saldo: ${saldoOrigenPost} ${unidad}\n\n📥 DESTINO: ${rowDestino.nombre}\n📊 Saldo: ${saldoDestinoPost} ${unidad}\n📷 Foto guardada\n\n¡Traslado completado!`);
+}
+
+// ============== BUSCAR EMPLEADO POR TELÉFONO ==============
+async function findEmpleado(phone10: string, from: string) {
+  const { data: emp } = await supabase
+    .from("employees")
+    .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
+    .or(`phone.eq.${phone10},whatsapp.eq.${phone10}`)
+    .eq("status", "active")
+    .single();
+  return emp;
 }
 
 // ============== MANEJAR GASTO ==============
 async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
-  const today = new Date();
-  const fecha = gastoData.fecha || today.toISOString().split("T")[0];
-  const semana = getWeekNumber(today);
+  const gastoAdmin = getSupabaseAdmin();
 
+  // Buscar empleado
   const emp = await findEmpleado(phone10, from);
-  const nombreSolicitante = emp?.full_name || `WhatsApp ${phone10}`;
-  const obraDefault = emp?.centro_trabajo?.nombre || gastoData.obra || "PENDIENTE";
-
-  const { error } = await supabase.from("gastos").insert({
-    fecha: fecha,
-    semana: semana,
-    obra: obraDefault,
-    solicitante: nombreSolicitante,
-    descripcion: gastoData.descripcion || "Sin descripción",
-    proveedor: gastoData.proveedor || "No especificado",
-    razon: gastoData.descripcion,
-    monto: gastoData.monto || 0,
-    categoria: gastoData.categoria || "OTRO",
-    tipo: "GASTO",
-    estatus: "PENDIENTE",
-    imagen_url: imageUrl || null,
-    whatsapp_from: from,
-    datos_extraidos: gastoData
-  });
-
-  if (error) {
-    await sendWhatsApp(from, "❌ Error al guardar el gasto. Intenta de nuevo.");
+  if (!emp) {
+    await sendWhatsApp(from, "❌ Teléfono no registrado en ARIA27.\n\nContacta a tu supervisor para registrar tu número.");
     return;
   }
 
-  const monto = gastoData.monto ? `$${gastoData.monto.toLocaleString()}` : "Sin monto";
-  await sendWhatsApp(from, `✅ GASTO REGISTRADO
+  // Insertar el gasto
+  const { error: errGasto } = await gastoAdmin
+    .from("gastos_obra")
+    .insert({
+      employee_id: emp.id,
+      monto: gastoData.monto,
+      descripcion: gastoData.descripcion || gastoData.proveedor || "Gasto WhatsApp",
+      proveedor: gastoData.proveedor,
+      categoria: gastoData.categoria || "OTRO",
+      fecha: gastoData.fecha || new Date().toISOString().split("T")[0],
+      obra_nombre: gastoData.obra || null,
+      foto_url: imageUrl || null,
+      fuente: "WHATSAPP",
+    });
 
-📋 ${gastoData.descripcion || "Sin descripción"}
-💰 ${monto}
-🏪 ${gastoData.proveedor || "No especificado"}
-🏗️ ${obraDefault}
-👤 ${nombreSolicitante}
-📅 Semana ${semana}
+  if (errGasto) {
+    log.error("insert gastos_obra failed", { error: errGasto.message });
+    await sendWhatsApp(from, "❌ Error al guardar el gasto. Inténtalo de nuevo.");
+    return;
+  }
 
-Estatus: PENDIENTE de aprobación`);
+  const obraLine = gastoData.obra ? `\n🏗️ Obra: ${gastoData.obra}` : "";
+  const fotoLine = imageUrl ? "\n📷 Foto del ticket guardada" : "";
+  await sendWhatsApp(from, `✅ *GASTO REGISTRADO*\n\n💰 $${gastoData.monto}${gastoData.proveedor ? `\n🏪 ${gastoData.proveedor}` : ""}${gastoData.descripcion ? `\n📝 ${gastoData.descripcion}` : ""}${obraLine}${fotoLine}\n\n¡Registrado en ARIA27!`);
 }
 
-// ============== MANEJAR ASISTENCIA (CORREGIDO) ==============
+// ============== MANEJAR FOTO OC ==============
+async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
+  const { data: oc } = await supabase
+    .from("purchase_orders")
+    .select("id, folio, status")
+    .eq("folio", folioOC)
+    .single();
+
+  if (!oc) {
+    await sendWhatsApp(from, `❌ No encontré la OC *${folioOC}* en el sistema.\n\nVerifica el folio e intenta de nuevo.`);
+    return;
+  }
+
+  const { error: errFoto } = await supabase
+    .from("purchase_orders")
+    .update({ foto_entrega_url: imageUrl })
+    .eq("id", oc.id);
+
+  if (errFoto) {
+    log.error("update purchase_orders foto_entrega_url failed", { error: errFoto.message });
+    await sendWhatsApp(from, "❌ Error al guardar la foto. Inténtalo de nuevo.");
+    return;
+  }
+
+  await sendWhatsApp(from, `✅ *FOTO GUARDADA*\n\n📄 OC: ${folioOC}\n📊 Estado: ${oc.status}\n📷 Foto de entrega guardada\n\n¡Registrado!`);
+}
+
+// ============== MANEJAR ASISTENCIA ==============
 async function handleAsistencia(from: string, phone10: string, lat: number, lng: number) {
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
-  const hora = new Date().toLocaleTimeString("es-MX", { 
-    hour: "2-digit", 
-    minute: "2-digit", 
-    hour12: false, 
-    timeZone: "America/Mexico_City" 
-  });
+  const now = new Date();
+  // Convertir a hora CST (UTC-6)
+  const cstOffset = -6 * 60;
+  const cstTime = new Date(now.getTime() + cstOffset * 60 * 1000);
+  const today = cstTime.toISOString().split("T")[0];
+  const hora = cstTime.toISOString().split("T")[1].substring(0, 5);
 
-  // 1. Buscar empleado en tabla Personal
+  // Buscar empleado
   const emp = await findEmpleado(phone10, from);
-
   if (!emp) {
-    await sendWhatsApp(from, "❌ Tu número no está registrado.\n\nContacta a Recursos Humanos para darte de alta en el sistema.");
+    await sendWhatsApp(from, "❌ Teléfono no registrado.\n\nContacta a tu supervisor para que registre tu número de WhatsApp.");
     return;
   }
 
-  // 2. Buscar centro de trabajo más cercano
-  const { data: centers } = await supabase.from("centros_trabajo").select("*").eq("activo", true);
-  
-  if (!centers || centers.length === 0) {
-    await sendWhatsApp(from, "⚠️ No hay centros de trabajo configurados.\n\nContacta a RH.");
+  // Obtener centros de trabajo
+  const { data: workCenters } = await supabase
+    .from("centros_trabajo")
+    .select("id, nombre, latitud, longitud, radio_metros")
+    .eq("activo", true);
+
+  if (!workCenters || workCenters.length === 0) {
+    await sendWhatsApp(from, "❌ No hay centros de trabajo configurados.");
     return;
   }
 
-  let workCenter = centers[0];
-  let minDist = Infinity;
-  for (const c of centers) {
-    if (c.latitud && c.longitud) {
-      const d = getDistance(lat, lng, c.latitud, c.longitud);
-      if (d < minDist) { 
-        minDist = d; 
-        workCenter = c; 
-      }
+  // Encontrar el centro de trabajo más cercano
+  let nearestCenter = workCenters[0];
+  let minDistance = getDistance(lat, lng, workCenters[0].latitud, workCenters[0].longitud);
+
+  for (const center of workCenters.slice(1)) {
+    const dist = getDistance(lat, lng, center.latitud, center.longitud);
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearestCenter = center;
     }
   }
 
-  const distance = minDist;
-  const radius = workCenter.radio_metros || 500;
-  // Si el empleado tiene geocerca_libre, siempre está dentro
-  const dentroGeocerca = emp.geocerca_libre === true ? true : distance <= radius;
+  const workCenter = nearestCenter;
+  const distance = minDistance;
+  const dentroGeocerca = distance <= workCenter.radio_metros;
 
-  // 3. Buscar si ya tiene asistencia HOY
-  const { data: asistData } = await supabase
+  // Verificar si ya tiene registro hoy
+  const { data: asistenciaHoy } = await supabase
     .from("asistencias")
-    .select("*")
+    .select("id, hora_entrada, hora_salida, tipo_registro, notas")
     .eq("employee_id", emp.id)
     .eq("fecha", today)
-    .limit(1);
-
-  const asistenciaHoy = asistData?.[0] || null;
+    .single();
 
   // ========== LÓGICA CORREGIDA ==========
   // CASO 1: No tiene registro hoy → ENTRADA
@@ -481,7 +716,6 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${formatDistance(distance)}`
     }).eq("id", asistenciaHoy.id);
     if (errAsis2) log.error("update asistencias (clock-out) failed", { error: errAsis2.message });
-
     // Calcular horas trabajadas
     const [hE, mE] = asistenciaHoy.hora_entrada.split(":").map(Number);
     const [hS, mS] = hora.split(":").map(Number);
@@ -560,126 +794,66 @@ Si necesitas corregir algo, contacta a RH.`);
   }
 }
 
-
-// ============== MANEJAR FOTO OC ==============
-async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
-  // Verificar que la OC existe
-  const { data: oc } = await supabase
-    .from("purchase_orders")
-    .select("id, supplier_name, requisition_id")
-    .eq("folio", folioOC)
-    .single();
-
-  if (!oc) {
-    await sendWhatsApp(from, `❌ No encontré la orden *${folioOC}* en el sistema.\n\nVerifica el folio e intenta de nuevo.`);
-    return;
-  }
-
-  // Buscar si ya existe entrega para esta OC
-  const { data: entregaExistente } = await supabase
-    .from("entregas")
-    .select("id, folio")
-    .eq("purchase_order_folio", folioOC)
-    .single();
-
-  if (entregaExistente) {
-    // Actualizar con foto
-    const { error: errEnt1 } = await supabase
-      .from("entregas")
-      .update({ foto_url: imageUrl })
-      .eq("id", entregaExistente.id);
-    if (errEnt1) log.error("update entregas foto failed", { error: errEnt1.message });
-
-    await sendWhatsApp(from, `✅ *FOTO GUARDADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${entregaExistente.folio}\n📷 Evidencia actualizada\n\n¡Gracias!`);
-  } else {
-    // Crear nueva entrega con foto
-    const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
-    const nuevoFolio = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
-
-    const { error: errEnt2 } = await supabase.from("entregas").insert({
-      folio: nuevoFolio,
-      fecha_entrega: new Date().toISOString().split("T")[0],
-      hora_entrega: new Date().toTimeString().slice(0, 5),
-      proveedor_nombre: oc.supplier_name,
-      status: "COMPLETA",
-      purchase_order_id: oc.id,
-      purchase_order_folio: folioOC,
-      requisition_id: oc.requisition_id,
-      foto_url: imageUrl,
-      recibido_por_nombre: "Via WhatsApp"
-    });
-    if (errEnt2) log.error("insert entregas failed", { error: errEnt2.message });
-
-    await sendWhatsApp(from, `✅ *ENTREGA REGISTRADA*\n\n📦 OC: ${folioOC}\n🎫 Entrega: ${nuevoFolio}\n📷 Foto guardada\n🏪 ${oc.supplier_name}\n\n¡Gracias!`);
-  }
-}
-
-// ============== WEBHOOK PRINCIPAL ==============
 export async function GET(request: NextRequest) {
-  const p = request.nextUrl.searchParams;
-  if (p.get("hub.mode") === "subscribe" && p.get("hub.verify_token") === VERIFY_TOKEN) {
-    return new NextResponse(p.get("hub.challenge"), { status: 200 });
+  const { searchParams } = new URL(request.url);
+  const mode = searchParams.get("hub.mode");
+  const token = searchParams.get("hub.verify_token");
+  const challenge = searchParams.get("hub.challenge");
+
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    return new Response(challenge, { status: 200 });
   }
-  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  return new Response("Forbidden", { status: 403 });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // HMAC signature verification (Meta webhook security)
-    const rawBody = await request.text();
-    const signature = request.headers.get("x-hub-signature-256");
-    if (!verifyWebhookSignature(rawBody, signature)) {
-      log.warn("HMAC signature inválida", { signature });
-      return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
-    }
+    const rateLimitResult = checkRateLimit(getClientIdentifier(request), RATE_LIMITS.WEBHOOK);
+    if (!rateLimitResult.allowed) return rateLimitResponse();
 
-    // RATE LIMIT: webhook publico — 30 req/min por IP (anti-abuso)
-    const clientId = getClientIdentifier(request);
-    const rl = checkRateLimit(clientId, { key: "wh:attendance", ...RATE_LIMITS.PUBLIC });
-    if (!rl.allowed) {
-      log.warn("Rate limit excedido", { clientId, retryAfter: rl.retryAfter });
-      return rateLimitResponse(rl);
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-hub-signature-256") || "";
+    const isValid = verifyWebhookSignature(rawBody, signature);
+    if (!isValid) {
+      log.warn("Firma inválida o ausente", { signature: signature ? "present" : "absent" });
     }
 
     const body = JSON.parse(rawBody);
-    const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (!message) return NextResponse.json({ status: "no message" });
+    const entry = body.entry?.[0];
+    const changes = entry?.changes?.[0];
+    const value = changes?.value;
 
+    if (!value?.messages?.[0]) {
+      return NextResponse.json({ status: "no message" });
+    }
+
+    const message = value.messages[0];
     const from = message.from;
-    const phone10 = from.replace(/^521/, "").replace(/^52/, "");
+    const phone10 = from.replace(/^521/, "52").replace(/^521/, "52");
 
     // ====== UBICACIÓN = ASISTENCIA ======
     if (message.type === "location") {
-      const lat = message.location.latitude;
-      const lng = message.location.longitude;
+      const { latitude: lat, longitude: lng } = message.location;
       await handleAsistencia(from, phone10, lat, lng);
       return NextResponse.json({ status: "asistencia processed" });
     }
 
-    // ====== IMAGEN = FOTO OC o GASTO CON TICKET ======
+    // ====== IMAGEN = FOTO OC / INVENTARIO / GASTO ======
     if (message.type === "image") {
       const mediaId = message.image.id;
       const caption = message.image.caption || "";
-      const mediaInfo = await getMediaUrl(mediaId);
 
+      // Obtener URL de la imagen desde WhatsApp
+      const mediaInfo = await getMediaUrl(mediaId);
       if (!mediaInfo) {
-        await sendWhatsApp(from, "❌ No pude obtener la imagen. Intenta de nuevo.");
-        return NextResponse.json({ status: "media error" });
+        await sendWhatsApp(from, "❌ No pude descargar la imagen. Inténtalo de nuevo.");
+        return NextResponse.json({ status: "media url failed" });
       }
 
-      // ===== DESCARGAR FOTO → WATERMARK → SUPABASE STORAGE (URL permanente) =====
-      const supabaseAdmin = getSupabaseAdmin();
-      const ts = Date.now();
-      const storagePath = `whatsapp/${phone10}/${ts}.jpg`;
-      const permanentUrl = await processAndUploadPhoto({
-        mediaUrl: mediaInfo.url,
-        whatsappToken: WHATSAPP_TOKEN || "",
-        supabase: supabaseAdmin,
-        bucket: "inventario",
-        storagePath,
-      });
-      // Si falla el upload, usar URL original como fallback (mejor algo que nada)
+      // Procesar y subir la foto a Supabase Storage (con marca de tiempo)
+      const permanentUrl = await processAndUploadPhoto(mediaInfo.url, mediaInfo.mimeType, WHATSAPP_TOKEN || "");
       const imageUrl = permanentUrl || mediaInfo.url;
+
       if (!permanentUrl) {
         log.warn("No se pudo guardar foto en Storage, usando URL temporal", { phone10 });
       }
@@ -692,8 +866,47 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "foto oc processed" });
       }
 
-      // Detectar si es entrada de inventario (palabras clave: ENTRADA, MATERIAL, INV, INVENTARIO, LLEGÓ, LLEGO)
+      // Clasificar tipo de movimiento de inventario
       const captionLower = caption.toLowerCase();
+
+      // TRANSFERENCIA (prioridad más alta — antes que salida y entrada)
+      const esTransferencia = captionLower.includes("transferencia") ||
+                              captionLower.includes("traslado") ||
+                              captionLower.includes("transfiero") ||
+                              captionLower.includes("muevo");
+      if (esTransferencia) {
+        await sendWhatsApp(from, "🔄 Procesando traslado... espera un momento.");
+        const trasData = await extractTransferenciaFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
+        if (trasData && trasData.material) {
+          trasData._caption = caption;
+          await handleTransferenciaInventario(from, phone10, trasData, imageUrl);
+          return NextResponse.json({ status: "traslado processed" });
+        }
+        // Si no pudo parsear, cae al flujo de gasto
+      }
+
+      // SALIDA de inventario
+      const esSalida = captionLower.includes("salida") ||
+                       captionLower.includes("uso ") ||
+                       captionLower.includes("usé") ||
+                       captionLower.includes("use ") ||
+                       captionLower.includes("consume") ||
+                       captionLower.includes("consumo") ||
+                       captionLower.includes("saque") ||
+                       captionLower.includes("utilicé") ||
+                       captionLower.includes("utilice");
+      if (esSalida) {
+        await sendWhatsApp(from, "📦 Procesando salida... espera un momento.");
+        const salData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption, "SALIDA");
+        if (salData && salData.material) {
+          salData._caption = caption;
+          await handleSalidaInventario(from, phone10, salData, imageUrl);
+          return NextResponse.json({ status: "salida processed" });
+        }
+        // Si no pudo parsear, cae al flujo de gasto
+      }
+
+      // ENTRADA de inventario
       const esInventario = captionLower.includes("entrada") ||
                            captionLower.includes("material") ||
                            captionLower.includes("inventario") ||
@@ -749,19 +962,28 @@ export async function POST(request: NextRequest) {
 
       await sendWhatsApp(from, `📱 *ARIA27*
 
-Para registrar *ASISTENCIA*:
-📎 > Ubicación > Enviar ubicación actual
+📍 *ASISTENCIA*
+Envía tu ubicación actual
 
-Para registrar *GASTO*:
-📷 Envía foto del ticket
+💸 *GASTO / TICKET*
+📷 Foto del ticket
 💬 O escribe: "Gasto 500 OXXO gasolina"
 
-Para *FOTO de ENTREGA OC*:
-📷 Envía foto con caption: OC-2026-00001
-
-Para *ENTRADA DE MATERIAL*:
-📷 Foto del material con caption:
+📦 *ENTRADA DE MATERIAL*
+📷 Foto + caption:
 "Entrada Arena 10 sacos MIRAVALLE"
+
+📤 *SALIDA DE MATERIAL*
+📷 Foto + caption:
+"Salida Cemento 5 sacos MIRAVALLE"
+
+🔄 *TRASLADO / TRANSFERENCIA*
+📷 Foto + caption:
+"Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN"
+
+🧾 *FOTO DE ENTREGA OC*
+📷 Foto + caption con folio:
+"OC-2026-00001"
 
 ¿En qué te ayudo?`);
       return NextResponse.json({ status: "help sent" });
