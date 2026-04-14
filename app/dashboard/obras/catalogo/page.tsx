@@ -35,7 +35,7 @@ const STATUS = [
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
   { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
   { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
-  { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-slate-400" },
+  { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-[#7f93b0]" },
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
@@ -171,22 +171,22 @@ export default function CatalogoObrasPage() {
     archivadas: obras.filter(o => ["TERMINADA", "CANCELADA"].includes(o.estado)).length,
   };
 
-  const styleFor = (s: string) => STATUS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
+  const styleFor = (s: string) => STATUS.find(o => o.value === s)?.color || "bg-slate-500/20 text-[#7f93b0]";
   const labelFor = (s: string) => STATUS.find(o => o.value === s)?.label || s;
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-none p-6 pb-3 border-b border-white/10">
-        <Link href="/dashboard/obras" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+      <div className="flex-none p-6 pb-3 border-b border-white/[0.08]">
+        <Link href="/dashboard/obras" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Obras
         </Link>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white">Catálogo Maestro de Obras</h1>
-            <p className="text-xs text-slate-400">Fuente única · CRUD + cierre/archivo + historial · enlazado a costeo, gastos, expediente, personal</p>
+            <p className="text-xs text-[#7f93b0]">Fuente única · CRUD + cierre/archivo + historial · enlazado a costeo, gastos, expediente, personal</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs">Vista Pipeline</Link>
+            <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Vista Pipeline</Link>
             <button
               onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
               className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
@@ -203,29 +203,29 @@ export default function CatalogoObrasPage() {
             { label: "Activas", value: stats.activas, color: "text-emerald-400" },
             { label: "En planeación", value: stats.planeacion, color: "text-aria-accent" },
             { label: "Pausadas", value: stats.pausadas, color: "text-amber-400" },
-            { label: "Archivadas", value: stats.archivadas, color: "text-slate-400" },
+            { label: "Archivadas", value: stats.archivadas, color: "text-[#7f93b0]" },
           ].map(s => (
-            <div key={s.label} className="p-3 bg-white/5 rounded-lg">
+            <div key={s.label} className="p-3 bg-white/[0.04] rounded-lg">
               <p className={`text-xl font-bold ${s.color}`}>{loading ? "…" : s.value}</p>
-              <p className="text-xs text-slate-400">{s.label}</p>
+              <p className="text-xs text-[#7f93b0]">{s.label}</p>
             </div>
           ))}
         </div>
 
         <div className="flex items-center gap-2 mt-4">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar por nombre o cliente…"
-              className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none"
             />
           </div>
           <select
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
-            className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm"
+            className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm"
           >
             <option value="ACTIVAS">Activas / planeación / pausadas</option>
             <option value="ARCHIVADAS">Archivadas (terminadas+canceladas)</option>
@@ -246,40 +246,40 @@ export default function CatalogoObrasPage() {
           <h3 className="text-base font-semibold text-white mb-3">{editId ? "Editar obra" : "Nueva obra"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-2">
-              <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
-              <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Nombre *</label>
+              <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Estado</label>
-              <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+              <label className="text-xs text-[#7f93b0] mb-1 block">Estado</label>
+              <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                 {STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="text-xs text-slate-400 mb-1 block">Dirección</label>
-              <input value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Dirección</label>
+              <input value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Cliente</label>
-              <input value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Cliente</label>
+              <input value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Presupuesto</label>
-              <input type="number" min="0" value={form.presupuesto} onChange={e => setForm({ ...form, presupuesto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Presupuesto</label>
+              <input type="number" min="0" value={form.presupuesto} onChange={e => setForm({ ...form, presupuesto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               {formErrors.presupuesto && <p className="text-red-400 text-xs mt-1">{formErrors.presupuesto}</p>}
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Fecha inicio</label>
-              <input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Fecha inicio</label>
+              <input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Fecha fin</label>
-              <input type="date" value={form.fecha_fin} onChange={e => setForm({ ...form, fecha_fin: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Fecha fin</label>
+              <input type="date" value={form.fecha_fin} onChange={e => setForm({ ...form, fecha_fin: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400 mb-1 block">Descripción</label>
-              <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>
+              <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
           </div>
           <div className="flex gap-2 mt-4">
@@ -287,7 +287,7 @@ export default function CatalogoObrasPage() {
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editId ? "Guardar cambios" : "Crear obra"}
             </button>
-            <button onClick={resetForm} className="px-5 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={resetForm} className="px-5 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
@@ -295,8 +295,8 @@ export default function CatalogoObrasPage() {
       <div className="flex-1 overflow-auto p-6">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Obra</th>
                 <th className="text-left p-3">Cliente</th>
                 <th className="text-left p-3">Estado</th>
@@ -310,24 +310,24 @@ export default function CatalogoObrasPage() {
               {loading ? (
                 <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtradas.length === 0 ? (
-                <tr><td colSpan={7} className="p-8 text-center text-slate-500">Sin obras para los filtros actuales.</td></tr>
+                <tr><td colSpan={7} className="p-8 text-center text-[#4a6080]">Sin obras para los filtros actuales.</td></tr>
               ) : filtradas.map(o => {
                 const archivada = ["TERMINADA", "CANCELADA"].includes(o.estado);
                 return (
-                  <tr key={o.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${archivada ? "opacity-60" : ""}`}>
+                  <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${archivada ? "opacity-60" : ""}`}>
                     <td className="p-3">
                       <p className="text-white font-medium">{o.nombre}</p>
-                      {o.direccion && <p className="text-xs text-slate-500">{o.direccion}</p>}
+                      {o.direccion && <p className="text-xs text-[#4a6080]">{o.direccion}</p>}
                     </td>
-                    <td className="p-3 text-slate-300">{o.cliente || "—"}</td>
+                    <td className="p-3 text-[#c9d8ed]">{o.cliente || "—"}</td>
                     <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs ${styleFor(o.estado)}`}>{labelFor(o.estado)}</span></td>
                     <td className="p-3 text-right text-emerald-400 font-medium">{o.presupuesto != null ? `$${o.presupuesto.toLocaleString()}` : "—"}</td>
-                    <td className="p-3 text-slate-400 text-xs">
+                    <td className="p-3 text-[#7f93b0] text-xs">
                       {o.fecha_inicio ? new Date(o.fecha_inicio).toLocaleDateString("es-MX") : "—"}
                       {" → "}
                       {o.fecha_fin ? new Date(o.fecha_fin).toLocaleDateString("es-MX") : "—"}
                     </td>
-                    <td className="p-3 text-slate-500 text-xs">
+                    <td className="p-3 text-[#4a6080] text-xs">
                       {o.updated_at ? new Date(o.updated_at).toLocaleDateString("es-MX") : (o.created_at ? new Date(o.created_at).toLocaleDateString("es-MX") : "—")}
                     </td>
                     <td className="p-3">
@@ -339,7 +339,7 @@ export default function CatalogoObrasPage() {
                           <FolderOpen className="w-4 h-4" />
                         </Link>
                         {!archivada ? (
-                          <button onClick={() => cambiarEstado(o, "TERMINADA")} title="Archivar (Terminar)" className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+                          <button onClick={() => cambiarEstado(o, "TERMINADA")} title="Archivar (Terminar)" className="p-1.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded">
                             <Archive className="w-4 h-4" />
                           </button>
                         ) : (

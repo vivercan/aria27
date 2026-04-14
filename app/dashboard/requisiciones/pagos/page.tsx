@@ -145,7 +145,7 @@ export default function PagosPage() {
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <h1 className="text-2xl font-bold text-white">Control de Pagos</h1>
-        <p className="text-slate-400 text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
+        <p className="text-[#7f93b0] text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
       </div>
 
       {/* Stats */}
@@ -159,7 +159,7 @@ export default function PagosPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -167,14 +167,14 @@ export default function PagosPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio, proveedor u obra..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "PENDIENTE", "PARCIAL", "PAGADA"].map(s => (
             <button key={s} onClick={() => setFilterStatus(s)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === s ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterStatus === s ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {s}
             </button>
           ))}
@@ -185,8 +185,8 @@ export default function PagosPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">OC</th>
                 <th className="text-left p-3">Proveedor</th>
                 <th className="text-left p-3">Obra</th>
@@ -199,16 +199,16 @@ export default function PagosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">No hay Órdenes de compra</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-[#7f93b0]">No hay Órdenes de compra</td></tr>
               ) : filtered.map(oc => {
                 const badge = getStatusBadge(oc);
                 return (
-                  <tr key={oc.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                  <tr key={oc.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-3 text-white font-mono text-xs">{oc.folio}</td>
                     <td className="p-3 text-white">{oc.supplier_name}</td>
-                    <td className="p-3 text-slate-300">{oc.obra_nombre}</td>
+                    <td className="p-3 text-[#c9d8ed]">{oc.obra_nombre}</td>
                     <td className="p-3 text-right text-white font-medium">${(oc.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-emerald-400">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-amber-400 font-medium">${((oc.total || 0) - (oc.monto_pagado || oc.pagado || 0)).toLocaleString()}</td>
@@ -231,36 +231,36 @@ export default function PagosPage() {
 
       {/* Modal Registrar Pago */}
       {pagoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 ">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold text-white">Registrar Pago</h3>
-              <button onClick={() => setPagoModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setPagoModal(null)} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Monto del pago</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Monto del pago</label>
                 <input type="number" value={pagoMonto} onChange={e => setPagoMonto(e.target.value)} step="0.01" min="0" max={pagoModal.saldo}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
-                <p className="text-xs text-slate-500 mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
+                  className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
+                <p className="text-xs text-[#4a6080] mt-1">{`Saldo pendiente: $${pagoModal.saldo.toLocaleString()}`}</p>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Método de pago</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Método de pago</label>
                 <select value={pagoMetodo} onChange={e => setPagoMetodo(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none">
+                  className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                   <option value="Transferencia">Transferencia</option>
                   <option value="Cheque">Cheque</option>
                   <option value="Efectivo">Efectivo</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Referencia bancaria (opcional)</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Referencia bancaria (opcional)</label>
                 <input type="text" value={pagoReferencia} onChange={e => setPagoReferencia(e.target.value)} placeholder="No. de referencia"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
+                  className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
+              <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">Cancelar</button>
               <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || parseFloat(pagoMonto) <= 0}
                 className="flex-1 py-2.5 bg-aria-primary rounded-xl text-white text-sm font-medium hover:bg-aria-primary-hover disabled:opacity-50 disabled:cursor-not-allowed">
                 {pagoSaving ? "Guardando..." : "Confirmar Pago"}

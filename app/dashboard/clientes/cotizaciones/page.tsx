@@ -437,7 +437,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Cotizaciones a Cliente</h1>
-          <p className="text-slate-400 text-sm">Cotizaciones formales a clientes — bloqueadas para clientes INACTIVOS</p>
+          <p className="text-[#7f93b0] text-sm">Cotizaciones formales a clientes — bloqueadas para clientes INACTIVOS</p>
         </div>
         <button onClick={abrirNuevo} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Cotización
@@ -454,21 +454,21 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar folio, cliente, obra..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2 flex-wrap">
           {(["TODOS", ...ESTATUS] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {f}
             </button>
           ))}
@@ -478,8 +478,8 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Folio</th>
                 <th className="text-left p-3">Fecha</th>
                 <th className="text-left p-3">Cliente</th>
@@ -493,17 +493,17 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
               {loading ? (
                 <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="p-8 text-center text-slate-400">Sin cotizaciones</td></tr>
+                <tr><td colSpan={7} className="p-8 text-center text-[#7f93b0]">Sin cotizaciones</td></tr>
               ) : filtered.map(c => (
-                <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                <tr key={c.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{c.folio || c.id.slice(0, 8)}</td>
-                  <td className="p-3 text-slate-300">{c.fecha}</td>
+                  <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white">{c.cliente_nombre}</td>
-                  <td className="p-3 text-slate-300">{c.obra_nombre || "-"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
                   <td className="p-3 text-right text-white">${Number(c.total || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-center">
                     <select value={c.estatus} onChange={e => cambiarEstatus(c, e.target.value)}
-                      className="px-2 py-1 rounded text-xs bg-white/5 border border-white/10 text-white focus:outline-none">
+                      className="px-2 py-1 rounded text-xs bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none">
                       {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
@@ -527,45 +527,45 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-auto py-8">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-4xl mx-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  overflow-auto py-8">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-4xl mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold text-white">{editId ? "Editar Cotización" : "Nueva Cotización a Cliente"}</h3>
-              <button onClick={() => { setShowForm(false); setEditId(null); }} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => { setShowForm(false); setEditId(null); }} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Folio (opcional)</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Folio (opcional)</label>
                 <input value={form.folio} onChange={e => setForm({ ...form, folio: e.target.value })} placeholder="Auto: COT-2026-0001"
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Fecha *</label>
                 <input type="date" required value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Vigencia (días) *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Vigencia (días) *</label>
                 <input type="number" required min="1" value={form.vigencia_dias} onChange={e => setForm({ ...form, vigencia_dias: parseInt(e.target.value) || 30 })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Cliente *</label>
                 <select value={form.cliente_id} onChange={e => setForm({ ...form, cliente_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                   <option value="">— Selecciona cliente ACTIVO —</option>
                   {clientesActivos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
                 {clientes.length > clientesActivos.length && (
-                  <p className="text-[11px] text-slate-500 mt-1">{clientes.length - clientesActivos.length} cliente(s) INACTIVO(s) ocultos.</p>
+                  <p className="text-[11px] text-[#4a6080] mt-1">{clientes.length - clientesActivos.length} cliente(s) INACTIVO(s) ocultos.</p>
                 )}
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Obra (opcional)</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Obra (opcional)</label>
                 <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                   <option value="">— Sin vínculo —</option>
                   {obrasActivas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                 </select>
@@ -575,7 +575,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             {/* Items */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs text-slate-400">Conceptos</label>
+                <label className="text-xs text-[#7f93b0]">Conceptos</label>
                 <button onClick={agregarItem} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 flex items-center gap-1">
                   <Plus className="w-3 h-3" /> Agregar línea
                 </button>
@@ -583,7 +583,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
               <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-slate-500 text-[10px] uppercase">
+                    <tr className="text-[#4a6080] text-[10px] uppercase">
                       <th className="text-left p-2">Concepto</th>
                       <th className="text-left p-2 w-20">Unidad</th>
                       <th className="text-right p-2 w-20">Cant.</th>
@@ -594,15 +594,15 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   </thead>
                   <tbody>
                     {items.map((it, idx) => (
-                      <tr key={idx} className="border-t border-white/5">
+                      <tr key={idx} className="border-t border-white/[0.05]">
                         <td className="p-1"><input required value={it.concepto} onChange={e => actualizarItem(idx, { concepto: e.target.value })} placeholder="Descripción"
-                          className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs" /></td>
+                          className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs" /></td>
                         <td className="p-1"><input value={it.unidad} onChange={e => actualizarItem(idx, { unidad: e.target.value })}
-                          className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs" /></td>
+                          className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs" /></td>
                         <td className="p-1"><input type="number" required step="0.01" min="0.01" value={it.cantidad} onChange={e => actualizarItem(idx, { cantidad: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs text-right" /></td>
+                          className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
                         <td className="p-1"><input type="number" required step="0.01" min="0" value={it.precio_unitario} onChange={e => actualizarItem(idx, { precio_unitario: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-xs text-right" /></td>
+                          className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
                         <td className="p-1 text-right text-emerald-400 font-medium">${it.importe.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                         <td className="p-1 text-center">
                           {items.length > 1 && (
@@ -620,41 +620,41 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Estatus</label>
                 <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">% IVA *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">% IVA *</label>
                 <input type="number" required min="0" max="100" step="0.01" value={form.iva_pct} onChange={e => setForm({ ...form, iva_pct: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Moneda</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Moneda</label>
                 <select value={form.moneda} onChange={e => setForm({ ...form, moneda: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                   <option value="MXN">MXN</option>
                   <option value="USD">USD</option>
                 </select>
               </div>
               <div className="md:col-span-3">
-                <label className="text-xs text-slate-400 mb-1 block">Notas</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>
                 <textarea value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} rows={2}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               </div>
             </div>
 
             <div className="flex justify-end gap-6 mb-4 text-sm">
-              <div className="text-slate-400">Subtotal: <span className="text-white font-medium">${subtotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
-              <div className="text-slate-400">IVA ({form.iva_pct}%): <span className="text-white font-medium">${iva.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
-              <div className="text-slate-300 text-base">Total: <span className="text-emerald-400 font-bold">${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
+              <div className="text-[#7f93b0]">Subtotal: <span className="text-white font-medium">${subtotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
+              <div className="text-[#7f93b0]">IVA ({form.iva_pct}%): <span className="text-white font-medium">${iva.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
+              <div className="text-[#c9d8ed] text-base">Total: <span className="text-emerald-400 font-bold">${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
             </div>
 
             <div className="flex gap-3">
               <button onClick={() => { setShowForm(false); setEditId(null); }}
-                className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">
+                className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">
                 Cancelar
               </button>
               <button onClick={guardar} disabled={saving}

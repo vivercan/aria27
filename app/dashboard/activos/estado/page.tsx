@@ -46,7 +46,7 @@ export default function EstadoActivosPage() {
       case "bueno": case "activo": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
       case "mantenimiento": case "reparacion": return <Wrench className="w-4 h-4 text-amber-400" />;
       case "baja": case "dañado": return <XCircle className="w-4 h-4 text-red-400" />;
-      default: return <AlertTriangle className="w-4 h-4 text-slate-400" />;
+      default: return <AlertTriangle className="w-4 h-4 text-[#7f93b0]" />;
     }
   };
 
@@ -59,19 +59,19 @@ export default function EstadoActivosPage() {
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          <Link href="/dashboard/activos" className="p-2 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
-            <p className="text-sm text-slate-400">{activos.length} activos registrados</p>
+            <p className="text-sm text-[#7f93b0]">{activos.length} activos registrados</p>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-aria-accent-bg text-aria-accent" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-aria-accent-bg text-aria-accent" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}>
             Todos ({activos.length})
           </button>
         {Object.entries(estados).map(([est, count]) => (
-          <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-aria-accent-bg text-aria-accent" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button key={est} onClick={() => setFiltro(est)} className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${filtro === est ? "bg-aria-accent-bg text-aria-accent" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}>
             {getIcon(est)} {est} ({count as number})
           </button>
         ))}
@@ -79,11 +79,11 @@ export default function EstadoActivosPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay activos en esta categoría</div>
+        <div className="text-center py-12 text-[#7f93b0]">No hay activos en esta categoría</div>
       ) : (
-        <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/10">
+        <div className="overflow-auto max-h-[65vh] rounded-xl border border-white/[0.08]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-800/90 backdrop-blur text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[#0c1d38]/90 backdrop-blur text-[#7f93b0] text-xs uppercase">
               <tr>
                 <th className="text-left p-3">Activo</th>
                 <th className="text-left p-3">Categoría</th>
@@ -94,17 +94,17 @@ export default function EstadoActivosPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(a => (
-                <tr key={a.id} className="hover:bg-white/5">
+                <tr key={a.id} className="hover:bg-white/[0.04]">
                   <td className="p-3 text-white font-medium">{a.nombre || a.name || "—"}</td>
-                  <td className="p-3 text-slate-400">{a.categoria || a.category || "—"}</td>
-                  <td className="p-3 text-slate-400">{a.ubicacion || a.location || "—"}</td>
+                  <td className="p-3 text-[#7f93b0]">{a.categoria || a.category || "—"}</td>
+                  <td className="p-3 text-[#7f93b0]">{a.ubicacion || a.location || "—"}</td>
                   <td className="p-3">{getIcon(a.estado || "")} <span className="ml-1 text-white">{a.estado || "Sin estado"}</span></td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
                       <select
                         value={a.estado || "—"}
                         onChange={(e) => cambiarEstado(a.id, e.target.value)}
-                        className="bg-slate-700 text-white text-xs rounded px-2 py-1.5 border border-white/10"
+                        className="bg-[#0f2448] text-white text-xs rounded px-2 py-1.5 border border-white/[0.08]"
                         disabled={saving === a.id}
                       >
                         <option value="">Seleccionar...</option>

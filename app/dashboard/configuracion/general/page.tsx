@@ -85,7 +85,7 @@ export default function ConfigGeneralPage() {
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-300", direccion: "bg-amber-500/20 text-amber-300",
     compras: "bg-aria-primary-light text-aria-accent", validador: "bg-emerald-500/20 text-emerald-300",
-    usuario: "bg-slate-500/20 text-slate-300"
+    usuario: "bg-slate-500/20 text-[#c9d8ed]"
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
@@ -94,10 +94,10 @@ export default function ConfigGeneralPage() {
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
             <h1 className="text-2xl font-bold">Configuración General</h1>
-            <p className="text-sm text-slate-400">Parámetros del sistema y usuarios</p>
+            <p className="text-sm text-[#7f93b0]">Parámetros del sistema y usuarios</p>
           </div>
         </div>
         {hasChanges && (
@@ -114,7 +114,7 @@ export default function ConfigGeneralPage() {
         <div className="flex items-center gap-2 mb-4">
           <Settings className="w-5 h-5 text-aria-accent" />
           <h2 className="text-lg font-semibold">Parámetros de Nómina</h2>
-          <span className="text-xs text-slate-400 ml-auto">{params.length} parámetros</span>
+          <span className="text-xs text-[#7f93b0] ml-auto">{params.length} parámetros</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {params.map(p => {
@@ -122,15 +122,15 @@ export default function ConfigGeneralPage() {
             const isEdited = edited[p.id] !== undefined && edited[p.id] !== p.valor;
             return (
               <div key={p.id} className={`flex items-center gap-3 rounded-xl p-3 transition ${isEdited ? "bg-amber-500/10 border border-amber-500/20" : "bg-black/20 border border-transparent"}`}>
-                <div className="p-2 rounded-lg bg-white/5">
+                <div className="p-2 rounded-lg bg-white/[0.04]">
                   <Icon className="w-4 h-4 text-aria-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-slate-400 truncate">{p.descripcion}</p>
-                  <p className="text-[10px] text-slate-500 font-mono">{p.clave}</p>
+                  <p className="text-xs text-[#7f93b0] truncate">{p.descripcion}</p>
+                  <p className="text-[10px] text-[#4a6080] font-mono">{p.clave}</p>
                 </div>
                 <input
-                  className={`w-28 rounded-lg px-3 py-1.5 text-sm text-right outline-none transition ${isEdited ? "bg-amber-500/20 border border-amber-500/30 text-amber-200" : "bg-black/30 border border-white/10"}`}
+                  className={`w-28 rounded-lg px-3 py-1.5 text-sm text-right outline-none transition ${isEdited ? "bg-amber-500/20 border border-amber-500/30 text-amber-200" : "bg-black/30 border border-white/[0.08]"}`}
                   value={edited[p.id] !== undefined ? edited[p.id] : p.valor}
                   onChange={e => handleChange(p.id, e.target.value)}
                   onBlur={() => guardar(p)}
@@ -146,16 +146,16 @@ export default function ConfigGeneralPage() {
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-violet-400" />
           <h2 className="text-lg font-semibold">Usuarios del Sistema</h2>
-          <span className="text-xs text-slate-400 ml-auto">{users.length} usuarios</span>
+          <span className="text-xs text-[#7f93b0] ml-auto">{users.length} usuarios</span>
         </div>
         <div className="overflow-auto rounded-xl border border-white/[0.06]">
-          <div className="grid grid-cols-[1fr_1fr_100px_100px] gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
+          <div className="grid grid-cols-[1fr_1fr_100px_100px] gap-2 px-4 py-2.5 border-b border-white/[0.08] bg-white/[0.04] text-[11px] font-medium uppercase text-white/50 sticky top-0">
             <div>Nombre</div><div>Email</div><div>Rol</div><div>Estado</div>
           </div>
           {users.map(u => (
             <div key={u.id} className="grid grid-cols-[1fr_1fr_100px_100px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
               <div className="font-medium">{u.name}</div>
-              <div className="text-slate-400 text-xs truncate">{u.email}</div>
+              <div className="text-[#7f93b0] text-xs truncate">{u.email}</div>
               <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${roleColors[u.role] || roleColors.usuario}`}>{u.role}</span></div>
               <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${u.active ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>{u.active ? "Activo" : "Inactivo"}</span></div>
             </div>

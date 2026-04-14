@@ -159,12 +159,12 @@ export default function MovimientosBancariosPage() {
     <div className="space-y-6">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/10 rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/[0.06] rounded-lg">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white">Movimientos Bancarios · Conciliación</h1>
-          <p className="text-slate-400 text-sm">Alta manual + match con cobros y órdenes de compra</p>
+          <p className="text-[#7f93b0] text-sm">Alta manual + match con cobros y órdenes de compra</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/30 text-aria-accent rounded-lg flex items-center gap-2 text-sm">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -173,91 +173,91 @@ export default function MovimientosBancariosPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-slate-400">Movimientos</p>
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <p className="text-sm text-[#7f93b0]">Movimientos</p>
           <p className="text-2xl font-bold text-white">{movsFiltrados.length}</p>
         </div>
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-slate-400">Abonos</p>
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <p className="text-sm text-[#7f93b0]">Abonos</p>
           <p className="text-2xl font-bold text-emerald-400">${totalAbonos.toLocaleString()}</p>
         </div>
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-slate-400">Cargos</p>
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <p className="text-sm text-[#7f93b0]">Cargos</p>
           <p className="text-2xl font-bold text-red-400">${totalCargos.toLocaleString()}</p>
         </div>
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-slate-400">Pendientes match</p>
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <p className="text-sm text-[#7f93b0]">Pendientes match</p>
           <p className="text-2xl font-bold text-amber-400">{pendientes}</p>
         </div>
       </div>
 
       {showForm && (
-        <div className="p-6 bg-white/5 rounded-xl border border-white/10 space-y-4">
+        <div className="p-6 bg-white/[0.04] rounded-xl border border-white/[0.08] space-y-4">
           <h3 className="text-lg font-semibold text-white">Alta de movimiento</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400">Cuenta *</label>
-              <select value={form.cuenta_id} onChange={e => setForm({ ...form, cuenta_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+              <label className="text-xs text-[#7f93b0]">Cuenta *</label>
+              <select value={form.cuenta_id} onChange={e => setForm({ ...form, cuenta_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                 <option value="">Selecciona...</option>
                 {cuentas.map(c => <option key={c.id} value={c.id}>{c.banco} · {c.cuenta} ({c.empresa})</option>)}
               </select>
               {formErrors.cuenta_id && <p className="text-red-400 text-xs mt-1">{formErrors.cuenta_id}</p>}
             </div>
             <div>
-              <label className="text-xs text-slate-400">Fecha</label>
-              <input type="date" value={form.fecha_movimiento} onChange={e => setForm({ ...form, fecha_movimiento: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Fecha</label>
+              <input type="date" value={form.fecha_movimiento} onChange={e => setForm({ ...form, fecha_movimiento: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-400">Tipo</label>
-              <select value={form.tipo_movimiento} onChange={e => setForm({ ...form, tipo_movimiento: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+              <label className="text-xs text-[#7f93b0]">Tipo</label>
+              <select value={form.tipo_movimiento} onChange={e => setForm({ ...form, tipo_movimiento: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                 <option value="ABONO">ABONO (entrada)</option>
                 <option value="CARGO">CARGO (salida)</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400">Monto *</label>
-              <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Monto *</label>
+              <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
               {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
             </div>
             <div className="md:col-span-2">
-              <label className="text-xs text-slate-400">Concepto</label>
-              <input value={form.concepto} onChange={e => setForm({ ...form, concepto: e.target.value })} placeholder="Descripción del movimiento" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Concepto</label>
+              <input value={form.concepto} onChange={e => setForm({ ...form, concepto: e.target.value })} placeholder="Descripción del movimiento" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Referencia / Notas</label>
-              <input value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} placeholder="Referencia bancaria, nota interna" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Referencia / Notas</label>
+              <input value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} placeholder="Referencia bancaria, nota interna" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
           </div>
           <div className="flex gap-3">
             <button onClick={crearMovimiento} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm">Guardar</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/[0.04] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
 
       <div className="flex items-center gap-3 flex-wrap">
-        <select value={filtroCuenta} onChange={e => setFiltroCuenta(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+        <select value={filtroCuenta} onChange={e => setFiltroCuenta(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
           <option value="">Todas las cuentas</option>
           {cuentas.map(c => <option key={c.id} value={c.id}>{c.banco} · {c.cuenta}</option>)}
         </select>
-        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
           <option value="TODOS">Todos los estatus</option>
           <option value="PENDIENTE">Pendientes</option>
           <option value="MATCHED">Conciliados</option>
         </select>
       </div>
 
-      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+      <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-900/95 sticky top-0 backdrop-blur">
+          <thead className="bg-[rgba(4,8,16,0.98)] sticky top-0 backdrop-blur">
             <tr>
-              <th className="px-3 py-3 text-left text-slate-300">Fecha</th>
-              <th className="px-3 py-3 text-left text-slate-300">Cuenta</th>
-              <th className="px-3 py-3 text-center text-slate-300">Tipo</th>
-              <th className="px-3 py-3 text-right text-slate-300">Monto</th>
-              <th className="px-3 py-3 text-left text-slate-300">Concepto</th>
-              <th className="px-3 py-3 text-center text-slate-300">Status</th>
-              <th className="px-3 py-3 text-center text-slate-300">Acciones</th>
+              <th className="px-3 py-3 text-left text-[#c9d8ed]">Fecha</th>
+              <th className="px-3 py-3 text-left text-[#c9d8ed]">Cuenta</th>
+              <th className="px-3 py-3 text-center text-[#c9d8ed]">Tipo</th>
+              <th className="px-3 py-3 text-right text-[#c9d8ed]">Monto</th>
+              <th className="px-3 py-3 text-left text-[#c9d8ed]">Concepto</th>
+              <th className="px-3 py-3 text-center text-[#c9d8ed]">Status</th>
+              <th className="px-3 py-3 text-center text-[#c9d8ed]">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -265,16 +265,16 @@ export default function MovimientosBancariosPage() {
             {!loading && movsFiltrados.map(m => {
               const status = m.status_match || "PENDIENTE";
               return (
-                <tr key={m.id} className="hover:bg-white/5">
-                  <td className="px-3 py-2 text-slate-300">{m.fecha_movimiento ? new Date(m.fecha_movimiento).toLocaleDateString("es-MX") : "-"}</td>
-                  <td className="px-3 py-2 text-slate-300 text-xs">{m.banco} <br /><span className="text-slate-500 font-mono">{m.cuenta}</span></td>
+                <tr key={m.id} className="hover:bg-white/[0.04]">
+                  <td className="px-3 py-2 text-[#c9d8ed]">{m.fecha_movimiento ? new Date(m.fecha_movimiento).toLocaleDateString("es-MX") : "-"}</td>
+                  <td className="px-3 py-2 text-[#c9d8ed] text-xs">{m.banco} <br /><span className="text-[#4a6080] font-mono">{m.cuenta}</span></td>
                   <td className="px-3 py-2 text-center">
                     {m.tipo_movimiento === "ABONO"
                       ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs"><ArrowDown className="w-3 h-3" />ABONO</span>
                       : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-xs"><ArrowUp className="w-3 h-3" />CARGO</span>}
                   </td>
                   <td className={`px-3 py-2 text-right font-medium ${m.tipo_movimiento === "ABONO" ? "text-emerald-400" : "text-red-400"}`}>${Number(m.monto || 0).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-slate-300 text-xs">{m.concepto || "-"}<br /><span className="text-slate-500">{m.notas}</span></td>
+                  <td className="px-3 py-2 text-[#c9d8ed] text-xs">{m.concepto || "-"}<br /><span className="text-[#4a6080]">{m.notas}</span></td>
                   <td className="px-3 py-2 text-center">
                     {status === "MATCHED"
                       ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs"><CheckCircle2 className="w-3 h-3" />OK</span>
@@ -289,7 +289,7 @@ export default function MovimientosBancariosPage() {
               );
             })}
             {!loading && movsFiltrados.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-slate-400">Sin movimientos. Da de alta el primero.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-[#7f93b0]">Sin movimientos. Da de alta el primero.</td></tr>
             )}
           </tbody>
         </table>
@@ -297,23 +297,23 @@ export default function MovimientosBancariosPage() {
 
       {matchModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-2xl w-full border border-white/10 max-h-[80vh] overflow-y-auto">
+          <div className="bg-[#0c1d38] rounded-xl p-6 max-w-2xl w-full border border-white/[0.08] max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Conciliar movimiento · ${Number(matchModal.monto || 0).toLocaleString()}</h3>
-              <button onClick={() => setMatchModal(null)} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={() => setMatchModal(null)} className="text-[#7f93b0] hover:text-white"><X className="w-5 h-5" /></button>
             </div>
-            <p className="text-sm text-slate-400 mb-4">{matchModal.concepto} · {matchModal.fecha_movimiento}</p>
+            <p className="text-sm text-[#7f93b0] mb-4">{matchModal.concepto} · {matchModal.fecha_movimiento}</p>
             {matchModal.tipo_movimiento === "ABONO" ? (
               <>
-                <p className="text-sm text-slate-300 mb-2">Cobros con monto similar (±1%):</p>
-                {cobrosSugeridos.length === 0 && <p className="text-slate-500 text-sm py-4">Sin sugerencias</p>}
+                <p className="text-sm text-[#c9d8ed] mb-2">Cobros con monto similar (±1%):</p>
+                {cobrosSugeridos.length === 0 && <p className="text-[#4a6080] text-sm py-4">Sin sugerencias</p>}
                 <div className="space-y-2">
                   {cobrosSugeridos.map(c => (
-                    <button key={c.id} onClick={() => aplicarMatch("cobro", c.id, c.folio || c.id)} className="w-full text-left p-3 bg-white/5 hover:bg-emerald-500/20 rounded-lg border border-white/10 transition-colors">
+                    <button key={c.id} onClick={() => aplicarMatch("cobro", c.id, c.folio || c.id)} className="w-full text-left p-3 bg-white/[0.04] hover:bg-emerald-500/20 rounded-lg border border-white/[0.08] transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-white font-medium">{c.folio || c.id.slice(0,8)} · {c.cliente_nombre}</p>
-                          <p className="text-xs text-slate-400">{c.obra_nombre} · {c.fecha} · {c.estatus}</p>
+                          <p className="text-xs text-[#7f93b0]">{c.obra_nombre} · {c.fecha} · {c.estatus}</p>
                         </div>
                         <p className="text-emerald-400 font-bold">${Number(c.monto || 0).toLocaleString()}</p>
                       </div>
@@ -323,15 +323,15 @@ export default function MovimientosBancariosPage() {
               </>
             ) : (
               <>
-                <p className="text-sm text-slate-300 mb-2">Órdenes de compra con monto similar (±1%):</p>
-                {ocsSugeridas.length === 0 && <p className="text-slate-500 text-sm py-4">Sin sugerencias</p>}
+                <p className="text-sm text-[#c9d8ed] mb-2">Órdenes de compra con monto similar (±1%):</p>
+                {ocsSugeridas.length === 0 && <p className="text-[#4a6080] text-sm py-4">Sin sugerencias</p>}
                 <div className="space-y-2">
                   {ocsSugeridas.map(o => (
-                    <button key={o.id} onClick={() => aplicarMatch("oc", o.id, o.po_number || o.id)} className="w-full text-left p-3 bg-white/5 hover:bg-red-500/20 rounded-lg border border-white/10 transition-colors">
+                    <button key={o.id} onClick={() => aplicarMatch("oc", o.id, o.po_number || o.id)} className="w-full text-left p-3 bg-white/[0.04] hover:bg-red-500/20 rounded-lg border border-white/[0.08] transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-white font-medium">{o.po_number || o.id.slice(0,8)} · {o.supplier_name}</p>
-                          <p className="text-xs text-slate-400">{new Date(o.created_at).toLocaleDateString("es-MX")} · {o.status}</p>
+                          <p className="text-xs text-[#7f93b0]">{new Date(o.created_at).toLocaleDateString("es-MX")} · {o.status}</p>
                         </div>
                         <p className="text-red-400 font-bold">${Number(o.total || 0).toLocaleString()}</p>
                       </div>

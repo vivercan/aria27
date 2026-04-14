@@ -13,10 +13,10 @@ export default function ReportesHub() {
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
       <div className="flex items-center gap-3 mb-6 flex-shrink-0">
-        <Link href="/dashboard" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <Link href="/dashboard" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Reportes PDF</h1>
-          <p className="text-sm text-slate-400">Genera y guarda reportes ejecutivos con un clic</p>
+          <p className="text-sm text-[#7f93b0]">Genera y guarda reportes ejecutivos con un clic</p>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
@@ -24,12 +24,12 @@ export default function ReportesHub() {
           {REPORTES.map(r => {
             const Icon = r.icon;
             return (
-              <Link key={r.href} href={r.href} className="group p-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition">
+              <Link key={r.href} href={r.href} className="group p-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition">
                 <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${r.color} flex items-center justify-center mb-3`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-white font-semibold mb-1">{r.titulo}</h3>
-                <p className="text-xs text-slate-400">{r.desc}</p>
+                <p className="text-xs text-[#7f93b0]">{r.desc}</p>
               </Link>
             );
           })}

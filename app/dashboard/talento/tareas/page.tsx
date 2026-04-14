@@ -46,21 +46,21 @@ const PRIORIDADES = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 function colorEstatus(e: string) {
   switch (e) {
-    case "PENDIENTE": return "bg-slate-500/20 text-slate-300 border-slate-500/40";
+    case "PENDIENTE": return "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/40";
     case "EN_PROGRESO": return "bg-aria-primary-light text-aria-accent border-aria-primary/40";
     case "COMPLETADA": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
     case "CANCELADA": return "bg-rose-500/20 text-rose-300 border-rose-500/40";
-    default: return "bg-slate-500/20 text-slate-300 border-slate-500/40";
+    default: return "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/40";
   }
 }
 
 function colorPrioridad(p: string) {
   switch (p) {
-    case "BAJA": return "text-slate-400";
+    case "BAJA": return "text-[#7f93b0]";
     case "MEDIA": return "text-amber-400";
     case "ALTA": return "text-orange-400";
     case "URGENTE": return "text-rose-400";
-    default: return "text-slate-400";
+    default: return "text-[#7f93b0]";
   }
 }
 
@@ -199,7 +199,7 @@ export default function TareasTalentoPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/10">
+        <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/[0.06]">
           <ArrowLeft className="w-5 h-5 text-white" />
         </Link>
         <div className="flex-1">
@@ -207,7 +207,7 @@ export default function TareasTalentoPage() {
             <ClipboardList className="w-8 h-8 text-fuchsia-400" />
             Tareas Asignadas
           </h1>
-          <p className="text-slate-400 mt-1">Asignación, seguimiento y avance de tareas por colaborador.</p>
+          <p className="text-[#7f93b0] mt-1">Asignación, seguimiento y avance de tareas por colaborador.</p>
         </div>
         <button
           onClick={() => { setEditando(null); setForm(EMPTY_FORM); setShowForm(true); }}
@@ -218,43 +218,43 @@ export default function TareasTalentoPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-          <div className="text-xs text-slate-400 uppercase">Total</div>
+        <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+          <div className="text-xs text-[#7f93b0] uppercase">Total</div>
           <div className="text-2xl font-bold text-white">{stats.total}</div>
         </div>
-        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-          <div className="text-xs text-slate-400 uppercase">Pendientes</div>
-          <div className="text-2xl font-bold text-slate-300">{stats.pendientes}</div>
+        <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+          <div className="text-xs text-[#7f93b0] uppercase">Pendientes</div>
+          <div className="text-2xl font-bold text-[#c9d8ed]">{stats.pendientes}</div>
         </div>
-        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-          <div className="text-xs text-slate-400 uppercase">En progreso</div>
+        <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+          <div className="text-xs text-[#7f93b0] uppercase">En progreso</div>
           <div className="text-2xl font-bold text-aria-accent">{stats.enProgreso}</div>
         </div>
-        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-          <div className="text-xs text-slate-400 uppercase">Completadas</div>
+        <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+          <div className="text-xs text-[#7f93b0] uppercase">Completadas</div>
           <div className="text-2xl font-bold text-emerald-300">{stats.completadas}</div>
         </div>
-        <div className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-          <div className="text-xs text-slate-400 uppercase">Vencidas</div>
+        <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+          <div className="text-xs text-[#7f93b0] uppercase">Vencidas</div>
           <div className="text-2xl font-bold text-rose-300">{stats.vencidas}</div>
         </div>
       </div>
 
       <div className="flex gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input
             type="text"
             placeholder="Buscar por título, colaborador u obra..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500"
+            className="w-full pl-10 pr-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-fuchsia-500"
           />
         </div>
         <select
           value={filtroEstatus}
           onChange={e => setFiltroEstatus(e.target.value)}
-          className="px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500"
+          className="px-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500"
         >
           <option value="TODAS">Todas</option>
           {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
@@ -264,30 +264,30 @@ export default function TareasTalentoPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-fuchsia-400" /></div>
       ) : filtradas.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay tareas registradas.</div>
+        <div className="text-center py-12 text-[#7f93b0]">No hay tareas registradas.</div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filtradas.map(t => {
             const vencida = t.estatus !== "COMPLETADA" && t.estatus !== "CANCELADA" && t.fecha_compromiso && new Date(t.fecha_compromiso) < new Date();
             return (
-              <div key={t.id} className={`rounded-xl bg-slate-800/50 border p-5 ${vencida ? "border-rose-500/50" : "border-slate-700/50"}`}>
+              <div key={t.id} className={`rounded-xl bg-[#0c1d38]/50 border p-5 ${vencida ? "border-rose-500/50" : "border-white/[0.05]"}`}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-white text-lg">{t.titulo}</h3>
                       <Flag className={`w-4 h-4 ${colorPrioridad(t.prioridad)}`} />
                     </div>
-                    {t.descripcion && <p className="text-sm text-slate-400">{t.descripcion}</p>}
+                    {t.descripcion && <p className="text-sm text-[#7f93b0]">{t.descripcion}</p>}
                   </div>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${colorEstatus(t.estatus)}`}>
                     {t.estatus.replace("_", " ")}
                   </span>
                 </div>
-                <div className="space-y-2 text-sm text-slate-300 mb-4">
-                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-slate-500" /> {t.asignado_nombre || "—"}</div>
-                  {t.obra && <div className="flex items-center gap-2"><ClipboardList className="w-4 h-4 text-slate-500" /> {t.obra}</div>}
+                <div className="space-y-2 text-sm text-[#c9d8ed] mb-4">
+                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-[#4a6080]" /> {t.asignado_nombre || "—"}</div>
+                  {t.obra && <div className="flex items-center gap-2"><ClipboardList className="w-4 h-4 text-[#4a6080]" /> {t.obra}</div>}
                   <div className="flex items-center gap-2">
-                    <Calendar className={`w-4 h-4 ${vencida ? "text-rose-400" : "text-slate-500"}`} />
+                    <Calendar className={`w-4 h-4 ${vencida ? "text-rose-400" : "text-[#4a6080]"}`} />
                     <span className={vencida ? "text-rose-400 font-semibold" : ""}>
                       {t.fecha_compromiso ? new Date(t.fecha_compromiso).toLocaleDateString("es-MX") : "—"}
                       {vencida && " (VENCIDA)"}
@@ -295,11 +295,11 @@ export default function TareasTalentoPage() {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-xs text-[#7f93b0] mb-1">
                     <span>Avance</span>
                     <span className="font-semibold text-white">{t.avance}%</span>
                   </div>
-                  <div className="w-full bg-slate-700/50 rounded-full h-2">
+                  <div className="w-full bg-white/[0.05] rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-2 rounded-full transition-all"
                       style={{ width: `${t.avance}%` }}
@@ -318,7 +318,7 @@ export default function TareasTalentoPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => abrirEditar(t)}
-                    className="flex-1 px-3 py-1.5 text-sm bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg flex items-center justify-center gap-2"
+                    className="flex-1 px-3 py-1.5 text-sm bg-white/[0.05] hover:bg-[#0f2448] text-white rounded-lg flex items-center justify-center gap-2"
                   >
                     <Edit2 className="w-4 h-4" /> Editar
                   </button>
@@ -345,76 +345,76 @@ export default function TareasTalentoPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-5 flex items-center justify-between">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-[#0a1628] border-b border-white/[0.08] p-5 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">{editando ? "Editar tarea" : "Nueva tarea"}</h2>
-              <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }} className="p-1 rounded hover:bg-white/10">
-                <X className="w-5 h-5 text-slate-400" />
+              <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }} className="p-1 rounded hover:bg-white/[0.06]">
+                <X className="w-5 h-5 text-[#7f93b0]" />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Título *</label>
+                <label className="text-sm text-[#7f93b0] mb-1 block">Título *</label>
                 <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
-                  className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.titulo ? "border-red-500/50" : "border-slate-700"}`} />
+                  className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.titulo ? "border-red-500/50" : "border-white/[0.08]"}`} />
                 {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </div>
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Descripción</label>
+                <label className="text-sm text-[#7f93b0] mb-1 block">Descripción</label>
                 <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                  className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Asignado a *</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Asignado a *</label>
                   <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
-                    className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.asignado_id ? "border-red-500/50" : "border-slate-700"}`}>
+                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.asignado_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
                     <option value="">Seleccionar...</option>
                     {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                   </select>
                   {formErrors.asignado_id && <p className="text-red-400 text-xs mt-1">{formErrors.asignado_id}</p>}
                 </div>
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Obra (opcional)</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Obra (opcional)</label>
                   <input type="text" value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Fecha compromiso *</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Fecha compromiso *</label>
                   <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
-                    className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-slate-700"}`} />
+                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-white/[0.08]"}`} />
                   {formErrors.fecha_compromiso && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_compromiso}</p>}
                 </div>
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Prioridad</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Prioridad</label>
                   <select value={form.prioridad} onChange={e => setForm({ ...form, prioridad: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
                     {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Avance ({form.avance}%)</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Avance ({form.avance}%)</label>
                   <input type="range" min="0" max="100" step="5" value={form.avance}
                     onChange={e => setForm({ ...form, avance: Number(e.target.value) })}
                     className="w-full accent-fuchsia-500" />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Estatus</label>
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Estatus</label>
                   <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
                     {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
                   </select>
                 </div>
               </div>
             </div>
-            <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700 p-5 flex justify-end gap-3">
+            <div className="sticky bottom-0 bg-[#0a1628] border-t border-white/[0.08] p-5 flex justify-end gap-3">
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
+                className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>
               <button onClick={guardar} disabled={guardando}
                 className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

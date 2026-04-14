@@ -86,7 +86,7 @@ export default function EmpresaPage() {
     else { msg("success", "Empresa actualizada"); setEditEmpresa(null); cargar(); }
     setGuardando(false);
   };
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   const activas = centros.filter(c => c.estado === "ACTIVA").length;
 
@@ -94,12 +94,12 @@ export default function EmpresaPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
           <h1 className="text-xl font-bold text-white">Datos de Empresa</h1>
-          <p className="text-xs text-slate-400">Información de GCU Avante y centros de costo</p>
+          <p className="text-xs text-[#7f93b0]">Información de GCU Avante y centros de costo</p>
         </div>
       </div>
 
@@ -118,13 +118,13 @@ export default function EmpresaPage() {
           <>
             {/* Empresa Cards */}
             {empresas.length === 0 ? (
-              <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center">
-                <Building2 className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                <p className="text-slate-400 text-sm">No hay empresas registradas en la tabla.</p>
-                <p className="text-slate-500 text-xs mt-1">Los datos de empresa se cargan desde Supabase.</p>
+              <div className="p-5 rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] text-center">
+                <Building2 className="w-10 h-10 text-[#4a6080] mx-auto mb-2" />
+                <p className="text-[#7f93b0] text-sm">No hay empresas registradas en la tabla.</p>
+                <p className="text-[#4a6080] text-xs mt-1">Los datos de empresa se cargan desde Supabase.</p>
               </div>
             ) : empresas.map(emp => (
-              <div key={emp.id} className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50">
+              <div key={emp.id} className="p-5 rounded-xl bg-[#0c1d38]/50 border border-white/[0.05]">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-purple-500/10">
@@ -150,30 +150,30 @@ export default function EmpresaPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <FileText className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-slate-500 text-xs">RFC</p>
+                      <p className="text-[#4a6080] text-xs">RFC</p>
                       <p className="text-white">{emp.rfc || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Briefcase className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <Briefcase className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-slate-500 text-xs">Régimen</p>
+                      <p className="text-[#4a6080] text-xs">Régimen</p>
                       <p className="text-white">{emp.regimen || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-slate-500 text-xs">Domicilio Fiscal</p>
+                      <p className="text-[#4a6080] text-xs">Domicilio Fiscal</p>
                       <p className="text-white">{emp.domicilio_fiscal || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Users className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <Users className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-slate-500 text-xs">Representante Legal</p>
+                      <p className="text-[#4a6080] text-xs">Representante Legal</p>
                       <p className="text-white">{emp.representante_legal || "—"}</p>
                     </div>
                   </div>
@@ -182,24 +182,24 @@ export default function EmpresaPage() {
             ))}
 
             {/* Centros de Costo */}
-            <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50">
+            <div className="p-5 rounded-xl bg-[#0c1d38]/50 border border-white/[0.05]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-slate-300">Centros de Costo / Obras</h3>
-                <span className="text-xs text-slate-500">{centros.length} registrados · {activas} activos</span>
+                <h3 className="text-sm font-medium text-[#c9d8ed]">Centros de Costo / Obras</h3>
+                <span className="text-xs text-[#4a6080]">{centros.length} registrados · {activas} activos</span>
               </div>
               {centros.length === 0 ? (
-                <p className="text-slate-500 text-sm text-center py-4">Sin centros de trabajo registrados.</p>
+                <p className="text-[#4a6080] text-sm text-center py-4">Sin centros de trabajo registrados.</p>
               ) : (
                 <div className="space-y-2">
                   {centros.map(ct => (
                     <div key={ct.id} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-between">
                       <div>
                         <p className="text-sm text-white font-medium">{ct.nombre}</p>
-                        {ct.direccion && <p className="text-xs text-slate-500 mt-0.5">{ct.direccion}</p>}
+                        {ct.direccion && <p className="text-xs text-[#4a6080] mt-0.5">{ct.direccion}</p>}
                       </div>
                       <div className="flex items-center gap-2">
-                        {ct.cliente && <span className="text-xs text-slate-500">{ct.cliente}</span>}
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${ct.estado === "ACTIVA" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
+                        {ct.cliente && <span className="text-xs text-[#4a6080]">{ct.cliente}</span>}
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${ct.estado === "ACTIVA" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                           {ct.estado || "—"}
                         </span>
                       </div>
@@ -214,49 +214,49 @@ export default function EmpresaPage() {
 
       {/* Edit Modal */}
       {editEmpresa && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditEmpresa(null)}>
-          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4" onClick={() => setEditEmpresa(null)}>
+          <div className="bg-[#0f1729] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <h2 className="text-lg font-bold text-white">Editar Empresa</h2>
-              <button onClick={() => setEditEmpresa(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+              <button onClick={() => setEditEmpresa(null)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0]"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Nombre *</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Nombre *</label>
                 <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={inputClass} />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">RFC</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">RFC</label>
                   <input type="text" value={form.rfc} onChange={e => setForm({ ...form, rfc: e.target.value })} placeholder="XXX000000XX0" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Régimen Fiscal</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Régimen Fiscal</label>
                   <input type="text" value={form.regimen} onChange={e => setForm({ ...form, regimen: e.target.value })} placeholder="General de Ley" className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Domicilio Fiscal</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Domicilio Fiscal</label>
                 <input type="text" value={form.domicilio_fiscal} onChange={e => setForm({ ...form, domicilio_fiscal: e.target.value })} placeholder="Aguascalientes, Ags." className={inputClass} />
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Representante Legal</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Representante Legal</label>
                 <input type="text" value={form.representante_legal} onChange={e => setForm({ ...form, representante_legal: e.target.value })} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Teléfono</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Teléfono</label>
                   <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Email</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Email</label>
                   <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputClass} />
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
-              <button onClick={() => setEditEmpresa(null)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/[0.08]">
+              <button onClick={() => setEditEmpresa(null)} className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">Cancelar</button>
               <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Guardar

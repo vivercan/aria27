@@ -19,13 +19,13 @@ export default function TabsListaCarpetas({ lista, scope }: TabsListaCarpetasPro
       <div className="flex gap-2 mb-3 flex-shrink-0">
         <button
           onClick={() => setTab("lista")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "lista" ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "lista" ? "bg-aria-primary text-white" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}
         >
           <List className="w-4 h-4" /> Lista
         </button>
         <button
           onClick={() => setTab("carpetas")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "carpetas" ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${tab === "carpetas" ? "bg-aria-primary text-white" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}
         >
           <FolderIcon className="w-4 h-4" /> Carpetas
         </button>
@@ -54,7 +54,7 @@ export default function TabsListaCarpetas({ lista, scope }: TabsListaCarpetasPro
                 />
               ) : (
                 <div className="h-full flex items-center justify-center rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="text-slate-500 text-sm">Selecciona o crea una carpeta</p>
+                  <p className="text-[#4a6080] text-sm">Selecciona o crea una carpeta</p>
                 </div>
               )}
             </div>

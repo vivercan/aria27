@@ -45,16 +45,16 @@ export default function MatrizSalarialPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento
         </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Matriz Salarial</h1>
-            <p className="text-slate-400 text-sm mt-1">Tabulador de sueldos por puesto y empresa</p>
+            <p className="text-[#7f93b0] text-sm mt-1">Tabulador de sueldos por puesto y empresa</p>
           </div>
           <select value={groupBy} onChange={e => setGroupBy(e.target.value as typeof groupBy)}
-            className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+            className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
             <option value="empresa">Por Empresa</option>
             <option value="position">Por Puesto</option>
             <option value="department">Por Departamento</option>
@@ -63,34 +63,34 @@ export default function MatrizSalarialPage() {
       </div>
 
       <div className="flex-shrink-0 grid grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
           <Users className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold text-white">{empleados.length}</p>
-          <p className="text-xs text-slate-400">Empleados Activos</p>
+          <p className="text-xs text-[#7f93b0]">Empleados Activos</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
           <DollarSign className="w-5 h-5 text-emerald-400 mb-2" />
           <p className="text-2xl font-bold text-white">${totalNomina.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
-          <p className="text-xs text-slate-400">Nómina Diaria Total</p>
+          <p className="text-xs text-[#7f93b0]">Nómina Diaria Total</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
           <Building2 className="w-5 h-5 text-violet-400 mb-2" />
           <p className="text-2xl font-bold text-white">{Object.keys(groups).length}</p>
-          <p className="text-xs text-slate-400">Grupos</p>
+          <p className="text-xs text-[#7f93b0]">Grupos</p>
         </div>
       </div>
 
       <div className="flex-1 overflow-auto space-y-4">
         {loading ? <div className="flex justify-center py-8"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div> :
           Object.entries(groups).sort(([a], [b]) => a.localeCompare(b)).map(([group, emps]) => (
-            <div key={group} className="rounded-xl border border-white/10 overflow-hidden">
-              <div className="px-4 py-3 bg-white/5 flex items-center justify-between">
+            <div key={group} className="rounded-xl border border-white/[0.08] overflow-hidden">
+              <div className="px-4 py-3 bg-white/[0.04] flex items-center justify-between">
                 <h3 className="font-semibold text-white">{group}</h3>
-                <span className="text-xs text-slate-400">{emps.length} empleados | ${emps.reduce((s, e) => s + (e.salario_diario || 0), 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}/día</span>
+                <span className="text-xs text-[#7f93b0]">{emps.length} empleados | ${emps.reduce((s, e) => s + (e.salario_diario || 0), 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}/día</span>
               </div>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-slate-400 border-b border-white/5">
+                  <tr className="text-left text-[#7f93b0] border-b border-white/[0.05]">
                     <th className="px-4 py-2 font-medium">Código</th>
                     <th className="px-4 py-2 font-medium">Nombre</th>
                     <th className="px-4 py-2 font-medium">Puesto</th>
@@ -101,12 +101,12 @@ export default function MatrizSalarialPage() {
                 </thead>
                 <tbody>
                   {emps.map(e => (
-                    <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
+                    <tr key={e.id} className="border-b border-white/[0.05] hover:bg-white/[0.04]">
                       <td className="px-4 py-2 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                       <td className="px-4 py-2 text-white">{e.full_name}</td>
-                      <td className="px-4 py-2 text-slate-300">{e.position || "-"}</td>
+                      <td className="px-4 py-2 text-[#c9d8ed]">{e.position || "-"}</td>
                       <td className="px-4 py-2 text-right text-emerald-400 font-mono">${(e.salario_diario || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                      <td className="px-4 py-2 text-right text-slate-300 font-mono">${(e.salario_imss || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                      <td className="px-4 py-2 text-right text-[#c9d8ed] font-mono">${(e.salario_imss || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                       <td className="px-4 py-2 text-right text-white font-mono">${((e.salario_diario || 0) * 30).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}

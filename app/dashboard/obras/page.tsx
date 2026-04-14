@@ -139,17 +139,17 @@ export default function ObrasPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-white">Obras</h1>
-        <p className="text-slate-400 mt-1">Gestión de proyectos y construcción.</p>
+        <p className="text-[#7f93b0] mt-1">Gestión de proyectos y construcción.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {subModules.map((module) => (
 <Link
   key={module.href}
   href={module.href}
-  className={`group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 ${
+  className={`group relative overflow-hidden rounded-2xl bg-[#0c1d38]/50  border transition-all duration-300 ${
     module.active
-      ? "border-slate-700/50 hover:border-slate-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
-      : "border-slate-700/30 opacity-50 pointer-events-none"
+      ? "border-white/[0.05] hover:border-white/[0.07] hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
+      : "border-white/[0.08]/30 opacity-50 pointer-events-none"
   }`}
 >
   <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
@@ -163,15 +163,15 @@ export default function ObrasPage() {
           {module.title}
         </h3>
         {!module.active && (
-          <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-500/20 text-slate-500 rounded-full border border-slate-500/30">
+          <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-500/20 text-[#4a6080] rounded-full border border-white/[0.1]/30">
             PRÓXIMO
           </span>
         )}
       </div>
-      <p className="text-sm text-slate-400 leading-relaxed">{module.description}</p>
+      <p className="text-sm text-[#7f93b0] leading-relaxed">{module.description}</p>
     </div>
     <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-      <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-5 h-5 text-[#7f93b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </div>

@@ -623,12 +623,12 @@ export default function InventarioObraPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Inventario por Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona una obra para ver su inventario</p>
+            <p className="text-[#7f93b0] text-sm">Selecciona una obra para ver su inventario</p>
           </div>
         </div>
 
@@ -637,7 +637,7 @@ export default function InventarioObraPage() {
             <button
               key={obra.id}
               onClick={() => setObraSeleccionada(obra)}
-              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 rounded-xl text-left transition-all group"
+              className="p-6 bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] hover:border-emerald-500/50 rounded-xl text-left transition-all group"
             >
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-emerald-500/20 rounded-xl group-hover:bg-emerald-500/30 transition-colors">
@@ -647,9 +647,9 @@ export default function InventarioObraPage() {
                   <h3 className="font-semibold text-white group-hover:text-emerald-300 transition-colors">
                     {obra.name}
                   </h3>
-                  <p className="text-sm text-slate-400 mt-1">Ver inventario</p>
+                  <p className="text-sm text-[#7f93b0] mt-1">Ver inventario</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-emerald-400 transition-colors" />
+                <ChevronRight className="w-5 h-5 text-[#4a6080] group-hover:text-emerald-400 transition-colors" />
               </div>
             </button>
           ))}
@@ -665,12 +665,12 @@ export default function InventarioObraPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={() => setObraSeleccionada(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <button onClick={() => setObraSeleccionada(null)} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-white">{obraSeleccionada.name}</h1>
-            <p className="text-slate-400 text-sm">Inventario de materiales</p>
+            <p className="text-[#7f93b0] text-sm">Inventario de materiales</p>
           </div>
         </div>
         <button
@@ -684,30 +684,30 @@ export default function InventarioObraPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <div className="flex items-center gap-3">
             <Package className="w-8 h-8 text-aria-accent" />
             <div>
               <p className="text-2xl font-bold text-white">{totalItems}</p>
-              <p className="text-sm text-slate-400">Productos</p>
+              <p className="text-sm text-[#7f93b0]">Productos</p>
             </div>
           </div>
         </div>
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <div className="flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-emerald-400" />
             <div>
               <p className="text-2xl font-bold text-white">{totalDisponible.toLocaleString()}</p>
-              <p className="text-sm text-slate-400">Unidades disponibles</p>
+              <p className="text-sm text-[#7f93b0]">Unidades disponibles</p>
             </div>
           </div>
         </div>
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-8 h-8 text-amber-400" />
             <div>
               <p className="text-2xl font-bold text-white">{itemsBajos}</p>
-              <p className="text-sm text-slate-400">Stock bajo (≤5)</p>
+              <p className="text-sm text-[#7f93b0]">Stock bajo (≤5)</p>
             </div>
           </div>
         </div>
@@ -718,36 +718,36 @@ export default function InventarioObraPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7f93b0]" />
               <input
                 type="text"
                 placeholder="Buscar material..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
+                className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
               />
             </div>
           </div>
 
-          <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+          <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
             <table className="w-full">
-              <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
+              <thead className="bg-white/[0.04] sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
                 <tr>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-slate-300">Material</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Disponible</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Usado</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Unidad</th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-slate-300">Usuario</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-slate-300">Acciones</th>
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[#c9d8ed]">Material</th>
+                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Disponible</th>
+                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Usado</th>
+                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Unidad</th>
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[#c9d8ed]">Usuario</th>
+                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {inventarioFiltrado.map((item) => (
-                  <tr key={item.id} className="hover:bg-white/5">
+                  <tr key={item.id} className="hover:bg-white/[0.04]">
                     {/* Foto eliminada de lista — solo visible en Kardex */}
                     <td className="px-3 py-3">
                       <p className="text-white font-medium">{item.producto_nombre}</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-[#7f93b0]">
                         Último mov: {new Date(item.ultimo_movimiento).toLocaleDateString()}
                       </p>
                     </td>
@@ -756,15 +756,15 @@ export default function InventarioObraPage() {
                         {item.cantidad_disponible}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-center text-slate-400">{item.cantidad_usada}</td>
-                    <td className="px-3 py-3 text-center text-slate-400">{item.unidad}</td>
+                    <td className="px-3 py-3 text-center text-[#7f93b0]">{item.cantidad_usada}</td>
+                    <td className="px-3 py-3 text-center text-[#7f93b0]">{item.unidad}</td>
                     <td className="px-3 py-3">
                       {item.ultimo_usuario ? (
-                        <p className="text-xs text-slate-400 truncate max-w-[120px]" title={item.ultimo_usuario}>
+                        <p className="text-xs text-[#7f93b0] truncate max-w-[120px]" title={item.ultimo_usuario}>
                           {item.ultimo_usuario.split("@")[0]}
                         </p>
                       ) : (
-                        <p className="text-xs text-slate-500">—</p>
+                        <p className="text-xs text-[#4a6080]">—</p>
                       )}
                     </td>
                     <td className="px-3 py-3 text-center">
@@ -803,7 +803,7 @@ export default function InventarioObraPage() {
                 ))}
                 {inventarioFiltrado.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
+                    <td colSpan={6} className="px-4 py-12 text-center text-[#7f93b0]">
                       <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
                       <p>No hay materiales en inventario</p>
                       <p className="text-sm mt-1">Agrega materiales con el botón &quot;Nuevo Material&quot;</p>
@@ -824,11 +824,11 @@ export default function InventarioObraPage() {
 
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {entregas.map((entrega) => (
-              <div key={entrega.id} className="p-4 bg-white/5 rounded-xl border border-white/10">
+              <div key={entrega.id} className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="font-medium text-white">{entrega.folio}</p>
-                    <p className="text-sm text-slate-400">{entrega.proveedor_nombre}</p>
+                    <p className="text-sm text-[#7f93b0]">{entrega.proveedor_nombre}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {entrega.foto_url && (
@@ -836,12 +836,12 @@ export default function InventarioObraPage() {
                         <Camera className="w-4 h-4 text-aria-accent" />
                       </button>
                     )}
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-[#7f93b0]">
                       {new Date(entrega.fecha_entrega).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-slate-300 mb-3">
+                <p className="text-sm text-[#c9d8ed] mb-3">
                   {entrega.materiales_recibidos?.length || 0} materiales
                 </p>
                 <button
@@ -855,7 +855,7 @@ export default function InventarioObraPage() {
             ))}
 
             {entregas.length === 0 && (
-              <div className="text-center py-8 text-slate-400">
+              <div className="text-center py-8 text-[#7f93b0]">
                 <Truck className="w-12 h-12 mx-auto mb-2 opacity-30" />
                 <p>No hay entregas recientes</p>
               </div>
@@ -867,32 +867,32 @@ export default function InventarioObraPage() {
       {/* ====== MODAL: Nuevo Material ====== */}
       {showNuevo && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-lg border border-white/10 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-lg border border-white/[0.08] max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Nuevo Material</h3>
-              <button onClick={() => setShowNuevo(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowNuevo(false)} className="p-1 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
             {/* Nombre con autocompletado */}
-            <label className="block text-sm text-slate-300 mb-1">Nombre del material *</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Nombre del material *</label>
             <div className="relative mb-3">
               <input
                 type="text"
                 value={nuevoNombre}
                 onChange={(e) => buscarEnCatalogo(e.target.value)}
                 placeholder="Ej: Arena sílica saco 25kg"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
               />
               {formErrors.nuevoNombre && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoNombre}</p>}
               {sugerencias.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-slate-700 border border-white/10 rounded-lg max-h-48 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-[#0f2448] border border-white/[0.08] rounded-lg max-h-48 overflow-y-auto">
                   {sugerencias.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => seleccionarDeCatalogo(s)}
-                      className="w-full px-4 py-2 text-left text-white hover:bg-white/10 text-sm"
+                      className="w-full px-4 py-2 text-left text-white hover:bg-white/[0.06] text-sm"
                     >
-                      {s.name} <span className="text-slate-400">({s.unit})</span>
+                      {s.name} <span className="text-[#7f93b0]">({s.unit})</span>
                     </button>
                   ))}
                 </div>
@@ -925,7 +925,7 @@ export default function InventarioObraPage() {
                     )}
                     {!validacionResult.matchExacto && validacionResult.sugerencias?.length > 0 && (
                       <div className="mt-1">
-                        <p className="text-slate-400 text-xs">Productos similares:</p>
+                        <p className="text-[#7f93b0] text-xs">Productos similares:</p>
                         {validacionResult.sugerencias.slice(0, 3).map((s: { id: string; name: string; unit: string; similarity: number }) => (
                           <button key={s.id} onClick={() => { setNuevoNombre(s.name); setNuevoUnidad(s.unit || "PZA"); setNuevoProductoId(parseInt(s.id, 10) || null); setValidacionResult(null); }}
                             className="block text-left text-aria-accent hover:text-aria-accent text-xs mt-0.5">
@@ -942,33 +942,33 @@ export default function InventarioObraPage() {
             {/* Unidad + Cantidad */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="block text-sm text-slate-300 mb-1">Unidad</label>
+                <label className="block text-sm text-[#c9d8ed] mb-1">Unidad</label>
                 <select
                   value={nuevoUnidad}
                   onChange={(e) => setNuevoUnidad(e.target.value)}
-                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
+                  className="w-full px-3 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary"
                 >
                   {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-1">Cantidad inicial *</label>
+                <label className="block text-sm text-[#c9d8ed] mb-1">Cantidad inicial *</label>
                 <input
                   type="number" min={1}
                   value={nuevoCantidad}
                   onChange={(e) => setNuevoCantidad(Number(e.target.value))}
-                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
+                  className="w-full px-3 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary"
                 />
                 {formErrors.nuevoCantidad && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoCantidad}</p>}
               </div>
             </div>
 
             {/* Foto del material */}
-            <label className="block text-sm text-slate-300 mb-1">Foto del material (opcional)</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Foto del material (opcional)</label>
             <div className="mb-4">
               {nuevoFotoPreview ? (
                 <div className="relative inline-block">
-                  <img src={nuevoFotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-white/10" />
+                  <img src={nuevoFotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-white/[0.08]" />
                   <button
                     onClick={() => { setNuevoFoto(null); setNuevoFotoPreview(null); }}
                     className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full"
@@ -979,7 +979,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputNuevoRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-aria-accent/50 hover:text-aria-accent transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white/[0.04] border border-dashed border-white/[0.12] rounded-lg text-[#7f93b0] hover:border-aria-accent/50 hover:text-aria-accent transition-colors"
                 >
                   <Camera className="w-5 h-5" />
                   Subir foto
@@ -995,7 +995,7 @@ export default function InventarioObraPage() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowNuevo(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowNuevo(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white">Cancelar</button>
               <button
                 onClick={guardarNuevoMaterial}
                 disabled={!nuevoNombre.trim() || nuevoCantidad <= 0 || guardando}
@@ -1012,48 +1012,48 @@ export default function InventarioObraPage() {
       {/* ====== MODAL: Registrar Entrada ====== */}
       {showEntrada && entradaItem && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-lg border border-white/10">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-lg border border-white/[0.08]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Registrar Entrada</h3>
-              <button onClick={() => setShowEntrada(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowEntrada(false)} className="p-1 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
-            <div className="p-3 bg-white/5 rounded-lg mb-4">
+            <div className="p-3 bg-white/[0.04] rounded-lg mb-4">
               <div className="flex items-center gap-3">
                 {entradaItem.foto_url && <img src={entradaItem.foto_url} alt="" className="w-12 h-12 rounded-lg object-cover" />}
                 <div>
                   <p className="text-white font-medium">{entradaItem.producto_nombre}</p>
-                  <p className="text-sm text-slate-400">Disponible actual: {entradaItem.cantidad_disponible} {entradaItem.unidad}</p>
+                  <p className="text-sm text-[#7f93b0]">Disponible actual: {entradaItem.cantidad_disponible} {entradaItem.unidad}</p>
                 </div>
               </div>
             </div>
 
-            <label className="block text-sm text-slate-300 mb-1">Cantidad recibida *</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Cantidad recibida *</label>
             <input
               type="number" min={1}
               value={entradaCantidad}
               onChange={(e) => setEntradaCantidad(Number(e.target.value))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary mb-3"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary mb-3"
             />
-            <p className="text-center text-sm text-slate-400 mb-3">
+            <p className="text-center text-sm text-[#7f93b0] mb-3">
               Nuevo total: <span className="text-emerald-400 font-bold">{entradaItem.cantidad_disponible + entradaCantidad}</span> {entradaItem.unidad}
             </p>
 
-            <label className="block text-sm text-slate-300 mb-1">Motivo / OC relacionada</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Motivo / OC relacionada</label>
             <input
               type="text"
               value={entradaMotivo}
               onChange={(e) => setEntradaMotivo(e.target.value)}
               placeholder="Ej: Entrega OC-2026-00015, Proveedor Cemex"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary mb-3"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary mb-3"
             />
 
             {/* Foto evidencia */}
-            <label className="block text-sm text-slate-300 mb-1">Foto de evidencia (recomendado)</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Foto de evidencia (recomendado)</label>
             <div className="mb-4">
               {entradaFotoPreview ? (
                 <div className="relative inline-block">
-                  <img src={entradaFotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-white/10" />
+                  <img src={entradaFotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-white/[0.08]" />
                   <button
                     onClick={() => { setEntradaFoto(null); setEntradaFotoPreview(null); }}
                     className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full"
@@ -1064,7 +1064,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputEntradaRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-emerald-400/50 hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white/[0.04] border border-dashed border-white/[0.12] rounded-lg text-[#7f93b0] hover:border-emerald-400/50 hover:text-emerald-400 transition-colors"
                 >
                   <Camera className="w-5 h-5" />
                   Subir foto de evidencia
@@ -1080,7 +1080,7 @@ export default function InventarioObraPage() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowEntrada(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowEntrada(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white">Cancelar</button>
               <button
                 onClick={guardarEntrada}
                 disabled={entradaCantidad <= 0 || guardando}
@@ -1097,14 +1097,14 @@ export default function InventarioObraPage() {
       {/* ====== MODAL: Ajustar Inventario ====== */}
       {showAjuste && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-md border border-white/[0.08]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Ajustar Inventario</h3>
-              <button onClick={() => setShowAjuste(null)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowAjuste(null)} className="p-1 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
-            <p className="text-slate-300 mb-2">{showAjuste.producto_nombre}</p>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-[#c9d8ed] mb-2">{showAjuste.producto_nombre}</p>
+            <p className="text-sm text-[#7f93b0] mb-4">
               Disponible actual: <span className="text-white font-bold">{showAjuste.cantidad_disponible}</span> {showAjuste.unidad}
             </p>
 
@@ -1116,7 +1116,7 @@ export default function InventarioObraPage() {
                 type="number" min="0"
                 value={ajusteCantidad}
                 onChange={(e) => setAjusteCantidad(Number(e.target.value))}
-                className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary"
+                className="flex-1 px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary"
               />
               <button onClick={() => setAjusteCantidad(ajusteCantidad + 1)} className="p-3 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg">
                 <Plus className="w-5 h-5 text-emerald-400" />
@@ -1134,15 +1134,15 @@ export default function InventarioObraPage() {
               placeholder="Motivo del ajuste (opcional)"
               value={ajusteMotivo}
               onChange={(e) => setAjusteMotivo(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary mb-3"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary mb-3"
             />
 
             {/* Foto opcional para ajuste */}
-            <label className="block text-sm text-slate-300 mb-1">Foto de evidencia (opcional)</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Foto de evidencia (opcional)</label>
             <div className="mb-4">
               {ajusteFotoPreview ? (
                 <div className="relative inline-block">
-                  <img src={ajusteFotoPreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-white/10" />
+                  <img src={ajusteFotoPreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-white/[0.08]" />
                   <button onClick={() => { setAjusteFoto(null); setAjusteFotoPreview(null); }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full">
                     <X className="w-3 h-3 text-white" />
                   </button>
@@ -1150,7 +1150,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputAjusteRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-dashed border-white/20 rounded-lg text-slate-400 hover:border-aria-accent/50 text-sm"
+                  className="flex items-center gap-2 px-3 py-2 bg-white/[0.04] border border-dashed border-white/[0.12] rounded-lg text-[#7f93b0] hover:border-aria-accent/50 text-sm"
                 >
                   <Camera className="w-4 h-4" />
                   Subir foto
@@ -1166,7 +1166,7 @@ export default function InventarioObraPage() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => { setShowAjuste(null); setAjusteCantidad(0); }} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => { setShowAjuste(null); setAjusteCantidad(0); }} className="px-4 py-2 text-[#7f93b0] hover:text-white">Cancelar</button>
               <button
                 onClick={ajustarInventario}
                 disabled={ajusteCantidad === 0 || guardando}
@@ -1183,42 +1183,42 @@ export default function InventarioObraPage() {
       {/* ====== MODAL: Registrar Salida ====== */}
       {showSalida && salidaItem && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-lg border border-white/10">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-lg border border-white/[0.08]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-red-400">Registrar Salida</h3>
-              <button onClick={() => setShowSalida(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowSalida(false)} className="p-1 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
-            <div className="p-3 bg-white/5 rounded-lg mb-4">
+            <div className="p-3 bg-white/[0.04] rounded-lg mb-4">
               <p className="text-white font-medium">{salidaItem.producto_nombre}</p>
-              <p className="text-sm text-slate-400">Disponible: <span className="text-emerald-400 font-bold">{salidaItem.cantidad_disponible}</span> {salidaItem.unidad}</p>
+              <p className="text-sm text-[#7f93b0]">Disponible: <span className="text-emerald-400 font-bold">{salidaItem.cantidad_disponible}</span> {salidaItem.unidad}</p>
             </div>
 
-            <label className="block text-sm text-slate-300 mb-1">Cantidad a retirar *</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Cantidad a retirar *</label>
             <input
               type="number" min={1}
               max={salidaItem.cantidad_disponible}
               value={salidaCantidad}
               onChange={(e) => setSalidaCantidad(Number(e.target.value))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-red-500 mb-3"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-red-500 mb-3"
             />
-            <p className="text-center text-sm text-slate-400 mb-3">
+            <p className="text-center text-sm text-[#7f93b0] mb-3">
               Quedarán: <span className={`font-bold ${salidaItem.cantidad_disponible - salidaCantidad <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {Math.max(0, salidaItem.cantidad_disponible - salidaCantidad)}
               </span> {salidaItem.unidad}
             </p>
 
-            <label className="block text-sm text-slate-300 mb-1">Motivo / Requisición *</label>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Motivo / Requisición *</label>
             <input
               type="text"
               placeholder="Ej: REQ-2026-00005, Usado en obra, etc."
               value={salidaMotivo}
               onChange={(e) => setSalidaMotivo(e.target.value)}
-              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-red-500 mb-4"
+              className="w-full px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-red-500 mb-4"
             />
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowSalida(false)} className="px-4 py-2 text-slate-400 hover:text-white transition-colors">Cancelar</button>
+              <button onClick={() => setShowSalida(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
               <button
                 onClick={guardarSalida}
                 disabled={salidaCantidad <= 0 || salidaCantidad > salidaItem.cantidad_disponible || !salidaMotivo.trim() || guardando}
@@ -1242,13 +1242,13 @@ export default function InventarioObraPage() {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-aria-primary rounded-full border border-white/10 hover:bg-aria-primary-hover transition-colors"
+                className="p-2 bg-aria-primary rounded-full border border-white/[0.08] hover:bg-aria-primary-hover transition-colors"
                 title="Descargar foto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Download className="w-5 h-5 text-white" />
               </a>
-              <button onClick={() => setFotoAmpliadaUrl(null)} className="p-2 bg-slate-800 rounded-full border border-white/10 hover:bg-slate-700">
+              <button onClick={() => setFotoAmpliadaUrl(null)} className="p-2 bg-[#0c1d38] rounded-full border border-white/[0.08] hover:bg-[#0f2448]">
                 <X className="w-5 h-5 text-white" />
               </button>
             </div>

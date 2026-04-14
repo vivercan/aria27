@@ -225,7 +225,7 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-white" suppressHydrationWarning>
           {getGreeting()}{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
-        <p className="text-slate-400">
+        <p className="text-[#7f93b0]">
           Aquí tienes un resumen de la actividad de hoy en ARIA
         </p>
         <Link
@@ -251,12 +251,12 @@ export default function DashboardPage() {
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">
                 {loading ? (
-                  <span className="inline-block w-8 h-6 bg-white/10 rounded animate-pulse" />
+                  <span className="inline-block w-8 h-6 bg-white/[0.06] rounded animate-pulse" />
                 ) : (
                   stat.value
                 )}
               </p>
-              <p className="text-xs text-slate-400 font-medium">{stat.title}</p>
+              <p className="text-xs text-[#7f93b0] font-medium">{stat.title}</p>
             </div>
             {/* Glow effect on hover */}
             <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300`} />
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                 <h3 className="text-base font-semibold text-white mb-1 group-hover:text-aria-accent transition-colors">
                   {action.title}
                 </h3>
-                <p className="text-sm text-slate-400">{action.description}</p>
+                <p className="text-sm text-[#7f93b0]">{action.description}</p>
                 <div className="mt-4 flex items-center text-sm text-aria-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Ir ahora</span>
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -306,7 +306,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-1">Sistema ARIA - Infinity Loop</h3>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <p className="text-[#c9d8ed] text-sm leading-relaxed">
               Bienvenido al ERP de Grupo Constructor Urbano Avante. Desde aquí puedes gestionar requisiciones,
               controlar asistencias, administrar empleados y más. Usa el menú lateral para navegar
               entre los módulos.

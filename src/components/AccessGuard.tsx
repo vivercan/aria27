@@ -32,7 +32,7 @@ export default function AccessGuard({ moduleKey, subKey, children }: AccessGuard
         <ShieldAlert className="w-12 h-12 text-red-400" />
       </div>
       <h2 className="text-xl font-bold text-white mb-2">Acceso Restringido</h2>
-      <p className="text-slate-400 mb-6 max-w-md">
+      <p className="text-[#7f93b0] mb-6 max-w-md">
         No tienes permisos para acceder a este módulo. 
         Contacta al administrador si necesitas acceso.
       </p>

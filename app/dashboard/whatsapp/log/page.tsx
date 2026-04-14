@@ -80,55 +80,55 @@ export default function WhatsAppLogPage() {
 
   return (
     <div className="space-y-6">
-      <div className="sticky top-0 z-10 bg-slate-950/80 backdrop-blur pb-3 border-b border-white/10">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
+      <div className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08]">
+        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-[#7f93b0] hover:text-white">
           <ArrowLeft className="w-4 h-4" /> Dashboard
         </Link>
         <h1 className="mt-2 text-2xl font-bold text-white flex items-center gap-2">
           <MessageCircle className="w-6 h-6 text-emerald-400" /> WhatsApp Log — JJCRM27
         </h1>
-        <p className="text-sm text-slate-400">Auditoría de envíos vía WABA 842930185269415 / Phone 963627606824867</p>
+        <p className="text-sm text-[#7f93b0]">Auditoría de envíos vía WABA 842930185269415 / Phone 963627606824867</p>
       </div>
 
       {/* Test send */}
-      <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+      <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-3">
         <h2 className="text-white font-semibold flex items-center gap-2"><Send className="w-4 h-4" /> Enviar prueba</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <select value={tplTest} onChange={(e) => setTplTest(e.target.value)} className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm">
+          <select value={tplTest} onChange={(e) => setTplTest(e.target.value)} className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm">
             {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <input value={phoneTest} onChange={(e) => setPhoneTest(e.target.value)} placeholder="Tel 10 dígitos" className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm" />
-          <input value={paramsTest} onChange={(e) => setParamsTest(e.target.value)} placeholder="Params separados por coma" className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm md:col-span-2" />
+          <input value={phoneTest} onChange={(e) => setPhoneTest(e.target.value)} placeholder="Tel 10 dígitos" className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm" />
+          <input value={paramsTest} onChange={(e) => setParamsTest(e.target.value)} placeholder="Params separados por coma" className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm md:col-span-2" />
         </div>
         <button onClick={enviarTest} disabled={sending || !phoneTest} className="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm">
           {sending ? "Enviando..." : "Enviar"}
         </button>
-        {testResult && <p className="text-sm text-slate-300">{testResult}</p>}
+        {testResult && <p className="text-sm text-[#c9d8ed]">{testResult}</p>}
       </div>
 
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3">
-        <select value={filterTemplate} onChange={(e) => setFilterTemplate(e.target.value)} className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm">
+        <select value={filterTemplate} onChange={(e) => setFilterTemplate(e.target.value)} className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm">
           <option value="">Todas las plantillas</option>
           {TEMPLATES.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
-        <select value={filterSuccess} onChange={(e) => setFilterSuccess(e.target.value as "" | "true" | "false")} className="px-3 py-2 bg-slate-900 border border-white/10 rounded text-white text-sm">
+        <select value={filterSuccess} onChange={(e) => setFilterSuccess(e.target.value as "" | "true" | "false")} className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm">
           <option value="">Todos</option>
           <option value="true">Solo OK</option>
           <option value="false">Solo errores</option>
         </select>
-        <button onClick={load} className="inline-flex items-center gap-1 px-3 py-2 rounded bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10">
+        <button onClick={load} className="inline-flex items-center gap-1 px-3 py-2 rounded bg-white/[0.04] border border-white/[0.08] text-white text-sm hover:bg-white/[0.06]">
           <RefreshCw className="w-4 h-4" /> Refrescar
         </button>
-        <span className="text-sm text-slate-400">{rows.length} registros</span>
+        <span className="text-sm text-[#7f93b0]">{rows.length} registros</span>
       </div>
 
       {/* Tabla */}
-      <div className="rounded-2xl bg-white/[0.03] border border-white/10 overflow-hidden">
+      <div className="rounded-2xl bg-white/[0.03] border border-white/[0.08] overflow-hidden">
         <div className="overflow-auto max-h-[60vh]">
           <table className="w-full text-sm">
-            <thead className="bg-white/5 sticky top-0">
-              <tr className="text-left text-slate-300">
+            <thead className="bg-white/[0.04] sticky top-0">
+              <tr className="text-left text-[#c9d8ed]">
                 <th className="px-3 py-2">Fecha</th>
                 <th className="px-3 py-2">Plantilla</th>
                 <th className="px-3 py-2">Teléfono</th>
@@ -139,10 +139,10 @@ export default function WhatsAppLogPage() {
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={7} className="px-3 py-6 text-center text-slate-400">Cargando...</td></tr>}
-              {!loading && rows.length === 0 && <tr><td colSpan={7} className="px-3 py-6 text-center text-slate-500">Sin registros</td></tr>}
+              {loading && <tr><td colSpan={7} className="px-3 py-6 text-center text-[#7f93b0]">Cargando...</td></tr>}
+              {!loading && rows.length === 0 && <tr><td colSpan={7} className="px-3 py-6 text-center text-[#4a6080]">Sin registros</td></tr>}
               {rows.map((r) => (
-                <tr key={r.id} className="border-t border-white/5 text-slate-200">
+                <tr key={r.id} className="border-t border-white/[0.05] text-[#c9d8ed]">
                   <td className="px-3 py-2 whitespace-nowrap">{new Date(r.created_at).toLocaleString("es-MX")}</td>
                   <td className="px-3 py-2 font-mono text-xs">{r.template}</td>
                   <td className="px-3 py-2 font-mono text-xs">{r.phone}</td>
@@ -153,7 +153,7 @@ export default function WhatsAppLogPage() {
                   </td>
                   <td className="px-3 py-2 text-xs">{r.origen || "—"}</td>
                   <td className="px-3 py-2 text-xs">{r.enviado_por || "—"}</td>
-                  <td className="px-3 py-2 text-xs text-slate-400 max-w-xs truncate" title={r.error || r.message_id || ""}>
+                  <td className="px-3 py-2 text-xs text-[#7f93b0] max-w-xs truncate" title={r.error || r.message_id || ""}>
                     {r.error || r.message_id || "—"}
                   </td>
                 </tr>

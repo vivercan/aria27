@@ -86,32 +86,32 @@ export default function NominaConfigPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <FlashBanner msg={msg} className="mx-6" />
-      <div className="flex items-center gap-2 text-sm text-slate-400">
+      <div className="flex items-center gap-2 text-sm text-[#7f93b0]">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>
         <span>/</span>
         <span className="text-white">{"Configuraci\u00f3n N\u00f3mina"}</span>
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/configuracion/maestros" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/configuracion/maestros" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />
           {"Configuraci\u00f3n de N\u00f3mina"}
         </h1>
-        <p className="text-slate-400 text-sm">{"Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias"}</p>
+        <p className="text-[#7f93b0] text-sm">{"Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias"}</p>
       </div></div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+      <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 ">
         {loading ? (
-          <p className="text-center text-slate-400 py-8"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></p>
+          <p className="text-center text-[#7f93b0] py-8"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {configs.map((cfg) => (
               <div key={cfg.id} className="space-y-1">
-                <label className="block text-sm text-slate-300 font-medium">
+                <label className="block text-sm text-[#c9d8ed] font-medium">
                   {configLabels[cfg.clave] || cfg.clave}
                 </label>
                 <div className="flex gap-2">
@@ -119,7 +119,7 @@ export default function NominaConfigPage() {
                     type="text"
                     value={cfg.valor}
                     onChange={(e) => handleChange(cfg.id, e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white"
+                    className="flex-1 bg-black/40 border border-white/[0.08] rounded-lg px-3 py-2 text-white"
                   />
                   <button
                     onClick={() => handleSave(cfg.id, cfg.valor, cfg.clave)}
@@ -130,7 +130,7 @@ export default function NominaConfigPage() {
                   </button>
                 </div>
                 {formErrors[cfg.clave] && <p className="text-red-400 text-xs mt-1">{formErrors[cfg.clave]}</p>}
-                <p className="text-xs text-slate-500">{cfg.descripcion}</p>
+                <p className="text-xs text-[#4a6080]">{cfg.descripcion}</p>
               </div>
             ))}
           </div>

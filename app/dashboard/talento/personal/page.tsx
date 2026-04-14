@@ -227,12 +227,12 @@ export default function PersonalPage() {
     options?: { value: string; label: string }[];
   }) => (
     <div>
-      <label className="block text-xs text-slate-400 mb-1">{label}</label>
+      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
       {options ? (
         <select
           value={form[field] || ""}
           onChange={e => setForm({ ...form, [field]: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-aria-primary focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}>
+          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}>
           <option value="">{"\u2014 Seleccionar \u2014"}</option>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
@@ -243,7 +243,7 @@ export default function PersonalPage() {
           onChange={e => setForm({ ...form, [field]: e.target.value })}
           placeholder={placeholder}
           min={min}
-          className={`w-full px-3 py-2 rounded-lg bg-white/5 border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/10"}`}
+          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}
         />
       )}
       {formErrors[field] && <p className="text-red-400 text-xs mt-1">{formErrors[field]}</p>}
@@ -256,12 +256,12 @@ export default function PersonalPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/talento"
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+            className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Personal</h1>
-            <p className="text-xs text-slate-400">{empleados.length} empleados activos</p>
+            <p className="text-xs text-[#7f93b0]">{empleados.length} empleados activos</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -272,12 +272,12 @@ export default function PersonalPage() {
             Nuevo Empleado
           </button>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
             <input
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar..."
-              className="pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm w-64 focus:border-aria-primary focus:outline-none placeholder-slate-600"
+              className="pl-9 pr-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm w-64 focus:border-aria-primary focus:outline-none placeholder-slate-600"
             />
           </div>
         </div>
@@ -295,41 +295,41 @@ export default function PersonalPage() {
       {/* Tabla */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">
-          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-            <tr className="border-b border-white/10">
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">#</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Nombre</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Puesto</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Empresa</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">WhatsApp</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Ingreso</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Expediente</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+          <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+            <tr className="border-b border-white/[0.08]">
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">#</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Nombre</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Puesto</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Empresa</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">WhatsApp</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Ingreso</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Expediente</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : empFiltrados.length === 0 ? (
-              <tr><td colSpan={8} className="p-8 text-center text-slate-500 text-sm">
+              <tr><td colSpan={8} className="p-8 text-center text-[#4a6080] text-sm">
                 {busqueda ? "Sin resultados para la b\u00fasqueda" : "No hay empleados registrados"}
               </td></tr>
             ) : empFiltrados.map(e => {
               const campos = [e.curp, e.rfc, e.nss, e.banco, e.clabe, e.fecha_ingreso, e.numero_cuenta].filter(Boolean).length;
               return (
-                <tr key={e.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                  <td className="p-3 text-slate-500 text-xs">{e.employee_number}</td>
+                <tr key={e.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
+                  <td className="p-3 text-[#4a6080] text-xs">{e.employee_number}</td>
                   <td className="p-3 text-white text-sm font-medium">{e.full_name}</td>
-                  <td className="p-3 text-slate-400 text-sm">{e.position}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{e.position}</td>
                   <td className="p-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       getEmpresaNombre(e.empresa_id).includes("Avante") ? "bg-yellow-500/20 text-yellow-400" :
                       getEmpresaNombre(e.empresa_id).includes("Denivel") ? "bg-purple-500/20 text-purple-400" :
                       getEmpresaNombre(e.empresa_id).includes("Terracret") ? "bg-aria-accent-bg text-aria-accent" :
-                      "bg-slate-500/20 text-slate-400"
+                      "bg-slate-500/20 text-[#7f93b0]"
                     }`}>{getEmpresaNombre(e.empresa_id)}</span>
                   </td>
-                  <td className="p-3 text-slate-400 text-sm">{e.whatsapp || "\u2014"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{e.whatsapp || "\u2014"}</td>
                   <td className="p-3 text-center text-sm">
                     {e.fecha_ingreso
                       ? <span className="text-emerald-400">{e.fecha_ingreso}</span>
@@ -372,12 +372,12 @@ export default function PersonalPage() {
 
       {/* Modal de edicion / alta */}
       {editando && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4"
           onClick={() => setEditando(null)}>
-          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
+          <div className="bg-[#0f1729] border border-white/[0.08] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
             onClick={e => e.stopPropagation()}>
             {/* Header modal */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <div className="flex items-center gap-3">
                 {editando === "nuevo"
                   ? <UserPlus className="w-5 h-5 text-emerald-400" />
@@ -387,13 +387,13 @@ export default function PersonalPage() {
                 </h2>
               </div>
               <button onClick={() => setEditando(null)}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400">
+                className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-white/10">
+            <div className="flex border-b border-white/[0.08]">
               {[
                 { key: "general", label: "General", icon: User },
                 { key: "laboral", label: "Laboral", icon: Calendar },
@@ -402,7 +402,7 @@ export default function PersonalPage() {
               ].map(t => (
                 <button key={t.key} onClick={() => setTab(t.key as "general" | "laboral" | "bancario" | "fiscal")}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                    tab === t.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-slate-400 hover:text-white"
+                    tab === t.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-[#7f93b0] hover:text-white"
                   }`}>
                   <t.icon className="w-4 h-4" />
                   {t.label}
@@ -470,17 +470,17 @@ export default function PersonalPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-4 border-t border-white/10">
+            <div className="flex items-center justify-between p-4 border-t border-white/[0.08]">
               <div>
                 {editando === "nuevo" && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#4a6080]">
                     {"Se asignar\u00e1 n\u00famero autom\u00e1ticamente"}
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-3">
                 <button onClick={() => setEditando(null)}
-                  className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">
                   Cancelar
                 </button>
                 <button onClick={guardar} disabled={guardando}

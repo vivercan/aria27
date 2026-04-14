@@ -157,7 +157,7 @@ export default function LoginPage() {
       <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,102,255,0.35) 0%, transparent 60%)', filter: 'blur(60px)' }} />
 
       <div className="absolute top-6 right-8 z-20">
-        <p className="text-[10px] text-slate-500 tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
+        <p className="text-[10px] text-[#4a6080] tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
       </div>
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
@@ -173,7 +173,7 @@ export default function LoginPage() {
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   disabled={loading}
                   required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-slate-500 disabled:opacity-50"
+                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
                   style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)' }}
                   placeholder="usuario@gcuavante.com"
                 />
@@ -184,7 +184,7 @@ export default function LoginPage() {
                   onChange={(e) => { setPass(e.target.value); setError(''); }}
                   disabled={loading}
                   required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-slate-400 disabled:opacity-50"
+                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
                   style={{ padding: '8px 12px', fontSize: '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: '0.25em' }}
                   placeholder="••••••••"
                 />
@@ -194,10 +194,10 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 text-aria-primary focus:ring-aria-primary/30 focus:ring-offset-0 cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-white/[0.07] bg-[#0c1d38] text-aria-primary focus:ring-aria-primary/30 focus:ring-offset-0 cursor-pointer"
                     style={{ accentColor: '#3b82f6' }}
                   />
-                  <span className="text-[11px] text-slate-500">Mantener sesión iniciada</span>
+                  <span className="text-[11px] text-[#4a6080]">Mantener sesión iniciada</span>
                 </label>
 
                 {error && (
@@ -225,11 +225,11 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-3 text-center">
-                <p className="text-[8px] text-slate-500">Contraseña de Zoho Mail o App Password</p>
+                <p className="text-[8px] text-[#4a6080]">Contraseña de Zoho Mail o App Password</p>
               </div>
 
               <div className="mt-3 text-center">
-                <p className="text-[9px] text-slate-500 tracking-wider uppercase flex items-center justify-center gap-1">
+                <p className="text-[9px] text-[#4a6080] tracking-wider uppercase flex items-center justify-center gap-1">
                   <span>Acceso exclusivo · GCUAVANTE</span>
                   <span style={{ color: '#22C55E', fontSize: '8px' }}>●</span>
                   <span style={{ color: '#22C55E' }}>PROD</span>

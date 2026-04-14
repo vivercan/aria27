@@ -250,7 +250,7 @@ export default function RequisicionesStatusPage() {
     if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
     if (status?.includes("COTIZA")) return "bg-purple-500/20 text-purple-400";
-    return "bg-slate-500/20 text-slate-400";
+    return "bg-slate-500/20 text-[#7f93b0]";
   };
 
   const formatDate = (date: string) =>
@@ -266,12 +266,12 @@ export default function RequisicionesStatusPage() {
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Estatus de Requisiciones</h1>
-            <p className="text-slate-500 text-sm">{requisiciones.length} requisiciones</p>
+            <p className="text-[#4a6080] text-sm">{requisiciones.length} requisiciones</p>
           </div>
         </div>
 
@@ -300,7 +300,7 @@ export default function RequisicionesStatusPage() {
           </button>
           <button
             onClick={() => setSelectedIds([])}
-            className="px-4 py-1.5 rounded-lg bg-white/10 text-slate-300 text-sm hover:bg-white/20 transition"
+            className="px-4 py-1.5 rounded-lg bg-white/[0.06] text-[#c9d8ed] text-sm hover:bg-white/[0.1] transition"
           >
             Cancelar selección
           </button>
@@ -312,11 +312,11 @@ export default function RequisicionesStatusPage() {
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
         </div>
       ) : (
-        <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+        <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-white/5 sticky top-0">
-                <tr className="text-left text-slate-400 text-xs">
+              <thead className="bg-white/[0.04] sticky top-0">
+                <tr className="text-left text-[#7f93b0] text-xs">
                   {canDelete && (
                     <th className="p-3 w-10">
                       <input
@@ -338,7 +338,7 @@ export default function RequisicionesStatusPage() {
               </thead>
               <tbody>
                 {requisiciones.map((req) => (
-                  <tr key={req.id} className="border-t border-white/5 hover:bg-white/5">
+                  <tr key={req.id} className="border-t border-white/[0.05] hover:bg-white/[0.04]">
                     {canDelete && (
                       <td className="p-3">
                         <input
@@ -353,8 +353,8 @@ export default function RequisicionesStatusPage() {
                       <button onClick={() => openDetail(req)} className="font-mono text-aria-accent text-sm hover:text-aria-accent hover:underline transition">{req.folio}</button>
                     </td>
                     <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
-                    <td className="p-3 text-slate-300 text-sm">{req.created_by}</td>
-                    <td className="p-3 text-slate-300 text-sm">{formatDate(req.required_date)}</td>
+                    <td className="p-3 text-[#c9d8ed] text-sm">{req.created_by}</td>
+                    <td className="p-3 text-[#c9d8ed] text-sm">{formatDate(req.required_date)}</td>
                     <td className="p-3 text-emerald-400 text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
@@ -367,7 +367,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePrintClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-aria-accent-bg text-slate-400 hover:text-aria-accent transition-all disabled:opacity-50"
+                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-[#7f93b0] hover:text-aria-accent transition-all disabled:opacity-50"
                           title="Imprimir"
                         >
                           {loadingPrint === req.id ? (
@@ -380,7 +380,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePDFClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all disabled:opacity-50"
+                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-[#7f93b0] hover:text-emerald-400 transition-all disabled:opacity-50"
                           title="Descargar PDF"
                         >
                           <FileDown className="w-4 h-4" />
@@ -389,7 +389,7 @@ export default function RequisicionesStatusPage() {
                         {canDelete && (
                           <button
                             onClick={() => openDeleteModal("single", req.id)}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
+                            className="p-2 rounded-lg bg-white/[0.04] hover:bg-red-500/20 text-[#7f93b0] hover:text-red-400 transition-all"
                             title="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -408,42 +408,42 @@ export default function RequisicionesStatusPage() {
       {/* Modal Detalle */}
       {detailReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetailReq(null)}>
-          <div className="bg-aria-bg rounded-2xl border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-white/10">
+          <div className="bg-aria-bg rounded-2xl border border-white/[0.08] w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-white/[0.08]">
               <div>
                 <h3 className="text-lg font-bold text-white">{detailReq.folio}</h3>
-                <p className="text-slate-400 text-sm">{detailReq.cost_center_name}</p>
+                <p className="text-[#7f93b0] text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
-                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">✕</button>
+                <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition">✕</button>
               </div>
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Total</p><p className="text-sm text-emerald-400 font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Total</p><p className="text-sm text-emerald-400 font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
-                <div className="p-3 rounded-xl bg-white/5"><p className="text-[10px] uppercase text-slate-500 mb-1">Instrucciones</p><p className="text-sm text-slate-300">{detailReq.instructions}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Instrucciones</p><p className="text-sm text-[#c9d8ed]">{detailReq.instructions}</p></div>
               )}
               <div>
-                <p className="text-xs font-medium text-slate-400 mb-2">MATERIALES</p>
+                <p className="text-xs font-medium text-[#7f93b0] mb-2">MATERIALES</p>
                 {loadingDetail ? (
                   <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-aria-accent" /></div>
                 ) : (
-                  <div className="rounded-xl border border-white/10 overflow-hidden">
+                  <div className="rounded-xl border border-white/[0.08] overflow-hidden">
                     <table className="w-full">
-                      <thead className="bg-white/5"><tr className="text-left text-[11px] text-slate-500"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
+                      <thead className="bg-white/[0.04]"><tr className="text-left text-[11px] text-[#4a6080]"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
                       <tbody>
                         {detailItems.map((item) => (
-                          <tr key={item.id} className="border-t border-white/5 text-sm">
+                          <tr key={item.id} className="border-t border-white/[0.05] text-sm">
                             <td className="p-2.5 text-white">{item.product_name}</td>
-                            <td className="p-2.5 text-slate-400">{item.unit}</td>
+                            <td className="p-2.5 text-[#7f93b0]">{item.unit}</td>
                             <td className="p-2.5 text-center text-white">{item.quantity}</td>
-                            <td className="p-2.5 text-right text-slate-400">{formatCurrency(item.precio_unitario)}</td>
+                            <td className="p-2.5 text-right text-[#7f93b0]">{formatCurrency(item.precio_unitario)}</td>
                             <td className="p-2.5 text-right text-emerald-400 font-medium">{formatCurrency(item.precio_total)}</td>
                           </tr>
                         ))}
@@ -453,9 +453,9 @@ export default function RequisicionesStatusPage() {
                 )}
               </div>
             </div>
-            <div className="p-4 border-t border-white/10 flex justify-end gap-2">
-              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-aria-accent-bg text-sm text-slate-300 hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
-              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-sm text-slate-300 hover:text-emerald-400 transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
+            <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
+              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-sm text-[#c9d8ed] hover:text-emerald-400 transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
         </div>
@@ -463,7 +463,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Modal Eliminar — confirmación con "Borrar" */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 ">
           <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
             {/* Icono de advertencia */}
             <div className="flex items-center gap-3 mb-4">
@@ -491,7 +491,7 @@ export default function RequisicionesStatusPage() {
             </div>
 
             {/* Input de confirmación */}
-            <p className="text-slate-400 text-sm mb-2">
+            <p className="text-[#7f93b0] text-sm mb-2">
               Para confirmar, escribe <span className="text-white font-bold">Borrar</span> exactamente:
             </p>
             <input
@@ -502,7 +502,7 @@ export default function RequisicionesStatusPage() {
               className={`w-full px-4 py-2.5 rounded-lg border text-white text-center text-lg font-medium tracking-wider mb-4 focus:outline-none transition ${
                 deleteConfirmation === "Borrar"
                   ? "bg-red-500/10 border-red-500/50 focus:border-red-500"
-                  : "bg-white/5 border-white/10 focus:border-white/30"
+                  : "bg-white/[0.04] border-white/[0.08] focus:border-white/30"
               }`}
               autoFocus
             />
@@ -511,7 +511,7 @@ export default function RequisicionesStatusPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowDeleteModal(false); setDeleteConfirmation(""); }}
-                className="flex-1 py-2.5 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition"
+                className="flex-1 py-2.5 rounded-lg bg-white/[0.06] text-white text-sm font-medium hover:bg-white/[0.1] transition"
               >
                 Cancelar
               </button>

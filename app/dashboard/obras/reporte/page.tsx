@@ -136,13 +136,13 @@ function ReporteContent() {
   }
 
   if (!obra) {
-    return <div className="p-8 text-center text-slate-400">Falta parámetro <code>?obra=NOMBRE</code></div>;
+    return <div className="p-8 text-center text-[#7f93b0]">Falta parámetro <code>?obra=NOMBRE</code></div>;
   }
   if (loading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
   }
   if (!datos) {
-    return <div className="p-8 text-center text-slate-400">Sin datos para {obra}</div>;
+    return <div className="p-8 text-center text-[#7f93b0]">Sin datos para {obra}</div>;
   }
 
   const semaforoBg = datos.avance > 100 ? "#dc2626"
@@ -159,7 +159,7 @@ function ReporteContent() {
   return (
     <>
       {/* Toolbar (oculta en print) */}
-      <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
+      <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
         <div className="text-white text-sm">Reporte ejecutivo · <b>{obra}</b></div>
         <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm">
           <Printer className="w-4 h-4" /> Imprimir / Guardar PDF

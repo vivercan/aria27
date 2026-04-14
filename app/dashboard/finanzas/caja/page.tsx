@@ -286,7 +286,7 @@ export default function CajaChicaPage() {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Wallet className="w-6 h-6 text-amber-400" /> Caja Chica
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">Fondos revolventes · gastos · reposiciones · cortes</p>
+          <p className="text-sm text-[#7f93b0] mt-0.5">Fondos revolventes · gastos · reposiciones · cortes</p>
         </div>
       </div>
 
@@ -303,14 +303,14 @@ export default function CajaChicaPage() {
           {[
             { label: "Fondos Activos", value: stats.fondosActivos, icon: Wallet, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Saldo Disponible", value: fmt(stats.saldoTotal), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-            { label: "Autorizado Total", value: fmt(stats.autorizadoTotal), icon: FileText, color: "text-slate-300", bg: "bg-slate-500/10" },
+            { label: "Autorizado Total", value: fmt(stats.autorizadoTotal), icon: FileText, color: "text-[#c9d8ed]", bg: "bg-slate-500/10" },
             { label: "Gastos del Mes", value: fmt(stats.gastosMes), icon: TrendingDown, color: "text-red-400", bg: "bg-red-500/10" },
             { label: "Reposiciones Mes", value: fmt(stats.reposMes), icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
           ].map(s => (
             <div key={s.label} className="p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl">
               <div className={`inline-flex p-1.5 rounded-lg ${s.bg} mb-1`}><s.icon className={`w-3.5 h-3.5 ${s.color}`} /></div>
               <p className="text-lg font-bold text-white">{s.value}</p>
-              <p className="text-[11px] text-slate-400">{s.label}</p>
+              <p className="text-[11px] text-[#7f93b0]">{s.label}</p>
             </div>
           ))}
         </div>
@@ -321,24 +321,24 @@ export default function CajaChicaPage() {
         <div className="flex gap-1">
           {TABS.map(t => (
             <button key={t} onClick={() => { setTab(t); setSearch(""); setFilterFondo("TODOS"); setFilterEstatus("TODOS"); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {t}
             </button>
           ))}
         </div>
         <div className="flex-1 flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={tab === "Fondos" ? "Buscar fondo u obra..." : "Buscar concepto, responsable..."} className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-amber-500/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={tab === "Fondos" ? "Buscar fondo u obra..." : "Buscar concepto, responsable..."} className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:outline-none focus:border-amber-500/40" />
           </div>
           {tab !== "Fondos" && (
-            <select value={filterFondo} onChange={e => setFilterFondo(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+            <select value={filterFondo} onChange={e => setFilterFondo(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
               <option value="TODOS">Todos los fondos</option>
               {fondosActivos.map(f => <option key={f.id} value={f.id}>{f.nombre}</option>)}
             </select>
           )}
           {tab === "Fondos" && (
-            <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+            <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
               {["TODOS","ACTIVO","SUSPENDIDO","CERRADO"].map(e => <option key={e} value={e}>{e}</option>)}
             </select>
           )}
@@ -366,38 +366,38 @@ export default function CajaChicaPage() {
                   <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">{editFondoId ? "Editar Fondo" : "Nuevo Fondo de Caja Chica"}</h3>
-                      <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="text-slate-400 hover:text-white"><XCircle className="w-4 h-4" /></button>
+                      <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Nombre del fondo *</label>
-                        <input value={fondoForm.nombre} onChange={e => setFondoForm({ ...fondoForm, nombre: e.target.value })} placeholder="Ej: Caja Obra Miravalle" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Nombre del fondo *</label>
+                        <input value={fondoForm.nombre} onChange={e => setFondoForm({ ...fondoForm, nombre: e.target.value })} placeholder="Ej: Caja Obra Miravalle" required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Obra (opcional)</label>
-                        <select value={fondoForm.obra_id} onChange={e => setFondoForm({ ...fondoForm, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Obra (opcional)</label>
+                        <select value={fondoForm.obra_id} onChange={e => setFondoForm({ ...fondoForm, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           <option value="">Sin obra</option>
                           {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Responsable (opcional)</label>
-                        <select value={fondoForm.responsable_id} onChange={e => setFondoForm({ ...fondoForm, responsable_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Responsable (opcional)</label>
+                        <select value={fondoForm.responsable_id} onChange={e => setFondoForm({ ...fondoForm, responsable_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           <option value="">Sin asignar</option>
                           {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Monto autorizado *</label>
-                        <input type="number" min="0.01" step="0.01" required value={fondoForm.monto_autorizado} onChange={e => setFondoForm({ ...fondoForm, monto_autorizado: e.target.value })} placeholder="5000.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Monto autorizado *</label>
+                        <input type="number" min="0.01" step="0.01" required value={fondoForm.monto_autorizado} onChange={e => setFondoForm({ ...fondoForm, monto_autorizado: e.target.value })} placeholder="5000.00" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="text-xs text-slate-400 mb-1 block">Notas</label>
-                        <input value={fondoForm.notas} onChange={e => setFondoForm({ ...fondoForm, notas: e.target.value })} placeholder="Observaciones..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>
+                        <input value={fondoForm.notas} onChange={e => setFondoForm({ ...fondoForm, notas: e.target.value })} placeholder="Observaciones..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">Cancelar</button>
+                      <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
                       <button onClick={guardarFondo} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         {editFondoId ? "Actualizar" : "Crear Fondo"}
@@ -406,7 +406,7 @@ export default function CajaChicaPage() {
                   </div>
                 )}
                 {filteredFondos.length === 0 ? (
-                  <div className="text-center py-16 text-slate-500">
+                  <div className="text-center py-16 text-[#4a6080]">
                     <Wallet className="w-10 h-10 mx-auto mb-3 opacity-30" />
                     <p>No hay fondos de caja chica{filterEstatus !== "TODOS" ? ` con estatus ${filterEstatus}` : ""}.</p>
                     <p className="text-xs mt-1">Crea el primer fondo para empezar a registrar gastos.</p>
@@ -421,26 +421,26 @@ export default function CajaChicaPage() {
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <h3 className="text-sm font-semibold text-white">{f.nombre}</h3>
-                              <p className="text-xs text-slate-400">{f.obra_nombre} · {f.responsable_nombre}</p>
+                              <p className="text-xs text-[#7f93b0]">{f.obra_nombre} · {f.responsable_nombre}</p>
                             </div>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${f.estatus === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : f.estatus === "SUSPENDIDO" ? "bg-amber-500/20 text-amber-400" : "bg-slate-500/20 text-slate-400"}`}>{f.estatus}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${f.estatus === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : f.estatus === "SUSPENDIDO" ? "bg-amber-500/20 text-amber-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{f.estatus}</span>
                           </div>
                           <div className="space-y-2">
                             <div className="flex justify-between text-xs">
-                              <span className="text-slate-400">Saldo disponible</span>
+                              <span className="text-[#7f93b0]">Saldo disponible</span>
                               <span className="text-white font-medium">{fmt(Number(f.saldo_actual))}</span>
                             </div>
                             <div className="flex justify-between text-xs">
-                              <span className="text-slate-400">Autorizado</span>
-                              <span className="text-slate-300">{fmt(Number(f.monto_autorizado))}</span>
+                              <span className="text-[#7f93b0]">Autorizado</span>
+                              <span className="text-[#c9d8ed]">{fmt(Number(f.monto_autorizado))}</span>
                             </div>
-                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
                               <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${Math.min(pct, 100)}%` }} />
                             </div>
-                            <p className="text-[10px] text-slate-500 text-right">{pct}% utilizado</p>
+                            <p className="text-[10px] text-[#4a6080] text-right">{pct}% utilizado</p>
                           </div>
                           <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.06]">
-                            <button onClick={() => editFondo(f)} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-slate-300 transition-colors">
+                            <button onClick={() => editFondo(f)} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.06] rounded-lg text-xs text-[#c9d8ed] transition-colors">
                               <Edit2 className="w-3 h-3" /> Editar
                             </button>
                             <button onClick={() => toggleFondoEstatus(f)} className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${f.estatus === "ACTIVO" ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
@@ -465,60 +465,60 @@ export default function CajaChicaPage() {
                   <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">Registrar Movimiento</h3>
-                      <button onClick={() => setShowMovForm(false)} className="text-slate-400 hover:text-white"><XCircle className="w-4 h-4" /></button>
+                      <button onClick={() => setShowMovForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Fondo *</label>
-                        <select value={movForm.fondo_id} onChange={e => setMovForm({ ...movForm, fondo_id: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Fondo *</label>
+                        <select value={movForm.fondo_id} onChange={e => setMovForm({ ...movForm, fondo_id: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           <option value="">Seleccionar...</option>
                           {fondosActivos.map(f => <option key={f.id} value={f.id}>{f.nombre} ({fmt(Number(f.saldo_actual))})</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Tipo *</label>
                         <div className="flex gap-2">
                           {(["GASTO", "REPOSICION"] as const).map(t => (
                             <button key={t} onClick={() => setMovForm({ ...movForm, tipo: t })}
-                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${movForm.tipo === t ? (t === "GASTO" ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30") : "bg-white/5 text-slate-400 border border-white/10"}`}>
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${movForm.tipo === t ? (t === "GASTO" ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30") : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08]"}`}>
                               {t === "GASTO" ? "Gasto" : "Reposición"}
                             </button>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Monto *</label>
-                        <input type="number" min="0.01" step="0.01" required value={movForm.monto} onChange={e => setMovForm({ ...movForm, monto: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Monto *</label>
+                        <input type="number" min="0.01" step="0.01" required value={movForm.monto} onChange={e => setMovForm({ ...movForm, monto: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
-                        <input type="date" value={movForm.fecha} onChange={e => setMovForm({ ...movForm, fecha: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Fecha *</label>
+                        <input type="date" value={movForm.fecha} onChange={e => setMovForm({ ...movForm, fecha: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="text-xs text-slate-400 mb-1 block">Concepto *</label>
-                        <input value={movForm.concepto} onChange={e => setMovForm({ ...movForm, concepto: e.target.value })} placeholder="Descripción del gasto o reposición" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Concepto *</label>
+                        <input value={movForm.concepto} onChange={e => setMovForm({ ...movForm, concepto: e.target.value })} placeholder="Descripción del gasto o reposición" required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Categoría</label>
-                        <select value={movForm.categoria} onChange={e => setMovForm({ ...movForm, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Categoría</label>
+                        <select value={movForm.categoria} onChange={e => setMovForm({ ...movForm, categoria: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Comprobante</label>
-                        <input value={movForm.comprobante} onChange={e => setMovForm({ ...movForm, comprobante: e.target.value })} placeholder="No. factura o vale" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Comprobante</label>
+                        <input value={movForm.comprobante} onChange={e => setMovForm({ ...movForm, comprobante: e.target.value })} placeholder="No. factura o vale" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Responsable</label>
-                        <input value={movForm.responsable} onChange={e => setMovForm({ ...movForm, responsable: e.target.value })} placeholder="Quién hizo el gasto" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Responsable</label>
+                        <input value={movForm.responsable} onChange={e => setMovForm({ ...movForm, responsable: e.target.value })} placeholder="Quién hizo el gasto" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="text-xs text-slate-400 mb-1 block">Notas</label>
-                        <input value={movForm.notas} onChange={e => setMovForm({ ...movForm, notas: e.target.value })} placeholder="Observaciones adicionales..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>
+                        <input value={movForm.notas} onChange={e => setMovForm({ ...movForm, notas: e.target.value })} placeholder="Observaciones adicionales..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setShowMovForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">Cancelar</button>
+                      <button onClick={() => setShowMovForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
                       <button onClick={guardarMov} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         Registrar
@@ -528,8 +528,8 @@ export default function CajaChicaPage() {
                 )}
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                      <tr className="text-left text-xs text-slate-400 border-b border-white/[0.06]">
+                    <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+                      <tr className="text-left text-xs text-[#7f93b0] border-b border-white/[0.06]">
                         <th className="px-3 py-2.5">Fecha</th>
                         <th className="px-3 py-2.5">Fondo</th>
                         <th className="px-3 py-2.5">Tipo</th>
@@ -543,25 +543,25 @@ export default function CajaChicaPage() {
                     </thead>
                     <tbody>
                       {filteredMovs.length === 0 ? (
-                        <tr><td colSpan={9} className="text-center py-12 text-slate-500">Sin movimientos{filterFondo !== "TODOS" ? " en este fondo" : ""}.</td></tr>
+                        <tr><td colSpan={9} className="text-center py-12 text-[#4a6080]">Sin movimientos{filterFondo !== "TODOS" ? " en este fondo" : ""}.</td></tr>
                       ) : filteredMovs.map(m => (
                         <tr key={m.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                          <td className="px-3 py-2.5 text-slate-300 whitespace-nowrap">{fmtDate(m.fecha)}</td>
-                          <td className="px-3 py-2.5 text-slate-300 text-xs">{m.fondo_nombre}</td>
+                          <td className="px-3 py-2.5 text-[#c9d8ed] whitespace-nowrap">{fmtDate(m.fecha)}</td>
+                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{m.fondo_nombre}</td>
                           <td className="px-3 py-2.5">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${m.tipo === "GASTO" ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"}`}>
                               {m.tipo === "GASTO" ? "↓ Gasto" : "↑ Repos."}
                             </span>
                           </td>
                           <td className="px-3 py-2.5 text-white max-w-[200px] truncate">{m.concepto}</td>
-                          <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-slate-400">{m.categoria}</span></td>
+                          <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 rounded text-[10px] bg-white/[0.04] text-[#7f93b0]">{m.categoria}</span></td>
                           <td className={`px-3 py-2.5 text-right font-mono font-medium ${m.tipo === "GASTO" ? "text-red-400" : "text-emerald-400"}`}>
                             {m.tipo === "GASTO" ? "−" : "+"}{fmt(Number(m.monto))}
                           </td>
-                          <td className="px-3 py-2.5 text-slate-400 text-xs">{m.comprobante || "—"}</td>
-                          <td className="px-3 py-2.5 text-slate-400 text-xs">{m.responsable || "—"}</td>
+                          <td className="px-3 py-2.5 text-[#7f93b0] text-xs">{m.comprobante || "—"}</td>
+                          <td className="px-3 py-2.5 text-[#7f93b0] text-xs">{m.responsable || "—"}</td>
                           <td className="px-3 py-2.5">
-                            <button onClick={() => eliminarMov(m.id)} className="p-1 text-slate-500 hover:text-red-400 transition-colors" title="Eliminar">
+                            <button onClick={() => eliminarMov(m.id)} className="p-1 text-[#4a6080] hover:text-red-400 transition-colors" title="Eliminar">
                               <XCircle className="w-3.5 h-3.5" />
                             </button>
                           </td>
@@ -580,31 +580,31 @@ export default function CajaChicaPage() {
                   <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">Generar Corte de Caja</h3>
-                      <button onClick={() => setShowCorteForm(false)} className="text-slate-400 hover:text-white"><XCircle className="w-4 h-4" /></button>
+                      <button onClick={() => setShowCorteForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Fondo *</label>
-                        <select value={corteForm.fondo_id} onChange={e => setCorteForm({ ...corteForm, fondo_id: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Fondo *</label>
+                        <select value={corteForm.fondo_id} onChange={e => setCorteForm({ ...corteForm, fondo_id: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           <option value="">Seleccionar...</option>
                           {fondosActivos.map(f => <option key={f.id} value={f.id}>{f.nombre}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Periodo *</label>
-                        <input value={corteForm.periodo} onChange={e => setCorteForm({ ...corteForm, periodo: e.target.value })} placeholder="Ej: Semana 15 - 2026" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Periodo *</label>
+                        <input value={corteForm.periodo} onChange={e => setCorteForm({ ...corteForm, periodo: e.target.value })} placeholder="Ej: Semana 15 - 2026" required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-amber-500/40" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Fecha inicio *</label>
-                        <input type="date" value={corteForm.fecha_inicio} onChange={e => setCorteForm({ ...corteForm, fecha_inicio: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Fecha inicio *</label>
+                        <input type="date" value={corteForm.fecha_inicio} onChange={e => setCorteForm({ ...corteForm, fecha_inicio: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Fecha fin *</label>
-                        <input type="date" value={corteForm.fecha_fin} onChange={e => setCorteForm({ ...corteForm, fecha_fin: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Fecha fin *</label>
+                        <input type="date" value={corteForm.fecha_fin} onChange={e => setCorteForm({ ...corteForm, fecha_fin: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setShowCorteForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">Cancelar</button>
+                      <button onClick={() => setShowCorteForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
                       <button onClick={generarCorte} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                         Generar Corte
@@ -614,8 +614,8 @@ export default function CajaChicaPage() {
                 )}
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                      <tr className="text-left text-xs text-slate-400 border-b border-white/[0.06]">
+                    <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+                      <tr className="text-left text-xs text-[#7f93b0] border-b border-white/[0.06]">
                         <th className="px-3 py-2.5">Fondo</th>
                         <th className="px-3 py-2.5">Periodo</th>
                         <th className="px-3 py-2.5">Rango</th>
@@ -630,25 +630,25 @@ export default function CajaChicaPage() {
                     </thead>
                     <tbody>
                       {filteredCortes.length === 0 ? (
-                        <tr><td colSpan={10} className="text-center py-12 text-slate-500">Sin cortes{filterFondo !== "TODOS" ? " para este fondo" : ""}. Genera el primer corte de caja.</td></tr>
+                        <tr><td colSpan={10} className="text-center py-12 text-[#4a6080]">Sin cortes{filterFondo !== "TODOS" ? " para este fondo" : ""}. Genera el primer corte de caja.</td></tr>
                       ) : filteredCortes.map(c => (
                         <tr key={c.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                          <td className="px-3 py-2.5 text-slate-300 text-xs">{c.fondo_nombre}</td>
+                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{c.fondo_nombre}</td>
                           <td className="px-3 py-2.5 text-white font-medium">{c.periodo}</td>
-                          <td className="px-3 py-2.5 text-slate-400 text-xs whitespace-nowrap">{fmtDate(c.fecha_inicio)} → {fmtDate(c.fecha_fin)}</td>
-                          <td className="px-3 py-2.5 text-right text-slate-300 font-mono">{fmt(Number(c.saldo_inicial))}</td>
+                          <td className="px-3 py-2.5 text-[#7f93b0] text-xs whitespace-nowrap">{fmtDate(c.fecha_inicio)} → {fmtDate(c.fecha_fin)}</td>
+                          <td className="px-3 py-2.5 text-right text-[#c9d8ed] font-mono">{fmt(Number(c.saldo_inicial))}</td>
                           <td className="px-3 py-2.5 text-right text-red-400 font-mono">−{fmt(Number(c.total_gastos))}</td>
                           <td className="px-3 py-2.5 text-right text-emerald-400 font-mono">+{fmt(Number(c.total_reposiciones))}</td>
                           <td className="px-3 py-2.5 text-right text-white font-mono font-medium">{fmt(Number(c.saldo_final))}</td>
-                          <td className="px-3 py-2.5 text-center text-slate-400">{c.num_movimientos}</td>
+                          <td className="px-3 py-2.5 text-center text-[#7f93b0]">{c.num_movimientos}</td>
                           <td className="px-3 py-2.5">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${c.estatus === "ABIERTO" ? "bg-aria-primary-light text-aria-accent" : "bg-slate-500/20 text-slate-400"}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${c.estatus === "ABIERTO" ? "bg-aria-primary-light text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                               {c.estatus === "ABIERTO" ? "Abierto" : "Cerrado"}
                             </span>
                           </td>
                           <td className="px-3 py-2.5">
                             {c.estatus === "ABIERTO" && (
-                              <button onClick={() => cerrarCorte(c)} className="p-1 text-slate-500 hover:text-amber-400 transition-colors" title="Cerrar corte">
+                              <button onClick={() => cerrarCorte(c)} className="p-1 text-[#4a6080] hover:text-amber-400 transition-colors" title="Cerrar corte">
                                 <Lock className="w-3.5 h-3.5" />
                               </button>
                             )}

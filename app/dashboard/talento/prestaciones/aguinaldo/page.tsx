@@ -39,20 +39,20 @@ export default function AguinaldoPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+        <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Prestaciones
         </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Aguinaldo</h1>
-            <p className="text-slate-400 text-sm mt-1">Cálculo de aguinaldo por empleado (15 días de ley)</p>
+            <p className="text-[#7f93b0] text-sm mt-1">Cálculo de aguinaldo por empleado (15 días de ley)</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg">
-              <span className="text-xs text-slate-400">Total:</span>
+              <span className="text-xs text-[#7f93b0]">Total:</span>
               <span className="text-emerald-400 font-bold ml-2">${totalAguinaldo.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
             </div>
-            <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+            <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
               <option value={2026}>2026</option>
               <option value={2025}>2025</option>
               <option value={2024}>2024</option>
@@ -61,10 +61,10 @@ export default function AguinaldoPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto rounded-xl border border-white/10">
+      <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08]">
         <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-slate-800 z-10">
-            <tr className="text-left text-slate-400 border-b border-white/10">
+          <thead className="sticky top-0 bg-[#0c1d38] z-10">
+            <tr className="text-left text-[#7f93b0] border-b border-white/[0.08]">
               <th className="px-4 py-3 font-medium">Código</th>
               <th className="px-4 py-3 font-medium">Nombre</th>
               <th className="px-4 py-3 font-medium">Ingreso</th>
@@ -80,11 +80,11 @@ export default function AguinaldoPage() {
             ) : empleados.map(e => {
               const calc = calcAguinaldo(e);
               return (
-                <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
+                <tr key={e.id} className="border-b border-white/[0.05] hover:bg-white/[0.04]">
                   <td className="px-4 py-3 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                   <td className="px-4 py-3 text-white">{e.full_name}</td>
-                  <td className="px-4 py-3 text-slate-300">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "—"}</td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-300">${(e.salario_diario || 0).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-[#c9d8ed]">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "—"}</td>
+                  <td className="px-4 py-3 text-right font-mono text-[#c9d8ed]">${(e.salario_diario || 0).toFixed(2)}</td>
                   <td className="px-4 py-3 text-right font-mono text-white">{calc.dias}</td>
                   <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs ${calc.proporcional ? "bg-amber-500/20 text-amber-400" : "bg-aria-primary-light text-aria-accent"}`}>{calc.proporcional ? "Proporcional" : "Completo"}</span></td>
                   <td className="px-4 py-3 text-right font-mono text-emerald-400 font-bold">${calc.monto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>

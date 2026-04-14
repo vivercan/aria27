@@ -76,7 +76,7 @@ export default function ActivosPage() {
                     {module.title}
                   </h3>
                   {!module.active && (
-                    <span className="px-1.5 py-px text-[9px] font-bold tracking-widest bg-slate-500/[0.15] text-slate-400/70 rounded-full border border-slate-500/20">PRÓXIMO</span>
+                    <span className="px-1.5 py-px text-[9px] font-bold tracking-widest bg-slate-500/[0.15] text-[#7f93b0]/70 rounded-full border border-white/[0.1]/20">PRÓXIMO</span>
                   )}
                 </div>
                 <p className="text-[13px] text-[#6a84a8] leading-relaxed">{module.description}</p>

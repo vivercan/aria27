@@ -93,14 +93,14 @@ export default function PrestamosPage() {
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3 absolute top-20" />}
       {/* Flecha de regreso */}
-              <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors inline-block w-fit mb-4">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+              <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors inline-block w-fit mb-4">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
-          <p className="text-slate-400">Gestiona préstamos y descuentos semanales</p>
+          <p className="text-[#7f93b0]">Gestiona préstamos y descuentos semanales</p>
         </div>
         <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Préstamo
@@ -112,25 +112,25 @@ export default function PrestamosPage() {
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><DollarSign className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
-          <p className="text-xs text-slate-400">Préstamos Activos</p>
+          <p className="text-xs text-[#7f93b0]">Préstamos Activos</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Wallet className="w-4 h-4 text-amber-400" /></div>
           <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.monto_pendiente, 0))}</p>
-          <p className="text-xs text-slate-400">Total Pendiente</p>
+          <p className="text-xs text-[#7f93b0]">Total Pendiente</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><TrendingDown className="w-4 h-4 text-emerald-400" /></div>
           <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.descuento_semanal, 0))}</p>
-          <p className="text-xs text-slate-400">Descuento Semanal Total</p>
+          <p className="text-xs text-[#7f93b0]">Descuento Semanal Total</p>
         </div>
       </div>
 
       {/* Tabla */}
-      <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden flex-1 min-h-0 overflow-y-auto">
+      <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden flex-1 min-h-0 overflow-y-auto">
         <table className="w-full">
           <thead className="sticky top-0 bg-aria-bg z-10">
-            <tr className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+            <tr className="text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider">
               <th className="p-3">Empleado</th>
               <th className="p-3 text-right">Monto Original</th>
               <th className="p-3 text-right">Pendiente</th>
@@ -143,20 +143,20 @@ export default function PrestamosPage() {
             {loading ? (
               <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
             ) : prestamos.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-400">No hay préstamos registrados</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-[#7f93b0]">No hay préstamos registrados</td></tr>
             ) : (
               prestamos.map((p) => (
-                <tr key={p.id} className="border-t border-white/5 hover:bg-white/5">
+                <tr key={p.id} className="border-t border-white/[0.05] hover:bg-white/[0.04]">
                   <td className="p-3">
                     <p className="text-white font-medium">{p.employee?.full_name}</p>
-                    <p className="text-slate-400 text-xs">{p.employee?.position}</p>
+                    <p className="text-[#7f93b0] text-xs">{p.employee?.position}</p>
                   </td>
                   <td className="p-3 text-right text-white">{formatMoney(p.monto_original)}</td>
                   <td className="p-3 text-right text-amber-400">{formatMoney(p.monto_pendiente)}</td>
                   <td className="p-3 text-right text-aria-accent">{formatMoney(p.descuento_semanal)}</td>
-                  <td className="p-3 text-slate-300 text-sm">{p.motivo}</td>
+                  <td className="p-3 text-[#c9d8ed] text-sm">{p.motivo}</td>
                   <td className="p-3 text-center">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                       {p.status?.toUpperCase()}
                     </span>
                   </td>
@@ -169,33 +169,33 @@ export default function PrestamosPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-white/10 rounded-xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50">
+          <div className="bg-[#0c1d38] border border-white/[0.08] rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-white">Nuevo Préstamo</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white"><X /></button>
+              <button onClick={() => setShowModal(false)} className="text-[#7f93b0] hover:text-white"><X /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <select value={form.employee_id} onChange={(e) => setForm({ ...form, employee_id: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/20"}`}>
+                <select value={form.employee_id} onChange={(e) => setForm({ ...form, employee_id: e.target.value })} className={`w-full p-3 bg-white/[0.06] border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/[0.12]"}`}>
                   <option value="">Seleccionar empleado</option>
                   {empleados.map((e) => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                 </select>
                 {formErrors.employee_id && <p className="text-red-400 text-xs mt-1">{formErrors.employee_id}</p>}
               </div>
               <div>
-                <input type="number" min="0" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.monto ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Monto total" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} className={`w-full p-3 bg-white/[0.06] border rounded-lg text-white ${formErrors.monto ? "border-red-500/50" : "border-white/[0.12]"}`} />
                 {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
               </div>
               <div>
-                <input type="number" min="0" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.descuento ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Descuento semanal" value={form.descuento} onChange={(e) => setForm({ ...form, descuento: e.target.value })} className={`w-full p-3 bg-white/[0.06] border rounded-lg text-white ${formErrors.descuento ? "border-red-500/50" : "border-white/[0.12]"}`} />
                 {formErrors.descuento && <p className="text-red-400 text-xs mt-1">{formErrors.descuento}</p>}
               </div>
               <div>
-                <input type="number" min="0" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className={`w-full p-3 bg-white/10 border rounded-lg text-white ${formErrors.semanas ? "border-red-500/50" : "border-white/20"}`} />
+                <input type="number" min="0" placeholder="Semanas plazo" value={form.semanas} onChange={(e) => setForm({ ...form, semanas: e.target.value })} className={`w-full p-3 bg-white/[0.06] border rounded-lg text-white ${formErrors.semanas ? "border-red-500/50" : "border-white/[0.12]"}`} />
                 {formErrors.semanas && <p className="text-red-400 text-xs mt-1">{formErrors.semanas}</p>}
               </div>
-              <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white" />
+              <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/[0.06] border border-white/[0.12] rounded-lg text-white" />
               <button onClick={crearPrestamo} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg font-medium">Crear Préstamo</button>
             </div>
           </div>

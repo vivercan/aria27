@@ -191,15 +191,15 @@ export default function VacacionesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-xl bg-amber-500/20">
             <Sun className="w-6 h-6 text-amber-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Vacaciones</h1>
-            <p className="text-slate-400 text-sm">Gestión de días de descanso</p>
+            <p className="text-[#7f93b0] text-sm">Gestión de días de descanso</p>
           </div>
         </div>
         <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-medium">
@@ -208,53 +208,53 @@ export default function VacacionesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-white/10 pb-2">
+      <div className="flex gap-2 border-b border-white/[0.08] pb-2">
         {[
           { id: "calendario", label: "Calendario", icon: Calendar },
           { id: "saldos", label: "Saldos", icon: User },
           { id: "solicitudes", label: "Solicitudes", icon: Sun }
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as typeof tab)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${tab === t.id ? "bg-amber-600 text-white" : "text-slate-400 hover:bg-white/5"}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${tab === t.id ? "bg-amber-600 text-white" : "text-[#7f93b0] hover:bg-white/[0.04]"}`}>
             <t.icon className="w-4 h-4" /> {t.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="text-center text-slate-400 py-8">Cargando...</div>
+        <div className="text-center text-[#7f93b0] py-8">Cargando...</div>
       ) : (
         <>
           {/* CALENDARIO */}
           {tab === "calendario" && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <button onClick={mesAnterior} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-                  <ChevronLeft className="w-5 h-5 text-slate-400" />
+                <button onClick={mesAnterior} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+                  <ChevronLeft className="w-5 h-5 text-[#7f93b0]" />
                 </button>
                 <h2 className="text-xl font-bold text-white">{MESES[mesActual]} {anioActual}</h2>
-                <button onClick={mesSiguiente} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-                  <ChevronRight className="w-5 h-5 text-slate-400" />
+                <button onClick={mesSiguiente} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+                  <ChevronRight className="w-5 h-5 text-[#7f93b0]" />
                 </button>
               </div>
               <div className="grid grid-cols-7 gap-1">
                 {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map(d => (
-                  <div key={d} className="text-center text-xs text-slate-500 py-2 font-medium">{d}</div>
+                  <div key={d} className="text-center text-xs text-[#4a6080] py-2 font-medium">{d}</div>
                 ))}
                 {getDiasDelMes().map((dia, idx) => {
                   const vacEnDia = dia ? getVacacionesEnDia(dia) : [];
                   const esHoy = dia === new Date().getDate() && mesActual === new Date().getMonth() && anioActual === new Date().getFullYear();
                   return (
-                    <div key={idx} className={`min-h-[80px] p-1 border border-white/5 rounded-lg ${dia ? "bg-white/[0.02]" : ""} ${esHoy ? "ring-2 ring-amber-500" : ""}`}>
+                    <div key={idx} className={`min-h-[80px] p-1 border border-white/[0.05] rounded-lg ${dia ? "bg-white/[0.02]" : ""} ${esHoy ? "ring-2 ring-amber-500" : ""}`}>
                       {dia && (
                         <>
-                          <div className={`text-sm font-medium mb-1 ${esHoy ? "text-amber-400" : "text-slate-400"}`}>{dia}</div>
+                          <div className={`text-sm font-medium mb-1 ${esHoy ? "text-amber-400" : "text-[#7f93b0]"}`}>{dia}</div>
                           {vacEnDia.slice(0, 2).map((v, i) => (
                             <div key={i} className="text-xs bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded truncate mb-0.5">
                               {v.employee?.full_name?.split(" ")[0]}
                             </div>
                           ))}
-                          {vacEnDia.length > 2 && <div className="text-xs text-slate-500">+{vacEnDia.length - 2} más</div>}
+                          {vacEnDia.length > 2 && <div className="text-xs text-[#4a6080]">+{vacEnDia.length - 2} más</div>}
                         </>
                       )}
                     </div>
@@ -266,10 +266,10 @@ export default function VacacionesPage() {
 
           {/* SALDOS */}
           {tab === "saldos" && (
-            <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden">
               <table className="w-full">
-                <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-                  <tr className="text-left text-xs text-slate-400 uppercase">
+                <thead className="bg-white/[0.04] sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+                  <tr className="text-left text-xs text-[#7f93b0] uppercase">
                     <th className="px-4 py-3">Empleado</th>
                     <th className="px-4 py-3">Puesto</th>
                     <th className="px-4 py-3 text-center">Corresponden</th>
@@ -279,13 +279,13 @@ export default function VacacionesPage() {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {vacaciones.map(v => (
-                    <tr key={v.id} className="hover:bg-white/5">
+                    <tr key={v.id} className="hover:bg-white/[0.04]">
                       <td className="px-4 py-3 text-white font-medium">{v.employee?.full_name}</td>
-                      <td className="px-4 py-3 text-slate-400 text-sm">{v.employee?.position}</td>
-                      <td className="px-4 py-3 text-center text-slate-300">{v.dias_correspondientes}</td>
+                      <td className="px-4 py-3 text-[#7f93b0] text-sm">{v.employee?.position}</td>
+                      <td className="px-4 py-3 text-center text-[#c9d8ed]">{v.dias_correspondientes}</td>
                       <td className="px-4 py-3 text-center text-amber-400">{v.dias_tomados}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-sm font-medium ${(v.dias_correspondientes - v.dias_tomados) > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>
+                        <span className={`px-2 py-1 rounded text-sm font-medium ${(v.dias_correspondientes - v.dias_tomados) > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                           {(v.dias_correspondientes - v.dias_tomados)}
                         </span>
                       </td>
@@ -300,14 +300,14 @@ export default function VacacionesPage() {
           {tab === "solicitudes" && (
             <div className="space-y-4">
               {solicitudes.length === 0 ? (
-                <div className="text-center text-slate-400 py-8">No hay solicitudes</div>
+                <div className="text-center text-[#7f93b0] py-8">No hay solicitudes</div>
               ) : solicitudes.map(s => (
                 <div key={s.id} className={`p-4 rounded-xl border ${s.status === "PENDIENTE" ? "bg-amber-500/10 border-amber-500/30" : s.status === "APROBADA" ? "bg-emerald-500/10 border-emerald-500/30" : "bg-red-500/10 border-red-500/30"}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-medium">{s.employee?.full_name}</h3>
-                      <p className="text-slate-400 text-sm">{s.fecha_inicio} al {s.fecha_fin} ({s.dias_solicitados} días)</p>
-                      {s.motivo && <p className="text-slate-500 text-xs mt-1">{s.motivo}</p>}
+                      <p className="text-[#7f93b0] text-sm">{s.fecha_inicio} al {s.fecha_fin} ({s.dias_solicitados} días)</p>
+                      {s.motivo && <p className="text-[#4a6080] text-xs mt-1">{s.motivo}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${s.status === "PENDIENTE" ? "bg-amber-500 text-white" : s.status === "APROBADA" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"}`}>
@@ -334,14 +334,14 @@ export default function VacacionesPage() {
 
       {/* Modal Nueva Solicitud */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Solicitud de Vacaciones</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Empleado</label>
+                <label className="block text-sm text-[#7f93b0] mb-1">Empleado</label>
                 <select value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})}
-                  className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/10"}`}>
+                  className={`w-full px-3 py-2 bg-white/[0.04] border rounded-lg text-white ${formErrors.employee_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
                   <option value="">Seleccionar...</option>
                   {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                 </select>
@@ -349,15 +349,15 @@ export default function VacacionesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Fecha Inicio</label>
+                  <label className="block text-sm text-[#7f93b0] mb-1">Fecha Inicio</label>
                   <input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})}
-                    className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.fecha_inicio ? "border-red-500/50" : "border-white/10"}`} />
+                    className={`w-full px-3 py-2 bg-white/[0.04] border rounded-lg text-white ${formErrors.fecha_inicio ? "border-red-500/50" : "border-white/[0.08]"}`} />
                   {formErrors.fecha_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_inicio}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Fecha Fin</label>
+                  <label className="block text-sm text-[#7f93b0] mb-1">Fecha Fin</label>
                   <input type="date" value={form.fecha_fin} onChange={e => setForm({...form, fecha_fin: e.target.value})}
-                    className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-white ${formErrors.fecha_fin ? "border-red-500/50" : "border-white/10"}`} />
+                    className={`w-full px-3 py-2 bg-white/[0.04] border rounded-lg text-white ${formErrors.fecha_fin ? "border-red-500/50" : "border-white/[0.08]"}`} />
                   {formErrors.fecha_fin && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_fin}</p>}
                 </div>
               </div>
@@ -366,13 +366,13 @@ export default function VacacionesPage() {
                 <div className="text-center text-amber-400 font-medium">{calcularDias()} días solicitados</div>
               )}
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Motivo (opcional)</label>
+                <label className="block text-sm text-[#7f93b0] mb-1">Motivo (opcional)</label>
                 <input type="text" value={form.motivo} onChange={e => setForm({...form, motivo: e.target.value})}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Viaje familiar..." />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Viaje familiar..." />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
               <button onClick={crearSolicitud} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-medium">Crear Solicitud</button>
             </div>
           </div>

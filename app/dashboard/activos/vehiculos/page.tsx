@@ -150,7 +150,7 @@ export default function VehiculosPage() {
     cargar();
   };
 
-  const getEstadoStyle = (s: string) => ESTADO_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-slate-400";
+  const getEstadoStyle = (s: string) => ESTADO_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-[#7f93b0]";
   const getEstadoLabel = (s: string) => ESTADO_OPTIONS.find(o => o.value === s)?.label || s;
 
   const filtrados = vehiculos.filter(v => {
@@ -163,19 +163,19 @@ export default function VehiculosPage() {
   const operativos = vehiculos.filter(v => v.estado === "bueno").length;
   const enMant = vehiculos.filter(v => v.estado === "mantenimiento" || v.estado === "reparacion").length;
 
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Vehículos y Maquinaria</h1>
-            <p className="text-xs text-slate-400">{vehiculos.length} unidades registradas</p>
+            <p className="text-xs text-[#7f93b0]">{vehiculos.length} unidades registradas</p>
           </div>
         </div>
         <button
@@ -205,11 +205,11 @@ export default function VehiculosPage() {
       {/* Search */}
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
           <input
             type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre, placas, marca o ubicación..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
           />
         </div>
       </div>
@@ -223,15 +223,15 @@ export default function VehiculosPage() {
       {/* Table */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">
-          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-            <tr className="border-b border-white/10">
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Vehículo</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Placas</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Ubicación</th>
-              <th className="text-right p-3 text-slate-400 font-medium text-xs">Km</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Combustible</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Estado</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+          <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+            <tr className="border-b border-white/[0.08]">
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Vehículo</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Placas</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Ubicación</th>
+              <th className="text-right p-3 text-[#7f93b0] font-medium text-xs">Km</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Combustible</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Estado</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
             </tr>
           </thead>
           <tbody>
@@ -239,19 +239,19 @@ export default function VehiculosPage() {
               <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : filtrados.length === 0 ? (
               <tr><td colSpan={7} className="p-8 text-center">
-                <Car className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                <p className="text-slate-500 text-sm">{vehiculos.length === 0 ? "No hay vehículos registrados" : "Sin resultados"}</p>
+                <Car className="w-10 h-10 text-[#4a6080] mx-auto mb-2" />
+                <p className="text-[#4a6080] text-sm">{vehiculos.length === 0 ? "No hay vehículos registrados" : "Sin resultados"}</p>
               </td></tr>
             ) : filtrados.map(v => (
-              <tr key={v.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+              <tr key={v.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                 <td className="p-3">
                   <p className="text-white text-sm font-medium">{v.nombre}</p>
-                  <p className="text-slate-500 text-xs">{[v.marca, v.modelo, v.anio].filter(Boolean).join(" ") || "—"}</p>
+                  <p className="text-[#4a6080] text-xs">{[v.marca, v.modelo, v.anio].filter(Boolean).join(" ") || "—"}</p>
                 </td>
-                <td className="p-3 text-slate-300 text-sm font-mono">{v.placas || "—"}</td>
-                <td className="p-3 text-slate-400 text-sm">{v.ubicacion_actual || "—"}</td>
+                <td className="p-3 text-[#c9d8ed] text-sm font-mono">{v.placas || "—"}</td>
+                <td className="p-3 text-[#7f93b0] text-sm">{v.ubicacion_actual || "—"}</td>
                 <td className="p-3 text-right text-sm text-white">{v.kilometraje ? Number(v.kilometraje).toLocaleString() : "—"}</td>
-                <td className="p-3 text-center text-xs text-slate-400">{v.combustible || "—"}</td>
+                <td className="p-3 text-center text-xs text-[#7f93b0]">{v.combustible || "—"}</td>
                 <td className="p-3 text-center">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getEstadoStyle(v.estado)}`}>{getEstadoLabel(v.estado)}</span>
                 </td>
@@ -272,71 +272,71 @@ export default function VehiculosPage() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => closeModal()}>
-          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4" onClick={() => closeModal()}>
+          <div className="bg-[#0f1729] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <h2 className="text-lg font-bold text-white">{editId ? "Editar Vehículo" : "Nuevo Vehículo"}</h2>
-              <button onClick={() => closeModal()} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-5 h-5" /></button>
+              <button onClick={() => closeModal()} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0]"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Código</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Código</label>
                   <input type="text" value={form.codigo} onChange={e => setForm({ ...form, codigo: e.target.value })} placeholder="VH-001" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Nombre *</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Nombre *</label>
                   <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Camioneta Ford F-150" className={inputClass} />
                   {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Marca</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Marca</label>
                   <input type="text" value={form.marca} onChange={e => setForm({ ...form, marca: e.target.value })} placeholder="Ford" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Modelo</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Modelo</label>
                   <input type="text" value={form.modelo} onChange={e => setForm({ ...form, modelo: e.target.value })} placeholder="F-150" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Año</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Año</label>
                   <input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} placeholder="2024" className={inputClass} />
                   {formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Placas</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Placas</label>
                   <input type="text" value={form.placas} onChange={e => setForm({ ...form, placas: e.target.value })} placeholder="AGS-123-A" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Kilometraje</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Kilometraje</label>
                   <input type="number" min="0" value={form.kilometraje} onChange={e => setForm({ ...form, kilometraje: e.target.value })} placeholder="0" className={inputClass} />
                   {formErrors.kilometraje && <p className="text-red-400 text-xs mt-1">{formErrors.kilometraje}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Combustible</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Combustible</label>
                   <select value={form.combustible} onChange={e => setForm({ ...form, combustible: e.target.value })} className={inputClass}>
                     {COMBUSTIBLE_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Estado</label>
+                  <label className="block text-xs text-[#7f93b0] mb-1">Estado</label>
                   <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className={inputClass}>
                     {ESTADO_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Ubicación actual</label>
+                <label className="block text-xs text-[#7f93b0] mb-1">Ubicación actual</label>
                 <input type="text" value={form.ubicacion_actual} onChange={e => setForm({ ...form, ubicacion_actual: e.target.value })} placeholder="Obra Pinar del Lago" className={inputClass} />
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
-              <button onClick={() => closeModal()} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">Cancelar</button>
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/[0.08]">
+              <button onClick={() => closeModal()} className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">Cancelar</button>
               <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-sm disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {editId ? "Actualizar" : "Registrar"}

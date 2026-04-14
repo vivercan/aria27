@@ -283,7 +283,7 @@ export default function FacturacionPage() {
         <div className="mt-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Facturación</h1>
-            <p className="text-slate-400 text-sm">Control de facturas emitidas — IVA 16%</p>
+            <p className="text-[#7f93b0] text-sm">Control de facturas emitidas — IVA 16%</p>
           </div>
           <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nueva Factura
@@ -304,8 +304,8 @@ export default function FacturacionPage() {
               No genera CFDI (Comprobante Fiscal Digital por Internet) ni timbrado ante el SAT.
             </p>
             <div className="mt-3 p-3 bg-black/20 rounded-lg">
-              <p className="text-xs text-slate-300 font-medium mb-1">Para habilitar facturación electrónica se requiere:</p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
+              <p className="text-xs text-[#c9d8ed] font-medium mb-1">Para habilitar facturación electrónica se requiere:</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-[#7f93b0]">
                 <span>1. Contratar un PAC autorizado por el SAT</span>
                 <span>2. Certificado de Sello Digital (CSD)</span>
                 <span>3. Configurar API del PAC en ARIA</span>
@@ -324,7 +324,7 @@ export default function FacturacionPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -333,64 +333,64 @@ export default function FacturacionPage() {
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva Factura</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div><label className="text-xs text-slate-400 mb-1 block">Tipo</label>
-              <select value={form.tipo as string || "EGRESO"} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Tipo</label>
+              <select value={form.tipo as string || "EGRESO"} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                 <option value="INGRESO">INGRESO - Dinero que entra</option><option value="EGRESO">EGRESO - Dinero que sale</option>
               </select></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
-              <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />{formErrors.cliente && <p className="text-red-400 text-xs mt-1">{formErrors.cliente}</p>}</div>
-            <div><label className="text-xs text-slate-400 mb-1 block">RFC</label>
-              <input value={form.rfc_cliente} onChange={e => setForm({...form, rfc_cliente: e.target.value.toUpperCase()})} placeholder="RFC del cliente" maxLength={13} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none uppercase" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Obra</label>
-              <input value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
-            <div className="md:col-span-2"><label className="text-xs text-slate-400 mb-1 block">Concepto</label>
-              <input value={form.concepto} onChange={e => setForm({...form, concepto: e.target.value})} placeholder="Descripción del servicio" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" /></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Subtotal (sin IVA) *</label>
-              <input type="number" min="0" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />{formErrors.subtotal && <p className="text-red-400 text-xs mt-1">{formErrors.subtotal}</p>}</div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Método Pago</label>
-              <select value={form.metodo_pago} onChange={e => setForm({...form, metodo_pago: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Cliente *</label>
+              <input value={form.cliente} onChange={e => setForm({...form, cliente: e.target.value})} placeholder="Razón social" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none" />{formErrors.cliente && <p className="text-red-400 text-xs mt-1">{formErrors.cliente}</p>}</div>
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">RFC</label>
+              <input value={form.rfc_cliente} onChange={e => setForm({...form, rfc_cliente: e.target.value.toUpperCase()})} placeholder="RFC del cliente" maxLength={13} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none uppercase" /></div>
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Obra</label>
+              <input value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} placeholder="Nombre de la obra" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none" /></div>
+            <div className="md:col-span-2"><label className="text-xs text-[#7f93b0] mb-1 block">Concepto</label>
+              <input value={form.concepto} onChange={e => setForm({...form, concepto: e.target.value})} placeholder="Descripción del servicio" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none" /></div>
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Subtotal (sin IVA) *</label>
+              <input type="number" min="0" value={form.subtotal} onChange={e => setForm({...form, subtotal: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />{formErrors.subtotal && <p className="text-red-400 text-xs mt-1">{formErrors.subtotal}</p>}</div>
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Método Pago</label>
+              <select value={form.metodo_pago} onChange={e => setForm({...form, metodo_pago: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                 <option value="PUE">PUE - Pago en una sola exhibición</option><option value="PPD">PPD - Pago en parcialidades</option>
               </select></div>
-            <div><label className="text-xs text-slate-400 mb-1 block">Uso CFDI</label>
-              <select value={form.uso_cfdi} onChange={e => setForm({...form, uso_cfdi: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+            <div><label className="text-xs text-[#7f93b0] mb-1 block">Uso CFDI</label>
+              <select value={form.uso_cfdi} onChange={e => setForm({...form, uso_cfdi: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                 <option value="G03">G03 - Gastos en general</option><option value="I01">I01 - Construcciones</option><option value="P01">P01 - Por definir</option>
               </select></div>
           </div>
           {form.subtotal > 0 && (
-            <div className="p-3 bg-white/5 rounded-lg text-sm">
-              <span className="text-slate-400">Subtotal: </span><span className="text-white">${form.subtotal.toLocaleString()}</span>
-              <span className="text-slate-400 mx-2">+ IVA: </span><span className="text-white">${(form.subtotal * 0.16).toLocaleString()}</span>
-              <span className="text-slate-400 mx-2">= Total: </span><span className="text-emerald-400 font-bold">${(form.subtotal * 1.16).toLocaleString()}</span>
+            <div className="p-3 bg-white/[0.04] rounded-lg text-sm">
+              <span className="text-[#7f93b0]">Subtotal: </span><span className="text-white">${form.subtotal.toLocaleString()}</span>
+              <span className="text-[#7f93b0] mx-2">+ IVA: </span><span className="text-white">${(form.subtotal * 0.16).toLocaleString()}</span>
+              <span className="text-[#7f93b0] mx-2">= Total: </span><span className="text-emerald-400 font-bold">${(form.subtotal * 1.16).toLocaleString()}</span>
             </div>
           )}
           <div className="flex gap-3 pt-2">
             <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
 
       <div className="space-y-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio, cliente, UUID fiscal..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex gap-2">
-            <span className="text-xs text-slate-400 py-2">Estado:</span>
+            <span className="text-xs text-[#7f93b0] py-2">Estado:</span>
             {["TODOS", "EMITIDA", "PAGADA", "CANCELADA"].map(f => (
               <button key={f} onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
                 {f}
               </button>
             ))}
           </div>
           <div className="flex gap-2">
-            <span className="text-xs text-slate-400 py-2">Tipo:</span>
+            <span className="text-xs text-[#7f93b0] py-2">Tipo:</span>
             {["TODOS", "INGRESO", "EGRESO"].map(t => (
               <button key={t} onClick={() => setFilterTipo(t)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterTipo === t ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterTipo === t ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
                 {t}
               </button>
             ))}
@@ -401,8 +401,8 @@ export default function FacturacionPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Folio</th>
                 <th className="text-left p-3">Cliente</th>
                 <th className="text-left p-3">RFC</th>
@@ -416,23 +416,23 @@ export default function FacturacionPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin facturas registradas</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]">Sin facturas registradas</td></tr>
               ) : filtered.map(f => {
                 const files = uploadedFiles.get(f.id);
                 return (
-                  <tr key={f.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                  <tr key={f.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-3 text-white font-mono text-xs">{f.folio}</td>
                     <td className="p-3 text-white text-sm">{f.cliente}</td>
-                    <td className="p-3 text-slate-400 font-mono text-xs">{f.rfc_cliente}</td>
-                    <td className="p-3 text-center text-slate-400 font-mono text-xs">{f.uuid_fiscal ? f.uuid_fiscal.substring(0, 8) + "..." : "-"}</td>
-                    <td className="p-3 text-slate-300 text-sm">{f.obra_nombre || "-"}</td>
+                    <td className="p-3 text-[#7f93b0] font-mono text-xs">{f.rfc_cliente}</td>
+                    <td className="p-3 text-center text-[#7f93b0] font-mono text-xs">{f.uuid_fiscal ? f.uuid_fiscal.substring(0, 8) + "..." : "-"}</td>
+                    <td className="p-3 text-[#c9d8ed] text-sm">{f.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
                       {files?.xml && <span title="XML"><FileJson className="w-4 h-4 text-emerald-400" /></span>}
                       {files?.pdf && <span title="PDF"><FileText className="w-4 h-4 text-red-400" /></span>}
-                      {!files?.xml && !files?.pdf && <span className="text-slate-500 text-xs">—</span>}
+                      {!files?.xml && !files?.pdf && <span className="text-[#4a6080] text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -463,23 +463,23 @@ export default function FacturacionPage() {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-xl p-6 max-w-md w-full space-y-4">
+        <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-xl p-6 max-w-md w-full space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Adjuntar Archivos CFDI</h3>
-              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowUploadModal(false)} className="text-[#7f93b0] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3">
               {/* XML Upload */}
-              <div className="p-4 border border-white/10 rounded-lg hover:bg-white/[0.02] transition-colors">
+              <div className="p-4 border border-white/[0.08] rounded-lg hover:bg-white/[0.02] transition-colors">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <FileJson className="w-5 h-5 text-emerald-400" />
                   <div>
                     <p className="text-sm font-medium text-white">Archivo XML</p>
-                    <p className="text-xs text-slate-400">Comprobante fiscal digital</p>
+                    <p className="text-xs text-[#7f93b0]">Comprobante fiscal digital</p>
                   </div>
                   <input
                     type="file"
@@ -502,12 +502,12 @@ export default function FacturacionPage() {
               </div>
 
               {/* PDF Upload */}
-              <div className="p-4 border border-white/10 rounded-lg hover:bg-white/[0.02] transition-colors">
+              <div className="p-4 border border-white/[0.08] rounded-lg hover:bg-white/[0.02] transition-colors">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <FileText className="w-5 h-5 text-red-400" />
                   <div>
                     <p className="text-sm font-medium text-white">Archivo PDF</p>
-                    <p className="text-xs text-slate-400">Representación visual</p>
+                    <p className="text-xs text-[#7f93b0]">Representación visual</p>
                   </div>
                   <input
                     type="file"
@@ -538,14 +538,14 @@ export default function FacturacionPage() {
               <button
                 onClick={handleUploadFiles}
                 disabled={!facturaFiles.xml && !facturaFiles.pdf || uploading}
-                className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#162040] disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {uploading ? "Subiendo..." : "Subir"}
               </button>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                className="px-4 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm font-medium transition-colors"
               >
                 Cancelar
               </button>

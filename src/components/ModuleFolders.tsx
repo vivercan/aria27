@@ -19,12 +19,12 @@ export default function ModuleFolders({ titulo, descripcion, backHref, scope }: 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href={backHref} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+        <Link href={backHref} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">{titulo}</h1>
-          <p className="text-xs text-slate-400">{descripcion}</p>
+          <p className="text-xs text-[#7f93b0]">{descripcion}</p>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export default function ModuleFolders({ titulo, descripcion, backHref, scope }: 
             />
           ) : (
             <div className="h-full flex items-center justify-center rounded-xl bg-white/[0.02] border border-white/[0.06]">
-              <p className="text-slate-500 text-sm">Selecciona o crea una carpeta para ver sus archivos</p>
+              <p className="text-[#4a6080] text-sm">Selecciona o crea una carpeta para ver sus archivos</p>
             </div>
           )}
         </div>

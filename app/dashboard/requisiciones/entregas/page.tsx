@@ -148,15 +148,15 @@ export default function EntregasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-xl bg-aria-primary-light">
             <Truck className="w-6 h-6 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Entregas de Material</h1>
-            <p className="text-slate-400 text-sm">{entregas.length} entregas registradas</p>
+            <p className="text-[#7f93b0] text-sm">{entregas.length} entregas registradas</p>
           </div>
         </div>
         <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">
@@ -168,35 +168,35 @@ export default function EntregasPage() {
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center">
           <p className="text-aria-accent font-bold text-lg">{stats.total}</p>
-          <p className="text-slate-500 text-[9px]">Total</p>
+          <p className="text-[#4a6080] text-[9px]">Total</p>
         </div>
         <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
           <p className="text-emerald-400 font-bold text-lg">{stats.conOC}</p>
-          <p className="text-slate-500 text-[9px]">Con OC</p>
+          <p className="text-[#4a6080] text-[9px]">Con OC</p>
         </div>
         <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-center">
           <p className="text-violet-400 font-bold text-lg">{stats.conFoto}</p>
-          <p className="text-slate-500 text-[9px]">Con Foto</p>
+          <p className="text-[#4a6080] text-[9px]">Con Foto</p>
         </div>
         <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
           <p className="text-amber-400 font-bold text-lg">{stats.hoy}</p>
-          <p className="text-slate-500 text-[9px]">Hoy</p>
+          <p className="text-[#4a6080] text-[9px]">Hoy</p>
         </div>
       </div>
 
       {/* Búsqueda */}
       <div className="relative mb-4 shrink-0">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
         <input type="text" placeholder="Buscar por folio, proveedor, obra o OC..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:border-aria-primary focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder:text-[#4a6080] focus:border-aria-primary focus:outline-none" />
       </div>
 
       {/* Lista */}
       <div className="flex-1 overflow-y-auto space-y-3">
         {loading ? (
-          <div className="text-center text-slate-400 py-8">Cargando...</div>
+          <div className="text-center text-[#7f93b0] py-8">Cargando...</div>
         ) : entregasFiltradas.length === 0 ? (
-          <div className="text-center text-slate-400 py-8 bg-white/5 rounded-xl">No hay entregas registradas</div>
+          <div className="text-center text-[#7f93b0] py-8 bg-white/[0.04] rounded-xl">No hay entregas registradas</div>
         ) : entregasFiltradas.map(e => (
           <div key={e.id} className="p-4 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors">
             <div className="flex items-center justify-between">
@@ -220,15 +220,15 @@ export default function EntregasPage() {
                     )}
                   </div>
                   <p className="text-white font-medium">{e.proveedor_nombre}</p>
-                  <p className="text-slate-400 text-sm">{e.obra_nombre} • Recibió: {e.recibido_por_nombre || "Pendiente"}</p>
+                  <p className="text-[#7f93b0] text-sm">{e.obra_nombre} • Recibió: {e.recibido_por_nombre || "Pendiente"}</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-[#7f93b0] text-sm mb-2">
                   <Calendar className="w-4 h-4" />
                   {e.fecha_entrega} {e.hora_entrega}
                 </div>
-                <button onClick={() => setShowDetalle(e)} className="flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-slate-300 text-sm">
+                <button onClick={() => setShowDetalle(e)} className="flex items-center gap-1 px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-[#c9d8ed] text-sm">
                   <Eye className="w-4 h-4" /> Ver
                 </button>
               </div>
@@ -239,40 +239,40 @@ export default function EntregasPage() {
 
       {/* Modal Nueva Entrega */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Entrega de Material</h2>
             <div className="text-aria-accent font-mono mb-4">Folio: {folio}</div>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Fecha</label>
-                <input type="date" value={form.fecha_entrega} onChange={e => setForm({...form, fecha_entrega: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                <label className="block text-sm text-[#7f93b0] mb-1">Fecha</label>
+                <input type="date" value={form.fecha_entrega} onChange={e => setForm({...form, fecha_entrega: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Hora</label>
-                <input type="time" value={form.hora_entrega} onChange={e => setForm({...form, hora_entrega: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                <label className="block text-sm text-[#7f93b0] mb-1">Hora</label>
+                <input type="time" value={form.hora_entrega} onChange={e => setForm({...form, hora_entrega: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Proveedor *</label>
-                <input type="text" value={form.proveedor_nombre} onChange={e => setForm({...form, proveedor_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Nombre del proveedor" />
+                <label className="block text-sm text-[#7f93b0] mb-1">Proveedor *</label>
+                <input type="text" value={form.proveedor_nombre} onChange={e => setForm({...form, proveedor_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Nombre del proveedor" />
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Obra *</label>
-                <select value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                <label className="block text-sm text-[#7f93b0] mb-1">Obra *</label>
+                <select value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white">
                   <option value="">Seleccionar...</option>
                   {obras.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Recibido por *</label>
-                <select value={form.recibido_por_nombre} onChange={e => setForm({...form, recibido_por_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                <label className="block text-sm text-[#7f93b0] mb-1">Recibido por *</label>
+                <select value={form.recibido_por_nombre} onChange={e => setForm({...form, recibido_por_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white">
                   <option value="">Seleccionar...</option>
                   {empleados.map(e => <option key={e.id} value={e.full_name}>{e.full_name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1">Estado</label>
-                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
+                <label className="block text-sm text-[#7f93b0] mb-1">Estado</label>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white">
                   <option value="COMPLETA">Completa</option>
                   <option value="PARCIAL">Parcial</option>
                   <option value="RECHAZADA">Rechazada</option>
@@ -281,27 +281,27 @@ export default function EntregasPage() {
             </div>
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-slate-400 font-medium">Materiales</label>
+                <label className="text-sm text-[#7f93b0] font-medium">Materiales</label>
                 <button onClick={agregarMaterial} className="text-xs text-aria-accent hover:text-aria-accent">+ Agregar</button>
               </div>
               <div className="space-y-2">
                 {form.materiales.map((m, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-                    <input type="text" placeholder="Producto" value={m.producto} onChange={e => actualizarMaterial(idx, "producto", e.target.value)} className="col-span-5 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm" />
-                    <input type="number" min="0" placeholder="Pedido" value={m.cantidad_pedida || ""} onChange={e => actualizarMaterial(idx, "cantidad_pedida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
-                    <input type="number" min="0" placeholder="Recibido" value={m.cantidad_recibida || ""} onChange={e => actualizarMaterial(idx, "cantidad_recibida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm text-center" />
-                    <input type="text" placeholder="Nota" value={m.observacion} onChange={e => actualizarMaterial(idx, "observacion", e.target.value)} className="col-span-2 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm" />
+                    <input type="text" placeholder="Producto" value={m.producto} onChange={e => actualizarMaterial(idx, "producto", e.target.value)} className="col-span-5 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm" />
+                    <input type="number" min="0" placeholder="Pedido" value={m.cantidad_pedida || ""} onChange={e => actualizarMaterial(idx, "cantidad_pedida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm text-center" />
+                    <input type="number" min="0" placeholder="Recibido" value={m.cantidad_recibida || ""} onChange={e => actualizarMaterial(idx, "cantidad_recibida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm text-center" />
+                    <input type="text" placeholder="Nota" value={m.observacion} onChange={e => actualizarMaterial(idx, "observacion", e.target.value)} className="col-span-2 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm" />
                     <button onClick={() => eliminarMaterial(idx)} className="col-span-1 text-red-400 hover:text-red-300 text-center">×</button>
                   </div>
                 ))}
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm text-slate-400 mb-1">Observaciones</label>
-              <textarea value={form.observaciones} onChange={e => setForm({...form, observaciones: e.target.value})} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Notas adicionales..." />
+              <label className="block text-sm text-[#7f93b0] mb-1">Observaciones</label>
+              <textarea value={form.observaciones} onChange={e => setForm({...form, observaciones: e.target.value})} rows={2} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Notas adicionales..." />
             </div>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
               <button onClick={guardarEntrega} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium"><Check className="w-4 h-4 inline mr-2" />Guardar</button>
             </div>
           </div>
@@ -310,8 +310,8 @@ export default function EntregasPage() {
 
       {/* Modal Detalle */}
       {showDetalle && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Detalle de Entrega</h2>
               <span className="text-aria-accent font-mono">{showDetalle.folio}</span>
@@ -335,7 +335,7 @@ export default function EntregasPage() {
             {/* Foto */}
             {showDetalle.foto_url && (
               <div className="mb-4">
-                <p className="text-slate-400 text-sm mb-2 flex items-center gap-2"><Image className="w-4 h-4" />Evidencia fotográfica:</p>
+                <p className="text-[#7f93b0] text-sm mb-2 flex items-center gap-2"><Image className="w-4 h-4" />Evidencia fotográfica:</p>
                 <a href={showDetalle.foto_url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 transition-colors">
                   📷 Ver foto de evidencia
                 </a>
@@ -343,24 +343,24 @@ export default function EntregasPage() {
             )}
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div><span className="text-slate-400 text-sm">Fecha:</span><p className="text-white">{showDetalle.fecha_entrega} {showDetalle.hora_entrega}</p></div>
-              <div><span className="text-slate-400 text-sm">Estado:</span><p><span className={`px-2 py-0.5 rounded text-xs text-white ${getStatusColor(showDetalle.status)}`}>{showDetalle.status}</span></p></div>
-              <div><span className="text-slate-400 text-sm">Proveedor:</span><p className="text-white">{showDetalle.proveedor_nombre}</p></div>
-              <div><span className="text-slate-400 text-sm">Obra:</span><p className="text-white">{showDetalle.obra_nombre}</p></div>
-              <div className="col-span-2"><span className="text-slate-400 text-sm">Recibió:</span><p className="text-white">{showDetalle.recibido_por_nombre || "Pendiente confirmar"}</p></div>
+              <div><span className="text-[#7f93b0] text-sm">Fecha:</span><p className="text-white">{showDetalle.fecha_entrega} {showDetalle.hora_entrega}</p></div>
+              <div><span className="text-[#7f93b0] text-sm">Estado:</span><p><span className={`px-2 py-0.5 rounded text-xs text-white ${getStatusColor(showDetalle.status)}`}>{showDetalle.status}</span></p></div>
+              <div><span className="text-[#7f93b0] text-sm">Proveedor:</span><p className="text-white">{showDetalle.proveedor_nombre}</p></div>
+              <div><span className="text-[#7f93b0] text-sm">Obra:</span><p className="text-white">{showDetalle.obra_nombre}</p></div>
+              <div className="col-span-2"><span className="text-[#7f93b0] text-sm">Recibió:</span><p className="text-white">{showDetalle.recibido_por_nombre || "Pendiente confirmar"}</p></div>
               {showDetalle.solicitante_email && (
-                <div className="col-span-2"><span className="text-slate-400 text-sm">Solicitante:</span><p className="text-white">{showDetalle.solicitante_email}</p></div>
+                <div className="col-span-2"><span className="text-[#7f93b0] text-sm">Solicitante:</span><p className="text-white">{showDetalle.solicitante_email}</p></div>
               )}
             </div>
 
             {showDetalle.materiales_recibidos && showDetalle.materiales_recibidos.length > 0 && (
               <div className="mb-4">
-                <span className="text-slate-400 text-sm">Materiales:</span>
+                <span className="text-[#7f93b0] text-sm">Materiales:</span>
                 <div className="mt-2 space-y-1">
                   {showDetalle.materiales_recibidos.map((m: Material, i: number) => (
-                    <div key={i} className="flex justify-between text-sm bg-white/5 px-3 py-2 rounded">
+                    <div key={i} className="flex justify-between text-sm bg-white/[0.04] px-3 py-2 rounded">
                       <span className="text-white">{m.producto || m.product_name}</span>
-                      <span className="text-slate-400">{m.quantity || m.cantidad_recibida} {m.unit || ""}</span>
+                      <span className="text-[#7f93b0]">{m.quantity || m.cantidad_recibida} {m.unit || ""}</span>
                     </div>
                   ))}
                 </div>
@@ -368,11 +368,11 @@ export default function EntregasPage() {
             )}
 
             {showDetalle.observaciones && (
-              <div className="mb-4"><span className="text-slate-400 text-sm">Observaciones:</span><p className="text-white">{showDetalle.observaciones}</p></div>
+              <div className="mb-4"><span className="text-[#7f93b0] text-sm">Observaciones:</span><p className="text-white">{showDetalle.observaciones}</p></div>
             )}
 
             <div className="flex justify-end">
-              <button onClick={() => setShowDetalle(null)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cerrar</button>
+              <button onClick={() => setShowDetalle(null)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cerrar</button>
             </div>
           </div>
         </div>

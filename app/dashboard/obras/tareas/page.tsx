@@ -31,7 +31,7 @@ interface Tarea {
 }
 
 const PRIORIDAD_OPTIONS = [
-  { value: "baja", label: "Baja", color: "bg-slate-500/20 text-slate-400", icon: Circle },
+  { value: "baja", label: "Baja", color: "bg-slate-500/20 text-[#7f93b0]", icon: Circle },
   { value: "normal", label: "Normal", color: "bg-aria-primary-light text-aria-accent", icon: Clock },
   { value: "alta", label: "Alta", color: "bg-amber-500/20 text-amber-400", icon: AlertTriangle },
   { value: "urgente", label: "Urgente", color: "bg-red-500/20 text-red-400", icon: AlertTriangle },
@@ -168,7 +168,7 @@ export default function TareasPage() {
     cargarTareas();
   };
 
-  const getPrioridadStyle = (p: string) => PRIORIDAD_OPTIONS.find(o => o.value === p)?.color || "bg-slate-500/20 text-slate-400";
+  const getPrioridadStyle = (p: string) => PRIORIDAD_OPTIONS.find(o => o.value === p)?.color || "bg-slate-500/20 text-[#7f93b0]";
   const getPrioridadLabel = (p: string) => PRIORIDAD_OPTIONS.find(o => o.value === p)?.label || p;
 
   const isVencida = (fecha: string, status: string) => {
@@ -196,24 +196,24 @@ export default function TareasPage() {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div>
-      <label className="block text-xs text-slate-400 mb-1">{label}</label>
+      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
       {children}
     </div>
   );
 
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
+  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Tareas de Obra</h1>
-            <p className="text-xs text-slate-400">{tareas.length} tareas registradas</p>
+            <p className="text-xs text-[#7f93b0]">{tareas.length} tareas registradas</p>
           </div>
         </div>
         <button
@@ -243,19 +243,19 @@ export default function TareasPage() {
       {/* Filters */}
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">
         <div className="relative flex-1 max-w-xs">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
           <input
             type="text"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar tarea, responsable u obra..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600"
           />
         </div>
         <select
           value={filtroObra}
           onChange={e => setFiltroObra(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
+          className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"
         >
           <option value="">Todas las obras</option>
           {obras.map(o => (
@@ -265,7 +265,7 @@ export default function TareasPage() {
         <select
           value={filtroStatus}
           onChange={e => setFiltroStatus(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
+          className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"
         >
           <option value="">Todos los estados</option>
           {STATUS_OPTIONS.map(s => (
@@ -283,15 +283,15 @@ export default function TareasPage() {
       {/* Table */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">
-          <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-            <tr className="border-b border-white/10">
+          <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+            <tr className="border-b border-white/[0.08]">
               <th className="w-10 p-3"></th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Tarea</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
-              <th className="text-left p-3 text-slate-400 font-medium text-xs">Responsable</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Prioridad</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Vencimiento</th>
-              <th className="text-center p-3 text-slate-400 font-medium text-xs">Acc</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Tarea</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Obra</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Responsable</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Prioridad</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Vencimiento</th>
+              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
             </tr>
           </thead>
           <tbody>
@@ -304,8 +304,8 @@ export default function TareasPage() {
             ) : tareasFiltradas.length === 0 ? (
               <tr>
                 <td colSpan={7} className="p-8 text-center">
-                  <ListChecks className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                  <p className="text-slate-500 text-sm">
+                  <ListChecks className="w-10 h-10 text-[#4a6080] mx-auto mb-2" />
+                  <p className="text-[#4a6080] text-sm">
                     {tareas.length === 0 ? "No hay tareas registradas" : "Sin resultados para los filtros"}
                   </p>
                 </td>
@@ -313,23 +313,23 @@ export default function TareasPage() {
             ) : tareasFiltradas.map(t => {
               const vencida = isVencida(t.fecha_limite, t.status);
               return (
-                <tr key={t.id} className={`border-b border-white/5 hover:bg-white/[0.02] ${t.status === "completada" ? "opacity-60" : ""}`}>
+                <tr key={t.id} className={`border-b border-white/[0.05] hover:bg-white/[0.02] ${t.status === "completada" ? "opacity-60" : ""}`}>
                   <td className="p-3 text-center">
                     <button onClick={() => toggleStatus(t)} className="transition-colors">
                       {t.status === "completada" ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                       ) : (
-                        <Circle className="w-5 h-5 text-slate-500 hover:text-emerald-400" />
+                        <Circle className="w-5 h-5 text-[#4a6080] hover:text-emerald-400" />
                       )}
                     </button>
                   </td>
                   <td className="p-3">
-                    <p className={`text-sm font-medium ${t.status === "completada" ? "line-through text-slate-500" : "text-white"}`}>
+                    <p className={`text-sm font-medium ${t.status === "completada" ? "line-through text-[#4a6080]" : "text-white"}`}>
                       {t.titulo}
                     </p>
                   </td>
-                  <td className="p-3 text-slate-400 text-sm">{t.obra_nombre || "—"}</td>
-                  <td className="p-3 text-slate-400 text-sm">{t.responsable || "—"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{t.obra_nombre || "—"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{t.responsable || "—"}</td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${getPrioridadStyle(t.prioridad)}`}>
                       {getPrioridadLabel(t.prioridad)}
@@ -337,12 +337,12 @@ export default function TareasPage() {
                   </td>
                   <td className="p-3 text-center">
                     {t.fecha_limite ? (
-                      <span className={`text-xs ${vencida ? "text-red-400 font-medium" : "text-slate-400"}`}>
+                      <span className={`text-xs ${vencida ? "text-red-400 font-medium" : "text-[#7f93b0]"}`}>
                         {vencida && "⚠ "}
                         {new Date(t.fecha_limite + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-600">—</span>
+                      <span className="text-xs text-[#4a6080]">—</span>
                     )}
                   </td>
                   <td className="p-3 text-center">
@@ -366,11 +366,11 @@ export default function TareasPage() {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0f1729] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-[#0f1729] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <h2 className="text-lg font-bold text-white">{editId ? "Editar Tarea" : "Nueva Tarea"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400">
+              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0]">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -449,8 +449,8 @@ export default function TareasPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/10">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 text-sm">
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-white/[0.08]">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">
                 Cancelar
               </button>
               <button

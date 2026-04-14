@@ -193,7 +193,7 @@ export default function ComprasPickingPage() {
   };
 
   // Helpers
-  const urgencyColor = (u: string) => u === "critico" ? "text-red-400 bg-red-500/20" : u === "urgente" ? "text-amber-400 bg-amber-500/20" : "text-slate-400 bg-white/10";
+  const urgencyColor = (u: string) => u === "critico" ? "text-red-400 bg-red-500/20" : u === "urgente" ? "text-amber-400 bg-amber-500/20" : "text-[#7f93b0] bg-white/[0.06]";
   const urgencyLabel = (u: string) => u === "critico" ? "CRÍTICO" : u === "urgente" ? "URGENTE" : "Normal";
   const pagoShort = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
   const creditoShort = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : dc + "d crédito";
@@ -222,12 +222,12 @@ export default function ComprasPickingPage() {
       <div className="h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Autorizar Compras</h1>
-            <p className="text-slate-400 text-sm">{reqs.length} requisiciones pendientes</p>
+            <p className="text-[#7f93b0] text-sm">{reqs.length} requisiciones pendientes</p>
           </div>
         </div>
 
@@ -235,7 +235,7 @@ export default function ComprasPickingPage() {
           {reqs.length === 0 ? (
             <div className="text-center py-20">
               <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3 opacity-50" />
-              <p className="text-slate-400">No hay comparativas pendientes</p>
+              <p className="text-[#7f93b0]">No hay comparativas pendientes</p>
             </div>
           ) : reqs.map(req => (
             <button key={req.id} onClick={() => selectReq(req)}
@@ -246,10 +246,10 @@ export default function ComprasPickingPage() {
                   {urgencyLabel(req.urgency)}
                 </span>
               </div>
-              <p className="text-slate-400 text-sm">{req.cost_center_name}</p>
+              <p className="text-[#7f93b0] text-sm">{req.cost_center_name}</p>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-slate-500 text-xs">{new Date(req.created_at).toLocaleDateString("es-MX")}</span>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-aria-accent transition-colors" />
+                <span className="text-[#4a6080] text-xs">{new Date(req.created_at).toLocaleDateString("es-MX")}</span>
+                <ChevronRight className="w-4 h-4 text-[#4a6080] group-hover:text-aria-accent transition-colors" />
               </div>
             </button>
           ))}
@@ -276,12 +276,12 @@ export default function ComprasPickingPage() {
       <div className="h-full flex flex-col">
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-3 shrink-0">
-        <button onClick={goBack} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <button onClick={goBack} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold text-white truncate">{selectedReq.folio}</h1>
-          <p className="text-slate-400 text-xs">{selectedReq.cost_center_name}</p>
+          <p className="text-[#7f93b0] text-xs">{selectedReq.cost_center_name}</p>
         </div>
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${urgencyColor(selectedReq.urgency)}`}>
           {urgencyLabel(selectedReq.urgency)}
@@ -293,7 +293,7 @@ export default function ComprasPickingPage() {
 
         {/* QUICK SELECT */}
         <div className="space-y-2">
-          <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Selección rápida por proveedor</h3>
+          <h3 className="text-[#7f93b0] text-xs font-semibold uppercase tracking-wider">Selección rápida por proveedor</h3>
           <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
             {suppliers.map(name => {
               const info = supplierInfo[name];
@@ -311,7 +311,7 @@ export default function ComprasPickingPage() {
                     ${total.toLocaleString()}
                   </p>
                   {total === bestTotal && <span className="text-emerald-400 text-[9px] font-medium">MEJOR TOTAL</span>}
-                  <div className="flex flex-wrap gap-1.5 mt-2 text-[9px] text-slate-400">
+                  <div className="flex flex-wrap gap-1.5 mt-2 text-[9px] text-[#7f93b0]">
                     <span>{count}/{items.length} items</span>
                     <span>&middot;</span>
                     <span>{pagoShort(info?.forma_pago || "")}</span>
@@ -329,7 +329,7 @@ export default function ComprasPickingPage() {
             })}
           </div>
           {selectedCount > 0 && (
-            <button onClick={clearAll} className="text-slate-500 text-xs hover:text-red-400 transition-colors flex items-center gap-1">
+            <button onClick={clearAll} className="text-[#4a6080] text-xs hover:text-red-400 transition-colors flex items-center gap-1">
               <X className="w-3 h-3" /> Limpiar selección
             </button>
           )}
@@ -340,7 +340,7 @@ export default function ComprasPickingPage() {
 
         {/* PER-ITEM PICKING */}
         <div className="space-y-2">
-          <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          <h3 className="text-[#7f93b0] text-xs font-semibold uppercase tracking-wider">
             Material por material ({selectedCount}/{items.length})
           </h3>
           {items.map(item => {
@@ -354,11 +354,11 @@ export default function ComprasPickingPage() {
                   {selected ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : (
-                    <Package className="w-4 h-4 text-slate-500 shrink-0" />
+                    <Package className="w-4 h-4 text-[#4a6080] shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">{item.product_name}</p>
-                    <p className="text-slate-500 text-[10px]">{item.quantity} {item.unit}</p>
+                    <p className="text-[#4a6080] text-[10px]">{item.quantity} {item.unit}</p>
                   </div>
                   {selected && (
                     <span className="text-emerald-400 text-xs font-bold shrink-0">
@@ -370,7 +370,7 @@ export default function ComprasPickingPage() {
                 {/* Supplier options */}
                 <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory">
                   {qs.length === 0 ? (
-                    <p className="text-slate-500 text-xs py-2">Sin cotizaciones</p>
+                    <p className="text-[#4a6080] text-xs py-2">Sin cotizaciones</p>
                   ) : qs.map(q => {
                     const info = supplierInfo[q.supplier_name];
                     const isSelected = selected?.supplier_name === q.supplier_name;
@@ -382,7 +382,7 @@ export default function ComprasPickingPage() {
                         className={`min-w-[150px] snap-start p-2.5 rounded-lg border text-left transition-all ${
                           isSelected
                             ? "bg-emerald-500/15 border-emerald-500/50 ring-1 ring-emerald-500/30"
-                            : "bg-black/20 border-white/[0.08] hover:border-white/20"
+                            : "bg-black/20 border-white/[0.08] hover:border-white/[0.12]"
                         }`}>
                         {/* Supplier name + badges */}
                         <div className="flex items-center gap-1 mb-1">
@@ -400,21 +400,21 @@ export default function ComprasPickingPage() {
 
                         {/* Price */}
                         <p className={`text-base font-bold ${isSelected ? "text-emerald-400" : isBest ? "text-emerald-400" : "text-white"}`}>
-                          ${q.unit_price.toLocaleString()} <span className="text-[9px] font-normal text-slate-500">/{item.unit}</span>
+                          ${q.unit_price.toLocaleString()} <span className="text-[9px] font-normal text-[#4a6080]">/{item.unit}</span>
                         </p>
-                        <p className="text-slate-500 text-[9px]">
+                        <p className="text-[#4a6080] text-[9px]">
                           Subtotal: ${(q.unit_price * item.quantity).toLocaleString()}
                         </p>
 
                         {/* Details */}
                         <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5 text-[9px]">
-                          <span className="text-slate-400 flex items-center gap-0.5">
+                          <span className="text-[#7f93b0] flex items-center gap-0.5">
                             <Truck className="w-2.5 h-2.5" />{q.dias_entrega}d
                           </span>
-                          <span className="text-slate-400 flex items-center gap-0.5">
+                          <span className="text-[#7f93b0] flex items-center gap-0.5">
                             <CreditCard className="w-2.5 h-2.5" />{creditoShort(info?.tipo_credito || "CONTADO", info?.dias_credito || 0)}
                           </span>
-                          <span className="text-slate-400 flex items-center gap-0.5">
+                          <span className="text-[#7f93b0] flex items-center gap-0.5">
                             <Banknote className="w-2.5 h-2.5" />{pagoShort(info?.forma_pago || "")}
                           </span>
                           <span className={`flex items-center gap-0.5 ${info?.emite_factura ? "text-emerald-400" : "text-amber-400"}`}>
@@ -432,12 +432,12 @@ export default function ComprasPickingPage() {
       </div>
 
       {/* STICKY FOOTER - CART */}
-      <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
+      <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95  -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
         {/* Cart summary */}
         {selectedCount > 0 && (
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-slate-400 text-xs font-medium">
+              <span className="text-[#7f93b0] text-xs font-medium">
                 <ShoppingCart className="w-3.5 h-3.5 inline mr-1" />
                 {selectedCount}/{items.length} materiales
               </span>
@@ -445,9 +445,9 @@ export default function ComprasPickingPage() {
             </div>
             <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
               {Object.entries(cart).map(([name, data]) => (
-                <span key={name} className="text-slate-400">
+                <span key={name} className="text-[#7f93b0]">
                   {name}: <span className="text-white font-medium">${data.total.toLocaleString()}</span>
-                  <span className="text-slate-500"> ({data.count})</span>
+                  <span className="text-[#4a6080]"> ({data.count})</span>
                 </span>
               ))}
             </div>
@@ -459,7 +459,7 @@ export default function ComprasPickingPage() {
           className={`w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
             selectedCount === items.length
               ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
-              : "bg-white/5 text-slate-500 cursor-not-allowed"
+              : "bg-white/[0.04] text-[#4a6080] cursor-not-allowed"
           }`}>
           {authorizing ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Autorizando...</>

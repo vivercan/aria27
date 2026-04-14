@@ -295,7 +295,7 @@ export default function EstimacionesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "BORRADOR":
-        return "bg-slate-500/20 text-slate-400";
+        return "bg-slate-500/20 text-[#7f93b0]";
       case "PRESENTADA":
         return "bg-aria-primary-light text-aria-accent";
       case "APROBADA":
@@ -305,7 +305,7 @@ export default function EstimacionesPage() {
       case "RECHAZADA":
         return "bg-red-500/20 text-red-400";
       default:
-        return "bg-slate-500/20 text-slate-400";
+        return "bg-slate-500/20 text-[#7f93b0]";
     }
   };
 
@@ -321,7 +321,7 @@ export default function EstimacionesPage() {
         <div className="mt-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Estimaciones de Obra</h1>
-            <p className="text-slate-400 text-sm">Solicitudes de pago por avance — desglose de partidas y liquidación</p>
+            <p className="text-[#7f93b0] text-sm">Solicitudes de pago por avance — desglose de partidas y liquidación</p>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
@@ -368,7 +368,7 @@ export default function EstimacionesPage() {
               <s.icon className={`w-4 h-4 ${s.color}`} />
             </div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -379,14 +379,14 @@ export default function EstimacionesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Obra *</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Obra *</label>
               <select
                 value={form.obra_id}
                 onChange={(e) => {
                   const obra = obrasCat.find((o) => o.id === e.target.value);
                   setForm({ ...form, obra_id: e.target.value, obra_nombre: obra?.nombre || "" });
                 }}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               >
                 <option value="">-- Selecciona obra --</option>
                 {obrasCat.map((o) => (
@@ -399,75 +399,75 @@ export default function EstimacionesPage() {
             </div>
 
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Período Inicio *</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Período Inicio *</label>
               <input
                 type="date"
                 value={form.periodo_inicio}
                 onChange={(e) => setForm({ ...form, periodo_inicio: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               />
               {formErrors.periodo_inicio && <p className="text-red-400 text-xs mt-1">{formErrors.periodo_inicio}</p>}
             </div>
 
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Período Fin *</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Período Fin *</label>
               <input
                 type="date"
                 value={form.periodo_fin}
                 onChange={(e) => setForm({ ...form, periodo_fin: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               />
               {formErrors.periodo_fin && <p className="text-red-400 text-xs mt-1">{formErrors.periodo_fin}</p>}
             </div>
 
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Importe Total Contrato</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Importe Total Contrato</label>
               <input
                 type="number" min="0.01"
                 step="0.01"
                 value={form.importe_contrato}
                 onChange={(e) => setForm({ ...form, importe_contrato: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">% Anticipo</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">% Anticipo</label>
               <input
                 type="number" min="0"
                 max="100"
                 step="0.01"
                 value={form.anticipo_pct}
                 onChange={(e) => setForm({ ...form, anticipo_pct: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">% Retención</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">% Retención</label>
               <input
                 type="number" min="0"
                 max="100"
                 step="0.01"
                 value={form.retencion_pct}
                 onChange={(e) => setForm({ ...form, retencion_pct: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none"
               />
             </div>
 
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400 mb-1 block">Notas</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>
               <input
                 value={form.notas}
                 onChange={(e) => setForm({ ...form, notas: e.target.value })}
                 placeholder="Observaciones sobre esta estimación"
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none"
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none"
               />
             </div>
           </div>
 
           {/* Partidas */}
-          <div className="border-t border-white/10 pt-4">
+          <div className="border-t border-white/[0.08] pt-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-white">Partidas de la Estimación {formErrors.partidas && <span className="text-red-400 text-xs ml-2">({formErrors.partidas})</span>}</h4>
               <button
@@ -480,18 +480,18 @@ export default function EstimacionesPage() {
 
             <div className="space-y-3 max-h-[400px] overflow-auto">
               {form.partidas.length === 0 ? (
-                <p className="text-slate-400 text-sm">Sin partidas. Agrega una para continuar.</p>
+                <p className="text-[#7f93b0] text-sm">Sin partidas. Agrega una para continuar.</p>
               ) : (
                 form.partidas.map((p, idx) => (
-                  <div key={idx} className="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
+                  <div key={idx} className="p-3 bg-white/[0.04] border border-white/[0.08] rounded-lg space-y-2">
                     <div className="flex gap-2 items-start">
                       <div className="flex-1">
-                        <label className="text-xs text-slate-400 mb-1 block">Concepto *</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Concepto *</label>
                         <input
                           value={p.concepto}
                           onChange={(e) => updatePartida(idx, "concepto", e.target.value)}
                           placeholder="Descripción de trabajo"
-                          className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs placeholder:text-slate-500 focus:outline-none"
+                          className="w-full px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs placeholder:text-[#4a6080] focus:outline-none"
                         />
                       </div>
                       <button
@@ -504,11 +504,11 @@ export default function EstimacionesPage() {
 
                     <div className="grid grid-cols-5 gap-2">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Unidad</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Unidad</label>
                         <select
                           value={p.unidad}
                           onChange={(e) => updatePartida(idx, "unidad", e.target.value)}
-                          className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none"
+                          className="w-full px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs focus:outline-none"
                         >
                           <option value="PZA">PZA</option>
                           <option value="M2">M2</option>
@@ -520,38 +520,38 @@ export default function EstimacionesPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Cant. Contrato</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Cant. Contrato</label>
                         <input
                           type="number" min="0"
                           step="0.01"
                           value={p.cantidad_contrato}
                           onChange={(e) => updatePartida(idx, "cantidad_contrato", e.target.value)}
-                          className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none"
+                          className="w-full px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs focus:outline-none"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">P.U.</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">P.U.</label>
                         <input
                           type="number" min="0.01"
                           step="0.01"
                           value={p.precio_unitario}
                           onChange={(e) => updatePartida(idx, "precio_unitario", e.target.value)}
-                          className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none"
+                          className="w-full px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs focus:outline-none"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Cant. Este Período</label>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Cant. Este Período</label>
                         <input
                           type="number" min="0"
                           step="0.01"
                           value={p.cantidad_periodo}
                           onChange={(e) => updatePartida(idx, "cantidad_periodo", e.target.value)}
-                          className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs focus:outline-none"
+                          className="w-full px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs focus:outline-none"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Importe</label>
-                        <div className="px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-xs font-medium">
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Importe</label>
+                        <div className="px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs font-medium">
                           ${(p.cantidad_periodo * p.precio_unitario).toLocaleString()}
                         </div>
                       </div>
@@ -585,7 +585,7 @@ export default function EstimacionesPage() {
                   partidas: [],
                 });
               }}
-              className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm"
+              className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm"
             >
               Cancelar
             </button>
@@ -595,18 +595,18 @@ export default function EstimacionesPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por obra o número..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none"
           />
         </div>
         <select
           value={filterObra}
           onChange={(e) => setFilterObra(e.target.value)}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none"
+          className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none"
         >
           <option value="TODAS">Todas las obras</option>
           {obras.map((o, i) => (
@@ -618,7 +618,7 @@ export default function EstimacionesPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none"
+          className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none"
         >
           <option value="TODAS">Todos los estados</option>
           <option value="BORRADOR">Borrador</option>
@@ -633,8 +633,8 @@ export default function EstimacionesPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">#Est</th>
                 <th className="text-left p-3">Obra</th>
                 <th className="text-center p-3">Período</th>
@@ -648,27 +648,27 @@ export default function EstimacionesPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-[#7f93b0]">
                     <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-[#7f93b0]">
                     Sin estimaciones registradas
                   </td>
                 </tr>
               ) : (
                 filtered.map((e) => (
-                  <tr key={e.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                  <tr key={e.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-3 text-white font-mono text-xs font-bold">{e.numero_estimacion}</td>
                     <td className="p-3 text-white">{getObraNombre(e.obra_id)}</td>
-                    <td className="p-3 text-center text-slate-300 text-xs">
+                    <td className="p-3 text-center text-[#c9d8ed] text-xs">
                       {e.periodo_inicio} → {e.periodo_fin}
                     </td>
                     <td className="p-3 text-right text-white font-medium">${(e.importe_periodo || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-emerald-400 font-medium">${(e.importe_acumulado || 0).toLocaleString()}</td>
-                    <td className="p-3 text-center text-slate-300">{(e.pct_avance || 0).toFixed(1)}%</td>
+                    <td className="p-3 text-center text-[#c9d8ed]">{(e.pct_avance || 0).toFixed(1)}%</td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(e.status)}`}>
                         {e.status}
@@ -695,13 +695,13 @@ export default function EstimacionesPage() {
 
       {/* Detail Modal */}
       {showDetail && selectedEstimacion && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="sticky top-0 bg-slate-900/95 p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/50  z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="sticky top-0 bg-[rgba(4,8,16,0.98)] p-6 border-b border-white/[0.08] flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">Estimación #{selectedEstimacion.numero_estimacion}</h2>
               <button
                 onClick={() => setShowDetail(false)}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-[#7f93b0] hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -711,17 +711,17 @@ export default function EstimacionesPage() {
               {/* Header Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-slate-400 uppercase">Obra</p>
+                  <p className="text-xs text-[#7f93b0] uppercase">Obra</p>
                   <p className="text-white font-medium">{getObraNombre(selectedEstimacion.obra_id)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase">Período</p>
+                  <p className="text-xs text-[#7f93b0] uppercase">Período</p>
                   <p className="text-white font-medium">
                     {selectedEstimacion.periodo_inicio} → {selectedEstimacion.periodo_fin}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase">Estado</p>
+                  <p className="text-xs text-[#7f93b0] uppercase">Estado</p>
                   <span
                     className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
                       selectedEstimacion.status
@@ -731,7 +731,7 @@ export default function EstimacionesPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase">% Avance</p>
+                  <p className="text-xs text-[#7f93b0] uppercase">% Avance</p>
                   <p className="text-white font-medium">{(selectedEstimacion.pct_avance || 0).toFixed(2)}%</p>
                 </div>
               </div>
@@ -739,10 +739,10 @@ export default function EstimacionesPage() {
               {/* Partidas Table */}
               <div>
                 <h3 className="text-sm font-semibold text-white mb-3">Partidas</h3>
-                <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-auto max-h-[250px]">
+                <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg overflow-auto max-h-[250px]">
                   <table className="w-full text-xs">
-                    <thead className="sticky top-0 bg-slate-800/50">
-                      <tr className="text-slate-400">
+                    <thead className="sticky top-0 bg-[#0c1d38]/50">
+                      <tr className="text-[#7f93b0]">
                         <th className="text-left p-2">Concepto</th>
                         <th className="text-center p-2">Unidad</th>
                         <th className="text-right p-2">Cant. Período</th>
@@ -752,11 +752,11 @@ export default function EstimacionesPage() {
                     </thead>
                     <tbody>
                       {(partidas.get(selectedEstimacion.id) || []).map((p) => (
-                        <tr key={p.id} className="border-t border-white/5">
+                        <tr key={p.id} className="border-t border-white/[0.05]">
                           <td className="p-2 text-white">{p.concepto}</td>
-                          <td className="p-2 text-center text-slate-400">{p.unidad}</td>
-                          <td className="p-2 text-right text-slate-300">{(p.cantidad_periodo || 0).toLocaleString()}</td>
-                          <td className="p-2 text-right text-slate-300">${(p.precio_unitario || 0).toLocaleString()}</td>
+                          <td className="p-2 text-center text-[#7f93b0]">{p.unidad}</td>
+                          <td className="p-2 text-right text-[#c9d8ed]">{(p.cantidad_periodo || 0).toLocaleString()}</td>
+                          <td className="p-2 text-right text-[#c9d8ed]">${(p.precio_unitario || 0).toLocaleString()}</td>
                           <td className="p-2 text-right text-white font-medium">${(p.importe_periodo || 0).toLocaleString()}</td>
                         </tr>
                       ))}
@@ -766,24 +766,24 @@ export default function EstimacionesPage() {
               </div>
 
               {/* Summary */}
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-4 space-y-2 text-sm">
+              <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Subtotal Período:</span>
+                  <span className="text-[#7f93b0]">Subtotal Período:</span>
                   <span className="text-white font-medium">${(selectedEstimacion.importe_periodo || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Amortización Anticipo ({selectedEstimacion.anticipo_pct}%):</span>
+                  <span className="text-[#7f93b0]">Amortización Anticipo ({selectedEstimacion.anticipo_pct}%):</span>
                   <span className="text-red-400">-${(selectedEstimacion.amortizacion_anticipo || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Retención ({selectedEstimacion.retencion_pct}%):</span>
+                  <span className="text-[#7f93b0]">Retención ({selectedEstimacion.retencion_pct}%):</span>
                   <span className="text-red-400">-${(selectedEstimacion.monto_retencion || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">IVA ({selectedEstimacion.iva_pct}%):</span>
+                  <span className="text-[#7f93b0]">IVA ({selectedEstimacion.iva_pct}%):</span>
                   <span className="text-amber-400">+${(selectedEstimacion.monto_iva || 0).toLocaleString()}</span>
                 </div>
-                <div className="border-t border-white/10 pt-2 flex justify-between">
+                <div className="border-t border-white/[0.08] pt-2 flex justify-between">
                   <span className="text-white font-semibold">Neto a Cobrar:</span>
                   <span className="text-emerald-400 font-bold text-lg">${(selectedEstimacion.neto_a_cobrar || 0).toLocaleString()}</span>
                 </div>
@@ -797,7 +797,7 @@ export default function EstimacionesPage() {
               )}
 
               {/* Status Actions */}
-              <div className="flex gap-2 pt-4 border-t border-white/10">
+              <div className="flex gap-2 pt-4 border-t border-white/[0.08]">
                 {selectedEstimacion.status === "BORRADOR" && (
                   <button
                     onClick={() => cambiarStatus(selectedEstimacion.id, "PRESENTADA")}
@@ -832,7 +832,7 @@ export default function EstimacionesPage() {
                 )}
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                 >
                   <Printer className="w-4 h-4" /> Imprimir
                 </button>

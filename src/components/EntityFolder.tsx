@@ -370,7 +370,7 @@ export default function EntityFolder({
     >
       {/* Drag overlay */}
       {dragging && (
-        <div className="absolute inset-0 z-30 bg-emerald-500/10 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-emerald-500/10  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
           <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
           <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas autom\u00e1ticamente</p>
@@ -378,7 +378,7 @@ export default function EntityFolder({
       )}
       {/* Scanning/uploading progress overlay */}
       {dropProgress && (
-        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-[#0a1628]/80  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
@@ -419,12 +419,12 @@ export default function EntityFolder({
         }}
       />
 
-      <div className="flex items-center justify-between p-4 border-b border-white/5">
+      <div className="flex items-center justify-between p-4 border-b border-white/[0.05]">
         <div className="flex items-center gap-2">
           <FolderOpen className="w-5 h-5 text-violet-400" />
           <div>
             <h3 className="text-sm font-semibold text-white">{title}</h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#4a6080]">
               {entityType}{entityName ? ` ÃÂ· ${entityName}` : ""} ÃÂ· {docs.length} archivo{docs.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -434,11 +434,11 @@ export default function EntityFolder({
             value={pendingCat}
             onChange={e => setPendingCat(e.target.value as EntityDocCategory)}
             title="CategorÃÂ­a del prÃÂ³ximo archivo a subir"
-            className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs"
+            className="px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-xs"
           >
             {categorias.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <button onClick={cargar} title="Recargar" className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+          <button onClick={cargar} title="Recargar" className="p-1.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded">
             <RefreshCw className="w-4 h-4" />
           </button>
           <button
@@ -468,8 +468,8 @@ export default function EntityFolder({
 
       {/* Upload queue progress */}
       {uploadQueue.length > 0 && (
-        <div className="mx-4 mt-3 p-3 bg-slate-800/50 border border-white/5 rounded-lg space-y-2">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+        <div className="mx-4 mt-3 p-3 bg-[#0c1d38]/50 border border-white/[0.05] rounded-lg space-y-2">
+          <div className="flex items-center gap-2 text-xs text-[#7f93b0]">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
             Subiendo {uploadQueue.filter(u => u.done).length}/{uploadQueue.length}
           </div>
@@ -484,10 +484,10 @@ export default function EntityFolder({
                   ) : (
                     <Loader2 className="w-3 h-3 text-aria-accent animate-spin flex-none" />
                   )}
-                  <span className="text-[11px] text-slate-300 truncate flex-1">{uq.name}</span>
-                  <span className="text-[11px] text-slate-500 flex-none">{uq.progress}%</span>
+                  <span className="text-[11px] text-[#c9d8ed] truncate flex-1">{uq.name}</span>
+                  <span className="text-[11px] text-[#4a6080] flex-none">{uq.progress}%</span>
                 </div>
-                <div className="h-0.5 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-0.5 bg-[#0f2448] rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
                       uq.error ? "bg-red-500" : uq.done ? "bg-emerald-500" : "bg-aria-accent"
@@ -502,11 +502,11 @@ export default function EntityFolder({
       )}
 
       <div className="px-4 pt-3 flex items-center gap-2">
-        <span className="text-[11px] text-slate-500">Filtrar:</span>
+        <span className="text-[11px] text-[#4a6080]">Filtrar:</span>
         <select
           value={filterCat}
           onChange={e => setFilterCat(e.target.value)}
-          className="px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-[11px]"
+          className="px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-[11px]"
         >
           <option value="">Todas las categorÃÂ­as</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
@@ -517,18 +517,18 @@ export default function EntityFolder({
         {loading ? (
           <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-aria-accent mx-auto" /></div>
         ) : docs.length === 0 ? (
-          <p className="text-center text-xs text-slate-500 py-6">Sin documentos. Arrastra archivos aqu\u00ed o usa los botones &quot;Archivos&quot; / &quot;Carpeta&quot;.</p>
+          <p className="text-center text-xs text-[#4a6080] py-6">Sin documentos. Arrastra archivos aqu\u00ed o usa los botones &quot;Archivos&quot; / &quot;Carpeta&quot;.</p>
         ) : (
           <div className="space-y-1">
             {docs.filter(d => !filterCat || (d.categoria || "Otro") === filterCat).map(d => (
               <div key={d.id} className="flex items-center gap-2 p-2 rounded bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04]">
-                <FileIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <FileIcon className="w-4 h-4 text-[#7f93b0] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-white truncate">{d.nombre}</p>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-300 flex-shrink-0">{d.categoria || "Otro"}</span>
                   </div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-[#4a6080]">
                     {new Date(d.created_at).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
                     {d.size_bytes ? ` ÃÂ· ${fmtSize(d.size_bytes)}` : ""}
                     {d.uploaded_by ? ` ÃÂ· ${d.uploaded_by}` : ""}
@@ -577,10 +577,10 @@ export function EntityFolderDrawer(props: EntityFolderProps & { open: boolean; o
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
           <h2 className="text-lg font-bold text-white">Expediente Ã¢ÂÂ {rest.entityName || rest.entityId}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded text-slate-400">
+          <button onClick={onClose} className="p-1.5 hover:bg-white/[0.06] rounded text-[#7f93b0]">
             <X className="w-5 h-5" />
           </button>
         </div>

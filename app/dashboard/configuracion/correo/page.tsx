@@ -94,7 +94,7 @@ export default function CorreoPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Configuración de Correo</h1>
-          <p className="text-slate-400 text-sm">Servicio de email transaccional via Resend</p>
+          <p className="text-[#7f93b0] text-sm">Servicio de email transaccional via Resend</p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -106,27 +106,27 @@ export default function CorreoPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="flex items-center gap-2 mb-2">
-            <Settings className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-400">Servicio</span>
+            <Settings className="w-4 h-4 text-[#7f93b0]" />
+            <span className="text-xs text-[#7f93b0]">Servicio</span>
           </div>
           <p className="text-white font-medium">Resend v6</p>
-          <p className="text-xs text-slate-500 mt-1">API transaccional</p>
+          <p className="text-xs text-[#4a6080] mt-1">API transaccional</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="flex items-center gap-2 mb-2">
-            <Mail className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-400">Remitente</span>
+            <Mail className="w-4 h-4 text-[#7f93b0]" />
+            <span className="text-xs text-[#7f93b0]">Remitente</span>
           </div>
           <p className="text-white font-medium">noreply@mail.jjcrm27.com</p>
-          <p className="text-xs text-slate-500 mt-1">ARIA27 &lt;noreply@mail.jjcrm27.com&gt;</p>
+          <p className="text-xs text-[#4a6080] mt-1">ARIA27 &lt;noreply@mail.jjcrm27.com&gt;</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="flex items-center gap-2 mb-2">
-            <Send className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-400">Dominio</span>
+            <Send className="w-4 h-4 text-[#7f93b0]" />
+            <span className="text-xs text-[#7f93b0]">Dominio</span>
           </div>
           <p className="text-white font-medium">mail.jjcrm27.com</p>
-          <p className="text-xs text-slate-500 mt-1">DNS verificado en Resend</p>
+          <p className="text-xs text-[#4a6080] mt-1">DNS verificado en Resend</p>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function CorreoPage() {
           <TestTube className="w-5 h-5 text-aria-accent" />
           <div>
             <p className="text-sm text-white font-medium">Enviar email de prueba</p>
-            <p className="text-xs text-slate-400">Verifica que la configuración de Resend funcione correctamente</p>
+            <p className="text-xs text-[#7f93b0]">Verifica que la configuración de Resend funcione correctamente</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ export default function CorreoPage() {
       {/* Plantillas de email */}
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">Plantillas de Email Activas</h2>
-        <p className="text-sm text-slate-400 mb-4">
+        <p className="text-sm text-[#7f93b0] mb-4">
           Todos los emails se envían automáticamente como parte del flujo de requisiciones.
           Las plantillas son HTML inline con colores de urgencia y botones de acción.
         </p>
@@ -169,15 +169,15 @@ export default function CorreoPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-medium text-sm">{t.name}</p>
-                  <p className="text-xs text-slate-400 mt-1">{t.description}</p>
+                  <p className="text-xs text-[#7f93b0] mt-1">{t.description}</p>
                   <div className="mt-3 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wide w-16">Trigger</span>
-                      <span className="text-xs text-slate-300">{t.trigger}</span>
+                      <span className="text-[10px] text-[#4a6080] uppercase tracking-wide w-16">Trigger</span>
+                      <span className="text-xs text-[#c9d8ed]">{t.trigger}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wide w-16">Para</span>
-                      <span className="text-xs text-slate-300">{t.recipients}</span>
+                      <span className="text-[10px] text-[#4a6080] uppercase tracking-wide w-16">Para</span>
+                      <span className="text-xs text-[#c9d8ed]">{t.recipients}</span>
                     </div>
                   </div>
                 </div>

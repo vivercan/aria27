@@ -138,22 +138,22 @@ export default function HistoricoNominaPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
             <History className="w-7 h-7 text-violet-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Histórico de Nóminas</h1>
-            <p className="text-slate-400 text-sm">{registros.length} registros | {semanas.length} semanas | {empleados.length} empleados</p>
+            <p className="text-[#7f93b0] text-sm">{registros.length} registros | {semanas.length} semanas | {empleados.length} empleados</p>
           </div>
         </div>
         <div className="flex gap-2">
           <button onClick={exportarCSV} disabled={registrosFiltrados.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40 transition-all">
             <Download className="w-4 h-4" /> CSV
           </button>
-          <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-violet-500/20 border-violet-500/30 text-violet-300" : "bg-white/5 border-white/10 text-slate-300"}`}>
+          <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-violet-500/20 border-violet-500/30 text-violet-300" : "bg-white/[0.04] border-white/[0.08] text-[#c9d8ed]"}`}>
             {vistaAcumulado ? "Ver por Semana" : "Ver Acumulado"}
           </button>
         </div>
@@ -162,20 +162,20 @@ export default function HistoricoNominaPage() {
       {/* Filtros */}
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input type="text" placeholder="Buscar nombre/puesto/obra..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
+          <input type="text" placeholder="Buscar nombre/puesto/obra..." value={busqueda} onChange={e => setBusqueda(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-[#4a6080] focus:outline-none focus:border-aria-accent/50" />
         </div>
-        <select value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
+        <select value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los años</option>
           {anios.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
-        <select value={filtroSemana} onChange={e => setFiltroSemana(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
+        <select value={filtroSemana} onChange={e => setFiltroSemana(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todas las semanas</option>
           {semanas.map(s => (
             <option key={`${s.anio}-${s.semana}`} value={`${s.anio}-${s.semana}`}>Sem {s.semana} / {s.anio} - {formatMoney(s.total)}</option>
           ))}
         </select>
-        <select value={filtroEmpleado} onChange={e => setFiltroEmpleado(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
+        <select value={filtroEmpleado} onChange={e => setFiltroEmpleado(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los empleados</option>
           {empleados.map(e => <option key={e} value={e}>{e}</option>)}
         </select>
@@ -189,56 +189,56 @@ export default function HistoricoNominaPage() {
       {/* Totales */}
       <div className="grid grid-cols-6 gap-3">
         <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
-          <p className="text-slate-400 text-xs mb-1">Registros</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
-          <p className="text-slate-400 text-xs mb-1">Total Bruto</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
           <p className="text-xl font-bold text-emerald-400">{formatMoney(totales.bruto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/5 border border-red-500/20">
-          <p className="text-slate-400 text-xs mb-1">Deducciones</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
           <p className="text-xl font-bold text-red-400">{formatMoney(totales.deducciones)}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20">
-          <p className="text-slate-400 text-xs mb-1">Neto Pagado</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Neto Pagado</p>
           <p className="text-xl font-bold text-violet-400">{formatMoney(totales.neto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
-          <p className="text-slate-400 text-xs mb-1">Tarjeta</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Tarjeta</p>
           <p className="text-xl font-bold text-purple-400">{formatMoney(totales.tarjeta)}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
-          <p className="text-slate-400 text-xs mb-1">Efectivo</p>
+          <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
           <p className="text-xl font-bold text-amber-400">{formatMoney(totales.efectivo)}</p>
         </div>
       </div>
 
       {/* Tabla */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
         <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm">
-              <tr className="border-b border-white/10">
-                {!vistaAcumulado && <th className="text-left p-4 text-slate-400 font-medium text-sm">Sem</th>}
-                {!vistaAcumulado && <th className="text-left p-4 text-slate-400 font-medium text-sm">Periodo</th>}
-                <th className="text-left p-4 text-slate-400 font-medium text-sm">Empleado</th>
-                <th className="text-left p-4 text-slate-400 font-medium text-sm">Puesto</th>
-                {vistaAcumulado && <th className="text-center p-4 text-slate-400 font-medium text-sm">Semanas</th>}
-                {!vistaAcumulado && <th className="text-center p-4 text-slate-400 font-medium text-sm">Días</th>}
-                <th className="text-right p-4 text-slate-400 font-medium text-sm">Bruto</th>
-                <th className="text-right p-4 text-slate-400 font-medium text-sm">Deducc.</th>
-                <th className="text-right p-4 text-slate-400 font-medium text-sm">Neto</th>
-                <th className="text-right p-4 text-slate-400 font-medium text-sm">Tarjeta</th>
-                <th className="text-right p-4 text-slate-400 font-medium text-sm">Efectivo</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] ">
+              <tr className="border-b border-white/[0.08]">
+                {!vistaAcumulado && <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Sem</th>}
+                {!vistaAcumulado && <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Periodo</th>}
+                <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Empleado</th>
+                <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Puesto</th>
+                {vistaAcumulado && <th className="text-center p-4 text-[#7f93b0] font-medium text-sm">Semanas</th>}
+                {!vistaAcumulado && <th className="text-center p-4 text-[#7f93b0] font-medium text-sm">Días</th>}
+                <th className="text-right p-4 text-[#7f93b0] font-medium text-sm">Bruto</th>
+                <th className="text-right p-4 text-[#7f93b0] font-medium text-sm">Deducc.</th>
+                <th className="text-right p-4 text-[#7f93b0] font-medium text-sm">Neto</th>
+                <th className="text-right p-4 text-[#7f93b0] font-medium text-sm">Tarjeta</th>
+                <th className="text-right p-4 text-[#7f93b0] font-medium text-sm">Efectivo</th>
               </tr>
             </thead>
             <tbody>
               {vistaAcumulado ? (
                 acumuladoPorEmpleado.map((e, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <tr key={i} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-4 text-white font-medium">{e.nombre}</td>
-                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{e.puesto}</span></td>
+                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-white/[0.05] text-[#c9d8ed] text-xs">{e.puesto}</span></td>
                     <td className="p-4 text-center text-aria-accent font-bold">{e.semanas}</td>
                     <td className="p-4 text-right text-white">{formatMoney(e.totalBruto)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(e.totalDeducciones)}</td>
@@ -249,11 +249,11 @@ export default function HistoricoNominaPage() {
                 ))
               ) : (
                 registrosFiltrados.map((r, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <tr key={i} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-4"><span className="px-2 py-1 rounded-lg bg-aria-accent-bg text-aria-accent text-xs font-medium">{r.semana}/{r.anio}</span></td>
-                    <td className="p-4 text-slate-400 text-xs whitespace-nowrap">{formatDateShort(r.fecha_inicio)} – {formatDateShort(r.fecha_fin)}</td>
+                    <td className="p-4 text-[#7f93b0] text-xs whitespace-nowrap">{formatDateShort(r.fecha_inicio)} – {formatDateShort(r.fecha_fin)}</td>
                     <td className="p-4 text-white font-medium">{r.nombre}</td>
-                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-slate-700/50 text-slate-300 text-xs">{r.puesto}</span></td>
+                    <td className="p-4"><span className="px-2 py-1 rounded-lg bg-white/[0.05] text-[#c9d8ed] text-xs">{r.puesto}</span></td>
                     <td className="p-4 text-center text-emerald-400 font-bold">{r.dias_trabajados}</td>
                     <td className="p-4 text-right text-white">{formatMoney(r.total_percepciones)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(r.total_deducciones)}</td>

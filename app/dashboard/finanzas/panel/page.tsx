@@ -96,10 +96,10 @@ export default function PanelFinanzas() {
   return (
     <div className="h-full flex flex-col overflow-hidden p-6">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Wallet className="w-6 h-6 text-emerald-400" /> Panel Finanzas</h1>
-          <p className="text-sm text-slate-400">Vista director financiero · cobranza, cuentas por pagar y saldos</p>
+          <p className="text-sm text-[#7f93b0]">Vista director financiero · cobranza, cuentas por pagar y saldos</p>
         </div>
       </div>
 
@@ -118,19 +118,19 @@ export default function PanelFinanzas() {
             {kpis.topDeudores.map((d, i) => (
               <Row key={i} label={d.cliente} value={fmt(d.saldo)} color="red" />
             ))}
-            {kpis.topDeudores.length === 0 && <div className="text-xs text-slate-500">Sin saldos</div>}
+            {kpis.topDeudores.length === 0 && <div className="text-xs text-[#4a6080]">Sin saldos</div>}
           </Section>
           <Section title="Top proveedores con saldo" icon={Wallet}>
             {kpis.topProveedores.map((p, i) => (
               <Row key={i} label={p.proveedor} value={fmt(p.saldo)} color="orange" />
             ))}
-            {kpis.topProveedores.length === 0 && <div className="text-xs text-slate-500">Sin saldos</div>}
+            {kpis.topProveedores.length === 0 && <div className="text-xs text-[#4a6080]">Sin saldos</div>}
           </Section>
           <Section title="Saldos por obra" icon={TrendingUp}>
             {kpis.saldosObras.map((o, i) => (
               <Row key={i} label={o.obra} value={fmt(o.saldo)} color="amber" />
             ))}
-            {kpis.saldosObras.length === 0 && <div className="text-xs text-slate-500">Sin saldos</div>}
+            {kpis.saldosObras.length === 0 && <div className="text-xs text-[#4a6080]">Sin saldos</div>}
           </Section>
         </div>
       </div>
@@ -142,15 +142,15 @@ export default function PanelFinanzas() {
 function KPI({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className={`p-3 rounded-lg bg-${color}-500/10 border border-${color}-500/20`}>
-      <p className="text-xs text-slate-400">{label}</p>
+      <p className="text-xs text-[#7f93b0]">{label}</p>
       <p className={`text-lg font-bold text-${color}-300`}>{value}</p>
     </div>
   );
 }
 function Section({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ className: string }>; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-      <div className="flex items-center gap-2 mb-3"><Icon className="w-4 h-4 text-slate-400" /><h3 className="text-sm font-semibold text-white">{title}</h3></div>
+    <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] p-4">
+      <div className="flex items-center gap-2 mb-3"><Icon className="w-4 h-4 text-[#7f93b0]" /><h3 className="text-sm font-semibold text-white">{title}</h3></div>
       <div className="space-y-1.5">{children}</div>
     </div>
   );
@@ -158,7 +158,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: React.C
 function Row({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex items-center justify-between gap-2 text-xs">
-      <span className="text-slate-300 truncate flex-1">{label}</span>
+      <span className="text-[#c9d8ed] truncate flex-1">{label}</span>
       <span className={`font-semibold text-${color}-300 flex-shrink-0`}>{value}</span>
     </div>
   );

@@ -158,7 +158,7 @@ export default function OpinionesPage() {
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <h1 className="text-2xl font-bold text-white">Opiniones de Cumplimiento</h1>
-        <p className="text-slate-400 text-sm">IMSS, Infonavit, SAT, SAR — sube y controla vigencias</p>
+        <p className="text-[#7f93b0] text-sm">IMSS, Infonavit, SAT, SAR — sube y controla vigencias</p>
       </div>
 
       {/* Summary */}
@@ -197,16 +197,16 @@ export default function OpinionesPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm font-medium text-white">{op.label}</h3>
-                      <p className="text-xs text-slate-500 mt-1">{op.desc}</p>
+                      <p className="text-xs text-[#4a6080] mt-1">{op.desc}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <status.icon className={`w-3 h-3 ${status.color}`} />
                         <span className={`text-xs ${status.color}`}>{status.label}</span>
                       </div>
                       {doc && (
                         <div className="mt-2 space-y-1">
-                          <p className="text-[10px] text-slate-500 truncate">{doc.nombre}</p>
+                          <p className="text-[10px] text-[#4a6080] truncate">{doc.nombre}</p>
                           {doc.vigencia && (
-                            <p className="text-[10px] text-slate-500">Vigencia: {new Date(doc.vigencia).toLocaleDateString("es-MX")}</p>
+                            <p className="text-[10px] text-[#4a6080]">Vigencia: {new Date(doc.vigencia).toLocaleDateString("es-MX")}</p>
                           )}
                         </div>
                       )}
@@ -217,14 +217,14 @@ export default function OpinionesPage() {
                     {doc && (
                       <>
                         <a href={doc.url} target="_blank" rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                          <Download className="w-3.5 h-3.5 text-slate-400" />
+                          className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
+                          <Download className="w-3.5 h-3.5 text-[#7f93b0]" />
                         </a>
                         <button onClick={() => deleteDoc(doc)} disabled={deleting === doc.id}
-                          className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 transition-colors">
+                          className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-red-500/20 transition-colors">
                           {deleting === doc.id
-                            ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                            : <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-red-400" />}
+                            ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#7f93b0]" />
+                            : <Trash2 className="w-3.5 h-3.5 text-[#7f93b0] hover:text-red-400" />}
                         </button>
                       </>
                     )}

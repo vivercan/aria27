@@ -96,14 +96,14 @@ export default function CentrosPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="p-6 pb-0" />
-      <div className="flex-none p-6 border-b border-white/10">
-        <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+      <div className="flex-none p-6 border-b border-white/[0.08]">
+        <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Maestros
         </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
-            <p className="text-slate-400">Obras con coordenadas GPS para geolocalización</p>
+            <p className="text-[#7f93b0]">Obras con coordenadas GPS para geolocalización</p>
           </div>
           <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg">
             <Plus className="w-4 h-4" /> Nuevo Centro
@@ -113,17 +113,17 @@ export default function CentrosPage() {
 
       <div className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="text-center py-12 text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></div>
+          <div className="text-center py-12 text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></div>
         ) : centros.length === 0 ? (
           <div className="text-center py-12">
-            <MapPin className="w-12 h-12 mx-auto text-slate-600 mb-4" />
-            <p className="text-slate-400 mb-4">No hay centros de trabajo</p>
-            <p className="text-sm text-slate-500">Agrega obras con coordenadas GPS para el sistema de asistencias</p>
+            <MapPin className="w-12 h-12 mx-auto text-[#4a6080] mb-4" />
+            <p className="text-[#7f93b0] mb-4">No hay centros de trabajo</p>
+            <p className="text-sm text-[#4a6080]">Agrega obras con coordenadas GPS para el sistema de asistencias</p>
           </div>
         ) : (
           <div className="grid gap-4">
             {centros.map(c => (
-              <div key={c.id} className="p-4 bg-white/5 border border-white/10 rounded-xl">
+              <div key={c.id} className="p-4 bg-white/[0.04] border border-white/[0.08] rounded-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.latitud ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
@@ -131,11 +131,11 @@ export default function CentrosPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 bg-white/10 rounded text-slate-400">{c.codigo}</span>
+                        <span className="text-xs px-2 py-0.5 bg-white/[0.06] rounded text-[#7f93b0]">{c.codigo}</span>
                         <h3 className="font-semibold text-white">{c.nombre}</h3>
                       </div>
-                      {c.direccion && <p className="text-sm text-slate-400">{c.direccion}</p>}
-                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
+                      {c.direccion && <p className="text-sm text-[#7f93b0]">{c.direccion}</p>}
+                      <div className="flex items-center gap-4 mt-1 text-xs text-[#4a6080]">
                         {c.latitud && c.longitud ? (
                           <>
                             <span>📍 {c.latitud.toFixed(6)}, {c.longitud.toFixed(6)}</span>
@@ -147,7 +147,7 @@ export default function CentrosPage() {
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => abrirModal(c)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white">
+                  <button onClick={() => abrirModal(c)} className="p-2 hover:bg-white/[0.06] rounded-lg text-[#7f93b0] hover:text-white">
                     <Edit2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -158,45 +158,45 @@ export default function CentrosPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">{editando ? "Editar" : "Nuevo"} Centro</h2>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-slate-400">Nombre *</label>
+                <label className="text-sm text-[#7f93b0]">Nombre *</label>
                 <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                  className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div>
-                <label className="text-sm text-slate-400">Dirección</label>
+                <label className="text-sm text-[#7f93b0]">Dirección</label>
                 <input type="text" value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                  className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-400">Latitud</label>
+                  <label className="text-sm text-[#7f93b0]">Latitud</label>
                   <input type="text" value={form.latitud} onChange={e => setForm({...form, latitud: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                    className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="" />
                   {formErrors.latitud && <p className="text-red-400 text-xs mt-1">{formErrors.latitud}</p>}
                 </div>
                 <div>
-                  <label className="text-sm text-slate-400">Longitud</label>
+                  <label className="text-sm text-[#7f93b0]">Longitud</label>
                   <input type="text" value={form.longitud} onChange={e => setForm({...form, longitud: e.target.value})}
-                    className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="" />
+                    className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="" />
                   {formErrors.longitud && <p className="text-red-400 text-xs mt-1">{formErrors.longitud}</p>}
                 </div>
               </div>
               <div>
-                <label className="text-sm text-slate-400">Radio geocerca (metros)</label>
+                <label className="text-sm text-[#7f93b0]">Radio geocerca (metros)</label>
                 <input type="number" min="0" value={form.radio_metros} onChange={e => setForm({...form, radio_metros: e.target.value})}
-                  className="w-full mt-1 p-2 bg-white/5 border border-white/10 rounded-lg text-white" />
+                  className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
-              <p className="text-xs text-slate-500">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
+              <p className="text-xs text-[#4a6080]">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
               <button onClick={guardar} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center justify-center gap-2">
                 <Save className="w-4 h-4" /> Guardar
               </button>

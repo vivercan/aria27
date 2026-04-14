@@ -140,10 +140,10 @@ export default function SirocBimestralesPage() {
     <div className="space-y-6">
       <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras/siroc/registros" className="p-2 rounded-lg hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <Link href="/dashboard/obras/siroc/registros" className="p-2 rounded-lg hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
-          <p className="text-slate-400 mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>
+          <p className="text-[#7f93b0] mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>
         </div>
         <button onClick={() => { setForm(EMPTY); setShowForm(true); }}
           className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center gap-2 font-medium">
@@ -158,8 +158,8 @@ export default function SirocBimestralesPage() {
           { l: "Pendientes", v: stats.pendientes, c: "text-amber-300" },
           { l: "Vencidos", v: stats.vencidos, c: "text-rose-300" },
         ].map((k, i) => (
-          <div key={i} className="rounded-xl bg-slate-800/50 border border-slate-700/50 p-4">
-            <div className="text-xs text-slate-400 uppercase">{k.l}</div>
+          <div key={i} className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
+            <div className="text-xs text-[#7f93b0] uppercase">{k.l}</div>
             <div className={`text-2xl font-bold ${k.c}`}>{k.v}</div>
           </div>
         ))}
@@ -168,11 +168,11 @@ export default function SirocBimestralesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>
       ) : bimestres.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay reportes bimestrales.</div>
+        <div className="text-center py-12 text-[#7f93b0]">No hay reportes bimestrales.</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-700/50">
+        <div className="overflow-x-auto rounded-xl border border-white/[0.05]">
           <table className="w-full text-sm">
-            <thead className="bg-slate-800/80 text-slate-300 sticky top-0">
+            <thead className="bg-[#0c1d38]/80 text-[#c9d8ed] sticky top-0">
               <tr>
                 <th className="text-left p-3">Obra</th>
                 <th className="text-left p-3"># SIROC</th>
@@ -191,16 +191,16 @@ export default function SirocBimestralesPage() {
               {bimestres.map(b => {
                 const vencido = b.estatus === "PENDIENTE" && b.plazo_limite < hoy;
                 return (
-                  <tr key={b.id} className={`border-t border-slate-700/30 hover:bg-slate-800/30 ${vencido ? "bg-rose-900/10" : ""}`}>
+                  <tr key={b.id} className={`border-t border-white/[0.08]/30 hover:bg-[#0c1d38]/30 ${vencido ? "bg-rose-900/10" : ""}`}>
                     <td className="p-3 text-white font-medium">{b.obra}</td>
-                    <td className="p-3 text-slate-300 font-mono">{b.numero_siroc}</td>
-                    <td className="p-3 text-slate-300">{b.anio}</td>
-                    <td className="p-3 text-slate-300">{BIMESTRES.find(x => x.code === b.bimestre)?.label || b.bimestre}</td>
+                    <td className="p-3 text-[#c9d8ed] font-mono">{b.numero_siroc}</td>
+                    <td className="p-3 text-[#c9d8ed]">{b.anio}</td>
+                    <td className="p-3 text-[#c9d8ed]">{BIMESTRES.find(x => x.code === b.bimestre)?.label || b.bimestre}</td>
                     <td className="p-3 text-right text-white">${(Number(b.monto_ejercido_periodo) || 0).toLocaleString("es-MX")}</td>
                     <td className="p-3 text-right text-aria-accent">${(Number(b.monto_ejercido_acumulado) || 0).toLocaleString("es-MX")}</td>
-                    <td className="p-3 text-center text-slate-300">{b.trabajadores_promedio}</td>
-                    <td className="p-3 text-slate-300">{b.fecha_reporte ? new Date(b.fecha_reporte).toLocaleDateString("es-MX") : "—"}</td>
-                    <td className={`p-3 ${vencido ? "text-rose-400 font-bold" : "text-slate-300"}`}>{b.plazo_limite ? new Date(b.plazo_limite).toLocaleDateString("es-MX") : "—"}</td>
+                    <td className="p-3 text-center text-[#c9d8ed]">{b.trabajadores_promedio}</td>
+                    <td className="p-3 text-[#c9d8ed]">{b.fecha_reporte ? new Date(b.fecha_reporte).toLocaleDateString("es-MX") : "—"}</td>
+                    <td className={`p-3 ${vencido ? "text-rose-400 font-bold" : "text-[#c9d8ed]"}`}>{b.plazo_limite ? new Date(b.plazo_limite).toLocaleDateString("es-MX") : "—"}</td>
                     <td className="p-3 text-center">
                       {b.estatus === "PRESENTADO" ? (
                         <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"><CheckCircle2 className="w-3 h-3" />Presentado</span>
@@ -223,37 +223,37 @@ export default function SirocBimestralesPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-5 flex items-center justify-between">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-[#0a1628] border-b border-white/[0.08] p-5 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Nuevo reporte bimestral</h2>
-              <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="p-1 rounded hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="p-1 rounded hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Registro SIROC *</label>
+                <label className="text-sm text-[#7f93b0] mb-1 block">Registro SIROC *</label>
                 <select value={form.siroc_registro_id} onChange={e => setForm({ ...form, siroc_registro_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500">
+                  className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500">
                   <option value="">Seleccionar...</option>
                   {registros.map(r => <option key={r.id} value={r.id}>{r.obra} · {r.numero_siroc}</option>)}
                 </select>
                 {formErrors.siroc_registro_id && <p className="text-red-400 text-xs mt-1">{formErrors.siroc_registro_id}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-sm text-slate-400 mb-1 block">Año *</label><input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
+                <div><label className="text-sm text-[#7f93b0] mb-1 block">Año *</label><input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
                 <div>
-                  <label className="text-sm text-slate-400 mb-1 block">Bimestre *</label>
-                  <select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500">
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Bimestre *</label>
+                  <select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500">
                     {BIMESTRES.map(b => <option key={b.code} value={b.code}>{b.label}</option>)}
                   </select>
                   {formErrors.bimestre && <p className="text-red-400 text-xs mt-1">{formErrors.bimestre}</p>}
                 </div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido del periodo ($)</label><input type="number" min="0" value={form.monto_ejercido_periodo} onChange={e => setForm({ ...form, monto_ejercido_periodo: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Monto ejercido acumulado ($)</label><input type="number" min="0" value={form.monto_ejercido_acumulado} onChange={e => setForm({ ...form, monto_ejercido_acumulado: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Trabajadores promedio</label><input type="number" min="0" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
-                <div><label className="text-sm text-slate-400 mb-1 block">Fecha de reporte</label><input type="date" value={form.fecha_reporte} onChange={e => setForm({ ...form, fecha_reporte: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-[#7f93b0] mb-1 block">Monto ejercido del periodo ($)</label><input type="number" min="0" value={form.monto_ejercido_periodo} onChange={e => setForm({ ...form, monto_ejercido_periodo: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-[#7f93b0] mb-1 block">Monto ejercido acumulado ($)</label><input type="number" min="0" value={form.monto_ejercido_acumulado} onChange={e => setForm({ ...form, monto_ejercido_acumulado: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-[#7f93b0] mb-1 block">Trabajadores promedio</label><input type="number" min="0" value={form.trabajadores_promedio} onChange={e => setForm({ ...form, trabajadores_promedio: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+                <div><label className="text-sm text-[#7f93b0] mb-1 block">Fecha de reporte</label><input type="date" value={form.fecha_reporte} onChange={e => setForm({ ...form, fecha_reporte: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
                 <div className="col-span-2">
-                  <label className="text-sm text-slate-400 mb-1 block">Estatus</label>
-                  <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500">
+                  <label className="text-sm text-[#7f93b0] mb-1 block">Estatus</label>
+                  <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500">
                     <option value="PRESENTADO">Presentado</option>
                     <option value="PENDIENTE">Pendiente</option>
                   </select>
@@ -262,10 +262,10 @@ export default function SirocBimestralesPage() {
               <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
                 Plazo límite calculado: <strong>{calcPlazo(Number(form.anio), form.bimestre) ? new Date(calcPlazo(Number(form.anio), form.bimestre)).toLocaleDateString("es-MX") : "—"}</strong>
               </div>
-              <div><label className="text-sm text-slate-400 mb-1 block">Observaciones</label><textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
+              <div><label className="text-sm text-[#7f93b0] mb-1 block">Observaciones</label><textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" /></div>
             </div>
-            <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700 p-5 flex justify-end gap-3">
-              <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Cancelar</button>
+            <div className="sticky bottom-0 bg-[#0a1628] border-t border-white/[0.08] p-5 flex justify-end gap-3">
+              <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>
               <button onClick={guardar} disabled={guardando} className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">{guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}Guardar</button>
             </div>
           </div>

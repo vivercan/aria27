@@ -218,11 +218,11 @@ export default function InboxPage() {
   if (!zohoEmail) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="w-full max-w-sm p-6 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+        <div className="w-full max-w-sm p-6 bg-white/[0.04] border border-white/[0.08] rounded-2xl space-y-4">
           <div className="text-center">
             <Mail className="w-10 h-10 text-aria-accent mx-auto mb-2" />
             <h2 className="text-white font-semibold text-lg">Correo Zoho</h2>
-            <p className="text-slate-400 text-sm mt-1">Ingresa tu cuenta y App Password de Zoho</p>
+            <p className="text-[#7f93b0] text-sm mt-1">Ingresa tu cuenta y App Password de Zoho</p>
           </div>
           {loginError && (
             <div className="p-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm text-center">
@@ -232,13 +232,13 @@ export default function InboxPage() {
           <input
             value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
             placeholder="tu.correo@gcuavante.com" type="email"
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
           />
           <input
             value={loginPass} onChange={e => setLoginPass(e.target.value)}
             placeholder="App Password de Zoho" type="password"
             onKeyDown={e => e.key === "Enter" && iniciarSesionZoho()}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
           />
           <button
             onClick={iniciarSesionZoho}
@@ -248,7 +248,7 @@ export default function InboxPage() {
             {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
             Iniciar sesión
           </button>
-          <Link href="/dashboard" className="block text-center text-xs text-slate-500 hover:text-slate-400 transition-colors">
+          <Link href="/dashboard" className="block text-center text-xs text-[#4a6080] hover:text-[#7f93b0] transition-colors">
             ← Volver al dashboard
           </Link>
         </div>
@@ -261,9 +261,9 @@ export default function InboxPage() {
     return (
       <div className="h-full flex flex-col overflow-hidden">
         {/* header */}
-        <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/10">
-          <button onClick={() => setVista("lista")} className="p-2 hover:bg-white/10 rounded-lg">
-            <ChevronLeft className="w-5 h-5 text-slate-400" />
+        <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08]">
+          <button onClick={() => setVista("lista")} className="p-2 hover:bg-white/[0.06] rounded-lg">
+            <ChevronLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <PenSquare className="w-5 h-5 text-aria-accent" />
           <span className="text-white font-semibold">Nuevo correo</span>
@@ -280,20 +280,20 @@ export default function InboxPage() {
         {/* campos */}
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-3">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-slate-400 w-16">Para:</label>
+            <label className="text-sm text-[#7f93b0] w-16">Para:</label>
             <input value={compTo} onChange={e => setCompTo(e.target.value)} placeholder="correo@ejemplo.com"
-              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-aria-accent/50" />
+              className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-aria-accent/50" />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-slate-400 w-16">Asunto:</label>
+            <label className="text-sm text-[#7f93b0] w-16">Asunto:</label>
             <input value={compSubject} onChange={e => setCompSubject(e.target.value)} placeholder="Asunto del correo"
-              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-aria-accent/50" />
+              className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-aria-accent/50" />
           </div>
           <textarea
             value={compBody} onChange={e => setCompBody(e.target.value)}
             placeholder="Escribe tu mensaje..."
             rows={16}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-aria-accent/50 resize-none"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-aria-accent/50 resize-none"
           />
         </div>
       </div>
@@ -305,13 +305,13 @@ export default function InboxPage() {
     return (
       <div className="h-full flex flex-col overflow-hidden">
         {/* header */}
-        <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/10">
-          <button onClick={() => { setVista("lista"); setEmailActual(null); }} className="p-2 hover:bg-white/10 rounded-lg">
-            <ChevronLeft className="w-5 h-5 text-slate-400" />
+        <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08]">
+          <button onClick={() => { setVista("lista"); setEmailActual(null); }} className="p-2 hover:bg-white/[0.06] rounded-lg">
+            <ChevronLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold truncate">{emailActual.subject || "(sin asunto)"}</p>
-            <p className="text-xs text-slate-400 truncate">De: {emailActual.from} · {fechaCorta(emailActual.date)}</p>
+            <p className="text-xs text-[#7f93b0] truncate">De: {emailActual.from} · {fechaCorta(emailActual.date)}</p>
           </div>
           <button onClick={responder} className="px-3 py-1.5 bg-aria-accent-bg text-aria-accent rounded-lg text-sm hover:bg-aria-accent/30 transition-colors">
             Responder
@@ -331,7 +331,7 @@ export default function InboxPage() {
               />
             </div>
           ) : (
-            <pre className="text-slate-300 whitespace-pre-wrap text-sm leading-relaxed">{cuerpo.body || "Sin contenido"}</pre>
+            <pre className="text-[#c9d8ed] whitespace-pre-wrap text-sm leading-relaxed">{cuerpo.body || "Sin contenido"}</pre>
           )}
         </div>
       </div>
@@ -343,18 +343,18 @@ export default function InboxPage() {
     <div className="h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="px-6 pt-3" />
       {/* header */}
-      <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/10 flex-wrap">
-        <Link href="/dashboard" className="p-2 hover:bg-white/10 rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+      <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08] flex-wrap">
+        <Link href="/dashboard" className="p-2 hover:bg-white/[0.06] rounded-lg">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <Mail className="w-5 h-5 text-aria-accent" />
         <span className="text-white font-semibold">Correo</span>
 
         {/* tabs carpeta */}
-        <div className="flex bg-white/5 rounded-lg p-0.5 ml-2">
+        <div className="flex bg-white/[0.04] rounded-lg p-0.5 ml-2">
           {(["INBOX", "Sent"] as Carpeta[]).map(c => (
             <button key={c} onClick={() => { setCarpeta(c); setSeleccionados(new Set()); }}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${carpeta === c ? "bg-aria-accent/30 text-aria-accent" : "text-slate-400 hover:text-white"}`}>
+              className={`px-3 py-1 rounded-md text-sm transition-colors ${carpeta === c ? "bg-aria-accent/30 text-aria-accent" : "text-[#7f93b0] hover:text-white"}`}>
               {c === "INBOX" ? "Recibidos" : "Enviados"}
             </button>
           ))}
@@ -364,11 +364,11 @@ export default function InboxPage() {
 
         {/* buscador */}
         <div className="relative w-full md:w-64 order-last md:order-none mt-2 md:mt-0">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
           <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar..."
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-8 py-1.5 text-sm text-white outline-none focus:border-aria-accent/50" />
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg pl-9 pr-8 py-1.5 text-sm text-white outline-none focus:border-aria-accent/50" />
           {busqueda && (
-            <button onClick={() => setBusqueda("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500">
+            <button onClick={() => setBusqueda("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#4a6080]">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -378,7 +378,7 @@ export default function InboxPage() {
         <button onClick={() => setVista("componer")} className="px-3 py-1.5 bg-aria-accent hover:bg-aria-accent/80 text-white rounded-lg text-sm flex items-center gap-1.5 transition-colors">
           <PenSquare className="w-4 h-4" /> Redactar
         </button>
-        <button onClick={cargarEmails} disabled={loading} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 disabled:opacity-40">
+        <button onClick={cargarEmails} disabled={loading} className="p-2 hover:bg-white/[0.06] rounded-lg text-[#7f93b0] disabled:opacity-40">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
         </button>
         {seleccionados.size > 0 && (
@@ -398,7 +398,7 @@ export default function InboxPage() {
         {loading && emails.length === 0 ? (
           <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
         ) : emailsFiltrados.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
+          <div className="text-center py-16 text-[#4a6080]">
             <Inbox className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p>{busqueda ? "Sin resultados" : "Bandeja vacía"}</p>
           </div>
@@ -406,19 +406,19 @@ export default function InboxPage() {
           <div className="divide-y divide-white/5">
             {emailsFiltrados.map(em => (
               <div key={em.uid || em.seqno}
-                className={`flex items-center gap-3 px-4 md:px-6 py-3 hover:bg-white/5 cursor-pointer transition-colors ${!em.seen ? "bg-aria-accent-bg" : ""}`}
+                className={`flex items-center gap-3 px-4 md:px-6 py-3 hover:bg-white/[0.04] cursor-pointer transition-colors ${!em.seen ? "bg-aria-accent-bg" : ""}`}
               >
                 <input type="checkbox" checked={seleccionados.has(em.seqno)}
                   onChange={() => toggleSel(em.seqno)}
-                  className="w-4 h-4 rounded border-white/20 accent-aria-accent flex-shrink-0" />
+                  className="w-4 h-4 rounded border-white/[0.12] accent-aria-accent flex-shrink-0" />
                 <div className="flex-1 min-w-0" onClick={() => abrirEmail(em)}>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm truncate ${!em.seen ? "text-white font-semibold" : "text-slate-300"}`}>
+                    <span className={`text-sm truncate ${!em.seen ? "text-white font-semibold" : "text-[#c9d8ed]"}`}>
                       {carpeta === "INBOX" ? nombreCorto(em.from) : nombreCorto(em.to)}
                     </span>
-                    <span className="text-xs text-slate-500 flex-shrink-0">{fechaCorta(em.date)}</span>
+                    <span className="text-xs text-[#4a6080] flex-shrink-0">{fechaCorta(em.date)}</span>
                   </div>
-                  <p className={`text-sm truncate ${!em.seen ? "text-slate-200" : "text-slate-500"}`}>
+                  <p className={`text-sm truncate ${!em.seen ? "text-[#c9d8ed]" : "text-[#4a6080]"}`}>
                     {em.subject || "(sin asunto)"}
                   </p>
                 </div>
@@ -430,7 +430,7 @@ export default function InboxPage() {
       </div>
 
       {/* footer */}
-      <div className="px-4 md:px-6 py-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-500">
+      <div className="px-4 md:px-6 py-2 border-t border-white/[0.08] flex items-center justify-between text-xs text-[#4a6080]">
         <span>{emails.length} correo(s) en {carpeta === "INBOX" ? "Recibidos" : "Enviados"}</span>
         <div className="flex items-center gap-3">
           <span>Zoho Mail</span>

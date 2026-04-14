@@ -48,7 +48,7 @@ const semColor: Record<ObraRow["semaforo"], string> = {
   AMARILLO: "bg-amber-500/20 border-amber-500/30 text-amber-300",
   ROJO: "bg-red-500/20 border-red-500/30 text-red-300",
   REBASADO: "bg-rose-600/30 border-rose-600/50 text-rose-200",
-  SIN_PRESUPUESTO: "bg-slate-500/20 border-slate-500/30 text-slate-400",
+  SIN_PRESUPUESTO: "bg-slate-500/20 border-white/[0.1]/30 text-[#7f93b0]",
 };
 
 const semLabel: Record<ObraRow["semaforo"], string> = {
@@ -186,15 +186,15 @@ export default function ControlObrasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-accent/20 to-aria-primary/20 border border-aria-accent/20">
             <Activity className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Centro de Control de Obras</h1>
-            <p className="text-slate-400 text-sm">Presupuesto vs Gasto Real (OC + Nómina) por obra</p>
+            <p className="text-[#7f93b0] text-sm">Presupuesto vs Gasto Real (OC + Nómina) por obra</p>
           </div>
         </div>
         <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40">
@@ -205,35 +205,35 @@ export default function ControlObrasPage() {
       {/* Totales */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">
-          <p className="text-slate-400 text-xs">Obras</p>
+          <p className="text-[#7f93b0] text-xs">Obras</p>
           <p className="text-xl font-bold text-aria-accent">{totales.obras}</p>
         </div>
         <div className="p-4 rounded-xl bg-aria-accent-bg border border-aria-accent/20">
-          <p className="text-slate-400 text-xs">Presupuesto</p>
+          <p className="text-[#7f93b0] text-xs">Presupuesto</p>
           <p className="text-lg font-bold text-aria-accent">{fmt(totales.presupuesto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
-          <p className="text-slate-400 text-xs">Gasto OC</p>
+          <p className="text-[#7f93b0] text-xs">Gasto OC</p>
           <p className="text-lg font-bold text-orange-300">{fmt(totales.gastoOC)}</p>
         </div>
         <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
-          <p className="text-slate-400 text-xs">Gasto Nómina</p>
+          <p className="text-[#7f93b0] text-xs">Gasto Nómina</p>
           <p className="text-lg font-bold text-violet-300">{fmt(totales.gastoNomina)}</p>
         </div>
         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-          <p className="text-slate-400 text-xs">Gasto Total</p>
+          <p className="text-[#7f93b0] text-xs">Gasto Total</p>
           <p className="text-lg font-bold text-red-300">{fmt(totales.gastoTotal)}</p>
         </div>
         <div className={`p-4 rounded-xl border ${totales.saldo >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
-          <p className="text-slate-400 text-xs">Saldo Ppto</p>
+          <p className="text-[#7f93b0] text-xs">Saldo Ppto</p>
           <p className={`text-lg font-bold ${totales.saldo >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.saldo)}</p>
         </div>
         <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-          <p className="text-slate-400 text-xs">Cobrado</p>
+          <p className="text-[#7f93b0] text-xs">Cobrado</p>
           <p className="text-lg font-bold text-emerald-300">{fmt(totales.cobrado)}</p>
         </div>
         <div className={`p-4 rounded-xl border ${totales.margen >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
-          <p className="text-slate-400 text-xs">Margen Real</p>
+          <p className="text-[#7f93b0] text-xs">Margen Real</p>
           <p className={`text-lg font-bold ${totales.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.margen)}</p>
         </div>
       </div>
@@ -250,10 +250,10 @@ export default function ControlObrasPage() {
       {/* Filtros */}
       <div className="flex gap-3 items-center">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar obra..." className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
+          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar obra..." className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-[#4a6080] focus:outline-none focus:border-aria-accent/50" />
         </div>
-        <select value={filtroSem} onChange={e => setFiltroSem(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50">
+        <select value={filtroSem} onChange={e => setFiltroSem(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:border-aria-accent/50">
           <option value="">Todos los semáforos</option>
           <option value="VERDE">🟢 Verde (&lt;70%)</option>
           <option value="AMARILLO">🟡 Amarillo (70-90%)</option>
@@ -261,38 +261,38 @@ export default function ControlObrasPage() {
           <option value="REBASADO">⛔ Rebasado (&gt;100%)</option>
           <option value="SIN_PRESUPUESTO">⚪ Sin presupuesto</option>
         </select>
-        <span className="text-slate-500 text-xs">{filtradas.length} de {filas.length}</span>
+        <span className="text-[#4a6080] text-xs">{filtradas.length} de {filas.length}</span>
       </div>
 
       {/* Tabla */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
         <div className="overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left p-3 text-slate-400 text-xs">Obra</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Presupuesto</th>
-                <th className="text-right p-3 text-slate-400 text-xs">OC</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Nómina</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Gasto Total</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Cobrado</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Margen</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Saldo</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Avance Fin</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Avance Fís</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Δ Fís−Fin</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Estado</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Reporte</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="border-b border-white/[0.08]">
+                <th className="text-left p-3 text-[#7f93b0] text-xs">Obra</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Presupuesto</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">OC</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Nómina</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Gasto Total</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Cobrado</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Margen</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Saldo</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Avance Fin</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Avance Fís</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Δ Fís−Fin</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Estado</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Reporte</th>
               </tr>
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={13} className="p-8 text-center text-slate-500">Sin obras con datos</td></tr>
+                <tr><td colSpan={13} className="p-8 text-center text-[#4a6080]">Sin obras con datos</td></tr>
               ) : filtradas.map(f => (
                 <>
-                  <tr key={f.nombre} className="border-b border-white/5 hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
+                  <tr key={f.nombre} className="border-b border-white/[0.05] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
                     <td className="p-3 text-white font-medium flex items-center gap-2">
-                      {expandida === f.nombre ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                      {expandida === f.nombre ? <ChevronDown className="w-4 h-4 text-[#4a6080]" /> : <ChevronRight className="w-4 h-4 text-[#4a6080]" />}
                       {f.nombre}
                     </td>
                     <td className="p-3 text-right text-aria-accent">{fmt(f.presupuesto)}</td>
@@ -305,7 +305,7 @@ export default function ControlObrasPage() {
                     <td className="p-3 text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-white text-xs font-medium">{f.avance.toFixed(1)}%</span>
-                        <div className="w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="w-20 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                           <div className={`h-full ${f.semaforo === "REBASADO" ? "bg-rose-500" : f.semaforo === "ROJO" ? "bg-red-400" : f.semaforo === "AMARILLO" ? "bg-amber-400" : "bg-emerald-400"}`} style={{ width: `${Math.min(f.avance, 100)}%` }} />
                         </div>
                       </div>
@@ -314,16 +314,16 @@ export default function ControlObrasPage() {
                       {f.pctFisico !== null ? (
                         <div className="flex flex-col items-center">
                           <span className="text-emerald-300 text-xs font-medium">{f.pctFisico.toFixed(1)}%</span>
-                          <span className="text-[9px] text-slate-500">{f.semanaFisico}</span>
+                          <span className="text-[9px] text-[#4a6080]">{f.semanaFisico}</span>
                         </div>
-                      ) : <span className="text-slate-600 text-xs">—</span>}
+                      ) : <span className="text-[#4a6080] text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       {f.deltaFisFin !== null ? (
                         <span className={`text-xs font-medium ${f.deltaFisFin >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
                           {f.deltaFisFin >= 0 ? "+" : ""}{f.deltaFisFin.toFixed(1)}%
                         </span>
-                      ) : <span className="text-slate-600 text-xs">—</span>}
+                      ) : <span className="text-[#4a6080] text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${semColor[f.semaforo]}`}>{semLabel[f.semaforo]}</span>
@@ -359,18 +359,18 @@ export default function ControlObrasPage() {
                     </td>
                   </tr>
                   {expandida === f.nombre && (
-                    <tr key={f.nombre + "_d"} className="bg-slate-900/40 border-b border-white/5">
+                    <tr key={f.nombre + "_d"} className="bg-[#0a1628]/40 border-b border-white/[0.05]">
                       <td colSpan={13} className="p-4">
-                        <p className="text-slate-400 text-xs uppercase mb-2">Presupuesto por categoría</p>
+                        <p className="text-[#7f93b0] text-xs uppercase mb-2">Presupuesto por categoría</p>
                         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                           {CATS.map(c => (
-                            <div key={c} className="p-2 rounded-lg bg-white/[0.02] border border-white/5">
-                              <p className="text-[10px] text-slate-500">{c.replace("_", " ")}</p>
+                            <div key={c} className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.05]">
+                              <p className="text-[10px] text-[#4a6080]">{c.replace("_", " ")}</p>
                               <p className="text-xs text-white font-medium">{fmt(f.presupuestoCat[c] || 0)}</p>
                             </div>
                           ))}
                         </div>
-                        <p className="text-slate-500 text-[10px] mt-3">
+                        <p className="text-[#4a6080] text-[10px] mt-3">
                           MATERIALES/HERRAMIENTA/SUBCONTRATO se compara contra Gasto OC ({fmt(f.gastoOC)}) ·
                           MANO_OBRA se compara contra Gasto Nómina ({fmt(f.gastoNomina)})
                         </p>
@@ -386,7 +386,7 @@ export default function ControlObrasPage() {
 
       <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
         <TrendingUp className="w-5 h-5 text-aria-accent mt-0.5" />
-        <div className="text-xs text-slate-400">
+        <div className="text-xs text-[#7f93b0]">
           <p className="text-aria-accent font-medium mb-1">Cómo se calcula</p>
           <p><b>Presupuesto:</b> suma de partidas en /obras/presupuestos por obra. <b>Gasto OC:</b> suma de purchase_orders no canceladas asociadas vía requisición a la obra (cost_center_name). <b>Gasto Nómina:</b> suma de sueldo_neto en nomina_historico por obra. <b>Cobrado:</b> suma de (monto - saldo) en cobros_manuales no canceladas vinculadas a la obra del catálogo. <b>Margen Real:</b> Cobrado − Gasto Total. <b>Avance Fin:</b> Gasto Total / Presupuesto. <b>Avance Físico:</b> último % capturado en /obras/avance por obra. <b>Δ Fís−Fin:</b> avance físico − avance financiero (positivo = obra adelantada al gasto, negativo = sobrecosto encubierto).</p>
         </div>

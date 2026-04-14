@@ -253,28 +253,28 @@ export default function PreNominaPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <Calculator className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Pre-Nómina</h1>
-            <p className="text-slate-400 text-sm">
+            <p className="text-[#7f93b0] text-sm">
               Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFecha(semanaInfo.inicio)} – {fmtFecha(semanaInfo.fin)} (Jue–Mié) · Modo <strong className={modoNomina === "ONBOARDING" ? "text-amber-400" : "text-emerald-400"}>{modoNomina}</strong>
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronLeft className="w-4 h-4 text-slate-300" /></button>
-          <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
-          <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronRight className="w-4 h-4 text-slate-300" /></button>
+          <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08]"><ChevronLeft className="w-4 h-4 text-[#c9d8ed]" /></button>
+          <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
+          <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08]"><ChevronRight className="w-4 h-4 text-[#c9d8ed]" /></button>
           <button onClick={calcularPreNomina} disabled={calculando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-accent/20 to-aria-primary/20 border border-aria-accent/30 text-aria-accent hover:from-aria-accent/30 hover:to-aria-primary/30 disabled:opacity-50">
             {calculando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calculator className="w-4 h-4" />}
             {calculando ? "Calculando..." : "Calcular"}
           </button>
-          <button onClick={exportarCSV} disabled={detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 disabled:opacity-40">
+          <button onClick={exportarCSV} disabled={detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] disabled:opacity-40">
             <Download className="w-4 h-4" />CSV
           </button>
           <button onClick={() => generarNomina(false)} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-medium hover:from-emerald-600 hover:to-emerald-600 disabled:opacity-50">
@@ -298,70 +298,70 @@ export default function PreNominaPage() {
       {/* Filtro */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar empleado, puesto, obra, número..." className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500" />
+          <Search className="w-4 h-4 text-[#4a6080] absolute left-3 top-1/2 -translate-y-1/2" />
+          <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar empleado, puesto, obra, número..." className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#4a6080]" />
         </div>
-        <span className="text-xs text-slate-400">{filtrados.length} de {detalles.length}</span>
+        <span className="text-xs text-[#7f93b0]">{filtrados.length} de {detalles.length}</span>
       </div>
 
       {/* Totales */}
       {detalles.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
-            <p className="text-slate-400 text-xs mb-1">Total Bruto</p>
+            <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
             <p className="text-xl font-bold text-white">{fmtMoney(totales.bruto)}</p>
           </div>
           <div className="p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/5 border border-red-500/20">
-            <p className="text-slate-400 text-xs mb-1">Deducciones</p>
+            <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
             <p className="text-xl font-bold text-red-400">{fmtMoney(totales.deducciones)}</p>
           </div>
           <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
-            <p className="text-slate-400 text-xs mb-1">Neto a Pagar</p>
+            <p className="text-[#7f93b0] text-xs mb-1">Neto a Pagar</p>
             <p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p>
           </div>
           <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
-            <p className="text-slate-400 text-xs mb-1">Transferencia</p>
+            <p className="text-[#7f93b0] text-xs mb-1">Transferencia</p>
             <p className="text-xl font-bold text-purple-400">{fmtMoney(totales.tarjeta)}</p>
           </div>
           <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
-            <p className="text-slate-400 text-xs mb-1">Efectivo</p>
+            <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
             <p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p>
           </div>
         </div>
       )}
 
       {/* Tabla */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
         <div className="overflow-x-auto max-h-[560px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left p-3 text-slate-400 font-medium">Empleado</th>
-                <th className="text-left p-3 text-slate-400 font-medium">Puesto</th>
-                <th className="text-left p-3 text-slate-400 font-medium">Obra</th>
-                <th className="text-center p-3 text-slate-400 font-medium">Días ✓</th>
-                <th className="text-center p-3 text-slate-400 font-medium">Inc</th>
-                <th className="text-center p-3 text-slate-400 font-medium">Falt</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Hrs Ex</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Salario</th>
-                <th className="text-right p-3 text-slate-400 font-medium">$ Hrs Ex</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Préstamo</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Neto</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Tarjeta</th>
-                <th className="text-right p-3 text-slate-400 font-medium">Efectivo</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+              <tr className="border-b border-white/[0.08]">
+                <th className="text-left p-3 text-[#7f93b0] font-medium">Empleado</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium">Puesto</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium">Obra</th>
+                <th className="text-center p-3 text-[#7f93b0] font-medium">Días ✓</th>
+                <th className="text-center p-3 text-[#7f93b0] font-medium">Inc</th>
+                <th className="text-center p-3 text-[#7f93b0] font-medium">Falt</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Hrs Ex</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Salario</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">$ Hrs Ex</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Préstamo</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Neto</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Tarjeta</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium">Efectivo</th>
               </tr>
             </thead>
             <tbody>
               {detalles.length === 0 ? (
-                <tr><td colSpan={13} className="p-8 text-center text-slate-500">Presiona "Calcular" para ver la pre-nómina</td></tr>
+                <tr><td colSpan={13} className="p-8 text-center text-[#4a6080]">Presiona "Calcular" para ver la pre-nómina</td></tr>
               ) : filtrados.length === 0 ? (
-                <tr><td colSpan={13} className="p-8 text-center text-slate-500">Sin coincidencias para "{filtro}"</td></tr>
+                <tr><td colSpan={13} className="p-8 text-center text-[#4a6080]">Sin coincidencias para "{filtro}"</td></tr>
               ) : (
                 filtrados.map((d, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="p-3"><div className="text-white font-medium">{d.empleado?.full_name}</div><div className="text-slate-500 text-xs">#{d.empleado?.employee_number}</div></td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded bg-slate-700/50 text-slate-300 text-xs">{d.empleado?.position}</span></td>
-                    <td className="p-3 text-slate-400 text-xs">{d.empleado?.project_site || "—"}</td>
+                  <tr key={i} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
+                    <td className="p-3"><div className="text-white font-medium">{d.empleado?.full_name}</div><div className="text-[#4a6080] text-xs">#{d.empleado?.employee_number}</div></td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded bg-white/[0.05] text-[#c9d8ed] text-xs">{d.empleado?.position}</span></td>
+                    <td className="p-3 text-[#7f93b0] text-xs">{d.empleado?.project_site || "—"}</td>
                     <td className="p-3 text-center"><span className={`font-bold ${d.dias_trabajados >= 6 ? "text-emerald-400" : d.dias_trabajados >= 4 ? "text-amber-400" : "text-red-400"}`}>{d.dias_trabajados}</span></td>
                     <td className="p-3 text-center text-amber-300">{d.dias_incompletos || ""}</td>
                     <td className="p-3 text-center text-red-300">{d.dias_falta || ""}</td>
@@ -380,7 +380,7 @@ export default function PreNominaPage() {
         </div>
       </div>
 
-      <div className="text-xs text-slate-500 leading-relaxed">
+      <div className="text-xs text-[#4a6080] leading-relaxed">
         <strong>Nota:</strong> en modo <code className="text-amber-400">ONBOARDING</code> se paga el salario semanal completo aunque haya faltas.
         En modo <code className="text-emerald-400">ESTRICTO</code> se descuento cada falta. Las incidencias (días incompletos / faltas) se muestran solo como alerta.
         El cálculo de Pre-Nómina coincide exactamente con lo que guardará "Generar Nómina".

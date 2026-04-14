@@ -290,17 +290,17 @@ export default function FotosPage() {
   };
 
   return (
-    <div className={`h-full flex flex-col bg-slate-950 text-white relative ${dragging ? "ring-2 ring-inset ring-emerald-400/60" : ""}`} {...dropHandlers}>
+    <div className={`h-full flex flex-col bg-[#040810] text-white relative ${dragging ? "ring-2 ring-inset ring-emerald-400/60" : ""}`} {...dropHandlers}>
       {/* Drag & drop overlay */}
       {dragging && (
-        <div className="absolute inset-0 z-30 bg-emerald-500/10 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-emerald-500/10  flex flex-col items-center justify-center pointer-events-none">
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
           <p className="text-emerald-300 text-sm font-medium">Suelta fotos o carpetas aqu\u00ed</p>
         </div>
       )}
       {/* Scanning/uploading progress overlay */}
       {dropProgress && (
-        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-[#0a1628]/80  flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo fotos\u2026"}
@@ -313,7 +313,7 @@ export default function FotosPage() {
         </div>
       )}
       {/* Header */}
-      <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md">
+      <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#040810]/80 ">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/obras" />
@@ -509,7 +509,7 @@ export default function FotosPage() {
 
       {/* Lightbox Modal */}
       {lightbox.isOpen && currentPhoto && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80  flex items-center justify-center p-4">
           {/* Close button */}
           <button
             onClick={closeLightbox}
@@ -548,7 +548,7 @@ export default function FotosPage() {
 
             {/* Photo counter */}
             {photos.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg bg-white/[0.1] backdrop-blur-sm text-sm text-white">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg bg-white/[0.1]  text-sm text-white">
                 {lightbox.photoIndex + 1} / {photos.length}
               </div>
             )}

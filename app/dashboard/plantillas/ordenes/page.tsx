@@ -139,7 +139,7 @@ export default function OrdenesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Formatos de Órdenes de Compra</h1>
-          <p className="text-slate-400 text-sm">Gestión de formatos y plantillas de órdenes de compra</p>
+          <p className="text-[#7f93b0] text-sm">Gestión de formatos y plantillas de órdenes de compra</p>
         </div>
         <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Orden
@@ -148,25 +148,25 @@ export default function OrdenesPage() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40" onClick={() => setShowForm(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">{editId ? "Editar Orden" : "Nueva Orden de Compra"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/[0.06] rounded-lg"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="flex flex-col gap-4">
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Nombre *</label>
-                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Descripción de la orden" />
+                <label className="text-xs text-[#7f93b0] mb-1 block">Nombre *</label>
+                <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Descripción de la orden" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">No. Orden</label>
-                  <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder={editId ? "" : nextNumero()} />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">No. Orden</label>
+                  <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder={editId ? "" : nextNumero()} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Proveedor</label>
-                  <select value={form.proveedor} onChange={e => setForm({ ...form, proveedor: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Proveedor</label>
+                  <select value={form.proveedor} onChange={e => setForm({ ...form, proveedor: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     <option value="">Seleccionar proveedor</option>
                     {proveedores.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
@@ -174,27 +174,27 @@ export default function OrdenesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Obra</label>
-                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Obra</label>
+                  <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     <option value="">Seleccionar obra</option>
                     {obras.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Monto</label>
-                  <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Monto</label>
+                  <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Estado</label>
-                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Estado</label>
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
                     {ESTADOS.map(e => <option key={e} value={e}>{e.charAt(0).toUpperCase() + e.slice(1)}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Fecha</label>
-                  <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Fecha</label>
+                  <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
                 </div>
               </div>
               <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
@@ -210,31 +210,31 @@ export default function OrdenesPage() {
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-purple-500/10 mb-2"><ClipboardList className="w-4 h-4 text-purple-400" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.length}</p>
-          <p className="text-xs text-slate-400">Total Órdenes</p>
+          <p className="text-xs text-[#7f93b0]">Total Órdenes</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Package className="w-4 h-4 text-amber-400" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.filter(o => o.estado === "pendiente").length}</p>
-          <p className="text-xs text-slate-400">Pendientes</p>
+          <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><CheckCircle className="w-4 h-4 text-emerald-400" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.filter(o => o.estado === "completada" || o.estado === "aprobada").length}</p>
-          <p className="text-xs text-slate-400">Completadas</p>
+          <p className="text-xs text-[#7f93b0]">Completadas</p>
         </div>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre, número o proveedor..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">No. Orden</th>
                 <th className="text-left p-3">Nombre</th>
                 <th className="text-left p-3">Proveedor</th>
@@ -248,15 +248,15 @@ export default function OrdenesPage() {
               {loading ? (
                 <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="p-8 text-center text-slate-400">
+                <tr><td colSpan={7} className="p-8 text-center text-[#7f93b0]">
                   {ordenes.length === 0 ? "No hay formatos de órdenes registrados." : "No se encontraron resultados."}
                 </td></tr>
               ) : filtered.map(o => (
-                <tr key={o.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                <tr key={o.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-aria-accent font-mono text-xs">{o.numero || "—"}</td>
                   <td className="p-3 text-white font-medium">{o.nombre}</td>
-                  <td className="p-3 text-slate-300">{o.proveedor || "—"}</td>
-                  <td className="p-3 text-slate-400">{o.obra || "—"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{o.proveedor || "—"}</td>
+                  <td className="p-3 text-[#7f93b0]">{o.obra || "—"}</td>
                   <td className="p-3 text-right text-emerald-400 font-medium">${(o.monto || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[o.estado] || estadoColors.borrador}`}>
@@ -265,8 +265,8 @@ export default function OrdenesPage() {
                   </td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => editar(o)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"><Eye className="w-4 h-4" /></button>
-                      {canDelete && (<button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>)}
+                      <button onClick={() => editar(o)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition"><Eye className="w-4 h-4" /></button>
+                      {canDelete && (<button onClick={() => eliminar(o.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-[#7f93b0] hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>)}
                     </div>
                   </td>
                 </tr>

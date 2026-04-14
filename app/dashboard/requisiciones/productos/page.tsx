@@ -224,18 +224,18 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-4 h-4 text-[#7f93b0]"/></Link>
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-aria-accent"/>Catálogo de Productos</h1>
-            <span className="text-xs text-slate-500 ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
+            <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <button onClick={()=>setShowUploadModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30" title="Subir catálogo de proveedor"><Upload className="w-3 h-3"/>Importar</button>
             <div className="relative">
               <button onClick={()=>setShowExportMenu(!showExportMenu)} disabled={exporting}
-                className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-white/[0.05] border border-white/[0.08] text-slate-300 rounded-lg hover:bg-white/[0.1] disabled:opacity-50">
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-white/[0.05] border border-white/[0.08] text-[#c9d8ed] rounded-lg hover:bg-white/[0.1] disabled:opacity-50">
                 {exporting?<Loader2 className="w-3 h-3 animate-spin"/>:<FileSpreadsheet className="w-3 h-3"/>}Exportar
               </button>
-              {showExportMenu&&(<div className="absolute right-0 top-full mt-1 bg-slate-800 border border-white/[0.1] rounded-lg shadow-xl z-20 min-w-[180px] py-1">
+              {showExportMenu&&(<div className="absolute right-0 top-full mt-1 bg-[#0c1d38] border border-white/[0.1] rounded-lg shadow-xl z-20 min-w-[180px] py-1">
                 <button onClick={()=>exportToExcel("all")} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-white/[0.08]">Catálogo completo</button>
                 {category&&<button onClick={()=>exportToExcel("category")} className="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-white/[0.08]">Solo: {category}</button>}
               </div>)}
@@ -245,10 +245,10 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         </div>
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"/>
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder="Buscar nombre, SKU..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-aria-accent/50 outline-none"/>
-            {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-slate-400"/></button>}
+              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-accent/50 outline-none"/>
+            {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={category} onChange={e=>setCategory(e.target.value)}
             className="appearance-none pl-2.5 pr-6 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none cursor-pointer min-w-[180px]">
@@ -260,12 +260,12 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* TABLA */}
       <div className="flex-1 overflow-auto min-h-0" onClick={()=>showExportMenu&&setShowExportMenu(false)}>
-        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/><span className="ml-2 text-slate-400 text-sm">Cargando...</span></div>
-        ):products.length===0?(<div className="text-center py-12"><Package className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
+        {loading?(<div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/><span className="ml-2 text-[#7f93b0] text-sm">Cargando...</span></div>
+        ):products.length===0?(<div className="text-center py-12"><Package className="w-8 h-8 text-[#4a6080] mx-auto mb-2"/><p className="text-[#7f93b0] text-sm">Sin resultados</p></div>
         ):(
           <table className="w-full">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-slate-900/95 backdrop-blur-sm border-b border-white/[0.06] text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+              <tr className="bg-[rgba(4,8,16,0.98)]  border-b border-white/[0.06] text-[10px] text-[#4a6080] font-semibold uppercase tracking-wider">
                 <th className="text-left pl-4 py-1.5 w-[100px]">SKU</th>
                 <th className="text-left py-1.5 w-[40%]">Nombre</th>
                 <th className="text-left py-1.5">Categoría</th>
@@ -277,12 +277,12 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <tbody className="text-xs">
               {products.map(p=>{const supps=supplierMap[p.id]||[];return(
                 <tr key={p.id} onClick={()=>openDetail(p)} className="border-b border-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-colors group h-[30px]">
-                  <td className="pl-4 text-slate-500 font-mono text-[11px]">{p.sku||"—"}</td>
+                  <td className="pl-4 text-[#4a6080] font-mono text-[11px]">{p.sku||"—"}</td>
                   <td className="text-white group-hover:text-aria-accent transition-colors pr-2">{p.name}</td>
-                  <td>{p.category&&<span className="text-[10px] px-1.5 py-0.5 bg-white/[0.06] rounded text-slate-400">{p.category}</span>}</td>
-                  <td className="text-slate-400">{p.unit}</td>
-                  <td>{supps.length>0?(<div className="flex gap-1 items-center">{supps.slice(0,2).map(s=>(<span key={s.id} className="text-[10px] px-1 py-0.5 bg-emerald-500/10 text-emerald-400 rounded truncate max-w-[100px]" title={s.name}>{s.name.length>14?s.name.substring(0,14)+"…":s.name}</span>))}{supps.length>2&&<span className="text-[10px] text-slate-500">+{supps.length-2}</span>}</div>):<span className="text-[10px] text-slate-600">—</span>}</td>
-                  <td className="pr-2"><ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400"/></td>
+                  <td>{p.category&&<span className="text-[10px] px-1.5 py-0.5 bg-white/[0.06] rounded text-[#7f93b0]">{p.category}</span>}</td>
+                  <td className="text-[#7f93b0]">{p.unit}</td>
+                  <td>{supps.length>0?(<div className="flex gap-1 items-center">{supps.slice(0,2).map(s=>(<span key={s.id} className="text-[10px] px-1 py-0.5 bg-emerald-500/10 text-emerald-400 rounded truncate max-w-[100px]" title={s.name}>{s.name.length>14?s.name.substring(0,14)+"…":s.name}</span>))}{supps.length>2&&<span className="text-[10px] text-[#4a6080]">+{supps.length-2}</span>}</div>):<span className="text-[10px] text-[#4a6080]">—</span>}</td>
+                  <td className="pr-2"><ChevronRight className="w-3 h-3 text-[#4a6080] group-hover:text-[#7f93b0]"/></td>
                 </tr>
               );})}
             </tbody>
@@ -292,50 +292,50 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* PAGINACIÓN */}
       {totalPages>1&&(<div className="flex-none px-4 py-1.5 border-t border-white/[0.06] flex items-center justify-between text-[11px]">
-        <span className="text-slate-500">{((currentPage-1)*PAGE_SIZE)+1}–{Math.min(currentPage*PAGE_SIZE,totalCount)} de {totalCount.toLocaleString()}</span>
+        <span className="text-[#4a6080]">{((currentPage-1)*PAGE_SIZE)+1}–{Math.min(currentPage*PAGE_SIZE,totalCount)} de {totalCount.toLocaleString()}</span>
         <div className="flex items-center gap-0.5">
-          <button onClick={()=>goToPage(1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">«</button>
-          <button onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">‹</button>
-          {Array.from({length:Math.min(5,totalPages)},(_,i)=>{let p:number;if(totalPages<=5)p=i+1;else if(currentPage<=3)p=i+1;else if(currentPage>=totalPages-2)p=totalPages-4+i;else p=currentPage-2+i;return<button key={p} onClick={()=>goToPage(p)} className={`w-6 h-6 rounded ${p===currentPage?"bg-aria-accent-bg text-aria-accent font-bold":"text-slate-400 hover:bg-white/10"}`}>{p}</button>;})}
-          <button onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">›</button>
-          <button onClick={()=>goToPage(totalPages)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-slate-400 hover:text-white hover:bg-white/10 rounded disabled:opacity-30">»</button>
+          <button onClick={()=>goToPage(1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded disabled:opacity-30">«</button>
+          <button onClick={()=>goToPage(currentPage-1)} disabled={currentPage===1} className="px-1.5 py-0.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded disabled:opacity-30">‹</button>
+          {Array.from({length:Math.min(5,totalPages)},(_,i)=>{let p:number;if(totalPages<=5)p=i+1;else if(currentPage<=3)p=i+1;else if(currentPage>=totalPages-2)p=totalPages-4+i;else p=currentPage-2+i;return<button key={p} onClick={()=>goToPage(p)} className={`w-6 h-6 rounded ${p===currentPage?"bg-aria-accent-bg text-aria-accent font-bold":"text-[#7f93b0] hover:bg-white/[0.06]"}`}>{p}</button>;})}
+          <button onClick={()=>goToPage(currentPage+1)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded disabled:opacity-30">›</button>
+          <button onClick={()=>goToPage(totalPages)} disabled={currentPage===totalPages} className="px-1.5 py-0.5 text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded disabled:opacity-30">»</button>
         </div>
-        <span className="text-slate-500">Pág {currentPage}/{totalPages}</span>
+        <span className="text-[#4a6080]">Pág {currentPage}/{totalPages}</span>
       </div>)}
 
       {/* PANEL DETALLE PRODUCTO */}
       {selectedProduct&&(
         <div className="fixed inset-0 z-50 flex justify-end" onClick={()=>setSelectedProduct(null)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"/>
-          <div className="relative w-full max-w-md bg-slate-900 border-l border-white/[0.08] h-full overflow-auto shadow-2xl" onClick={e=>e.stopPropagation()}>
-            <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-white/[0.06] p-4 z-10">
+          <div className="absolute inset-0 bg-black/40 "/>
+          <div className="relative w-full max-w-md bg-[#0a1628] border-l border-white/[0.08] h-full overflow-auto shadow-2xl" onClick={e=>e.stopPropagation()}>
+            <div className="sticky top-0 bg-[rgba(4,8,16,0.98)]  border-b border-white/[0.06] p-4 z-10">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] text-aria-accent font-mono">{selectedProduct.sku}</p>
                   <h2 className="text-base font-bold text-white leading-tight mt-0.5">{selectedProduct.name}</h2>
-                  {selectedProduct.description&&<p className="text-xs text-slate-400 mt-0.5">{selectedProduct.description}</p>}
+                  {selectedProduct.description&&<p className="text-xs text-[#7f93b0] mt-0.5">{selectedProduct.description}</p>}
                 </div>
-                <button onClick={()=>setSelectedProduct(null)} className="p-1.5 hover:bg-white/10 rounded-lg ml-2"><X className="w-4 h-4 text-slate-400"/></button>
+                <button onClick={()=>setSelectedProduct(null)} className="p-1.5 hover:bg-white/[0.06] rounded-lg ml-2"><X className="w-4 h-4 text-[#7f93b0]"/></button>
               </div>
               <div className="flex gap-1.5 mt-2">
                 {selectedProduct.category&&<span className="text-[10px] px-1.5 py-0.5 bg-aria-primary/10 text-aria-accent rounded flex items-center gap-1"><Tag className="w-2.5 h-2.5"/>{selectedProduct.category}</span>}
-                <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/10 text-slate-400 rounded flex items-center gap-1"><Box className="w-2.5 h-2.5"/>{selectedProduct.unit}</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/10 text-[#7f93b0] rounded flex items-center gap-1"><Box className="w-2.5 h-2.5"/>{selectedProduct.unit}</span>
               </div>
             </div>
             <div className="p-4">
-              <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-emerald-400"/>Proveedores<span className="ml-auto text-[10px] text-slate-500">{loadingDetail?"...":productSuppliers.length}</span></h3>
+              <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-emerald-400"/>Proveedores<span className="ml-auto text-[10px] text-[#4a6080]">{loadingDetail?"...":productSuppliers.length}</span></h3>
               {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-aria-accent"/></div>
-              ):productSuppliers.length===0?(<div className="text-center py-4 bg-white/[0.02] rounded-lg border border-white/[0.04]"><Truck className="w-6 h-6 text-slate-600 mx-auto mb-1"/><p className="text-slate-500 text-xs">Sin proveedores</p></div>
+              ):productSuppliers.length===0?(<div className="text-center py-4 bg-white/[0.02] rounded-lg border border-white/[0.04]"><Truck className="w-6 h-6 text-[#4a6080] mx-auto mb-1"/><p className="text-[#4a6080] text-xs">Sin proveedores</p></div>
               ):(<div className="space-y-1.5">{productSuppliers.map((ps:any,idx:number)=>(<div key={idx} className={`p-2.5 rounded-lg border ${ps.es_proveedor_preferido?"bg-emerald-500/[0.06] border-emerald-500/20":"bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04]"}`}>
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3.5 h-3.5 text-emerald-400"/></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium text-xs flex items-center gap-1">{ps.suppliers?.name||"—"}{ps.es_proveedor_preferido&&<span className="text-[8px] px-1 bg-emerald-500/20 text-emerald-400 rounded font-bold">PREF</span>}</p>
-                    <p className="text-[10px] text-slate-500">{[ps.suppliers?.ciudad,ps.suppliers?.estado].filter(Boolean).join(", ")||"—"}{ps.suppliers?.phone&&` · ${ps.suppliers.phone}`}</p>
+                    <p className="text-[10px] text-[#4a6080]">{[ps.suppliers?.ciudad,ps.suppliers?.estado].filter(Boolean).join(", ")||"—"}{ps.suppliers?.phone&&` · ${ps.suppliers.phone}`}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     {ps.precio_referencia&&<p className="text-xs text-emerald-400 font-medium">${ps.precio_referencia.toLocaleString("es-MX",{minimumFractionDigits:2})}</p>}
-                    {ps.tiempo_entrega_dias&&<p className="text-[10px] text-slate-500">{ps.tiempo_entrega_dias}d</p>}
+                    {ps.tiempo_entrega_dias&&<p className="text-[10px] text-[#4a6080]">{ps.tiempo_entrega_dias}d</p>}
                   </div>
                 </div>
               </div>))}</div>)}
@@ -346,57 +346,57 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* MODAL NUEVO PRODUCTO (Fase 3) */}
       {showNewModal&&(
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl w-full max-w-lg border border-white/10 shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c1d38] rounded-2xl w-full max-w-lg border border-white/[0.08] shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <h2 className="text-lg font-bold text-white">Nuevo Producto</h2>
-              <button onClick={()=>setShowNewModal(false)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400"><X className="w-4 h-4"/></button>
+              <button onClick={()=>setShowNewModal(false)} className="p-1.5 hover:bg-white/[0.06] rounded-lg text-[#7f93b0]"><X className="w-4 h-4"/></button>
             </div>
             <div className="p-4 space-y-3">
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[11px] text-slate-400 mb-0.5 block">SKU *</label>
+                  <label className="text-[11px] text-[#7f93b0] mb-0.5 block">SKU *</label>
                   <input value={newForm.sku} onChange={e=>{const v=e.target.value.toUpperCase();setNewForm(p=>({...p,sku:v}));checkSku(v);}}
-                    className={`w-full px-2.5 py-1.5 text-xs bg-white/5 border rounded-lg text-white font-mono uppercase outline-none ${skuError?"border-red-500/50":"border-white/10 focus:border-aria-accent/50"}`} placeholder="MATE-0001"/>
+                    className={`w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border rounded-lg text-white font-mono uppercase outline-none ${skuError?"border-red-500/50":"border-white/[0.08] focus:border-aria-accent/50"}`} placeholder="MATE-0001"/>
                   {skuError&&<p className="text-[10px] text-red-400 mt-0.5 flex items-center gap-0.5"><AlertCircle className="w-2.5 h-2.5"/>{skuError}</p>}
                 </div>
                 <div>
-                  <label className="text-[11px] text-slate-400 mb-0.5 block">Unidad</label>
+                  <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Unidad</label>
                   <select value={newForm.unit} onChange={e=>setNewForm(p=>({...p,unit:e.target.value}))}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none">
+                    className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none">
                     {UNITS.map(u=><option key={u} value={u}>{u}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-[11px] text-slate-400 mb-0.5 block">Categoría</label>
+                  <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label>
                   <input value={newForm.category} onChange={e=>setNewForm(p=>({...p,category:e.target.value}))}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none" placeholder="ACEROS" list="newcat-list"/>
+                    className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none" placeholder="ACEROS" list="newcat-list"/>
                   <datalist id="newcat-list">{categories.map(c=><option key={c} value={c}/>)}</datalist>
                 </div>
               </div>
               <div>
-                <label className="text-[11px] text-slate-400 mb-0.5 block">Nombre del producto *</label>
+                <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Nombre del producto *</label>
                 <input value={newForm.name} onChange={e=>setNewForm(p=>({...p,name:e.target.value}))}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none focus:border-aria-accent/50" placeholder="Ej: Varilla corrugada 3/8 grado 42"/>
+                  className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none focus:border-aria-accent/50" placeholder="Ej: Varilla corrugada 3/8 grado 42"/>
               </div>
               <div>
-                <label className="text-[11px] text-slate-400 mb-0.5 block">Descripción</label>
+                <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Descripción</label>
                 <input value={newForm.description} onChange={e=>setNewForm(p=>({...p,description:e.target.value}))}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none" placeholder="Descripción breve"/>
+                  className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none" placeholder="Descripción breve"/>
               </div>
               <div>
-                <label className="text-[11px] text-slate-400 mb-0.5 block">Proveedor (opcional)</label>
+                <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Proveedor (opcional)</label>
                 <select value={newForm.supplierId} onChange={e=>setNewForm(p=>({...p,supplierId:e.target.value}))}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none">
+                  className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none">
                   <option value="">Sin proveedor</option>
                   {allSuppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t border-white/10">
-              <button onClick={()=>setShowNewModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/10 rounded-lg">Cancelar</button>
+            <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08]">
+              <button onClick={()=>setShowNewModal(false)} className="px-3 py-1.5 text-xs text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded-lg">Cancelar</button>
               <button onClick={handleNewProduct} disabled={savingNew||!newForm.name.trim()||!newForm.sku.trim()||!!skuError}
-                className="px-3 py-1.5 text-xs bg-aria-accent/80 hover:bg-aria-accent/80 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1">
+                className="px-3 py-1.5 text-xs bg-aria-accent/80 hover:bg-aria-accent/80 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1">
                 <Save className="w-3 h-3"/>{savingNew?"Guardando...":"Crear Producto"}
               </button>
             </div>
@@ -406,37 +406,37 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
 
       {/* MODAL UPLOAD CATÁLOGO IA (Fase 5) */}
       {showUploadModal&&(
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-white/10 flex-none">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c1d38] rounded-2xl w-full max-w-2xl border border-white/[0.08] shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08] flex-none">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">Importar Catálogo</h2>
-              <button onClick={()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setParseError("");}} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400"><X className="w-4 h-4"/></button>
+              <button onClick={()=>{setShowUploadModal(false);setParsedProducts([]);setUploadFile(null);setParseError("");}} className="p-1.5 hover:bg-white/[0.06] rounded-lg text-[#7f93b0]"><X className="w-4 h-4"/></button>
             </div>
 
             <div className="overflow-auto p-4 flex-1 space-y-4">
               {parsedProducts.length===0?(
                 <>
-                  <p className="text-xs text-slate-400">Sube una imagen o PDF del catálogo/cotización de un proveedor. La IA extraerá los productos automáticamente.</p>
+                  <p className="text-xs text-[#7f93b0]">Sube una imagen o PDF del catálogo/cotización de un proveedor. La IA extraerá los productos automáticamente.</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] text-slate-400 mb-0.5 block">Proveedor *</label>
+                      <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Proveedor *</label>
                       <select value={uploadSuppId} onChange={e=>setUploadSuppId(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white outline-none">
+                        className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none">
                         <option value="">Seleccionar proveedor</option>
                         {allSuppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="text-[11px] text-slate-400 mb-0.5 block">Archivo (imagen/PDF)</label>
+                      <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Archivo (imagen/PDF)</label>
                       <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={e=>setUploadFile(e.target.files?.[0]||null)}
-                        className="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:bg-violet-500/20 file:text-violet-400 hover:file:bg-violet-500/30"/>
+                        className="w-full text-xs text-[#7f93b0] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:bg-violet-500/20 file:text-violet-400 hover:file:bg-violet-500/30"/>
                     </div>
                   </div>
                   {uploadFile&&(
                     <div className="p-2 bg-white/[0.03] rounded-lg border border-white/[0.06] flex items-center gap-2">
                       <Upload className="w-4 h-4 text-violet-400"/>
                       <span className="text-xs text-white flex-1">{uploadFile.name}</span>
-                      <span className="text-[10px] text-slate-500">{(uploadFile.size/1024).toFixed(0)} KB</span>
+                      <span className="text-[10px] text-[#4a6080]">{(uploadFile.size/1024).toFixed(0)} KB</span>
                     </div>
                   )}
                   {parseError&&<div className="p-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">{parseError}</div>}
@@ -448,16 +448,16 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                     {savedCount>0&&<span className="text-[10px] text-emerald-400">{savedCount} guardados</span>}
                   </div>
                   <table className="w-full">
-                    <thead><tr className="text-[10px] text-slate-500 font-semibold uppercase border-b border-white/[0.06]">
+                    <thead><tr className="text-[10px] text-[#4a6080] font-semibold uppercase border-b border-white/[0.06]">
                       <th className="text-left py-1 pl-2">SKU</th><th className="text-left py-1">Nombre</th><th className="text-left py-1">Unidad</th><th className="text-left py-1">Categoría</th><th className="text-right py-1 pr-2">Precio</th>
                     </tr></thead>
                     <tbody className="text-xs">
                       {parsedProducts.map((p:any,i:number)=>(
                         <tr key={i} className="border-b border-white/[0.02] h-[28px]">
-                          <td className="pl-2 font-mono text-[10px] text-slate-500">{p.sku||"auto"}</td>
+                          <td className="pl-2 font-mono text-[10px] text-[#4a6080]">{p.sku||"auto"}</td>
                           <td className="text-white">{p.name}</td>
-                          <td className="text-slate-400">{p.unit||"PIEZA"}</td>
-                          <td className="text-slate-400">{p.category||"—"}</td>
+                          <td className="text-[#7f93b0]">{p.unit||"PIEZA"}</td>
+                          <td className="text-[#7f93b0]">{p.category||"—"}</td>
                           <td className="text-right pr-2 text-emerald-400">{p.price?`$${Number(p.price).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
                         </tr>
                       ))}
@@ -467,15 +467,15 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               )}
             </div>
 
-            <div className="flex justify-end gap-2 p-4 border-t border-white/10 flex-none">
+            <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">
               {parsedProducts.length===0?(
                 <button onClick={handleUploadParse} disabled={parsing||!uploadFile||!uploadSuppId}
-                  className="px-3 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1.5">
+                  className="px-3 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
                   {parsing?<><Loader2 className="w-3 h-3 animate-spin"/>Analizando...</>:<><Upload className="w-3 h-3"/>Analizar</>}
                 </button>
               ):(
                 <button onClick={saveParsedProducts} disabled={savingParsed}
-                  className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1.5">
+                  className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
                   {savingParsed?<><Loader2 className="w-3 h-3 animate-spin"/>Guardando {savedCount}/{parsedProducts.length}</>:<><Save className="w-3 h-3"/>Guardar {parsedProducts.length} productos</>}
                 </button>
               )}

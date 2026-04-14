@@ -209,7 +209,7 @@ export default function SUAFinanzasPage() {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Shield className="w-6 h-6 text-aria-accent" /> SUA · Control Financiero
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">Líneas de captura IMSS · Infonavit · RCV · Pagos · Conciliación</p>
+          <p className="text-sm text-[#7f93b0] mt-0.5">Líneas de captura IMSS · Infonavit · RCV · Pagos · Conciliación</p>
         </div>
       </div>
 
@@ -234,7 +234,7 @@ export default function SUAFinanzasPage() {
             <div key={s.label} className="p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl">
               <div className={`inline-flex p-1.5 rounded-lg ${s.bg} mb-1`}><s.icon className={`w-3.5 h-3.5 ${s.color}`} /></div>
               <p className="text-lg font-bold text-white">{s.value}</p>
-              <p className="text-[11px] text-slate-400">{s.label}</p>
+              <p className="text-[11px] text-[#7f93b0]">{s.label}</p>
             </div>
           ))}
         </div>
@@ -243,18 +243,18 @@ export default function SUAFinanzasPage() {
       {/* Filters + Action */}
       <div className="flex-none px-6 pb-3 flex flex-col md:flex-row gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar periodo, obra, línea de captura..." className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-aria-primary/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar periodo, obra, línea de captura..." className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:outline-none focus:border-aria-primary/40" />
         </div>
-        <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+        <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
           <option value="TODOS">Todos tipos</option>
           {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+        <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
           <option value="TODOS">Todos estatus</option>
           {["PENDIENTE","PAGADA","VENCIDA","PARCIAL"].map(e => <option key={e} value={e}>{e}</option>)}
         </select>
-        <select value={filterObra} onChange={e => setFilterObra(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+        <select value={filterObra} onChange={e => setFilterObra(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
           <option value="TODOS">Todas obras</option>
           {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
         </select>
@@ -271,8 +271,8 @@ export default function SUAFinanzasPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                <tr className="text-left text-xs text-slate-400 border-b border-white/[0.06]">
+              <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+                <tr className="text-left text-xs text-[#7f93b0] border-b border-white/[0.06]">
                   <th className="px-3 py-2.5">Periodo</th>
                   <th className="px-3 py-2.5">Tipo</th>
                   <th className="px-3 py-2.5">Obra</th>
@@ -289,7 +289,7 @@ export default function SUAFinanzasPage() {
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={12} className="text-center py-16 text-slate-500">
+                  <tr><td colSpan={12} className="text-center py-16 text-[#4a6080]">
                     <Shield className="w-10 h-10 mx-auto mb-3 opacity-30" />
                     <p>Sin líneas de captura.</p>
                   </td></tr>
@@ -305,25 +305,25 @@ export default function SUAFinanzasPage() {
                           l.tipo === "IMSS" ? "bg-aria-primary-light text-aria-accent" :
                           l.tipo === "INFONAVIT" ? "bg-purple-500/20 text-purple-400" :
                           l.tipo === "RCV" ? "bg-aria-accent-bg text-aria-accent" :
-                          "bg-slate-500/20 text-slate-400"
+                          "bg-slate-500/20 text-[#7f93b0]"
                         }`}>{l.tipo}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-slate-300 text-xs max-w-[140px] truncate">{l.obra_nombre || "—"}</td>
-                      <td className="px-3 py-2.5 text-slate-400 text-xs font-mono">{l.linea_captura || "—"}</td>
-                      <td className="px-3 py-2.5 text-center text-slate-300">{l.num_trabajadores || "—"}</td>
-                      <td className="px-3 py-2.5 text-right text-slate-300 font-mono">{fmt(Number(l.monto_base))}</td>
+                      <td className="px-3 py-2.5 text-[#c9d8ed] text-xs max-w-[140px] truncate">{l.obra_nombre || "—"}</td>
+                      <td className="px-3 py-2.5 text-[#7f93b0] text-xs font-mono">{l.linea_captura || "—"}</td>
+                      <td className="px-3 py-2.5 text-center text-[#c9d8ed]">{l.num_trabajadores || "—"}</td>
+                      <td className="px-3 py-2.5 text-right text-[#c9d8ed] font-mono">{fmt(Number(l.monto_base))}</td>
                       <td className="px-3 py-2.5 text-right text-amber-400/70 font-mono text-xs">{Number(l.recargos) > 0 ? `+${fmt(Number(l.recargos))}` : "—"}</td>
                       <td className="px-3 py-2.5 text-right text-white font-mono font-medium">{fmt(Number(l.total))}</td>
                       <td className="px-3 py-2.5 text-right font-mono">
                         {Number(l.monto_pagado) > 0 ? (
                           <span className="text-emerald-400">{fmt(Number(l.monto_pagado))}</span>
-                        ) : <span className="text-slate-500">—</span>}
+                        ) : <span className="text-[#4a6080]">—</span>}
                         {restante > 0 && l.estatus !== "PAGADA" && (
                           <p className="text-[10px] text-red-400/70">Resta {fmt(restante)}</p>
                         )}
                       </td>
                       <td className="px-3 py-2.5 whitespace-nowrap">
-                        <span className={`text-xs ${urgente ? "text-red-400 font-medium" : "text-slate-400"}`}>
+                        <span className={`text-xs ${urgente ? "text-red-400 font-medium" : "text-[#7f93b0]"}`}>
                           {fmtDate(l.vigencia)}
                         </span>
                         {dias !== null && dias >= 0 && dias <= 15 && l.estatus !== "PAGADA" && (
@@ -331,7 +331,7 @@ export default function SUAFinanzasPage() {
                         )}
                       </td>
                       <td className="px-3 py-2.5">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_COLORS[l.estatus] || "bg-slate-500/20 text-slate-400"}`}>{l.estatus}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_COLORS[l.estatus] || "bg-slate-500/20 text-[#7f93b0]"}`}>{l.estatus}</span>
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-1">
@@ -355,7 +355,7 @@ export default function SUAFinanzasPage() {
               {filtered.length > 0 && (
                 <tfoot className="border-t border-white/[0.06]">
                   <tr className="text-xs font-medium">
-                    <td colSpan={7} className="px-3 py-2.5 text-right text-slate-400">Totales filtrados:</td>
+                    <td colSpan={7} className="px-3 py-2.5 text-right text-[#7f93b0]">Totales filtrados:</td>
                     <td className="px-3 py-2.5 text-right text-white font-mono">{fmt(filtered.reduce((s, l) => s + Number(l.total), 0))}</td>
                     <td className="px-3 py-2.5 text-right text-emerald-400 font-mono">{fmt(filtered.reduce((s, l) => s + Number(l.monto_pagado), 0))}</td>
                     <td colSpan={3}></td>
@@ -369,54 +369,54 @@ export default function SUAFinanzasPage() {
 
       {/* ── Modal: Nueva/Editar Línea ── */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowForm(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowForm(false)}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
               <h3 className="text-lg font-semibold text-white">{editId ? "Editar Línea de Captura" : "Nueva Línea de Captura"}</h3>
-              <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white"><XCircle className="w-5 h-5" /></button>
+              <button onClick={() => setShowForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4 overflow-y-auto max-h-[60vh]">
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
-                  <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Tipo *</label>
+                  <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                     {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Periodo *</label>
-                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Periodo *</label>
+                  <input value={form.periodo} onChange={e => setForm({ ...form, periodo: e.target.value })} placeholder="2026-03" required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Trabajadores</label>
-                  <input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Trabajadores</label>
+                  <input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Obra</label>
-                  <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Obra</label>
+                  <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                     <option value="">Sin obra</option>
                     {obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Línea de captura</label>
-                  <input value={form.linea_captura} onChange={e => setForm({ ...form, linea_captura: e.target.value })} placeholder="Número SIPARE" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none font-mono" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Línea de captura</label>
+                  <input value={form.linea_captura} onChange={e => setForm({ ...form, linea_captura: e.target.value })} placeholder="Número SIPARE" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none font-mono" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Monto base *</label>
-                  <input type="number" step="0.01" min="0.01" required value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Monto base *</label>
+                  <input type="number" step="0.01" min="0.01" required value={form.monto_base} onChange={e => setForm({ ...form, monto_base: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/40" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Recargos</label>
-                  <input type="number" step="0.01" min="0" value={form.recargos} onChange={e => setForm({ ...form, recargos: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Recargos</label>
+                  <input type="number" step="0.01" min="0" value={form.recargos} onChange={e => setForm({ ...form, recargos: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Actualización</label>
-                  <input type="number" step="0.01" min="0" value={form.actualizacion} onChange={e => setForm({ ...form, actualizacion: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Actualización</label>
+                  <input type="number" step="0.01" min="0" value={form.actualizacion} onChange={e => setForm({ ...form, actualizacion: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
               <div className="p-3 bg-aria-primary/10 border border-aria-primary/20 rounded-lg flex justify-between items-center">
@@ -425,21 +425,21 @@ export default function SUAFinanzasPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Vigencia</label>
-                  <input type="date" value={form.vigencia} onChange={e => setForm({ ...form, vigencia: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Vigencia</label>
+                  <input type="date" value={form.vigencia} onChange={e => setForm({ ...form, vigencia: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Banco</label>
-                  <input value={form.banco} onChange={e => setForm({ ...form, banco: e.target.value })} placeholder="BBVA, Banorte..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Banco</label>
+                  <input value={form.banco} onChange={e => setForm({ ...form, banco: e.target.value })} placeholder="BBVA, Banorte..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Notas</label>
-                <input value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} placeholder="Observaciones..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>
+                <input value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} placeholder="Observaciones..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
             </div>
             <div className="flex justify-end gap-2 p-5 border-t border-white/[0.06]">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={guardar} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editId ? "Actualizar" : "Registrar"}
@@ -451,37 +451,37 @@ export default function SUAFinanzasPage() {
 
       {/* ── Modal: Pago rápido ── */}
       {showPago && pagoTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPago(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowPago(false)}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-emerald-400" /> Registrar Pago
             </h3>
-            <div className="text-xs text-slate-400 space-y-1">
+            <div className="text-xs text-[#7f93b0] space-y-1">
               <p>{pagoTarget.tipo} · {pagoTarget.periodo} · {pagoTarget.obra_nombre || "Sin obra"}</p>
               <p>Total: {fmt(Number(pagoTarget.total))} · Pagado: {fmt(Number(pagoTarget.monto_pagado))} · Resta: <span className="text-red-400">{fmt(Number(pagoTarget.total) - Number(pagoTarget.monto_pagado))}</span></p>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Monto a pagar *</label>
-                <input type="number" step="0.01" min="0.01" required value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/40" />
+                <label className="text-xs text-[#7f93b0] mb-1 block">Monto a pagar *</label>
+                <input type="number" step="0.01" min="0.01" required value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/40" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fecha de pago *</label>
-                <input type="date" value={pagoForm.fecha} onChange={e => setPagoForm({ ...pagoForm, fecha: e.target.value })} required className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                <label className="text-xs text-[#7f93b0] mb-1 block">Fecha de pago *</label>
+                <input type="date" value={pagoForm.fecha} onChange={e => setPagoForm({ ...pagoForm, fecha: e.target.value })} required className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Banco</label>
-                  <input value={pagoForm.banco} onChange={e => setPagoForm({ ...pagoForm, banco: e.target.value })} placeholder="BBVA" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Banco</label>
+                  <input value={pagoForm.banco} onChange={e => setPagoForm({ ...pagoForm, banco: e.target.value })} placeholder="BBVA" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Referencia</label>
-                  <input value={pagoForm.referencia} onChange={e => setPagoForm({ ...pagoForm, referencia: e.target.value })} placeholder="No. operación" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Referencia</label>
+                  <input value={pagoForm.referencia} onChange={e => setPagoForm({ ...pagoForm, referencia: e.target.value })} placeholder="No. operación" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowPago(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowPago(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={registrarPago} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
                 Pagar

@@ -13,21 +13,21 @@ export default function PrestacionesPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Prestaciones</h1>
-        <p className="text-slate-400">Gestión de prestaciones laborales</p>
+        <p className="text-[#7f93b0]">Gestión de prestaciones laborales</p>
       </div></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {submodulos.map((mod) => (
-          <Link key={mod.href} href={mod.href} className="group p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 transition-all">
+          <Link key={mod.href} href={mod.href} className="group p-5 bg-white/[0.04] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/[0.12] transition-all">
             <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${mod.color} mb-4`}>
               <mod.icono className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-1">{mod.titulo}</h3>
-            <p className="text-sm text-slate-400">{mod.descripcion}</p>
+            <p className="text-sm text-[#7f93b0]">{mod.descripcion}</p>
           </Link>
         ))}
       </div>

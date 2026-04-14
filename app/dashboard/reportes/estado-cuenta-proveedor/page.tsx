@@ -68,10 +68,10 @@ function Content() {
       <div className="p-8 max-w-2xl mx-auto">
         <Link href="/dashboard/reportes" className="inline-flex items-center gap-2 text-aria-accent mb-4"><ArrowLeft className="w-4 h-4" /> Volver</Link>
         <h1 className="text-2xl font-bold text-white mb-4">Estado de cuenta por proveedor</h1>
-        <p className="text-slate-400 mb-4">Selecciona un proveedor:</p>
+        <p className="text-[#7f93b0] mb-4">Selecciona un proveedor:</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">
           {proveedores.map(p => (
-            <Link key={p} href={`/dashboard/reportes/estado-cuenta-proveedor?proveedor=${encodeURIComponent(p)}`} className="p-3 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm border border-white/10">{p}</Link>
+            <Link key={p} href={`/dashboard/reportes/estado-cuenta-proveedor?proveedor=${encodeURIComponent(p)}`} className="p-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white text-sm border border-white/[0.08]">{p}</Link>
           ))}
         </div>
       </div>
@@ -82,9 +82,9 @@ function Content() {
 
   return (
     <>
-      <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
+      <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Estado de cuenta · <b>{proveedor}</b></div>
         </div>
         <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>

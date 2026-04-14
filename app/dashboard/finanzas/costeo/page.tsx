@@ -142,7 +142,7 @@ export default function CosteoPage() {
 
         <div className="mt-4">
           <h1 className="text-2xl font-bold text-white">Costeo por Obra</h1>
-          <p className="text-slate-400 text-sm">Presupuesto vs costo real — materiales, mano de obra, subcontratos e indirectos</p>
+          <p className="text-[#7f93b0] text-sm">Presupuesto vs costo real — materiales, mano de obra, subcontratos e indirectos</p>
         </div>
       </div>
 
@@ -156,22 +156,22 @@ export default function CosteoPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar obra..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+          className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Obra</th>
                 <th className="text-right p-3">Presupuesto</th>
                 <th className="text-right p-3">Materiales</th>
@@ -185,24 +185,24 @@ export default function CosteoPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin datos de costeo</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]">Sin datos de costeo</td></tr>
               ) : filtered.map(o => (
-                <tr key={o.id} className={`border-t border-white/5 hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
+                <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
                   <td className="p-3 text-white font-medium">{o.obra}</td>
-                  <td className="p-3 text-right text-slate-300">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-[#c9d8ed]">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-aria-accent">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-aria-accent">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-slate-400">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-[#7f93b0]">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                     {o.diferencia >= 0 ? "+" : "-"}${Math.abs(o.diferencia).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                   </td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="w-16 h-2 bg-white/[0.06] rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${o.porcentaje > 100 ? "bg-red-500" : o.porcentaje > 85 ? "bg-amber-500" : "bg-emerald-500"}`}
                           style={{ width: `${Math.min(o.porcentaje, 100)}%` }} />
                       </div>
@@ -218,7 +218,7 @@ export default function CosteoPage() {
       </div>
 
       {/* Leyenda */}
-      <div className="flex gap-6 text-xs text-slate-400">
+      <div className="flex gap-6 text-xs text-[#7f93b0]">
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-500" /> Dentro de presupuesto</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /> Cerca del límite (&gt;85%)</div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500" /> Sobrepasado</div>

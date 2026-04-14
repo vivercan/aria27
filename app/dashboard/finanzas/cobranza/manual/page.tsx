@@ -208,7 +208,7 @@ export default function CobranzaManualPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Cobros Manuales</h1>
-          <p className="text-slate-400 text-sm">Registro manual de pagos a clientes — vínculo opcional con obra</p>
+          <p className="text-[#7f93b0] text-sm">Registro manual de pagos a clientes — vínculo opcional con obra</p>
         </div>
         <button onClick={abrirNuevo} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Cobro
@@ -225,21 +225,21 @@ export default function CobranzaManualPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar cliente, obra, referencia..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2 flex-wrap">
           {(["TODOS", ...ESTATUS] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {f}
             </button>
           ))}
@@ -249,8 +249,8 @@ export default function CobranzaManualPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Fecha</th>
                 <th className="text-left p-3">Cliente</th>
                 <th className="text-left p-3">Obra</th>
@@ -265,23 +265,23 @@ export default function CobranzaManualPage() {
               {loading ? (
                 <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-slate-400">Sin cobros registrados</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-[#7f93b0]">Sin cobros registrados</td></tr>
               ) : filtered.map(c => (
-                <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                  <td className="p-3 text-slate-300">{c.fecha}</td>
+                <tr key={c.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
+                  <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white font-medium">{c.cliente_nombre}</td>
-                  <td className="p-3 text-slate-300">{c.obra_nombre || "-"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
                   <td className="p-3 text-right text-white">${Number(c.monto || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-right text-amber-400">${Number(c.saldo || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                       c.estatus === "PAGADO" ? "bg-emerald-500/20 text-emerald-400" :
                       c.estatus === "PARCIAL" ? "bg-aria-primary-light text-aria-accent" :
-                      c.estatus === "CANCELADO" ? "bg-slate-500/20 text-slate-400" :
+                      c.estatus === "CANCELADO" ? "bg-slate-500/20 text-[#7f93b0]" :
                       "bg-amber-500/20 text-amber-400"
                     }`}>{c.estatus}</span>
                   </td>
-                  <td className="p-3 text-slate-400 text-xs">{c.referencia || "-"}</td>
+                  <td className="p-3 text-[#7f93b0] text-xs">{c.referencia || "-"}</td>
                   <td className="p-3 text-center">
                     <div className="flex gap-2 justify-center">
                       <button onClick={() => abrirEdicion(c)} disabled={c.estatus === "CANCELADO"}
@@ -309,90 +309,90 @@ export default function CobranzaManualPage() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-auto py-8">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-2xl mx-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  overflow-auto py-8">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-2xl mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold text-white">{editId ? "Editar Cobro" : "Nuevo Cobro Manual"}</h3>
-              <button onClick={() => { setShowForm(false); setEditId(null); }} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => { setShowForm(false); setEditId(null); }} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="text-xs text-slate-400 mb-1 block">Cliente *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Cliente *</label>
                 <select value={form.cliente_id} onChange={e => setForm({ ...form, cliente_id: e.target.value })} required
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                   <option value="">— Selecciona cliente ACTIVO —</option>
                   {clientesActivos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
                 {clientes.length > clientesActivos.length && (
-                  <p className="text-[11px] text-slate-500 mt-1">{clientes.length - clientesActivos.length} cliente(s) INACTIVO(s) ocultos. No se permite cobranza nueva contra clientes inactivos.</p>
+                  <p className="text-[11px] text-[#4a6080] mt-1">{clientes.length - clientesActivos.length} cliente(s) INACTIVO(s) ocultos. No se permite cobranza nueva contra clientes inactivos.</p>
                 )}
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-xs text-slate-400 mb-1 block">Obra (opcional)</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Obra (opcional)</label>
                 <select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                   <option value="">— Sin vínculo a obra —</option>
                   {obrasActivas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Monto *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Monto *</label>
                 <input type="number" step="0.01" min="0.01" required value={form.monto}
                   onChange={e => {
                     const v = parseFloat(e.target.value) || 0;
                     setForm({ ...form, monto: v, saldo: form.saldo > v ? v : form.saldo });
                   }}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Saldo pendiente</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Saldo pendiente</label>
                 <input type="number"  step="0.01" min={0} max={form.monto} value={form.saldo}
                   onChange={e => setForm({ ...form, saldo: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
-                <p className="text-[11px] text-slate-500 mt-1">Cobrado: ${(form.monto - form.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
+                <p className="text-[11px] text-[#4a6080] mt-1">Cobrado: ${(form.monto - form.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Fecha *</label>
                 <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} required
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Método</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Método</label>
                 <select value={form.metodo} onChange={e => setForm({ ...form, metodo: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                   {METODOS.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Estatus</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Estatus</label>
                 <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value as (typeof ESTATUS)[number] })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                   {ESTATUS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <p className="text-[11px] text-slate-500 mt-1">Se ajusta automáticamente según saldo si no está CANCELADO.</p>
+                <p className="text-[11px] text-[#4a6080] mt-1">Se ajusta automáticamente según saldo si no está CANCELADO.</p>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Referencia</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Referencia</label>
                 <input value={form.referencia} onChange={e => setForm({ ...form, referencia: e.target.value })}
                   placeholder="Folio transferencia, cheque, etc."
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-xs text-slate-400 mb-1 block">Observaciones</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Observaciones</label>
                 <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
               <button onClick={() => { setShowForm(false); setEditId(null); }}
-                className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">
+                className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">
                 Cancelar
               </button>
               <button onClick={guardar} disabled={saving}

@@ -122,19 +122,19 @@ export default function AvanceObrasPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+              <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
             </Link>
             <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
               <TrendingUp className="w-7 h-7 text-emerald-400" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Avance Físico de Obras</h1>
-              <p className="text-slate-400 text-sm">Captura semanal de % de avance físico por obra</p>
+              <p className="text-[#7f93b0] text-sm">Captura semanal de % de avance físico por obra</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-            <Calendar className="w-4 h-4 text-slate-400" />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+            <Calendar className="w-4 h-4 text-[#7f93b0]" />
             <input
               type="week"
               value={semana}
@@ -147,42 +147,42 @@ export default function AvanceObrasPage() {
 
       <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-aria-accent mt-0.5" />
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[#7f93b0]">
           Captura el % de avance físico real que reporta el residente para cada obra activa en la semana seleccionada.
           El Centro de Control compara este número contra el avance financiero (Gasto Total / Presupuesto) para detectar
           desfases (sobrecosto o subejecución).
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
         <div className="overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left p-3 text-slate-400 text-xs">Obra</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Último registrado</th>
-                <th className="text-center p-3 text-slate-400 text-xs w-32">% Esta semana</th>
-                <th className="text-left p-3 text-slate-400 text-xs">Observaciones</th>
-                <th className="text-center p-3 text-slate-400 text-xs w-24">Acción</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="border-b border-white/[0.08]">
+                <th className="text-left p-3 text-[#7f93b0] text-xs">Obra</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Último registrado</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs w-32">% Esta semana</th>
+                <th className="text-left p-3 text-[#7f93b0] text-xs">Observaciones</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs w-24">Acción</th>
               </tr>
             </thead>
             <tbody>
               {obrasCat.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-slate-500">Sin obras activas en el catálogo</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-[#4a6080]">Sin obras activas en el catálogo</td></tr>
               ) : obrasCat.map(o => {
                 const ultimo = ultimoPorObra.get(o.nombre);
                 const d = getDraft(o.nombre);
                 const yaSemana = semanaActual.get(o.nombre);
                 return (
-                  <tr key={o.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <tr key={o.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-3 text-white font-medium">{o.nombre}</td>
                     <td className="p-3 text-center">
                       {ultimo ? (
                         <div className="flex flex-col items-center">
                           <span className="text-emerald-300 font-medium">{fmt2(ultimo.pct_fisico)}</span>
-                          <span className="text-[10px] text-slate-500">{ultimo.semana_iso}</span>
+                          <span className="text-[10px] text-[#4a6080]">{ultimo.semana_iso}</span>
                         </div>
-                      ) : <span className="text-slate-600">—</span>}
+                      ) : <span className="text-[#4a6080]">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       <input
@@ -193,7 +193,7 @@ export default function AvanceObrasPage() {
                         value={d.pct}
                         onChange={e => setDraftFor(o.nombre, { pct: e.target.value })}
                         placeholder="0.0"
-                        className="w-24 px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-center text-sm focus:outline-none focus:border-emerald-500/50"
+                        className="w-24 px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-center text-sm focus:outline-none focus:border-emerald-500/50"
                       />
                     </td>
                     <td className="p-3">
@@ -202,7 +202,7 @@ export default function AvanceObrasPage() {
                         value={d.obs}
                         onChange={e => setDraftFor(o.nombre, { obs: e.target.value })}
                         placeholder="(opcional)"
-                        className="w-full px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-500/50"
+                        className="w-full px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-xs focus:outline-none focus:border-emerald-500/50"
                       />
                     </td>
                     <td className="p-3 text-center">

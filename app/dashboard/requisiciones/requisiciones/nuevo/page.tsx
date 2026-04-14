@@ -191,7 +191,7 @@ export default function NewRequisitionPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* SECCION 1: CONFIGURACION */}
-        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+        <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -240,7 +240,7 @@ export default function NewRequisitionPage() {
         </section>
 
         {/* SECCION 2: BUSQUEDA O CAPTURA */}
-        <section className="rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur">
+        <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
           {formMode === "catalogo" && (
             <>
               <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
@@ -249,8 +249,8 @@ export default function NewRequisitionPage() {
                 <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={e => handleSearch(e.target.value)} />
                 {searching && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
-              <div className="max-h-48 overflow-auto rounded-xl border border-white/10 bg-black/20">
-                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/10 bg-aria-bg px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
+              <div className="max-h-48 overflow-auto rounded-xl border border-white/[0.08] bg-black/20">
+                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-white/[0.08] bg-aria-bg px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0 z-10">
                   <div>Cat</div><div>Descripción</div><div className="text-right">Unidad</div>
                 </div>
                 {searchResults.length === 0 ? (
@@ -259,7 +259,7 @@ export default function NewRequisitionPage() {
                   const isSel = materials.some(m => m.id === p.id);
                   return (
                     <div key={p.id} onClick={() => isSel ? setMaterials(prev=>prev.filter(m=>m.id!==p.id)) : addMaterial(p)}
-                      className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/5 border-l-2 border-transparent"}`}>
+                      className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/[0.04] border-l-2 border-transparent"}`}>
                       <div className="text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
                       <div className={`truncate ${isSel ? "text-emerald-300 font-medium" : ""}`}>{p.name}</div>
                       <div className="text-white/60 truncate text-right">{p.unit}</div>
@@ -295,7 +295,7 @@ export default function NewRequisitionPage() {
                       }} disabled={!manualName.trim()} className="rounded-lg bg-aria-primary/30 px-3 py-1.5 text-xs text-aria-accent hover:bg-aria-primary-hover/40 disabled:opacity-40 transition">
                         <Plus className="w-3 h-3 inline mr-1" />Agregar
                       </button>
-                      <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-white/5 px-2 py-1.5 text-xs text-white/50 hover:bg-white/10 transition">✕</button>
+                      <button onClick={() => { setShowManual(false); setManualName(""); setManualUnit("PZA"); }} className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-xs text-white/50 hover:bg-white/[0.06] transition">✕</button>
                     </div>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default function NewRequisitionPage() {
               <div className="max-h-52 overflow-auto space-y-2">
                 {freeRows.map((r, i) => (
                   <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
-                    <input required className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
+                    <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
                     <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
@@ -344,7 +344,7 @@ export default function NewRequisitionPage() {
                       <option>DIESEL</option><option>MAGNA</option><option>PREMIUM</option><option>GAS LP</option>
                     </select>
                     <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
-                    <input required className="bg-transparent text-sm outline-none border-b border-white/10 pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
+                    <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
                       <option>CAMION</option><option>RETROEXCAVADORA</option><option>CARGADOR</option><option>COMPACTADOR</option><option>CAMIONETA</option><option>PIPA</option><option>OTRO</option>
                     </select>
@@ -359,7 +359,7 @@ export default function NewRequisitionPage() {
       </div>
 
       {/* SECCION 3: RESUMEN */}
-      <section className="flex-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col">
+      <section className="flex-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-emerald-400" />
@@ -372,10 +372,10 @@ export default function NewRequisitionPage() {
           )}
         </div>
 
-        <div className="flex-1 overflow-auto rounded-xl border border-white/10 bg-black/20 max-h-60">
+        <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08] bg-black/20 max-h-60">
           {formMode === "catalogo" && (
             <>
-              <div className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
                 <div>Descripción</div><div>Unidad</div><div>Cantidad</div><div>Observaciones</div><div></div>
               </div>
               {materials.length === 0 ? (
@@ -394,7 +394,7 @@ export default function NewRequisitionPage() {
 
           {formMode === "libre" && (
             <>
-              <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
                 <div>Descripción</div><div>Cant</div><div>Unidad</div><div className="text-right">Monto</div>
               </div>
               {freeRows.length === 0 ? (
@@ -412,7 +412,7 @@ export default function NewRequisitionPage() {
 
           {formMode === "combustible" && (
             <>
-              <div className="grid grid-cols-[100px_80px_1fr_100px] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+              <div className="grid grid-cols-[100px_80px_1fr_100px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
                 <div>Tipo</div><div>Litros</div><div>Destino</div><div>Unidad</div>
               </div>
               {combRows.length === 0 ? (

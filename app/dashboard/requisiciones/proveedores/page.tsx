@@ -140,18 +140,18 @@ export default function ProveedoresPage() {
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-4 h-4 text-[#7f93b0]"/></Link>
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-emerald-400"/>Proveedores</h1>
-            <span className="text-xs text-slate-500 ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
+            <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>
           <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30"><Plus className="w-3 h-3"/>Nuevo</button>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"/>
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder="Buscar nombre, RFC, contacto, email..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none"/>
-            {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-slate-400"/></button>}
+              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none"/>
+            {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}
             className="appearance-none pl-2.5 pr-6 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none cursor-pointer min-w-[160px]">
@@ -166,11 +166,11 @@ export default function ProveedoresPage() {
         {loading?(
           <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/></div>
         ):filtered.length===0?(
-          <div className="text-center py-12"><Building2 className="w-8 h-8 text-slate-600 mx-auto mb-2"/><p className="text-slate-400 text-sm">Sin resultados</p></div>
+          <div className="text-center py-12"><Building2 className="w-8 h-8 text-[#4a6080] mx-auto mb-2"/><p className="text-[#7f93b0] text-sm">Sin resultados</p></div>
         ):(
           <table className="w-full">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-slate-900/95 backdrop-blur-sm border-b border-white/[0.06] text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+              <tr className="bg-[rgba(4,8,16,0.98)]  border-b border-white/[0.06] text-[10px] text-[#4a6080] font-semibold uppercase tracking-wider">
                 <th className="text-left pl-4 py-1.5 w-[220px]">Proveedor</th>
                 <th className="text-left py-1.5 w-[120px]">Categoría</th>
                 <th className="text-left py-1.5 w-[120px]">Teléfono</th>
@@ -190,25 +190,25 @@ export default function ProveedoresPage() {
                         <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3 h-3 text-emerald-400"/></div>
                         <div className="min-w-0">
                           <p className="text-white font-medium truncate text-xs leading-tight">{s.name}</p>
-                          {s.contact_name&&<p className="text-[10px] text-slate-500 truncate leading-tight">{s.contact_name}</p>}
+                          {s.contact_name&&<p className="text-[10px] text-[#4a6080] truncate leading-tight">{s.contact_name}</p>}
                         </div>
                       </div>
                     </td>
                     <td>
-                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-slate-500">+{cats.length-2}</span>}</div>}
+                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-[#4a6080]">+{cats.length-2}</span>}</div>}
                     </td>
-                    <td className="text-slate-400">
+                    <td className="text-[#7f93b0]">
                       {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1"><Phone className="w-2.5 h-2.5"/>{s.phone}</a>}
                     </td>
-                    <td className="text-slate-400 truncate max-w-[200px]">
+                    <td className="text-[#7f93b0] truncate max-w-[200px]">
                       {s.email&&<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>}
                     </td>
-                    <td className="text-slate-400">
+                    <td className="text-[#7f93b0]">
                       {s.credit_days&&s.credit_days>0?<span className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded">{s.credit_days}d</span>:null}
                     </td>
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
-                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-white" title={s.bank_clabe}>
+                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-1 text-[10px] text-[#7f93b0] hover:text-white" title={s.bank_clabe}>
                           {copiedId===s.id?<Check className="w-2.5 h-2.5 text-emerald-400"/>:<Copy className="w-2.5 h-2.5"/>}
                           {s.bank_name||"CLABE"}
                         </button>
@@ -217,8 +217,8 @@ export default function ProveedoresPage() {
                     <td className="pr-2">
                       <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={()=>setExpedienteSup(s)} title="Expediente" className="p-1 hover:bg-violet-500/20 rounded text-violet-400/70 hover:text-violet-400"><FolderOpen className="w-3 h-3"/></button>
-                        <button onClick={()=>openEdit(s)} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"><Edit2 className="w-3 h-3"/></button>
-                        {canDelete && (<button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"><Trash2 className="w-3 h-3"/></button>)}
+                        <button onClick={()=>openEdit(s)} className="p-1 hover:bg-white/[0.06] rounded text-[#7f93b0] hover:text-white"><Edit2 className="w-3 h-3"/></button>
+                        {canDelete && (<button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-[#4a6080] hover:text-red-400"><Trash2 className="w-3 h-3"/></button>)}
                       </div>
                     </td>
                   </tr>
@@ -231,70 +231,70 @@ export default function ProveedoresPage() {
 
       {/* MODAL */}
       {showModal&&(
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-white/10 flex-none">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c1d38] rounded-2xl w-full max-w-2xl border border-white/[0.08] shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08] flex-none">
               <h2 className="text-lg font-bold text-white">{editingId?"Editar Proveedor":"Nuevo Proveedor"}</h2>
-              <button onClick={()=>{setShowModal(false);setEditingId(null);}} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400"><X className="w-4 h-4"/></button>
+              <button onClick={()=>{setShowModal(false);setEditingId(null);}} className="p-1.5 hover:bg-white/[0.06] rounded-lg text-[#7f93b0]"><X className="w-4 h-4"/></button>
             </div>
             <div className="overflow-auto p-4 space-y-4 flex-1">
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Identificación</p>
+                <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Identificación</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
-                    <label className="text-[11px] text-slate-400 mb-0.5 block">Nombre comercial *</label>
-                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="Ej: SAACSA"/>
+                    <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Nombre comercial *</label>
+                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Ej: SAACSA"/>
                   </div>
                   <div>
-                    <label className="text-[11px] text-slate-400 mb-0.5 block">Razón Social</label>
-                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="SA de CV"/>
+                    <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Razón Social</label>
+                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="SA de CV"/>
                   </div>
                   <div>
-                    <label className="text-[11px] text-slate-400 mb-0.5 block">RFC</label>
-                    <input value={form.rfc} onChange={e=>updateField("rfc",e.target.value.toUpperCase())} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white uppercase placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="ABC123456XY0" maxLength={13}/>
+                    <label className="text-[11px] text-[#7f93b0] mb-0.5 block">RFC</label>
+                    <input value={form.rfc} onChange={e=>updateField("rfc",e.target.value.toUpperCase())} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white uppercase placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ABC123456XY0" maxLength={13}/>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Contacto</p>
+                <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Contacto</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="Nombre"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="(449) 123-4567"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="ventas@empresa.com"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="4491234567"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="www.empresa.com"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="Calle, colonia"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Nombre"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="(449) 123-4567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ventas@empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="4491234567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="www.empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Calle, colonia"/></div>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Comercial</p>
+                <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Comercial</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
                   <div>
-                    <label className="text-[11px] text-slate-400 mb-0.5 block">Forma pago</label>
-                    <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white focus:border-emerald-500/50 outline-none">
+                    <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Forma pago</label>
+                    <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-emerald-500/50 outline-none">
                       <option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CHEQUE">Cheque</option><option value="CREDITO">Crédito</option><option value="TARJETA">Tarjeta</option>
                     </select>
                   </div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white focus:border-emerald-500/50 outline-none" min={0}/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="Aguascalientes"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-emerald-500/50 outline-none" min={0}/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Aguascalientes"/></div>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Bancario</p>
+                <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Bancario</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="BBVA"/></div>
-                  <div><label className="text-[11px] text-slate-400 mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white font-mono placeholder-slate-500 focus:border-emerald-500/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="BBVA"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
                 </div>
               </div>
               <div>
-                <label className="text-[11px] text-slate-400 mb-0.5 block">Notas</label>
-                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500/50 outline-none resize-none h-16" placeholder="Observaciones"/>
+                <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Notas</label>
+                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none resize-none h-16" placeholder="Observaciones"/>
               </div>
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t border-white/10 flex-none">
-              <button onClick={()=>{setShowModal(false);setEditingId(null);}} className="px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/10 rounded-lg">Cancelar</button>
-              <button onClick={handleSave} disabled={saving||!form.name.trim()} className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 text-white rounded-lg flex items-center gap-1"><Save className="w-3 h-3"/>{saving?"...":editingId?"Actualizar":"Crear"}</button>
+            <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">
+              <button onClick={()=>{setShowModal(false);setEditingId(null);}} className="px-3 py-1.5 text-xs text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded-lg">Cancelar</button>
+              <button onClick={handleSave} disabled={saving||!form.name.trim()} className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1"><Save className="w-3 h-3"/>{saving?"...":editingId?"Actualizar":"Crear"}</button>
             </div>
           </div>
         </div>

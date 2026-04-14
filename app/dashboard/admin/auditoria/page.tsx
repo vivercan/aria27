@@ -168,7 +168,7 @@ export default function AuditoriaPage() {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      <header className="sticky top-0 z-10 bg-slate-950/80 backdrop-blur border-b border-white/10 px-6 py-4">
+      <header className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur border-b border-white/[0.08] px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/admin" />
@@ -186,13 +186,13 @@ export default function AuditoriaPage() {
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={() => setTab("audit")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "audit" ? "bg-aria-primary text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "audit" ? "bg-aria-primary text-white" : "bg-white/[0.04] text-white/60 hover:bg-white/[0.06]"}`}
           >
             Cambios (audit_log)
           </button>
           <button
             onClick={() => setTab("deleted")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "deleted" ? "bg-aria-primary text-white" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === "deleted" ? "bg-aria-primary text-white" : "bg-white/[0.04] text-white/60 hover:bg-white/[0.06]"}`}
           >
             Registros borrados (deleted_records)
           </button>
@@ -205,15 +205,15 @@ export default function AuditoriaPage() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar por tabla, usuario, ID, contenido..."
-              className="w-full pl-10 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none focus:border-aria-primary"
+              className="w-full pl-10 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm outline-none focus:border-aria-primary"
             />
           </div>
-          <select value={tabla} onChange={(e) => setTabla(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none">
+          <select value={tabla} onChange={(e) => setTabla(e.target.value)} className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm outline-none">
             <option value="">Todas las tablas</option>
             {tablas.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
           {tab === "audit" && (
-            <select value={op} onChange={(e) => setOp(e.target.value)} className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm outline-none">
+            <select value={op} onChange={(e) => setOp(e.target.value)} className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm outline-none">
               <option value="">Todas las operaciones</option>
               <option value="INSERT">INSERT</option>
               <option value="UPDATE">UPDATE</option>
@@ -236,7 +236,7 @@ export default function AuditoriaPage() {
           </div>
         ) : tab === "audit" ? (
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/90 text-xs uppercase text-white/50">
+            <thead className="sticky top-0 bg-[#0a1628]/90 text-xs uppercase text-white/50">
               <tr>
                 <th className="px-3 py-2 text-left">Fecha</th>
                 <th className="px-3 py-2 text-left">Tabla</th>
@@ -248,7 +248,7 @@ export default function AuditoriaPage() {
             </thead>
             <tbody>
               {auditFiltrado.map((r) => (
-                <tr key={r.id} className="border-t border-white/5 hover:bg-white/5 cursor-pointer" onClick={() => setSelRow(r)}>
+                <tr key={r.id} className="border-t border-white/[0.05] hover:bg-white/[0.04] cursor-pointer" onClick={() => setSelRow(r)}>
                   <td className="px-3 py-2 text-white/70 text-xs">{new Date(r.changed_at).toLocaleString("es-MX")}</td>
                   <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
                   <td className="px-3 py-2">
@@ -284,7 +284,7 @@ export default function AuditoriaPage() {
           </table>
         ) : (
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/90 text-xs uppercase text-white/50">
+            <thead className="sticky top-0 bg-[#0a1628]/90 text-xs uppercase text-white/50">
               <tr>
                 <th className="px-3 py-2 text-left">Fecha</th>
                 <th className="px-3 py-2 text-left">Tabla</th>
@@ -296,7 +296,7 @@ export default function AuditoriaPage() {
             </thead>
             <tbody>
               {deletedFiltrado.map((r) => (
-                <tr key={r.id} className="border-t border-white/5 hover:bg-white/5 cursor-pointer" onClick={() => setSelRow(r)}>
+                <tr key={r.id} className="border-t border-white/[0.05] hover:bg-white/[0.04] cursor-pointer" onClick={() => setSelRow(r)}>
                   <td className="px-3 py-2 text-white/70 text-xs">{new Date(r.deleted_at).toLocaleString("es-MX")}</td>
                   <td className="px-3 py-2 font-mono text-xs">{r.source_table}</td>
                   <td className="px-3 py-2 text-white/60 text-xs">{r.deleted_by || "—"}</td>
@@ -324,10 +324,10 @@ export default function AuditoriaPage() {
 
       {selRow && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6" onClick={() => setSelRow(null)}>
-          <div className="bg-slate-900 border border-white/10 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-auto p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-xl max-w-4xl w-full max-h-[80vh] overflow-auto p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold mb-3">Detalle del cambio</h3>
             <pre className="text-xs bg-black/40 p-4 rounded-lg overflow-auto max-h-[60vh]">{JSON.stringify(selRow, null, 2)}</pre>
-            <button onClick={() => setSelRow(null)} className="mt-3 px-4 py-2 rounded-lg bg-white/10 text-sm hover:bg-white/20">Cerrar</button>
+            <button onClick={() => setSelRow(null)} className="mt-3 px-4 py-2 rounded-lg bg-white/[0.06] text-sm hover:bg-white/[0.1]">Cerrar</button>
           </div>
         </div>
       )}

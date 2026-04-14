@@ -332,25 +332,25 @@ export default function ActivosCatalogoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
-            <p className="text-slate-400 text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
+            <p className="text-[#7f93b0] text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-white/10 pb-2">
+      <div className="flex gap-2 border-b border-white/[0.08] pb-2">
         {[
           { id: "inventario", label: "Inventario", icon: Package, count: activos.length },
           { id: "asignaciones", label: "Asignaciones", icon: Users, count: asignaciones.length },
           { id: "mantenimiento", label: "Mantenimiento", icon: Settings, count: mantenimientos.length }
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as typeof tab)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${tab === t.id ? "bg-emerald-600 text-white" : "text-slate-400 hover:bg-white/5"}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${tab === t.id ? "bg-emerald-600 text-white" : "text-[#7f93b0] hover:bg-white/[0.04]"}`}>
             <t.icon className="w-4 h-4" /> {t.label} <span className="text-xs opacity-70">({t.count})</span>
           </button>
         ))}
@@ -369,14 +369,14 @@ export default function ActivosCatalogoPage() {
             <>
               <div className="flex justify-between items-center gap-4 flex-wrap">
                 <div className="relative flex-1 min-w-[250px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
                   <input type="text" placeholder="Buscar..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-500" />
+                    className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder:text-[#4a6080]" />
                 </div>
                 <div className="flex gap-2">
                   {TIPOS.map(tipo => (
                     <button key={tipo} onClick={() => setTipoFiltro(tipo)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium ${tipoFiltro === tipo ? "bg-emerald-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+                      className={`px-3 py-2 rounded-lg text-sm font-medium ${tipoFiltro === tipo ? "bg-emerald-600 text-white" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}>
                       {tipo}
                     </button>
                   ))}
@@ -386,11 +386,11 @@ export default function ActivosCatalogoPage() {
                 </button>
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+              <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden">
                 <div className="overflow-x-auto max-h-[60vh]">
                   <table className="w-full">
-                    <thead className="bg-white/5 sticky top-0">
-                      <tr className="text-left text-xs text-slate-400 uppercase">
+                    <thead className="bg-white/[0.04] sticky top-0">
+                      <tr className="text-left text-xs text-[#7f93b0] uppercase">
                         <th className="px-4 py-3">Código</th>
                         <th className="px-4 py-3">Activo</th>
                         <th className="px-4 py-3">Tipo</th>
@@ -404,7 +404,7 @@ export default function ActivosCatalogoPage() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {activosFiltrados.map(activo => (
-                        <tr key={activo.id} className="hover:bg-white/5">
+                        <tr key={activo.id} className="hover:bg-white/[0.04]">
                           <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo}</td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
@@ -412,14 +412,14 @@ export default function ActivosCatalogoPage() {
                               <span className="text-white font-medium">{activo.nombre}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.tipo}</td>
-                          <td className="px-4 py-3 text-slate-300 text-sm">{activo.marca} {activo.modelo}</td>
-                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.placas || "-"}</td>
+                          <td className="px-4 py-3 text-[#7f93b0] text-sm">{activo.tipo}</td>
+                          <td className="px-4 py-3 text-[#c9d8ed] text-sm">{activo.marca} {activo.modelo}</td>
+                          <td className="px-4 py-3 text-[#7f93b0] text-sm">{activo.placas || "-"}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-slate-500"}`}>{activo.estado}</span>
                           </td>
-                          <td className="px-4 py-3 text-slate-300 text-sm">{asignaciones.find(a => a.activo_id === activo.id && a.activa)?.obra_nombre || "-"}</td>
-                          <td className="px-4 py-3 text-slate-400 text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
+                          <td className="px-4 py-3 text-[#c9d8ed] text-sm">{asignaciones.find(a => a.activo_id === activo.id && a.activa)?.obra_nombre || "-"}</td>
+                          <td className="px-4 py-3 text-[#7f93b0] text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
                               <button onClick={() => setExpedienteActivo(activo)} title="Expediente" className="p-1.5 rounded bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-4 h-4" /></button>
@@ -440,17 +440,17 @@ export default function ActivosCatalogoPage() {
           {tab === "asignaciones" && (
             <>
               <div className="flex justify-between items-center">
-                <p className="text-slate-400">{activosDisponibles.length} activos disponibles para asignar</p>
+                <p className="text-[#7f93b0]">{activosDisponibles.length} activos disponibles para asignar</p>
                 <button onClick={() => setShowModalAsignacion(true)} disabled={activosDisponibles.length === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-slate-600 rounded-lg text-white font-medium">
+                  className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#162040] rounded-lg text-white font-medium">
                   <Plus className="w-4 h-4" /> Nueva Asignación
                 </button>
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+              <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-white/5">
-                    <tr className="text-left text-xs text-slate-400 uppercase">
+                  <thead className="bg-white/[0.04]">
+                    <tr className="text-left text-xs text-[#7f93b0] uppercase">
                       <th className="px-4 py-3">Activo</th>
                       <th className="px-4 py-3">Asignado a</th>
                       <th className="px-4 py-3">Obra</th>
@@ -460,16 +460,16 @@ export default function ActivosCatalogoPage() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {asignaciones.length === 0 ? (
-                      <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No hay asignaciones activas</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-[#7f93b0]">No hay asignaciones activas</td></tr>
                     ) : asignaciones.map(asig => (
-                      <tr key={asig.id} className="hover:bg-white/5">
+                      <tr key={asig.id} className="hover:bg-white/[0.04]">
                         <td className="px-4 py-3">
                           <div className="text-white font-medium">{asig.activo?.codigo}</div>
-                          <div className="text-slate-400 text-sm">{asig.activo?.nombre}</div>
+                          <div className="text-[#7f93b0] text-sm">{asig.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3 text-white">{asig.empleado?.full_name}</td>
-                        <td className="px-4 py-3 text-slate-400">{asig.obra_nombre || "-"}</td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{asig.fecha_asignacion}</td>
+                        <td className="px-4 py-3 text-[#7f93b0]">{asig.obra_nombre || "-"}</td>
+                        <td className="px-4 py-3 text-[#7f93b0] text-sm">{asig.fecha_asignacion}</td>
                         <td className="px-4 py-3">
                           <button onClick={() => devolverActivo(asig)} className="px-3 py-1.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm">
                             Devolver
@@ -493,7 +493,7 @@ export default function ActivosCatalogoPage() {
                   </div>
                   <div className="space-y-1">
                     {proximosMantenimientos.map(m => (
-                      <div key={m.id} className="text-sm text-slate-300">
+                      <div key={m.id} className="text-sm text-[#c9d8ed]">
                         {m.activo?.codigo} - {m.activo?.nombre}: <span className="text-amber-400">{m.proximo_servicio}</span>
                       </div>
                     ))}
@@ -507,10 +507,10 @@ export default function ActivosCatalogoPage() {
                 </button>
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+              <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-white/5">
-                    <tr className="text-left text-xs text-slate-400 uppercase">
+                  <thead className="bg-white/[0.04]">
+                    <tr className="text-left text-xs text-[#7f93b0] uppercase">
                       <th className="px-4 py-3">Activo</th>
                       <th className="px-4 py-3">Tipo</th>
                       <th className="px-4 py-3">Fecha</th>
@@ -521,22 +521,22 @@ export default function ActivosCatalogoPage() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {mantenimientos.length === 0 ? (
-                      <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No hay registros de mantenimiento</td></tr>
+                      <tr><td colSpan={6} className="px-4 py-8 text-center text-[#7f93b0]">No hay registros de mantenimiento</td></tr>
                     ) : mantenimientos.map(mant => (
-                      <tr key={mant.id} className="hover:bg-white/5">
+                      <tr key={mant.id} className="hover:bg-white/[0.04]">
                         <td className="px-4 py-3">
                           <div className="text-white font-medium">{mant.activo?.codigo}</div>
-                          <div className="text-slate-400 text-sm">{mant.activo?.nombre}</div>
+                          <div className="text-[#7f93b0] text-sm">{mant.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                             {mant.tipo}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.fecha}</td>
-                        <td className="px-4 py-3 text-slate-300 text-sm">{mant.descripcion}</td>
+                        <td className="px-4 py-3 text-[#7f93b0] text-sm">{mant.fecha}</td>
+                        <td className="px-4 py-3 text-[#c9d8ed] text-sm">{mant.descripcion}</td>
                         <td className="px-4 py-3 text-emerald-400">${mant.costo?.toLocaleString() || 0}</td>
-                        <td className="px-4 py-3 text-slate-400 text-sm">{mant.proximo_servicio || "-"}</td>
+                        <td className="px-4 py-3 text-[#7f93b0] text-sm">{mant.proximo_servicio || "-"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -550,23 +550,23 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL ACTIVO ==================== */}
       {showModalActivo && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div><label className="block text-sm text-slate-400 mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
-              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Modelo</label><input type="text" value={formActivo.modelo} onChange={e => setFormActivo({...formActivo, modelo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Año</label><input type="number" min="0" value={formActivo.anio} onChange={e => setFormActivo({...formActivo, anio: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Placas</label><input type="text" value={formActivo.placas} onChange={e => setFormActivo({...formActivo, placas: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Estado</label><select value={formActivo.estado} onChange={e => setFormActivo({...formActivo, estado: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="DISPONIBLE">Disponible</option><option value="EN_USO">En Uso</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="BAJA">Baja</option></select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Combustible</label><select value={formActivo.combustible} onChange={e => setFormActivo({...formActivo, combustible: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="GASOLINA">Gasolina</option><option value="DIESEL">Diésel</option><option value="ELECTRICO">Eléctrico</option><option value="NA">N/A</option></select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" min="0" value={formActivo.kilometraje} onChange={e => setFormActivo({...formActivo, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Ubicación</label><input type="text" value={formActivo.ubicacion_actual} onChange={e => setFormActivo({...formActivo, ubicacion_actual: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
+              <div className="col-span-2"><label className="block text-sm text-[#7f93b0] mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Marca</label><input type="text" value={formActivo.marca} onChange={e => setFormActivo({...formActivo, marca: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Modelo</label><input type="text" value={formActivo.modelo} onChange={e => setFormActivo({...formActivo, modelo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Año</label><input type="number" min="0" value={formActivo.anio} onChange={e => setFormActivo({...formActivo, anio: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Placas</label><input type="text" value={formActivo.placas} onChange={e => setFormActivo({...formActivo, placas: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Estado</label><select value={formActivo.estado} onChange={e => setFormActivo({...formActivo, estado: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="DISPONIBLE">Disponible</option><option value="EN_USO">En Uso</option><option value="MANTENIMIENTO">Mantenimiento</option><option value="BAJA">Baja</option></select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Combustible</label><select value={formActivo.combustible} onChange={e => setFormActivo({...formActivo, combustible: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="GASOLINA">Gasolina</option><option value="DIESEL">Diésel</option><option value="ELECTRICO">Eléctrico</option><option value="NA">N/A</option></select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Kilometraje</label><input type="number" min="0" value={formActivo.kilometraje} onChange={e => setFormActivo({...formActivo, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Ubicación</label><input type="text" value={formActivo.ubicacion_actual} onChange={e => setFormActivo({...formActivo, ubicacion_actual: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => { setShowModalActivo(false); setEditando(null); }} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={() => { setShowModalActivo(false); setEditando(null); }} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
               <button onClick={guardarActivo} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium">{editando ? "Guardar" : "Crear"}</button>
             </div>
           </div>
@@ -576,17 +576,17 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL ASIGNACION ==================== */}
       {showModalAsignacion && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Asignación</h2>
             <div className="space-y-4">
-              <div><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Empleado *</label><select value={formAsignacion.empleado_id} onChange={e => setFormAsignacion({...formAsignacion, empleado_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Obra</label><select value={formAsignacion.obra_nombre} onChange={e => setFormAsignacion({...formAsignacion, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formAsignacion.fecha_asignacion} onChange={e => setFormAsignacion({...formAsignacion, fecha_asignacion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Observaciones</label><input type="text" value={formAsignacion.observaciones} onChange={e => setFormAsignacion({...formAsignacion, observaciones: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Activo *</label><select value={formAsignacion.activo_id} onChange={e => setFormAsignacion({...formAsignacion, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="">Seleccionar...</option>{activosDisponibles.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Empleado *</label><select value={formAsignacion.empleado_id} onChange={e => setFormAsignacion({...formAsignacion, empleado_id: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="">Seleccionar...</option>{empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Obra</label><select value={formAsignacion.obra_nombre} onChange={e => setFormAsignacion({...formAsignacion, obra_nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={o.name}>{o.name}</option>)}</select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Fecha</label><input type="date" value={formAsignacion.fecha_asignacion} onChange={e => setFormAsignacion({...formAsignacion, fecha_asignacion: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Observaciones</label><input type="text" value={formAsignacion.observaciones} onChange={e => setFormAsignacion({...formAsignacion, observaciones: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
               <button onClick={guardarAsignacion} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">Asignar</button>
             </div>
           </div>
@@ -596,20 +596,20 @@ export default function ActivosCatalogoPage() {
       {/* ==================== MODAL MANTENIMIENTO ==================== */}
       {showModalMantenimiento && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-aria-bg border border-white/10 rounded-2xl p-6 w-full max-w-lg">
+          <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Tipo</label><select value={formMantenimiento.tipo} onChange={e => setFormMantenimiento({...formMantenimiento, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white"><option value="PREVENTIVO">Preventivo</option><option value="CORRECTIVO">Correctivo</option><option value="REVISION">Revisión</option></select></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Fecha</label><input type="date" value={formMantenimiento.fecha} onChange={e => setFormMantenimiento({...formMantenimiento, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div className="col-span-2"><label className="block text-sm text-slate-400 mb-1">Descripción *</label><input type="text" value={formMantenimiento.descripcion} onChange={e => setFormMantenimiento({...formMantenimiento, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" placeholder="Cambio de aceite, afinación..." /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Kilometraje</label><input type="number" min="0" value={formMantenimiento.kilometraje} onChange={e => setFormMantenimiento({...formMantenimiento, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Costo $</label><input type="number" min="0" value={formMantenimiento.costo} onChange={e => setFormMantenimiento({...formMantenimiento, costo: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Proveedor/Taller</label><input type="text" value={formMantenimiento.proveedor} onChange={e => setFormMantenimiento({...formMantenimiento, proveedor: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
-              <div><label className="block text-sm text-slate-400 mb-1">Próximo Servicio</label><input type="date" value={formMantenimiento.proximo_servicio} onChange={e => setFormMantenimiento({...formMantenimiento, proximo_servicio: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white" /></div>
+              <div className="col-span-2"><label className="block text-sm text-[#7f93b0] mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Tipo</label><select value={formMantenimiento.tipo} onChange={e => setFormMantenimiento({...formMantenimiento, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="PREVENTIVO">Preventivo</option><option value="CORRECTIVO">Correctivo</option><option value="REVISION">Revisión</option></select></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Fecha</label><input type="date" value={formMantenimiento.fecha} onChange={e => setFormMantenimiento({...formMantenimiento, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div className="col-span-2"><label className="block text-sm text-[#7f93b0] mb-1">Descripción *</label><input type="text" value={formMantenimiento.descripcion} onChange={e => setFormMantenimiento({...formMantenimiento, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Cambio de aceite, afinación..." /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Kilometraje</label><input type="number" min="0" value={formMantenimiento.kilometraje} onChange={e => setFormMantenimiento({...formMantenimiento, kilometraje: parseInt(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Costo $</label><input type="number" min="0" value={formMantenimiento.costo} onChange={e => setFormMantenimiento({...formMantenimiento, costo: parseFloat(e.target.value) || 0})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Proveedor/Taller</label><input type="text" value={formMantenimiento.proveedor} onChange={e => setFormMantenimiento({...formMantenimiento, proveedor: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
+              <div><label className="block text-sm text-[#7f93b0] mb-1">Próximo Servicio</label><input type="date" value={formMantenimiento.proximo_servicio} onChange={e => setFormMantenimiento({...formMantenimiento, proximo_servicio: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowModalMantenimiento(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white">Cancelar</button>
+              <button onClick={() => setShowModalMantenimiento(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
               <button onClick={guardarMantenimiento} className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium">Registrar</button>
             </div>
           </div>

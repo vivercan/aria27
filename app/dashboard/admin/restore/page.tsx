@@ -140,7 +140,7 @@ export default function RestorePage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="p-2 rounded-lg hover:bg-white/[0.06] transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-gray-400" />
         </button>
@@ -168,7 +168,7 @@ export default function RestorePage() {
       </div>
 
       {/* Selector de fecha */}
-      <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
+      <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Clock className="w-4 h-4 text-aria-primary" />
           <h2 className="text-sm font-semibold text-white">Seleccionar snapshot</h2>
@@ -178,12 +178,12 @@ export default function RestorePage() {
           <div>
             <label className="block text-xs text-gray-400 mb-1.5">Fecha de respaldo</label>
             {loadingDates ? (
-              <div className="h-10 bg-white/5 rounded-lg animate-pulse" />
+              <div className="h-10 bg-white/[0.04] rounded-lg animate-pulse" />
             ) : (
               <select
                 value={selectedDate}
                 onChange={(e) => { setSelectedDate(e.target.value); setConfirmed(false); setResult(null); }}
-                className="w-full bg-white/10 border border-white/20 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-aria-primary"
+                className="w-full bg-white/[0.06] border border-white/[0.12] border border-white/[0.12] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-aria-primary"
               >
                 {availableDates.length === 0 ? (
                   <option value="">Sin snapshots disponibles</option>
@@ -204,20 +204,20 @@ export default function RestorePage() {
               id="includeStorage"
               checked={includeStorage}
               onChange={(e) => setIncludeStorage(e.target.checked)}
-              className="rounded border-white/20 bg-white/10 text-aria-primary"
+              className="rounded border-white/[0.12] bg-white/[0.06] text-aria-primary"
             />
             <label htmlFor="includeStorage" className="text-sm text-gray-300 cursor-pointer">
               Incluir archivos de Storage (fotos, documentos, expedientes)
             </label>
           </div>
 
-          <div className="flex items-start gap-2.5 p-3 bg-white/5 rounded-lg">
+          <div className="flex items-start gap-2.5 p-3 bg-white/[0.04] rounded-lg">
             <input
               type="checkbox"
               id="confirmRestore"
               checked={confirmed}
               onChange={(e) => setConfirmed(e.target.checked)}
-              className="rounded border-white/20 bg-white/10 text-red-400 mt-0.5"
+              className="rounded border-white/[0.12] bg-white/[0.06] text-red-400 mt-0.5"
             />
             <label htmlFor="confirmRestore" className="text-sm text-gray-300 cursor-pointer leading-snug">
               Confirmo que entiendo que esta operación sobreescribe los datos actuales con el snapshot del{" "}
@@ -231,7 +231,7 @@ export default function RestorePage() {
           disabled={!selectedDate || !confirmed || loading}
           className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
             !selectedDate || !confirmed || loading
-              ? "bg-white/10 text-gray-500 cursor-not-allowed"
+              ? "bg-white/[0.06] text-gray-500 cursor-not-allowed"
               : "bg-red-500 hover:bg-red-600 text-white"
           }`}
         >
@@ -259,7 +259,7 @@ export default function RestorePage() {
 
       {/* Resultado */}
       {result && (
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
+        <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-5 space-y-4">
           {/* Resumen */}
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -273,7 +273,7 @@ export default function RestorePage() {
               { label: "Errores", value: result.tables.error, color: "text-red-400" },
               { label: "Registros", value: result.tables.totalRows.toLocaleString(), color: "text-blue-400" },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white/5 rounded-lg p-3 text-center">
+              <div key={stat.label} className="bg-white/[0.04] rounded-lg p-3 text-center">
                 <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{stat.label}</p>
               </div>
@@ -308,7 +308,7 @@ export default function RestorePage() {
               {result.tables.detalle
                 .filter((r) => r.status === "ok")
                 .map((r) => (
-                  <div key={r.tabla} className="flex items-center justify-between text-xs bg-white/5 rounded px-2.5 py-1.5">
+                  <div key={r.tabla} className="flex items-center justify-between text-xs bg-white/[0.04] rounded px-2.5 py-1.5">
                     <span className="text-gray-300">{r.tabla}</span>
                     <span className="text-green-400">{r.rows.toLocaleString()} filas</span>
                   </div>

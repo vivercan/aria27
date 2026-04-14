@@ -74,14 +74,14 @@ function Content() {
 
   return (
     <>
-      <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
+      <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Nómina semanal · <b>Sem {semana} / {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">
-          <input type="number"  defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-16" />
-          <input type="number"  defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10 w-20" />
+          <input type="number"  defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08] w-16" />
+          <input type="number"  defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08] w-20" />
           <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>

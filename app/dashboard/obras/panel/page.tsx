@@ -11,7 +11,7 @@ export default function PanelRedirect() {
   const router = useRouter();
   useEffect(() => { router.replace("/dashboard/obras/control"); }, [router]);
   return (
-    <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+    <div className="flex items-center justify-center h-full text-[#7f93b0] text-sm">
       Redirigiendo a Centro de Control...
     </div>
   );

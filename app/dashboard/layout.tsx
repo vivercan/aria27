@@ -101,10 +101,10 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "bg-white/10 hover:bg-white/20" : "bg-slate-200 hover:bg-slate-300"}`}
+      className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "bg-white/[0.06] hover:bg-white/[0.1]" : "bg-slate-200 hover:bg-slate-300"}`}
       title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
     >
-      {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+      {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#4a6080]" />}
     </button>
   );
 }
@@ -265,14 +265,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <main className="md:ml-[180px] relative z-10 h-screen flex flex-col overflow-hidden">
         {/* Header */}
         <header 
-          className="sticky top-0 z-30 backdrop-blur-md border-b"
+          className="sticky top-0 z-30  border-b"
           style={{ 
             backgroundColor: isDark ? "rgba(5,9,18,0.92)" : "rgba(255,255,255,0.9)",
             borderColor: colors.cardBorder 
           }}
         >
           <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
-            <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg hover:bg-white/10" style={{ color: colors.text }} aria-label="Abrir menú">
+            <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]" style={{ color: colors.text }} aria-label="Abrir menú">
               <Menu className="w-5 h-5" />
             </button>
             <div className="relative flex-1 md:w-80 md:flex-none">

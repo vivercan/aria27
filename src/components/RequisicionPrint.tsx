@@ -266,14 +266,14 @@ export default function RequisicionPrintButtons({ loading, ...props }: PrintButt
     <div className="flex items-center gap-1">
       <button
         onClick={() => handlePrint(props)}
-        className="p-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-all"
+        className="p-2 rounded-lg bg-white/[0.04] hover:bg-cyan-500/20 text-[#7f93b0] hover:text-cyan-400 transition-all"
         title="Imprimir"
       >
         <Printer className="w-4 h-4" />
       </button>
       <button
         onClick={() => handleDownloadPDF(props)}
-        className="p-2 rounded-lg bg-white/5 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all"
+        className="p-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-[#7f93b0] hover:text-emerald-400 transition-all"
         title="Descargar PDF"
       >
         <FileDown className="w-4 h-4" />

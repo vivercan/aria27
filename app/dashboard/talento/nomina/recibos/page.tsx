@@ -276,11 +276,11 @@ export default function RecibosNominaPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">GRUPO CUAVANTE</h1>
-              <p className="text-slate-300 text-sm">Constructora · Aguascalientes</p>
+              <p className="text-[#c9d8ed] text-sm">Constructora · Aguascalientes</p>
             </div>
             <div className="text-right">
-              <div className="bg-white/10 px-4 py-2 rounded-lg">
-                <p className="text-xs text-slate-300">RECIBO DE NÓMINA</p>
+              <div className="bg-white/[0.06] px-4 py-2 rounded-lg">
+                <p className="text-xs text-[#c9d8ed]">RECIBO DE NÓMINA</p>
                 <p className="text-lg font-bold">Semana {nomina.semana}/{nomina.anio}</p>
                 {nomina.status === "CONFIRMADA" && <p className="text-[10px] text-emerald-300 mt-1">CONFIRMADA</p>}
               </div>
@@ -292,7 +292,7 @@ export default function RecibosNominaPage() {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <User className="w-5 h-5 text-slate-600" />
+                <User className="w-5 h-5 text-[#4a6080]" />
                 <span className="text-sm text-gray-500 uppercase tracking-wide">Empleado</span>
               </div>
               <p className="text-xl font-bold text-gray-900">{nomina.nombre}</p>
@@ -300,7 +300,7 @@ export default function RecibosNominaPage() {
             </div>
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Building2 className="w-5 h-5 text-slate-600" />
+                <Building2 className="w-5 h-5 text-[#4a6080]" />
                 <span className="text-sm text-gray-500 uppercase tracking-wide">Obra/Centro</span>
               </div>
               <p className="text-lg font-semibold text-gray-900">{nomina.obra || "Sin asignar"}</p>
@@ -445,22 +445,22 @@ export default function RecibosNominaPage() {
       <div className="max-w-7xl mx-auto space-y-6 no-print">
         <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+              <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
             </Link>
             <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
               <FileText className="w-7 h-7 text-violet-400" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Recibos de Nómina</h1>
-              <p className="text-slate-400 text-sm">Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFechaCorta(semanaInfo.inicio)} – {fmtFechaCorta(semanaInfo.fin)}</p>
+              <p className="text-[#7f93b0] text-sm">Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFechaCorta(semanaInfo.inicio)} – {fmtFechaCorta(semanaInfo.fin)}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronLeft className="w-4 h-4 text-slate-300" /></button>
-            <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
-            <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"><ChevronRight className="w-4 h-4 text-slate-300" /></button>
+            <button onClick={semanaPrev} title="Semana anterior" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08]"><ChevronLeft className="w-4 h-4 text-[#c9d8ed]" /></button>
+            <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
+            <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08]"><ChevronRight className="w-4 h-4 text-[#c9d8ed]" /></button>
 
             <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
               {nominaStatus === "CONFIRMADA" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
@@ -491,17 +491,17 @@ export default function RecibosNominaPage() {
         {nominas.length > 0 && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10"><p className="text-xs text-slate-400">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10"><p className="text-xs text-slate-400">Neto total</p><p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p></div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10"><p className="text-xs text-slate-400">Transferencia</p><p className="text-xl font-bold text-purple-400">{fmtMoney(totales.tarjeta)}</p></div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10"><p className="text-xs text-slate-400">Efectivo</p><p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-purple-400">{fmtMoney(totales.tarjeta)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Efectivo</p><p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p></div>
             </div>
             <div className="flex items-center gap-3">
               <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar empleado, puesto, obra..." className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500" />
+                <Search className="w-4 h-4 text-[#4a6080] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input value={filtro} onChange={e => setFiltro(e.target.value)} placeholder="Buscar empleado, puesto, obra..." className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#4a6080]" />
               </div>
-              <span className="text-xs text-slate-400">{filtradas.length} de {nominas.length}</span>
+              <span className="text-xs text-[#7f93b0]">{filtradas.length} de {nominas.length}</span>
             </div>
           </>
         )}
@@ -509,10 +509,10 @@ export default function RecibosNominaPage() {
         {loading ? (
           <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
         ) : nominas.length === 0 ? (
-          <div className="p-12 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
-            <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+          <div className="p-12 rounded-2xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <FileText className="w-16 h-16 text-[#4a6080] mx-auto mb-4" />
             <h3 className="text-xl font-medium text-white mb-2">No hay nómina generada para semana {semanaInfo.semana}/{semanaInfo.anio}</h3>
-            <p className="text-slate-400">Genera la nómina desde Pre-Nómina o navega a otra semana</p>
+            <p className="text-[#7f93b0]">Genera la nómina desde Pre-Nómina o navega a otra semana</p>
             <Link href="/dashboard/talento/nomina/pre-nomina" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">
               Ir a Pre-Nómina
             </Link>
@@ -540,21 +540,21 @@ export default function RecibosNominaPage() {
       </div>
 
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 no-print">
-          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 no-print">
+          <div className="bg-[#0c1d38] rounded-2xl p-6 w-full max-w-md border border-white/[0.08]">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-amber-500/20 rounded-xl"><AlertTriangle className="w-6 h-6 text-amber-400" /></div>
               <div>
                 <h3 className="text-lg font-bold text-white">Desbloquear Nómina</h3>
-                <p className="text-sm text-slate-400">Esta acción requiere justificación</p>
+                <p className="text-sm text-[#7f93b0]">Esta acción requiere justificación</p>
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm text-slate-300 mb-2">Motivo de la modificación *</label>
-              <textarea value={motivoModificacion} onChange={e => setMotivoModificacion(e.target.value)} placeholder="Explique por qué necesita modificar esta nómina confirmada..." className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none" rows={3} />
+              <label className="block text-sm text-[#c9d8ed] mb-2">Motivo de la modificación *</label>
+              <textarea value={motivoModificacion} onChange={e => setMotivoModificacion(e.target.value)} placeholder="Explique por qué necesita modificar esta nómina confirmada..." className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-[#4a6080] focus:outline-none focus:border-amber-500 resize-none" rows={3} />
             </div>
             <div className="flex justify-end gap-3">
-              <button onClick={() => { setShowConfirmModal(false); setMotivoModificacion(""); }} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => { setShowConfirmModal(false); setMotivoModificacion(""); }} className="px-4 py-2 text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={confirmarNomina} disabled={!motivoModificacion.trim()} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 rounded-xl text-white font-medium">Desbloquear</button>
             </div>
           </div>

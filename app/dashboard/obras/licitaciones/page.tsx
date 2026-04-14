@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
   ENVIADA: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   PERDIDA: "bg-red-500/20 text-red-300 border-red-500/30",
-  CANCELADA: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+  CANCELADA: "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/30",
   DESIERTA: "bg-violet-500/20 text-violet-300 border-violet-500/30",
 };
 
@@ -162,10 +162,10 @@ export default function LicitacionesPage() {
       <FlashBanner msg={msg} className="mx-3 -mt-3 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/obras" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <Link href="/dashboard/obras" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
           <div>
             <h1 className="text-2xl font-bold">Licitaciones</h1>
-            <p className="text-sm text-slate-400">Control de procesos de licitación</p>
+            <p className="text-sm text-[#7f93b0]">Control de procesos de licitación</p>
           </div>
         </div>
         <button onClick={() => { setForm(EMPTY_FORM); setEditId(null); setShowForm(true); }} className="flex items-center gap-2 rounded-xl bg-aria-primary px-4 py-2.5 text-sm font-semibold hover:bg-aria-primary-hover transition">
@@ -184,7 +184,7 @@ export default function LicitacionesPage() {
           <div key={i} className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
             <s.icon className={`w-5 h-5 text-${s.color}-400 mb-2`} />
             <p className="text-2xl font-bold">{s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -196,16 +196,16 @@ export default function LicitacionesPage() {
           <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar obra, dependencia, número..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         {["TODOS","EN_PROCESO","ENVIADA","GANADA","PERDIDA","CANCELADA"].map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${filter === s ? "bg-aria-primary text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${filter === s ? "bg-aria-primary text-white" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}>
             {s === "TODOS" ? "Todos" : s.replace("_"," ")}
           </button>
         ))}
-        <span className="text-sm text-slate-400 ml-auto">{filtered.length} licitaciones · {fmt(totalEstimado)} est.</span>
+        <span className="text-sm text-[#7f93b0] ml-auto">{filtered.length} licitaciones · {fmt(totalEstimado)} est.</span>
       </div>
 
       {/* TABLA */}
       <div className="flex-1 overflow-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-        <div className="grid grid-cols-[1fr_1fr_120px_100px_100px_110px_60px] gap-2 px-4 py-3 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
+        <div className="grid grid-cols-[1fr_1fr_120px_100px_100px_110px_60px] gap-2 px-4 py-3 border-b border-white/[0.08] bg-white/[0.04] text-[11px] font-medium uppercase text-white/50 sticky top-0">
           <div>Obra</div><div>Dependencia</div><div>No. Licitación</div><div>Apertura</div><div>Monto Est.</div><div>Status</div><div></div>
         </div>
         {loading ? (
@@ -218,10 +218,10 @@ export default function LicitacionesPage() {
         ) : filtered.map(l => (
           <div key={l.id} onClick={() => editar(l)} className="grid grid-cols-[1fr_1fr_120px_100px_100px_110px_60px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.03] cursor-pointer transition">
             <div className="font-medium truncate">{l.obra_nombre}</div>
-            <div className="text-slate-300 truncate">{l.dependencia}</div>
-            <div className="text-slate-400 text-xs">{l.numero_licitacion || "—"}</div>
-            <div className="text-slate-400 text-xs">{l.fecha_apertura || "—"}</div>
-            <div className="text-slate-300 text-xs">{l.monto_estimado ? fmt(l.monto_estimado) : "—"}</div>
+            <div className="text-[#c9d8ed] truncate">{l.dependencia}</div>
+            <div className="text-[#7f93b0] text-xs">{l.numero_licitacion || "—"}</div>
+            <div className="text-[#7f93b0] text-xs">{l.fecha_apertura || "—"}</div>
+            <div className="text-[#c9d8ed] text-xs">{l.monto_estimado ? fmt(l.monto_estimado) : "—"}</div>
             <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${STATUS_COLORS[l.status] || STATUS_COLORS.EN_PROCESO}`}>{l.status?.replace("_"," ")}</span></div>
             <div className="text-right">
               <button onClick={(e) => { e.stopPropagation(); eliminar(l.id); }} className="text-red-400/50 hover:text-red-400 text-xs">✕</button>
@@ -232,11 +232,11 @@ export default function LicitacionesPage() {
 
       {/* MODAL FORM */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowForm(false)}>
+          <div className="bg-[#0f172a] border border-white/[0.08] rounded-2xl p-6 w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">{editId ? "Editar" : "Nueva"} Licitación</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5" /></button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
@@ -284,7 +284,7 @@ export default function LicitacionesPage() {
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl bg-white/5 text-sm hover:bg-white/10 transition">Cancelar</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl bg-white/[0.04] text-sm hover:bg-white/[0.06] transition">Cancelar</button>
               <button onClick={guardar} disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-aria-primary text-sm font-semibold hover:bg-aria-primary-hover transition">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {editId ? "Guardar" : "Crear"}
               </button>

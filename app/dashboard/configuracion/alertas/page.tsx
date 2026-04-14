@@ -66,10 +66,10 @@ export default function AlertasPage() {
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <FlashBanner msg={msg} className="mb-4" />
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
         <div>
           <h1 className="text-2xl font-bold">Alertas de Atraso</h1>
-          <p className="text-sm text-slate-400">Monitoreo de actividades atrasadas en obra</p>
+          <p className="text-sm text-[#7f93b0]">Monitoreo de actividades atrasadas en obra</p>
         </div>
       </div>
 
@@ -77,22 +77,22 @@ export default function AlertasPage() {
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <Bell className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length}</p>
-          <p className="text-xs text-slate-400">Total alertas</p>
+          <p className="text-xs text-[#7f93b0]">Total alertas</p>
         </div>
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <AlertTriangle className="w-5 h-5 text-amber-400 mb-2" />
           <p className="text-2xl font-bold">{pendientes}</p>
-          <p className="text-xs text-slate-400">Pendientes</p>
+          <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-2" />
           <p className="text-2xl font-bold">{alertas.length - pendientes}</p>
-          <p className="text-xs text-slate-400">Notificadas</p>
+          <p className="text-xs text-[#7f93b0]">Notificadas</p>
         </div>
       </div>
 
       <div className="flex-1 overflow-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-        <div className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 border-b border-white/10 bg-white/5 text-[11px] font-medium uppercase text-white/50 sticky top-0">
+        <div className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 border-b border-white/[0.08] bg-white/[0.04] text-[11px] font-medium uppercase text-white/50 sticky top-0">
           <div>Obra / Actividad</div><div>Días atraso</div><div>Detectada</div><div>Estado</div><div></div>
         </div>
         {loading ? (
@@ -106,7 +106,7 @@ export default function AlertasPage() {
           <div key={a.id} className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
             <div className="truncate">{a.obra_id || "â"}</div>
             <div className="text-amber-400 font-medium">{a.dias_atraso} días</div>
-            <div className="text-xs text-slate-400">{a.fecha_deteccion || "â"}</div>
+            <div className="text-xs text-[#7f93b0]">{a.fecha_deteccion || "â"}</div>
             <div>
               {a.notificado ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300">Notificado</span>

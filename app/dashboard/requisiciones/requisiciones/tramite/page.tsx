@@ -365,24 +365,24 @@ Responde SOLO con JSON así:
       <div className="space-y-4">
         <FlashBanner msg={msg} className="mx-0 mb-2" />
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
-            <p className="text-slate-500 text-sm">{requisiciones.length} pendientes</p>
+            <p className="text-[#4a6080] text-sm">{requisiciones.length} pendientes</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-slate-400">Cargando...</div>
+          <div className="text-center py-10 text-[#7f93b0]">Cargando...</div>
         ) : requisiciones.length === 0 ? (
-          <div className="text-center py-10 bg-white/5 rounded-xl"><AlertCircle className="w-10 h-10 mx-auto mb-2 text-slate-500" /><p className="text-slate-400">Sin requisiciones</p></div>
+          <div className="text-center py-10 bg-white/[0.04] rounded-xl"><AlertCircle className="w-10 h-10 mx-auto mb-2 text-[#4a6080]" /><p className="text-[#7f93b0]">Sin requisiciones</p></div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {requisiciones.map(req => (
               <button key={req.id} onClick={() => { setSelectedReq(req); loadItems(req.id); }}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-aria-accent/50 text-left">
+                className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-aria-accent/50 text-left">
                 <div className="flex justify-between mb-2">
                   <span className="font-mono text-aria-accent text-sm">{req.folio}</span>
                   <span className={`px-2 py-0.5 rounded text-xs text-white ${getUrgencyBadge(req.required_date).color}`}>{getUrgencyBadge(req.required_date).text}</span>
@@ -404,12 +404,12 @@ Responde SOLO con JSON así:
     <div className="max-w-7xl mx-auto space-y-3 text-sm">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
-        <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-          <ArrowLeft className="w-4 h-4 text-slate-400" />
+        <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+          <ArrowLeft className="w-4 h-4 text-[#7f93b0]" />
         </button>
         <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
         <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
-        <span className="text-slate-400 flex-1">{selectedReq.cost_center_name}</span>
+        <span className="text-[#7f93b0] flex-1">{selectedReq.cost_center_name}</span>
         <span className="text-emerald-400 font-bold text-lg">${calculateTotal().toLocaleString()}</span>
       </div>
 
@@ -418,7 +418,7 @@ Responde SOLO con JSON así:
       ) : (
         <>
           {/* Proveedores */}
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-white font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-aria-accent" />
@@ -443,10 +443,10 @@ Responde SOLO con JSON así:
 
             <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
               {relevantSuppliers.map(s => (
-                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/10">
+                <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/[0.08]">
                   <p className="text-white font-medium text-xs truncate" title={s.name}>{s.name}</p>
-                  <p className="text-slate-500 text-[10px]">{s.categories?.[0] || "General"}</p>
-                  {s.phone && <p className="text-slate-400 text-[10px]">{s.phone}</p>}
+                  <p className="text-[#4a6080] text-[10px]">{s.categories?.[0] || "General"}</p>
+                  {s.phone && <p className="text-[#7f93b0] text-[10px]">{s.phone}</p>}
                   <p className="text-aria-accent text-[10px]">{s.credit_days ? `${s.credit_days}d` : "Contado"}</p>
                 </div>
               ))}
@@ -463,8 +463,8 @@ Responde SOLO con JSON así:
                   {proveedoresIA.map((p, i) => (
                     <div key={i} className="p-2 rounded-lg bg-aria-accent-bg border border-aria-accent/30">
                       <p className="text-aria-accent font-medium text-xs truncate">{p.nombre}</p>
-                      {p.telefono && <p className="text-slate-400 text-[10px]">{p.telefono}</p>}
-                      {p.especialidad && <p className="text-slate-500 text-[10px]">{p.especialidad}</p>}
+                      {p.telefono && <p className="text-[#7f93b0] text-[10px]">{p.telefono}</p>}
+                      {p.especialidad && <p className="text-[#4a6080] text-[10px]">{p.especialidad}</p>}
                     </div>
                   ))}
                 </div>
@@ -482,7 +482,7 @@ Responde SOLO con JSON así:
                   <span className="text-emerald-400 font-medium">Solicitud enviada</span>
                   <span className="text-white">Emails: {resultadoSolicitud.emailsSent}</span>
                   <span className="text-white">WhatsApp: {resultadoSolicitud.whatsappSent}</span>
-                  <span className="text-slate-400">de {resultadoSolicitud.totalProveedores} proveedores</span>
+                  <span className="text-[#7f93b0]">de {resultadoSolicitud.totalProveedores} proveedores</span>
                   {resultadoSolicitud.errors && <span className="text-amber-400">{resultadoSolicitud.errors.length} errores</span>}
                 </div>
               )}
@@ -548,25 +548,25 @@ Responde SOLO con JSON así:
             };
 
             return (
-              <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+              <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden">
                 {/* HEADER: Proveedores + condiciones */}
                 <div className="grid gap-0" style={{gridTemplateColumns: `200px 70px repeat(${capturedSuppliers.length}, minmax(140px, 1fr))`}}>
                   {/* Esquina */}
-                  <div className="p-2 bg-white/[0.03] border-b border-r border-white/10">
-                    <span className="text-slate-500 text-[10px] uppercase font-semibold">Producto</span>
+                  <div className="p-2 bg-white/[0.03] border-b border-r border-white/[0.08]">
+                    <span className="text-[#4a6080] text-[10px] uppercase font-semibold">Producto</span>
                   </div>
-                  <div className="p-2 bg-white/[0.03] border-b border-r border-white/10 text-center">
-                    <span className="text-slate-500 text-[10px] uppercase font-semibold">Cant.</span>
+                  <div className="p-2 bg-white/[0.03] border-b border-r border-white/[0.08] text-center">
+                    <span className="text-[#4a6080] text-[10px] uppercase font-semibold">Cant.</span>
                   </div>
                   {/* Columnas proveedor */}
                   {capturedSuppliers.map((sup, colIdx) => {
                     const isActive = !!sup;
                     const isBest = isActive && colTotals[colIdx] === bestTotal && bestTotal > 0;
                     return (
-                      <div key={colIdx} className={`p-2 border-b border-r border-white/10 space-y-1.5 ${isBest ? "bg-emerald-500/10" : "bg-white/[0.02]"}`}>
+                      <div key={colIdx} className={`p-2 border-b border-r border-white/[0.08] space-y-1.5 ${isBest ? "bg-emerald-500/10" : "bg-white/[0.02]"}`}>
                         <select value={sup}
                           onChange={(e) => setColumnSupplier(colIdx, e.target.value)}
-                          className={`w-full px-2 py-1.5 rounded text-[11px] font-semibold border ${isActive ? "bg-black/40 border-white/20 text-white" : "bg-black/20 border-white/10 text-slate-500"}`}>
+                          className={`w-full px-2 py-1.5 rounded text-[11px] font-semibold border ${isActive ? "bg-black/40 border-white/[0.12] text-white" : "bg-black/20 border-white/[0.08] text-[#4a6080]"}`}>
                           <option value="">Proveedor {colIdx + 1}...</option>
                           {allSuppliers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                           {proveedoresIA.length > 0 && proveedoresIA.map((p, i) => <option key={`ia-${i}`} value={p.nombre}>{p.nombre}</option>)}
@@ -576,14 +576,14 @@ Responde SOLO con JSON así:
                             <div className="grid grid-cols-2 gap-1">
                               <select value={getColCondition(colIdx, "forma_pago") || "transferencia"}
                                 onChange={(e) => setColumnField(colIdx, "forma_pago", e.target.value)}
-                                className="px-1.5 py-1 rounded bg-black/40 border border-white/10 text-white text-[9px]">
+                                className="px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px]">
                                 <option value="transferencia">Transferencia</option>
                                 <option value="efectivo">Efectivo</option>
                                 <option value="cheque">Cheque</option>
                               </select>
                               <select value={getColCondition(colIdx, "pdf_url") || "contado"}
                                 onChange={(e) => setColumnField(colIdx, "pdf_url", e.target.value)}
-                                className="px-1.5 py-1 rounded bg-black/40 border border-white/10 text-white text-[9px]">
+                                className="px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px]">
                                 <option value="contado">Contado</option>
                                 <option value="15 dias credito">15d credito</option>
                                 <option value="30 dias credito">30d credito</option>
@@ -595,7 +595,7 @@ Responde SOLO con JSON así:
                             <div className="grid grid-cols-2 gap-1">
                               <select value={getColCondition(colIdx, "entrega") || ""}
                                 onChange={(e) => setColumnField(colIdx, "entrega", e.target.value)}
-                                className="px-1.5 py-1 rounded bg-black/40 border border-white/10 text-white text-[9px]">
+                                className="px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px]">
                                 <option value="">Entrega...</option>
                                 <option value="Inmediata">Inmediata</option>
                                 <option value="1-3 dias">1-3 dias</option>
@@ -603,7 +603,7 @@ Responde SOLO con JSON así:
                                 <option value="8-15 dias">8-15 dias</option>
                                 <option value="+15 dias">+15 dias</option>
                               </select>
-                              <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/10 text-[9px] text-slate-400 cursor-pointer">
+                              <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-[9px] text-[#7f93b0] cursor-pointer">
                                 <input type="checkbox" checked={(getColCondition(colIdx, "factura") as unknown as boolean) || false}
                                   onChange={(e) => setColumnField(colIdx, "factura", e.target.checked)}
                                   className="w-3 h-3 rounded" />
@@ -611,7 +611,7 @@ Responde SOLO con JSON así:
                               </label>
                             </div>
                             {isBest && <div className="text-center"><span className="text-emerald-400 text-[9px] font-bold">MEJOR PRECIO</span></div>}
-                            <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/10 text-[9px] cursor-pointer">
+                            <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-[9px] cursor-pointer">
                               <input type="checkbox" checked={columnMeta[colIdx]?.rebaja_iva || false}
                                 onChange={(e) => updateColumnMeta(colIdx, "rebaja_iva", e.target.checked)}
                                 className="w-3 h-3 rounded" />
@@ -620,7 +620,7 @@ Responde SOLO con JSON así:
                             <input type="text" placeholder="Observaciones..."
                               value={columnMeta[colIdx]?.observaciones || ""}
                               onChange={(e) => updateColumnMeta(colIdx, "observaciones", e.target.value)}
-                              className="w-full px-1.5 py-1 rounded bg-black/40 border border-white/10 text-white text-[9px] placeholder:text-slate-600" />
+                              className="w-full px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px] placeholder:text-[#4a6080]" />
                           </>
                         )}
                       </div>
@@ -637,15 +637,15 @@ Responde SOLO con JSON así:
 
                     return (
                       <React.Fragment key={item.id}>
-                        <div className="px-3 py-2 border-b border-r border-white/5 flex items-center gap-2">
+                        <div className="px-3 py-2 border-b border-r border-white/[0.05] flex items-center gap-2">
                           <span className="text-aria-accent font-bold text-xs">{idx + 1}</span>
                           <div>
                             <p className="text-white text-xs font-medium leading-tight">{item.product_name}</p>
-                            <p className="text-slate-600 text-[9px]">{item.category}</p>
+                            <p className="text-[#4a6080] text-[9px]">{item.category}</p>
                           </div>
                         </div>
-                        <div className="px-2 py-2 border-b border-r border-white/5 flex items-center justify-center">
-                          <span className="text-slate-400 text-xs">{item.quantity} {item.unit}</span>
+                        <div className="px-2 py-2 border-b border-r border-white/[0.05] flex items-center justify-center">
+                          <span className="text-[#7f93b0] text-xs">{item.quantity} {item.unit}</span>
                         </div>
                         {capturedSuppliers.map((sup, colIdx) => {
                           const q = (itemQuotes[item.id] || [])[colIdx];
@@ -653,14 +653,14 @@ Responde SOLO con JSON así:
                           const isCellBest = price > 0 && price === bestItemPrice;
                           const isColBest = colTotals[colIdx] === bestTotal && bestTotal > 0;
                           return (
-                            <div key={colIdx} className={`px-2 py-1.5 border-b border-r border-white/5 flex items-center ${isColBest ? "bg-emerald-500/5" : ""}`}>
+                            <div key={colIdx} className={`px-2 py-1.5 border-b border-r border-white/[0.05] flex items-center ${isColBest ? "bg-emerald-500/5" : ""}`}>
                               {sup ? (
                                 <div className="w-full flex items-center gap-1">
-                                  <span className="text-slate-500 text-[9px]">$</span>
+                                  <span className="text-[#4a6080] text-[9px]">$</span>
                                   <input type="number" min="0" placeholder="0"
                                     value={price || ""}
                                     onChange={(e) => updateQuote(item.id, colIdx, "price", parseFloat(e.target.value) || 0)}
-                                    className={`w-full px-1.5 py-1 rounded text-xs text-right border ${isCellBest ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold" : "bg-black/30 border-white/10 text-white"}`} />
+                                    className={`w-full px-1.5 py-1 rounded text-xs text-right border ${isCellBest ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold" : "bg-black/30 border-white/[0.08] text-white"}`} />
                                 </div>
                               ) : (
                                 <span className="text-slate-700 text-xs w-full text-center">-</span>
@@ -673,15 +673,15 @@ Responde SOLO con JSON así:
                   })}
 
                   {/* FILA TOTAL */}
-                  <div className="px-3 py-2.5 border-r border-white/10 bg-white/[0.03]">
+                  <div className="px-3 py-2.5 border-r border-white/[0.08] bg-white/[0.03]">
                     <span className="text-white text-xs font-bold">TOTAL</span>
                   </div>
-                  <div className="px-2 py-2.5 border-r border-white/10 bg-white/[0.03]"></div>
+                  <div className="px-2 py-2.5 border-r border-white/[0.08] bg-white/[0.03]"></div>
                   {capturedSuppliers.map((sup, colIdx) => {
                     const isBest = colTotals[colIdx] === bestTotal && bestTotal > 0 && sup;
                     const cov = colCoverage[colIdx];
                     return (
-                      <div key={colIdx} className={`px-2 py-2 border-r border-white/10 text-center ${isBest ? "bg-emerald-500/10" : "bg-white/[0.03]"}`}>
+                      <div key={colIdx} className={`px-2 py-2 border-r border-white/[0.08] text-center ${isBest ? "bg-emerald-500/10" : "bg-white/[0.03]"}`}>
                         {sup ? (
                           <div>
                             <span className={`text-sm font-bold ${isBest ? "text-emerald-400" : "text-white"}`}>
@@ -699,19 +699,19 @@ Responde SOLO con JSON así:
 
                 {/* RANKING */}
                 {activeTotals.length > 0 && (
-                  <div className="p-3 border-t border-white/10 bg-white/[0.02]">
+                  <div className="p-3 border-t border-white/[0.08] bg-white/[0.02]">
                     <div className="flex flex-wrap gap-3">
                       {capturedSuppliers
                         .map((sup, idx) => ({ sup, total: colTotals[idx], cov: colCoverage[idx], idx }))
                         .filter(x => x.sup && x.total > 0)
                         .sort((a, b) => a.total - b.total)
                         .map((x, rank) => (
-                          <div key={x.idx} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${rank === 0 ? "bg-emerald-500/15 border border-emerald-500/30" : "bg-white/5 border border-white/10"}`}>
-                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-slate-400"}>
+                          <div key={x.idx} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${rank === 0 ? "bg-emerald-500/15 border border-emerald-500/30" : "bg-white/[0.04] border border-white/[0.08]"}`}>
+                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-[#7f93b0]"}>
                               {rank === 0 ? "1ro" : rank === 1 ? "2do" : rank === 2 ? "3ro" : `${rank+1}to`}
                             </span>
                             <span className="text-white font-medium">{x.sup}</span>
-                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-slate-300"}>${x.total.toLocaleString()}</span>
+                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-[#c9d8ed]"}>${x.total.toLocaleString()}</span>
                             <span className={`text-[9px] ${x.cov.filled === x.cov.total ? "text-emerald-500" : "text-amber-500"}`}>
                               {x.cov.filled}/{x.cov.total}
                             </span>

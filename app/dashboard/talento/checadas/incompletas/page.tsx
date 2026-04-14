@@ -168,8 +168,8 @@ export default function IncompletasPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
-        <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/talento/checadas" className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-amber-500/20">
@@ -177,14 +177,14 @@ export default function IncompletasPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Asistencias Pendientes</h1>
-            <p className="text-slate-400 text-sm">
+            <p className="text-[#7f93b0] text-sm">
               {periodo ? `Semana: ${periodo.inicio} al ${periodo.fin}` : <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />}
             </p>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-3">
-          <button onClick={cargarDatos} disabled={loading} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <RefreshCw className={`w-5 h-5 text-slate-400 ${loading ? "animate-spin" : ""}`} />
+          <button onClick={cargarDatos} disabled={loading} className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <RefreshCw className={`w-5 h-5 text-[#7f93b0] ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>
@@ -198,27 +198,27 @@ export default function IncompletasPage() {
 
       {/* Resumen */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-          <p className="text-slate-400 text-sm">Sin Salida</p>
+        <div className="p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+          <p className="text-[#7f93b0] text-sm">Sin Salida</p>
           <p className="text-3xl font-bold text-amber-400">{incompletas.length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-          <p className="text-slate-400 text-sm">Sin Registro</p>
+        <div className="p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+          <p className="text-[#7f93b0] text-sm">Sin Registro</p>
           <p className="text-3xl font-bold text-red-400">{sinRegistro.length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-          <p className="text-slate-400 text-sm">Total Pendientes</p>
+        <div className="p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+          <p className="text-[#7f93b0] text-sm">Total Pendientes</p>
           <p className="text-3xl font-bold text-white">{totalPendientes}</p>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400">Cargando...</div>
+        <div className="text-center py-12 text-[#7f93b0]">Cargando...</div>
       ) : totalPendientes === 0 ? (
-        <div className="text-center py-16 rounded-2xl bg-white/5 border border-white/10">
+        <div className="text-center py-16 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
           <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">¡Todo en orden!</h3>
-          <p className="text-slate-400 mb-6">No hay asistencias pendientes de completar</p>
+          <p className="text-[#7f93b0] mb-6">No hay asistencias pendientes de completar</p>
           <Link href="/dashboard/talento/checadas" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-aria-primary text-white hover:bg-aria-primary transition-colors">
             Ir a Nómina
           </Link>
@@ -227,8 +227,8 @@ export default function IncompletasPage() {
         <div className="space-y-6">
           {/* Sección: Sin Registro (Días que no checaron) */}
           {sinRegistro.length > 0 && (
-            <div className="rounded-2xl bg-white/5 border border-red-500/20 overflow-hidden">
-              <div className="p-4 border-b border-white/10 flex items-center justify-between bg-red-500/10">
+            <div className="rounded-2xl bg-white/[0.04] border border-red-500/20 overflow-hidden">
+              <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-red-500/10">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-red-400" />
                   <h2 className="text-lg font-semibold text-white">Días Sin Registro ({sinRegistro.length})</h2>
@@ -240,10 +240,10 @@ export default function IncompletasPage() {
               </div>
               <div className="divide-y divide-white/5 max-h-[400px] overflow-y-auto">
                 {sinRegistro.map((item, i) => (
-                  <div key={`${item.employee_id}-${item.fecha}`} className="p-4 flex items-center justify-between hover:bg-white/5">
+                  <div key={`${item.employee_id}-${item.fecha}`} className="p-4 flex items-center justify-between hover:bg-white/[0.04]">
                     <div>
                       <p className="text-white font-medium">{item.empleado}</p>
-                      <p className="text-slate-400 text-sm">{item.numero} • {new Date(item.fecha + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })}</p>
+                      <p className="text-[#7f93b0] text-sm">{item.numero} • {new Date(item.fecha + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })}</p>
                     </div>
                     <button 
                       onClick={() => crearAsistencia(item)} 
@@ -260,8 +260,8 @@ export default function IncompletasPage() {
 
           {/* Sección: Sin Salida */}
           {incompletas.length > 0 && (
-            <div className="rounded-2xl bg-white/5 border border-amber-500/20 overflow-hidden">
-              <div className="p-4 border-b border-white/10 flex items-center justify-between bg-amber-500/10">
+            <div className="rounded-2xl bg-white/[0.04] border border-amber-500/20 overflow-hidden">
+              <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-amber-500/10">
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-amber-400" />
                   <h2 className="text-lg font-semibold text-white">Sin Hora de Salida ({incompletas.length})</h2>
@@ -273,10 +273,10 @@ export default function IncompletasPage() {
               </div>
               <div className="divide-y divide-white/5 max-h-[400px] overflow-y-auto">
                 {incompletas.map((item) => (
-                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-white/5">
+                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-white/[0.04]">
                     <div>
                       <p className="text-white font-medium">{item.empleado}</p>
-                      <p className="text-slate-400 text-sm">{item.numero} • {item.fecha} • Entrada: {item.hora_entrada}</p>
+                      <p className="text-[#7f93b0] text-sm">{item.numero} • {item.fecha} • Entrada: {item.hora_entrada}</p>
                     </div>
                     <button 
                       onClick={() => completarSalida(item)} 

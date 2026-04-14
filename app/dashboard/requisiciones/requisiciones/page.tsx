@@ -89,7 +89,7 @@ export default function RequisicionesPage() {
     if (s?.includes("FALTANTE")) return "bg-amber-500/20 text-amber-400";
     if (s?.includes("COTIZACION")) return "bg-aria-primary-light text-aria-accent";
     if (s?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
-    return "bg-slate-500/20 text-slate-400";
+    return "bg-slate-500/20 text-[#7f93b0]";
   };
 
   const meses = [...new Set(registros.map(r => r.fecha?.substring(0,7)).filter(Boolean))].sort().reverse();
@@ -105,18 +105,18 @@ export default function RequisicionesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/requisiciones" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/requisiciones" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <ClipboardList className="w-7 h-7 text-amber-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Requisiciones</h1>
-            <p className="text-slate-400 text-sm">Gestión de solicitudes de materiales</p>
+            <p className="text-[#7f93b0] text-sm">Gestión de solicitudes de materiales</p>
           </div>
         </div>
-        <button onClick={() => setMostrarHistorico(!mostrarHistorico)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm transition-all ${mostrarHistorico ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25" : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"}`}>
+        <button onClick={() => setMostrarHistorico(!mostrarHistorico)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm transition-all ${mostrarHistorico ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25" : "bg-white/[0.04] text-[#c9d8ed] hover:bg-white/[0.06] border border-white/[0.08]"}`}>
           <History className="w-4 h-4" />{mostrarHistorico ? "Ocultar Histórico" : `Ver Histórico (${registros.length})`}
         </button>
       </div>
@@ -125,11 +125,11 @@ export default function RequisicionesPage() {
       <div className="grid grid-cols-5 gap-4">
         {submodules.map((mod, idx) => (
           <Link key={idx} href={mod.href} className="group block">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-white/20 hover:bg-white/[0.05] transition-all">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 hover:border-white/[0.12] hover:bg-white/[0.05] transition-all">
               <div className={`absolute inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition-all duration-300`} />
               <mod.icon className="w-8 h-8 text-white/70 mb-3 group-hover:text-white transition-colors" />
               <h3 className="text-white font-medium text-sm">{mod.title}</h3>
-              <p className="text-slate-500 text-xs mt-1">{mod.description}</p>
+              <p className="text-[#4a6080] text-xs mt-1">{mod.description}</p>
             </div>
           </Link>
         ))}
@@ -141,54 +141,54 @@ export default function RequisicionesPage() {
           {/* Stats */}
           <div className="grid grid-cols-5 gap-4">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
-              <span className="text-slate-400 text-xs">Total $</span>
+              <span className="text-[#7f93b0] text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
-              <span className="text-slate-400 text-xs">Registros</span>
+              <span className="text-[#7f93b0] text-xs">Registros</span>
               <p className="text-xl font-bold text-aria-accent mt-1">{registrosFiltrados.length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20">
-              <span className="text-slate-400 text-xs">Obras</span>
+              <span className="text-[#7f93b0] text-xs">Obras</span>
               <p className="text-xl font-bold text-amber-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-accent/10 to-aria-primary/5 border border-aria-accent/20">
-              <span className="text-slate-400 text-xs">Proveedores</span>
+              <span className="text-[#7f93b0] text-xs">Proveedores</span>
               <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
-              <span className="text-slate-400 text-xs">Solicitantes</span>
+              <span className="text-[#7f93b0] text-xs">Solicitantes</span>
               <p className="text-xl font-bold text-purple-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.solicitante))].length}</p>
             </div>
           </div>
 
           {/* Filtros */}
-          <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+          <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
             <div className="flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input type="text" placeholder="Buscar descripción, proveedor..." value={filtros.buscar} onChange={e => setFiltros({...filtros, buscar: e.target.value})} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:border-amber-500/50 focus:outline-none" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
+                <input type="text" placeholder="Buscar descripción, proveedor..." value={filtros.buscar} onChange={e => setFiltros({...filtros, buscar: e.target.value})} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-amber-500/50 focus:outline-none" />
               </div>
-              <select value={filtros.mes} onChange={e => setFiltros({...filtros, mes: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white">
+              <select value={filtros.mes} onChange={e => setFiltros({...filtros, mes: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white">
                 <option value="">📅 Todos los meses</option>
                 {meses.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-              <select value={filtros.obra} onChange={e => setFiltros({...filtros, obra: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white">
+              <select value={filtros.obra} onChange={e => setFiltros({...filtros, obra: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white">
                 <option value="">🏗️ Todas las obras</option>
                 {obras.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
-              <select value={filtros.status} onChange={e => setFiltros({...filtros, status: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white">
+              <select value={filtros.status} onChange={e => setFiltros({...filtros, status: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white">
                 <option value="">📋 Todos los estatus</option>
                 {statuses.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-              <select value={filtros.solicitante} onChange={e => setFiltros({...filtros, solicitante: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white">
+              <select value={filtros.solicitante} onChange={e => setFiltros({...filtros, solicitante: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white">
                 <option value="">👤 Solicitante</option>
                 {solicitantes.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <div className="flex items-center gap-2">
-                <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({...filtros, fechaInicio: e.target.value})} className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white" />
-                <span className="text-slate-500">→</span>
-                <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({...filtros, fechaFin: e.target.value})} className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white" />
+                <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({...filtros, fechaInicio: e.target.value})} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white" />
+                <span className="text-[#4a6080]">→</span>
+                <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({...filtros, fechaFin: e.target.value})} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white" />
               </div>
               <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20" title="Limpiar">
                 <X className="w-4 h-4" />
@@ -203,7 +203,7 @@ export default function RequisicionesPage() {
           {/* Content */}
           <div className="grid grid-cols-3 gap-6">
             {/* Tabla */}
-            <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+            <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-amber-400" />Detalle de Requisiciones
               </h2>
@@ -211,22 +211,22 @@ export default function RequisicionesPage() {
                 <div className="max-h-[400px] overflow-y-auto rounded-xl">
                   <table className="w-full text-sm">
                     <thead className="sticky top-0 z-10">
-                      <tr className="bg-slate-800/90 backdrop-blur-sm">
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase rounded-tl-lg">#</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase">Fecha</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase">Solicitante</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase">Obra</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase">Descripción</th>
-                        <th className="px-3 py-3 text-right text-xs font-medium text-slate-400 uppercase">Monto</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-slate-400 uppercase rounded-tr-lg">Status</th>
+                      <tr className="bg-[#0c1d38]/90 ">
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase rounded-tl-lg">#</th>
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Fecha</th>
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Solicitante</th>
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Obra</th>
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Descripción</th>
+                        <th className="px-3 py-3 text-right text-xs font-medium text-[#7f93b0] uppercase">Monto</th>
+                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase rounded-tr-lg">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {registrosFiltrados.slice(0, 150).map((r, idx) => (
                         <tr key={r.id} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors`}>
                           <td className="px-3 py-2.5 text-aria-accent font-mono text-xs">{r.folio_excel}</td>
-                          <td className="px-3 py-2.5 text-slate-300 text-xs">{r.fecha || "—"}</td>
-                          <td className="px-3 py-2.5 text-slate-300 text-xs truncate max-w-[100px]">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</td>
+                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{r.fecha || "—"}</td>
+                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs truncate max-w-[100px]">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</td>
                           <td className="px-3 py-2.5"><span className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs truncate block max-w-[100px]">{r.obra?.substring(0,18) || "—"}</span></td>
                           <td className="px-3 py-2.5 text-white text-xs truncate max-w-[180px]">{r.descripcion || "—"}</td>
                           <td className="px-3 py-2.5 text-right"><span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span></td>
@@ -237,22 +237,22 @@ export default function RequisicionesPage() {
                   </table>
                 </div>
               )}
-              {registrosFiltrados.length > 150 && <p className="text-center text-slate-500 text-xs mt-4 py-2 bg-white/5 rounded-lg">Mostrando 150 de {registrosFiltrados.length}</p>}
+              {registrosFiltrados.length > 150 && <p className="text-center text-[#4a6080] text-xs mt-4 py-2 bg-white/[0.04] rounded-lg">Mostrando 150 de {registrosFiltrados.length}</p>}
             </div>
 
             {/* Resumen */}
-            <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-amber-400" />Top Obras
               </h2>
               <div className="space-y-3">
                 {resumenObras.map((o, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/5 hover:border-amber-500/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, obra: o.nombre})}>
+                  <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, obra: o.nombre})}>
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-sm font-medium text-white truncate flex-1">{o.nombre}</p>
                       <span className="text-emerald-400 font-bold text-sm">{formatMoney(o.total)}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                       <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all" style={{width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%`}}/>
                     </div>
                   </div>

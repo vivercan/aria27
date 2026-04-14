@@ -93,7 +93,7 @@ export default function IncidenciasPage() {
       case "RETARDO": return { color: "bg-amber-500/20 text-amber-400", icon: "\u23F0" };
       case "PERMISO": return { color: "bg-aria-primary-light text-aria-accent", icon: "\uD83D\uDCCB" };
       case "INCAPACIDAD": return { color: "bg-violet-500/20 text-violet-400", icon: "\uD83C\uDFE5" };
-      default: return { color: "bg-slate-500/20 text-slate-400", icon: "?" };
+      default: return { color: "bg-slate-500/20 text-[#7f93b0]", icon: "?" };
     }
   };
 
@@ -105,7 +105,7 @@ export default function IncidenciasPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Incidencias</h1>
-          <p className="text-slate-400 text-sm">Faltas, retardos, permisos e incapacidades</p>
+          <p className="text-[#7f93b0] text-sm">Faltas, retardos, permisos e incapacidades</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Registrar Incidencia
@@ -122,7 +122,7 @@ export default function IncidenciasPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -132,42 +132,42 @@ export default function IncidenciasPage() {
           <h3 className="text-lg font-semibold text-white">Registrar Incidencia</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Empleado *</label>
-              <select required value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <label className="text-xs text-[#7f93b0] mb-1 block">Empleado *</label>
+              <select required value={form.employee_id} onChange={e => setForm({...form, employee_id: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                 <option value="">Seleccionar...</option>
                 {empleados.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
-              <select required value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none">
+              <label className="text-xs text-[#7f93b0] mb-1 block">Tipo *</label>
+              <select required value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                 <option value="FALTA">Falta</option><option value="RETARDO">Retardo</option><option value="PERMISO">Permiso</option><option value="INCAPACIDAD">Incapacidad IMSS</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Fecha *</label>
-              <input type="date" required value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Fecha *</label>
+              <input type="date" required value={form.fecha} onChange={e => setForm({...form, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Motivo</label>
-              <input value={form.motivo} onChange={e => setForm({...form, motivo: e.target.value})} placeholder="Opcional" className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
+              <label className="text-xs text-[#7f93b0] mb-1 block">Motivo</label>
+              <input value={form.motivo} onChange={e => setForm({...form, motivo: e.target.value})} placeholder="Opcional" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..." className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar empleado..." className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "FALTA", "RETARDO", "PERMISO", "INCAPACIDAD"].map(f => (
-            <button key={f} onClick={() => setFilterTipo(f)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+            <button key={f} onClick={() => setFilterTipo(f)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterTipo === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {f}
             </button>
           ))}
@@ -177,8 +177,8 @@ export default function IncidenciasPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">Fecha</th>
                 <th className="text-left p-3">Empleado</th>
                 <th className="text-center p-3">Tipo</th>
@@ -189,19 +189,19 @@ export default function IncidenciasPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-400">Sin incidencias registradas</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#7f93b0]">Sin incidencias registradas</td></tr>
               ) : filtered.map(i => {
                 const badge = getTipoBadge(i.tipo);
                 return (
-                  <tr key={i.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                    <td className="p-3 text-slate-300 text-xs">{i.fecha}</td>
+                  <tr key={i.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
+                    <td className="p-3 text-[#c9d8ed] text-xs">{i.fecha}</td>
                     <td className="p-3 text-white">{i.employee_name}</td>
                     <td className="p-3 text-center"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>{badge.icon} {i.tipo}</span></td>
-                    <td className="p-3 text-slate-400">{i.motivo || "-"}</td>
+                    <td className="p-3 text-[#7f93b0]">{i.motivo || "-"}</td>
                     <td className="p-3 text-center">
-                      {i.autorizada ? <CheckCircle2 className="w-4 h-4 text-emerald-400 mx-auto" /> : <span className="text-xs text-slate-500">Pendiente</span>}
+                      {i.autorizada ? <CheckCircle2 className="w-4 h-4 text-emerald-400 mx-auto" /> : <span className="text-xs text-[#4a6080]">Pendiente</span>}
                     </td>
                     <td className="p-3 text-center">
                       {!i.autorizada && (

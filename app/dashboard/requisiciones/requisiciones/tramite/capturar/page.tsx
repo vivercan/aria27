@@ -277,7 +277,7 @@ function CapturarContent() {
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
   if (!reqId) return (
-    <div className="text-center py-20 text-slate-400">
+    <div className="text-center py-20 text-[#7f93b0]">
       <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="mb-2">Selecciona una requisición desde Trámite</p>
       <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-aria-accent hover:underline text-sm">
@@ -287,7 +287,7 @@ function CapturarContent() {
   );
 
   if (!requisition) return (
-    <div className="text-center py-20 text-slate-400">
+    <div className="text-center py-20 text-[#7f93b0]">
       <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="mb-2">No se encontr\u00f3 la requisici\u00f3n</p>
       <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-aria-accent hover:underline text-sm">
@@ -301,21 +301,21 @@ function CapturarContent() {
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">Capturar Cotizaciones</h1>
-          <p className="text-slate-400 text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
+          <p className="text-[#7f93b0] text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-aria-accent">{quotes.length}</p>
-          <p className="text-slate-500 text-xs">cotizaciones</p>
+          <p className="text-[#4a6080] text-xs">cotizaciones</p>
         </div>
       </div>
 
       {/* ITEMS DE LA REQUISICION */}
-      <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+      <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
         <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
           <Package className="w-4 h-4 text-aria-accent" /> Materiales solicitados ({items.length})
         </h3>
@@ -323,7 +323,7 @@ function CapturarContent() {
           {items.map(i => (
             <div key={i.id} className="px-3 py-2 rounded-lg bg-black/30 text-xs">
               <span className="text-white">{i.product_name}</span>
-              <span className="text-slate-500 ml-2">{i.quantity} {i.unit}</span>
+              <span className="text-[#4a6080] ml-2">{i.quantity} {i.unit}</span>
             </div>
           ))}
         </div>
@@ -337,21 +337,21 @@ function CapturarContent() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {quotes.map(q => (
-              <div key={q.id} className={`p-4 rounded-xl border transition-all ${q.total === bestPrice ? "bg-emerald-500/10 border-emerald-500/40" : "bg-white/5 border-white/10"}`}>
+              <div key={q.id} className={`p-4 rounded-xl border transition-all ${q.total === bestPrice ? "bg-emerald-500/10 border-emerald-500/40" : "bg-white/[0.04] border-white/[0.08]"}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="text-white font-semibold text-sm">{q.supplier_name}</p>
                     {q.total === bestPrice && <span className="text-emerald-400 text-[10px] font-medium">MEJOR PRECIO</span>}
                   </div>
                   {canDelete && (<button onClick={() => eliminarCotizacion(q.id, q.supplier_name)} className="p-1 rounded hover:bg-red-500/20">
-                    <Trash2 className="w-3.5 h-3.5 text-slate-500 hover:text-red-400" />
+                    <Trash2 className="w-3.5 h-3.5 text-[#4a6080] hover:text-red-400" />
                   </button>)}
                 </div>
                 <p className={`text-xl font-bold ${q.total === bestPrice ? "text-emerald-400" : "text-white"}`}>
-                  ${q.total.toLocaleString()} <span className="text-[10px] text-slate-400 font-normal">{(q.tax_rate ?? 0) > 0 ? "c/IVA" : "s/IVA"}</span>
+                  ${q.total.toLocaleString()} <span className="text-[10px] text-[#7f93b0] font-normal">{(q.tax_rate ?? 0) > 0 ? "c/IVA" : "s/IVA"}</span>
                 </p>
                 {(q.subtotal ?? null) !== null && (
-                  <p className="text-[10px] text-slate-500 mt-0.5">
+                  <p className="text-[10px] text-[#4a6080] mt-0.5">
                     Subt ${Number(q.subtotal).toLocaleString()} · IVA {Number(q.tax_rate ?? 0)}% ${Number(q.iva ?? 0).toLocaleString()}
                   </p>
                 )}
@@ -361,20 +361,20 @@ function CapturarContent() {
                   </p>
                 )}
                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px]">
-                  <span className="text-slate-400 flex items-center gap-1">
+                  <span className="text-[#7f93b0] flex items-center gap-1">
                     <Truck className="w-3 h-3" /> {q.dias_entrega}d entrega
                   </span>
-                  <span className="text-slate-400 flex items-center gap-1">
+                  <span className="text-[#7f93b0] flex items-center gap-1">
                     <CreditCard className="w-3 h-3" /> {creditoLabel(q.tipo_credito, q.dias_credito)}
                   </span>
-                  <span className="text-slate-400 flex items-center gap-1">
+                  <span className="text-[#7f93b0] flex items-center gap-1">
                     <Banknote className="w-3 h-3" /> {pagoLabel(q.forma_pago)}
                   </span>
                   <span className={`flex items-center gap-1 ${q.emite_factura ? "text-emerald-400" : "text-amber-400"}`}>
                     <Receipt className="w-3 h-3" /> {q.emite_factura ? "Factura" : "Nota"}
                   </span>
                 </div>
-                {q.notes && <p className="text-slate-500 text-[10px] mt-1 truncate">{q.notes}</p>}
+                {q.notes && <p className="text-[#4a6080] text-[10px] mt-1 truncate">{q.notes}</p>}
               </div>
             ))}
           </div>
@@ -384,7 +384,7 @@ function CapturarContent() {
       {/* BOTON AGREGAR */}
       {!showForm && (
         <button onClick={() => setShowForm(true)}
-          className="w-full p-4 rounded-xl border-2 border-dashed border-white/20 hover:border-aria-accent/50 text-slate-400 hover:text-aria-accent transition-all flex items-center justify-center gap-2">
+          className="w-full p-4 rounded-xl border-2 border-dashed border-white/[0.12] hover:border-aria-accent/50 text-[#7f93b0] hover:text-aria-accent transition-all flex items-center justify-center gap-2">
           <Plus className="w-5 h-5" />
           <span className="font-medium">Agregar cotizacion de proveedor</span>
         </button>
@@ -397,20 +397,20 @@ function CapturarContent() {
             <h3 className="text-aria-accent font-semibold flex items-center gap-2">
               <Plus className="w-4 h-4" /> Nueva cotizacion
             </h3>
-            <button onClick={resetForm} className="p-1 rounded hover:bg-white/10">
-              <X className="w-4 h-4 text-slate-400" />
+            <button onClick={resetForm} className="p-1 rounded hover:bg-white/[0.06]">
+              <X className="w-4 h-4 text-[#7f93b0]" />
             </button>
           </div>
 
           {/* Proveedor */}
           <div>
-            <label className="text-slate-400 text-xs block mb-1">Proveedor *</label>
+            <label className="text-[#7f93b0] text-xs block mb-1">Proveedor *</label>
             <input
               list="suppliers-list"
               value={supplierName}
               onChange={(e) => setSupplierName(e.target.value)}
               placeholder="Nombre del proveedor..."
-              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"
+              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none"
             />
             <datalist id="suppliers-list">
               {suppliers.map(s => <option key={s.id} value={s.name} />)}
@@ -421,9 +421,9 @@ function CapturarContent() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Forma de Pago */}
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Forma de pago</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">Forma de pago</label>
               <select value={formaPago} onChange={(e) => setFormaPago(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none">
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none">
                 <option value="TRANSFERENCIA">Transferencia</option>
                 <option value="EFECTIVO">Efectivo</option>
                 <option value="CHEQUE">Cheque</option>
@@ -432,14 +432,14 @@ function CapturarContent() {
 
             {/* Tipo Credito */}
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Condiciones</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">Condiciones</label>
               <div className="flex gap-1">
                 <button type="button" onClick={() => { setTipoCredito("CONTADO"); setDiasCredito(0); }}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CONTADO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CONTADO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                   Contado
                 </button>
                 <button type="button" onClick={() => setTipoCredito("CREDITO")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CREDITO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${tipoCredito === "CREDITO" ? "bg-aria-accent-bg text-aria-accent border border-aria-accent/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                   Crédito
                 </button>
               </div>
@@ -447,14 +447,14 @@ function CapturarContent() {
 
             {/* Factura / Nota */}
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Documento</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">Documento</label>
               <div className="flex gap-1">
                 <button type="button" onClick={() => setEmiteFactura(true)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${emiteFactura ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${emiteFactura ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                   Factura
                 </button>
                 <button type="button" onClick={() => setEmiteFactura(false)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${!emiteFactura ? "bg-amber-500/20 text-amber-400 border border-amber-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${!emiteFactura ? "bg-amber-500/20 text-amber-400 border border-amber-500/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                   Nota
                 </button>
               </div>
@@ -465,35 +465,35 @@ function CapturarContent() {
           <div className="grid grid-cols-2 gap-4">
             {tipoCredito === "CREDITO" && (
               <div>
-                <label className="text-slate-400 text-xs block mb-1">Días de crédito</label>
+                <label className="text-[#7f93b0] text-xs block mb-1">Días de crédito</label>
                 <input type="number" min="0" value={diasCredito} onChange={(e) => setDiasCredito(parseInt(e.target.value) || 0)}
                   placeholder="15, 30, 60..."
-                  className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
+                  className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none" />
               </div>
             )}
             <div className={tipoCredito === "CONTADO" ? "col-span-2" : ""}>
-              <label className="text-slate-400 text-xs block mb-1">Días de entrega</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">Días de entrega</label>
               <input type="number" min="0" value={diasEntrega} onChange={(e) => setDiasEntrega(parseInt(e.target.value) || 0)}
                 placeholder="1, 3, 5..."
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none" />
             </div>
           </div>
 
           {/* IVA y Anticipo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-slate-400 text-xs block mb-1">IVA (%)</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">IVA (%)</label>
               <input type="number" min="0" max="100" step="0.01" value={taxRate}
                 onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
-              <p className="text-[10px] text-slate-500 mt-1">Default 16%. Si el proveedor emite Nota, se guarda como 0%.</p>
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none" />
+              <p className="text-[10px] text-[#4a6080] mt-1">Default 16%. Si el proveedor emite Nota, se guarda como 0%.</p>
             </div>
             <div>
-              <label className="text-slate-400 text-xs block mb-1">Anticipo</label>
+              <label className="text-[#7f93b0] text-xs block mb-1">Anticipo</label>
               <div className="flex gap-1">
                 {[0, 30, 50, 100].map(pct => (
                   <button key={pct} type="button" onClick={() => setAdvancePct(pct)}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${advancePct === pct ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "bg-black/30 text-slate-400 border border-white/10"}`}>
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${advancePct === pct ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                     {pct}%
                   </button>
                 ))}
@@ -503,11 +503,11 @@ function CapturarContent() {
 
           {/* Precios por item — SIN IVA y CON IVA sincronizados */}
           <div>
-            <label className="text-slate-400 text-xs block mb-2">Precios unitarios * (capture cualquier columna; la otra se recalcula)</label>
-            <div className="rounded-lg bg-black/30 border border-white/10 overflow-hidden">
+            <label className="text-[#7f93b0] text-xs block mb-2">Precios unitarios * (capture cualquier columna; la otra se recalcula)</label>
+            <div className="rounded-lg bg-black/30 border border-white/[0.08] overflow-hidden">
               <table className="w-full">
-                <thead className="bg-white/5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-                  <tr className="text-left text-slate-500 text-[10px]">
+                <thead className="bg-white/[0.04] sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+                  <tr className="text-left text-[#4a6080] text-[10px]">
                     <th className="p-2">Producto</th>
                     <th className="p-2 w-16">Cant.</th>
                     <th className="p-2 w-28">P.U. SIN IVA</th>
@@ -517,20 +517,20 @@ function CapturarContent() {
                 </thead>
                 <tbody>
                   {items.map(item => (
-                    <tr key={item.id} className="border-t border-white/5">
+                    <tr key={item.id} className="border-t border-white/[0.05]">
                       <td className="p-2 text-white text-xs">{item.product_name}</td>
-                      <td className="p-2 text-slate-400 text-xs">{item.quantity} {item.unit}</td>
+                      <td className="p-2 text-[#7f93b0] text-xs">{item.quantity} {item.unit}</td>
                       <td className="p-2">
                         <input type="number" min="0" placeholder="$0" step="0.0001"
                           value={itemPrices[item.id] ? Number(itemPrices[item.id].toFixed(4)) : ""}
                           onChange={(e) => setUnitWithoutTax(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-aria-accent outline-none" />
+                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/[0.08] text-white text-xs text-right focus:border-aria-accent outline-none" />
                       </td>
                       <td className="p-2">
                         <input type="number" min="0" placeholder="$0" step="0.0001"
                           value={itemPrices[item.id] ? Number(unitWithTax(item.id).toFixed(4)) : ""}
                           onChange={(e) => setUnitWithTax(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-xs text-right focus:border-aria-accent outline-none" />
+                          className="w-full px-2 py-1 rounded bg-black/50 border border-white/[0.08] text-white text-xs text-right focus:border-aria-accent outline-none" />
                       </td>
                       <td className="p-2 text-right text-emerald-400 text-xs font-medium">
                         {itemPrices[item.id] ? `$${(itemPrices[item.id] * item.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : ""}
@@ -544,14 +544,14 @@ function CapturarContent() {
 
           {/* Notas */}
           <div>
-            <label className="text-slate-400 text-xs block mb-1">Notas</label>
+            <label className="text-[#7f93b0] text-xs block mb-1">Notas</label>
             <input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Observaciones..."
-              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm focus:border-aria-accent outline-none" />
+              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none" />
           </div>
 
           {/* Resumen */}
-          <div className="p-3 rounded-lg bg-black/30 border border-white/10 space-y-2">
-            <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+          <div className="p-3 rounded-lg bg-black/30 border border-white/[0.08] space-y-2">
+            <div className="flex flex-wrap gap-3 text-xs text-[#7f93b0]">
               <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {formaPago === "TRANSFERENCIA" ? "Transferencia" : formaPago === "EFECTIVO" ? "Efectivo" : "Cheque"}</span>
               <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> {tipoCredito === "CONTADO" ? "Contado" : `${diasCredito}d crédito`}</span>
               <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> {diasEntrega}d entrega</span>
@@ -559,16 +559,16 @@ function CapturarContent() {
                 <Receipt className="w-3 h-3" /> {emiteFactura ? `Factura (IVA ${taxRate}%)` : "Nota (sin IVA)"}
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/10">
-              <div><div className="text-slate-500 text-[10px]">SUBTOTAL</div><div className="text-white font-medium">${formSubtotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-              <div><div className="text-slate-500 text-[10px]">IVA {emiteFactura ? taxRate : 0}%</div><div className="text-white font-medium">${(emiteFactura ? formIva() : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-              <div><div className="text-slate-500 text-[10px]">TOTAL</div><div className="text-emerald-400 font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-              <div><div className="text-slate-500 text-[10px]">ANTICIPO {advancePct}%</div><div className="text-amber-300 font-medium">${(((emiteFactura ? formTotal() : formSubtotal()) * advancePct) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/[0.08]">
+              <div><div className="text-[#4a6080] text-[10px]">SUBTOTAL</div><div className="text-white font-medium">${formSubtotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-[#4a6080] text-[10px]">IVA {emiteFactura ? taxRate : 0}%</div><div className="text-white font-medium">${(emiteFactura ? formIva() : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-[#4a6080] text-[10px]">TOTAL</div><div className="text-emerald-400 font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-[#4a6080] text-[10px]">ANTICIPO {advancePct}%</div><div className="text-amber-300 font-medium">${(((emiteFactura ? formTotal() : formSubtotal()) * advancePct) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
             </div>
           </div>
 
           {/* Footer formulario */}
-          <div className="flex items-center justify-between pt-2 border-t border-white/10">
+          <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">
             <span className="text-emerald-400 font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formSubtotal() <= 0}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-aria-accent to-aria-primary text-white font-medium flex items-center gap-2 disabled:opacity-50">
@@ -584,7 +584,7 @@ function CapturarContent() {
         <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
-            <p className="text-slate-400 text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
+            <p className="text-[#7f93b0] text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
           </div>
           <button onClick={enviarComparativa} disabled={enviando}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">

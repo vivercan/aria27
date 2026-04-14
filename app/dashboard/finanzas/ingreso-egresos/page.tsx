@@ -74,21 +74,21 @@ export default function IngresoEgresosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Ingreso - Egresos</h1>
-            <p className="text-xs text-slate-400 capitalize">{mesLabel()}</p>
+            <p className="text-xs text-[#7f93b0] capitalize">{mesLabel()}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-500" />
+          <Calendar className="w-4 h-4 text-[#4a6080]" />
           <input
             type="month"
             value={periodo}
             onChange={e => setPeriodo(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-aria-primary focus:outline-none"
+            className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"
           />
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function IngresoEgresosPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/10 mb-3 flex-shrink-0">
+      <div className="flex border-b border-white/[0.08] mb-3 flex-shrink-0">
         {[
           { key: "resumen", label: "Resumen" },
           { key: "ingresos", label: `Ingresos (${facturas.length})` },
@@ -135,7 +135,7 @@ export default function IngresoEgresosPage() {
           <button
             key={tab.key}
             onClick={() => setVistaActiva(tab.key as "resumen" | "ingresos" | "egresos")}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${vistaActiva === tab.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-slate-400 hover:text-white"}`}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${vistaActiva === tab.key ? "text-aria-accent border-b-2 border-aria-accent" : "text-[#7f93b0] hover:text-white"}`}
           >
             {tab.label}
           </button>
@@ -152,9 +152,9 @@ export default function IngresoEgresosPage() {
           <div className="p-4 space-y-4">
             {/* Top egresos by obra */}
             <div>
-              <h3 className="text-sm font-medium text-slate-300 mb-2">Egresos por Obra</h3>
+              <h3 className="text-sm font-medium text-[#c9d8ed] mb-2">Egresos por Obra</h3>
               {gastos.length === 0 ? (
-                <p className="text-slate-500 text-sm">Sin egresos en este periodo.</p>
+                <p className="text-[#4a6080] text-sm">Sin egresos en este periodo.</p>
               ) : (
                 <div className="space-y-2">
                   {Object.entries(
@@ -176,9 +176,9 @@ export default function IngresoEgresosPage() {
             </div>
             {/* Top ingresos by cliente */}
             <div>
-              <h3 className="text-sm font-medium text-slate-300 mb-2">Ingresos por Cliente</h3>
+              <h3 className="text-sm font-medium text-[#c9d8ed] mb-2">Ingresos por Cliente</h3>
               {facturas.length === 0 ? (
-                <p className="text-slate-500 text-sm">Sin ingresos en este periodo.</p>
+                <p className="text-[#4a6080] text-sm">Sin ingresos en este periodo.</p>
               ) : (
                 <div className="space-y-2">
                   {Object.entries(
@@ -201,27 +201,27 @@ export default function IngresoEgresosPage() {
           </div>
         ) : vistaActiva === "ingresos" ? (
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Folio</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Cliente</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Concepto</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
-                <th className="text-right p-3 text-slate-400 font-medium text-xs">Total</th>
-                <th className="text-center p-3 text-slate-400 font-medium text-xs">Fecha</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+              <tr className="border-b border-white/[0.08]">
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Folio</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Cliente</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Concepto</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Obra</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium text-xs">Total</th>
+                <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Fecha</th>
               </tr>
             </thead>
             <tbody>
               {facturas.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-500 text-sm">Sin facturas en este periodo</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#4a6080] text-sm">Sin facturas en este periodo</td></tr>
               ) : facturas.map(f => (
-                <tr key={f.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                <tr key={f.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white text-sm font-mono">{f.folio || "—"}</td>
-                  <td className="p-3 text-slate-300 text-sm">{f.cliente || "—"}</td>
-                  <td className="p-3 text-slate-400 text-sm">{f.concepto || "—"}</td>
-                  <td className="p-3 text-slate-400 text-sm">{f.obra_nombre || "—"}</td>
+                  <td className="p-3 text-[#c9d8ed] text-sm">{f.cliente || "—"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{f.concepto || "—"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{f.obra_nombre || "—"}</td>
                   <td className="p-3 text-right text-emerald-400 text-sm font-medium">{fmt(f.total)}</td>
-                  <td className="p-3 text-center text-slate-400 text-xs">
+                  <td className="p-3 text-center text-[#7f93b0] text-xs">
                     {f.fecha_emision ? new Date(f.fecha_emision + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
                   </td>
                 </tr>
@@ -230,33 +230,33 @@ export default function IngresoEgresosPage() {
           </table>
         ) : (
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-              <tr className="border-b border-white/10">
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Fecha</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Obra</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Descripción</th>
-                <th className="text-left p-3 text-slate-400 font-medium text-xs">Proveedor</th>
-                <th className="text-right p-3 text-slate-400 font-medium text-xs">Monto</th>
-                <th className="text-center p-3 text-slate-400 font-medium text-xs">Estatus</th>
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+              <tr className="border-b border-white/[0.08]">
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Fecha</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Obra</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Descripción</th>
+                <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Proveedor</th>
+                <th className="text-right p-3 text-[#7f93b0] font-medium text-xs">Monto</th>
+                <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Estatus</th>
               </tr>
             </thead>
             <tbody>
               {gastos.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-slate-500 text-sm">Sin gastos en este periodo</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#4a6080] text-sm">Sin gastos en este periodo</td></tr>
               ) : gastos.map(g => (
-                <tr key={g.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                  <td className="p-3 text-slate-400 text-xs">
+                <tr key={g.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
+                  <td className="p-3 text-[#7f93b0] text-xs">
                     {g.fecha ? new Date(g.fecha + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
                   </td>
                   <td className="p-3 text-white text-sm">{g.obra || "—"}</td>
-                  <td className="p-3 text-slate-300 text-sm">{g.descripcion || "—"}</td>
-                  <td className="p-3 text-slate-400 text-sm">{g.proveedor || "—"}</td>
+                  <td className="p-3 text-[#c9d8ed] text-sm">{g.descripcion || "—"}</td>
+                  <td className="p-3 text-[#7f93b0] text-sm">{g.proveedor || "—"}</td>
                   <td className="p-3 text-right text-red-400 text-sm font-medium">{fmt(g.monto)}</td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       g.estatus === "pagado" ? "bg-emerald-500/20 text-emerald-400" :
                       g.estatus === "pendiente" ? "bg-amber-500/20 text-amber-400" :
-                      "bg-slate-500/20 text-slate-400"
+                      "bg-slate-500/20 text-[#7f93b0]"
                     }`}>
                       {g.estatus || "—"}
                     </span>

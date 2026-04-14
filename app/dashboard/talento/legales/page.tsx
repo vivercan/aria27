@@ -91,26 +91,26 @@ export default function LegalesPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-4">
+        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
           <ArrowLeft className="w-4 h-4" /> Talento
         </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Documentos Legales</h1>
-            <p className="text-slate-400 text-sm mt-1">Expedientes y documentación de colaboradores</p>
+            <p className="text-[#7f93b0] text-sm mt-1">Expedientes y documentación de colaboradores</p>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
             <input type="text" placeholder="Buscar empleado..." value={search} onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm w-64" />
+              className="pl-9 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm w-64" />
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto rounded-xl border border-white/10">
+      <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08]">
         <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-slate-800 z-10">
-            <tr className="text-left text-slate-400 border-b border-white/10">
+          <thead className="sticky top-0 bg-[#0c1d38] z-10">
+            <tr className="text-left text-[#7f93b0] border-b border-white/[0.08]">
               <th className="px-4 py-3 font-medium">Código</th>
               <th className="px-4 py-3 font-medium">Nombre</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
@@ -125,16 +125,16 @@ export default function LegalesPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+              <tr><td colSpan={9} className="px-4 py-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Sin resultados</td></tr>
+              <tr><td colSpan={9} className="px-4 py-8 text-center text-[#7f93b0]">Sin resultados</td></tr>
             ) : filtered.map(e => (
-              <tr key={e.id} className="border-b border-white/5 hover:bg-white/5">
+              <tr key={e.id} className="border-b border-white/[0.05] hover:bg-white/[0.04]">
                 <td className="px-4 py-3 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                 <td className="px-4 py-3 text-white font-medium">{e.full_name}</td>
-                <td className="px-4 py-3 text-slate-300">{e.empresa || "-"}</td>
-                <td className="px-4 py-3 text-slate-300">{e.tipo_contrato || "Indefinido"}</td>
-                <td className="px-4 py-3 text-slate-300">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "-"}</td>
+                <td className="px-4 py-3 text-[#c9d8ed]">{e.empresa || "-"}</td>
+                <td className="px-4 py-3 text-[#c9d8ed]">{e.tipo_contrato || "Indefinido"}</td>
+                <td className="px-4 py-3 text-[#c9d8ed]">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "-"}</td>
                 <td className="px-4 py-3 font-mono text-xs">{e.rfc ? <span className="text-emerald-400">{e.rfc}</span> : <span className="text-red-400">Falta</span>}</td>
                 <td className="px-4 py-3 font-mono text-xs">{e.curp ? <span className="text-emerald-400">Sí</span> : <span className="text-red-400">Falta</span>}</td>
                 <td className="px-4 py-3 font-mono text-xs">{e.nss ? <span className="text-emerald-400">{e.nss}</span> : <span className="text-red-400">Falta</span>}</td>
@@ -155,7 +155,7 @@ export default function LegalesPage() {
                           <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
                             {saving ? "..." : "Guardar"}
                           </button>
-                          <button onClick={() => { setEditingId(null); setFormErrors({}); }} className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs hover:bg-slate-500/30">
+                          <button onClick={() => { setEditingId(null); setFormErrors({}); }} className="px-2 py-1 bg-slate-500/20 text-[#7f93b0] rounded text-xs hover:bg-slate-500/30">
                             <X className="w-3 h-3" />
                           </button>
                         </div>

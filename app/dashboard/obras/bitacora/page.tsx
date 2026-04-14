@@ -107,14 +107,14 @@ function BitacoraContent() {
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/[0.06] rounded-lg">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-amber-400" /> Bitácora de Obra
             </h1>
-            <p className="text-slate-400 text-sm">Registro diario de actividades, personal, clima e incidencias</p>
+            <p className="text-[#7f93b0] text-sm">Registro diario de actividades, personal, clima e incidencias</p>
           </div>
           <button onClick={() => setShowForm(!showForm)} disabled={!obraSel} className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 disabled:opacity-50 text-amber-300 rounded-lg flex items-center gap-2 text-sm">
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -123,7 +123,7 @@ function BitacoraContent() {
         </div>
 
         <div className="flex items-center gap-3">
-          <select value={obraSel} onChange={e => setObraSel(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm min-w-[280px]">
+          <select value={obraSel} onChange={e => setObraSel(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm min-w-[280px]">
             <option value="">— Selecciona obra —</option>
             {obras.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
           </select>
@@ -132,63 +132,63 @@ function BitacoraContent() {
 
       {obraSel && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-            <p className="text-sm text-slate-400">Entradas registradas</p>
+          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+            <p className="text-sm text-[#7f93b0]">Entradas registradas</p>
             <p className="text-2xl font-bold text-white">{totalEntradas}</p>
           </div>
-          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-            <p className="text-sm text-slate-400">Personal promedio</p>
+          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+            <p className="text-sm text-[#7f93b0]">Personal promedio</p>
             <p className="text-2xl font-bold text-aria-accent">{personalProm}</p>
           </div>
-          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-            <p className="text-sm text-slate-400">Días con incidentes</p>
+          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+            <p className="text-sm text-[#7f93b0]">Días con incidentes</p>
             <p className="text-2xl font-bold text-red-400">{conIncidentes}</p>
           </div>
         </div>
       )}
 
       {showForm && obraSel && (
-        <div className="p-6 bg-white/5 rounded-xl border border-white/10 space-y-4">
+        <div className="p-6 bg-white/[0.04] rounded-xl border border-white/[0.08] space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva entrada · {obraSel}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400">Fecha *</label>
-              <input type="date" required value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Fecha *</label>
+              <input type="date" required value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-400">Clima</label>
-              <select value={form.clima} onChange={e => setForm({ ...form, clima: e.target.value })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm">
+              <label className="text-xs text-[#7f93b0]">Clima</label>
+              <select value={form.clima} onChange={e => setForm({ ...form, clima: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                 <option>Soleado</option><option>Nublado</option><option>Lluvioso</option><option>Tormenta</option><option>Frío</option><option>Caluroso</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400">Personal en obra *</label>
-              <input type="number" required min="0" value={form.personal_en_obra} onChange={e => setForm({ ...form, personal_en_obra: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Personal en obra *</label>
+              <input type="number" required min="0" value={form.personal_en_obra} onChange={e => setForm({ ...form, personal_en_obra: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Actividades del día *</label>
-              <textarea required value={form.actividades} onChange={e => setForm({ ...form, actividades: e.target.value })} rows={3} placeholder="Avance, áreas trabajadas, materiales colocados..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Actividades del día *</label>
+              <textarea required value={form.actividades} onChange={e => setForm({ ...form, actividades: e.target.value })} rows={3} placeholder="Avance, áreas trabajadas, materiales colocados..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Maquinaria utilizada</label>
-              <input value={form.maquinaria} onChange={e => setForm({ ...form, maquinaria: e.target.value })} placeholder="Retro, vibrocompactador, ..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Maquinaria utilizada</label>
+              <input value={form.maquinaria} onChange={e => setForm({ ...form, maquinaria: e.target.value })} placeholder="Retro, vibrocompactador, ..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Observaciones</label>
-              <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Observaciones</label>
+              <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Incidentes (vacío si todo OK)</label>
-              <textarea value={form.incidentes} onChange={e => setForm({ ...form, incidentes: e.target.value })} rows={2} placeholder="Accidentes, retrasos, problemas..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Incidentes (vacío si todo OK)</label>
+              <textarea value={form.incidentes} onChange={e => setForm({ ...form, incidentes: e.target.value })} rows={2} placeholder="Accidentes, retrasos, problemas..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3">
-              <label className="text-xs text-slate-400">Fotos (URLs separadas por coma)</label>
-              <input value={form.fotos} onChange={e => setForm({ ...form, fotos: e.target.value })} placeholder="https://..., https://..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm" />
+              <label className="text-xs text-[#7f93b0]">Fotos (URLs separadas por coma)</label>
+              <input value={form.fotos} onChange={e => setForm({ ...form, fotos: e.target.value })} placeholder="https://..., https://..." className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
           </div>
           <div className="flex gap-3">
             <button onClick={guardar} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm">Guardar entrada</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/5 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/[0.04] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
@@ -196,17 +196,17 @@ function BitacoraContent() {
       <div className="space-y-4">
         {loading && <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>}
         {!loading && entradas.length === 0 && (
-          <div className="text-center py-12 text-slate-400 bg-white/5 rounded-xl border border-white/10">
+          <div className="text-center py-12 text-[#7f93b0] bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <BookOpen className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p>{obraSel ? "Sin entradas en bitácora" : "Selecciona una obra para ver su bitácora"}</p>
           </div>
         )}
         {!loading && entradas.map(e => (
-          <div key={e.id} className="p-5 bg-white/5 rounded-xl border border-white/10">
+          <div key={e.id} className="p-5 bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-white font-semibold text-lg">{new Date(e.fecha).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
-                <p className="text-xs text-slate-400">{e.obra_nombre} · {e.residente_nombre || "—"} · {e.hora_registro || ""}</p>
+                <p className="text-xs text-[#7f93b0]">{e.obra_nombre} · {e.residente_nombre || "—"} · {e.hora_registro || ""}</p>
               </div>
               <div className="flex items-center gap-3 text-xs">
                 {e.clima && <span className="inline-flex items-center gap-1 px-2 py-1 bg-aria-primary-light text-aria-accent rounded"><Cloud className="w-3 h-3" />{e.clima}</span>}
@@ -216,11 +216,11 @@ function BitacoraContent() {
             </div>
             <div className="space-y-2 text-sm">
               <div>
-                <p className="text-slate-400 text-xs uppercase">Actividades</p>
+                <p className="text-[#7f93b0] text-xs uppercase">Actividades</p>
                 <p className="text-white whitespace-pre-line">{e.actividades || "—"}</p>
               </div>
-              {e.maquinaria && <div><p className="text-slate-400 text-xs uppercase">Maquinaria</p><p className="text-slate-300">{e.maquinaria}</p></div>}
-              {e.observaciones && <div><p className="text-slate-400 text-xs uppercase">Observaciones</p><p className="text-slate-300">{e.observaciones}</p></div>}
+              {e.maquinaria && <div><p className="text-[#7f93b0] text-xs uppercase">Maquinaria</p><p className="text-[#c9d8ed]">{e.maquinaria}</p></div>}
+              {e.observaciones && <div><p className="text-[#7f93b0] text-xs uppercase">Observaciones</p><p className="text-[#c9d8ed]">{e.observaciones}</p></div>}
               {e.incidentes && (
                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                   <p className="text-red-300 text-xs uppercase flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Incidentes</p>

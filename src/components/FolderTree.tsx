@@ -84,13 +84,13 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
     return (
       <div key={nodo.id}>
         <div
-          className={`flex items-center gap-1 px-2 py-1.5 rounded hover:bg-white/5 cursor-pointer group ${isSel ? "bg-aria-primary-light" : ""}`}
+          className={`flex items-center gap-1 px-2 py-1.5 rounded hover:bg-white/[0.04] cursor-pointer group ${isSel ? "bg-aria-primary-light" : ""}`}
           style={{ paddingLeft: `${depth * 14 + 8}px` }}
           onClick={() => onSelect?.(nodo.id, nodo.nombre)}
         >
           <button
             onClick={(e) => { e.stopPropagation(); toggle(nodo.id); }}
-            className="w-4 h-4 flex items-center justify-center text-slate-400"
+            className="w-4 h-4 flex items-center justify-center text-[#7f93b0]"
           >
             {hijos.length > 0 ? (isExp ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />) : <span className="w-3 h-3" />}
           </button>
@@ -98,14 +98,14 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
           <span className="flex-1 text-sm text-white truncate">{nodo.nombre}</span>
           <button
             onClick={(e) => { e.stopPropagation(); setCreatingIn(nodo.id); setExpanded(new Set(expanded).add(nodo.id)); }}
-            className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-emerald-400"
+            className="opacity-0 group-hover:opacity-100 p-0.5 text-[#7f93b0] hover:text-emerald-400"
             title="Agregar subcarpeta"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); borrar(nodo.id, nodo.nombre); }}
-            className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-400"
+            className="opacity-0 group-hover:opacity-100 p-0.5 text-[#7f93b0] hover:text-red-400"
             title="Borrar"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -121,7 +121,7 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
               onKeyDown={e => { if (e.key === "Enter") crear(nodo.id); if (e.key === "Escape") { setCreatingIn(null); setNewName(""); } }}
               onBlur={() => { if (!saving) { crear(nodo.id); } }}
               placeholder="Nombre..."
-              className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-aria-primary/50 text-white text-sm focus:outline-none"
+              className="flex-1 px-2 py-0.5 rounded bg-white/[0.04] border border-aria-primary/50 text-white text-sm focus:outline-none"
             />
           </div>
         )}
@@ -135,11 +135,11 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   return (
     <div className="h-full flex flex-col bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-2 mt-2" />}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08] flex-shrink-0">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
         <button
           onClick={() => setCreatingIn("root")}
-          className="p-1 rounded hover:bg-white/10 text-emerald-400"
+          className="p-1 rounded hover:bg-white/[0.06] text-emerald-400"
           title="Nueva carpeta raiz"
         >
           <Plus className="w-4 h-4" />
@@ -160,12 +160,12 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
                   onKeyDown={e => { if (e.key === "Enter") crear(null); if (e.key === "Escape") { setCreatingIn(null); setNewName(""); } }}
                   onBlur={() => { if (!saving) { crear(null); } }}
                   placeholder="Nombre..."
-                  className="flex-1 px-2 py-0.5 rounded bg-white/5 border border-aria-primary/50 text-white text-sm focus:outline-none"
+                  className="flex-1 px-2 py-0.5 rounded bg-white/[0.04] border border-aria-primary/50 text-white text-sm focus:outline-none"
                 />
               </div>
             )}
             {raices.length === 0 && creatingIn !== "root" ? (
-              <p className="text-center text-slate-500 text-xs py-6">Sin carpetas. Click + para crear.</p>
+              <p className="text-center text-[#4a6080] text-xs py-6">Sin carpetas. Click + para crear.</p>
             ) : (
               raices.map(r => renderNode(r, 0))
             )}

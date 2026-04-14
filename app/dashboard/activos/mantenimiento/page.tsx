@@ -38,12 +38,12 @@ const PRIORIDAD = ["BAJA", "NORMAL", "ALTA", "URGENTE"] as const;
 const ESTATUS_ORDEN = ["ABIERTA", "EN_PROCESO", "COMPLETADA", "CANCELADA", "ESPERANDO_REFACCIONES"] as const;
 
 const PRIO_COLORS: Record<string, string> = {
-  BAJA: "bg-slate-500/20 text-slate-400", NORMAL: "bg-aria-primary-light text-aria-accent",
+  BAJA: "bg-slate-500/20 text-[#7f93b0]", NORMAL: "bg-aria-primary-light text-aria-accent",
   ALTA: "bg-amber-500/20 text-amber-400", URGENTE: "bg-red-500/20 text-red-400",
 };
 const EST_COLORS: Record<string, string> = {
   ABIERTA: "bg-aria-primary-light text-aria-accent", EN_PROCESO: "bg-amber-500/20 text-amber-400",
-  COMPLETADA: "bg-emerald-500/20 text-emerald-400", CANCELADA: "bg-slate-500/20 text-slate-400",
+  COMPLETADA: "bg-emerald-500/20 text-emerald-400", CANCELADA: "bg-slate-500/20 text-[#7f93b0]",
   ESPERANDO_REFACCIONES: "bg-purple-500/20 text-purple-400",
 };
 const TIPO_COLORS: Record<string, string> = {
@@ -274,7 +274,7 @@ export default function MantenimientoPage() {
     );
   }, [programas, search]);
 
-  const inputClass = "w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-orange-500/40";
+  const inputClass = "w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-orange-500/40";
 
   /* ────────── render ────────── */
   return (
@@ -286,7 +286,7 @@ export default function MantenimientoPage() {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Wrench className="w-6 h-6 text-orange-400" /> Mantenimiento de Activos
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">Órdenes de trabajo · Programas preventivos · Historial</p>
+          <p className="text-sm text-[#7f93b0] mt-0.5">Órdenes de trabajo · Programas preventivos · Historial</p>
         </div>
       </div>
 
@@ -310,7 +310,7 @@ export default function MantenimientoPage() {
             <div key={s.label} className="p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl">
               <div className={`inline-flex p-1.5 rounded-lg ${s.bg} mb-1`}><s.icon className={`w-3.5 h-3.5 ${s.color}`} /></div>
               <p className="text-lg font-bold text-white">{s.value}</p>
-              <p className="text-[11px] text-slate-400">{s.label}</p>
+              <p className="text-[11px] text-[#7f93b0]">{s.label}</p>
             </div>
           ))}
         </div>
@@ -321,24 +321,24 @@ export default function MantenimientoPage() {
         <div className="flex gap-1">
           {TABS.map(t => (
             <button key={t} onClick={() => { setTab(t); setSearch(""); setFilterTipo("TODOS"); setFilterEstatus("TODOS"); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {t}
             </button>
           ))}
         </div>
         <div className="flex-1 flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar folio, activo, descripción..." className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-orange-500/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar folio, activo, descripción..." className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:outline-none focus:border-orange-500/40" />
           </div>
           {tab !== "Programas" && (
             <>
-              <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+              <select value={filterTipo} onChange={e => setFilterTipo(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
                 <option value="TODOS">Todos tipos</option>
                 {TIPO_ORDEN.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
               {tab === "Órdenes" && (
-                <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none">
+                <select value={filterEstatus} onChange={e => setFilterEstatus(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none">
                   <option value="TODOS">Todos estatus</option>
                   {["ABIERTA","EN_PROCESO","ESPERANDO_REFACCIONES"].map(e => <option key={e} value={e}>{e}</option>)}
                 </select>
@@ -365,8 +365,8 @@ export default function MantenimientoPage() {
             {(tab === "Órdenes" || tab === "Historial") && (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-                    <tr className="text-left text-xs text-slate-400 border-b border-white/[0.06]">
+                  <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+                    <tr className="text-left text-xs text-[#7f93b0] border-b border-white/[0.06]">
                       <th className="px-3 py-2.5">Folio</th>
                       <th className="px-3 py-2.5">Activo</th>
                       <th className="px-3 py-2.5">Tipo</th>
@@ -381,25 +381,25 @@ export default function MantenimientoPage() {
                   </thead>
                   <tbody>
                     {filteredOrdenes.length === 0 ? (
-                      <tr><td colSpan={10} className="text-center py-16 text-slate-500">
+                      <tr><td colSpan={10} className="text-center py-16 text-[#4a6080]">
                         <Wrench className="w-10 h-10 mx-auto mb-3 opacity-30" />
                         <p>{tab === "Historial" ? "Sin órdenes completadas." : "Sin órdenes abiertas."}</p>
                       </td></tr>
                     ) : filteredOrdenes.map(o => (
                       <tr key={o.id} className={`border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors ${o.prioridad === "URGENTE" || o.tipo === "EMERGENCIA" ? "bg-red-500/[0.03]" : ""}`}>
                         <td className="px-3 py-2.5 text-white font-mono text-xs font-medium">{o.folio}</td>
-                        <td className="px-3 py-2.5 text-slate-300 text-xs max-w-[120px] truncate">{o.activo_nombre}</td>
+                        <td className="px-3 py-2.5 text-[#c9d8ed] text-xs max-w-[120px] truncate">{o.activo_nombre}</td>
                         <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded text-[10px] font-medium ${TIPO_COLORS[o.tipo] || ""}`}>{o.tipo}</span></td>
                         <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${PRIO_COLORS[o.prioridad] || ""}`}>{o.prioridad}</span></td>
-                        <td className="px-3 py-2.5 text-slate-300 text-xs max-w-[200px] truncate">{o.descripcion}</td>
-                        <td className="px-3 py-2.5 text-xs text-slate-400 whitespace-nowrap">
+                        <td className="px-3 py-2.5 text-[#c9d8ed] text-xs max-w-[200px] truncate">{o.descripcion}</td>
+                        <td className="px-3 py-2.5 text-xs text-[#7f93b0] whitespace-nowrap">
                           <p>Sol: {fmtDate(o.fecha_solicitud)}</p>
-                          {o.fecha_programada && <p className="text-slate-500">Prog: {fmtDate(o.fecha_programada)}</p>}
+                          {o.fecha_programada && <p className="text-[#4a6080]">Prog: {fmtDate(o.fecha_programada)}</p>}
                           {o.fecha_fin && <p className="text-emerald-400/70">Fin: {fmtDate(o.fecha_fin)}</p>}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-slate-400 font-mono text-xs">{Number(o.costo_estimado) > 0 ? fmt(Number(o.costo_estimado)) : "—"}</td>
+                        <td className="px-3 py-2.5 text-right text-[#7f93b0] font-mono text-xs">{Number(o.costo_estimado) > 0 ? fmt(Number(o.costo_estimado)) : "—"}</td>
                         <td className="px-3 py-2.5 text-right font-mono text-xs">
-                          {Number(o.costo_real) > 0 ? <span className="text-white">{fmt(Number(o.costo_real))}</span> : <span className="text-slate-500">—</span>}
+                          {Number(o.costo_real) > 0 ? <span className="text-white">{fmt(Number(o.costo_real))}</span> : <span className="text-[#4a6080]">—</span>}
                         </td>
                         <td className="px-3 py-2.5"><span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${EST_COLORS[o.estatus] || ""}`}>{o.estatus.replace(/_/g, " ")}</span></td>
                         <td className="px-3 py-2.5">
@@ -423,8 +423,8 @@ export default function MantenimientoPage() {
                   {filteredOrdenes.length > 0 && (
                     <tfoot className="border-t border-white/[0.06]">
                       <tr className="text-xs font-medium">
-                        <td colSpan={6} className="px-3 py-2.5 text-right text-slate-400">Totales:</td>
-                        <td className="px-3 py-2.5 text-right text-slate-300 font-mono">{fmt(filteredOrdenes.reduce((s, o) => s + Number(o.costo_estimado), 0))}</td>
+                        <td colSpan={6} className="px-3 py-2.5 text-right text-[#7f93b0]">Totales:</td>
+                        <td className="px-3 py-2.5 text-right text-[#c9d8ed] font-mono">{fmt(filteredOrdenes.reduce((s, o) => s + Number(o.costo_estimado), 0))}</td>
                         <td className="px-3 py-2.5 text-right text-white font-mono">{fmt(filteredOrdenes.reduce((s, o) => s + Number(o.costo_real), 0))}</td>
                         <td colSpan={2}></td>
                       </tr>
@@ -438,7 +438,7 @@ export default function MantenimientoPage() {
             {tab === "Programas" && (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredProgs.length === 0 ? (
-                  <div className="col-span-full text-center py-16 text-slate-500">
+                  <div className="col-span-full text-center py-16 text-[#4a6080]">
                     <Settings className="w-10 h-10 mx-auto mb-3 opacity-30" />
                     <p>Sin programas preventivos.</p>
                   </div>
@@ -451,13 +451,13 @@ export default function MantenimientoPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-sm font-semibold text-white">{p.nombre}</h3>
-                          <p className="text-xs text-slate-400">{p.activo_nombre}</p>
+                          <p className="text-xs text-[#7f93b0]">{p.activo_nombre}</p>
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${p.activo ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>{p.activo ? "Activo" : "Pausado"}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${p.activo ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{p.activo ? "Activo" : "Pausado"}</span>
                       </div>
-                      <div className="space-y-1.5 text-xs text-slate-400 mb-3">
+                      <div className="space-y-1.5 text-xs text-[#7f93b0] mb-3">
                         <p>Cada <span className="text-white">{p.frecuencia_dias} días</span>{p.frecuencia_km ? ` ó ${p.frecuencia_km.toLocaleString()} km` : ""}</p>
-                        <p>Última: <span className="text-slate-300">{fmtDate(p.ultima_ejecucion)}</span></p>
+                        <p>Última: <span className="text-[#c9d8ed]">{fmtDate(p.ultima_ejecucion)}</span></p>
                         <p>Próxima: <span className={vencido ? "text-red-400 font-medium" : proximo ? "text-orange-400 font-medium" : "text-white"}>{fmtDate(p.proxima_ejecucion)}</span>
                           {vencido && <span className="ml-1 text-red-400">¡VENCIDO {Math.abs(dias!)}d!</span>}
                           {proximo && <span className="ml-1 text-orange-400">({dias}d)</span>}
@@ -472,7 +472,7 @@ export default function MantenimientoPage() {
                         <button onClick={() => editarProg(p)} className="flex items-center gap-1 px-2 py-1.5 bg-aria-primary/10 hover:bg-aria-primary-light rounded-lg text-xs text-aria-accent transition-colors">
                           <Edit2 className="w-3 h-3" />
                         </button>
-                        <button onClick={() => toggleProg(p)} className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${p.activo ? "bg-slate-500/10 hover:bg-slate-500/20 text-slate-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
+                        <button onClick={() => toggleProg(p)} className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${p.activo ? "bg-slate-500/10 hover:bg-slate-500/20 text-[#7f93b0]" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
                           {p.activo ? "Pausar" : "Activar"}
                         </button>
                       </div>
@@ -487,23 +487,23 @@ export default function MantenimientoPage() {
 
       {/* ── Modal: Nueva/Editar Orden ── */}
       {showOrdenForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowOrdenForm(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowOrdenForm(false)}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
               <h3 className="text-lg font-semibold text-white">{editOrdenId ? "Editar Orden de Trabajo" : "Nueva Orden de Trabajo"}</h3>
-              <button onClick={() => setShowOrdenForm(false)} className="text-slate-400 hover:text-white"><XCircle className="w-5 h-5" /></button>
+              <button onClick={() => setShowOrdenForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4 overflow-y-auto max-h-[60vh]">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Activo *</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Activo *</label>
                   <select value={ordenForm.activo_id} onChange={e => setOrdenForm({ ...ordenForm, activo_id: e.target.value })} required className={inputClass}>
                     <option value="">Seleccionar...</option>
                     {activos.map(a => <option key={a.id} value={a.id}>{a.nombre}{a.tipo ? ` (${a.tipo})` : ""}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Tipo *</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Tipo *</label>
                   <select value={ordenForm.tipo} onChange={e => setOrdenForm({ ...ordenForm, tipo: e.target.value })} required className={inputClass}>
                     {TIPO_ORDEN.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
@@ -511,55 +511,55 @@ export default function MantenimientoPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Prioridad</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Prioridad</label>
                   <select value={ordenForm.prioridad} onChange={e => setOrdenForm({ ...ordenForm, prioridad: e.target.value })} className={inputClass}>
                     {PRIORIDAD.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Fecha programada</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Fecha programada</label>
                   <input type="date" value={ordenForm.fecha_programada} onChange={e => setOrdenForm({ ...ordenForm, fecha_programada: e.target.value })} className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Descripción *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Descripción *</label>
                 <textarea value={ordenForm.descripcion} onChange={e => setOrdenForm({ ...ordenForm, descripcion: e.target.value })} rows={2} placeholder="Describe el trabajo a realizar..." required className={inputClass + " resize-none"} />
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Diagnóstico</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Diagnóstico</label>
                 <input value={ordenForm.diagnostico} onChange={e => setOrdenForm({ ...ordenForm, diagnostico: e.target.value })} placeholder="Falla detectada..." className={inputClass} />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Responsable</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Responsable</label>
                   <input value={ordenForm.responsable} onChange={e => setOrdenForm({ ...ordenForm, responsable: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Proveedor</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Proveedor</label>
                   <input value={ordenForm.proveedor} onChange={e => setOrdenForm({ ...ordenForm, proveedor: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Costo estimado</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Costo estimado</label>
                   <input type="number" step="0.01" min="0" value={ordenForm.costo_estimado} onChange={e => setOrdenForm({ ...ordenForm, costo_estimado: e.target.value })} className={inputClass} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Km actual</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Km actual</label>
                   <input type="number" min="0" value={ordenForm.km_actual} onChange={e => setOrdenForm({ ...ordenForm, km_actual: e.target.value })} placeholder="Odómetro" className={inputClass} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Horas actual</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Horas actual</label>
                   <input type="number" min="0" value={ordenForm.horas_actual} onChange={e => setOrdenForm({ ...ordenForm, horas_actual: e.target.value })} placeholder="Horómetro" className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Observaciones</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Observaciones</label>
                 <input value={ordenForm.observaciones} onChange={e => setOrdenForm({ ...ordenForm, observaciones: e.target.value })} className={inputClass} />
               </div>
             </div>
             <div className="flex justify-end gap-2 p-5 border-t border-white/[0.06]">
-              <button onClick={() => setShowOrdenForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowOrdenForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={guardarOrden} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editOrdenId ? "Actualizar" : "Crear OT"}
@@ -571,51 +571,51 @@ export default function MantenimientoPage() {
 
       {/* ── Modal: Nuevo/Editar Programa ── */}
       {showProgForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowProgForm(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowProgForm(false)}>
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-md mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
               <h3 className="text-lg font-semibold text-white">{editProgId ? "Editar Programa" : "Nuevo Programa Preventivo"}</h3>
-              <button onClick={() => setShowProgForm(false)} className="text-slate-400 hover:text-white"><XCircle className="w-5 h-5" /></button>
+              <button onClick={() => setShowProgForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4 overflow-y-auto max-h-[60vh]">
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Activo *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Activo *</label>
                 <select value={progForm.activo_id} onChange={e => setProgForm({ ...progForm, activo_id: e.target.value })} required className={inputClass}>
                   <option value="">Seleccionar...</option>
                   {activos.map(a => <option key={a.id} value={a.id}>{a.nombre}{a.tipo ? ` (${a.tipo})` : ""}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Nombre del programa *</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Nombre del programa *</label>
                 <input value={progForm.nombre} onChange={e => setProgForm({ ...progForm, nombre: e.target.value })} placeholder="Ej: Cambio de aceite" required className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Frecuencia (días) *</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Frecuencia (días) *</label>
                   <input type="number" min="1" required value={progForm.frecuencia_dias} onChange={e => setProgForm({ ...progForm, frecuencia_dias: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Frecuencia (km)</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Frecuencia (km)</label>
                   <input type="number" min="0" value={progForm.frecuencia_km} onChange={e => setProgForm({ ...progForm, frecuencia_km: e.target.value })} placeholder="Opcional" className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Descripción</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>
                 <input value={progForm.descripcion} onChange={e => setProgForm({ ...progForm, descripcion: e.target.value })} placeholder="Detalle del mantenimiento..." className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Proveedor</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Proveedor</label>
                   <input value={progForm.proveedor} onChange={e => setProgForm({ ...progForm, proveedor: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">Costo estimado</label>
+                  <label className="text-xs text-[#7f93b0] mb-1 block">Costo estimado</label>
                   <input type="number" step="0.01" min="0" value={progForm.costo_estimado} onChange={e => setProgForm({ ...progForm, costo_estimado: e.target.value })} className={inputClass} />
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 p-5 border-t border-white/[0.06]">
-              <button onClick={() => setShowProgForm(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowProgForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={guardarProg} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editProgId ? "Actualizar" : "Crear Programa"}

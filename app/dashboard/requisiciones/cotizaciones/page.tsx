@@ -171,7 +171,7 @@ export default function CotizacionesIAPage() {
             <Sparkles className="w-6 h-6 text-amber-400" />
             Búsqueda Inteligente de Proveedores
           </h1>
-          <p className="text-slate-400 text-sm">IA analiza productos y encuentra proveedores en Aguascalientes</p>
+          <p className="text-[#7f93b0] text-sm">IA analiza productos y encuentra proveedores en Aguascalientes</p>
         </div>
       </div>
 
@@ -181,9 +181,9 @@ export default function CotizacionesIAPage() {
           <h2 className="text-lg font-semibold text-white">Requisiciones Pendientes de Cotizar</h2>
 
           {loading ? (
-            <div className="text-center py-10 text-slate-400">Cargando...</div>
+            <div className="text-center py-10 text-[#7f93b0]">Cargando...</div>
           ) : requisiciones.length === 0 ? (
-            <div className="text-center py-10 text-slate-400 bg-white/5 rounded-xl">
+            <div className="text-center py-10 text-[#7f93b0] bg-white/[0.04] rounded-xl">
               No hay requisiciones pendientes
             </div>
           ) : (
@@ -195,7 +195,7 @@ export default function CotizacionesIAPage() {
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedReq?.id === req.id
                       ? "bg-aria-primary-light border-aria-primary"
-                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                      : "bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -207,7 +207,7 @@ export default function CotizacionesIAPage() {
                       {req.urgency?.toUpperCase()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <div className="flex items-center gap-2 text-sm text-[#7f93b0]">
                     <Package className="w-4 h-4" />
                     {req.items?.length || 0} productos
                   </div>
@@ -235,15 +235,15 @@ export default function CotizacionesIAPage() {
           <h2 className="text-lg font-semibold text-white">Proveedores Sugeridos</h2>
 
           {!selectedReq ? (
-            <div className="text-center py-20 text-slate-400 bg-white/5 rounded-xl border border-dashed border-white/20">
+            <div className="text-center py-20 text-[#7f93b0] bg-white/[0.04] rounded-xl border border-dashed border-white/[0.12]">
               <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Selecciona una requisición para buscar proveedores</p>
             </div>
           ) : buscando ? (
-            <div className="text-center py-20 bg-white/5 rounded-xl">
+            <div className="text-center py-20 bg-white/[0.04] rounded-xl">
               <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-aria-accent" />
               <p className="text-white font-medium">Analizando productos...</p>
-              <p className="text-slate-400 text-sm">Buscando proveedores en Aguascalientes</p>
+              <p className="text-[#7f93b0] text-sm">Buscando proveedores en Aguascalientes</p>
             </div>
           ) : error ? (
             <div className="p-6 bg-red-500/20 rounded-xl border border-red-500/50 text-center">
@@ -260,7 +260,7 @@ export default function CotizacionesIAPage() {
                   <Sparkles className="w-4 h-4" /> Análisis IA
                 </h3>
                 <p className="text-white text-sm">{resultado.analisis}</p>
-                <p className="text-slate-400 text-xs mt-2">Categoría: {resultado.categoria_principal}</p>
+                <p className="text-[#7f93b0] text-xs mt-2">Categoría: {resultado.categoria_principal}</p>
               </div>
 
               {/* Recomendación */}
@@ -290,7 +290,7 @@ export default function CotizacionesIAPage() {
                             {p.compatibilidad}
                           </span>
                         </div>
-                        <p className="text-slate-400 text-xs mt-1">{p.razon}</p>
+                        <p className="text-[#7f93b0] text-xs mt-1">{p.razon}</p>
                       </div>
                     ))}
                   </div>
@@ -306,20 +306,20 @@ export default function CotizacionesIAPage() {
                   </h3>
                   <div className="space-y-3">
                     {resultado.proveedores_web.map((p, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <div key={i} className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
                         <h4 className="text-white font-medium flex items-center gap-2">
                           <Building2 className="w-4 h-4 text-aria-accent" />
                           {p.nombre}
                         </h4>
                         <div className="mt-2 space-y-1 text-sm">
                           {p.direccion && (
-                            <div className="flex items-center gap-2 text-slate-400">
+                            <div className="flex items-center gap-2 text-[#7f93b0]">
                               <MapPin className="w-3 h-3" />
                               <span>{p.direccion}</span>
                             </div>
                           )}
                           {p.telefono && (
-                            <div className="flex items-center gap-2 text-slate-400">
+                            <div className="flex items-center gap-2 text-[#7f93b0]">
                               <Phone className="w-3 h-3" />
                               <a href={`tel:${p.telefono}`} className="hover:text-white">{p.telefono}</a>
                             </div>
@@ -334,7 +334,7 @@ export default function CotizacionesIAPage() {
                           )}
                         </div>
                         {p.productos_relacionados && (
-                          <p className="mt-2 text-xs text-slate-500">
+                          <p className="mt-2 text-xs text-[#4a6080]">
                             Productos: {p.productos_relacionados}
                           </p>
                         )}
@@ -345,9 +345,9 @@ export default function CotizacionesIAPage() {
               )}
 
               {/* Lista de productos de la requisición */}
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <h3 className="text-slate-400 text-sm mb-2">Productos solicitados:</h3>
-                <ul className="text-xs text-slate-500 space-y-1">
+              <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                <h3 className="text-[#7f93b0] text-sm mb-2">Productos solicitados:</h3>
+                <ul className="text-xs text-[#4a6080] space-y-1">
                   {selectedReq.items?.map((m, i) => (
                     <li key={i}>• {m.product_name} ({m.quantity} {m.unit})</li>
                   ))}
@@ -360,40 +360,40 @@ export default function CotizacionesIAPage() {
 
       {showQuoteModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
+          <div className="bg-[#0c1d38] rounded-2xl p-6 w-full max-w-md border border-white/[0.08] space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Registrar Cotización</h3>
-              <button onClick={() => setShowQuoteModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setShowQuoteModal(false)}><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-slate-400">Requisición *</label>
-                <select value={quoteForm.requisicion_id} onChange={e => setQuoteForm({...quoteForm, requisicion_id: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
+                <label className="text-xs text-[#7f93b0]">Requisición *</label>
+                <select value={quoteForm.requisicion_id} onChange={e => setQuoteForm({...quoteForm, requisicion_id: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
                   <option value="">Seleccionar...</option>
                   {requisiciones.map(r => <option key={r.id} value={r.id}>{r.folio}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-slate-400">Proveedor *</label>
-                <input type="text" value={quoteForm.supplier_name} onChange={e => setQuoteForm({...quoteForm, supplier_name: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Nombre del proveedor" />
+                <label className="text-xs text-[#7f93b0]">Proveedor *</label>
+                <input type="text" value={quoteForm.supplier_name} onChange={e => setQuoteForm({...quoteForm, supplier_name: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" placeholder="Nombre del proveedor" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-400">Total *</label>
-                  <input type="number" min="0" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="0.00" />
+                  <label className="text-xs text-[#7f93b0]">Total *</label>
+                  <input type="number" min="0" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" placeholder="0.00" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400">Vigencia (días)</label>
-                  <input type="number" min="0" value={quoteForm.vigencia_dias} onChange={e => setQuoteForm({...quoteForm, vigencia_dias: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                  <label className="text-xs text-[#7f93b0]">Vigencia (días)</label>
+                  <input type="number" min="0" value={quoteForm.vigencia_dias} onChange={e => setQuoteForm({...quoteForm, vigencia_dias: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400">Notas</label>
-                <textarea value={quoteForm.notas} onChange={e => setQuoteForm({...quoteForm, notas: e.target.value})} rows={2} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" />
+                <label className="text-xs text-[#7f93b0]">Notas</label>
+                <textarea value={quoteForm.notas} onChange={e => setQuoteForm({...quoteForm, notas: e.target.value})} rows={2} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" />
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setShowQuoteModal(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => setShowQuoteModal(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={handleSaveQuote} disabled={savingQuote || !quoteForm.requisicion_id || !quoteForm.supplier_name || !quoteForm.total} className="flex items-center gap-2 px-4 py-2 bg-aria-accent text-white rounded-lg text-sm hover:bg-aria-accent/80 disabled:opacity-50">
                 {savingQuote ? "Guardando..." : "Guardar"}
               </button>

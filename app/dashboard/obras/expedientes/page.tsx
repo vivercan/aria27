@@ -750,14 +750,14 @@ export default function ExpedientesPage() {
   const DropWrap = ({ children }: { children: React.ReactNode }) => (
     <div className={`relative ${canDrop && dropActive ? "ring-2 ring-emerald-400/60 rounded-xl" : ""}`} {...(canDrop ? dropHandlers : {})}>
       {canDrop && dropActive && (
-        <div className="absolute inset-0 z-30 bg-emerald-500/10 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-emerald-500/10  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
           <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
           <p className="text-emerald-400/60 text-xs mt-1">Se suben autom\u00e1ticamente</p>
         </div>
       )}
       {canDrop && dropProgress && (
-        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-[#0a1628]/80  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
@@ -790,12 +790,12 @@ export default function ExpedientesPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/obras" className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
-            <p className="text-slate-400 text-sm">Selecciona un aÃÂ±o para ver las obras de ese periodo</p>
+            <p className="text-[#7f93b0] text-sm">Selecciona un aÃÂ±o para ver las obras de ese periodo</p>
           </div>
         </div>
 
@@ -807,7 +807,7 @@ export default function ExpedientesPage() {
               <button
                 key={anio}
                 onClick={() => setAnioSeleccionado(anio)}
-                className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 rounded-xl text-left transition-all group"
+                className="p-6 bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] hover:border-amber-500/50 rounded-xl text-left transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-amber-500/20 rounded-xl group-hover:bg-amber-500/30 transition-colors">
@@ -817,7 +817,7 @@ export default function ExpedientesPage() {
                     <h3 className="font-bold text-white text-xl group-hover:text-amber-300 transition-colors">
                       {anio}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-[#7f93b0] mt-0.5">
                       {carpCount > 0 && <span className="text-amber-400/80">{carpCount} carpeta{carpCount !== 1 ? "s" : ""} ÃÂ· </span>}
                       {count} {count === 1 ? "obra" : "obras"}
                     </p>
@@ -829,21 +829,21 @@ export default function ExpedientesPage() {
           {countPorAnio("SIN_ANIO") > 0 && (
             <button
               onClick={() => setAnioSeleccionado("SIN_ANIO")}
-              className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-slate-400/50 rounded-xl text-left transition-all group"
+              className="p-6 bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] hover:border-slate-400/50 rounded-xl text-left transition-all group"
             >
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-slate-500/20 rounded-xl group-hover:bg-slate-500/30 transition-colors">
-                  <FolderOpen className="w-8 h-8 text-slate-400" />
+                  <FolderOpen className="w-8 h-8 text-[#7f93b0]" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-white text-xl">Sin aÃÂ±o</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">{countPorAnio("SIN_ANIO")} obras</p>
+                  <p className="text-xs text-[#7f93b0] mt-0.5">{countPorAnio("SIN_ANIO")} obras</p>
                 </div>
               </div>
             </button>
           )}
         </div>
-        <p className="text-xs text-slate-500 italic">Tip: Para que una obra aparezca en su aÃÂ±o, asigna su fecha de inicio desde Obras Ã¢ÂÂ Pipeline.</p>
+        <p className="text-xs text-[#4a6080] italic">Tip: Para que una obra aparezca en su aÃÂ±o, asigna su fecha de inicio desde Obras Ã¢ÂÂ Pipeline.</p>
       </div>
     );
   }
@@ -855,16 +855,16 @@ export default function ExpedientesPage() {
       <DropWrap><div className="space-y-6 max-w-5xl mx-auto">
         {deleteCarpetaModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="bg-[#0a1628] border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
-              <p className="text-slate-300 text-sm mb-4">
+              <p className="text-[#c9d8ed] text-sm mb-4">
                 ÃÂ¿Eliminar <span className="text-amber-300 font-semibold">"{deleteCarpetaModal.nombre}"</span> y todo su contenido?
                 Los registros quedarÃÂ¡n respaldados en auditorÃÂ­a.
               </p>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setDeleteCarpetaModal({open:false,id:"",nombre:"",isSub:false})}
-                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white text-sm"
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarCarpetaAnio}
@@ -877,23 +877,23 @@ export default function ExpedientesPage() {
 
         {deleteArchivoModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="bg-[#0a1628] border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">
                 Eliminar {deleteArchivoModal.archivos.length === 1 ? "archivo" : `${deleteArchivoModal.archivos.length} archivos`}
               </h3>
-              <p className="text-slate-300 text-sm mb-3">
+              <p className="text-[#c9d8ed] text-sm mb-3">
                 Esta acciÃÂ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
                 Se descargarÃÂ¡ una copia a tu equipo antes de eliminar.
               </p>
-              <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
+              <div className="max-h-40 overflow-y-auto bg-white/[0.04] rounded-lg p-2 mb-4 border border-white/[0.08]">
                 {deleteArchivoModal.archivos.map(a => (
-                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
+                  <div key={a.id} className="text-xs text-[#c9d8ed] py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
                 ))}
               </div>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setDeleteArchivoModal({open:false, archivos:[]})}
-                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white text-sm"
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarArchivos}
@@ -905,12 +905,12 @@ export default function ExpedientesPage() {
         )}
 
         <div className="flex items-center gap-3 flex-wrap">
-          <button onClick={volverNivel} className="p-2 hover:bg-white/10 rounded-lg transition-colors shrink-0">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <button onClick={volverNivel} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-white truncate max-w-full">{carpetaAnioSeleccionada.nombre}</h1>
-            <div className="text-slate-400 text-xs flex flex-wrap items-center gap-1 mt-0.5">
+            <div className="text-[#7f93b0] text-xs flex flex-wrap items-center gap-1 mt-0.5">
               <button onClick={() => irANivel(-1)} className="hover:text-amber-300 transition">AÃÂ±o {anioSeleccionado}</button>
               {rutaCarpetas.map((n, i) => (
                 <span key={n.id} className="flex items-center gap-1">
@@ -925,7 +925,7 @@ export default function ExpedientesPage() {
           </div>
           <button
             onClick={() => setShowNuevaSubcarpeta(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-300 text-sm font-medium transition shrink-0"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] border border-amber-500/30 text-amber-300 text-sm font-medium transition shrink-0"
           >
             <FolderPlus className="w-4 h-4" /> Nueva subcarpeta
           </button>
@@ -949,12 +949,12 @@ export default function ExpedientesPage() {
                 onKeyDown={(e) => { if (e.key === "Enter") crearSubcarpeta(); }}
                 placeholder="Nombre de la subcarpeta"
                 maxLength={80}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+                className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm outline-none focus:border-amber-500"
               />
               {formErrors.nuevaSubcarpetaNombre && <p className="text-red-400 text-xs mt-1">{formErrors.nuevaSubcarpetaNombre}</p>}
             </div>
             <button onClick={crearSubcarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm shrink-0">Crear</button>
-            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); setFormErrors({}); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
+            <button onClick={() => { setShowNuevaSubcarpeta(false); setNuevaSubcarpetaNombre(""); setFormErrors({}); }} className="px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}
 
@@ -971,7 +971,7 @@ export default function ExpedientesPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">{sub.nombre}</h3>
-                        <p className="text-xs text-slate-400 mt-1">Subcarpeta</p>
+                        <p className="text-xs text-[#7f93b0] mt-1">Subcarpeta</p>
                       </div>
                     </div>
                   </button>
@@ -1004,7 +1004,7 @@ export default function ExpedientesPage() {
                 <h2 className="text-xs uppercase text-amber-400 font-semibold tracking-wider">Archivos ({archivos.length})</h2>
                 <button
                   onClick={seleccionarTodosArchivos}
-                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition"
+                  className="flex items-center gap-1.5 text-xs text-[#7f93b0] hover:text-white transition"
                 >
                   {todosSeleccionados ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
                  {todosSeleccionados ? "Deseleccionar todo" : "Seleccionar todo"}
@@ -1026,7 +1026,7 @@ export default function ExpedientesPage() {
                 return (
                   <div
                     key={archivo.id}
-                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${selected ? "bg-amber-500/10 border-amber-500/50" : "bg-white/5 border-white/10 hover:border-amber-500/40"}`}
+                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${selected ? "bg-amber-500/10 border-amber-500/50" : "bg-white/[0.04] border-white/[0.08] hover:border-amber-500/40"}`}
                   >
                     <button
                       onClick={() => toggleArchivoSeleccionado(archivo.id)}
@@ -1047,7 +1047,7 @@ export default function ExpedientesPage() {
                       >
                         <p className="font-medium text-white truncate">{archivo.nombre}</p>
                       </a>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-[#7f93b0] mt-0.5">
                         {formatBytes(archivo.tamano_bytes)}
                         {typeof archivo.paginas === "number" && archivo.paginas > 0 && ` ÃÂ· ${archivo.paginas} ${archivo.paginas === 1 ? "pÃÂ¡gina" : "pÃÂ¡ginas"}`}
                         {`  ÃÂ· ${archivo.tipo || "archivo"} ÃÂ· ${new Date(archivo.created_at).toLocaleDateString("es-MX")}`}
@@ -1057,7 +1057,7 @@ export default function ExpedientesPage() {
                           <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
                         </p>
                       ) : archivo.resumen ? (
-                        <p className="text-xs text-slate-300 mt-1.5 leading-snug line-clamp-3 bg-white/5 rounded px-2 py-1 border border-white/10">
+                        <p className="text-xs text-[#c9d8ed] mt-1.5 leading-snug line-clamp-3 bg-white/[0.04] rounded px-2 py-1 border border-white/[0.08]">
                           {archivo.resumen}
                         </p>
                       ) : null}
@@ -1077,7 +1077,7 @@ export default function ExpedientesPage() {
         )}
 
         {subcarpetas.length === 0 && archivos.length === 0 && (
-          <div className="text-center py-16 text-slate-400 bg-white/5 rounded-xl border border-white/10">
+          <div className="text-center py-16 text-[#7f93b0] bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p>Carpeta vacÃÂ­a</p>
             <p className="text-sm mt-2">Crea subcarpetas o sube archivos con los botones de arriba, o arrastra aquÃ­.</p>
@@ -1095,16 +1095,16 @@ export default function ExpedientesPage() {
       <DropWrap><div className="space-y-6">
         {deleteCarpetaModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="bg-[#0a1628] border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Eliminar carpeta</h3>
-              <p className="text-slate-300 text-sm mb-4">
+              <p className="text-[#c9d8ed] text-sm mb-4">
                 ÃÂ¿Eliminar <span className="text-amber-300 font-semibold">&quot;{deleteCarpetaModal.nombre}&quot;</span> y todo su contenido?
                 Los registros quedarÃÂ¡n respaldados en auditorÃÂ­a.
               </p>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setDeleteCarpetaModal({open:false,id:"",nombre:"",isSub:false})}
-                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white text-sm"
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarCarpetaAnio}
@@ -1116,12 +1116,12 @@ export default function ExpedientesPage() {
         )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => { setAnioSeleccionado(null); loadCarpetasCounts(); }} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5 text-slate-400" />
+            <button onClick={() => { setAnioSeleccionado(null); loadCarpetasCounts(); }} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white">AÃÂ±o {anioSeleccionado === "SIN_ANIO" ? "Ã¢ÂÂ Sin fecha" : anioSeleccionado}</h1>
-              <p className="text-slate-400 text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} ÃÂ· {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
+              <p className="text-[#7f93b0] text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} ÃÂ· {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
             </div>
           </div>
           {puedeCrearCarpetas && (
@@ -1143,10 +1143,10 @@ export default function ExpedientesPage() {
               onKeyDown={(e) => { if (e.key === "Enter") crearCarpetaAnio(); }}
               placeholder="Nombre de la carpeta (ej: Contratos, Permisos...)"
               maxLength={80}
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-amber-500"
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm outline-none focus:border-amber-500"
             />
             <button onClick={crearCarpetaAnio} disabled={creandoCarpeta} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm shrink-0">{creandoCarpeta ? "Creando..." : "Crear"}</button>
-            <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm shrink-0">Cancelar</button>
+            <button onClick={() => { setShowNuevaCarpetaAnio(false); setNuevaCarpetaAnioNombre(""); }} className="px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white/70 text-sm shrink-0">Cancelar</button>
           </div>
         )}
 
@@ -1171,7 +1171,7 @@ export default function ExpedientesPage() {
                         <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors truncate">
                           {carpeta.nombre}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">Carpeta libre ÃÂ· {anioSeleccionado}</p>
+                        <p className="text-xs text-[#7f93b0] mt-1">Carpeta libre ÃÂ· {anioSeleccionado}</p>
                       </div>
                     </div>
                   </button>
@@ -1205,7 +1205,7 @@ export default function ExpedientesPage() {
                 <button
                   key={obra.id}
                   onClick={() => setObraSeleccionada(obra)}
-                  className="p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-aria-primary/50 rounded-xl text-left transition-all group"
+                  className="p-6 bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] hover:border-aria-primary/50 rounded-xl text-left transition-all group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-aria-primary-light rounded-xl group-hover:bg-aria-primary-hover/30 transition-colors">
@@ -1215,9 +1215,9 @@ export default function ExpedientesPage() {
                       <h3 className="font-semibold text-white group-hover:text-aria-accent transition-colors">
                         {obra.name}
                       </h3>
-                      <p className="text-sm text-slate-400 mt-1">Ver carpetas y tareas</p>
+                      <p className="text-sm text-[#7f93b0] mt-1">Ver carpetas y tareas</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-aria-accent transition-colors" />
+                    <ChevronRight className="w-5 h-5 text-[#4a6080] group-hover:text-aria-accent transition-colors" />
                   </div>
                 </button>
               ))}
@@ -1258,20 +1258,20 @@ export default function ExpedientesPage() {
                   const sel = archivosAnioSeleccionados.has(archivo.id);
                   const analizando = !archivo.resumen && !archivo.analizado_at;
                   return (
-                    <div key={archivo.id} className="flex items-start gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 group">
+                    <div key={archivo.id} className="flex items-start gap-3 p-3 bg-white/[0.04] border border-white/[0.08] rounded-lg hover:bg-white/8 group">
                       <button onClick={() => {
                         const ns = new Set(archivosAnioSeleccionados);
                         sel ? ns.delete(archivo.id) : ns.add(archivo.id);
                         setArchivosAnioSeleccionados(ns);
                       }} className="mt-0.5 shrink-0">
-                        {sel ? <CheckSquare className="w-4 h-4 text-amber-400" /> : <Square className="w-4 h-4 text-slate-500" />}
+                        {sel ? <CheckSquare className="w-4 h-4 text-amber-400" /> : <Square className="w-4 h-4 text-[#4a6080]" />}
                       </button>
                       <FileText className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
                         <a href={archivo.url} target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-green-300 font-medium truncate block">
                           {archivo.nombre}
                         </a>
-                        <div className="flex flex-wrap gap-3 text-xs text-slate-400 mt-0.5">
+                        <div className="flex flex-wrap gap-3 text-xs text-[#7f93b0] mt-0.5">
                           {archivo.tamano_bytes != null && <span>{formatBytes(archivo.tamano_bytes)}</span>}
                           {(archivo.paginas ?? 0) > 0 && <span>{archivo.paginas} pÃÂ¡g.</span>}
                           <span>{archivo.tipo?.split("/").pop()}</span>
@@ -1282,7 +1282,7 @@ export default function ExpedientesPage() {
                             <Loader2 className="w-3 h-3 animate-spin" /> Analizando con IA...
                           </p>
                         ) : archivo.resumen ? (
-                          <p className="text-xs text-slate-300 mt-1 leading-snug line-clamp-3 bg-white/5 rounded px-2 py-1 border border-white/10">
+                          <p className="text-xs text-[#c9d8ed] mt-1 leading-snug line-clamp-3 bg-white/[0.04] rounded px-2 py-1 border border-white/[0.08]">
                             {archivo.resumen}
                           </p>
                         ) : null}
@@ -1299,7 +1299,7 @@ export default function ExpedientesPage() {
                 })}
               </div>
             ) : (
-              <p className="text-slate-500 text-sm py-4 text-center">Sin archivos sueltos. Sube un archivo con el botÃÂ³n de arriba.</p>
+              <p className="text-[#4a6080] text-sm py-4 text-center">Sin archivos sueltos. Sube un archivo con el botÃÂ³n de arriba.</p>
             )}
           </div>
         )}
@@ -1307,23 +1307,23 @@ export default function ExpedientesPage() {
         {/* Modal eliminar archivos del aÃÂ±o */}
         {deleteArchivoAnioModal.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-slate-900 border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="bg-[#0a1628] border border-red-500/40 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">
                 Eliminar {deleteArchivoAnioModal.archivos.length === 1 ? "archivo" : `${deleteArchivoAnioModal.archivos.length} archivos`}
               </h3>
-              <p className="text-slate-300 text-sm mb-3">
+              <p className="text-[#c9d8ed] text-sm mb-3">
                 Esta acciÃÂ³n <span className="text-red-400 font-semibold">no se puede deshacer</span>.
                 Se descargarÃÂ¡ una copia a tu equipo antes de eliminar.
               </p>
-              <div className="max-h-40 overflow-y-auto bg-white/5 rounded-lg p-2 mb-4 border border-white/10">
+              <div className="max-h-40 overflow-y-auto bg-white/[0.04] rounded-lg p-2 mb-4 border border-white/[0.08]">
                 {deleteArchivoAnioModal.archivos.map(a => (
-                  <div key={a.id} className="text-xs text-slate-300 py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
+                  <div key={a.id} className="text-xs text-[#c9d8ed] py-0.5 truncate">Ã¢ÂÂ¢ {a.nombre}</div>
                 ))}
               </div>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setDeleteArchivoAnioModal({open:false, archivos:[]})}
-                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm"
+                  className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-white text-sm"
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarArchivosAnio}
@@ -1335,7 +1335,7 @@ export default function ExpedientesPage() {
         )}
 
         {carpetasAnio.length === 0 && obrasFiltradas.length === 0 && archivosAnio.length === 0 && (
-          <div className="text-center py-16 text-slate-400">
+          <div className="text-center py-16 text-[#7f93b0]">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p>Este aÃÂ±o estÃÂ¡ vacÃÂ­o</p>
             {puedeCrearCarpetas && <p className="text-sm mt-2">Crea una carpeta libre con el botÃÂ³n de arriba, sube archivos, o asigna obras desde Pipeline.</p>}
@@ -1355,23 +1355,23 @@ export default function ExpedientesPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => { setObraSeleccionada(null); setCarpetaSeleccionada(null); }}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-white">{obraSeleccionada.name}</h1>
-            <p className="text-slate-400 text-sm">Expediente de obra</p>
+            <p className="text-[#7f93b0] text-sm">Expediente de obra</p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-white/10 pb-2">
+      <div className="flex gap-2 border-b border-white/[0.08] pb-2">
         <button
           onClick={() => setActiveTab("carpetas")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeTab === "carpetas" ? "bg-aria-primary text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
+            activeTab === "carpetas" ? "bg-aria-primary text-white" : "text-[#7f93b0] hover:text-white hover:bg-white/[0.06]"
           }`}
         >
           <FolderOpen className="w-4 h-4 inline mr-2" />
@@ -1380,7 +1380,7 @@ export default function ExpedientesPage() {
         <button
           onClick={() => setActiveTab("tareas")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeTab === "tareas" ? "bg-aria-primary text-white" : "text-slate-400 hover:text-white hover:bg-white/10"
+            activeTab === "tareas" ? "bg-aria-primary text-white" : "text-[#7f93b0] hover:text-white hover:bg-white/[0.06]"
           }`}
         >
           <ClipboardList className="w-4 h-4 inline mr-2" />
@@ -1411,7 +1411,7 @@ export default function ExpedientesPage() {
                   className={`w-full p-4 rounded-xl text-left transition-all flex items-center gap-3 ${
                     carpetaSeleccionada?.id === carpeta.id
                       ? "bg-aria-primary-light border-aria-primary"
-                      : "bg-white/5 hover:bg-white/10 border-transparent"
+                      : "bg-white/[0.04] hover:bg-white/[0.06] border-transparent"
                   } border`}
                 >
                   <FolderOpen className={`w-5 h-5 ${carpetaSeleccionada?.id === carpeta.id ? "text-aria-accent" : "text-amber-400"}`} />
@@ -1420,7 +1420,7 @@ export default function ExpedientesPage() {
               ))}
 
               {carpetas.length === 0 && (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-[#7f93b0]">
                   <FolderPlus className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>No hay carpetas</p>
                   <p className="text-sm">Crea una para organizar documentos</p>
@@ -1430,7 +1430,7 @@ export default function ExpedientesPage() {
           </div>
 
           {/* Archivos de la Carpeta */}
-          <div className="lg:col-span-2 bg-white/5 rounded-xl p-6 border border-white/10">
+          <div className="lg:col-span-2 bg-white/[0.04] rounded-xl p-6 border border-white/[0.08]">
             {carpetaSeleccionada ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -1465,18 +1465,18 @@ export default function ExpedientesPage() {
                       href={archivo.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="flex items-center gap-3 p-3 bg-white/[0.04] hover:bg-white/[0.06] rounded-lg transition-colors"
                     >
                       <FileText className="w-5 h-5 text-aria-accent" />
                       <div className="flex-1">
                         <p className="text-white text-sm font-medium">{archivo.nombre}</p>
-                        <p className="text-slate-400 text-xs">{new Date(archivo.created_at).toLocaleDateString()}</p>
+                        <p className="text-[#7f93b0] text-xs">{new Date(archivo.created_at).toLocaleDateString()}</p>
                       </div>
                     </a>
                   ))}
 
                   {archivos.length === 0 && (
-                    <div className="text-center py-12 text-slate-400">
+                    <div className="text-center py-12 text-[#7f93b0]">
                       <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>No hay archivos en esta carpeta</p>
                     </div>
@@ -1484,7 +1484,7 @@ export default function ExpedientesPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-16 text-slate-400">
+              <div className="text-center py-16 text-[#7f93b0]">
                 <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
                 <p>Selecciona una carpeta para ver sus archivos</p>
               </div>
@@ -1513,7 +1513,7 @@ export default function ExpedientesPage() {
                 className={`p-4 rounded-xl border transition-all ${
                   tarea.status === "completada"
                     ? "bg-emerald-500/10 border-emerald-500/30"
-                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    : "bg-white/[0.04] border-white/[0.08] hover:border-white/[0.12]"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -1522,7 +1522,7 @@ export default function ExpedientesPage() {
                     className={`mt-1 p-1 rounded-full transition-colors ${
                       tarea.status === "completada"
                                  ? "bg-emerald-500 text-white"
-                        : "bg-white/10 text-slate-400 hover:bg-white/20"
+                        : "bg-white/[0.06] text-[#7f93b0] hover:bg-white/[0.1]"
                     }`}
                   >
                     <CheckCircle2 className="w-5 h-5" />
@@ -1533,10 +1533,10 @@ export default function ExpedientesPage() {
                     </h3>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                       {tarea.responsable && (
-                        <span className="text-slate-400">Ã°ÂÂÂ¤ {tarea.responsable}</span>
+                        <span className="text-[#7f93b0]">Ã°ÂÂÂ¤ {tarea.responsable}</span>
                       )}
                       {tarea.fecha_limite && (
-                        <span className="text-slate-400 flex items-center gap-1">
+                        <span className="text-[#7f93b0] flex items-center gap-1">
                           <Clock className="w-4 h-4" />
                           {new Date(tarea.fecha_limite).toLocaleDateString()}
                         </span>
@@ -1551,7 +1551,7 @@ export default function ExpedientesPage() {
             ))}
 
             {tareas.length === 0 && (
-              <div className="text-center py-12 text-slate-400">
+              <div className="text-center py-12 text-[#7f93b0]">
                 <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-30" />
                 <p>No hay tareas para esta obra</p>
               </div>
@@ -1563,10 +1563,10 @@ export default function ExpedientesPage() {
       {/* Modal: Nueva Carpeta */}
       {showNuevaCarpeta && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-md border border-white/[0.08]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Nueva Carpeta</h3>
-              <button onClick={() => setShowNuevaCarpeta(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowNuevaCarpeta(false)} className="text-[#7f93b0] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1575,10 +1575,10 @@ export default function ExpedientesPage() {
               placeholder="Nombre de la carpeta"
               value={nuevaCarpetaNombre}
               onChange={(e) => setNuevaCarpetaNombre(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
             />
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowNuevaCarpeta(false)} className="px-4 py-2 text-slate-400 hover:text-white">
+              <button onClick={() => setShowNuevaCarpeta(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white">
                 Cancelar
               </button>
               <button onClick={crearCarpeta} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">
@@ -1592,10 +1592,10 @@ export default function ExpedientesPage() {
       {/* Modal: Nueva Tarea */}
       {showNuevaTarea && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/10">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-md border border-white/[0.08]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Nueva Tarea</h3>
-              <button onClick={() => setShowNuevaTarea(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowNuevaTarea(false)} className="text-[#7f93b0] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1605,25 +1605,25 @@ export default function ExpedientesPage() {
                 placeholder="TÃÂ­tulo de la tarea"
                 value={nuevaTarea.titulo}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, titulo: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
               />
               <input
                 type="text"
                 placeholder="Responsable"
                 value={nuevaTarea.responsable}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, responsable: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
               />
               <input
                 type="date"
                 value={nuevaTarea.fecha_limite}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, fecha_limite: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary"
               />
               <select
                 value={nuevaTarea.prioridad}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, prioridad: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary"
               >
                 <option value="normal">Prioridad Normal</option>
                 <option value="media">Prioridad Media</option>
@@ -1631,7 +1631,7 @@ export default function ExpedientesPage() {
               </select>
             </div>
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowNuevaTarea(false)} className="px-4 py-2 text-slate-400 hover:text-white">
+              <button onClick={() => setShowNuevaTarea(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white">
                 Cancelar
               </button>
               <button onClick={crearTarea} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary rounded-lg text-white font-medium">

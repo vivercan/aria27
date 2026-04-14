@@ -197,18 +197,18 @@ export default function CeoDashboardPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Activity className="w-7 h-7 text-amber-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Dashboard CEO</h1>
-            <p className="text-slate-400 text-sm">Vista ejecutiva consolidada — pipeline, cobranza, gasto, margen real y alertas</p>
+            <p className="text-[#7f93b0] text-sm">Vista ejecutiva consolidada — pipeline, cobranza, gasto, margen real y alertas</p>
           </div>
         </div>
-        <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10">
+        <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06]">
           <RefreshCw className="w-4 h-4" /> Refrescar
         </button>
       </div>
@@ -240,11 +240,11 @@ export default function CeoDashboardPage() {
       )}
 
       {/* Flujo caja 12 semanas */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 p-5">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-aria-accent" />
           <h2 className="text-base font-bold text-white">Flujo de caja · últimas 12 semanas</h2>
-          <span className="ml-auto text-xs text-slate-500">verde=cobros · naranja=gasto OC</span>
+          <span className="ml-auto text-xs text-[#4a6080]">verde=cobros · naranja=gasto OC</span>
         </div>
         <div className="grid grid-cols-12 gap-2 items-end h-40">
           {flujoCaja.map((f, i) => (
@@ -253,42 +253,42 @@ export default function CeoDashboardPage() {
                 <div className="flex-1 bg-emerald-500/60 rounded-t" style={{ height: `${(f.cobro / f.maxVal) * 100}%` }} title={`Cobrado: ${fmt(f.cobro)}`} />
                 <div className="flex-1 bg-orange-500/60 rounded-t" style={{ height: `${(f.gasto / f.maxVal) * 100}%` }} title={`Gasto OC: ${fmt(f.gasto)}`} />
               </div>
-              <p className="text-[9px] text-slate-500">{f.semana}</p>
+              <p className="text-[9px] text-[#4a6080]">{f.semana}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Top obras por margen */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
-        <div className="p-4 border-b border-white/10 flex items-center gap-2">
+      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
+        <div className="p-4 border-b border-white/[0.08] flex items-center gap-2">
           <Building2 className="w-5 h-5 text-aria-accent" />
           <h2 className="text-base font-bold text-white">Top 5 obras por margen real</h2>
         </div>
         {topMargen.length === 0 ? (
-          <p className="p-8 text-center text-slate-500 text-sm">Sin obras con datos.</p>
+          <p className="p-8 text-center text-[#4a6080] text-sm">Sin obras con datos.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-900/40">
-                <th className="text-left p-3 text-slate-400 text-xs">Obra</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Presupuesto</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Gasto Total</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Cobrado</th>
-                <th className="text-right p-3 text-slate-400 text-xs">Margen Real</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Av Fin</th>
-                <th className="text-center p-3 text-slate-400 text-xs">Av Fís</th>
+              <tr className="border-b border-white/[0.08] bg-[#0a1628]/40">
+                <th className="text-left p-3 text-[#7f93b0] text-xs">Obra</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Presupuesto</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Gasto Total</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Cobrado</th>
+                <th className="text-right p-3 text-[#7f93b0] text-xs">Margen Real</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Av Fin</th>
+                <th className="text-center p-3 text-[#7f93b0] text-xs">Av Fís</th>
               </tr>
             </thead>
             <tbody>
               {topMargen.map(o => (
-                <tr key={o.nombre} className="border-b border-white/5">
+                <tr key={o.nombre} className="border-b border-white/[0.05]">
                   <td className="p-3 text-white font-medium">{o.nombre}</td>
                   <td className="p-3 text-right text-aria-accent">{fmt2(o.presupuesto)}</td>
                   <td className="p-3 text-right text-orange-300">{fmt2(o.gastoTotal)}</td>
                   <td className="p-3 text-right text-emerald-300">{fmt2(o.cobrado)}</td>
                   <td className={`p-3 text-right font-bold ${o.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt2(o.margen)}</td>
-                  <td className="p-3 text-center text-slate-300 text-xs">{o.avFin.toFixed(1)}%</td>
+                  <td className="p-3 text-center text-[#c9d8ed] text-xs">{o.avFin.toFixed(1)}%</td>
                   <td className="p-3 text-center text-emerald-300 text-xs">{o.pctFis !== null ? o.pctFis.toFixed(1) + "%" : "—"}</td>
                 </tr>
               ))}
@@ -297,7 +297,7 @@ export default function CeoDashboardPage() {
         )}
       </div>
 
-      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 text-xs text-slate-400">
+      <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 text-xs text-[#7f93b0]">
         Vista ejecutiva consolidada. Pipeline = cotizaciones BORRADOR/ENVIADA dentro de vigencia. Aprobado = cotizaciones APROBADA. Cobrado/Por cobrar = suma sobre cobros_manuales no canceladas. Gasto OC del mes = purchase_orders no canceladas creadas en el mes actual. Margen Real = Cobrado − (Gasto OC + Nómina CONFIRMADA). Alertas: rebasadas = gasto mayor a presupuesto; delta Fis-Fin menor a -10% = obra atrasada vs gasto.
       </div>
     </div>
@@ -317,23 +317,23 @@ function KpiCard({ icon, label, value, sub, color }: { icon: React.ReactNode; la
     <div className={`p-4 rounded-xl border ${map[color] || map.blue}`}>
       <div className="flex items-center gap-2 mb-2 opacity-80">{icon}<span className="text-[11px] uppercase tracking-wide">{label}</span></div>
       <p className="text-xl font-bold">{value}</p>
-      <p className="text-[10px] text-slate-500 mt-1">{sub}</p>
+      <p className="text-[10px] text-[#4a6080] mt-1">{sub}</p>
     </div>
   );
 }
 
 function AlertBox({ title, count, items, link }: { title: string; count: number; items: string[]; link: string }) {
   return (
-    <Link href={link} className="block p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] transition">
+    <Link href={link} className="block p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.05] transition">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-slate-400 uppercase">{title}</p>
+        <p className="text-xs text-[#7f93b0] uppercase">{title}</p>
         <span className={`text-2xl font-bold ${count > 0 ? "text-rose-300" : "text-emerald-300"}`}>{count}</span>
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-slate-600">— sin items —</p>
+        <p className="text-xs text-[#4a6080]">— sin items —</p>
       ) : (
         <ul className="space-y-1">
-          {items.slice(0, 5).map((it, i) => <li key={i} className="text-[11px] text-slate-300 truncate">• {it}</li>)}
+          {items.slice(0, 5).map((it, i) => <li key={i} className="text-[11px] text-[#c9d8ed] truncate">• {it}</li>)}
         </ul>
       )}
     </Link>

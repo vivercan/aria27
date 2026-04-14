@@ -113,8 +113,8 @@ export default function AuthorizeRequisicionesPage() {
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-4" />
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-400" />
+        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
+          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
         </Link>
         <div>
           <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
@@ -124,7 +124,7 @@ export default function AuthorizeRequisicionesPage() {
 
       <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
         {/* Lista de pendientes */}
-        <div className="lg:col-span-1 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col min-h-0 overflow-hidden">
+        <div className="lg:col-span-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col min-h-0 overflow-hidden">
           <h2 className="text-lg font-semibold mb-4">Pendientes ({Requisiciones.length})</h2>
           <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
@@ -137,7 +137,7 @@ export default function AuthorizeRequisicionesPage() {
                   <button
                     key={r.id}
                     onClick={() => selectReq(r)}
-                    className={`w-full text-left rounded-xl p-3 transition ${selectedReq?.id === r.id ? "bg-aria-accent-bg border border-aria-accent/50" : "bg-white/5 hover:bg-white/10"}`}
+                    className={`w-full text-left rounded-xl p-3 transition ${selectedReq?.id === r.id ? "bg-aria-accent-bg border border-aria-accent/50" : "bg-white/[0.04] hover:bg-white/[0.06]"}`}
                   >
                     <div className="font-mono text-xs text-aria-accent">{r.folio}</div>
                     <div className="text-sm font-medium">{r.cost_center_name}</div>
@@ -150,7 +150,7 @@ export default function AuthorizeRequisicionesPage() {
         </div>
 
         {/* Detalle */}
-        <div className="lg:col-span-2 rounded-2xl bg-white/5 p-5 shadow-lg backdrop-blur flex flex-col min-h-0 overflow-hidden">
+        <div className="lg:col-span-2 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col min-h-0 overflow-hidden">
           {!selectedReq ? (
             <div className="text-center py-12 text-white/50 flex-1 flex items-center justify-center">Selecciona una requisicion para revisar</div>
           ) : (
@@ -172,13 +172,13 @@ export default function AuthorizeRequisicionesPage() {
                 </div>
               )}
 
-              <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden flex-1 min-h-0 flex flex-col mb-4">
-                <div className="grid grid-cols-[2fr_80px_60px_1fr] gap-2 border-b border-white/10 bg-white/5 px-3 py-2 text-xs uppercase text-white/50 sticky top-0">
+              <div className="rounded-xl border border-white/[0.08] bg-black/20 overflow-hidden flex-1 min-h-0 flex flex-col mb-4">
+                <div className="grid grid-cols-[2fr_80px_60px_1fr] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs uppercase text-white/50 sticky top-0">
                   <div>Material</div><div>Unidad</div><div>Cant.</div><div>Obs.</div>
                 </div>
                 <div className="overflow-y-auto flex-1">
                   {items.map((item) => (
-                    <div key={item.id} className="grid grid-cols-[2fr_80px_60px_1fr] gap-2 px-3 py-2 text-sm border-b border-white/5">
+                    <div key={item.id} className="grid grid-cols-[2fr_80px_60px_1fr] gap-2 px-3 py-2 text-sm border-b border-white/[0.05]">
                       <div>{item.product_name}</div>
                       <div className="text-white/60">{item.unit}</div>
                       <div className="font-medium">{item.quantity}</div>

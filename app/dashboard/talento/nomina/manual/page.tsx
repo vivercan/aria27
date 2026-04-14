@@ -302,21 +302,21 @@ export default function NominaManualPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Edit3 className="w-7 h-7 text-amber-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Nómina Manual</h1>
-            <p className="text-slate-400 text-sm">{formatDate(semanaInfo.inicio)} – {formatDate(semanaInfo.fin)} | Editar asistencias y recalcular</p>
+            <p className="text-[#7f93b0] text-sm">{formatDate(semanaInfo.inicio)} – {formatDate(semanaInfo.fin)} | Editar asistencias y recalcular</p>
           </div>
         </div>
         <div className="flex gap-2 items-center">
-          <button onClick={() => shiftWeek(-1)} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10">‹</button>
-          <button onClick={irHoy} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 text-sm">Hoy</button>
-          <button onClick={() => shiftWeek(1)} className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10">›</button>
+          <button onClick={() => shiftWeek(-1)} className="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06]">‹</button>
+          <button onClick={irHoy} className="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06] text-sm">Hoy</button>
+          <button onClick={() => shiftWeek(1)} className="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06]">›</button>
           {nominaStatus && (
             <span className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
               {nominaStatus}
@@ -326,26 +326,26 @@ export default function NominaManualPage() {
       </div>
 
       {/* Selector de empleado */}
-      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-3">
         <div className="flex gap-3">
           <input
             type="text"
             placeholder="Filtrar empleados por nombre/puesto..."
             value={filtroEmp}
             onChange={e => setFiltroEmp(e.target.value)}
-            className="flex-1 max-w-xs px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-aria-accent/50 text-sm"
+            className="flex-1 max-w-xs px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-[#4a6080] focus:outline-none focus:border-aria-accent/50 text-sm"
           />
           <select
             value={empleadoSeleccionado}
             onChange={e => setEmpleadoSeleccionado(e.target.value)}
-            className="flex-1 max-w-md px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-aria-accent/50"
+            className="flex-1 max-w-md px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:border-aria-accent/50"
           >
             <option value="">-- Selecciona un empleado --</option>
             {empleados
               .filter(e => !filtroEmp || `${e.full_name} ${e.position}`.toLowerCase().includes(filtroEmp.toLowerCase()))
               .map(e => (<option key={e.id} value={e.id}>{e.full_name} — {e.position}</option>))}
           </select>
-          <span className="text-slate-500 text-xs self-center">{empleados.length} activos</span>
+          <span className="text-[#4a6080] text-xs self-center">{empleados.length} activos</span>
         </div>
       </div>
 
@@ -361,26 +361,26 @@ export default function NominaManualPage() {
           {/* Info empleado y cálculo */}
           <div className="grid grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
-              <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-slate-400 text-xs">Empleado</span></div>
+              <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-[#7f93b0] text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
-              <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-emerald-400" /><span className="text-slate-400 text-xs">Días Trabajados</span></div>
+              <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-emerald-400" /><span className="text-[#7f93b0] text-xs">Días Trabajados</span></div>
               <p className="text-2xl font-bold text-emerald-400">{calculo.dias}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
-              <div className="flex items-center gap-2 mb-1"><span className="text-slate-400 text-xs">Salario Base</span></div>
+              <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Salario Base</span></div>
               <p className="text-2xl font-bold text-purple-400">{formatMoney(calculo.salarioBase)}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
-              <div className="flex items-center gap-2 mb-1"><span className="text-slate-400 text-xs">Neto Estimado</span></div>
+              <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Neto Estimado</span></div>
               <p className="text-2xl font-bold text-amber-400">{formatMoney(calculo.neto)}</p>
             </div>
           </div>
 
           {/* Tabla de asistencias */}
-          <div className="rounded-2xl bg-white/[0.02] border border-white/10 overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden">
+            <div className="p-4 border-b border-white/[0.08] flex items-center justify-between">
               <h3 className="text-white font-medium">Asistencias de la Semana</h3>
               <div className="flex gap-2">
                 {hayEdiciones && (
@@ -389,7 +389,7 @@ export default function NominaManualPage() {
                     Guardar
                   </button>
                 )}
-                <button onClick={recalcularNominaDB} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-all">
+                <button onClick={recalcularNominaDB} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] transition-all">
                   <RefreshCw className="w-4 h-4" />
                   Recalcular Nómina
                 </button>
@@ -398,14 +398,14 @@ export default function NominaManualPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-900/50 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-                  <tr className="border-b border-white/10">
-                    <th className="text-left p-4 text-slate-400 font-medium text-sm">Fecha</th>
-                    <th className="text-left p-4 text-slate-400 font-medium text-sm">Día</th>
-                    <th className="text-center p-4 text-slate-400 font-medium text-sm">Entrada</th>
-                    <th className="text-center p-4 text-slate-400 font-medium text-sm">Salida</th>
-                    <th className="text-left p-4 text-slate-400 font-medium text-sm">Notas</th>
-                    <th className="text-center p-4 text-slate-400 font-medium text-sm">Acciones</th>
+                <thead className="bg-[#0a1628]/50 sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Fecha</th>
+                    <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Día</th>
+                    <th className="text-center p-4 text-[#7f93b0] font-medium text-sm">Entrada</th>
+                    <th className="text-center p-4 text-[#7f93b0] font-medium text-sm">Salida</th>
+                    <th className="text-left p-4 text-[#7f93b0] font-medium text-sm">Notas</th>
+                    <th className="text-center p-4 text-[#7f93b0] font-medium text-sm">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -414,34 +414,34 @@ export default function NominaManualPage() {
                     
                     if (asist) {
                       return (
-                        <tr key={fecha} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <tr key={fecha} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                           <td className="p-4 text-white">{formatDate(fecha)}</td>
-                          <td className="p-4 text-slate-400">{getDiaNombre(fecha)}</td>
+                          <td className="p-4 text-[#7f93b0]">{getDiaNombre(fecha)}</td>
                           <td className="p-4 text-center">
                             {asist.editando ? (
-                              <input type="time" value={asist.hora_entrada?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_entrada", e.target.value)} className="px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-center w-24" />
+                              <input type="time" value={asist.hora_entrada?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_entrada", e.target.value)} className="px-2 py-1 rounded bg-white/[0.06] border border-white/[0.12] text-white text-center w-24" />
                             ) : (
                               <span className="text-emerald-400">{asist.hora_entrada?.substring(0,5)}</span>
                             )}
                           </td>
                           <td className="p-4 text-center">
                             {asist.editando ? (
-                              <input type="time" value={asist.hora_salida?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_salida", e.target.value)} className="px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-center w-24" />
+                              <input type="time" value={asist.hora_salida?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_salida", e.target.value)} className="px-2 py-1 rounded bg-white/[0.06] border border-white/[0.12] text-white text-center w-24" />
                             ) : (
                               <span className="text-aria-accent">{asist.hora_salida?.substring(0,5)}</span>
                             )}
                           </td>
                           <td className="p-4">
                             {asist.editando ? (
-                              <input type="text" value={asist.notas || ""} onChange={e => actualizarAsistencia(asist.id, "notas", e.target.value)} className="px-2 py-1 rounded bg-white/10 border border-white/20 text-white w-full" placeholder="Notas..." />
+                              <input type="text" value={asist.notas || ""} onChange={e => actualizarAsistencia(asist.id, "notas", e.target.value)} className="px-2 py-1 rounded bg-white/[0.06] border border-white/[0.12] text-white w-full" placeholder="Notas..." />
                             ) : (
-                              <span className="text-slate-500 text-sm">{asist.notas}</span>
+                              <span className="text-[#4a6080] text-sm">{asist.notas}</span>
                             )}
                           </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                               {asist.editando ? (
-                                <button onClick={() => cancelarEdicion(asist.id)} className="p-1.5 rounded-lg bg-slate-700/50 text-slate-400 hover:bg-slate-700">
+                                <button onClick={() => cancelarEdicion(asist.id)} className="p-1.5 rounded-lg bg-white/[0.05] text-[#7f93b0] hover:bg-[#0f2448]">
                                   ✕
                                 </button>
                               ) : (
@@ -458,9 +458,9 @@ export default function NominaManualPage() {
                       );
                     } else {
                       return (
-                        <tr key={fecha} className="border-b border-white/5 bg-red-500/5">
+                        <tr key={fecha} className="border-b border-white/[0.05] bg-red-500/5">
                           <td className="p-4 text-white">{formatDate(fecha)}</td>
-                          <td className="p-4 text-slate-400">{getDiaNombre(fecha)}</td>
+                          <td className="p-4 text-[#7f93b0]">{getDiaNombre(fecha)}</td>
                           <td className="p-4 text-center" colSpan={3}>
                             <span className="text-red-400 text-sm">❌ Sin registro</span>
                           </td>
@@ -484,7 +484,7 @@ export default function NominaManualPage() {
             <AlertCircle className="w-5 h-5 text-aria-accent mt-0.5" />
             <div>
               <p className="text-aria-accent font-medium">Cómo se relaciona con Pre-Nómina y Recibos</p>
-              <p className="text-slate-400 text-sm">Esta pantalla edita <b>asistencias reales</b> de la semana seleccionada. Los cambios afectan el cálculo en Pre-Nómina la próxima vez que se Genere. Si la nómina ya está <b>CONFIRMADA</b>, primero hay que desbloquearla desde Recibos. El "Neto Estimado" mostrado aquí es solo días×salario sin incidencias/préstamos — el cálculo oficial vive en /api/nomina/generar.</p>
+              <p className="text-[#7f93b0] text-sm">Esta pantalla edita <b>asistencias reales</b> de la semana seleccionada. Los cambios afectan el cálculo en Pre-Nómina la próxima vez que se Genere. Si la nómina ya está <b>CONFIRMADA</b>, primero hay que desbloquearla desde Recibos. El "Neto Estimado" mostrado aquí es solo días×salario sin incidencias/préstamos — el cálculo oficial vive en /api/nomina/generar.</p>
             </div>
           </div>
         </>

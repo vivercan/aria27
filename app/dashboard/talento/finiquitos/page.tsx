@@ -40,7 +40,7 @@ const TIPOS_BAJA = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  BORRADOR: "bg-slate-600 text-white",
+  BORRADOR: "bg-[#162040] text-white",
   CALCULADO: "bg-amber-600 text-white",
   APROBADO: "bg-aria-primary text-white",
   PAGADO: "bg-emerald-600 text-white",
@@ -361,23 +361,23 @@ export default function FiniquitosPage() {
   // ==================== VISTA: LIST ====================
   if (view === "list") {
     return (
-      <div className="min-h-screen bg-slate-950 text-white p-6">
+      <div className="min-h-screen bg-[#040810] text-white p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-slate-950 pb-4">
+          <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
               <Link
                 href="/dashboard/talento"
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-slate-400" />
+                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
               </Link>
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-8 h-8" />
                   Finiquitos y Bajas
                 </h1>
-                <p className="text-slate-400">Liquidación y terminación de empleados</p>
+                <p className="text-[#7f93b0]">Liquidación y terminación de empleados</p>
               </div>
             </div>
 
@@ -407,12 +407,12 @@ export default function FiniquitosPage() {
                   placeholder="Buscar empleado..."
                   value={searchEmployee}
                   onChange={(e) => setSearchEmployee(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-aria-primary"
+                  className="flex-1 px-3 py-2 rounded-lg bg-[#0a1628] border border-white/[0.08] text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
                 />
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-aria-primary"
+                  className="px-3 py-2 rounded-lg bg-[#0a1628] border border-white/[0.08] text-white focus:outline-none focus:border-aria-primary"
                 >
                   <option value="">Todos los Status</option>
                   {Object.keys(STATUS_COLORS).map((st) => (
@@ -437,15 +437,15 @@ export default function FiniquitosPage() {
 
           {/* Table */}
           {loading ? (
-            <div className="text-center py-12 text-slate-400">Cargando...</div>
+            <div className="text-center py-12 text-[#7f93b0]">Cargando...</div>
           ) : filtrarFiniquitos().length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
+            <div className="text-center py-12 text-[#7f93b0]">
               No hay finiquitos registrados
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-700">
+            <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
               <table className="w-full">
-                <thead className="bg-slate-900 border-b border-slate-700">
+                <thead className="bg-[#0a1628] border-b border-white/[0.08]">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-semibold">
                       Empleado
@@ -472,10 +472,10 @@ export default function FiniquitosPage() {
                 </thead>
                 <tbody>
                   {filtrarFiniquitos().map((fin) => (
-                    <tr key={fin.id} className="border-b border-slate-800 hover:bg-slate-900/50 transition-colors">
+                    <tr key={fin.id} className="border-b border-slate-800 hover:bg-[#0a1628]/50 transition-colors">
                       <td className="px-4 py-3 text-sm">
                         <div className="font-medium">{fin.full_name}</div>
-                        <div className="text-xs text-slate-400">{fin.employee_number}</div>
+                        <div className="text-xs text-[#7f93b0]">{fin.employee_number}</div>
                       </td>
                       <td className="px-4 py-3 text-sm">{fin.tipo.replace(/_/g, " ")}</td>
                       <td className="px-4 py-3 text-sm">
@@ -519,19 +519,19 @@ export default function FiniquitosPage() {
   // ==================== VISTA: FORM (Multi-step) ====================
   if (view === "form") {
     return (
-      <div className="min-h-screen bg-slate-950 text-white p-6">
+      <div className="min-h-screen bg-[#040810] text-white p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-slate-950 pb-4">
+          <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
               <button
                 onClick={() => {
                   resetForm();
                   setView("list");
                 }}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-slate-400" />
+                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
               </button>
               <h1 className="text-2xl font-bold">Nuevo Finiquito</h1>
             </div>
@@ -560,7 +560,7 @@ export default function FiniquitosPage() {
                 <div key={s} className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                      s <= step ? "bg-aria-primary text-white" : "bg-slate-700 text-slate-400"
+                      s <= step ? "bg-aria-primary text-white" : "bg-[#0f2448] text-[#7f93b0]"
                     }`}
                   >
                     {s}
@@ -568,14 +568,14 @@ export default function FiniquitosPage() {
                   {s < 4 && (
                     <div
                       className={`h-1 w-12 mx-1 transition-colors ${
-                        s < step ? "bg-aria-primary" : "bg-slate-700"
+                        s < step ? "bg-aria-primary" : "bg-[#0f2448]"
                       }`}
                     />
                   )}
                 </div>
               ))}
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-[#7f93b0]">
               {step === 1 && "Paso 1: Selecciona empleado"}
               {step === 2 && "Paso 2: Tipo y fecha de baja"}
               {step === 3 && "Paso 3: Datos adicionales"}
@@ -586,7 +586,7 @@ export default function FiniquitosPage() {
           {/* STEP 1: Select Employee */}
           {step === 1 && (
             <div className="space-y-4">
-              <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
                 <label className="block text-sm font-semibold mb-2">
                   <User className="w-4 h-4 inline mr-2" />
                   Empleado
@@ -597,7 +597,7 @@ export default function FiniquitosPage() {
                     setForm({ ...form, employee_id: e.target.value });
                     setFlashMsg(null);
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                  className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                 >
                   <option value="">-- Selecciona un empleado --</option>
                   {empleados.map((emp) => (
@@ -613,7 +613,7 @@ export default function FiniquitosPage() {
                     resetForm();
                     setView("list");
                   }}
-                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors"
                 >
                   Cancelar
                 </button>
@@ -636,7 +636,7 @@ export default function FiniquitosPage() {
           {/* STEP 2: Type and Date */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-slate-900 p-6 rounded-lg border border-slate-700 space-y-4">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08] space-y-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">
                     Tipo de Baja
@@ -644,7 +644,7 @@ export default function FiniquitosPage() {
                   <select
                     value={form.tipo}
                     onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                   >
                     <option value="">-- Selecciona tipo --</option>
                     {TIPOS_BAJA.map((t) => (
@@ -663,7 +663,7 @@ export default function FiniquitosPage() {
                     type="date"
                     value={form.fecha_baja}
                     onChange={(e) => setForm({ ...form, fecha_baja: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                   />
                 </div>
                 <div>
@@ -674,7 +674,7 @@ export default function FiniquitosPage() {
                     value={form.motivo}
                     onChange={(e) => setForm({ ...form, motivo: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary text-sm"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary text-sm"
                     placeholder="Describe el motivo de la baja..."
                   />
                 </div>
@@ -682,7 +682,7 @@ export default function FiniquitosPage() {
               <div className="flex justify-between gap-2">
                 <button
                   onClick={() => setStep(1)}
-                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors"
                 >
                   Atrás
                 </button>
@@ -708,7 +708,7 @@ export default function FiniquitosPage() {
           {/* STEP 3: Additional Data (before calculation) */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="bg-slate-900 p-6 rounded-lg border border-slate-700 space-y-4">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08] space-y-4">
                 {/* Only show if DESPIDO_INJUSTIFICADO */}
                 {form.tipo === "DESPIDO_INJUSTIFICADO" && (
                   <div>
@@ -724,9 +724,9 @@ export default function FiniquitosPage() {
                           salarios_caidos_dias: parseInt(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                      className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                     />
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-[#7f93b0] mt-1">
                       Número de días de salarios caídos a pagar
                     </p>
                   </div>
@@ -748,7 +748,7 @@ export default function FiniquitosPage() {
                           deducciones_infonavit: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                      className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                     />
                   </div>
                   <div>
@@ -765,7 +765,7 @@ export default function FiniquitosPage() {
                           deducciones_prestamos: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                      className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                     />
                   </div>
                 </div>
@@ -784,7 +784,7 @@ export default function FiniquitosPage() {
                         otras_deducciones: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-aria-primary"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0c1d38] border border-white/[0.07] text-white focus:outline-none focus:border-aria-primary"
                   />
                 </div>
               </div>
@@ -792,7 +792,7 @@ export default function FiniquitosPage() {
               <div className="flex justify-between gap-2">
                 <button
                   onClick={() => setStep(2)}
-                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors"
                 >
                   Atrás
                 </button>
@@ -810,65 +810,65 @@ export default function FiniquitosPage() {
           {step === 4 && calculo && (
             <div className="space-y-6">
               {/* Empleado info */}
-              <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
                 <h3 className="text-lg font-semibold mb-4">Información General</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <div className="text-slate-400">Empleado</div>
+                    <div className="text-[#7f93b0]">Empleado</div>
                     <div className="font-medium">
                       {empleados.find((e) => e.id === form.employee_id)?.full_name}
                     </div>
                   </div>
                   <div>
-                    <div className="text-slate-400">Tipo de Baja</div>
+                    <div className="text-[#7f93b0]">Tipo de Baja</div>
                     <div className="font-medium">{form.tipo.replace(/_/g, " ")}</div>
                   </div>
                   <div>
-                    <div className="text-slate-400">Fecha Baja</div>
+                    <div className="text-[#7f93b0]">Fecha Baja</div>
                     <div className="font-medium">
                       {new Date(form.fecha_baja).toLocaleDateString("es-MX")}
                     </div>
                   </div>
                   <div>
-                    <div className="text-slate-400">Antigüedad</div>
+                    <div className="text-[#7f93b0]">Antigüedad</div>
                     <div className="font-medium">{calculo.antiguedad_dias} días</div>
                   </div>
                   <div>
-                    <div className="text-slate-400">Salario Diario</div>
+                    <div className="text-[#7f93b0]">Salario Diario</div>
                     <div className="font-medium">{formatMoney(calculo.salario_diario)}</div>
                   </div>
                 </div>
               </div>
 
               {/* Percepciones */}
-              <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
                 <h3 className="text-lg font-semibold mb-4">Percepciones</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Aguinaldo Proporcional</span>
+                    <span className="text-[#7f93b0]">Aguinaldo Proporcional</span>
                     <span className="font-medium">
                       {calculo.dias_aguinaldo_proporcional} días × {formatMoney(calculo.salario_diario)} = {formatMoney(calculo.monto_aguinaldo)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Vacaciones Pendientes</span>
+                    <span className="text-[#7f93b0]">Vacaciones Pendientes</span>
                     <span className="font-medium">
                       {calculo.dias_vacaciones_pendientes} días × {formatMoney(calculo.salario_diario)} = {formatMoney(calculo.monto_vacaciones)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Prima Vacacional (25%)</span>
+                    <span className="text-[#7f93b0]">Prima Vacacional (25%)</span>
                     <span className="font-medium">{formatMoney(calculo.monto_prima_vacacional)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Prima de Antigüedad</span>
+                    <span className="text-[#7f93b0]">Prima de Antigüedad</span>
                     <span className="font-medium">
                       {calculo.dias_prima_antiguedad} días = {formatMoney(calculo.monto_prima_antiguedad)}
                     </span>
                   </div>
                   {calculo.indemnizacion_90_dias > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Indemnización 90 días</span>
+                      <span className="text-[#7f93b0]">Indemnización 90 días</span>
                       <span className="font-medium">
                         {formatMoney(calculo.indemnizacion_90_dias)}
                       </span>
@@ -876,13 +876,13 @@ export default function FiniquitosPage() {
                   )}
                   {calculo.monto_salarios_caidos > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Salarios Caídos</span>
+                      <span className="text-[#7f93b0]">Salarios Caídos</span>
                       <span className="font-medium">
                         {calculo.salarios_caidos_dias} días = {formatMoney(calculo.monto_salarios_caidos)}
                       </span>
                     </div>
                   )}
-                  <div className="border-t border-slate-600 pt-2 flex justify-between font-semibold text-base">
+                  <div className="border-t border-white/[0.07] pt-2 flex justify-between font-semibold text-base">
                     <span>TOTAL PERCEPCIONES</span>
                     <span className="text-green-400">{formatMoney(calculo.total_percepciones)}</span>
                   </div>
@@ -891,12 +891,12 @@ export default function FiniquitosPage() {
 
               {/* Deducciones */}
               {calculo.total_deducciones > 0 && (
-                <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+                <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
                   <h3 className="text-lg font-semibold mb-4">Deducciones</h3>
                   <div className="space-y-2 text-sm">
                     {form.deducciones_infonavit > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">INFONAVIT</span>
+                        <span className="text-[#7f93b0]">INFONAVIT</span>
                         <span className="font-medium">
                           -{formatMoney(form.deducciones_infonavit)}
                         </span>
@@ -904,7 +904,7 @@ export default function FiniquitosPage() {
                     )}
                     {form.deducciones_prestamos > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Préstamos</span>
+                        <span className="text-[#7f93b0]">Préstamos</span>
                         <span className="font-medium">
                           -{formatMoney(form.deducciones_prestamos)}
                         </span>
@@ -912,13 +912,13 @@ export default function FiniquitosPage() {
                     )}
                     {form.otras_deducciones > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Otras</span>
+                        <span className="text-[#7f93b0]">Otras</span>
                         <span className="font-medium">
                           -{formatMoney(form.otras_deducciones)}
                         </span>
                       </div>
                     )}
-                    <div className="border-t border-slate-600 pt-2 flex justify-between font-semibold">
+                    <div className="border-t border-white/[0.07] pt-2 flex justify-between font-semibold">
                       <span>TOTAL DEDUCCIONES</span>
                       <span className="text-red-400">
                         -{formatMoney(calculo.total_deducciones)}
@@ -929,7 +929,7 @@ export default function FiniquitosPage() {
               )}
 
               {/* NETO */}
-              <div className="bg-slate-900 p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
+              <div className="bg-[#0a1628] p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold">NETO A PAGAR</h3>
                   <div className="text-3xl font-bold text-emerald-400">
@@ -942,14 +942,14 @@ export default function FiniquitosPage() {
               <div className="flex justify-between gap-2">
                 <button
                   onClick={() => setStep(3)}
-                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                  className="px-4 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors"
                 >
                   Atrás
                 </button>
                 <div className="flex gap-2">
                   <button
                     onClick={() => guardarFiniquito(false)}
-                    className="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                    className="px-6 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors"
                   >
                     Guardar como Borrador
                   </button>
@@ -971,19 +971,19 @@ export default function FiniquitosPage() {
   // ==================== VISTA: DETAIL ====================
   if (view === "detail" && currentFiniquito) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white p-6">
+      <div className="min-h-screen bg-[#040810] text-white p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-slate-950 pb-4">
+          <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
               <button
                 onClick={() => {
                   setView("list");
                   setCurrentFiniquito(null);
                 }}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-slate-400" />
+                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
               </button>
               <h1 className="text-2xl font-bold">Detalle del Finiquito</h1>
             </div>
@@ -1008,13 +1008,13 @@ export default function FiniquitosPage() {
           </div>
 
           {/* Status badge and general info */}
-          <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+          <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-bold mb-2">
                   {currentFiniquito.full_name}
                 </h2>
-                <p className="text-slate-400">{currentFiniquito.employee_number}</p>
+                <p className="text-[#7f93b0]">{currentFiniquito.employee_number}</p>
               </div>
               <span
                 className={`px-4 py-2 rounded-lg text-sm font-semibold ${
@@ -1027,21 +1027,21 @@ export default function FiniquitosPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="text-slate-400">Tipo de Baja</div>
+                <div className="text-[#7f93b0]">Tipo de Baja</div>
                 <div className="font-medium">{currentFiniquito.tipo.replace(/_/g, " ")}</div>
               </div>
               <div>
-                <div className="text-slate-400">Fecha Baja</div>
+                <div className="text-[#7f93b0]">Fecha Baja</div>
                 <div className="font-medium">
                   {new Date(currentFiniquito.fecha_baja).toLocaleDateString("es-MX")}
                 </div>
               </div>
               <div>
-                <div className="text-slate-400">Antigüedad</div>
+                <div className="text-[#7f93b0]">Antigüedad</div>
                 <div className="font-medium">{currentFiniquito.antiguedad_dias} días</div>
               </div>
               <div>
-                <div className="text-slate-400">Salario Diario</div>
+                <div className="text-[#7f93b0]">Salario Diario</div>
                 <div className="font-medium">
                   {formatMoney(currentFiniquito.salario_diario)}
                 </div>
@@ -1050,34 +1050,34 @@ export default function FiniquitosPage() {
           </div>
 
           {/* Percepciones */}
-          <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+          <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
             <h3 className="text-lg font-semibold mb-4">Percepciones</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-400">Aguinaldo Proporcional</span>
+                <span className="text-[#7f93b0]">Aguinaldo Proporcional</span>
                 <span className="font-medium">
                   {currentFiniquito.dias_aguinaldo_proporcional} días = {formatMoney(currentFiniquito.monto_aguinaldo)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Vacaciones Pendientes</span>
+                <span className="text-[#7f93b0]">Vacaciones Pendientes</span>
                 <span className="font-medium">
                   {currentFiniquito.dias_vacaciones_pendientes} días = {formatMoney(currentFiniquito.monto_vacaciones)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Prima Vacacional (25%)</span>
+                <span className="text-[#7f93b0]">Prima Vacacional (25%)</span>
                 <span className="font-medium">{formatMoney(currentFiniquito.monto_prima_vacacional)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Prima de Antigüedad</span>
+                <span className="text-[#7f93b0]">Prima de Antigüedad</span>
                 <span className="font-medium">
                   {currentFiniquito.dias_prima_antiguedad} días = {formatMoney(currentFiniquito.monto_prima_antiguedad)}
                 </span>
               </div>
               {currentFiniquito.indemnizacion_90_dias > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Indemnización 90 días</span>
+                  <span className="text-[#7f93b0]">Indemnización 90 días</span>
                   <span className="font-medium">
                     {formatMoney(currentFiniquito.indemnizacion_90_dias)}
                   </span>
@@ -1085,13 +1085,13 @@ export default function FiniquitosPage() {
               )}
               {currentFiniquito.monto_salarios_caidos > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Salarios Caídos</span>
+                  <span className="text-[#7f93b0]">Salarios Caídos</span>
                   <span className="font-medium">
                     {currentFiniquito.salarios_caidos_dias} días = {formatMoney(currentFiniquito.monto_salarios_caidos)}
                   </span>
                 </div>
               )}
-              <div className="border-t border-slate-600 pt-2 flex justify-between font-semibold">
+              <div className="border-t border-white/[0.07] pt-2 flex justify-between font-semibold">
                 <span>TOTAL PERCEPCIONES</span>
                 <span className="text-green-400">
                   {formatMoney(currentFiniquito.total_percepciones)}
@@ -1102,12 +1102,12 @@ export default function FiniquitosPage() {
 
           {/* Deducciones */}
           {currentFiniquito.total_deducciones > 0 && (
-            <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+            <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
               <h3 className="text-lg font-semibold mb-4">Deducciones</h3>
               <div className="space-y-2 text-sm">
                 {currentFiniquito.deducciones_infonavit > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-slate-400">INFONAVIT</span>
+                    <span className="text-[#7f93b0]">INFONAVIT</span>
                     <span className="font-medium">
                       -{formatMoney(currentFiniquito.deducciones_infonavit)}
                     </span>
@@ -1115,7 +1115,7 @@ export default function FiniquitosPage() {
                 )}
                 {currentFiniquito.deducciones_prestamos > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Préstamos</span>
+                    <span className="text-[#7f93b0]">Préstamos</span>
                     <span className="font-medium">
                       -{formatMoney(currentFiniquito.deducciones_prestamos)}
                     </span>
@@ -1123,13 +1123,13 @@ export default function FiniquitosPage() {
                 )}
                 {currentFiniquito.otras_deducciones > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Otras</span>
+                    <span className="text-[#7f93b0]">Otras</span>
                     <span className="font-medium">
                       -{formatMoney(currentFiniquito.otras_deducciones)}
                     </span>
                   </div>
                 )}
-                <div className="border-t border-slate-600 pt-2 flex justify-between font-semibold">
+                <div className="border-t border-white/[0.07] pt-2 flex justify-between font-semibold">
                   <span>TOTAL DEDUCCIONES</span>
                   <span className="text-red-400">
                     -{formatMoney(currentFiniquito.total_deducciones)}
@@ -1140,7 +1140,7 @@ export default function FiniquitosPage() {
           )}
 
           {/* NETO */}
-          <div className="bg-slate-900 p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
+          <div className="bg-[#0a1628] p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold">NETO A PAGAR</h3>
               <div className="text-3xl font-bold text-emerald-400">
@@ -1151,9 +1151,9 @@ export default function FiniquitosPage() {
 
           {/* Notas */}
           {currentFiniquito.motivo && (
-            <div className="bg-slate-900 p-6 rounded-lg border border-slate-700">
+            <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
               <h3 className="text-lg font-semibold mb-3">Motivo</h3>
-              <p className="text-slate-300">{currentFiniquito.motivo}</p>
+              <p className="text-[#c9d8ed]">{currentFiniquito.motivo}</p>
             </div>
           )}
 
@@ -1161,7 +1161,7 @@ export default function FiniquitosPage() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-[#0f2448] hover:bg-[#162040] transition-colors flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Imprimir

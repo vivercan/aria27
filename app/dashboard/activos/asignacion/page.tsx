@@ -178,10 +178,10 @@ export default function AsignacionPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          <Link href="/dashboard/activos" className="p-2 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></Link>
           <div>
             <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
-            <p className="text-sm text-slate-400">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
+            <p className="text-sm text-[#7f93b0]">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
           </div>
         </div>
         <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30 transition-colors">
@@ -195,17 +195,17 @@ export default function AsignacionPage() {
         </div>
       )}
 
-      <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10">
-        <Search className="w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-2 bg-white/[0.04] rounded-lg px-3 py-2 border border-white/[0.08]">
+        <Search className="w-4 h-4 text-[#7f93b0]" />
         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por empleado o activo..." className="bg-transparent text-white text-sm outline-none w-full" />
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400">No hay asignaciones. Usa el botón "Asignar" para crear una.</div>
+        <div className="text-center py-12 text-[#7f93b0]">No hay asignaciones. Usa el botón "Asignar" para crear una.</div>
       ) : (
-        <div className="overflow-auto max-h-[60vh] rounded-xl border border-white/10">
+        <div className="overflow-auto max-h-[60vh] rounded-xl border border-white/[0.08]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-800/90 backdrop-blur text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[#0c1d38]/90 backdrop-blur text-[#7f93b0] text-xs uppercase">
               <tr>
                 <th className="text-left p-3">Empleado</th>
                 <th className="text-left p-3">Activo</th>
@@ -217,12 +217,12 @@ export default function AsignacionPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map(a => (
-                <tr key={a.id} className="hover:bg-white/5">
+                <tr key={a.id} className="hover:bg-white/[0.04]">
                   <td className="p-3 text-white">{a.empleado?.full_name || "—"}</td>
-                  <td className="p-3 text-slate-300">{a.activo?.nombre || a.activo?.name || "—"}</td>
-                  <td className="p-3 text-slate-400">{a.fecha_asignacion}</td>
-                  <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${a.estado === "asignado" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-slate-400"}`}>{a.estado}</span></td>
-                  <td className="p-3 text-slate-400 max-w-xs truncate">{a.notas || "—"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{a.activo?.nombre || a.activo?.name || "—"}</td>
+                  <td className="p-3 text-[#7f93b0]">{a.fecha_asignacion}</td>
+                  <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${a.estado === "asignado" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{a.estado}</span></td>
+                  <td className="p-3 text-[#7f93b0] max-w-xs truncate">{a.notas || "—"}</td>
                   <td className="p-3 text-center">
                     {a.estado === "asignado" && (
                       <button onClick={() => handleDevolver(a.id)} className="flex items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs hover:bg-amber-500/30 mx-auto">
@@ -239,35 +239,35 @@ export default function AsignacionPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-white/10 space-y-4">
+          <div className="bg-[#0c1d38] rounded-2xl p-6 w-full max-w-md border border-white/[0.08] space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Asignar Activo</h3>
-              <button onClick={() => closeModal()}><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => closeModal()}><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-slate-400">Empleado *</label>
-                <select value={form.empleado_id} onChange={e => setForm({...form, empleado_id: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
+                <label className="text-xs text-[#7f93b0]">Empleado *</label>
+                <select value={form.empleado_id} onChange={e => setForm({...form, empleado_id: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
                   <option value="">Seleccionar empleado...</option>
                   {empleados.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
                 </select>
                 {formErrors.empleado_id && <p className="text-red-400 text-xs mt-1">{formErrors.empleado_id}</p>}
               </div>
               <div>
-                <label className="text-xs text-slate-400">Activo *</label>
-                <select value={form.activo_id} onChange={e => setForm({...form, activo_id: e.target.value})} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10">
+                <label className="text-xs text-[#7f93b0]">Activo *</label>
+                <select value={form.activo_id} onChange={e => setForm({...form, activo_id: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
                   <option value="">Seleccionar activo...</option>
                   {activos.map(a => <option key={a.id} value={a.id}>{a.nombre || a.name}</option>)}
                 </select>
                 {formErrors.activo_id && <p className="text-red-400 text-xs mt-1">{formErrors.activo_id}</p>}
               </div>
               <div>
-                <label className="text-xs text-slate-400">Notas</label>
-                <textarea value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} rows={2} className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm border border-white/10" placeholder="Observaciones..." />
+                <label className="text-xs text-[#7f93b0]">Notas</label>
+                <textarea value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} rows={2} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" placeholder="Observaciones..." />
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => closeModal()} className="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancelar</button>
+              <button onClick={() => closeModal()} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
               <button onClick={handleAsignar} disabled={saving || !form.activo_id || !form.empleado_id} className="flex items-center gap-2 px-4 py-2 bg-aria-accent text-white rounded-lg text-sm hover:bg-aria-accent/80 disabled:opacity-50">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Asignar
               </button>

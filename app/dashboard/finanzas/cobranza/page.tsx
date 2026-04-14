@@ -135,7 +135,7 @@ export default function CobranzaPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Cobranza</h1>
-          <p className="text-slate-400 text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
+          <p className="text-[#7f93b0] text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
         </div>
         <div className="flex gap-2">
           <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-xl text-sm font-medium hover:bg-violet-500/30 transition-colors flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function CobranzaPage() {
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-slate-400">{s.label}</p>
+            <p className="text-xs text-[#7f93b0]">{s.label}</p>
           </div>
         ))}
       </div>
@@ -172,39 +172,39 @@ export default function CobranzaPage() {
               { key: "periodo", label: "Periodo", placeholder: "Ej: Ene 2026, Semana 1-15 Feb" },
             ].map(f => (
               <div key={f.key}>
-                <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
+                <label className="text-xs text-[#7f93b0] mb-1 block">{f.label}</label>
                 <input required={f.key === "obra_nombre"} value={String((form as Record<string, unknown>)[f.key] || "")} onChange={e => setForm({...form, [f.key]: e.target.value})} placeholder={f.placeholder}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-slate-500 focus:outline-none" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-[#4a6080] focus:outline-none" />
               </div>
             ))}
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">Monto Estimado *</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Monto Estimado *</label>
               <input type="number" required min="0.01" step="0.01" value={form.monto_estimado} onChange={e => setForm({...form, monto_estimado: parseFloat(e.target.value) || 0})}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block">% Retención Fondo *</label>
+              <label className="text-xs text-[#7f93b0] mb-1 block">% Retención Fondo *</label>
               <input type="number" required min="0" max="100" step="0.01" value={form.retencion_fondo} onChange={e => setForm({...form, retencion_fondo: parseFloat(e.target.value) || 5})}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none" />
+                className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-sm">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por obra o cliente..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:border-aria-primary/50 focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
         <div className="flex gap-2">
           {["TODOS", "PRESENTADA", "APROBADA", "COBRADA"].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10"}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {f}
             </button>
           ))}
@@ -214,8 +214,8 @@ export default function CobranzaPage() {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="overflow-auto max-h-[500px]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-              <tr className="text-slate-400 text-xs uppercase">
+            <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
+              <tr className="text-[#7f93b0] text-xs uppercase">
                 <th className="text-left p-3">#</th>
                 <th className="text-left p-3">Obra</th>
                 <th className="text-left p-3">Cliente</th>
@@ -229,15 +229,15 @@ export default function CobranzaPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={9} className="p-8 text-center text-slate-400">Sin estimaciones registradas</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-[#7f93b0]">Sin estimaciones registradas</td></tr>
               ) : filtered.map(e => (
-                <tr key={e.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                <tr key={e.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">Est. {e.numero}</td>
                   <td className="p-3 text-white">{e.obra_nombre}</td>
-                  <td className="p-3 text-slate-300">{e.cliente || "-"}</td>
-                  <td className="p-3 text-slate-300">{e.periodo || "-"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{e.cliente || "-"}</td>
+                  <td className="p-3 text-[#c9d8ed]">{e.periodo || "-"}</td>
                   <td className="p-3 text-right text-white">${(e.monto_estimado || 0).toLocaleString()}</td>
                   <td className="p-3 text-right text-amber-400">${(e.retencion_fondo || 0).toLocaleString()}</td>
                   <td className="p-3 text-right text-emerald-400">${(e.monto_cobrado || 0).toLocaleString()}</td>
@@ -264,20 +264,20 @@ export default function CobranzaPage() {
       </div>
 
       {cobroModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 ">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold text-white">Registrar Cobro</h3>
-              <button onClick={() => setCobroModal(null)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setCobroModal(null)} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Monto cobrado *</label>
+              <label className="block text-xs text-[#7f93b0] mb-1">Monto cobrado *</label>
               <input type="number" required value={cobroMonto} onChange={e => setCobroMonto(e.target.value)} step="0.01" min="0.01" max={cobroModal.pendiente}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
-              <p className="text-xs text-slate-500 mt-1">{`Pendiente cobrable: $${cobroModal.pendiente.toLocaleString()} (cobrado previo: $${cobroModal.cobrado.toLocaleString()}, retención: $${cobroModal.retencion.toLocaleString()})`}</p>
+                className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
+              <p className="text-xs text-[#4a6080] mt-1">{`Pendiente cobrable: $${cobroModal.pendiente.toLocaleString()} (cobrado previo: $${cobroModal.cobrado.toLocaleString()}, retención: $${cobroModal.retencion.toLocaleString()})`}</p>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setCobroModal(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-300 text-sm font-medium hover:bg-white/10">Cancelar</button>
+              <button onClick={() => setCobroModal(null)} className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">Cancelar</button>
               <button onClick={confirmarCobro} disabled={cobroSaving || !cobroMonto || parseFloat(cobroMonto) <= 0}
                 className="flex-1 py-2.5 bg-emerald-600 rounded-xl text-white text-sm font-medium hover:bg-emerald-500 disabled:opacity-50">
                 {cobroSaving ? "Guardando..." : "Confirmar Cobro"}

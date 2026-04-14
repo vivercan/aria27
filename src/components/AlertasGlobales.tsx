@@ -120,7 +120,7 @@ export default function AlertasGlobales() {
   }
 
   return (
-    <div className="fixed bottom-4 left-[200px] z-50 w-[380px] bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-amber-500/30 overflow-hidden">
+    <div className="fixed bottom-4 left-[200px] z-50 w-[380px] bg-[rgba(4,8,16,0.98)]  rounded-xl shadow-2xl border border-amber-500/30 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-amber-500/10 border-b border-amber-500/20">
         <div className="flex items-center gap-2">
@@ -129,9 +129,9 @@ export default function AlertasGlobales() {
         </div>
         <button
           onClick={() => setMinimizado(true)}
-          className="p-1 hover:bg-white/10 rounded transition-colors"
+          className="p-1 hover:bg-white/[0.06] rounded transition-colors"
         >
-          <X className="w-4 h-4 text-slate-400" />
+          <X className="w-4 h-4 text-[#7f93b0]" />
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export default function AlertasGlobales() {
           <Link
             key={idx}
             href={alerta.link || "#"}
-            className="flex items-start gap-3 px-4 py-3 hover:bg-white/5 border-b border-white/5 transition-colors"
+            className="flex items-start gap-3 px-4 py-3 hover:bg-white/[0.04] border-b border-white/[0.05] transition-colors"
           >
             <div className="p-2 rounded-lg bg-amber-500/10 mt-0.5">
               {alerta.tipo === "proveedor_incompleto" ? (
@@ -152,7 +152,7 @@ export default function AlertasGlobales() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white">{alerta.titulo}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{alerta.descripcion}</p>
+              <p className="text-xs text-[#7f93b0] mt-0.5">{alerta.descripcion}</p>
             </div>
             <div className="flex items-center gap-1 text-amber-400">
               <span className="text-lg font-bold">{alerta.cantidad}</span>
@@ -163,8 +163,8 @@ export default function AlertasGlobales() {
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 bg-slate-800/50 text-center">
-        <p className="text-[10px] text-slate-500">Las alertas desaparecen al completar la información</p>
+      <div className="px-4 py-2 bg-[#0c1d38]/50 text-center">
+        <p className="text-[10px] text-[#4a6080]">Las alertas desaparecen al completar la información</p>
       </div>
     </div>
   );

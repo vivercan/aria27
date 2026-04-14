@@ -113,18 +113,18 @@ export default function ProspeccionPage() {
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
-          <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/10 rounded-lg"><ArrowLeft className="w-4 h-4 text-slate-400"/></Link>
+          <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-4 h-4 text-[#7f93b0]"/></Link>
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>
         </div>
-        <p className="text-xs text-slate-400 mb-2 ml-7">Busca proveedores por producto o categoría. ARIA busca en tu base de datos y en la web con IA.</p>
+        <p className="text-xs text-[#7f93b0] mb-2 ml-7">Busca proveedores por producto o categoría. ARIA busca en tu base de datos y en la web con IA.</p>
 
         <div className="flex gap-2 ml-7">
           <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"/>
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder='Ej: "acero corrugado", "diesel", "concreto premezclado"...'
               value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}
               onKeyDown={e=>e.key==="Enter"&&handleSearch()}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-slate-500 focus:border-violet-500/50 outline-none"/>
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-violet-500/50 outline-none"/>
           </div>
           <button onClick={handleSearch} disabled={searching||!searchTerm.trim()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 disabled:opacity-40 font-medium">
@@ -140,7 +140,7 @@ export default function ProspeccionPage() {
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4"><Search className="w-8 h-8 text-violet-400"/></div>
             <h2 className="text-white font-semibold mb-1">Busca nuevos proveedores</h2>
-            <p className="text-slate-400 text-sm max-w-md">Escribe el producto o categoría que necesitas y ARIA buscará proveedores en tu base de datos y en la web.</p>
+            <p className="text-[#7f93b0] text-sm max-w-md">Escribe el producto o categoría que necesitas y ARIA buscará proveedores en tu base de datos y en la web.</p>
           </div>
         )}
 
@@ -148,7 +148,7 @@ export default function ProspeccionPage() {
           <div className="flex flex-col items-center justify-center h-full">
             <Loader2 className="w-8 h-8 animate-spin text-aria-accent mb-3"/>
             <p className="text-white font-medium">Buscando proveedores de &quot;{searchTerm}&quot;...</p>
-            <p className="text-slate-400 text-xs mt-1">La IA está buscando en la web, puede tomar 15-30 segundos</p>
+            <p className="text-[#7f93b0] text-xs mt-1">La IA está buscando en la web, puede tomar 15-30 segundos</p>
           </div>
         )}
 
@@ -161,7 +161,7 @@ export default function ProspeccionPage() {
             {/* Análisis IA */}
             {analisis && (
               <div className="p-3 bg-violet-500/[0.06] border border-violet-500/15 rounded-lg">
-                <p className="text-xs text-slate-300">{analisis}</p>
+                <p className="text-xs text-[#c9d8ed]">{analisis}</p>
                 {recomendacion && <p className="text-xs text-violet-400 mt-1.5 font-medium">{recomendacion}</p>}
               </div>
             )}
@@ -176,7 +176,7 @@ export default function ProspeccionPage() {
                       <Building2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"/>
                       <span className="text-white font-medium flex-1">{s.name}</span>
                       {getCatDisplay(s.categories).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}
-                      {s.phone&&<span className="text-slate-400">{s.phone}</span>}
+                      {s.phone&&<span className="text-[#7f93b0]">{s.phone}</span>}
                       <Link href="/dashboard/requisiciones/proveedores" className="text-emerald-400 hover:text-emerald-300 text-[10px]">Ver →</Link>
                     </div>
                   ))}
@@ -190,7 +190,7 @@ export default function ProspeccionPage() {
                 <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Globe className="w-3.5 h-3.5 text-violet-400"/>Encontrados en la web ({webResults.length})</h3>
                 <table className="w-full">
                   <thead>
-                    <tr className="text-[10px] text-slate-500 font-semibold uppercase border-b border-white/[0.06]">
+                    <tr className="text-[10px] text-[#4a6080] font-semibold uppercase border-b border-white/[0.06]">
                       <th className="text-left py-1.5 pl-2">Proveedor</th>
                       <th className="text-left py-1.5">Teléfono</th>
                       <th className="text-left py-1.5">Dirección</th>
@@ -205,9 +205,9 @@ export default function ProspeccionPage() {
                           <p className="text-white font-medium">{r.nombre}</p>
                           {r.sitio_web&&<a href={r.sitio_web.startsWith("http")?r.sitio_web:`https://${r.sitio_web}`} target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 flex items-center gap-0.5 text-[10px]"><ExternalLink className="w-2.5 h-2.5"/>Web</a>}
                         </td>
-                        <td className="text-slate-400">{r.telefono||"—"}</td>
-                        <td className="text-slate-500 text-[10px] max-w-[180px]">{r.direccion||"—"}</td>
-                        <td className="text-slate-500 text-[10px] max-w-[150px]">{r.productos_relacionados||""}</td>
+                        <td className="text-[#7f93b0]">{r.telefono||"—"}</td>
+                        <td className="text-[#4a6080] text-[10px] max-w-[180px]">{r.direccion||"—"}</td>
+                        <td className="text-[#4a6080] text-[10px] max-w-[150px]">{r.productos_relacionados||""}</td>
                         <td className="pr-2">
                           {savedIdxs.includes(idx)?(
                             <span className="flex items-center gap-1 text-[10px] text-emerald-400"><Check className="w-3 h-3"/>Guardado</span>
@@ -227,9 +227,9 @@ export default function ProspeccionPage() {
 
             {searchDone && !searching && webResults.length === 0 && existingMatches.length === 0 && !error && (
               <div className="text-center py-8">
-                <Package className="w-8 h-8 text-slate-600 mx-auto mb-2"/>
-                <p className="text-slate-400 text-sm">No se encontraron proveedores para &quot;{searchTerm}&quot;</p>
-                <p className="text-slate-500 text-xs mt-1">Intenta con otro término de búsqueda</p>
+                <Package className="w-8 h-8 text-[#4a6080] mx-auto mb-2"/>
+                <p className="text-[#7f93b0] text-sm">No se encontraron proveedores para &quot;{searchTerm}&quot;</p>
+                <p className="text-[#4a6080] text-xs mt-1">Intenta con otro término de búsqueda</p>
               </div>
             )}
           </div>

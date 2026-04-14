@@ -174,14 +174,14 @@ export default function OrdenesCompraPage() {
       <div className="h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4 shrink-0">
-          <button onClick={closeDetail} className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-5 h-5 text-slate-400" /></button>
+          <button onClick={closeDetail} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></button>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold text-white">{selectedPO.folio}</h1>
-            <p className="text-slate-400 text-sm truncate">{selectedPO.supplier_name}</p>
+            <p className="text-[#7f93b0] text-sm truncate">{selectedPO.supplier_name}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={printOC} className="p-2 rounded-lg bg-white/5 hover:bg-white/10" title="Imprimir"><Printer className="w-5 h-5 text-slate-400" /></button>
-            <button onClick={downloadOC} className="p-2 rounded-lg bg-white/5 hover:bg-white/10" title="Descargar PDF"><FileDown className="w-5 h-5 text-slate-400" /></button>
+            <button onClick={printOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Imprimir"><Printer className="w-5 h-5 text-[#7f93b0]" /></button>
+            <button onClick={downloadOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Descargar PDF"><FileDown className="w-5 h-5 text-[#7f93b0]" /></button>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
         </div>
@@ -189,38 +189,38 @@ export default function OrdenesCompraPage() {
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Requisición</p>
+                <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Requisición</p>
                 <p className="text-white font-semibold text-sm">{poReq?.folio || "-"}</p>
-                <p className="text-slate-400 text-xs">{poReq?.cost_center_name}</p>
+                <p className="text-[#7f93b0] text-xs">{poReq?.cost_center_name}</p>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Total</p>
+                <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Total</p>
                 <p className="text-emerald-400 font-bold text-xl">${(selectedPO.total || 0).toLocaleString()}</p>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Forma de Pago</p>
-                <p className="text-white font-medium text-sm flex items-center gap-1.5"><Banknote className="w-4 h-4 text-slate-400" />{selectedPO.payment_method || "Transferencia"}</p>
+                <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Forma de Pago</p>
+                <p className="text-white font-medium text-sm flex items-center gap-1.5"><Banknote className="w-4 h-4 text-[#7f93b0]" />{selectedPO.payment_method || "Transferencia"}</p>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Crédito</p>
-                <p className="text-white font-medium text-sm flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-slate-400" />{selectedPO.credit_days > 0 ? `${selectedPO.credit_days} días` : "Contado"}</p>
+                <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Crédito</p>
+                <p className="text-white font-medium text-sm flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-[#7f93b0]" />{selectedPO.credit_days > 0 ? `${selectedPO.credit_days} días` : "Contado"}</p>
               </div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Materiales ({poItems.length})</h3>
+              <h3 className="text-[#7f93b0] text-xs font-semibold uppercase tracking-wider">Materiales ({poItems.length})</h3>
               {poItems.map(item => (
                 <div key={item.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0"><p className="text-white text-sm font-medium">{item.product_name}</p><p className="text-slate-500 text-xs">{item.quantity} {item.unit}</p></div>
-                    <div className="text-right shrink-0"><p className="text-emerald-400 font-bold text-sm">${((item.selected_price || 0) * item.quantity).toLocaleString()}</p><p className="text-slate-500 text-[10px]">${(item.selected_price || 0).toLocaleString()} c/u</p></div>
+                    <div className="flex-1 min-w-0"><p className="text-white text-sm font-medium">{item.product_name}</p><p className="text-[#4a6080] text-xs">{item.quantity} {item.unit}</p></div>
+                    <div className="text-right shrink-0"><p className="text-emerald-400 font-bold text-sm">${((item.selected_price || 0) * item.quantity).toLocaleString()}</p><p className="text-[#4a6080] text-[10px]">${(item.selected_price || 0).toLocaleString()} c/u</p></div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
-        <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95 backdrop-blur-lg -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
-          <p className="text-slate-500 text-xs mb-2">Cambiar estado:</p>
+        <div className="shrink-0 border-t border-white/[0.08] bg-aria-bg/95  -mx-4 px-4 pt-3 pb-4 sm:-mx-6 sm:px-6">
+          <p className="text-[#4a6080] text-xs mb-2">Cambiar estado:</p>
           <div className="flex gap-2">
             {selectedPO.status === "GENERADA" && (
               <button onClick={() => updateStatus("EN_TRANSITO")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-amber-500/20 text-amber-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-amber-500/30 transition-colors disabled:opacity-50">
@@ -251,31 +251,31 @@ export default function OrdenesCompraPage() {
       <FlashBanner msg={msg} className="mx-0 mb-3" />
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
-        <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-slate-400 text-sm">{orders.length} órdenes generadas</p></div>
+        <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-[#7f93b0] text-sm">{orders.length} órdenes generadas</p></div>
       </div>
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
-        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-slate-500 text-[9px]">Generadas</p></div>
-        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-slate-500 text-[9px]">En Tránsito</p></div>
-        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-slate-500 text-[9px]">Recibidas</p></div>
-        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-slate-500 text-[9px]">Pendiente</p></div>
+        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
+        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
+        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
+        <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-[#4a6080] text-[9px]">Pendiente</p></div>
       </div>
       <div className="flex gap-2 mb-3 shrink-0">
-        <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..." className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-aria-accent outline-none" /></div>
-        <button onClick={() => setShowFilters(!showFilters)} className={`px-3 rounded-xl border flex items-center gap-1.5 text-sm transition-colors ${showFilters ? "bg-aria-accent-bg border-aria-accent/40 text-aria-accent" : "bg-white/5 border-white/10 text-slate-400"}`}><Filter className="w-4 h-4" /></button>
+        <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..." className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#4a6080] focus:border-aria-accent outline-none" /></div>
+        <button onClick={() => setShowFilters(!showFilters)} className={`px-3 rounded-xl border flex items-center gap-1.5 text-sm transition-colors ${showFilters ? "bg-aria-accent-bg border-aria-accent/40 text-aria-accent" : "bg-white/[0.04] border-white/[0.08] text-[#7f93b0]"}`}><Filter className="w-4 h-4" /></button>
       </div>
       {showFilters && (
         <div className="flex gap-2 mb-3 shrink-0">
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los estados</option><option value="GENERADA">Generadas</option><option value="EN_TRANSITO">En Tránsito</option><option value="RECIBIDA">Recibidas</option><option value="PAGADA">Pagadas</option></select>
-          <select value={filterProveedor} onChange={(e) => setFilterProveedor(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los proveedores</option>{proveedores.map(p => <option key={p} value={p}>{p}</option>)}</select>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los estados</option><option value="GENERADA">Generadas</option><option value="EN_TRANSITO">En Tránsito</option><option value="RECIBIDA">Recibidas</option><option value="PAGADA">Pagadas</option></select>
+          <select value={filterProveedor} onChange={(e) => setFilterProveedor(e.target.value)} className="flex-1 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none"><option value="TODOS">Todos los proveedores</option>{proveedores.map(p => <option key={p} value={p}>{p}</option>)}</select>
         </div>
       )}
       <div className="flex-1 overflow-y-auto space-y-2">
-        {filtered.length === 0 ? <div className="text-center py-20"><Package className="w-12 h-12 text-slate-600 mx-auto mb-3" /><p className="text-slate-400">No hay órdenes de compra</p></div> : filtered.map(po => {
+        {filtered.length === 0 ? <div className="text-center py-20"><Package className="w-12 h-12 text-[#4a6080] mx-auto mb-3" /><p className="text-[#7f93b0]">No hay órdenes de compra</p></div> : filtered.map(po => {
           const st = getStatus(po.status); const StatusIcon = st.icon;
           return (<button key={po.id} onClick={() => openDetail(po)} className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all text-left group">
             <div className="flex items-center justify-between mb-2"><span className="text-white font-bold">{po.folio}</span><span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${st.bg} ${st.color}`}><StatusIcon className="w-3 h-3" />{st.label}</span></div>
-            <p className="text-slate-400 text-sm">{po.supplier_name}</p>
-            <div className="flex items-center justify-between mt-2"><span className="text-emerald-400 font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-slate-500 text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-aria-accent transition-colors" /></div></div>
+            <p className="text-[#7f93b0] text-sm">{po.supplier_name}</p>
+            <div className="flex items-center justify-between mt-2"><span className="text-emerald-400 font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-[#4a6080] text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-[#4a6080] group-hover:text-aria-accent transition-colors" /></div></div>
           </button>);
         })}
       </div>

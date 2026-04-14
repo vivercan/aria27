@@ -288,15 +288,15 @@ export default function GastosObraPage() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/finanzas" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-            <ArrowLeft className="w-5 h-5 text-slate-400" />
+          <Link href="/dashboard/finanzas" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
+            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
           </Link>
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <DollarSign className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Gastos de Obra</h1>
-            <p className="text-slate-400 text-sm">{gastos.length} registros históricos cargados</p>
+            <p className="text-[#7f93b0] text-sm">{gastos.length} registros históricos cargados</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -312,54 +312,54 @@ export default function GastosObraPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-emerald-500/20"><DollarSign className="w-5 h-5 text-emerald-400" /></div>
-            <span className="text-slate-400 text-sm">Total Filtrado</span>
+            <span className="text-[#7f93b0] text-sm">Total Filtrado</span>
           </div>
           <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-aria-primary-light"><Filter className="w-5 h-5 text-aria-accent" /></div>
-            <span className="text-slate-400 text-sm">Registros</span>
+            <span className="text-[#7f93b0] text-sm">Registros</span>
           </div>
           <p className="text-2xl font-bold text-aria-accent">{gastosFiltrados.length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-amber-500/20"><Building2 className="w-5 h-5 text-amber-400" /></div>
-            <span className="text-slate-400 text-sm">Obras</span>
+            <span className="text-[#7f93b0] text-sm">Obras</span>
           </div>
           <p className="text-2xl font-bold text-amber-400">{[...new Set(gastosFiltrados.map(g => g.obra))].length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-purple-500/20"><Calendar className="w-5 h-5 text-purple-400" /></div>
-            <span className="text-slate-400 text-sm">Semanas</span>
+            <span className="text-[#7f93b0] text-sm">Semanas</span>
           </div>
           <p className="text-2xl font-bold text-purple-400">{[...new Set(gastosFiltrados.map(g => g.semana))].length}</p>
         </div>
       </div>
 
-      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input type="text" placeholder="Buscar descripción, solicitante, proveedor..." value={filtros.buscar} onChange={e => setFiltros({ ...filtros, buscar: e.target.value })} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none transition-all" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
+            <input type="text" placeholder="Buscar descripción, solicitante, proveedor..." value={filtros.buscar} onChange={e => setFiltros({ ...filtros, buscar: e.target.value })} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-emerald-500/50 focus:outline-none transition-all" />
           </div>
-          <select value={filtros.obra} onChange={e => setFiltros({ ...filtros, obra: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+          <select value={filtros.obra} onChange={e => setFiltros({ ...filtros, obra: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none">
             <option value="">🏗️ Todas las obras</option>
             {obras.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-          <select value={filtros.semana} onChange={e => setFiltros({ ...filtros, semana: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+          <select value={filtros.semana} onChange={e => setFiltros({ ...filtros, semana: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none">
             <option value="">📅 Todas las semanas</option>
             {semanas.map(s => <option key={s} value={s}>Semana {s}</option>)}
           </select>
           <div className="flex items-center gap-2">
-            <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
-            <span className="text-slate-500">→</span>
-            <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({ ...filtros, fechaFin: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
+            <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
+            <span className="text-[#4a6080]">→</span>
+            <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({ ...filtros, fechaFin: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
           </div>
           <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all" title="Limpiar filtros">
             <X className="w-4 h-4" />
@@ -368,53 +368,53 @@ export default function GastosObraPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+        <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-emerald-400" />Detalle de Gastos
           </h2>
           <div className="max-h-[450px] overflow-y-auto rounded-xl">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10">
-                <tr className="bg-slate-800/90 backdrop-blur-sm">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider rounded-tl-lg">Fecha</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Sem</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Obra</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Descripción</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Proveedor</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Monto</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase tracking-wider rounded-tr-lg">Comprobante</th>
+                <tr className="bg-[#0c1d38]/90 ">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider rounded-tl-lg">Fecha</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider">Sem</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider">Obra</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider">Descripción</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase tracking-wider">Proveedor</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-[#7f93b0] uppercase tracking-wider">Monto</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-[#7f93b0] uppercase tracking-wider rounded-tr-lg">Comprobante</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {gastosFiltrados.slice(0, 150).map((g, idx) => (
                   <tr key={g.id} onClick={() => openViewGasto(g)} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors cursor-pointer`}>
-                    <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{g.fecha || "—"}</td>
+                    <td className="px-4 py-3 text-[#c9d8ed] whitespace-nowrap">{g.fecha || "—"}</td>
                     <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-medium">{g.semana || "—"}</span></td>
                     <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
-                    <td className="px-4 py-3 text-slate-400 truncate max-w-[120px]">{g.proveedor || "—"}</td>
+                    <td className="px-4 py-3 text-[#7f93b0] truncate max-w-[120px]">{g.proveedor || "—"}</td>
                     <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span></td>
-                    <td className="px-4 py-3 text-center">{g.imagen_url ? <Paperclip className="w-4 h-4 text-slate-400 mx-auto" /> : <span className="text-slate-600">—</span>}</td>
+                    <td className="px-4 py-3 text-center">{g.imagen_url ? <Paperclip className="w-4 h-4 text-[#7f93b0] mx-auto" /> : <span className="text-[#4a6080]">—</span>}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {gastosFiltrados.length > 150 && <p className="text-center text-slate-500 text-xs mt-4 py-2 bg-white/5 rounded-lg">Mostrando 150 de {gastosFiltrados.length}</p>}
+          {gastosFiltrados.length > 150 && <p className="text-center text-[#4a6080] text-xs mt-4 py-2 bg-white/[0.04] rounded-lg">Mostrando 150 de {gastosFiltrados.length}</p>}
         </div>
 
-        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-amber-400" />Top Obras
           </h2>
           <div className="space-y-3">
             {resumenObras.map((o, i) => (
-              <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/5 hover:border-white/10 transition-all cursor-pointer" onClick={() => setFiltros({ ...filtros, obra: o.nombre })}>
+              <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-white/[0.08] transition-all cursor-pointer" onClick={() => setFiltros({ ...filtros, obra: o.nombre })}>
                 <div className="flex justify-between items-start mb-2">
                   <p className="text-sm font-medium text-white truncate flex-1">{o.nombre}</p>
                   <span className="text-emerald-400 font-bold">{formatMoney(o.total)}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                   <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
                 </div>
               </div>
@@ -427,19 +427,19 @@ export default function GastosObraPage() {
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeDrawer} />
+          <div className="absolute inset-0 bg-black/50 " onClick={closeDrawer} />
 
           {/* Drawer Panel */}
-          <div className="relative ml-auto w-full max-w-xl bg-slate-900 border-l border-white/10 shadow-2xl flex flex-col max-h-screen overflow-hidden">
+          <div className="relative ml-auto w-full max-w-xl bg-[#0a1628] border-l border-white/[0.08] shadow-2xl flex flex-col max-h-screen overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-slate-900/95 backdrop-blur">
+            <div className="flex items-center justify-between p-6 border-b border-white/[0.08] sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur">
               <h2 className="text-lg font-semibold text-white">
                 {drawerMode === "create" && "Nuevo Gasto"}
                 {drawerMode === "view" && "Detalle del Gasto"}
                 {drawerMode === "edit" && "Editar Gasto"}
               </h2>
-              <button onClick={closeDrawer} className="p-1 hover:bg-white/10 rounded-lg transition-all">
-                <X className="w-5 h-5 text-slate-400" />
+              <button onClick={closeDrawer} className="p-1 hover:bg-white/[0.06] rounded-lg transition-all">
+                <X className="w-5 h-5 text-[#7f93b0]" />
               </button>
             </div>
 
@@ -447,25 +447,25 @@ export default function GastosObraPage() {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {/* Fecha */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Fecha *</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Fecha *</label>
                 <input
                   type="date"
                   value={formData.fecha}
                   onChange={e => setFormData({ ...formData, fecha: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 />
                 {formErrors.fecha && <p className="text-red-400 text-xs mt-1">{formErrors.fecha}</p>}
               </div>
 
               {/* Obra */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Obra *</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Obra *</label>
                 <select
                   value={formData.obra}
                   onChange={e => setFormData({ ...formData, obra: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 >
                   <option value="">-- Seleccionar obra --</option>
                   {obrasData.map(o => <option key={o.nombre} value={o.nombre}>{o.nombre}</option>)}
@@ -475,47 +475,47 @@ export default function GastosObraPage() {
 
               {/* Solicitante */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Solicitante</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Solicitante</label>
                 <input
                   type="text"
                   value={formData.solicitante}
                   onChange={e => setFormData({ ...formData, solicitante: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="Nombre del solicitante"
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 />
               </div>
 
               {/* Proveedor */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Proveedor</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Proveedor</label>
                 <input
                   type="text"
                   value={formData.proveedor}
                   onChange={e => setFormData({ ...formData, proveedor: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="Nombre del proveedor"
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 />
               </div>
 
               {/* Descripción */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Descripción *</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Descripción *</label>
                 <textarea
                   value={formData.descripcion}
                   onChange={e => setFormData({ ...formData, descripcion: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="Descripción detallada del gasto"
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none resize-none"
                 />
                 {formErrors.descripcion && <p className="text-red-400 text-xs mt-1">{formErrors.descripcion}</p>}
               </div>
 
               {/* Monto */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Monto *</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Monto *</label>
                 <input
                   type="number" min="0"
                   value={formData.monto}
@@ -523,19 +523,19 @@ export default function GastosObraPage() {
                   disabled={drawerMode === "view"}
                   placeholder="0.00"
                   step="0.01"
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 />
                 {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
               </div>
 
               {/* Estatus */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Estatus</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Estatus</label>
                 <select
                   value={formData.estatus}
                   onChange={e => setFormData({ ...formData, estatus: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
                 >
                   {ESTATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -543,11 +543,11 @@ export default function GastosObraPage() {
 
               {/* Comprobante Upload / Preview */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Comprobante (Imagen/PDF)</label>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Comprobante (Imagen/PDF)</label>
 
                 {/* Preview if exists and viewing */}
                 {drawerMode === "view" && selectedGasto?.imagen_url && (
-                  <div className="mb-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                  <div className="mb-3 p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]">
                     {getComprobanteMimeType(selectedGasto.imagen_url) === "image" ? (
                       <div className="relative w-full h-32 bg-black/20 rounded overflow-hidden">
                         <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/expedientes/${selectedGasto.imagen_url}`} alt="Comprobante" className="w-full h-full object-cover" />
@@ -567,19 +567,19 @@ export default function GastosObraPage() {
                     type="file"
                     accept="image/*,.pdf"
                     onChange={e => setFormData({ ...formData, comprobante: e.target.files?.[0] || null })}
-                    className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
+                    className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
                   />
                 )}
 
-                {formData.comprobante && <p className="text-xs text-slate-400 mt-2">Archivo: {formData.comprobante.name}</p>}
+                {formData.comprobante && <p className="text-xs text-[#7f93b0] mt-2">Archivo: {formData.comprobante.name}</p>}
               </div>
             </div>
 
             {/* Footer */}
-            <div className="border-t border-white/10 p-6 bg-slate-900/95 backdrop-blur flex gap-3 justify-end sticky bottom-0">
+            <div className="border-t border-white/[0.08] p-6 bg-[rgba(4,8,16,0.98)] backdrop-blur flex gap-3 justify-end sticky bottom-0">
               {drawerMode === "view" && (
                 <>
-                  <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+                  <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cerrar
                   </button>
                   <button onClick={switchToEdit} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary-light border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-hover/30 transition-all">
@@ -595,7 +595,7 @@ export default function GastosObraPage() {
 
               {drawerMode === "create" && (
                 <>
-                  <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+                  <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
                   <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
@@ -607,7 +607,7 @@ export default function GastosObraPage() {
 
               {drawerMode === "edit" && (
                 <>
-                  <button onClick={() => setDrawerMode("view")} className="px-5 py-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+                  <button onClick={() => setDrawerMode("view")} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
                   <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">

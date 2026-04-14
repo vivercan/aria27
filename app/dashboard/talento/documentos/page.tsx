@@ -355,7 +355,7 @@ export default function MisDocumentosPage() {
   // No user found
   if (!currentUser) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-4 text-slate-400">
+      <div className="h-full flex flex-col items-center justify-center gap-4 text-[#7f93b0]">
         <FolderLock className="w-16 h-16 opacity-30" />
         <p className="text-lg font-medium">No se encontrÃÂ³ tu usuario</p>
         <p className="text-sm">Contacta al administrador para registrar tu cuenta.</p>
@@ -367,7 +367,7 @@ export default function MisDocumentosPage() {
     <div className={`h-full flex flex-col overflow-hidden relative ${dragging ? "ring-2 ring-inset ring-emerald-400/60" : ""}`} {...dropHandlers}>
       {/* Drag & drop overlay */}
       {dragging && (
-        <div className="absolute inset-0 z-30 bg-emerald-500/10 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-emerald-500/10  flex flex-col items-center justify-center pointer-events-none">
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
           <p className="text-emerald-300 text-sm font-medium">Suelta archivos ocarpetas aqu\u00eid</p>
           <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas</p>
@@ -375,7 +375,7 @@ export default function MisDocumentosPage() {
       )}
       {/* Scanning/uploading progress overlay */}
       {dropProgress && (
-        <div className="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-30 bg-[#0a1628]/80  flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetasâ¦" : "Subiendo archivosâ¦"}
@@ -388,16 +388,16 @@ export default function MisDocumentosPage() {
         </div>
       )}
       {/* HEADER */}
-      <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+      <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-white/[0.05] bg-[#0a1628]/50 ">
         <div className="flex items-center gap-3">
           {view === "files" && (
-            <button onClick={goBack} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-slate-300" />
+            <button onClick={goBack} className="p-2 rounded-lg bg-white/[0.05] hover:bg-[#162040]/50 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-[#c9d8ed]" />
             </button>
           )}
           <div>
             <h1 className="text-xl font-bold text-white">Mis Documentos</h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#7f93b0]">
               {view === "folders" && userName(currentUser)}
               {view === "files" && (
                 <span className="flex items-center gap-1">
@@ -483,29 +483,29 @@ export default function MisDocumentosPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mt-8">
             <button
               onClick={() => selectFolder("compartidos")}
-              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800 transition-all duration-200"
+              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-emerald-500/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
               <FolderOpen className="w-20 h-20 text-emerald-400 group-hover:scale-110 transition-transform" />
               <span className="text-lg font-semibold text-white">Compartidos</span>
-              <span className="text-xs text-slate-400">Acceso libre</span>
+              <span className="text-xs text-[#7f93b0]">Acceso libre</span>
             </button>
             <button
               onClick={() => selectFolder("privados")}
-              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/50 hover:bg-slate-800 transition-all duration-200"
+              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-amber-500/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
               <FolderLock className="w-20 h-20 text-amber-400 group-hover:scale-110 transition-transform" />
               <span className="text-lg font-semibold text-white">Privados</span>
-              <span className="text-xs text-slate-400 flex items-center gap-1">
+              <span className="text-xs text-[#7f93b0] flex items-center gap-1">
                 <Lock className="w-3 h-3" /> Requiere PIN
               </span>
             </button>
             <button
               onClick={() => selectFolder("publica")}
-              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:border-cyan-500/50 hover:bg-slate-800 transition-all duration-200"
+              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-cyan-500/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
               <Globe className="w-20 h-20 text-cyan-400 group-hover:scale-110 transition-transform" />
               <span className="text-lg font-semibold text-white">PÃÂºblica</span>
-              <span className="text-xs text-slate-400">Visible para todos</span>
+              <span className="text-xs text-[#7f93b0]">Visible para todos</span>
             </button>
           </div>
         )}
@@ -516,14 +516,14 @@ export default function MisDocumentosPage() {
             {/* Select all bar */}
             {currentFiles.length > 0 && (
               <div className="flex items-center gap-3 mb-4 px-2">
-                <button onClick={toggleSelectAll} className="text-slate-400 hover:text-white transition-colors">
+                <button onClick={toggleSelectAll} className="text-[#7f93b0] hover:text-white transition-colors">
                   {selectedIds.size === currentFiles.length ? (
                     <CheckSquare className="w-5 h-5 text-aria-primary" />
                   ) : (
                     <Square className="w-5 h-5" />
                   )}
                 </button>
-                <span className="text-sm text-slate-400">
+                <span className="text-sm text-[#7f93b0]">
                   {currentFiles.length} archivo{currentFiles.length !== 1 ? "s" : ""}
                   {subfolders.length > 0 && ` ÃÂ· ${subfolders.length} subcarpeta${subfolders.length !== 1 ? "s" : ""}`}
                 </span>
@@ -537,10 +537,10 @@ export default function MisDocumentosPage() {
                   <button
                     key={sf}
                     onClick={() => enterSubfolder(sf)}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-800/40 border border-slate-700/40 hover:border-aria-primary/40 hover:bg-slate-800/70 transition-all"
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#0c1d38]/40 border border-white/[0.08]/40 hover:border-aria-primary/40 hover:bg-[#0c1d38]/70 transition-all"
                   >
                     <Folder className="w-10 h-10 text-amber-400" />
-                    <span className="text-xs text-slate-300 text-center truncate w-full">{sf}</span>
+                    <span className="text-xs text-[#c9d8ed] text-center truncate w-full">{sf}</span>
                   </button>
                 ))}
               </div>
@@ -548,7 +548,7 @@ export default function MisDocumentosPage() {
 
             {/* Archivos */}
             {currentFiles.length === 0 && subfolders.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-48 text-slate-500">
+              <div className="flex flex-col items-center justify-center h-48 text-[#4a6080]">
                 <Folder className="w-12 h-12 mb-3 opacity-30" />
                 <p className="text-sm">Sin archivos. Sube algo para empezar.</p>
               </div>
@@ -562,20 +562,20 @@ export default function MisDocumentosPage() {
                   <div
                     key={doc.id}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                      isSelected ? "bg-aria-primary/10 border border-aria-primary/30" : "bg-slate-800/30 border border-transparent hover:bg-slate-800/60"
+                      isSelected ? "bg-aria-primary/10 border border-aria-primary/30" : "bg-[#0c1d38]/30 border border-transparent hover:bg-[#0c1d38]/60"
                     }`}
                   >
                     <button onClick={() => toggleSelect(doc.id)} className="flex-none">
                       {isSelected ? (
                         <CheckSquare className="w-5 h-5 text-aria-primary" />
                       ) : (
-                        <Square className="w-5 h-5 text-slate-500 hover:text-slate-300" />
+                        <Square className="w-5 h-5 text-[#4a6080] hover:text-[#c9d8ed]" />
                       )}
                     </button>
-                    <Icon className="w-5 h-5 text-slate-400 flex-none" />
+                    <Icon className="w-5 h-5 text-[#7f93b0] flex-none" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-white truncate">{doc.nombre}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-[#4a6080]">
                         {friendlySize(doc.size_bytes)} ÃÂ· {new Date(doc.created_at).toLocaleDateString("es-MX")}
                         {doc.uploaded_by && ` ÃÂ· ${doc.uploaded_by}`}
                       </p>
@@ -585,21 +585,21 @@ export default function MisDocumentosPage() {
                         href={doc.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                        className="p-2 rounded-lg hover:bg-white/[0.05] text-[#7f93b0] hover:text-white transition-colors"
                         title="Ver"
                       >
                         <Eye className="w-4 h-4" />
                       </a>
                       <button
                         onClick={() => downloadFile(doc.url, doc.nombre)}
-                        className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                        className="p-2 rounded-lg hover:bg-white/[0.05] text-[#7f93b0] hover:text-white transition-colors"
                         title="Descargar"
                       >
                         <Download className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(doc.id)}
-                        className="p-2 rounded-lg hover:bg-red-900/30 text-slate-400 hover:text-red-400 transition-colors"
+                        className="p-2 rounded-lg hover:bg-red-900/30 text-[#7f93b0] hover:text-red-400 transition-colors"
                         title="Eliminar"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -614,13 +614,13 @@ export default function MisDocumentosPage() {
 
         {/* Ã¢ÂÂÃ¢ÂÂ UPLOAD PROGRESS OVERLAY Ã¢ÂÂÃ¢ÂÂ */}
         {uploadQueue.length > 0 && (
-          <div className="fixed bottom-6 right-6 w-96 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-4 z-50">
+          <div className="fixed bottom-6 right-6 w-96 bg-[#0c1d38] border border-white/[0.08] rounded-2xl shadow-2xl p-4 z-50">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-white">
                 Subiendo archivos ({uploadQueue.filter((u) => u.done).length}/{uploadQueue.length})
               </h4>
               {!uploading && (
-                <button onClick={() => setUploadQueue([])} className="text-slate-400 hover:text-white">
+                <button onClick={() => setUploadQueue([])} className="text-[#7f93b0] hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -636,10 +636,10 @@ export default function MisDocumentosPage() {
                     ) : (
                       <Loader2 className="w-3.5 h-3.5 text-aria-primary animate-spin flex-none" />
                     )}
-                    <span className="text-xs text-slate-300 truncate flex-1">{uq.name}</span>
-                    <span className="text-xs text-slate-500 flex-none">{uq.progress}%</span>
+                    <span className="text-xs text-[#c9d8ed] truncate flex-1">{uq.name}</span>
+                    <span className="text-xs text-[#4a6080] flex-none">{uq.progress}%</span>
                   </div>
-                  <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-1 bg-[#0f2448] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
                         uq.error ? "bg-red-500" : uq.done ? "bg-emerald-500" : "bg-aria-primary"
@@ -656,12 +656,12 @@ export default function MisDocumentosPage() {
 
       {/* Ã¢ÂÂÃ¢ÂÂ PIN MODAL Ã¢ÂÂÃ¢ÂÂ */}
       {pinRequired && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/60  flex items-center justify-center">
+          <div className="bg-[#0c1d38] border border-white/[0.08] rounded-2xl p-8 w-full max-w-sm shadow-2xl">
             <div className="flex flex-col items-center gap-4">
               <FolderLock className="w-12 h-12 text-amber-400" />
               <h3 className="text-lg font-bold text-white">Carpeta Privada</h3>
-              <p className="text-sm text-slate-400 text-center">
+              <p className="text-sm text-[#7f93b0] text-center">
                 Ingresa tu PIN para acceder a tus documentos privados.
               </p>
               <input
@@ -670,14 +670,14 @@ export default function MisDocumentosPage() {
                 onChange={(e) => { setPinInput(e.target.value); setPinError(""); }}
                 onKeyDown={(e) => { if (e.key === "Enter") verifyPin(); }}
                 placeholder="PIN"
-                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 text-white text-center text-2xl tracking-[0.5em] focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 rounded-xl bg-[#0a1628] border border-white/[0.07] text-white text-center text-2xl tracking-[0.5em] focus:outline-none focus:border-aria-primary"
                 autoFocus
               />
               {pinError && <p className="text-sm text-red-400">{pinError}</p>}
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setPinRequired(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#0f2448] text-[#c9d8ed] hover:bg-[#162040] transition-colors"
                 >
                   Cancelar
                 </button>

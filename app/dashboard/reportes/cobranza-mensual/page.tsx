@@ -70,16 +70,16 @@ function Content() {
 
   return (
     <>
-      <div className="no-print sticky top-0 z-20 bg-slate-950/90 backdrop-blur border-b border-white/10 px-6 py-3 flex items-center justify-between">
+      <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/5 hover:bg-white/10"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <Link href="/dashboard/reportes" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Cobranza mensual · <b>{MESES[mes-1]} {anio}</b></div>
         </div>
         <div className="flex items-center gap-2">
-          <select value={mes} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("mes", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10">
+          <select value={mes} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("mes", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08]">
             {MESES.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
           </select>
-          <select value={anio} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-slate-800 text-white text-xs border border-white/10">
+          <select value={anio} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08]">
             {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
           </select>
           <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
