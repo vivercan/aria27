@@ -404,7 +404,12 @@ export default function EntityFolder({
         webkitdirectory=""
         directory=""
         multiple
-        className="hidden     type="file"
+        className="hidden"
+        onChange={handleUpload}
+      />
+      <input
+        ref={replaceRef}
+        type="file"
         className="hidden"
         accept={accept}
         onChange={async e => {
