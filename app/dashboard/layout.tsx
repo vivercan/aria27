@@ -22,8 +22,8 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "Administración", icon: Briefcase, href: "/dashboard/administracion" },
-  { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "AdministraciÃ³n", icon: Briefcase, href: "/dashboard/administracion" },
+  { name: "ConfiguraciÃ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -63,15 +63,12 @@ const searchableItems = [
   { name: "Datos de Empresa", icon: ChevronRight, href: "/dashboard/administracion/empresa" },
   { name: "SUA Aportaciones", icon: ChevronRight, href: "/dashboard/administracion/sua" },
   { name: "SIROC Admin", icon: ChevronRight, href: "/dashboard/administracion/siroc" },
-  // Obras — subrutas faltantes
   { name: "Centro de Control Obras", icon: ChevronRight, href: "/dashboard/obras/control" },
   { name: "Avance Fisico", icon: ChevronRight, href: "/dashboard/obras/avance" },
   { name: "Catalogo Maestro Obras", icon: ChevronRight, href: "/dashboard/obras/catalogo" },
   { name: "SIROC IMSS", icon: ChevronRight, href: "/dashboard/obras/siroc/registros" },
   { name: "Control de Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto/remisiones" },
-  // Talento — subruta faltante
   { name: "Tareas Asignadas", icon: ChevronRight, href: "/dashboard/talento/tareas" },
-  // Finanzas — todas las subrutas
   { name: "Gastos de Obra", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra" },
   { name: "Costeo", icon: ChevronRight, href: "/dashboard/finanzas/costeo" },
   { name: "Facturacion", icon: ChevronRight, href: "/dashboard/finanzas/facturacion" },
@@ -81,13 +78,11 @@ const searchableItems = [
   { name: "Cobranza", icon: ChevronRight, href: "/dashboard/finanzas/cobranza" },
   { name: "SUA Infonavit", icon: ChevronRight, href: "/dashboard/finanzas/sua" },
   { name: "Ingreso Egresos", icon: ChevronRight, href: "/dashboard/finanzas/ingreso-egresos" },
-  // Activos — todas las subrutas
   { name: "Catalogo Activos", icon: ChevronRight, href: "/dashboard/activos/catalogo" },
   { name: "Estado Activos", icon: ChevronRight, href: "/dashboard/activos/estado" },
   { name: "Asignacion Activos", icon: ChevronRight, href: "/dashboard/activos/asignacion" },
   { name: "Mantenimiento", icon: ChevronRight, href: "/dashboard/activos/mantenimiento" },
   { name: "Vehiculos", icon: ChevronRight, href: "/dashboard/activos/vehiculos" },
-  // Configuracion — todas las subrutas
   { name: "General Configuracion", icon: ChevronRight, href: "/dashboard/configuracion/general" },
   { name: "Datos Maestros", icon: ChevronRight, href: "/dashboard/configuracion/maestros" },
   { name: "Correo", icon: ChevronRight, href: "/dashboard/configuracion/correo" },
@@ -96,15 +91,17 @@ const searchableItems = [
 ];
 
 function ThemeToggle() {
-  const log = clientLogger("PAGE");
   const { theme, setTheme } = useTheme();
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "bg-white/[0.06] hover:bg-white/[0.1]" : "bg-slate-200 hover:bg-slate-300"}`}
+      className="p-2 rounded-lg transition-colors"
+      style={{ backgroundColor: "rgba(255,255,255,0.05)" }}
       title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
     >
-      {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#4a6080]" />}
+      {theme === "dark"
+        ? <Sun className="w-4 h-4" style={{ color: "#f59e0b" }} />
+        : <Moon className="w-4 h-4" style={{ color: "#4a6080" }} />}
     </button>
   );
 }
@@ -130,8 +127,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  // Bug 6: Atajo global de regreso (Alt+Left) en todo el dashboard.
-  // Ignora si el foco esta en un input/textarea/contenteditable para no pisar escritura.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.altKey || e.key !== "ArrowLeft") return;
@@ -145,10 +140,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [pathname, router]);
 
-  // HEARTBEAT: Actualizar last_seen cada 30 segundos para estado en línea real
   useEffect(() => {
     if (!userEmail) return;
-    
     const actualizarPresencia = async () => {
       try {
         await fetch("/api/pulso/estado", {
@@ -158,13 +151,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         });
       } catch (e: unknown) { log.error("Error heartbeat:", { data: e }); }
     };
-
-    // Actualizar inmediatamente al cargar
     actualizarPresencia();
-    
-    // Luego cada 30 segundos
     const interval = setInterval(actualizarPresencia, 30000);
-    
     return () => clearInterval(interval);
   }, [userEmail]);
 
@@ -191,110 +179,163 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   };
 
   const isDark = theme === "dark";
+  const sidebarBg = isDark ? "#030b18" : "#ffffff";
+  const sidebarBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)";
+  const headerBg = isDark ? "rgba(3,11,24,0.95)" : "rgba(255,255,255,0.92)";
+  const navMuted = "#3d5470";
+  const navActive = "#5b9bf8";
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} relative`}>
+    <div
+      className="min-h-screen relative"
+      style={{ background: isDark ? "linear-gradient(155deg,#030b18 0%,#050e1f 55%,#040c1a 100%)" : colors.bgGradient }}
+    >
       <SeasonEffects />
-      
-      {/* Mobile overlay */}
+
       {mobileOpen && (
-        <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setMobileOpen(false)} />
+        <div className="fixed inset-0 bg-black/70 z-30 md:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      {/* âââ Sidebar âââ */}
       <aside
-        className={`fixed left-0 top-0 h-full w-[180px] flex flex-col z-40 border-r transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        className={`fixed left-0 top-0 h-full w-[220px] flex flex-col z-40 transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
-          backgroundColor: colors.sidebar,
-          borderColor: colors.cardBorder
+          backgroundColor: sidebarBg,
+          borderRight: `1px solid ${sidebarBorder}`,
         }}
       >
-        <div className="p-4" style={{ borderBottom: `1px solid ${colors.cardBorder}` }}>
-          <Link href="/dashboard">
-            <h1 className="text-2xl font-black">
-              <span style={{ color: colors.accent }}>ARIA</span>
-            </h1>
-            <p className="text-[10px] uppercase tracking-wider" style={{ color: colors.textMuted }}>Infinity Loop</p>
+        {/* Brand */}
+        <div className="px-5 pt-5 pb-4" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+          <Link href="/dashboard" className="block">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[20px] font-black tracking-tight" style={{ color: "#2563eb" }}>ARIA</span>
+              <span className="text-[20px] font-black tracking-tight" style={{ color: isDark ? "rgba(255,255,255,0.85)" : "#1e293b" }}>27</span>
+            </div>
+            <p className="text-[10px] font-medium tracking-[0.12em] mt-0.5 uppercase" style={{ color: navMuted }}>
+              GCU Â· Avante
+            </p>
           </Link>
         </div>
 
-        <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-          {menuItems.filter((item) => {
-            if (item.href === "#pulso") return true;
-            const moduleKey = item.href.replace("/dashboard/", "");
-            return canAccessModule(userRole, userPermissions, moduleKey);
-          }).map((item) => {
-            const isActive = pathname.startsWith(item.href) && item.href !== "#pulso";
-            const isPulso = item.href === "#pulso";
+        {/* Nav */}
+        <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
+          <div className="space-y-0.5 px-2">
+            {menuItems.filter((item) => {
+              if (item.href === "#pulso") return true;
+              const moduleKey = item.href.replace("/dashboard/", "");
+              return canAccessModule(userRole, userPermissions, moduleKey);
+            }).map((item) => {
+              const isActive = pathname.startsWith(item.href) && item.href !== "#pulso";
+              const isPulso = item.href === "#pulso";
+              const isItemActive = isPulso ? showPulso : isActive;
 
-            if (isPulso) {
+              const navStyle: React.CSSProperties = {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                fontSize: "13px",
+                fontWeight: isItemActive ? 500 : 400,
+                color: isItemActive ? navActive : navMuted,
+                backgroundColor: isItemActive ? "rgba(37,99,235,0.12)" : "transparent",
+                boxShadow: isItemActive ? "inset 3px 0 0 #2563eb" : "none",
+                transition: "all 0.15s ease",
+                textDecoration: "none",
+                cursor: "pointer",
+                border: "none",
+                textAlign: "left",
+              };
+
+              if (isPulso) {
+                return (
+                  <button key={item.name} onClick={() => setShowPulso(!showPulso)} style={navStyle}>
+                    <item.icon style={{ width: "16px", height: "16px", flexShrink: 0 }} />
+                    <span>{item.name}</span>
+                  </button>
+                );
+              }
+
               return (
-                <button key={item.name} onClick={() => setShowPulso(!showPulso)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-                  style={{ 
-                    backgroundColor: showPulso ? colors.accentBg : "transparent",
-                    color: showPulso ? colors.accent : colors.textMuted 
-                  }}>
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </button>
+                <Link key={item.name} href={item.href} onClick={() => setMobileOpen(false)} style={navStyle}>
+                  <item.icon style={{ width: "16px", height: "16px", flexShrink: 0 }} />
+                  <span className="truncate flex-1">{item.name}</span>
+                  {item.hasSubmenu && <ChevronRight style={{ width: "12px", height: "12px", opacity: 0.4 }} />}
+                </Link>
               );
-            }
-
-            return (
-              <Link key={item.name} href={item.href} onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-                style={{ 
-                  backgroundColor: isActive ? colors.accentBg : "transparent",
-                  color: isActive ? colors.accent : colors.textMuted 
-                }}>
-                <item.icon className="w-5 h-5" />
-                <span>{item.name}</span>
-                {item.hasSubmenu && <ChevronRight className="w-4 h-4 ml-auto" />}
-              </Link>
-            );
-          })}
+            })}
+          </div>
         </nav>
 
-        <div className="p-3 text-xs" style={{ borderTop: `1px solid ${colors.cardBorder}`, color: colors.textMuted }}>
-          ARIA v2026.1 - Production
+        {/* Footer */}
+        <div
+          className="px-5 py-3 flex items-center gap-2"
+          style={{ borderTop: `1px solid ${sidebarBorder}` }}
+        >
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+            style={{ backgroundColor: "rgba(37,99,235,0.18)", color: "#5b9bf8" }}
+          >
+            {userName.charAt(0).toUpperCase() || "U"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-medium truncate" style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}>
+              {userName || "â"}
+            </p>
+            <p className="text-[10px] truncate" style={{ color: navMuted }}>
+              {userRole === "admin" ? "Administrador" : "Usuario"}
+            </p>
+          </div>
+          <button onClick={handleLogout} className="p-1.5 rounded-lg transition-opacity hover:opacity-70 flex-shrink-0" style={{ color: navMuted }}>
+            <LogOut style={{ width: "13px", height: "13px" }} />
+          </button>
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="md:ml-[180px] relative z-10 h-screen flex flex-col overflow-hidden">
-        {/* Header */}
-        <header 
-          className="sticky top-0 z-30  border-b"
-          style={{ 
-            backgroundColor: isDark ? "rgba(5,9,18,0.92)" : "rgba(255,255,255,0.9)",
-            borderColor: colors.cardBorder 
+      {/* âââ Main âââ */}
+      <main className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden">
+
+        {/* Header 52px */}
+        <header
+          className="sticky top-0 z-30 flex-shrink-0"
+          style={{
+            height: "52px",
+            backgroundColor: headerBg,
+            borderBottom: `1px solid ${sidebarBorder}`,
+            backdropFilter: "blur(12px)",
           }}
         >
-          <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
-            <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]" style={{ color: colors.text }} aria-label="Abrir menú">
+          <div className="flex items-center h-full px-5 gap-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]"
+              style={{ color: navMuted }}
+              aria-label="Abrir menÃº"
+            >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="relative flex-1 md:w-80 md:flex-none">
+
+            {/* Search */}
+            <div className="relative flex-1 md:w-72 md:flex-none">
               <div
-                className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : colors.card }}
+                className="flex items-center gap-2 px-3 h-8 rounded-lg"
+                style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: `1px solid ${sidebarBorder}` }}
               >
-                <Search className="w-4 h-4" style={{ color: colors.textMuted }} />
+                <Search style={{ width: "13px", height: "13px", color: navMuted, flexShrink: 0 }} />
                 <input
                   type="text"
-                  placeholder="Buscar módulos, documentos..."
-                  className="bg-transparent outline-none text-sm w-full"
-                  style={{ color: colors.text }}
+                  placeholder="Buscar mÃ³dulos..."
+                  className="bg-transparent outline-none text-[13px] w-full"
+                  style={{ color: isDark ? "rgba(255,255,255,0.75)" : "#1e293b" }}
                   value={searchQuery}
                   onChange={(e) => {
                     const q = e.target.value;
                     setSearchQuery(q);
                     if (q.trim().length > 0) {
-                      const filtered = searchableItems.filter(item =>
+                      setSearchResults(searchableItems.filter(item =>
                         item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
-                      );
-                      setSearchResults(filtered);
+                      ));
                     } else {
                       setSearchResults([]);
                     }
@@ -303,31 +344,30 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                     if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); }
                     if (e.key === "Enter" && searchResults.length > 0) {
                       router.push(searchResults[0].href);
-                      setSearchQuery("");
-                      setSearchResults([]);
+                      setSearchQuery(""); setSearchResults([]);
                     }
                   }}
                 />
                 {searchQuery && (
-                  <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} className="p-0.5" style={{ color: colors.textMuted }}>
-                    <X className="w-3 h-3" />
+                  <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} style={{ color: navMuted }}>
+                    <X style={{ width: "12px", height: "12px" }} />
                   </button>
                 )}
               </div>
               {searchResults.length > 0 && (
                 <div
-                  className="absolute top-full left-0 right-0 mt-1 rounded-lg border shadow-lg z-50 overflow-hidden"
-                  style={{ backgroundColor: colors.sidebar, borderColor: colors.cardBorder }}
+                  className="absolute top-full left-0 right-0 mt-1 rounded-xl border shadow-2xl z-50 overflow-hidden py-1"
+                  style={{ backgroundColor: isDark ? "#070f1e" : "#ffffff", borderColor: sidebarBorder }}
                 >
                   {searchResults.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
                       onClick={() => { setSearchQuery(""); setSearchResults([]); }}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:opacity-80"
-                      style={{ color: colors.text }}
+                      className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:bg-white/[0.04]"
+                      style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
                     >
-                      <item.icon className="w-4 h-4" style={{ color: colors.accent }} />
+                      <item.icon style={{ width: "14px", height: "14px", color: "#3b82f6" }} />
                       <span>{item.name}</span>
                     </Link>
                   ))}
@@ -335,30 +375,25 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 ml-auto">
               <ThemeToggle />
-              <div className="text-right">
-                <p className="text-xs uppercase" style={{ color: colors.textMuted }} suppressHydrationWarning>
-             {new Date().toLocaleDateString("es-MX", { weekday: "long" }).toUpperCase()}
+
+              {/* Date */}
+              <div className="hidden md:block text-right">
+                <p className="text-[10px] uppercase tracking-[0.08em]" style={{ color: navMuted }} suppressHydrationWarning>
+                  {new Date().toLocaleDateString("es-MX", { weekday: "long" })}
                 </p>
-                <p className="text-sm" style={{ color: colors.text }} suppressHydrationWarning>
-                  {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+                <p className="text-[11px] font-medium" style={{ color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }} suppressHydrationWarning>
+                  {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium" style={{ color: colors.text }}>{userName}</p>
-                  <p className="text-xs" style={{ color: colors.accent }}>{userRole === "admin" ? "Administrador" : "Usuario"}</p>
-                </div>
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
-                  style={{ backgroundColor: colors.accentBg, color: colors.accent }}
-                >
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <button onClick={handleLogout} className="p-2 rounded-lg hover:opacity-80" style={{ color: colors.textMuted }}>
-                  <LogOut className="w-5 h-5" />
-                </button>
+
+              {/* Avatar */}
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold"
+                style={{ backgroundColor: "rgba(37,99,235,0.18)", color: "#5b9bf8" }}
+              >
+                {userName.charAt(0).toUpperCase() || "U"}
               </div>
             </div>
           </div>
@@ -367,7 +402,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <div className="flex-1 overflow-hidden">{children}</div>
       </main>
 
-      {/* ARIA Pulso Messenger */}
       <AlertasGlobales />
       {showPulso && userEmail && (
         <PulsoMessenger userEmail={userEmail} onClose={() => setShowPulso(false)} />
@@ -383,6 +417,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </ThemeProvider>
   );
 }
-
-
-
