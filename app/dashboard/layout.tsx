@@ -182,7 +182,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarBg = isDark ? "#030b18" : "#ffffff";
   const sidebarBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)";
   const headerBg = isDark ? "rgba(3,11,24,0.95)" : "rgba(255,255,255,0.92)";
-  const navMuted = "#3d5470";
+  const navMuted = isDark ? "rgba(255,255,255,0.62)" : "#3d5470";
   const navActive = "#5b9bf8";
 
   return (
@@ -239,8 +239,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 width: "100%",
                 padding: "8px 12px",
                 borderRadius: "8px",
-                fontSize: "13px",
-                fontWeight: isItemActive ? 500 : 400,
+                fontSize: "16px",
+                fontWeight: isItemActive ? 600 : 400,
                 color: isItemActive ? navActive : navMuted,
                 backgroundColor: isItemActive ? "rgba(37,99,235,0.12)" : "transparent",
                 boxShadow: isItemActive ? "inset 3px 0 0 #2563eb" : "none",
@@ -299,7 +299,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       {/* ─── Main ─── */}
       <main
         className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden"
-        style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}
+        style={{ background: "transparent" }}
       >
 
         {/* Header 52px */}
