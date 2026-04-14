@@ -12,7 +12,10 @@ const log = logger("BACKUP-RESTORE");
 // Body: { date: "2026-04-13", includeStorage?: boolean }
 // ---------------------------------------------------------------------------
 
-const JJ_EMAIL = "juanviverosv@gmail.com";
+const ALLOWED_EMAILS = [
+  "juanviverosv@gmail.com",          // JJ — administrador principal
+  "recursos.humanos@gcuavante.com",   // Deya Montalvo — Recursos Humanos
+];
 
 async function resolveUserEmail(req: NextRequest): Promise<string | null> {
   const supabase = getSupabaseAdmin();
@@ -51,10 +54,10 @@ export async function POST(req: NextRequest) {
   if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (userEmail !== JJ_EMAIL) {
+  if (!ALLOWED_EMAILS.includes(userEmail)) {
     log.warn("Intento de restauración por usuario no autorizado", { userEmail });
     return NextResponse.json(
-      { error: "Acceso denegado — solo el administrador principal puede restaurar" },
+      { error: "Acceso denegado — solo administradores autorizados pueden restaurar" },
       { status: 403 }
     );
   }
@@ -282,7 +285,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const userEmail = await resolveUserEmail(req);
 
-  if (!userEmail || userEmail !== JJ_EMAIL) {
+  if (!userEmail || !ALLOWED_EMAILS.includes(userEmail)) {
     return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
   }
 
