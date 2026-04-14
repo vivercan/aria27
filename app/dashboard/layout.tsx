@@ -237,7 +237,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <header 
           className="sticky top-0 z-30 backdrop-blur-md border-b"
           style={{ 
-            backgroundColor: isDark ? "rgba(10,22,40,0.8)" : "rgba(255,255,255,0.9)",
+            backgroundColor: isDark ? "rgba(5,9,18,0.92)" : "rgba(255,255,255,0.9)",
             borderColor: colors.cardBorder 
           }}
         >
