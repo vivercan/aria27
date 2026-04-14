@@ -935,7 +935,6 @@ export default function ExpedientesPage() {
           </label>
           <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white text-sm font-medium cursor-pointer transition shrink-0">
             <FolderUp className="w-4 h-4" /> Carpeta
-            {/* @ts-ignore webkitdirectory */}
             <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUploadCarpetaAnio} />
           </label>
         </div>
@@ -1249,7 +1248,6 @@ export default function ExpedientesPage() {
                   </label>
                   <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-700/20 hover:bg-emerald-700/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium cursor-pointer transition">
                     <FolderUp className="w-3.5 h-3.5" /> Carpeta
-                    {/* @ts-ignore webkitdirectory */}
                     <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUploadAnio} />
                   </label>
               </div>
@@ -1449,7 +1447,6 @@ export default function ExpedientesPage() {
                   <label className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg cursor-pointer transition-colors flex items-center gap-2">
                     <FolderUp className="w-4 h-4" />
                     <span className="text-sm font-medium">Carpeta</span>
-                    {/* @ts-ignore webkitdirectory */}
                     <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUpload} />
                   </label>
                     {canDelete && (<button
