@@ -25,12 +25,12 @@ const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_PHONE || "5218112392266";
   const missingAnthro = !process.env.ANTHROPIC_API_KEY;
   const issues: string[] = [];
   if (hasMetaSecret && !hasHmacBypass) {
-    issues.push("\uD83D\uDD34 META_APP_SECRET activo + DISABLE_WEBHOOK_HMAC ausente \u2192 webhook retonar\u00E1 403");
+    issues.push("🔴 META_APP_SECRET activo + DISABLE_WEBHOOK_HMAC ausente → webhook retonará 403");
   }
-  if (missingToken) issues.push("\uD83D\uDD34 WHATSAPP_ACCESS_TOKEN ausente");
-  if (missingAnthro) issues.push("\uD83D\uDD34 ANTHROPIC_API_KEY ausente");
+  if (missingToken) issues.push("🔴 WHATSAPP_ACCESS_TOKEN ausente");
+  if (missingAnthro) issues.push("🔴 ANTHROPIC_API_KEY ausente");
   if (issues.length > 0) {
-    const msg = `\u26A0\uFE0F *ARIA27 \u2014 WEBHOOK MAL CONFIGURADO*\\n\\n${issues.join("\\n")}\\n\\nAcci\u00F3n requerida URGENTE.`;
+    const msg = `⚠️ *ARIA27 — WEBHOOK MAL CONFIGURADO*\\n\\n${issues.join("\\n")}\\n\\nAcción requerida URGENTE.`;
     sendWhatsAppText(ADMIN_PHONE, msg, { origen: "webhook-attendance", enviadoPor: "boot-check" })
       .catch(() => log.error("boot-check: no se pudo enviar alerta"));
     log.error("BOOT MISCONFIGURATION DETECTED", { issues });
@@ -504,15 +504,13 @@ async function findEmpleado(phone10: string, from: string) {
 
 // ============== MANEJAR GASTO ==============
 async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
-  const gastoAdmin = getSupabaseAdmin();
-
   const emp = await findEmpleado(phone10, from);
   if (!emp) {
     await sendWhatsApp(from, "Telefono no registrado en ARIA27.\n\nContacta a tu supervisor para registrar tu numero.");
     return;
   }
 
-  const { error: errGasto } = await gastoAdmin
+  const { error: errGasto } = await db
     .from("gastos_obra")
     .insert({
       employee_id: emp.id,
@@ -621,10 +619,12 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     });
     if (errAsis1) log.error("insert asistencias (clock-in) failed", { error: errAsis1.message });
 
-    const geoIcon = dentroGeocerca ? "OK" : "FUERA";
     const distText = formatDistance(distance);
-    const distLine = dentroGeocerca ? `A ${distText} de ${workCenter.nombre}` : `FUERA: ${distText} de ${workCenter.nombre}`;
-    await sendWhatsApp(from, `ENTRADA REGISTRADA - ${geoIcon}\n${distLine}\n${emp.full_name}\n${workCenter.nombre}\n${hora}\nExcelente dia!`);
+    if (dentroGeocerca) {
+      await sendWhatsApp(from, `✅ ENTRADA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Buen día!`);
+    } else {
+      await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Buen día!`);
+    }
     return;
   }
 
@@ -645,10 +645,12 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     const totalMins = (hS * 60 + mS) - (hE * 60 + mE);
     const horasStr = totalMins > 0 ? `${Math.floor(totalMins/60)}h ${totalMins%60}m` : "0h";
 
-    const geoIcon = dentroGeocerca ? "OK" : "FUERA";
     const distText = formatDistance(distance);
-    const distLine = dentroGeocerca ? `A ${distText} de ${workCenter.nombre}` : `FUERA: ${distText} de ${workCenter.nombre}`;
-    await sendWhatsApp(from, `SALIDA REGISTRADA - ${geoIcon}\n${distLine}\n${emp.full_name}\n${workCenter.nombre}\nEntrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\nSalida: ${hora}\nTotal: ${horasStr}\nHasta manana!`);
+    if (dentroGeocerca) {
+      await sendWhatsApp(from, `✅ SALIDA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${hora}\n⏱️ Total: ${horasStr}\n\n¡Hasta mañana!`);
+    } else {
+      await sendWhatsApp(from, `⚠️ SALIDA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${hora}\n⏱️ Total: ${horasStr}\n\n¡Hasta mañana!`);
+    }
     return;
   }
 
@@ -678,10 +680,12 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       });
       if (errAsis4) log.error("insert asistencias (replace auto-record) failed", { error: errAsis4.message });
 
-      const geoIcon = dentroGeocerca ? "OK" : "FUERA";
       const distText = formatDistance(distance);
-      const distLine = dentroGeocerca ? `A ${distText} de ${workCenter.nombre}` : `FUERA: ${distText} de ${workCenter.nombre}`;
-      await sendWhatsApp(from, `ENTRADA REGISTRADA - ${geoIcon}\n${distLine}\n${emp.full_name}\n${workCenter.nombre}\n${hora}\n(Se actualizo tu registro del dia)\nExcelente dia!`);
+      if (dentroGeocerca) {
+        await sendWhatsApp(from, `✅ ENTRADA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n(Se actualizó tu registro del día)\n¡Buen día!`);
+      } else {
+        await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n(Se actualizó tu registro del día)\n¡Buen día!`);
+      }
       return;
     }
 
@@ -752,7 +756,7 @@ export async function POST(request: NextRequest) {
       const permanentUrl = await processAndUploadPhoto({
         mediaUrl: mediaInfo.url,
         whatsappToken: WHATSAPP_TOKEN || "",
-        supabase: getSupabaseAdmin(),
+        supabase: db,
         bucket: "inventario",
         storagePath: `wa-fotos/${Date.now()}.jpg`,
       });
