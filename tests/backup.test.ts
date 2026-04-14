@@ -219,7 +219,7 @@ describe("backup utilities", () => {
     });
 
     it("empty file list returns no deletions", () => {
-      const files: unknown[] = [];
+      const files: { created: Date }[] = [];
       const toDelete = files.filter((f) => f.created < new Date());
 
       expect(toDelete.length).toBe(0);
