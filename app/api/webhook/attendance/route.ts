@@ -252,7 +252,8 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   let obraFinal = obraNombre;
   if (!obraFinal) {
     const emp = await findEmpleado(phone10, from);
-    obraFinal = emp?.centro_trabajo?.nombre;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    obraFinal = (emp?.centro_trabajo as any)?.nombre;
   }
 
   if (!obraFinal) {
@@ -411,7 +412,8 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
   let obraFinal = obraNombre;
   if (!obraFinal) {
     const emp = await findEmpleado(phone10, from);
-    obraFinal = emp?.centro_trabajo?.nombre;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    obraFinal = (emp?.centro_trabajo as any)?.nombre;
   }
   if (!obraFinal) {
     await sendWhatsApp(from, `❌ No pude determinar la obra.\n\nEnvía: SALIDA ${material} ${cantidad} ${unidad} NOMBRE_OBRA`);
@@ -829,8 +831,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const rateLimitResult = checkRateLimit(getClientIdentifier(request), RATE_LIMITS.WEBHOOK);
-    if (!rateLimitResult.allowed) return rateLimitResponse();
+    const rateLimitResult = checkRateLimit(getClientIdentifier(request), { key: "webhook:attendance", ...RATE_LIMITS.WRITE });
+    if (!rateLimitResult.allowed) return rateLimitResponse(rateLimitResult);
 
     const rawBody = await request.text();
     const signature = request.headers.get("x-hub-signature-256") || "";
@@ -872,7 +874,13 @@ export async function POST(request: NextRequest) {
       }
 
       // Procesar y subir la foto a Supabase Storage (con marca de tiempo)
-      const permanentUrl = await processAndUploadPhoto(mediaInfo.url, mediaInfo.mimeType, WHATSAPP_TOKEN || "");
+      const permanentUrl = await processAndUploadPhoto({
+        mediaUrl: mediaInfo.url,
+        whatsappToken: WHATSAPP_TOKEN || "",
+        supabase: getSupabaseAdmin(),
+        bucket: "inventario",
+        storagePath: `wa-fotos/${Date.now()}.jpg`,
+      });
       const imageUrl = permanentUrl || mediaInfo.url;
 
       if (!permanentUrl) {
