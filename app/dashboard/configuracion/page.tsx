@@ -11,7 +11,7 @@ const RESTORE_EMAILS = [
 const baseItems = [
   {
     title: "General",
-    description: "ParÃ¡metros del sistema y usuarios.",
+    description: "Parámetros del sistema y usuarios.",
     href: "/dashboard/configuracion/general",
     icon: Settings,
     iconBg: "rgba(37,99,235,0.15)",
@@ -19,7 +19,7 @@ const baseItems = [
   },
   {
     title: "Datos Maestros",
-    description: "Centros de trabajo y nÃ³mina.",
+    description: "Centros de trabajo y nómina.",
     href: "/dashboard/configuracion/maestros",
     icon: Database,
     iconBg: "rgba(139,92,246,0.14)",
@@ -27,7 +27,7 @@ const baseItems = [
   },
   {
     title: "Correo",
-    description: "ConfiguraciÃ³n de correo y notificaciones.",
+    description: "Configuración de correo y notificaciones.",
     href: "/dashboard/configuracion/correo",
     icon: Mail,
     iconBg: "rgba(16,185,129,0.14)",
@@ -43,7 +43,7 @@ const baseItems = [
   },
   {
     title: "Recordatorios",
-    description: "Recordatorios automÃ¡ticos por WhatsApp.",
+    description: "Recordatorios automáticos por WhatsApp.",
     href: "/dashboard/configuracion/recordatorios",
     icon: BookOpen,
     iconBg: "rgba(244,63,94,0.14)",
@@ -53,7 +53,7 @@ const baseItems = [
 
 const restoreItem = {
   title: "Restaurar Sistema",
-  description: "Punto de restauraciÃ³n â snapshot de respaldo.",
+  description: "Punto de restauración — snapshot de respaldo.",
   href: "/dashboard/admin/restore",
   icon: DatabaseBackup,
   iconBg: "rgba(239,68,68,0.15)",
@@ -75,8 +75,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       href={module.href}
       className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
       style={{
-        backgroundColor: "rgba(8,18,36,0.85)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "rgba(10,22,45,0.88)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.09)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
@@ -85,7 +86,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       <div
         style={{
           position: "absolute", inset: "0 0 auto 0", height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -125,10 +126,10 @@ export default function ConfiguracionPage() {
     <div className="px-6 pt-6 pb-8 h-full overflow-auto">
       <div className="mb-6">
         <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
-          ConfiguraciÃ³n
+          Configuración
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          ParÃ¡metros del sistema y preferencias
+          Parámetros del sistema y preferencias
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
