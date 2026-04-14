@@ -1,5 +1,5 @@
 "use client";
-import { FileText, Package, Users, ShoppingCart, CreditCard, Truck, Search , Receipt} from "lucide-react";
+import { FileText, Package, Users, ShoppingCart, CreditCard, Truck, Search, Receipt } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
@@ -8,97 +8,129 @@ const subModules = [
     description: "Solicitudes de materiales para obra.",
     href: "/dashboard/requisiciones/requisiciones",
     icon: FileText,
-    gradient: "from-aria-primary to-aria-primary",
-    badge: "ACTIVO"
+    gradient: "from-blue-500 to-blue-700",
+    badge: "ACTIVO",
   },
   {
     title: "Productos",
     description: "Control de stock y almacén.",
     href: "/dashboard/requisiciones/productos",
     icon: Package,
-    gradient: "from-teal-500 to-teal-600"
+    gradient: "from-teal-500 to-cyan-600",
   },
   {
     title: "Proveedores",
     description: "Catálogo de proveedores.",
     href: "/dashboard/requisiciones/proveedores",
     icon: Users,
-    gradient: "from-emerald-500 to-emerald-600",
-    badge: "CRUD"
+    gradient: "from-emerald-500 to-emerald-700",
+    badge: "CRUD",
   },
   {
     title: "Compras",
     description: "Cotizaciones y comparativas.",
     href: "/dashboard/requisiciones/compras",
     icon: ShoppingCart,
-    gradient: "from-aria-accent to-aria-accent"
+    gradient: "from-cyan-500 to-cyan-700",
   },
   {
     title: "Pagos",
     description: "Control de pagos a proveedores.",
     href: "/dashboard/requisiciones/pagos",
     icon: CreditCard,
-    gradient: "from-rose-500 to-pink-600"
+    gradient: "from-rose-400 to-rose-600",
   },
   {
     title: "Entregas",
     description: "Entregas y seguimiento.",
     href: "/dashboard/requisiciones/entregas",
     icon: Truck,
-    gradient: "from-indigo-500 to-indigo-600"
+    gradient: "from-indigo-500 to-indigo-700",
   },
   {
     title: "Prospección",
     description: "Búsqueda de nuevos proveedores.",
     href: "/dashboard/requisiciones/prospeccion",
     icon: Search,
-    gradient: "from-purple-500 to-purple-600"
-    },
+    gradient: "from-violet-500 to-violet-700",
+  },
   {
     title: "Cotizaciones",
-    description: "Comparativas y seleccion de proveedores.",
+    description: "Comparativas y selección de proveedores.",
     href: "/dashboard/requisiciones/cotizaciones",
     icon: Receipt,
-    gradient: "from-amber-500 to-orange-600",
+    gradient: "from-amber-400 to-amber-600",
   },
 ];
 
 export default function RequisicionesPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Requisiciones</h1>
-        <p className="text-slate-400 mt-1">Gestión de compras, inventario y proveedores.</p>
+    <div className="px-6 pt-6 pb-8 space-y-6 h-full overflow-auto">
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="text-[26px] font-bold tracking-tight text-white leading-none">
+          Requisiciones
+        </h1>
+        <p className="text-sm text-[#7f93b0] font-light tracking-wide">
+          Gestión de compras, inventario y proveedores.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {subModules.map((module) => (
           <Link
             key={module.href}
             href={module.href}
-            className="group relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
+            className="group relative overflow-hidden rounded-2xl bg-[#0c1d38]/90 border border-white/[0.07] hover:border-white/[0.13] transition-all duration-200 hover:scale-[1.014] hover:shadow-xl hover:shadow-black/50 hover:bg-[#0f2448]/90"
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-            <div className="relative p-6">
-              <div className={`inline-flex p-3.5 rounded-xl bg-gradient-to-br ${module.gradient} shadow-lg mb-4`}>
-                <module.icon className="w-6 h-6 text-white" strokeWidth={1.75} />
+            {/* Top micro-highlight */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
+            {/* Hover accent wash */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-[0.055] transition-opacity duration-200 pointer-events-none`}
+            />
+
+            <div className="relative p-5">
+              {/* Icon */}
+              <div
+                className={`inline-flex p-3.5 rounded-xl bg-gradient-to-br ${module.gradient} shadow-lg mb-4`}
+              >
+                <module.icon className="w-7 h-7 text-white" strokeWidth={1.6} />
               </div>
-              <div className="space-y-2">
+
+              {/* Title + badge */}
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
+                  <h3 className="font-semibold text-white/90 text-[15px] tracking-wide leading-tight group-hover:text-white transition-colors duration-150">
                     {module.title}
                   </h3>
                   {module.badge && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">
+                    <span className="px-1.5 py-px text-[9px] font-bold tracking-widest bg-emerald-500/[0.15] text-emerald-400/90 rounded-full border border-emerald-500/25">
                       {module.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">{module.description}</p>
+                <p className="text-[13px] text-[#6a84a8] leading-relaxed">
+                  {module.description}
+                </p>
               </div>
-              <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+
+              {/* Hover arrow */}
+              <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1.5 group-hover:translate-x-0">
+                <svg
+                  className="w-4 h-4 text-white/25"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </div>
             </div>
