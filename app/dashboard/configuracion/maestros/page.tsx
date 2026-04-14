@@ -3,32 +3,94 @@ import { Building2, DollarSign, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const items = [
-  { title: "Centros de Trabajo", description: "Obras, oficinas y ubicaciones GPS", href: "/dashboard/configuracion/maestros/centros", icon: Building2, gradient: "from-aria-primary to-aria-accent" },
-  { title: "Configuración Nómina", description: "Salarios, horarios y parámetros", href: "/dashboard/configuracion/maestros/nomina", icon: DollarSign, gradient: "from-emerald-500 to-emerald-500" },
+  {
+    title: "Centros de Trabajo",
+    description: "Obras, oficinas y ubicaciones GPS",
+    href: "/dashboard/configuracion/maestros/centros",
+    icon: Building2,
+    iconColor: "#3b82f6",
+  },
+  {
+    title: "Configuración Nómina",
+    description: "Salarios, horarios y parámetros",
+    href: "/dashboard/configuracion/maestros/nomina",
+    icon: DollarSign,
+    iconColor: "#10b981",
+  },
 ];
+
+type ModuleItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  iconColor: string;
+};
+
+function HubCard({ item }: { item: ModuleItem }) {
+  return (
+    <Link
+      href={item.href}
+      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
+      style={{
+        backgroundColor: "rgba(8,18,38,0.85)",
+        backdropFilter: "blur(8px)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderTop: "1px solid rgba(255,255,255,0.14)",
+        borderBottom: "1px solid rgba(0,0,0,0.30)",
+        padding: "15px 14px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.06)",
+      }}
+    >
+      <div
+        style={{
+          flexShrink: 0,
+          width: "36px", height: "36px", borderRadius: "8px",
+          backgroundColor: "rgba(255,255,255,0.07)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
+        }}
+      >
+        <item.icon style={{ width: "17px", height: "17px", color: item.iconColor }} strokeWidth={1.75} />
+      </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <h3
+          className="text-[13px] font-semibold leading-tight truncate group-hover:text-white transition-colors"
+          style={{ color: "rgba(255,255,255,0.92)" }}
+        >
+          {item.title}
+        </h3>
+        <p className="text-[11.5px] mt-[3px] truncate" style={{ color: "rgba(255,255,255,0.45)" }}>
+          {item.description}
+        </p>
+      </div>
+    </Link>
+  );
+}
 
 export default function MaestrosPage() {
   return (
-    <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}>
+      <div className="mb-6 flex items-center gap-3">
+        <Link
+          href="/dashboard/configuracion"
+          className="p-2 rounded-xl transition"
+          style={{ backgroundColor: "rgba(0,0,0,0.08)" }}
+        >
+          <ArrowLeft className="w-4 h-4" style={{ color: "#1a2535" }} />
+        </Link>
         <div>
-          <h1 className="text-2xl font-bold">Datos Maestros</h1>
-          <p className="text-sm text-[#7f93b0]">Configuración base del sistema</p>
+          <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
+            Datos Maestros
+          </h1>
+          <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
+            Configuración base del sistema
+          </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {items.map((item, i) => (
-          <Link key={i} href={item.href} className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden">
-            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.gradient} opacity-[0.06] blur-2xl group-hover:opacity-[0.12] transition-opacity`} />
-            <div className="relative z-10">
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${item.gradient} mb-4 shadow-lg`}>
-                <item.icon className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-              <p className="text-sm text-[#7f93b0]">{item.description}</p>
-            </div>
-          </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {items.map((item) => (
+          <HubCard key={item.href} item={item} />
         ))}
       </div>
     </div>
