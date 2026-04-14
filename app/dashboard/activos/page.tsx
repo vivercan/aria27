@@ -1,48 +1,48 @@
 "use client";
 
-import { BookOpen, Activity, UserCheck, Wrench, Car } from "lucide-react";
+import { Truck, Wrench, ClubIcon, PackageOpen, MapPin } from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
   {
     title: "Catálogo",
-    description: "Inventario general de activos fijos.",
+    description: "Registro maestro de activos.",
     href: "/dashboard/activos/catalogo",
-    icon: BookOpen,
-    iconBg: "rgba(37,99,235,0.15)",
+    icon: PackageOpen,
+    iconBg: "rgba(37,111,253,0.15)",
     iconColor: "#3b82f6",
   },
   {
     title: "Estado",
-    description: "Estado actual y disponibilidad de activos.",
+    description: "Condición y ubicación de activos.",
     href: "/dashboard/activos/estado",
-    icon: Activity,
+    icon: ClubIcon,
     iconBg: "rgba(16,185,129,0.14)",
     iconColor: "#10b981",
   },
   {
     title: "Asignación",
-    description: "Asignación de activos a personal u obras.",
+    description: "Asignar activos a obra y personal.",
     href: "/dashboard/activos/asignacion",
-    icon: UserCheck,
+    icon: MapPin,
     iconBg: "rgba(245,158,11,0.13)",
     iconColor: "#fbbf24",
   },
   {
     title: "Mantenimiento",
-    description: "Programación y registro de mantenimientos.",
+    description: "Programación y registro de mantenimiento.",
     href: "/dashboard/activos/mantenimiento",
     icon: Wrench,
-    iconBg: "rgba(139,92,246,0.14)",
-    iconColor: "#a78bfa",
+    iconBg: "rgba(168,85,247,0.13)",
+    iconColor: "#c084fc",
   },
   {
     title: "Vehículos",
-    description: "Control de vehículos, llaves y maquinaria.",
+    description: "Flota vehicular y conductores.",
     href: "/dashboard/activos/vehiculos",
-    icon: Car,
-    iconBg: "rgba(244,63,94,0.14)",
-    iconColor: "#f43f5e",
+    icon: Truck,
+    iconBg: "rgba(6,182,212,0.13)",
+    iconColor: "#22d3ee",
   },
 ];
 
@@ -59,20 +59,24 @@ function HubCard({ module }: { module: ModuleItem }) {
   return (
     <Link
       href={module.href}
-      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:border-white/[0.18] hover:bg-[rgba(12,26,52,0.92)]"
+      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
       style={{
-        backgroundColor: "rgba(8,18,38,0.80)",
+        backgroundColor: "rgba(8,18,38,0.85)",
         backdropFilter: "blur(8px)",
-        border: "1px solid rgba(255,255,255,0.09)",
-        padding: "12px 14px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderTop: "1px solid rgba(255,255,255,0.14)",
+        borderBottom: "1px solid rgba(0,0,0,0.30)",
+        padding: "15px 14px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.06)",
       }}
     >
       <div
         style={{
           flexShrink: 0,
-          width: "34px", height: "34px", borderRadius: "8px",
+          width: "36px", height: "36px", borderRadius: "8px",
           backgroundColor: "rgba(255,255,255,0.07)",
           display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
         }}
       >
         <module.icon style={{ width: "17px", height: "17px", color: module.iconColor }} strokeWidth={1.75} />
@@ -94,16 +98,16 @@ function HubCard({ module }: { module: ModuleItem }) {
 
 export default function ActivosPage() {
   return (
-    <div className="px-6 pt-6 pb-8 h-full overflow-auto">
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}>
       <div className="mb-6">
         <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
           Activos
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          Gestión de activos fijos y equipamiento
+          Gestión de equipos, vehículos y maquinaria
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {subModules.map((module) => (
           <HubCard key={module.href} module={module} />
         ))}
