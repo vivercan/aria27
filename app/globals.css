@@ -3,94 +3,385 @@
 @tailwind utilities;
 
 /* ===== ARIA27 DESIGN TOKENS (CSS Custom Properties) =====
- * Estos valores son los DEFAULTS. ThemeContext los sobreescribe
+ * DEFAULTS del tema oscuro normal. ThemeContext los sobreescribe
  * dinámicamente via document.documentElement.style.setProperty().
- * Cambiar un color aquí O en ThemeContext cascada a TODO el sistema.
  */
 :root {
   --aria-bg: #0a1628;
-  --aria-sidebar: #0a1628;
-  --aria-card: rgba(255,255,255,0.05);
-  --aria-card-border: rgba(255,255,255,0.1);
+  --aria-sidebar: #060b16;
+  --aria-card: rgba(12,29,56,0.9);
+  --aria-card-border: rgba(255,255,255,0.07);
   --aria-text: #ffffff;
-  --aria-muted: #94a3b8;
+  --aria-muted: #7f93b0;
+  --aria-muted-2: #4a6080;
+  --aria-text-secondary: #c9d8ed;
   --aria-accent: #22d3ee;
-  --aria-accent-bg: rgba(34,211,238,0.1);
+  --aria-accent-bg: rgba(34,211,238,0.08);
   --aria-primary: #2563eb;
   --aria-primary-hover: #1d4ed8;
-  --aria-primary-light: rgba(37,99,235,0.2);
+  --aria-primary-light: rgba(37,99,235,0.15);
+  /* Layers de fondo */
+  --aria-layer-0: #040810;
+  --aria-layer-1: #070e1c;
+  --aria-layer-2: #0a1628;
+  --aria-layer-3: #0c1d38;
+  --aria-layer-4: #0f2448;
+  --aria-layer-5: #162040;
 }
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100;
-    background: radial-gradient(circle at top left, #0044AA, #001133);
+    background-color: var(--aria-layer-2);
+    background-image: linear-gradient(135deg, var(--aria-layer-1) 0%, var(--aria-layer-2) 50%, var(--aria-layer-3) 100%);
+    color: var(--aria-text);
     min-height: 100vh;
+  }
+
+  /* Scrollbar minimalista premium */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+  /* Ocultar flechas spinners en number inputs */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+  /* Date / time inputs */
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+  input[type="date"], input[type="datetime-local"], input[type="time"] {
+    color-scheme: dark;
+    background-color: rgba(255,255,255,0.04);
+    color: var(--aria-text);
+    border: 1px solid var(--aria-card-border);
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: border-color 150ms;
+  }
+  input[type="date"]:focus, input[type="datetime-local"]:focus, input[type="time"]:focus {
+    border-color: var(--aria-accent);
+    outline: none;
+    background-color: rgba(255,255,255,0.06);
+  }
+
+  /* Selects */
+  select {
+    background-color: rgba(255,255,255,0.04);
+    color: var(--aria-text);
+    border: 1px solid var(--aria-card-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 150ms;
+  }
+  select:focus {
+    border-color: var(--aria-accent);
+    outline: none;
+    background-color: rgba(255,255,255,0.06);
+  }
+  select option {
+    background-color: var(--aria-layer-1);
+    color: var(--aria-text);
+    padding: 8px 12px;
+  }
+  select option:hover, select option:checked {
+    background-color: var(--aria-layer-3);
   }
 }
 
-/* Ocultar flechas (spinners) de inputs type="number" */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+/* ===== ARIA27 DESIGN SYSTEM — @layer components =====
+ * Clases semánticas premium para uso en páginas y componentes.
+ * Prioridad: consistencia visual, jerarquía clara, sin glassmorphism.
+ */
+@layer components {
 
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
+  /* ── SHELL DE PÁGINA ── */
+  .aria-shell {
+    @apply px-6 pt-6 pb-8 h-full overflow-auto;
+  }
+  .aria-page-header {
+    @apply space-y-1 mb-6;
+  }
+  .aria-page-title {
+    @apply text-[22px] font-semibold tracking-tight text-white leading-none;
+  }
+  .aria-page-subtitle {
+    @apply text-sm font-light tracking-wide;
+    color: #7f93b0;
+  }
 
+  /* ── CARDS ── */
+  .aria-card {
+    border-radius: 16px;
+    background-color: rgba(12,29,56,0.9);
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: all 200ms;
+  }
+  .aria-card:hover {
+    border-color: rgba(255,255,255,0.13);
+    background-color: rgba(15,36,72,0.9);
+  }
+  .aria-card-flat {
+    border-radius: 16px;
+    background-color: rgba(7,14,28,0.8);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
 
-/* ===== ESTILOS GLOBALES PARA FORMULARIOS ===== */
+  /* ── TABLA ── */
+  .aria-table-wrapper {
+    @apply overflow-x-auto rounded-xl;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .aria-table {
+    @apply w-full text-sm border-collapse;
+  }
+  .aria-thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: rgba(4,8,16,0.98);
+  }
+  .aria-th {
+    @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest;
+    color: #4a6080;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    white-space: nowrap;
+  }
+  .aria-th-right { @apply text-right; }
+  .aria-th-center { @apply text-center; }
+  .aria-tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background-color 120ms;
+  }
+  .aria-tr:hover { background-color: rgba(255,255,255,0.025); }
+  .aria-tr:last-child { border-bottom: none; }
+  .aria-td {
+    @apply px-4 py-3 text-sm;
+    color: #c9d8ed;
+  }
+  .aria-td-muted { color: #7f93b0; }
+  .aria-td-right { @apply text-right; }
+  .aria-td-center { @apply text-center; }
 
-/* Calendarios / Date Pickers */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
+  /* ── BOTONES ── */
+  .aria-btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-150;
+    background-color: #2563eb;
+  }
+  .aria-btn-primary:hover { background-color: #1d4ed8; }
+  .aria-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-input[type="date"],
-input[type="datetime-local"],
-input[type="time"] {
-  color-scheme: dark;
-  background-color: var(--aria-bg);
-  color: var(--aria-text);
-  border: 1px solid var(--aria-card-border);
-  border-radius: 12px;
-}
+  .aria-btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150;
+    background-color: rgba(255,255,255,0.05);
+    color: #7f93b0;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .aria-btn-secondary:hover {
+    background-color: rgba(255,255,255,0.09);
+    color: white;
+    border-color: rgba(255,255,255,0.13);
+  }
 
-input[type="date"]:focus,
-input[type="datetime-local"]:focus,
-input[type="time"]:focus {
-  border-color: var(--aria-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px var(--aria-accent-bg);
-}
+  .aria-btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-150;
+    background-color: #dc2626;
+  }
+  .aria-btn-danger:hover { background-color: #b91c1c; }
+  .aria-btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Dropdowns / Selects */
-select {
-  background-color: var(--aria-bg);
-  color: var(--aria-text);
-  border: 1px solid var(--aria-card-border);
-  border-radius: 12px;
-  cursor: pointer;
-}
+  .aria-btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-150;
+    color: #7f93b0;
+  }
+  .aria-btn-ghost:hover {
+    background-color: rgba(255,255,255,0.06);
+    color: white;
+  }
 
-select:focus {
-  border-color: var(--aria-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px var(--aria-accent-bg);
-}
+  .aria-btn-icon {
+    @apply p-2 rounded-lg transition-all duration-150;
+    color: #7f93b0;
+    background-color: transparent;
+  }
+  .aria-btn-icon:hover {
+    background-color: rgba(255,255,255,0.06);
+    color: white;
+  }
 
-select option {
-  background-color: var(--aria-bg);
-  color: var(--aria-text);
-  padding: 12px;
-}
+  /* ── INPUTS ── */
+  .aria-input {
+    @apply w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-150;
+    background-color: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .aria-input:focus {
+    border-color: #22d3ee;
+    background-color: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
+  }
+  .aria-input::placeholder { color: #4a6080; }
+  .aria-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-select option:hover,
-select option:checked {
-  background-color: var(--aria-sidebar);
-  background: linear-gradient(var(--aria-primary), var(--aria-primary));
+  /* ── BADGES ── */
+  .aria-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium;
+  }
+  .aria-badge-success {
+    background-color: rgba(34,197,94,0.1);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.18);
+  }
+  .aria-badge-warning {
+    background-color: rgba(251,191,36,0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.18);
+  }
+  .aria-badge-danger {
+    background-color: rgba(248,113,113,0.1);
+    color: #f87171;
+    border: 1px solid rgba(248,113,113,0.18);
+  }
+  .aria-badge-info {
+    background-color: rgba(34,211,238,0.08);
+    color: #22d3ee;
+    border: 1px solid rgba(34,211,238,0.15);
+  }
+  .aria-badge-neutral {
+    background-color: rgba(255,255,255,0.05);
+    color: #7f93b0;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .aria-badge-purple {
+    background-color: rgba(167,139,250,0.1);
+    color: #a78bfa;
+    border: 1px solid rgba(167,139,250,0.18);
+  }
+
+  /* ── MODALES ── */
+  .aria-modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+    background-color: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .aria-modal {
+    @apply rounded-2xl w-full shadow-2xl;
+    background-color: #0c1d38;
+    border: 1px solid rgba(255,255,255,0.09);
+  }
+  .aria-modal-header {
+    @apply flex items-center justify-between px-6 py-4;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .aria-modal-title {
+    @apply text-base font-semibold text-white;
+  }
+  .aria-modal-body {
+    @apply px-6 py-5;
+  }
+  .aria-modal-footer {
+    @apply flex justify-end gap-2 px-6 py-4;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ── DRAWERS ── */
+  .aria-drawer {
+    @apply fixed inset-y-0 right-0 z-50 flex flex-col overflow-hidden shadow-2xl;
+    background-color: #060b16;
+    border-left: 1px solid rgba(255,255,255,0.07);
+  }
+  .aria-drawer-header {
+    @apply flex items-center justify-between px-5 py-4 flex-shrink-0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .aria-drawer-title {
+    @apply text-[15px] font-semibold text-white;
+  }
+  .aria-drawer-body {
+    @apply flex-1 overflow-y-auto px-5 py-4 space-y-4;
+  }
+  .aria-drawer-footer {
+    @apply flex gap-2 px-5 py-4 flex-shrink-0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ── SECCIÓN / GRUPOS ── */
+  .aria-section {
+    @apply rounded-xl p-4;
+    background-color: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .aria-section-title {
+    @apply text-[13px] font-semibold uppercase tracking-widest mb-3;
+    color: #4a6080;
+  }
+  .aria-divider {
+    height: 1px;
+    background-color: rgba(255,255,255,0.05);
+    margin: 1rem 0;
+  }
+
+  /* ── ESTADOS VACÍOS ── */
+  .aria-empty {
+    @apply flex flex-col items-center justify-center py-16 text-center;
+  }
+  .aria-empty-icon {
+    @apply mb-4 opacity-20;
+  }
+  .aria-empty-title {
+    @apply text-[15px] font-medium text-white/70 mb-1;
+  }
+  .aria-empty-text {
+    @apply text-sm;
+    color: #4a6080;
+  }
+
+  /* ── STAT CARDS ── */
+  .aria-stat {
+    @apply rounded-xl p-4;
+    background-color: rgba(12,29,56,0.9);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .aria-stat-label {
+    @apply text-[11px] font-semibold uppercase tracking-widest mb-1;
+    color: #4a6080;
+  }
+  .aria-stat-value {
+    @apply text-xl font-bold text-white;
+  }
+  .aria-stat-sub {
+    @apply text-[12px] mt-1;
+    color: #7f93b0;
+  }
+
+  /* ── LABEL DE FORMULARIO ── */
+  .aria-label {
+    @apply block text-[12px] font-medium mb-1.5;
+    color: #7f93b0;
+  }
+  .aria-field-error {
+    @apply text-[11px] mt-1;
+    color: #f87171;
+  }
+
+  /* ── SEARCH BAR ── */
+  .aria-search {
+    @apply flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all duration-150;
+    background-color: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #7f93b0;
+  }
+  .aria-search:focus-within {
+    border-color: rgba(255,255,255,0.15);
+    background-color: rgba(255,255,255,0.06);
+    color: white;
+  }
+  .aria-search input {
+    @apply bg-transparent outline-none text-sm w-full text-white placeholder-[#4a6080];
+  }
 }
