@@ -1,184 +1,216 @@
 "use client";
 
-import { Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck, Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp, ShieldCheck, Droplet } from "lucide-react";
+import {
+  Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck,
+  Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp, ShieldCheck, Droplet
+} from "lucide-react";
 import Link from "next/link";
 
 const subModules = [
   {
     title: "Centro de Control",
-    description: "Presupuesto vs Gasto Real (OC + Nómina) por obra. Semáforo de avance.",
+    description: "Presupuesto vs gasto real (OC + nÃ³mina) por obra. SemÃ¡foro de avance.",
     href: "/dashboard/obras/control",
     icon: Activity,
-    gradient: "from-aria-accent to-aria-primary",
-    active: true,
+    iconBg: "rgba(37,99,235,0.15)",
+    iconColor: "#3b82f6",
   },
   {
     title: "SIROC IMSS",
     description: "Registro de obras ante IMSS: fases, incidencias e importes bimestre.",
     href: "/dashboard/obras/siroc/registros",
     icon: ShieldCheck,
-    gradient: "from-red-500 to-rose-600",
-    active: true,
+    iconBg: "rgba(244,63,94,0.14)",
+    iconColor: "#f43f5e",
   },
   {
     title: "Control de Concreto",
-    description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.",
+    description: "Remisiones de colado, f'c, mÂ³, pruebas de cilindro 7/14/28 dÃ­as.",
     href: "/dashboard/obras/concreto/remisiones",
     icon: Droplet,
-    gradient: "from-slate-500 to-slate-700",
-    active: true,
+    iconBg: "rgba(100,116,139,0.15)",
+    iconColor: "#94a3b8",
   },
   {
-    title: "Avance Físico",
-    description: "Captura semanal de % de avance físico real por obra. Compara contra avance financiero.",
+    title: "Avance FÃ­sico",
+    description: "Captura semanal de % de avance fÃ­sico real por obra.",
     href: "/dashboard/obras/avance",
     icon: TrendingUp,
-    gradient: "from-emerald-500 to-teal-600",
-    active: true,
+    iconBg: "rgba(16,185,129,0.14)",
+    iconColor: "#10b981",
   },
   {
-    title: "Catálogo Maestro",
-    description: "Fuente única de obras: alta, edición, archivo, historial.",
+    title: "CatÃ¡logo Maestro",
+    description: "Fuente Ãºnica de obras: alta, ediciÃ³n, archivo, historial.",
     href: "/dashboard/obras/catalogo",
     icon: BookOpen,
-    gradient: "from-aria-accent to-aria-primary",
-    active: true,
+    iconBg: "rgba(99,102,241,0.14)",
+    iconColor: "#818cf8",
   },
   {
     title: "Pipeline",
     description: "Vista kanban operativa de proyectos activos.",
     href: "/dashboard/obras/pipeline",
     icon: Kanban,
-    gradient: "from-aria-primary to-aria-primary",
-    active: true,
+    iconBg: "rgba(139,92,246,0.14)",
+    iconColor: "#a78bfa",
   },
   {
     title: "Licitaciones",
-    description: "Gestión de licitaciones.",
+    description: "GestiÃ³n de licitaciones y concursos.",
     href: "/dashboard/obras/licitaciones",
     icon: Gavel,
-    gradient: "from-amber-500 to-orange-500",
-    active: true,
+    iconBg: "rgba(245,158,11,0.13)",
+    iconColor: "#fbbf24",
   },
   {
     title: "Expedientes",
-    description: "Expedientes de obra.",
+    description: "Expedientes digitales de obra.",
     href: "/dashboard/obras/expedientes",
     icon: FolderOpen,
-    gradient: "from-emerald-500 to-emerald-600",
-    active: true,
+    iconBg: "rgba(34,197,94,0.13)",
+    iconColor: "#4ade80",
   },
   {
     title: "Contratos",
-    description: "Contratos y documentación legal.",
+    description: "Contratos y documentaciÃ³n legal por obra.",
     href: "/dashboard/obras/contratos",
     icon: Scale,
-    gradient: "from-purple-500 to-purple-600",
-    active: true,
+    iconBg: "rgba(168,85,247,0.13)",
+    iconColor: "#c084fc",
   },
   {
     title: "SIROC",
-    description: "Registro IMSS de obras.",
+    description: "Registro IMSS de obras ante SIROC.",
     href: "/dashboard/obras/siroc",
     icon: Building,
-    gradient: "from-rose-500 to-pink-600",
-    active: true,
+    iconBg: "rgba(251,113,133,0.13)",
+    iconColor: "#fb7185",
   },
   {
     title: "Presupuestos",
-    description: "Presupuestos y estimaciones.",
+    description: "Presupuestos base y estimaciones de costo.",
     href: "/dashboard/obras/presupuestos",
     icon: Calculator,
-    gradient: "from-aria-accent to-aria-accent",
-    active: true,
+    iconBg: "rgba(6,182,212,0.13)",
+    iconColor: "#22d3ee",
   },
   {
     title: "Inventario",
     description: "Inventario de materiales por obra.",
     href: "/dashboard/obras/inventario",
     icon: PackageCheck,
-    gradient: "from-teal-500 to-teal-600",
-    active: true,
+    iconBg: "rgba(20,184,166,0.14)",
+    iconColor: "#2dd4bf",
   },
   {
     title: "Concreto",
     description: "Control de colados, resistencias y pedidos.",
     href: "/dashboard/obras/concreto",
     icon: Layers,
-    gradient: "from-gray-500 to-gray-600",
-    active: true,
+    iconBg: "rgba(148,163,184,0.12)",
+    iconColor: "#94a3b8",
   },
   {
     title: "Planos",
-    description: "Visor de planos y documentos técnicos.",
+    description: "Visor de planos y documentos tÃ©cnicos.",
     href: "/dashboard/obras/planos",
     icon: Map,
-    gradient: "from-indigo-500 to-indigo-600",
-    active: true,
+    iconBg: "rgba(129,140,248,0.13)",
+    iconColor: "#818cf8",
   },
   {
     title: "Tareas",
-    description: "Asignación de tareas y seguimiento de cumplimiento.",
+    description: "AsignaciÃ³n de tareas y seguimiento de cumplimiento.",
     href: "/dashboard/obras/tareas",
     icon: ListChecks,
-    gradient: "from-lime-500 to-green-600",
-    active: true,
+    iconBg: "rgba(132,204,22,0.13)",
+    iconColor: "#a3e635",
   },
   {
     title: "Fotos de Avance",
-    description: "Registro fotográfico de avance por obra.",
+    description: "Registro fotogrÃ¡fico de avance por obra.",
     href: "/dashboard/obras/fotos",
     icon: Camera,
-    gradient: "from-orange-500 to-red-500",
-    active: true,
+    iconBg: "rgba(249,115,22,0.13)",
+    iconColor: "#fb923c",
   },
 ];
 
 export default function ObrasPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Obras</h1>
-        <p className="text-[#7f93b0] mt-1">Gestión de proyectos y construcción.</p>
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto">
+      <div className="mb-6">
+        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
+          Obras
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
+          GestiÃ³n de proyectos y construcciÃ³n
+        </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {subModules.map((module) => (
-<Link
-  key={module.href}
-  href={module.href}
-  className={`group relative overflow-hidden rounded-2xl bg-[#0c1d38]/50  border transition-all duration-300 ${
-    module.active
-      ? "border-white/[0.05] hover:border-white/[0.07] hover:scale-[1.02] hover:shadow-2xl hover:shadow-aria-primary/10"
-      : "border-white/[0.08]/30 opacity-50 pointer-events-none"
-  }`}
->
-  <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-  <div className="relative p-6">
-    <div className={`inline-flex p-3.5 rounded-xl bg-gradient-to-br ${module.gradient} shadow-lg mb-4`}>
-      <module.icon className="w-6 h-6 text-white" strokeWidth={1.75} />
-    </div>
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-white text-lg group-hover:text-aria-accent transition-colors">
-          {module.title}
-        </h3>
-        {!module.active && (
-          <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-500/20 text-[#4a6080] rounded-full border border-white/[0.1]/30">
-            PRÓXIMO
-          </span>
-        )}
-      </div>
-      <p className="text-sm text-[#7f93b0] leading-relaxed">{module.description}</p>
-    </div>
-    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-      <svg className="w-5 h-5 text-[#7f93b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </div>
-  </div>
-</Link>
+          <HubCard key={module.href} module={module} />
         ))}
       </div>
     </div>
+  );
+}
+
+type ModuleItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+};
+
+function HubCard({ module }: { module: ModuleItem }) {
+  return (
+    <Link
+      href={module.href}
+      className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
+      style={{
+        backgroundColor: "rgba(8,18,36,0.85)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        padding: "20px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Top highlight line */}
+      <div
+        style={{
+          position: "absolute", inset: "0 0 auto 0", height: "1px",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Icon */}
+      <div
+        className="flex items-center justify-center mb-4"
+        style={{
+          width: "44px", height: "44px", borderRadius: "12px",
+          backgroundColor: module.iconBg, flexShrink: 0,
+        }}
+      >
+        <module.icon style={{ width: "20px", height: "20px", color: module.iconColor }} strokeWidth={1.75} />
+      </div>
+      {/* Text */}
+      <h3
+        className="text-[14.5px] font-semibold leading-tight mb-1.5 truncate group-hover:text-white transition-colors"
+        style={{ color: "rgba(255,255,255,0.88)" }}
+      >
+        {module.title}
+      </h3>
+      <p
+        className="text-[12px] leading-relaxed line-clamp-2"
+        style={{ color: "#3d5470" }}
+      >
+        {module.description}
+      </p>
+    </Link>
   );
 }
