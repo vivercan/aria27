@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const subModules = [
   {
-    title: "DocumentaciÃ³n Legal",
+    title: "Documentación Legal",
     description: "Acta constitutiva, TIP, REPSE, CSF, domicilio fiscal y opiniones.",
     href: "/dashboard/administracion/documentacion",
     icon: FileText,
@@ -13,8 +13,8 @@ const subModules = [
     iconColor: "#3b82f6",
   },
   {
-    title: "PÃ³lizas",
-    description: "PÃ³lizas de seguro y fianzas subsecuentes.",
+    title: "Pólizas",
+    description: "Pólizas de seguro y fianzas subsecuentes.",
     href: "/dashboard/administracion/polizas",
     icon: Shield,
     iconBg: "rgba(16,185,129,0.14)",
@@ -30,7 +30,7 @@ const subModules = [
   },
   {
     title: "Datos de Empresa",
-    description: "InformaciÃ³n general de GCU Avante y centros de costo.",
+    description: "Información general de GCU Avante y centros de costo.",
     href: "/dashboard/administracion/empresa",
     icon: Building2,
     iconBg: "rgba(139,92,246,0.14)",
@@ -69,8 +69,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       href={module.href}
       className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
       style={{
-        backgroundColor: "rgba(8,18,36,0.85)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "rgba(10,22,45,0.88)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.09)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
@@ -79,7 +80,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       <div
         style={{
           position: "absolute", inset: "0 0 auto 0", height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -107,10 +108,10 @@ export default function AdministracionPage() {
     <div className="px-6 pt-6 pb-8 h-full overflow-auto">
       <div className="mb-6">
         <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
-          AdministraciÃ³n
+          Administración
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          DocumentaciÃ³n legal, pÃ³lizas y cumplimiento corporativo
+          Documentación legal, pólizas y cumplimiento corporativo
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
