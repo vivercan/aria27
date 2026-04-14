@@ -5,89 +5,109 @@ import Link from "next/link";
 
 const subModules = [
   {
-    title: "Catálogo",
+    title: "CatÃ¡logo",
     description: "Inventario general de activos fijos.",
     href: "/dashboard/activos/catalogo",
     icon: BookOpen,
-    gradient: "from-blue-500 to-blue-700",
-    active: true,
+    iconBg: "rgba(37,99,235,0.15)",
+    iconColor: "#3b82f6",
   },
   {
     title: "Estado",
     description: "Estado actual y disponibilidad de activos.",
     href: "/dashboard/activos/estado",
     icon: Activity,
-    gradient: "from-emerald-500 to-emerald-700",
-    active: true,
+    iconBg: "rgba(16,185,129,0.14)",
+    iconColor: "#10b981",
   },
   {
-    title: "Asignación",
-    description: "Asignación de activos a personal u obras.",
+    title: "AsignaciÃ³n",
+    description: "AsignaciÃ³n de activos a personal u obras.",
     href: "/dashboard/activos/asignacion",
     icon: UserCheck,
-    gradient: "from-amber-400 to-amber-600",
-    active: true,
+    iconBg: "rgba(245,158,11,0.13)",
+    iconColor: "#fbbf24",
   },
   {
     title: "Mantenimiento",
-    description: "Programación y registro de mantenimientos.",
+    description: "ProgramaciÃ³n y registro de mantenimientos.",
     href: "/dashboard/activos/mantenimiento",
     icon: Wrench,
-    gradient: "from-violet-500 to-violet-700",
-    active: true,
+    iconBg: "rgba(139,92,246,0.14)",
+    iconColor: "#a78bfa",
   },
   {
-    title: "Vehículos",
-    description: "Control de vehículos, llaves y maquinaria.",
+    title: "VehÃ­culos",
+    description: "Control de vehÃ­culos, llaves y maquinaria.",
     href: "/dashboard/activos/vehiculos",
     icon: Car,
-    gradient: "from-rose-400 to-rose-600",
-    active: true,
+    iconBg: "rgba(244,63,94,0.14)",
+    iconColor: "#f43f5e",
   },
 ];
 
+type ModuleItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+};
+
+function HubCard({ module }: { module: ModuleItem }) {
+  return (
+    <Link
+      href={module.href}
+      className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
+      style={{
+        backgroundColor: "rgba(8,18,36,0.85)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        padding: "20px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute", inset: "0 0 auto 0", height: "1px",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        className="flex items-center justify-center mb-4"
+        style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: module.iconBg }}
+      >
+        <module.icon style={{ width: "20px", height: "20px", color: module.iconColor }} strokeWidth={1.75} />
+      </div>
+      <h3
+        className="text-[14.5px] font-semibold leading-tight mb-1.5 truncate group-hover:text-white transition-colors"
+        style={{ color: "rgba(255,255,255,0.88)" }}
+      >
+        {module.title}
+      </h3>
+      <p className="text-[12px] leading-relaxed line-clamp-2" style={{ color: "#3d5470" }}>
+        {module.description}
+      </p>
+    </Link>
+  );
+}
+
 export default function ActivosPage() {
   return (
-    <div className="px-6 pt-6 pb-8 space-y-6 h-full overflow-auto">
-      <div className="space-y-1">
-        <h1 className="text-[26px] font-bold tracking-tight text-white leading-none">Activos</h1>
-        <p className="text-sm text-[#7f93b0] font-light tracking-wide">Gestión de activos fijos y equipamiento.</p>
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto">
+      <div className="mb-6">
+        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
+          Activos
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
+          GestiÃ³n de activos fijos y equipamiento
+        </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {subModules.map((module) => (
-          <Link
-            key={module.href}
-            href={module.href}
-            className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 ${
-              module.active
-                ? "bg-[#0c1d38]/90 border-white/[0.07] hover:border-white/[0.13] hover:scale-[1.014] hover:shadow-xl hover:shadow-black/50 hover:bg-[#0f2448]/90"
-                : "bg-[#0a1628]/60 border-white/[0.04] opacity-45 pointer-events-none"
-            }`}
-          >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-0 group-hover:opacity-[0.055] transition-opacity duration-200 pointer-events-none`} />
-            <div className="relative p-5">
-              <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${module.gradient} shadow-lg mb-4`}>
-                <module.icon className="w-7 h-7 text-white" strokeWidth={1.6} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-white/90 text-[15px] tracking-wide leading-tight group-hover:text-white transition-colors duration-150">
-                    {module.title}
-                  </h3>
-                  {!module.active && (
-                    <span className="px-1.5 py-px text-[9px] font-bold tracking-widest bg-slate-500/[0.15] text-[#7f93b0]/70 rounded-full border border-white/[0.1]/20">PRÓXIMO</span>
-                  )}
-                </div>
-                <p className="text-[13px] text-[#6a84a8] leading-relaxed">{module.description}</p>
-              </div>
-              <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1.5 group-hover:translate-x-0">
-                <svg className="w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </Link>
+          <HubCard key={module.href} module={module} />
         ))}
       </div>
     </div>
