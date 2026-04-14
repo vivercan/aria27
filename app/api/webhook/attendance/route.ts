@@ -11,6 +11,27 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const VERIFY_TOKEN = "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_PHONE || "5218112392266";
+
+(function checkMisconfigOnBoot() {
+  const hasMetaSecret  = !!process.env.META_APP_SECRET;
+  const hasHmacBypass  = process.env.DISABLE_WEBHOOK_HMAC === "true";
+  const missingToken   = !process.env.WHATSAPP_ACCESS_TOKEN;
+  const missingAnthro  = !process.env.ANTHROPIC_API_KEY;
+  const issues: string[] = [];
+  if (hasMetaSecret && !hasHmacBypass) {
+    issues.push("\uD83D\uDD34 META_APP_SECRET activo + DISABLE_WEBHOOK_HMAC ausente \u2192 webhook retonar\u00E1 403");
+  }
+  if (missingToken) issues.push("\uD83D\uDD34 WHATSAPP_ACCESS_TOKEN ausente");
+  if (missingAnthro) issues.push("\uD83D\uDD34 ANTHROPIC_API_KEY ausente");
+  if (issues.length > 0) {
+    const msg = `\u26A0\uFE0F *ARIA27 \u2014 WEBHOOK MAL CONFIGURADO*\\n\\n${issues.join("\\n")}\\n\\nAcci\u00F3n requerida URGENTE.`;
+    sendWhatsAppText(ADMIN_PHONE, msg, { origen: "webhook-attendance", enviadoPor: "boot-check" })
+      .catch(() => log.error("boot-check: no se pudo enviar alerta"));
+    log.error("BOOT MISCONFIGURATION DETECTED", { issues });
+  }
+})();
+
 
 // ============== UTILIDADES ==============
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
