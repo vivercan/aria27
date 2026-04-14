@@ -63,6 +63,36 @@ const searchableItems = [
   { name: "Datos de Empresa", icon: ChevronRight, href: "/dashboard/administracion/empresa" },
   { name: "SUA Aportaciones", icon: ChevronRight, href: "/dashboard/administracion/sua" },
   { name: "SIROC Admin", icon: ChevronRight, href: "/dashboard/administracion/siroc" },
+  // Obras — subrutas faltantes
+  { name: "Centro de Control Obras", icon: ChevronRight, href: "/dashboard/obras/control" },
+  { name: "Avance Fisico", icon: ChevronRight, href: "/dashboard/obras/avance" },
+  { name: "Catalogo Maestro Obras", icon: ChevronRight, href: "/dashboard/obras/catalogo" },
+  { name: "SIROC IMSS", icon: ChevronRight, href: "/dashboard/obras/siroc/registros" },
+  { name: "Control de Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto/remisiones" },
+  // Talento — subruta faltante
+  { name: "Tareas Asignadas", icon: ChevronRight, href: "/dashboard/talento/tareas" },
+  // Finanzas — todas las subrutas
+  { name: "Gastos de Obra", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra" },
+  { name: "Costeo", icon: ChevronRight, href: "/dashboard/finanzas/costeo" },
+  { name: "Facturacion", icon: ChevronRight, href: "/dashboard/finanzas/facturacion" },
+  { name: "Caja Chica", icon: ChevronRight, href: "/dashboard/finanzas/caja" },
+  { name: "Bancos", icon: ChevronRight, href: "/dashboard/finanzas/bancos" },
+  { name: "Por Pagar", icon: ChevronRight, href: "/dashboard/finanzas/por-pagar" },
+  { name: "Cobranza", icon: ChevronRight, href: "/dashboard/finanzas/cobranza" },
+  { name: "SUA Infonavit", icon: ChevronRight, href: "/dashboard/finanzas/sua" },
+  { name: "Ingreso Egresos", icon: ChevronRight, href: "/dashboard/finanzas/ingreso-egresos" },
+  // Activos — todas las subrutas
+  { name: "Catalogo Activos", icon: ChevronRight, href: "/dashboard/activos/catalogo" },
+  { name: "Estado Activos", icon: ChevronRight, href: "/dashboard/activos/estado" },
+  { name: "Asignacion Activos", icon: ChevronRight, href: "/dashboard/activos/asignacion" },
+  { name: "Mantenimiento", icon: ChevronRight, href: "/dashboard/activos/mantenimiento" },
+  { name: "Vehiculos", icon: ChevronRight, href: "/dashboard/activos/vehiculos" },
+  // Configuracion — todas las subrutas
+  { name: "General Configuracion", icon: ChevronRight, href: "/dashboard/configuracion/general" },
+  { name: "Datos Maestros", icon: ChevronRight, href: "/dashboard/configuracion/maestros" },
+  { name: "Correo", icon: ChevronRight, href: "/dashboard/configuracion/correo" },
+  { name: "Alertas", icon: ChevronRight, href: "/dashboard/configuracion/alertas" },
+  { name: "Recordatorios", icon: ChevronRight, href: "/dashboard/configuracion/recordatorios" },
 ];
 
 function ThemeToggle() {
