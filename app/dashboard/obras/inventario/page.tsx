@@ -151,7 +151,7 @@ export default function InventarioObraPage() {
     setLoading(false);
   };
 
-  const loadInventario = async (obraId: number) => {
+  const loadInventario = async (obraId: string) => {
     const { data, error } = await supabase
       .from("inventario_obra").select("*").eq("obra_id", obraId).order("producto_nombre");
     if (error) { log.error("Error loading inventario:", (error as {message?: string})?.message || "Error desconocido"); return; }
