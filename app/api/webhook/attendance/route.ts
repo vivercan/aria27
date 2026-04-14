@@ -428,7 +428,7 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
 
   const { data: existe } = await supabase.from("inventario_obra").select("*").eq("obra_id", obraRow.id).ilike("producto_nombre", material).single();
   if (!existe) {
-    await sendWhatsApp(from, `❌ No hay stock de *${material}* en ${obraRow.nombre}.\n\nVerifica el nombre del material.`);
+    await sendWhatsApp(from, `❌ *${material}* no está registrado en inventario de *${obraRow.nombre}*.\n\nSi quieres registrar una ENTRADA de material nuevo:\n📦 ENTRADA ${material} [cantidad] [unidad] ${obraRow.nombre}`);
     return;
   }
 
@@ -577,7 +577,7 @@ async function findEmpleado(phone10: string, from: string) {
   const { data: emp } = await supabase
     .from("employees")
     .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
-    .or(`phone.eq.${phone10},whatsapp.eq.${phone10}`)
+    .or(`phone.eq.${phone10},whatsapp.eq.${phone10},phone.eq.52${phone10},phone.eq.521${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
     .eq("status", "active")
     .single();
   return emp;
@@ -852,7 +852,9 @@ export async function POST(request: NextRequest) {
 
     const message = value.messages[0];
     const from = message.from;
-    const phone10 = from.replace(/^521/, "52").replace(/^521/, "52");
+    // Normalizar siempre a los últimos 10 dígitos del número mexicano
+    // WhatsApp envía "5218112392266" (13 dígitos) — employees.phone guarda "8112392266" (10 dígitos)
+    const phone10 = from.replace(/\D/g, "").slice(-10);
 
     // ====== UBICACIÓN = ASISTENCIA ======
     if (message.type === "location") {
@@ -898,11 +900,20 @@ export async function POST(request: NextRequest) {
       // Clasificar tipo de movimiento de inventario
       const captionLower = caption.toLowerCase();
 
-      // TRANSFERENCIA (prioridad más alta — antes que salida y entrada)
-      const esTransferencia = captionLower.includes("transferencia") ||
+      // ENTRADA explícita: si el usuario escribió "entrada", "llegó", "recibí" → prioridad máxima
+      // (evita que "salida" en el mismo mensaje gane cuando la intención es ENTRADA)
+      const tieneEntradaExplicita = captionLower.includes("entrada") ||
+                                    captionLower.includes("llegó") ||
+                                    captionLower.includes("llego") ||
+                                    captionLower.includes("recibí") ||
+                                    captionLower.includes("recibi");
+
+      // TRANSFERENCIA (segunda prioridad — antes que salida y entrada genérica)
+      const esTransferencia = !tieneEntradaExplicita && (
+                              captionLower.includes("transferencia") ||
                               captionLower.includes("traslado") ||
                               captionLower.includes("transfiero") ||
-                              captionLower.includes("muevo");
+                              captionLower.includes("muevo"));
       if (esTransferencia) {
         await sendWhatsApp(from, "🔄 Procesando traslado... espera un momento.");
         const trasData = await extractTransferenciaFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
@@ -914,116 +925,15 @@ export async function POST(request: NextRequest) {
         // Si no pudo parsear, cae al flujo de gasto
       }
 
-      // SALIDA de inventario
-      const esSalida = captionLower.includes("salida") ||
+      // SALIDA de inventario — NO aplica si hay palabras de ENTRADA explícita
+      const esSalida = !tieneEntradaExplicita && (captionLower.includes("salida") ||
                        captionLower.includes("uso ") ||
                        captionLower.includes("usé") ||
                        captionLower.includes("use ") ||
-                       captionLower.includes("consume") ||
-                       captionLower.includes("consumo") ||
-                       captionLower.includes("saque") ||
-                       captionLower.includes("utilicé") ||
-                       captionLower.includes("utilice");
-      if (esSalida) {
-        await sendWhatsApp(from, "📦 Procesando salida... espera un momento.");
-        const salData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption, "SALIDA");
-        if (salData && salData.material) {
-          salData._caption = caption;
-          await handleSalidaInventario(from, phone10, salData, imageUrl);
-          return NextResponse.json({ status: "salida processed" });
-        }
-        // Si no pudo parsear, cae al flujo de gasto
-      }
-
-      // ENTRADA de inventario
-      const esInventario = captionLower.includes("entrada") ||
-                           captionLower.includes("material") ||
-                           captionLower.includes("inventario") ||
-                           captionLower.includes("inv ") ||
-                           captionLower.includes("llegó") ||
-                           captionLower.includes("llego") ||
-                           captionLower.includes("recibí") ||
-                           captionLower.includes("recibi");
-      if (esInventario) {
-        await sendWhatsApp(from, "📦 Analizando material... espera un momento.");
-        const invData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
-        if (invData && invData.material) {
-          invData._caption = caption; // pasar caption original para fallback de obra
-          await handleInventarioWhatsApp(from, phone10, invData, imageUrl);
-          return NextResponse.json({ status: "inventario processed" });
-        }
-        // Si no pudo parsear, cae al flujo de gasto
-      }
-
-      // Si no es OC ni inventario, procesar como gasto/ticket
-      await sendWhatsApp(from, "🔍 Analizando ticket... espera un momento.");
-      const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
-
-      if (!gastoData || gastoData.monto === null) {
-        await sendWhatsApp(from, "❌ No pude leer el ticket.\n\nEnvía el gasto por texto:\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
-        return NextResponse.json({ status: "extraction failed" });
-      }
-
-      await handleGasto(from, phone10, gastoData, imageUrl);
-      return NextResponse.json({ status: "gasto image processed" });
-    }
-
-    // ====== TEXTO = POSIBLE GASTO ======
-    if (message.type === "text") {
-      const texto = message.text.body.toLowerCase();
-
-      const esGasto = texto.includes("gasto") ||
-                      texto.includes("compré") ||
-                      texto.includes("compre") ||
-                      texto.includes("pagué") ||
-                      texto.includes("pague") ||
-                      texto.includes("ticket") ||
-                      texto.includes("gaste") ||
-                      /\$?\d+/.test(texto);
-
-      if (esGasto) {
-        const gastoData = await extractGastoFromText(message.text.body);
-        if (gastoData && gastoData.esGasto !== false && gastoData.monto) {
-          await handleGasto(from, phone10, gastoData);
-          return NextResponse.json({ status: "gasto text processed" });
-        }
-      }
-
-      await sendWhatsApp(from, `📱 *ARIA27*
-
-📍 *ASISTENCIA*
-Envía tu ubicación actual
-
-💸 *GASTO / TICKET*
-📷 Foto del ticket
-💬 O escribe: "Gasto 500 OXXO gasolina"
-
-📦 *ENTRADA DE MATERIAL*
-📷 Foto + caption:
-"Entrada Arena 10 sacos MIRAVALLE"
-
-📤 *SALIDA DE MATERIAL*
-📷 Foto + caption:
-"Salida Cemento 5 sacos MIRAVALLE"
-
-🔄 *TRASLADO / TRANSFERENCIA*
-📷 Foto + caption:
-"Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN"
-
-🧾 *FOTO DE ENTREGA OC*
-📷 Foto + caption con folio:
-"OC-2026-00001"
-
-¿En qué te ayudo?`);
-      return NextResponse.json({ status: "help sent" });
-    }
-
-    return NextResponse.json({ status: "unhandled type" });
-  } catch (error: unknown) {
-    log.error("Webhook error:", error);
-    return NextResponse.json({ status: "error" }, { status: 500 });
-  }
-}
-
-
-
+                       captionLower.includes("con��յ������(��������������������������ѥ��1�ݕȹ����Ց�̠�����յ������(��������������������������ѥ��1�ݕȹ����Ց�̠�ͅ�Ք�����(��������������������������ѥ��1�ݕȹ����Ց�̠��ѥ���������(��������������������������ѥ��1�ݕȹ����Ց�̠��ѥ��������(������������M��������(���������݅�Ё͕��]��������ɽ�����~N��Aɽ��ͅ����ͅ������������Ʉ�ո������Ѽ����(������������Ёͅ��ф��݅�Ё���Ʌ��%�ٕ�хɥ�ɽ�%����������%�����ɰ�������%��������Q��������ѥ�����M1%���(������������ͅ��ф����ͅ��ф���ѕɥ�����(����������ͅ��ф�}���ѥ���􁍅�ѥ���(�����������݅�Ё������M�����%�ٕ�хɥ���ɽ������������ͅ��ф�������Uɰ��(����������ɕ��ɸ�9���I�����͔��ͽ����х���耉ͅ������ɽ���͕������(���������(�����������M������Ց�����͕�Ȱ����������թ��������Ѽ(�������((���������9QI������ٕ�хɥ�(����������Ё��%�ٕ�хɥ��􁍅�ѥ��1�ݕȹ����Ց�̠����Ʌ�������(������������������������������ѥ��1�ݕȹ����Ց�̠���ѕɥ�������(������������������������������ѥ��1�ݕȹ����Ց�̠���ٕ�хɥ������(������������������������������ѥ��1�ݕȹ����Ց�̠���؀�����(������������������������������ѥ��1�ݕȹ����Ց�̠�����̈����(������������������������������ѥ��1�ݕȹ����Ց�̠�����������(������������������������������ѥ��1�ݕȹ����Ց�̠�ɕ���������(������������������������������ѥ��1�ݕȹ����Ց�̠�ɕ�������(������������%�ٕ�хɥ����(���������݅�Ё͕��]��������ɽ�����~N������酹�����ѕɥ����������Ʉ�ո������Ѽ����(������������Ё����ф��݅�Ё���Ʌ��%�ٕ�хɥ�ɽ�%����������%�����ɰ�������%��������Q��������ѥ����(����������������ф��������ф���ѕɥ�����(��������������ф�}���ѥ���􁍅�ѥ��쀼����ͅȁ���ѥ����ɥ��������Ʉ���������������Ʉ(�����������݅�Ё������%�ٕ�хɥ�]��������ɽ����������������ф�������Uɰ��(����������ɕ��ɸ�9���I�����͔��ͽ����х���耉��ٕ�хɥ���ɽ���͕������(���������(�����������M������Ց�����͕�Ȱ����������թ��������Ѽ(�������((���������M������́=������ٕ�хɥ����ɽ��ͅȁ��������Ѽ�ѥ����(�������݅�Ё͕��]��������ɽ�����~R4�����酹���ѥ���и�������Ʉ�ո������Ѽ����(����������Ё���ѽ�ф��݅�Ё���Ʌ����ѽɽ�%����������%�����ɰ�������%��������Q�����((��������������ѽ�ф�������ѽ�ф����Ѽ����ձ����(���������݅�Ё͕��]��������ɽ�����v0�9���Ց�����ȁ���ѥ���йq�q������������Ѽ���ȁѕ�Ѽ�q����������Ѽ�����=aa<���ͽ�������Ʉ�5�Ʌم������(��������ɕ��ɸ�9���I�����͔��ͽ����х���耉���Ʌ�ѥ��������������(�������((�������݅�Ё��������Ѽ��ɽ���������������ѽ�ф�������Uɰ��(������ɕ��ɸ�9���I�����͔��ͽ����х���耉���Ѽ��������ɽ���͕������(�����((�������������QaQ<��A=M%	1�MQ<�������(�����������ͅ�����������ѕ�Ј���(����������Ёѕ�Ѽ�􁵕�ͅ���ѕ�й����ѽ1�ݕ�
+�͔���((����������Ё����Ѽ��ѕ�Ѽ�����Ց�̠����Ѽ�����(����������������������ѕ�Ѽ�����Ց�̠������������(����������������������ѕ�Ѽ�����Ց�̠�����ɔ�����(����������������������ѕ�Ѽ�����Ց�̠�����������(����������������������ѕ�Ѽ�����Ց�̠����Ք�����(����������������������ѕ�Ѽ�����Ց�̠�ѥ���Ј����(����������������������ѕ�Ѽ�����Ց�̠����є�����(�����������������������p��q����ѕ�Сѕ�Ѽ��((��������������Ѽ���(������������Ё���ѽ�ф��݅�Ё���Ʌ����ѽɽ�Q��С���ͅ���ѕ�й�����(���������������ѽ�ф�������ѽ�ф�����Ѽ���􁙅�͔�������ѽ�ф����Ѽ���(�����������݅�Ё��������Ѽ��ɽ���������������ѽ�ф��(����������ɕ��ɸ�9���I�����͔��ͽ����х���耉���Ѽ�ѕ�Ё�ɽ���͕������(���������(�������((�������݅�Ё͕��]��������ɽ�����~NĀ�I%�ܨ(+�~N4��M%MQ9
+%�)������ԁՉ�����͸����Յ�(+�~J���MQ<���Q%
+-P�+�~N܁�Ѽ�����ѥ����+�~J��<��͍ɥ��耉��Ѽ�����=aa<���ͽ�����(+�~N���9QI��5QI%0�+�~N܁�Ѽ������ѥ���(���Ʌ���ɕ������ͅ��́5%IY11�(+�~N���M1%��5QI%0�+�~N܁�Ѽ������ѥ���(�M������
+����Ѽ�ԁͅ��́5%IY11�(+�~R��QIM1<���QI9MI9
+%�+�~N܁�Ѽ������ѥ���(�QɅͱ����Y�ɥ�������������5%IY11���)MUL�QI8�(+�~����=Q<��9QI�=�+�~N܁�Ѽ������ѥ�������������(�=����ش����Ĉ(+
+�������є���Ց�����(������ɕ��ɸ�9���I�����͔��ͽ����х���耉�����͕�Ј����(�����((����ɕ��ɸ�9���I�����͔��ͽ����х���耉չ�����������������(��􁍅э�����ɽ��չ���ݸ���(����������ɽȠ�]���������ɽ�舰���ɽȤ�(����ɕ��ɸ�9���I�����͔��ͽ����х���耉��ɽȈ������х�����������(���)�((((
