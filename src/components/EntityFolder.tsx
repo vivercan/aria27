@@ -5,6 +5,15 @@ import { uploadAndInsert, buildPath, deleteRowAndBlob, extractBlobPath } from "@
 import { useDropZone } from "@/lib/use-drop-zone";
 import { FolderOpen, Upload, FolderUp, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, X, Check, Inbox } from "lucide-react";
 
+// React 19 does not include webkitdirectory in InputHTMLAttributes — augment globally
+declare module 'react' {
+  interface InputHTMLAttributes<T> {
+    webkitdirectory?: string | boolean;
+    directory?: string | boolean;
+  }
+}
+
+
 /**
  * <EntityFolder/>
  *
@@ -389,19 +398,13 @@ export default function EntityFolder({
         multiple
         onChange={handleUpload}
       />
-      {/* @ts-expect-error webkitdirectory is non-standard but widely supported */}
       <input
         ref={folderRef}
         type="file"
         webkitdirectory=""
         directory=""
         multiple
-        className="hidden"
-        onChange={handleUpload}
-      />
-      <input
-        ref={replaceRef}
-        type="file"
+        className="hidden     type="file"
         className="hidden"
         accept={accept}
         onChange={async e => {
