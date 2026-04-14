@@ -1,39 +1,107 @@
 "use client";
+import { FileText, Users, Building2, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, FileText, Users, Building2, DollarSign } from "lucide-react";
 
-const REPORTES = [
-  { href: "/dashboard/reportes/cobranza-mensual", titulo: "Cobranza Mensual", desc: "Facturado, cobrado y por cobrar del mes agrupado por obra.", icon: DollarSign, color: "from-emerald-500 to-teal-600" },
-  { href: "/dashboard/reportes/nomina-semanal", titulo: "Nómina Semanal", desc: "Nómina consolidada de la semana con detalle por empleado y obra.", icon: Users, color: "from-violet-500 to-purple-600" },
-  { href: "/dashboard/reportes/estado-cuenta-proveedor", titulo: "Estado de Cuenta Proveedor", desc: "OCs, cuentas por pagar y saldo pendiente por proveedor.", icon: Building2, color: "from-amber-500 to-orange-600" },
-  { href: "/dashboard/obras/reporte", titulo: "Reporte Ejecutivo de Obra", desc: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.", icon: FileText, color: "from-aria-primary to-aria-accent" },
+const subModules = [
+  {
+    title: "Cobranza Mensual",
+    description: "Facturado, cobrado y por cobrar del mes agrupado por obra.",
+    href: "/dashboard/reportes/cobranza-mensual",
+    icon: DollarSign,
+    iconBg: "rgba(16,185,129,0.14)",
+    iconColor: "#10b981",
+  },
+  {
+    title: "Nómina Semanal",
+    description: "Nómina consolidada de la semana con detalle por empleado y obra.",
+    href: "/dashboard/reportes/nomina-semanal",
+    icon: Users,
+    iconBg: "rgba(139,92,246,0.14)",
+    iconColor: "#a78bfa",
+  },
+  {
+    title: "Estado de Cuenta Proveedor",
+    description: "OCs, cuentas por pagar y saldo pendiente por proveedor.",
+    href: "/dashboard/reportes/estado-cuenta-proveedor",
+    icon: Building2,
+    iconBg: "rgba(245,158,11,0.13)",
+    iconColor: "#fbbf24",
+  },
+  {
+    title: "Reporte Ejecutivo de Obra",
+    description: "Vista 360° de una obra: presupuesto, gasto, cobranza, avance físico.",
+    href: "/dashboard/obras/reporte",
+    icon: FileText,
+    iconBg: "rgba(37,99,235,0.15)",
+    iconColor: "#3b82f6",
+  },
 ];
 
-export default function ReportesHub() {
+type ModuleItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+};
+
+function HubCard({ module }: { module: ModuleItem }) {
   return (
-    <div className="h-full flex flex-col overflow-hidden p-6">
-      <div className="flex items-center gap-3 mb-6 flex-shrink-0">
-        <Link href="/dashboard" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Reportes PDF</h1>
-          <p className="text-sm text-[#7f93b0]">Genera y guarda reportes ejecutivos con un clic</p>
-        </div>
+    <Link
+      href={module.href}
+      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
+      style={{
+        backgroundColor: "rgba(8,18,38,0.85)",
+        backdropFilter: "blur(8px)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderTop: "1px solid rgba(255,255,255,0.14)",
+        borderBottom: "1px solid rgba(0,0,0,0.30)",
+        padding: "15px 14px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.06)",
+      }}
+    >
+      <div
+        style={{
+          flexShrink: 0,
+          width: "36px", height: "36px", borderRadius: "8px",
+          backgroundColor: "rgba(255,255,255,0.07)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
+        }}
+      >
+        <module.icon style={{ width: "17px", height: "17px", color: module.iconColor }} strokeWidth={1.75} />
       </div>
-      <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {REPORTES.map(r => {
-            const Icon = r.icon;
-            return (
-              <Link key={r.href} href={r.href} className="group p-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition">
-                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${r.color} flex items-center justify-center mb-3`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-white font-semibold mb-1">{r.titulo}</h3>
-                <p className="text-xs text-[#7f93b0]">{r.desc}</p>
-              </Link>
-            );
-          })}
-        </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <h3
+          className="text-[13px] font-semibold leading-tight truncate group-hover:text-white transition-colors"
+          style={{ color: "rgba(255,255,255,0.92)" }}
+        >
+          {module.title}
+        </h3>
+        <p className="text-[11.5px] mt-[3px] truncate" style={{ color: "rgba(255,255,255,0.45)" }}>
+          {module.description}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+export default function ReportesPage() {
+  return (
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}>
+      <div className="mb-6">
+        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
+          Reportes PDF
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
+          Genera y guarda reportes ejecutivos con un clic
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {subModules.map((module) => (
+          <HubCard key={module.href} module={module} />
+        ))}
       </div>
     </div>
   );
