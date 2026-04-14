@@ -5,18 +5,6 @@ import { ReactNode } from "react";
 /**
  * Wrapper estandarizado de tabla para ARIA27.
  * Incluye: sticky header, loading state, empty state, footer totals.
- *
- * Uso:
- *   <AriaTable
- *     columns={["Nombre", "Monto", "Estatus"]}
- *     loading={loading}
- *     empty={data.length === 0}
- *     emptyIcon={<Wallet className="w-10 h-10 opacity-30" />}
- *     emptyMessage="Sin registros"
- *     footer={<tr>...</tr>}
- *   >
- *     {data.map(item => <tr key={item.id}>...</tr>)}
- *   </AriaTable>
  */
 
 interface Column {
@@ -56,15 +44,19 @@ export default function AriaTable({
     align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left";
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 bg-slate-900/95 backdrop-blur z-10">
-          <tr className="border-b border-white/[0.06]">
+    <div className={`overflow-x-auto rounded-xl border border-white/[0.06] ${className}`}>
+      <table className="w-full text-sm border-collapse">
+        <thead
+          className="sticky top-0 z-10"
+          style={{ backgroundColor: "rgba(4,8,16,0.98)" }}
+        >
+          <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {cols.map((col, i) => (
               <th
                 key={i}
-                className={`px-3 py-2.5 text-xs text-slate-400 font-medium ${alignClass(col.align)} ${col.className || ""}`}
-                style={col.width ? { width: col.width } : undefined}
+                className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest whitespace-nowrap ${alignClass(col.align)} ${col.className || ""}`}
+                style={{ color: "#4a6080" }}
+                title={col.width ? undefined : undefined}
               >
                 {col.label}
               </th>
@@ -75,15 +67,15 @@ export default function AriaTable({
           {loading ? (
             <tr>
               <td colSpan={colCount} className="py-16 text-center">
-                <Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" />
+                <Loader2 className="w-5 h-5 animate-spin mx-auto" style={{ color: "#22d3ee" }} />
               </td>
             </tr>
           ) : empty ? (
             <tr>
-              <td colSpan={colCount} className="py-16 text-center text-slate-500">
-                {emptyIcon && <div className="mx-auto mb-3">{emptyIcon}</div>}
-                <p>{emptyMessage}</p>
-                {emptySubtext && <p className="text-xs mt-1">{emptySubtext}</p>}
+              <td colSpan={colCount} className="py-16 text-center">
+                {emptyIcon && <div className="mx-auto mb-3 opacity-20">{emptyIcon}</div>}
+                <p className="text-sm font-medium" style={{ color: "#7f93b0" }}>{emptyMessage}</p>
+                {emptySubtext && <p className="text-xs mt-1" style={{ color: "#4a6080" }}>{emptySubtext}</p>}
               </td>
             </tr>
           ) : (
@@ -91,7 +83,7 @@ export default function AriaTable({
           )}
         </tbody>
         {footer && !loading && !empty && (
-          <tfoot className="border-t border-white/[0.06]">{footer}</tfoot>
+          <tfoot style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>{footer}</tfoot>
         )}
       </table>
     </div>
