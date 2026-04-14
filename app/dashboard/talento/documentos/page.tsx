@@ -457,7 +457,6 @@ export default function MisDocumentosPage() {
               className="hidden"
               onChange={handleUpload}
             />
-            {/* @ts-expect-error webkitdirectory is non-standard but widely supported */}
             <input
               ref={folderInputRef}
               type="file"
