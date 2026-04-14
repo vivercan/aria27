@@ -57,11 +57,6 @@ async function sendWhatsApp(phone: string, message: string) {
   await sendWhatsAppText(phone, message, { origen: "webhook-attendance", enviadoPor: "system" });
 }
 
-function getWeekNumber(date: Date): number {
-  const startOfYear = new Date(date.getFullYear(), 0, 1);
-  const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-  return Math.ceil((days + startOfYear.getDay() + 1) / 7);
-}
 
 interface GastoData {
   proveedor?: string;
@@ -417,7 +412,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   if (!rowOrigen) { await sendWhatsApp(from, `No encontre la obra origen "${obraOrigen}".`); return; }
   if (!rowDestino) { await sendWhatsApp(from, `No encontre la obra destino "${obraDestino}".`); return; }
 
-  const { data: existeOrigen } = await db.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
+  const { dataxisteOrigen } = await db.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
   if (!existeOrigen) { await sendWhatsApp(from, `No hay stock de *${material}* en ${rowOrigen.nombre}.`); return; }
 
   const saldoOrigen = Number(existeOrigen.cantidad_disponible);
@@ -837,7 +832,7 @@ export async function POST(request: NextRequest) {
       await sendWhatsApp(from, "Analizando ticket... espera un momento.");
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
       if (!gastoData || gastoData.monto === null) {
-        await sendWhatsApp(from, "No pude leer el ticket.\n\nEnvia el gasto por mexto::\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
+        await sendWhatsApp(from, "No pude leer el ticket.\n\nEnvia el gasto por texto:\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
         return NextResponse.json({ status: "extraction failed" });
       }
       await handleGasto(from, phone10, gastoData, imageUrl);
