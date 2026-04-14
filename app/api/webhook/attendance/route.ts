@@ -412,7 +412,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   if (!rowOrigen) { await sendWhatsApp(from, `No encontre la obra origen "${obraOrigen}".`); return; }
   if (!rowDestino) { await sendWhatsApp(from, `No encontre la obra destino "${obraDestino}".`); return; }
 
-  const { dataxisteOrigen } = await db.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
+  const { data: existeOrigen } = await db.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
   if (!existeOrigen) { await sendWhatsApp(from, `No hay stock de *${material}* en ${rowOrigen.nombre}.`); return; }
 
   const saldoOrigen = Number(existeOrigen.cantidad_disponible);
