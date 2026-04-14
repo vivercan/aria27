@@ -9,7 +9,7 @@ import Link from "next/link";
 const subModules = [
   {
     title: "Centro de Control",
-    description: "Presupuesto vs gasto real (OC + nÃ³mina) por obra. SemÃ¡foro de avance.",
+    description: "Presupuesto vs gasto real (OC + nómina) por obra. Semáforo de avance.",
     href: "/dashboard/obras/control",
     icon: Activity,
     iconBg: "rgba(37,99,235,0.15)",
@@ -25,23 +25,23 @@ const subModules = [
   },
   {
     title: "Control de Concreto",
-    description: "Remisiones de colado, f'c, mÂ³, pruebas de cilindro 7/14/28 dÃ­as.",
+    description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.",
     href: "/dashboard/obras/concreto/remisiones",
     icon: Droplet,
     iconBg: "rgba(100,116,139,0.15)",
     iconColor: "#94a3b8",
   },
   {
-    title: "Avance FÃ­sico",
-    description: "Captura semanal de % de avance fÃ­sico real por obra.",
+    title: "Avance Físico",
+    description: "Captura semanal de % de avance físico real por obra.",
     href: "/dashboard/obras/avance",
     icon: TrendingUp,
     iconBg: "rgba(16,185,129,0.14)",
     iconColor: "#10b981",
   },
   {
-    title: "CatÃ¡logo Maestro",
-    description: "Fuente Ãºnica de obras: alta, ediciÃ³n, archivo, historial.",
+    title: "Catálogo Maestro",
+    description: "Fuente única de obras: alta, edición, archivo, historial.",
     href: "/dashboard/obras/catalogo",
     icon: BookOpen,
     iconBg: "rgba(99,102,241,0.14)",
@@ -57,7 +57,7 @@ const subModules = [
   },
   {
     title: "Licitaciones",
-    description: "GestiÃ³n de licitaciones y concursos.",
+    description: "Gestión de licitaciones y concursos.",
     href: "/dashboard/obras/licitaciones",
     icon: Gavel,
     iconBg: "rgba(245,158,11,0.13)",
@@ -73,7 +73,7 @@ const subModules = [
   },
   {
     title: "Contratos",
-    description: "Contratos y documentaciÃ³n legal por obra.",
+    description: "Contratos y documentación legal por obra.",
     href: "/dashboard/obras/contratos",
     icon: Scale,
     iconBg: "rgba(168,85,247,0.13)",
@@ -113,7 +113,7 @@ const subModules = [
   },
   {
     title: "Planos",
-    description: "Visor de planos y documentos tÃ©cnicos.",
+    description: "Visor de planos y documentos técnicos.",
     href: "/dashboard/obras/planos",
     icon: Map,
     iconBg: "rgba(129,140,248,0.13)",
@@ -121,7 +121,7 @@ const subModules = [
   },
   {
     title: "Tareas",
-    description: "AsignaciÃ³n de tareas y seguimiento de cumplimiento.",
+    description: "Asignación de tareas y seguimiento de cumplimiento.",
     href: "/dashboard/obras/tareas",
     icon: ListChecks,
     iconBg: "rgba(132,204,22,0.13)",
@@ -129,7 +129,7 @@ const subModules = [
   },
   {
     title: "Fotos de Avance",
-    description: "Registro fotogrÃ¡fico de avance por obra.",
+    description: "Registro fotográfico de avance por obra.",
     href: "/dashboard/obras/fotos",
     icon: Camera,
     iconBg: "rgba(249,115,22,0.13)",
@@ -145,7 +145,7 @@ export default function ObrasPage() {
           Obras
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          GestiÃ³n de proyectos y construcciÃ³n
+          Gestión de proyectos y construcción
         </p>
       </div>
 
@@ -173,8 +173,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       href={module.href}
       className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
       style={{
-        backgroundColor: "rgba(8,18,36,0.85)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "rgba(10,22,45,0.88)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.09)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
@@ -184,7 +185,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       <div
         style={{
           position: "absolute", inset: "0 0 auto 0", height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
           pointerEvents: "none",
         }}
       />
