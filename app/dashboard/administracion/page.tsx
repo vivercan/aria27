@@ -107,7 +107,7 @@ export default function AdministracionPage() {
   return (
     <div className="px-6 pt-6 pb-8 h-full overflow-auto">
       <div className="mb-6">
-        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
+        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
           Administración
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
