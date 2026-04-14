@@ -91,20 +91,24 @@ function HubCard({ module }: { module: ModuleItem }) {
   return (
     <Link
       href={module.href}
-      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:border-white/[0.18] hover:bg-[rgba(12,26,52,0.92)]"
+      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
       style={{
-        backgroundColor: "rgba(8,18,38,0.80)",
+        backgroundColor: "rgba(8,18,38,0.85)",
         backdropFilter: "blur(8px)",
-        border: "1px solid rgba(255,255,255,0.09)",
-        padding: "12px 14px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderTop: "1px solid rgba(255,255,255,0.14)",
+        borderBottom: "1px solid rgba(0,0,0,0.30)",
+        padding: "15px 14px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.06)",
       }}
     >
       <div
         style={{
           flexShrink: 0,
-          width: "34px", height: "34px", borderRadius: "8px",
+          width: "36px", height: "36px", borderRadius: "8px",
           backgroundColor: "rgba(255,255,255,0.07)",
           display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
         }}
       >
         <module.icon style={{ width: "17px", height: "17px", color: module.iconColor }} strokeWidth={1.75} />
@@ -126,7 +130,7 @@ function HubCard({ module }: { module: ModuleItem }) {
 
 export default function FinanzasPage() {
   return (
-    <div className="px-6 pt-6 pb-8 h-full overflow-auto">
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}>
       <div className="mb-6">
         <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
           Finanzas
@@ -135,7 +139,7 @@ export default function FinanzasPage() {
           Gestión financiera y contable
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {subModules.map((module) => (
           <HubCard key={module.href} module={module} />
         ))}
