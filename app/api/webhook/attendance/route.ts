@@ -136,7 +136,7 @@ async function extractGastoFromText(text: string): Promise<GastoData | null> {
       })
     });
     const result = await response.json();
-  const responseText = result.content?.[0]?.text || "{}";
+    const responseText = result.content?.[0]?.text || "{}";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
   } catch (error: unknown) {
@@ -362,7 +362,36 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
   if (saldoActual < cantidad) {
     await sendWhatsApp(from, `*STOCK INSUFICIENTE*\n\n${material}\nDisponible: ${saldoActual} ${unidad}\nSolicitado: ${cantidad} ${unidad}\n${obraRow.nombre}`);
     return;
-  }A*\n\n${material}\n-${cantidad} ${unidad}\n${obraRow.nombre}\nSaldo restante: ${saldoPost} ${unidad}\nFoto guardada\n\nRegistrado!`);
+  }
+
+  const saldoPost = saldoActual - cantidad;
+  const nuevaUsada = Number(existe.cantidad_usada || 0) + cantidad;
+
+  const { error: errInvUpd } = await db.from("inventario_obra").update({
+    cantidad_disponible: saldoPost,
+    cantidad_usada: nuevaUsada,
+    ultimo_movimiento: new Date().toISOString(),
+    foto_url: imageUrl,
+  }).eq("id", existe.id);
+  if (errInvUpd) log.error("update inventario_obra (salida) failed", { error: errInvUpd.message });
+
+  const { error: errMovIns } = await db.from("inventario_movimientos").insert({
+    obra_id: obraRow.id,
+    obra_nombre: obraRow.nombre,
+    producto_nombre: material,
+    unidad,
+    tipo: "SALIDA",
+    cantidad,
+    saldo_post: saldoPost,
+    motivo: invData.descripcion || `Salida via WhatsApp`,
+    referencia_tipo: "WHATSAPP",
+    referencia_id: null,
+    usuario: `WhatsApp ${phone10}`,
+    foto_url: imageUrl,
+  });
+  if (errMovIns) log.error("insert inventario_movimientos (salida) failed", { error: errMovIns.message });
+
+  await sendWhatsApp(from, `*SALIDA REGISTRADA*\n\n${material}\n-${cantidad} ${unidad}\n${obraRow.nombre}\nSaldo restante: ${saldoPost} ${unidad}\nFoto guardada\n\nRegistrado!`);
 }
 
 // ============== MANEJAR TRANSFERENCIA DE INVENTARIO (TRASLADO ENTRE OBRAS) ==============
@@ -461,7 +490,49 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
 // ============== BUSCAR EMPLEADO POR TELEFONO ==============
 // ZONA CRITICA: usa db (admin/service role). "ACTIVO" = valor real en BD.
 async function findEmpleado(phone10: string, from: string) {
-  const { data: emp, error: findErr } = await db{gastoData.obra}` : "";
+  const { data: emp, error: findErr } = await db
+    .from("employees")
+    .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
+    .or(`phone.eq.${phone10},whatsapp.eq.${phone10},phone.eq.52${phone10},phone.eq.521${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
+    .eq("status", "ACTIVO")
+    .single();
+  if (findErr && findErr.code !== "PGRST116") {
+    log.error("findEmpleado DB error", { phone10, error: findErr.message });
+  }
+  return emp;
+}
+
+// ============== MANEJAR GASTO ==============
+async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
+  const gastoAdmin = getSupabaseAdmin();
+
+  const emp = await findEmpleado(phone10, from);
+  if (!emp) {
+    await sendWhatsApp(from, "Telefono no registrado en ARIA27.\n\nContacta a tu supervisor para registrar tu numero.");
+    return;
+  }
+
+  const { error: errGasto } = await gastoAdmin
+    .from("gastos_obra")
+    .insert({
+      employee_id: emp.id,
+      monto: gastoData.monto,
+      descripcion: gastoData.descripcion || gastoData.proveedor || "Gasto WhatsApp",
+      proveedor: gastoData.proveedor,
+      categoria: gastoData.categoria || "OTRO",
+      fecha: gastoData.fecha || new Date().toISOString().split("T")[0],
+      obra_nombre: gastoData.obra || null,
+      foto_url: imageUrl || null,
+      fuente: "WHATSAPP",
+    });
+
+  if (errGasto) {
+    log.error("insert gastos_obra failed", { error: errGasto.message });
+    await sendWhatsApp(from, "Error al guardar el gasto. Intentalo de nuevo.");
+    return;
+  }
+
+  const obraLine = gastoData.obra ? `\nObra: ${gastoData.obra}` : "";
   const fotoLine = imageUrl ? "\nFoto del ticket guardada" : "";
   await sendWhatsApp(from, `*GASTO REGISTRADO*\n\n$${gastoData.monto}${gastoData.proveedor ? `\n${gastoData.proveedor}` : ""}${gastoData.descripcion ? `\n${gastoData.descripcion}` : ""}${obraLine}${fotoLine}\n\nRegistrado en ARIA27!`);
 }
@@ -560,7 +631,49 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   // CASO 2: Tiene registro SIN salida - SALIDA
   if (asistenciaHoy && !asistenciaHoy.hora_salida) {
     const { error: errAsis2 } = await db.from("asistencias").update({
-      hora_salida: hora,ro_nombre: workCenter.nombre,
+      hora_salida: hora,
+      latitud_salida: lat,
+      longitud_salida: lng,
+      dentro_geocerca_salida: dentroGeocerca,
+      distancia_salida: Math.round(distance),
+      notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${formatDistance(distance)}`
+    }).eq("id", asistenciaHoy.id);
+    if (errAsis2) log.error("update asistencias (clock-out) failed", { error: errAsis2.message });
+
+    const [hE, mE] = asistenciaHoy.hora_entrada.split(":").map(Number);
+    const [hS, mS] = hora.split(":").map(Number);
+    const totalMins = (hS * 60 + mS) - (hE * 60 + mE);
+    const horasStr = totalMins > 0 ? `${Math.floor(totalMins/60)}h ${totalMins%60}m` : "0h";
+
+    const geoIcon = dentroGeocerca ? "OK" : "FUERA";
+    const distText = formatDistance(distance);
+    const distLine = dentroGeocerca ? `A ${distText} de ${workCenter.nombre}` : `FUERA: ${distText} de ${workCenter.nombre}`;
+    await sendWhatsApp(from, `SALIDA REGISTRADA - ${geoIcon}\n${distLine}\n${emp.full_name}\n${workCenter.nombre}\nEntrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\nSalida: ${hora}\nTotal: ${horasStr}\nHasta manana!`);
+    return;
+  }
+
+  // CASO 3: Ya tiene entrada Y salida
+  if (asistenciaHoy && asistenciaHoy.hora_salida) {
+    const esAutomatico = asistenciaHoy.tipo_registro === "MANUAL" || (asistenciaHoy.notas && (
+      asistenciaHoy.notas.includes("automatica") ||
+      asistenciaHoy.notas.includes("masiva") ||
+      asistenciaHoy.notas.includes("Correccion")
+    ));
+
+    if (esAutomatico) {
+      const { error: errAsis3 } = await db.from("asistencias").delete().eq("id", asistenciaHoy.id);
+      if (errAsis3) log.error("delete asistencias (replace auto-record) failed", { error: errAsis3.message });
+
+      const { error: errAsis4 } = await db.from("asistencias").insert({
+        employee_id: emp.id,
+        fecha: today,
+        hora_entrada: hora,
+        latitud_entrada: lat,
+        longitud_entrada: lng,
+        dentro_geocerca_entrada: dentroGeocerca,
+        tipo_registro: "WHATSAPP",
+        distancia_entrada: Math.round(distance),
+        centro_nombre: workCenter.nombre,
         notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)} (reemplazo registro automatico)`
       });
       if (errAsis4) log.error("insert asistencias (replace auto-record) failed", { error: errAsis4.message });
@@ -660,6 +773,47 @@ export async function POST(request: NextRequest) {
       const captionLower = caption.toLowerCase();
 
       // ENTRADA explicita tiene maxima prioridad (evita que "salida" gane cuando la intencion es ENTRADA)
+      const tieneEntradaExplicita = captionLower.includes("entrada") ||
+        captionLower.includes("llego") ||
+        captionLower.includes("recibi") ||
+        captionLower.includes("material") ||
+        captionLower.includes("inventario");
+
+      // TRANSFERENCIA (segunda prioridad - antes que salida y entrada generica)
+      const esTransferencia = !tieneEntradaExplicita && (
+        captionLower.includes("transferencia") ||
+        captionLower.includes("traslado") ||
+        captionLower.includes("transfiero") ||
+        captionLower.includes("muevo")
+      );
+
+      if (esTransferencia) {
+        await sendWhatsApp(from, "Procesando traslado... espera un momento.");
+        const trasData = await extractTransferenciaFromImage(mediaInfo.url, mediaInfo.mimeType, caption);
+        if (trasData && trasData.material) {
+          trasData._caption = caption;
+          await handleTransferenciaInventario(from, phone10, trasData, imageUrl);
+          return NextResponse.json({ status: "traslado processed" });
+        }
+      }
+
+      // SALIDA de inventario - NO aplica si hay palabras de ENTRADA explicita
+      const esSalida = !tieneEntradaExplicita && (
+        captionLower.includes("salida") ||
+        captionLower.includes("uso ") ||
+        captionLower.includes("use ") ||
+        captionLower.includes("consume") ||
+        captionLower.includes("consumo") ||
+        captionLower.includes("saque") ||
+        captionLower.includes("utilice")
+      );
+
+      if (esSalida) {
+        await sendWhatsApp(from, "Procesando salida... espera un momento.");
+        const salData = await extractInventarioFromImage(mediaInfo.url, mediaInfo.mimeType, caption, "SALIDA");
+        if (salData && salData.material) {
+          salData._caption = caption;
+          await handleSalidaInventario(from, phone10, salData, imageUrl);
           return NextResponse.json({ status: "salida processed" });
         }
       }
@@ -679,7 +833,7 @@ export async function POST(request: NextRequest) {
       await sendWhatsApp(from, "Analizando ticket... espera un momento.");
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
       if (!gastoData || gastoData.monto === null) {
-        await sendWhatsApp(from, "No pude leer el ticket.\n\nEnvia el gasto por texto:\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
+        await sendWhatsApp(from, "No pude leer el ticket.\n\nEnvia el gasto por mexto::\nEjemplo: Gasto 500 OXXO gasolina obra Miravalle");
         return NextResponse.json({ status: "extraction failed" });
       }
       await handleGasto(from, phone10, gastoData, imageUrl);
