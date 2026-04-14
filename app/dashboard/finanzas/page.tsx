@@ -21,8 +21,8 @@ const subModules = [
     iconColor: "#10b981",
   },
   {
-    title: "FacturaciÃ³n",
-    description: "EmisiÃ³n y seguimiento de facturas CFDI.",
+    title: "Facturación",
+    description: "Emisión y seguimiento de facturas CFDI.",
     href: "/dashboard/finanzas/facturacion",
     icon: FileSpreadsheet,
     iconBg: "rgba(245,158,11,0.13)",
@@ -69,7 +69,7 @@ const subModules = [
     iconColor: "#818cf8",
   },
   {
-    title: "Ingreso â Egresos",
+    title: "Ingreso – Egresos",
     description: "Reporte consolidado de ingresos y egresos.",
     href: "/dashboard/finanzas/ingreso-egresos",
     icon: ArrowLeftRight,
@@ -93,8 +93,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       href={module.href}
       className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
       style={{
-        backgroundColor: "rgba(8,18,36,0.85)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "rgba(10,22,45,0.88)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.09)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
@@ -103,7 +104,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       <div
         style={{
           position: "absolute", inset: "0 0 auto 0", height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -134,7 +135,7 @@ export default function FinanzasPage() {
           Finanzas
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          GestiÃ³n financiera y contable
+          Gestión financiera y contable
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
