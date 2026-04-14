@@ -121,7 +121,7 @@ function HubCard({ module }: { module: ModuleItem }) {
 
 export default function RequisicionesPage() {
   return (
-    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}>
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 35%, #1a6bc0 0%, #0e52a0 25%, #083070 55%, #021845 80%, #010c2a 100%)" }}>
       <div className="mb-6">
         <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
           Requisiciones
