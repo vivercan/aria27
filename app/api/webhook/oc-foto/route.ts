@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
 const log = logger("WEBHOOK-OC-FOTO");
+
+// (!) ZONA CRITICA META/WHATSAPP -- NO cambiar 'db' a cliente anon.
+// El anon client tiene RLS activo -- bloquea lectura de purchase_orders y entregas.
+const db = getSupabaseAdmin();
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const VERIFY_TOKEN = "aria27_oc_foto_verify";
@@ -83,7 +86,7 @@ export async function POST(req: NextRequest) {
     const folioOC = folioMatch[0].toUpperCase();
 
     // Verificar que la OC existe
-    const { data: oc } = await supabase.from("purchase_orders").select("*").eq("folio", folioOC).single();
+    const { data: oc } = await db.from("purchase_orders").select("*").eq("folio", folioOC).single();
     
     if (!oc) {
       await sendWhatsApp(from, `❌ No encontré la orden ${folioOC} en el sistema.`);
@@ -102,11 +105,10 @@ export async function POST(req: NextRequest) {
       if (tempUrl) {
         const phone10 = from.replace(/^521/, "").replace(/^52/, "");
         const storagePath = `oc-fotos/${folioOC}/${Date.now()}.jpg`;
-        const supabaseAdmin = getSupabaseAdmin();
         const permanentUrl = await processAndUploadPhoto({
           mediaUrl: tempUrl,
           whatsappToken: WHATSAPP_TOKEN || "",
-          supabase: supabaseAdmin,
+          supabase: db,
           bucket: "inventario",
           storagePath,
         });
@@ -118,18 +120,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar o crear entrega para esta OC
-    let { data: entrega } = await supabase.from("entregas").select("*").eq("purchase_order_folio", folioOC).single();
+    let { data: entrega } = await db.from("entregas").select("*").eq("purchase_order_folio", folioOC).single();
 
     if (entrega) {
       // Actualizar con foto
-      await supabase.from("entregas").update({ foto_url: fotoUrl }).eq("id", entrega.id);
+      await db.from("entregas").update({ foto_url: fotoUrl }).eq("id", entrega.id);
       await sendWhatsApp(from, `✅ Foto vinculada a la entrega ${entrega.folio} (${folioOC})`);
     } else {
       // Crear entrega con foto
-      const { count } = await supabase.from("entregas").select("*", { count: "exact", head: true });
+      const { count } = await db.from("entregas").select("*", { count: "exact", head: true });
       const nuevoFolio = `ENT-${String((count || 0) + 1).padStart(5, "0")}`;
-      
-      await supabase.from("entregas").insert({
+
+      await db.from("entregas").insert({
         folio: nuevoFolio,
         fecha_entrega: new Date().toISOString().split("T")[0],
         hora_entrega: new Date().toTimeString().slice(0, 5),
