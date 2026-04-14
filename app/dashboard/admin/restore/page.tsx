@@ -14,7 +14,10 @@ import {
   Server,
 } from "lucide-react";
 
-const JJ_EMAIL = "juanviverosv@gmail.com";
+const ALLOWED_EMAILS = [
+  "juanviverosv@gmail.com",
+  "recursos.humanos@gcuavante.com",
+];
 
 interface TableResult {
   tabla: string;
@@ -55,7 +58,7 @@ export default function RestorePage() {
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail") || "";
     setUserEmail(email);
-    setAuthorized(email === JJ_EMAIL);
+    setAuthorized(ALLOWED_EMAILS.includes(email));
   }, []);
 
   const fetchDates = useCallback(async () => {
