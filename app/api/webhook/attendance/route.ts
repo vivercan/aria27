@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
 const log = logger("WEBHOOK-ATTENDANCE");
+
+// ⚠️ ZONA CRÍTICA META/WHATSAPP — NO cambiar 'db' a cliente anon.
+// El anon client tiene RLS activo → bloquea lectura de employees → "teléfono no registrado".
+// Causa raíz del bug 14-Abr-2026. Usar SIEMPRE service role aquí.
+const db = getSupabaseAdmin();
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
@@ -262,7 +266,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   }
 
   // Buscar obra en centros_trabajo
-  let { data: obraRow } = await supabase
+  let { data: obraRow } = await db
     .from("centros_trabajo")
     .select("id, nombre")
     .ilike("nombre", `%${obraFinal}%`)
@@ -275,7 +279,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
     const skipWords = ["entrada", "material", "inventario", "llegó", "llego", "recibí", "recibi", "sacos", "saco", "kilos", "kilo", "piezas", "metros", "litros", "cajas", "rollos"];
     for (const palabra of palabras) {
       if (skipWords.includes(palabra.toLowerCase()) || /^\d+$/.test(palabra)) continue;
-      const { data: match } = await supabase
+      const { data: match } = await db
         .from("centros_trabajo")
         .select("id, nombre")
         .ilike("nombre", `%${palabra}%`)
@@ -291,7 +295,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   }
 
   // Buscar si ya existe en inventario
-  const { data: existe } = await supabase
+  const { data: existe } = await db
     .from("inventario_obra")
     .select("*")
     .eq("obra_id", obraRow.id)
@@ -301,7 +305,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   let saldoPost = 0;
   if (existe) {
     saldoPost = Number(existe.cantidad_disponible) + cantidad;
-    const { error: errInvUpd } = await supabase.from("inventario_obra").update({
+    const { error: errInvUpd } = await db.from("inventario_obra").update({
       cantidad_disponible: saldoPost,
       ultimo_movimiento: new Date().toISOString(),
       foto_url: imageUrl,
@@ -309,7 +313,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
     if (errInvUpd) log.error("update inventario_obra failed", { error: errInvUpd.message });
   } else {
     saldoPost = cantidad;
-    const { error: errInvIns } = await supabase.from("inventario_obra").insert({
+    const { error: errInvIns } = await db.from("inventario_obra").insert({
       obra_id: obraRow.id,
       obra_nombre: obraRow.nombre,
       producto_nombre: material,
@@ -323,7 +327,7 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   }
 
   // Registrar movimiento con foto
-  const { error: errMovIns } = await supabase.from("inventario_movimientos").insert({
+  const { error: errMovIns } = await db.from("inventario_movimientos").insert({
     obra_id: obraRow.id,
     obra_nombre: obraRow.nombre,
     producto_nombre: material,
@@ -420,13 +424,13 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
     return;
   }
 
-  const { data: obraRow } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraFinal}%`).limit(1).single();
+  const { data: obraRow } = await db.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraFinal}%`).limit(1).single();
   if (!obraRow) {
     await sendWhatsApp(from, `❌ No encontré la obra "${obraFinal}" en el sistema.`);
     return;
   }
 
-  const { data: existe } = await supabase.from("inventario_obra").select("*").eq("obra_id", obraRow.id).ilike("producto_nombre", material).single();
+  const { data: existe } = await db.from("inventario_obra").select("*").eq("obra_id", obraRow.id).ilike("producto_nombre", material).single();
   if (!existe) {
     await sendWhatsApp(from, `❌ *${material}* no está registrado en inventario de *${obraRow.nombre}*.\n\nSi quieres registrar una ENTRADA de material nuevo:\n📦 ENTRADA ${material} [cantidad] [unidad] ${obraRow.nombre}`);
     return;
@@ -441,7 +445,7 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
   const saldoPost = saldoActual - cantidad;
   const nuevaUsada = Number(existe.cantidad_usada || 0) + cantidad;
 
-  const { error: errInvUpd } = await supabase.from("inventario_obra").update({
+  const { error: errInvUpd } = await db.from("inventario_obra").update({
     cantidad_disponible: saldoPost,
     cantidad_usada: nuevaUsada,
     ultimo_movimiento: new Date().toISOString(),
@@ -449,7 +453,7 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
   }).eq("id", existe.id);
   if (errInvUpd) log.error("update inventario_obra (salida) failed", { error: errInvUpd.message });
 
-  const { error: errMovIns } = await supabase.from("inventario_movimientos").insert({
+  const { error: errMovIns } = await db.from("inventario_movimientos").insert({
     obra_id: obraRow.id,
     obra_nombre: obraRow.nombre,
     producto_nombre: material,
@@ -486,8 +490,8 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   }
 
   // Buscar obras
-  const { data: rowOrigen } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraOrigen}%`).limit(1).single();
-  const { data: rowDestino } = await supabase.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraDestino}%`).limit(1).single();
+  const { data: rowOrigen } = await db.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraOrigen}%`).limit(1).single();
+  const { data: rowDestino } = await db.from("centros_trabajo").select("id, nombre").ilike("nombre", `%${obraDestino}%`).limit(1).single();
 
   if (!rowOrigen) {
     await sendWhatsApp(from, `❌ No encontré la obra origen "${obraOrigen}".`);
@@ -499,7 +503,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   }
 
   // Verificar stock en origen
-  const { data: existeOrigen } = await supabase.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
+  const { data: existeOrigen } = await db.from("inventario_obra").select("*").eq("obra_id", rowOrigen.id).ilike("producto_nombre", material).single();
   if (!existeOrigen) {
     await sendWhatsApp(from, `❌ No hay stock de *${material}* en ${rowOrigen.nombre}.`);
     return;
@@ -513,13 +517,13 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   // ---- TRASLADO_SALIDA: descontar de origen ----
   const saldoOrigenPost = saldoOrigen - cantidad;
   const nuevaUsadaOrigen = Number(existeOrigen.cantidad_usada || 0) + cantidad;
-  await supabase.from("inventario_obra").update({
+  await db.from("inventario_obra").update({
     cantidad_disponible: saldoOrigenPost,
     cantidad_usada: nuevaUsadaOrigen,
     ultimo_movimiento: new Date().toISOString(),
   }).eq("id", existeOrigen.id);
 
-  await supabase.from("inventario_movimientos").insert({
+  await db.from("inventario_movimientos").insert({
     obra_id: rowOrigen.id,
     obra_nombre: rowOrigen.nombre,
     producto_nombre: material,
@@ -534,17 +538,17 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
   });
 
   // ---- TRASLADO_ENTRADA: agregar a destino ----
-  const { data: existeDestino } = await supabase.from("inventario_obra").select("*").eq("obra_id", rowDestino.id).ilike("producto_nombre", material).single();
+  const { data: existeDestino } = await db.from("inventario_obra").select("*").eq("obra_id", rowDestino.id).ilike("producto_nombre", material).single();
   let saldoDestinoPost = 0;
   if (existeDestino) {
     saldoDestinoPost = Number(existeDestino.cantidad_disponible) + cantidad;
-    await supabase.from("inventario_obra").update({
+    await db.from("inventario_obra").update({
       cantidad_disponible: saldoDestinoPost,
       ultimo_movimiento: new Date().toISOString(),
     }).eq("id", existeDestino.id);
   } else {
     saldoDestinoPost = cantidad;
-    await supabase.from("inventario_obra").insert({
+    await db.from("inventario_obra").insert({
       obra_id: rowDestino.id,
       obra_nombre: rowDestino.nombre,
       producto_nombre: material,
@@ -555,7 +559,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
     });
   }
 
-  await supabase.from("inventario_movimientos").insert({
+  await db.from("inventario_movimientos").insert({
     obra_id: rowDestino.id,
     obra_nombre: rowDestino.nombre,
     producto_nombre: material,
@@ -573,13 +577,17 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
 }
 
 // ============== BUSCAR EMPLEADO POR TELÉFONO ==============
+// ⚠️ ZONA CRÍTICA: usa db (admin/service role). "ACTIVO" = valor real en BD.
 async function findEmpleado(phone10: string, from: string) {
-  const { data: emp } = await supabase
+  const { data: emp, error: findErr } = await db
     .from("employees")
     .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
     .or(`phone.eq.${phone10},whatsapp.eq.${phone10},phone.eq.52${phone10},phone.eq.521${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
-    .eq("status", "active")
+    .eq("status", "ACTIVO")
     .single();
+  if (findErr && findErr.code !== "PGRST116") {
+    log.error("findEmpleado DB error", { phone10, error: findErr.message });
+  }
   return emp;
 }
 
@@ -622,7 +630,7 @@ async function handleGasto(from: string, phone10: string, gastoData: GastoData, 
 
 // ============== MANEJAR FOTO OC ==============
 async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
-  const { data: oc } = await supabase
+  const { data: oc } = await db
     .from("purchase_orders")
     .select("id, folio, status")
     .eq("folio", folioOC)
@@ -633,7 +641,7 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
     return;
   }
 
-  const { error: errFoto } = await supabase
+  const { error: errFoto } = await db
     .from("purchase_orders")
     .update({ foto_entrega_url: imageUrl })
     .eq("id", oc.id);
@@ -664,7 +672,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   }
 
   // Obtener centros de trabajo
-  const { data: workCenters } = await supabase
+  const { data: workCenters } = await db
     .from("centros_trabajo")
     .select("id, nombre, latitud, longitud, radio_metros")
     .eq("activo", true);
@@ -691,7 +699,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   const dentroGeocerca = distance <= workCenter.radio_metros;
 
   // Verificar si ya tiene registro hoy
-  const { data: asistenciaHoy } = await supabase
+  const { data: asistenciaHoy } = await db
     .from("asistencias")
     .select("id, hora_entrada, hora_salida, tipo_registro, notas")
     .eq("employee_id", emp.id)
@@ -701,7 +709,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
   // ========== LÓGICA CORREGIDA ==========
   // CASO 1: No tiene registro hoy → ENTRADA
   if (!asistenciaHoy) {
-    const { error: errAsis1 } = await supabase.from("asistencias").insert({
+    const { error: errAsis1 } = await db.from("asistencias").insert({
       employee_id: emp.id,
       fecha: today,
       hora_entrada: hora,
@@ -730,7 +738,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
 
   // CASO 2: Tiene registro SIN salida → SALIDA
   if (asistenciaHoy && !asistenciaHoy.hora_salida) {
-    const { error: errAsis2 } = await supabase.from("asistencias").update({
+    const { error: errAsis2 } = await db.from("asistencias").update({
       hora_salida: hora,
       latitud_salida: lat,
       longitud_salida: lng,
@@ -773,10 +781,10 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     
     if (esAutomatico) {
       // Sobrescribir: eliminar el registro automático y crear uno real
-      const { error: errAsis3 } = await supabase.from("asistencias").delete().eq("id", asistenciaHoy.id);
+      const { error: errAsis3 } = await db.from("asistencias").delete().eq("id", asistenciaHoy.id);
       if (errAsis3) log.error("delete asistencias (replace auto-record) failed", { error: errAsis3.message });
 
-      const { error: errAsis4 } = await supabase.from("asistencias").insert({
+      const { error: errAsis4 } = await db.from("asistencias").insert({
         employee_id: emp.id,
         fecha: today,
         hora_entrada: hora,
