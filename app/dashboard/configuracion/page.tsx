@@ -1,8 +1,14 @@
 "use client";
-import { Settings, Bell, Mail, Database, BookOpen, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Settings, Bell, Mail, Database, BookOpen, ArrowRight, DatabaseBackup } from "lucide-react";
 import Link from "next/link";
 
-const items = [
+const RESTORE_EMAILS = [
+  "juanviverosv@gmail.com",
+  "recursos.humanos@gcuavante.com",
+];
+
+const baseItems = [
   { title: "General", description: "Parámetros del sistema y usuarios", href: "/dashboard/configuracion/general", icon: Settings, gradient: "from-aria-primary to-aria-primary" },
   { title: "Datos Maestros", description: "Centros de trabajo y nómina", href: "/dashboard/configuracion/maestros", icon: Database, gradient: "from-violet-500 to-purple-600" },
   { title: "Correo", description: "Configuración de correo y notificaciones", href: "/dashboard/configuracion/correo", icon: Mail, gradient: "from-emerald-500 to-emerald-600" },
@@ -10,7 +16,27 @@ const items = [
   { title: "Recordatorios", description: "Recordatorios automáticos por WhatsApp", href: "/dashboard/configuracion/recordatorios", icon: BookOpen, gradient: "from-rose-500 to-pink-500" },
 ];
 
+const restoreItem = {
+  title: "Restaurar Sistema",
+  description: "Punto de restauración — snapshot de respaldo",
+  href: "/dashboard/admin/restore",
+  icon: DatabaseBackup,
+  gradient: "from-red-500 to-red-700",
+};
+
 export default function ConfiguracionPage() {
+  const [items, setItems] = useState(baseItems);
+
+  useEffect(() => {
+    const email =
+      localStorage.getItem("userEmail") ||
+      sessionStorage.getItem("userEmail") ||
+      "";
+    if (RESTORE_EMAILS.includes(email)) {
+      setItems([...baseItems, restoreItem]);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
       <div>
@@ -19,10 +45,18 @@ export default function ConfiguracionPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((item, i) => (
-          <Link key={i} href={item.href} className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden">
-            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.gradient} opacity-[0.06] blur-2xl group-hover:opacity-[0.12] transition-opacity`} />
+          <Link
+            key={i}
+            href={item.href}
+            className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden"
+          >
+            <div
+              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.gradient} opacity-[0.06] blur-2xl group-hover:opacity-[0.12] transition-opacity`}
+            />
             <div className="relative z-10">
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${item.gradient} mb-4 shadow-lg`}>
+              <div
+                className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${item.gradient} mb-4 shadow-lg`}
+              >
                 <item.icon className="w-5 h-5 text-white" />
               </div>
               <div className="flex items-center justify-between">
