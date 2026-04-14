@@ -13,7 +13,7 @@ const subModules = [
   },
   {
     title: "Productos",
-    description: "Control de stock y almacÃ©n.",
+    description: "Control de stock y almacén.",
     href: "/dashboard/requisiciones/productos",
     icon: Package,
     iconBg: "rgba(20,184,166,0.14)",
@@ -21,7 +21,7 @@ const subModules = [
   },
   {
     title: "Proveedores",
-    description: "CatÃ¡logo de proveedores.",
+    description: "Catálogo de proveedores.",
     href: "/dashboard/requisiciones/proveedores",
     icon: Users,
     iconBg: "rgba(16,185,129,0.14)",
@@ -45,15 +45,15 @@ const subModules = [
   },
   {
     title: "Entregas",
-    description: "Entregas y seguimiento de Ã³rdenes.",
+    description: "Entregas y seguimiento de órdenes.",
     href: "/dashboard/requisiciones/entregas",
     icon: Truck,
     iconBg: "rgba(99,102,241,0.14)",
     iconColor: "#818cf8",
   },
   {
-    title: "ProspecciÃ³n",
-    description: "BÃºsqueda de nuevos proveedores.",
+    title: "Prospección",
+    description: "Búsqueda de nuevos proveedores.",
     href: "/dashboard/requisiciones/prospeccion",
     icon: Search,
     iconBg: "rgba(139,92,246,0.14)",
@@ -61,7 +61,7 @@ const subModules = [
   },
   {
     title: "Cotizaciones",
-    description: "Comparativas y selecciÃ³n de proveedores.",
+    description: "Comparativas y selección de proveedores.",
     href: "/dashboard/requisiciones/cotizaciones",
     icon: Receipt,
     iconBg: "rgba(245,158,11,0.13)",
@@ -84,8 +84,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       href={module.href}
       className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
       style={{
-        backgroundColor: "rgba(8,18,36,0.85)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "rgba(10,22,45,0.88)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255,255,255,0.09)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
@@ -94,7 +95,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       <div
         style={{
           position: "absolute", inset: "0 0 auto 0", height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -125,7 +126,7 @@ export default function RequisicionesPage() {
           Requisiciones
         </h1>
         <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          GestiÃ³n de compras, inventario y proveedores
+          Gestión de compras, inventario y proveedores
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
