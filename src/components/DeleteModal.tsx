@@ -26,26 +26,43 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-            <Trash2 className="w-6 h-6 text-red-400" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)" }}
+    >
+      <div
+        className="rounded-2xl p-6 w-[420px] max-w-[calc(100vw-2rem)] shadow-2xl"
+        style={{
+          backgroundColor: "#0c1d38",
+          border: "1px solid rgba(220,38,38,0.25)",
+        }}
+      >
+        <div className="flex items-center gap-3 mb-5">
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "rgba(220,38,38,0.12)" }}
+          >
+            <Trash2 className="w-5 h-5" style={{ color: "#f87171" }} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Eliminar {itemLabel}</h3>
-            <p className="text-red-400 text-xs font-medium">Acción irreversible</p>
+            <h3 className="text-[15px] font-semibold text-white">Eliminar {itemLabel}</h3>
+            <p className="text-xs font-medium" style={{ color: "#f87171" }}>Acción irreversible</p>
           </div>
         </div>
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
-          <p className="text-sm text-red-300 font-medium mb-1">
+
+        <div
+          className="p-3 rounded-xl mb-4"
+          style={{ backgroundColor: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.15)" }}
+        >
+          <p className="text-sm font-medium mb-0.5" style={{ color: "#fca5a5" }}>
             Se eliminará{count > 1 ? "n" : ""} {count} {itemLabel}
           </p>
-          <p className="text-xs text-red-400/80">
+          <p className="text-xs" style={{ color: "#f87171" }}>
             Este proceso no tiene vuelta atrás. Los datos serán respaldados internamente.
           </p>
         </div>
-        <p className="text-slate-400 text-sm mb-2">
+
+        <p className="text-sm mb-2" style={{ color: "#7f93b0" }}>
           Para confirmar, escribe <span className="text-white font-bold">Borrar</span> exactamente:
         </p>
         <input
@@ -53,24 +70,30 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
           value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)}
           placeholder="Borrar"
-          className={`w-full px-4 py-2.5 rounded-lg border text-white text-center text-lg font-medium tracking-wider mb-4 focus:outline-none transition ${
-            confirmation === "Borrar"
-              ? "bg-red-500/10 border-red-500/50 focus:border-red-500"
-              : "bg-white/5 border-white/10 focus:border-white/30"
-          }`}
+          className="w-full px-4 py-2.5 rounded-xl text-white text-center text-base font-medium tracking-wider mb-5 outline-none transition-all duration-150"
+          style={{
+            backgroundColor: confirmation === "Borrar" ? "rgba(220,38,38,0.08)" : "rgba(255,255,255,0.04)",
+            border: `1px solid ${confirmation === "Borrar" ? "rgba(220,38,38,0.4)" : "rgba(255,255,255,0.07)"}`,
+          }}
           autoFocus
         />
         <div className="flex gap-3">
           <button
             onClick={() => { setConfirmation(""); onClose(); }}
-            className="flex-1 py-2.5 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition"
+            className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.05)",
+              color: "#7f93b0",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
           >
             Cancelar
           </button>
           <button
             onClick={handleConfirm}
             disabled={confirmation !== "Borrar" || deleting}
-            className="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ backgroundColor: "#dc2626" }}
           >
             {deleting ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Eliminando...</>
