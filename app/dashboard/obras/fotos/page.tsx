@@ -572,15 +572,14 @@ export default function FotosPage() {
         className="hidden"
       />
       {/* Hidden folder input */}
-      {/* @ts-ignore webkitdirectory is non-standard but widely supported */}
+      {/* Hidden folder input — webkitdirectory spread-cast for React 19 types */}
       <input
         ref={folderInputRef}
         type="file"
-        webkitdirectory=""
-        directory=""
         multiple
         onChange={handleFileSelect}
         className="hidden"
+        {...({webkitdirectory: '', directory: ''} as React.InputHTMLAttributes<HTMLInputElement>)}
       />
     </div>
   );
