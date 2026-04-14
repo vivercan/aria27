@@ -493,7 +493,7 @@ async function findEmpleado(phone10: string, from: string) {
   const { data: emp, error: findErr } = await db
     .from("employees")
     .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
-    .or(`phone.eq.${phone10},whatsapp.eq.${phone10},phone.eq.52${phone10},phone.eq.521${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
+    .or(`whatsapp.eq.${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
     .eq("status", "ACTIVO")
     .single();
   if (findErr && findErr.code !== "PGRST116") {
