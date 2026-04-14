@@ -11,48 +11,102 @@ const RESTORE_EMAILS = [
 const baseItems = [
   {
     title: "General",
-    description: "Parámetros del sistema y usuarios.",
+    description: "ParÃ¡metros del sistema y usuarios.",
     href: "/dashboard/configuracion/general",
     icon: Settings,
-    gradient: "from-blue-500 to-blue-700",
+    iconBg: "rgba(37,99,235,0.15)",
+    iconColor: "#3b82f6",
   },
   {
     title: "Datos Maestros",
-    description: "Centros de trabajo y nómina.",
+    description: "Centros de trabajo y nÃ³mina.",
     href: "/dashboard/configuracion/maestros",
     icon: Database,
-    gradient: "from-violet-500 to-violet-700",
+    iconBg: "rgba(139,92,246,0.14)",
+    iconColor: "#a78bfa",
   },
   {
     title: "Correo",
-    description: "Configuración de correo y notificaciones.",
+    description: "ConfiguraciÃ³n de correo y notificaciones.",
     href: "/dashboard/configuracion/correo",
     icon: Mail,
-    gradient: "from-emerald-500 to-emerald-700",
+    iconBg: "rgba(16,185,129,0.14)",
+    iconColor: "#10b981",
   },
   {
     title: "Alertas",
     description: "Alertas de atrasos y vencimientos.",
     href: "/dashboard/configuracion/alertas",
     icon: Bell,
-    gradient: "from-amber-400 to-amber-600",
+    iconBg: "rgba(245,158,11,0.13)",
+    iconColor: "#fbbf24",
   },
   {
     title: "Recordatorios",
-    description: "Recordatorios automáticos por WhatsApp.",
+    description: "Recordatorios automÃ¡ticos por WhatsApp.",
     href: "/dashboard/configuracion/recordatorios",
     icon: BookOpen,
-    gradient: "from-rose-400 to-rose-600",
+    iconBg: "rgba(244,63,94,0.14)",
+    iconColor: "#f43f5e",
   },
 ];
 
 const restoreItem = {
   title: "Restaurar Sistema",
-  description: "Punto de restauración — snapshot de respaldo.",
+  description: "Punto de restauraciÃ³n â snapshot de respaldo.",
   href: "/dashboard/admin/restore",
   icon: DatabaseBackup,
-  gradient: "from-red-500 to-red-700",
+  iconBg: "rgba(239,68,68,0.15)",
+  iconColor: "#ef4444",
 };
+
+type ModuleItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+};
+
+function HubCard({ module }: { module: ModuleItem }) {
+  return (
+    <Link
+      href={module.href}
+      className="group block rounded-[16px] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)] hover:border-white/[0.11]"
+      style={{
+        backgroundColor: "rgba(8,18,36,0.85)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        padding: "20px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute", inset: "0 0 auto 0", height: "1px",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        className="flex items-center justify-center mb-4"
+        style={{ width: "44px", height: "44px", borderRadius: "12px", backgroundColor: module.iconBg }}
+      >
+        <module.icon style={{ width: "20px", height: "20px", color: module.iconColor }} strokeWidth={1.75} />
+      </div>
+      <h3
+        className="text-[14.5px] font-semibold leading-tight mb-1.5 truncate group-hover:text-white transition-colors"
+        style={{ color: "rgba(255,255,255,0.88)" }}
+      >
+        {module.title}
+      </h3>
+      <p className="text-[12px] leading-relaxed line-clamp-2" style={{ color: "#3d5470" }}>
+        {module.description}
+      </p>
+    </Link>
+  );
+}
 
 export default function ConfiguracionPage() {
   const [items, setItems] = useState(baseItems);
@@ -68,37 +122,18 @@ export default function ConfiguracionPage() {
   }, []);
 
   return (
-    <div className="px-6 pt-6 pb-8 space-y-6 h-full overflow-auto">
-      <div className="space-y-1">
-        <h1 className="text-[26px] font-bold tracking-tight text-white leading-none">Configuración</h1>
-        <p className="text-sm text-[#7f93b0] font-light tracking-wide">Parámetros del sistema y preferencias.</p>
+    <div className="px-6 pt-6 pb-8 h-full overflow-auto">
+      <div className="mb-6">
+        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "rgba(255,255,255,0.92)" }}>
+          ConfiguraciÃ³n
+        </h1>
+        <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
+          ParÃ¡metros del sistema y preferencias
+        </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0c1d38]/90 hover:border-white/[0.13] hover:scale-[1.014] hover:shadow-xl hover:shadow-black/50 hover:bg-[#0f2448]/90 transition-all duration-200"
-          >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-[0.055] transition-opacity duration-200 pointer-events-none`} />
-            <div className="relative p-5">
-              <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${item.gradient} shadow-lg mb-4`}>
-                <item.icon className="w-7 h-7 text-white" strokeWidth={1.6} />
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-semibold text-white/90 text-[15px] tracking-wide leading-tight group-hover:text-white transition-colors duration-150">
-                  {item.title}
-                </h3>
-                <p className="text-[13px] text-[#6a84a8] leading-relaxed">{item.description}</p>
-              </div>
-              <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1.5 group-hover:translate-x-0">
-                <svg className="w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </Link>
+          <HubCard key={item.href} module={item} />
         ))}
       </div>
     </div>
