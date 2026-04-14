@@ -297,7 +297,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* ─── Main ─── */}
-      <main className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden">
+      <main
+        className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden"
+        style={{ background: "radial-gradient(ellipse at 50% 0%, #d8dde6 0%, #c0c7d2 35%, #b4bbc7 100%)" }}
+      >
 
         {/* Header 52px */}
         <header
