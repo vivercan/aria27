@@ -22,8 +22,8 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
-  { name: "AdministraciÃ³n", icon: Briefcase, href: "/dashboard/administracion" },
-  { name: "ConfiguraciÃ³n", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  { name: "Administración", icon: Briefcase, href: "/dashboard/administracion" },
+  { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -196,7 +196,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-0 bg-black/70 z-30 md:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* âââ Sidebar âââ */}
+      {/* ─── Sidebar ─── */}
       <aside
         className={`fixed left-0 top-0 h-full w-[220px] flex flex-col z-40 transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
@@ -204,15 +204,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           borderRight: `1px solid ${sidebarBorder}`,
         }}
       >
-        {/* Brand */}
-        <div className="px-5 pt-5 pb-4" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+        {/* Brand — exactly 52px to match main header */}
+        <div
+          className="flex-shrink-0 flex items-center px-5"
+          style={{ height: "52px", borderBottom: `1px solid ${sidebarBorder}` }}
+        >
           <Link href="/dashboard" className="block">
             <div className="flex items-baseline gap-1.5">
               <span className="text-[20px] font-black tracking-tight" style={{ color: "#2563eb" }}>ARIA</span>
               <span className="text-[20px] font-black tracking-tight" style={{ color: isDark ? "rgba(255,255,255,0.85)" : "#1e293b" }}>27</span>
             </div>
             <p className="text-[10px] font-medium tracking-[0.12em] mt-0.5 uppercase" style={{ color: navMuted }}>
-              GCU Â· Avante
+              GCU · Avante
             </p>
           </Link>
         </div>
@@ -281,7 +284,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-medium truncate" style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}>
-              {userName || "â"}
+              {userName || "—"}
             </p>
             <p className="text-[10px] truncate" style={{ color: navMuted }}>
               {userRole === "admin" ? "Administrador" : "Usuario"}
@@ -293,7 +296,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* âââ Main âââ */}
+      {/* ─── Main ─── */}
       <main className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden">
 
         {/* Header 52px */}
@@ -311,7 +314,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileOpen(true)}
               className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]"
               style={{ color: navMuted }}
-              aria-label="Abrir menÃº"
+              aria-label="Abrir menú"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -325,7 +328,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <Search style={{ width: "13px", height: "13px", color: navMuted, flexShrink: 0 }} />
                 <input
                   type="text"
-                  placeholder="Buscar mÃ³dulos..."
+                  placeholder="Buscar módulos..."
                   className="bg-transparent outline-none text-[13px] w-full"
                   style={{ color: isDark ? "rgba(255,255,255,0.75)" : "#1e293b" }}
                   value={searchQuery}
