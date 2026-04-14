@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("REGISTRAR-ENTREGA");
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 interface Material {
   product_name?: string;
@@ -18,11 +17,8 @@ interface Material {
 
 async function sendEmail(to: string, subject: string, html: string) {
   try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to, subject, html }),
-    });
+    const resend = getResend();
+    await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to, subject, html });
   } catch (e: unknown) { log.error("Error email:", e); }
 }
 
