@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Search, Plus, Edit2, X, Save, User, Building2,
+  Search, Plus, Edit2, X, Save, User, Building2,
   Phone, Mail, Calendar, CreditCard, Shield, Loader2, UserPlus, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {
   id: string;
@@ -255,10 +256,7 @@ export default function PersonalPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/talento"
-            className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/talento" />
           <div>
             <h1 className="text-xl font-bold text-white">Personal</h1>
             <p className="text-xs text-[#7f93b0]">{empleados.length} empleados activos</p>

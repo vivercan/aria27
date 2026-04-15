@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type Requisition = {
   id: number;
@@ -365,9 +366,7 @@ Responde SOLO con JSON así:
       <div className="space-y-4">
         <FlashBanner msg={msg} className="mx-0 mb-2" />
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
             <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
             <p className="text-[#4a6080] text-sm">{requisiciones.length} pendientes</p>

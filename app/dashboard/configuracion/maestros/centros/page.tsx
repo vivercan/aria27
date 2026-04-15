@@ -2,10 +2,11 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
+import { Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Centro {
   id: string;
@@ -97,9 +98,7 @@ export default function CentrosPage() {
     <div className="h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="p-6 pb-0" />
       <div className="flex-none p-6 border-b border-white/[0.08]">
-        <Link href="/dashboard/configuracion/maestros" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Maestros
-        </Link>
+        <AriaBackButton href="/dashboard/configuracion/maestros" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>

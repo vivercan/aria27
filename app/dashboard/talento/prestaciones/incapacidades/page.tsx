@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, HeartPulse, Search, Plus, X } from "lucide-react";
+import { HeartPulse, Search, Plus, X } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 export default function IncapacidadesPage() {
   const [registros, setRegistros] = useState<any[]>([]);
@@ -64,9 +65,7 @@ export default function IncapacidadesPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Prestaciones
-        </Link>
+        <AriaBackButton href="/dashboard/talento/prestaciones" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Incapacidades</h1>

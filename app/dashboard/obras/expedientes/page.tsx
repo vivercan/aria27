@@ -34,6 +34,7 @@ import {
   FolderUp,
   Inbox,
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Obra {
   id: string;
@@ -790,9 +791,7 @@ export default function ExpedientesPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-2xl font-bold text-white">Expedientes de Obra</h1>
             <p className="text-[#7f93b0] text-sm">Selecciona un aÃÂ±o para ver las obras de ese periodo</p>

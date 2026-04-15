@@ -6,9 +6,10 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
+import { Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Activo {
   id: string;
@@ -332,9 +333,7 @@ export default function ActivosCatalogoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/activos" />
           <div>
             <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
             <p className="text-[#7f93b0] text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>

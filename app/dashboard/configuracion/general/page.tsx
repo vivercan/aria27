@@ -2,8 +2,9 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
+import { Save, Loader2, Settings, Clock, DollarSign, Calendar, Users, Shield } from "lucide-react";
 import Link from "next/link";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Param { id: string; clave: string; valor: string; descripcion: string; updated_at: string; }
 interface UserInfo { id: string; name: string; email: string; role: string; phone: string; active: boolean; }
@@ -94,7 +95,7 @@ export default function ConfigGeneralPage() {
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/configuracion" />
           <div>
             <h1 className="text-2xl font-bold">Configuración General</h1>
             <p className="text-sm text-[#7f93b0]">Parámetros del sistema y usuarios</p>

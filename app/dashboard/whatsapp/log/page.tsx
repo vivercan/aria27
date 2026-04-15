@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Send, RefreshCw, MessageCircle, CheckCircle2, XCircle } from "lucide-react";
+import { Send, RefreshCw, MessageCircle, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface WaLogRow {
   id: string;
@@ -81,9 +82,7 @@ export default function WhatsAppLogPage() {
   return (
     <div className="space-y-6">
       <div className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08]">
-        <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-[#7f93b0] hover:text-white">
-          <ArrowLeft className="w-4 h-4" /> Dashboard
-        </Link>
+        <AriaBackButton href="/dashboard" />
         <h1 className="mt-2 text-2xl font-bold text-white flex items-center gap-2">
           <MessageCircle className="w-6 h-6 text-emerald-400" /> WhatsApp Log — JJCRM27
         </h1>

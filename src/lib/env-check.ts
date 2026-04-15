@@ -35,7 +35,9 @@ const ENV_VARS: EnvVar[] = [
 
   // Opcionales con fallback
   { name: "ADMIN_EMAIL", required: false, purpose: "Email admin (fallback: juanviverosv@gmail.com)" },
+  { name: "ADMIN_WHATSAPP_PHONE", required: false, purpose: "WhatsApp admin para alertas y notificaciones" },
   { name: "NEXT_PUBLIC_BASE_URL", required: false, purpose: "URL base (fallback: https://aria.jjcrm27.com)" },
+  { name: "NEXT_PUBLIC_SITE_URL", required: false, purpose: "URL pública del sitio para links en emails/WA" },
   { name: "ANTHROPIC_API_KEY", required: false, purpose: "Claude AI para búsqueda inteligente y análisis" },
   { name: "OPENAI_API_KEY", required: false, purpose: "OpenAI para AI asistente" },
   { name: "BACKUP_TOKEN", required: false, purpose: "Token para cron de backup" },

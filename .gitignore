@@ -65,3 +65,4 @@ ARIA27_EXTRACCION_TOTAL.txt
 .env.local
 .env.production
 
+.fuse_hidden*

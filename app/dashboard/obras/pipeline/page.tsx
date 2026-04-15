@@ -6,8 +6,9 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Upload, Users, Edit2, Trash2, X, Save, Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
+import { Plus, Upload, Users, Edit2, Trash2, X, Save, Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Obra {
   id: string;
@@ -241,9 +242,7 @@ export default function PipelinePage() {
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/obras" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-xl font-bold text-white">Pipeline de Obras</h1>
             <p className="text-xs text-[#7f93b0]">{obras.length} obras registradas</p>

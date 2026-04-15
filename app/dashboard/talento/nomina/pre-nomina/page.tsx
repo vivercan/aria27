@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { Calculator, CheckCircle, ArrowLeft, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
+import { Calculator, CheckCircle, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {
   id: string;
@@ -253,9 +254,7 @@ export default function PreNominaPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/talento/nomina" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
             <Calculator className="w-7 h-7 text-emerald-400" />
           </div>

@@ -15,7 +15,7 @@ const BUCKET = "expedientes";
 const STORAGE_PREFIX = "mis_documentos";
 const SYSTEM_UUID = "00000000-0000-0000-0000-000000000000";
 
-/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ tipos Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
+/* ───── tipos ───── */
 interface UserRow { id: string; display_name: string | null; name: string | null; email: string }
 interface DocRow {
   id: string; owner_user_id: string; owner_name: string; folder_type: string;
@@ -26,9 +26,9 @@ interface UploadProgress { name: string; progress: number; done: boolean; error?
 
 type View = "folders" | "files";
 
-/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
+/* ───── helpers ───── */
 function friendlySize(bytes: number | null): string {
-  if (!bytes) return "Ã¢ÂÂ";
+  if (!bytes) return "—";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -54,11 +54,11 @@ function getSubfolders(docs: DocRow[], currentPath: string): string[] {
   return Array.from(folders).sort();
 }
 
-/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+/* ═══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
-   Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
+   ═══════════════════════════════════════════════════════════════ */
 export default function MisDocumentosPage() {
-  /* Ã¢ÂÂÃ¢ÂÂ state global Ã¢ÂÂÃ¢ÂÂ */
+  /* —— state global —— */
   const [view, setView] = useState<View>("folders");
   const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -71,7 +71,7 @@ export default function MisDocumentosPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentEmail, setCurrentEmail] = useState("anon");
 
-  /* Ã¢ÂÂÃ¢ÂÂ PIN state Ã¢ÂÂÃ¢ÂÂ */
+  /* —— PIN state —— */
   const [pinRequired, setPinRequired] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState("");
@@ -80,7 +80,7 @@ export default function MisDocumentosPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  /* Ã¢ÂÂÃ¢ÂÂ auto-detectar usuario actual via localStorage (patrÃÂ³n ARIA) Ã¢ÂÂÃ¢ÂÂ */
+  /* —— auto-detectar usuario actual via localStorage (patrón ARIA) —— */
   useEffect(() => {
     (async () => {
       setAuthLoading(true);
@@ -110,7 +110,7 @@ export default function MisDocumentosPage() {
     })();
   }, []);
 
-  /* Ã¢ÂÂÃ¢ÂÂ cargar documentos cuando cambia tipo de carpeta Ã¢ÂÂÃ¢ÂÂ */
+  /* —— cargar documentos cuando cambia tipo de carpeta —— */
   const loadDocs = useCallback(async () => {
     if (!folderType) return;
     if (folderType !== "publica" && !currentUser) return;
@@ -133,7 +133,7 @@ export default function MisDocumentosPage() {
 
   useEffect(() => { loadDocs(); }, [loadDocs]);
 
-  /* Ã¢ÂÂÃ¢ÂÂ handlers navegaciÃÂ³n Ã¢ÂÂÃ¢ÂÂ */
+  /* —— handlers navegación —— */
   function goBack() {
     if (view === "files" && currentPath !== "/") {
       const parts = currentPath.replace(/\/$/, "").split("/").filter(Boolean);
@@ -185,7 +185,7 @@ export default function MisDocumentosPage() {
     setCurrentPath((prev) => (prev === "/" ? "/" + name + "/" : prev + name + "/"));
   }
 
-  /* Ã¢ÂÂÃ¢ÂÂ UPLOAD Ã¢ÂÂÃ¢ÂÂ */
+  /* —— UPLOAD —— */
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0 || !folderType) return;
@@ -232,7 +232,7 @@ export default function MisDocumentosPage() {
         const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
 
         const ownerName = folderType === "publica"
-          ? "PÃÂºblica"
+          ? "Pública"
           : (currentUser!.display_name || currentUser!.name || currentUser!.email);
         const { error: dbErr } = await supabase.from("mis_documentos").insert({
           owner_user_id: ownerId,
@@ -264,7 +264,7 @@ export default function MisDocumentosPage() {
     setTimeout(() => setUploadQueue([]), 3000);
   }
 
-  /* Ã¢ÂÂÃ¢ÂÂ DELETE Ã¢ÂÂÃ¢ÂÂ */
+  /* —— DELETE —— */
   async function handleDelete(docId: string) {
     const doc = docs.find((d) => d.id === docId);
     if (!doc) return;
@@ -298,7 +298,7 @@ export default function MisDocumentosPage() {
 
   const { dragging, progress: dropProgress, dropHandlers } = useDropZone(handleDroppedFiles);
 
-  /* Ã¢ÂÂÃ¢ÂÂ DOWNLOAD Ã¢ÂÂÃ¢ÂÂ */
+  /* —— DOWNLOAD —— */
   function downloadFile(url: string, nombre: string) {
     const a = document.createElement("a");
     a.href = url;
@@ -314,7 +314,7 @@ export default function MisDocumentosPage() {
     }
   }
 
-  /* Ã¢ÂÂÃ¢ÂÂ toggle selecciÃÂ³n Ã¢ÂÂÃ¢ÂÂ */
+  /* —— toggle selección —— */
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -332,7 +332,7 @@ export default function MisDocumentosPage() {
     }
   }
 
-  /* Ã¢ÂÂÃ¢ÂÂ datos de la vista actual Ã¢ÂÂÃ¢ÂÂ */
+  /* —— datos de la vista actual —— */
   const currentFiles = docs.filter((d) => d.parent_path === currentPath);
   const subfolders = getSubfolders(docs, currentPath);
   const breadcrumb = currentPath === "/"
@@ -341,7 +341,7 @@ export default function MisDocumentosPage() {
 
   const userName = (u: UserRow) => u.display_name || u.name || u.email;
 
-  /* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ RENDER Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
+  /* ——— RENDER ——— */
 
   // Auth loading state
   if (authLoading) {
@@ -357,7 +357,7 @@ export default function MisDocumentosPage() {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 text-[#7f93b0]">
         <FolderLock className="w-16 h-16 opacity-30" />
-        <p className="text-lg font-medium">No se encontrÃÂ³ tu usuario</p>
+        <p className="text-lg font-medium">No se encontró tu usuario</p>
         <p className="text-sm">Contacta al administrador para registrar tu cuenta.</p>
       </div>
     );
@@ -378,7 +378,7 @@ export default function MisDocumentosPage() {
         <div className="absolute inset-0 z-30 bg-[#0a1628]/80  flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
-            {dropProgress.phase === "scanning" ? "Escaneando carpetasâ¦" : "Subiendo archivosâ¦"}
+            {dropProgress.phase === "scanning" ? "Escaneando carpetas…" : "Subiendo archivos…"}
           </p>
           {dropProgress.total > 0 && (
             <p className="text-emerald-400/60 text-xs mt-1">
@@ -401,9 +401,9 @@ export default function MisDocumentosPage() {
               {view === "folders" && userName(currentUser)}
               {view === "files" && (
                 <span className="flex items-center gap-1">
-                  {folderType === "publica" ? "PÃÂºblica" : userName(currentUser)}
+                  {folderType === "publica" ? "Pública" : userName(currentUser)}
                   {" "}<ChevronRight className="w-3 h-3" />
-                  <span className="capitalize">{folderType === "publica" ? "PÃÂºblica" : folderType}</span>
+                  <span className="capitalize">{folderType === "publica" ? "Pública" : folderType}</span>
                   {breadcrumb.map((b, i) => (
                     <span key={i} className="flex items-center gap-1">
                       <ChevronRight className="w-3 h-3" /> {b}
@@ -478,7 +478,7 @@ export default function MisDocumentosPage() {
           </div>
         )}
 
-        {/* Ã¢ÂÂÃ¢ÂÂ VISTA: CARPETAS (Compartidos / Privados / PÃÂºblica) Ã¢ÂÂÃ¢ÂÂ */}
+        {/* —— VISTA: CARPETAS (Compartidos / Privados / Pública) —— */}
         {!loading && view === "folders" && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mt-8">
             <button
@@ -504,13 +504,13 @@ export default function MisDocumentosPage() {
               className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-cyan-500/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
               <Globe className="w-20 h-20 text-cyan-400 group-hover:scale-110 transition-transform" />
-              <span className="text-lg font-semibold text-white">PÃÂºblica</span>
+              <span className="text-lg font-semibold text-white">Pública</span>
               <span className="text-xs text-[#7f93b0]">Visible para todos</span>
             </button>
           </div>
         )}
 
-        {/* Ã¢ÂÂÃ¢ÂÂ VISTA: ARCHIVOS + SUBCARPETAS Ã¢ÂÂÃ¢ÂÂ */}
+        {/* —— VISTA: ARCHIVOS + SUBCARPETAS —— */}
         {!loading && view === "files" && (
           <div>
             {/* Select all bar */}
@@ -525,7 +525,7 @@ export default function MisDocumentosPage() {
                 </button>
                 <span className="text-sm text-[#7f93b0]">
                   {currentFiles.length} archivo{currentFiles.length !== 1 ? "s" : ""}
-                  {subfolders.length > 0 && ` ÃÂ· ${subfolders.length} subcarpeta${subfolders.length !== 1 ? "s" : ""}`}
+                  {subfolders.length > 0 && ` · ${subfolders.length} subcarpeta${subfolders.length !== 1 ? "s" : ""}`}
                 </span>
               </div>
             )}
@@ -576,8 +576,8 @@ export default function MisDocumentosPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-white truncate">{doc.nombre}</p>
                       <p className="text-xs text-[#4a6080]">
-                        {friendlySize(doc.size_bytes)} ÃÂ· {new Date(doc.created_at).toLocaleDateString("es-MX")}
-                        {doc.uploaded_by && ` ÃÂ· ${doc.uploaded_by}`}
+                        {friendlySize(doc.size_bytes)} · {new Date(doc.created_at).toLocaleDateString("es-MX")}
+                        {doc.uploaded_by && ` · ${doc.uploaded_by}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 flex-none">
@@ -612,7 +612,7 @@ export default function MisDocumentosPage() {
           </div>
         )}
 
-        {/* Ã¢ÂÂÃ¢ÂÂ UPLOAD PROGRESS OVERLAY Ã¢ÂÂÃ¢ÂÂ */}
+        {/* —— UPLOAD PROGRESS OVERLAY —— */}
         {uploadQueue.length > 0 && (
           <div className="fixed bottom-6 right-6 w-96 bg-[#0c1d38] border border-white/[0.08] rounded-2xl shadow-2xl p-4 z-50">
             <div className="flex items-center justify-between mb-3">
@@ -654,7 +654,7 @@ export default function MisDocumentosPage() {
         )}
       </div>
 
-      {/* Ã¢ÂÂÃ¢ÂÂ PIN MODAL Ã¢ÂÂÃ¢ÂÂ */}
+      {/* —— PIN MODAL —— */}
       {pinRequired && (
         <div className="fixed inset-0 z-50 bg-black/60  flex items-center justify-center">
           <div className="bg-[#0c1d38] border border-white/[0.08] rounded-2xl p-8 w-full max-w-sm shadow-2xl">

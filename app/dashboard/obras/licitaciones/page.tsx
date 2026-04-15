@@ -7,8 +7,9 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
+import { Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Licitacion {
   id: string;
@@ -162,7 +163,7 @@ export default function LicitacionesPage() {
       <FlashBanner msg={msg} className="mx-3 -mt-3 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/obras" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div>
             <h1 className="text-2xl font-bold">Licitaciones</h1>
             <p className="text-sm text-[#7f93b0]">Control de procesos de licitación</p>

@@ -2,8 +2,9 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Gift, Calculator, DollarSign, Loader2 } from "lucide-react";
+import { Gift, Calculator, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
+import AriaBackButton from "@/components/AriaBackButton";
 
 export default function AguinaldoPage() {
   const log = clientLogger("AGUINALDO");
@@ -39,9 +40,7 @@ export default function AguinaldoPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento/prestaciones" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Prestaciones
-        </Link>
+        <AriaBackButton href="/dashboard/talento/prestaciones" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Aguinaldo</h1>

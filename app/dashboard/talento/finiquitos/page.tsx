@@ -6,6 +6,7 @@ import {
   ArrowLeft, Plus, Edit, Eye, Check, X, Download, Trash2,
   FileText, User, Calendar, DollarSign, AlertCircle
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {
   id: string;
@@ -366,12 +367,7 @@ export default function FiniquitosPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
-              <Link
-                href="/dashboard/talento"
-                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-              </Link>
+              <AriaBackButton href="/dashboard/talento" />
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-8 h-8" />

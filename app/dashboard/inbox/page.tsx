@@ -2,12 +2,13 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Mail, Send, Trash2, RefreshCw, Loader2, Inbox, PenSquare,
+  Mail, Send, Trash2, RefreshCw, Loader2, Inbox, PenSquare,
   ChevronLeft, Search, X, Paperclip, Star, Eye, AlertTriangle
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 /* ── tipos ── */
 interface EmailHeader {
@@ -344,9 +345,7 @@ export default function InboxPage() {
       <FlashBanner msg={msg} className="px-6 pt-3" />
       {/* header */}
       <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08] flex-wrap">
-        <Link href="/dashboard" className="p-2 hover:bg-white/[0.06] rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard" />
         <Mail className="w-5 h-5 text-aria-accent" />
         <span className="text-white font-semibold">Correo</span>
 

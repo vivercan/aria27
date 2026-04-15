@@ -2,10 +2,11 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Save, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface ConfigItem {
   id: string;
@@ -93,9 +94,7 @@ export default function NominaConfigPage() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/configuracion/maestros" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/configuracion/maestros" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <DollarSign className="text-emerald-400" />

@@ -10,6 +10,7 @@ import {
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type Req = {
   id: number; folio: string; cost_center_name: string;
@@ -222,9 +223,7 @@ export default function ComprasPickingPage() {
       <div className="h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones" />
           <div>
             <h1 className="text-xl font-bold text-white">Autorizar Compras</h1>
             <p className="text-[#7f93b0] text-sm">{reqs.length} requisiciones pendientes</p>

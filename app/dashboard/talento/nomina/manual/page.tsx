@@ -6,7 +6,8 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
+import { Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {
   id: string;
@@ -302,9 +303,7 @@ export default function NominaManualPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/talento/nomina" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Edit3 className="w-7 h-7 text-amber-400" />
           </div>

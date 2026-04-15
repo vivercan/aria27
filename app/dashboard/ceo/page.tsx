@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Loader2, TrendingUp, AlertTriangle, DollarSign, Wallet, Building2,
+  Loader2, TrendingUp, AlertTriangle, DollarSign, Wallet, Building2,
   FileText, ShoppingCart, Activity, RefreshCw,
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
@@ -197,9 +198,7 @@ export default function CeoDashboardPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
             <Activity className="w-7 h-7 text-amber-400" />
           </div>

@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -66,7 +67,7 @@ function Content() {
   if (!proveedor) {
     return (
       <div className="p-8 max-w-2xl mx-auto">
-        <Link href="/dashboard/reportes" className="inline-flex items-center gap-2 text-aria-accent mb-4"><ArrowLeft className="w-4 h-4" /> Volver</Link>
+        <AriaBackButton href="/dashboard/reportes" />
         <h1 className="text-2xl font-bold text-white mb-4">Estado de cuenta por proveedor</h1>
         <p className="text-[#7f93b0] mb-4">Selecciona un proveedor:</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">

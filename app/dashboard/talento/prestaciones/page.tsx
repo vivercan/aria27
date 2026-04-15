@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { DollarSign, Calendar, Gift, FileHeart, ArrowLeft } from "lucide-react";
+import { DollarSign, Calendar, Gift, FileHeart } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const submodulos = [
   { titulo: "Préstamos", descripcion: "Control de préstamos y descuentos", href: "/dashboard/talento/prestaciones/prestamos", icono: DollarSign, color: "from-aria-primary to-aria-accent" },
@@ -13,9 +14,7 @@ export default function PrestacionesPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/talento" />
         <div>
           <h1 className="text-2xl font-bold text-white">Prestaciones</h1>
         <p className="text-[#7f93b0]">Gestión de prestaciones laborales</p>

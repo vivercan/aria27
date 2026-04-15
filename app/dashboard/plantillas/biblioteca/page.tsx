@@ -4,10 +4,11 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob } from "@/lib/storage";
 import {
-  ArrowLeft, Plus, Search, Edit2, Save, X, Loader2, Upload,
+  Plus, Search, Edit2, Save, X, Loader2, Upload,
   FileText, Eye, Trash2, Power, Library, RefreshCw
 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import AriaBackButton from "@/components/AriaBackButton";
 
 /**
  * BIBLIOTECA GLOBAL DE PLANTILLAS — Bloque 5 cierre funcional ARIA27 (7-Abr-2026)
@@ -220,9 +221,7 @@ export default function BibliotecaPlantillasPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-none p-6 pb-3 border-b border-white/[0.08]">
-        <Link href="/dashboard/plantillas" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Plantillas
-        </Link>
+        <AriaBackButton href="/dashboard/plantillas" />
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">

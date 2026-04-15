@@ -3,10 +3,11 @@ import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Remision {
   id: string;
@@ -234,7 +235,7 @@ export default function ConcretoRemisionesPage() {
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <ConfirmModal open={confirmState.open} message={confirmState.msg} onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }} onCancel={() => setConfirmState(p => ({...p, open: false}))} />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard/obras" />
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Droplet className="w-8 h-8 text-aria-accent" />Control de Concreto · Remisiones</h1>
           <p className="text-[#7f93b0] mt-1">Remisiones de colado y pruebas de cilindro 7/14/28 días.</p>

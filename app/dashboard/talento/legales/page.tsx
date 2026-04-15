@@ -2,10 +2,11 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
+import { FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {
   id: string;
@@ -91,9 +92,7 @@ export default function LegalesPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
-        <Link href="/dashboard/talento" className="inline-flex items-center gap-2 text-sm text-[#7f93b0] hover:text-white mb-4">
-          <ArrowLeft className="w-4 h-4" /> Talento
-        </Link>
+        <AriaBackButton href="/dashboard/talento" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Documentos Legales</h1>

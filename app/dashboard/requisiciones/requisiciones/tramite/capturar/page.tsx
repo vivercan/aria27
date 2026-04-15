@@ -9,12 +9,13 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Save, Send, Trash2, Loader2,
+  Plus, Save, Send, Trash2, Loader2,
   Package, Clock, CreditCard, FileText, X,
   Banknote, Receipt, Truck
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type ReqItem = {
   id: number;
@@ -301,9 +302,7 @@ function CapturarContent() {
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/requisiciones/requisiciones/tramite" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/requisiciones/requisiciones/tramite" />
         <div className="flex-1">
           <h1 className="text-xl font-bold text-white">Capturar Cotizaciones</h1>
           <p className="text-[#7f93b0] text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>

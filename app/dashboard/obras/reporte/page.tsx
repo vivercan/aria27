@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Printer, Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const log = clientLogger("REPORTE");
@@ -160,7 +161,10 @@ function ReporteContent() {
     <>
       {/* Toolbar (oculta en print) */}
       <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
-        <div className="text-white text-sm">Reporte ejecutivo · <b>{obra}</b></div>
+        <div className="flex items-center gap-3">
+          <AriaBackButton href="/dashboard/obras" />
+          <div className="text-white text-sm">Reporte ejecutivo · <b>{obra}</b></div>
+        </div>
         <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm">
           <Printer className="w-4 h-4" /> Imprimir / Guardar PDF
         </button>

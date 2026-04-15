@@ -7,9 +7,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
+  Plus, Edit2, Trash2, X, Save, Loader2,
   Search, Shield, AlertTriangle, Calendar
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Obra { id: number; nombre: string; }
 
@@ -202,7 +203,7 @@ export default function PolizasPage() {
     <div className="h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/administracion" />
           <div><h1 className="text-xl font-bold text-white">Pólizas de Seguro</h1><p className="text-xs text-[#7f93b0]">{polizas.length} pólizas registradas</p></div>
         </div>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover"><Plus className="w-4 h-4" /> Nueva Póliza</button>

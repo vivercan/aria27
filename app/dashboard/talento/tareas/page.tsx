@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Edit2, X, Save, Loader2, ClipboardList,
+  Plus, Edit2, X, Save, Loader2, ClipboardList,
   User, Calendar, TrendingUp, Flag, Search, Trash2, CheckCircle2
 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Tarea {
   id: string;
@@ -199,9 +200,7 @@ export default function TareasTalentoPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg hover:bg-white/[0.06]">
-          <ArrowLeft className="w-5 h-5 text-white" />
-        </Link>
+        <AriaBackButton href="/dashboard/talento" />
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <ClipboardList className="w-8 h-8 text-fuchsia-400" />

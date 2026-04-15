@@ -89,6 +89,20 @@ const searchableItems = [
   { name: "Correo", icon: ChevronRight, href: "/dashboard/configuracion/correo" },
   { name: "Alertas", icon: ChevronRight, href: "/dashboard/configuracion/alertas" },
   { name: "Recordatorios", icon: ChevronRight, href: "/dashboard/configuracion/recordatorios" },
+  // Módulos no presentes en menuItems pero accesibles via búsqueda
+  { name: "Dashboard CEO", icon: ChevronRight, href: "/dashboard/ceo" },
+  { name: "KPIs Dirección", icon: ChevronRight, href: "/dashboard/ceo" },
+  { name: "Clientes", icon: ChevronRight, href: "/dashboard/clientes" },
+  { name: "Cotizaciones a Cliente", icon: ChevronRight, href: "/dashboard/clientes/cotizaciones" },
+  { name: "Reportes", icon: ChevronRight, href: "/dashboard/reportes" },
+  { name: "Reporte Cobranza Mensual", icon: ChevronRight, href: "/dashboard/reportes/cobranza-mensual" },
+  { name: "Estado Cuenta Proveedor", icon: ChevronRight, href: "/dashboard/reportes/estado-cuenta-proveedor" },
+  { name: "Nomina Semanal Reporte", icon: ChevronRight, href: "/dashboard/reportes/nomina-semanal" },
+  { name: "Auditoría Sistema", icon: ChevronRight, href: "/dashboard/admin/auditoria" },
+  { name: "Roles Permisos", icon: ChevronRight, href: "/dashboard/admin/roles" },
+  { name: "WhatsApp Log", icon: ChevronRight, href: "/dashboard/whatsapp/log" },
+  { name: "Mis Documentos", icon: ChevronRight, href: "/dashboard/talento/documentos" },
+  { name: "Importar CSV", icon: ChevronRight, href: "/dashboard/import" },
 ];
 
 function ThemeToggle() {

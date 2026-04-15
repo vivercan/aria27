@@ -3,7 +3,8 @@ import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Partida { obra_nombre: string; categoria: string; importe: number; }
 interface PO { id: string; total: number; status: string; requisition_id: string | null; }
@@ -186,9 +187,7 @@ export default function ControlObrasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/obras" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-accent/20 to-aria-primary/20 border border-aria-accent/20">
             <Activity className="w-7 h-7 text-aria-accent" />
           </div>

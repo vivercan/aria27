@@ -5,9 +5,10 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, ArrowLeft, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface User {
   id: string;
@@ -219,9 +220,7 @@ export default function UsuariosPage() {
 
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/talento" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/talento" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Users className="w-7 h-7 text-purple-400" />

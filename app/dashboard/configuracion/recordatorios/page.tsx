@@ -5,10 +5,11 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
+import { BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Recordatorio {
   id: string;
@@ -81,7 +82,7 @@ export default function RecordatoriosPage() {
       <FlashBanner msg={msg} className="mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
+          <AriaBackButton href="/dashboard/configuracion" />
           <div>
             <h1 className="text-2xl font-bold">Recordatorios</h1>
             <p className="text-sm text-[#7f93b0]">Recordatorios automáticos por WhatsApp</p>

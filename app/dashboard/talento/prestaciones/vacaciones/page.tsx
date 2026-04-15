@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Calendar, Sun, User, Plus, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Sun, User, Plus, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Vacacion {
   id: string;
@@ -191,9 +192,7 @@ export default function VacacionesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/prestaciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/talento/prestaciones" />
           <div className="p-3 rounded-xl bg-amber-500/20">
             <Sun className="w-6 h-6 text-amber-400" />
           </div>

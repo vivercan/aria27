@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Building2, MapPin, FileText, Users, Loader2,
+  Building2, MapPin, FileText, Users, Loader2,
   Edit2, Save, X, Briefcase, FolderOpen
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empresa {
   id: string;
@@ -94,9 +95,7 @@ export default function EmpresaPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <Link href="/dashboard/administracion" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
+        <AriaBackButton href="/dashboard/administracion" />
         <div>
           <h1 className="text-xl font-bold text-white">Datos de Empresa</h1>
           <p className="text-xs text-[#7f93b0]">Información de GCU Avante y centros de costo</p>

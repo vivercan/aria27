@@ -3,7 +3,7 @@ import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Search, Package, ChevronRight,
+  Search, Package, ChevronRight,
   Truck, Tag, Box, Loader2, X, Plus, FileSpreadsheet, Building2,
   Upload, Sparkles, Save, Check, AlertCircle
 } from "lucide-react";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import * as XLSX from "xlsx";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Product { id:number; sku:string; name:string; description:string|null; unit:string; category:string|null; }
 interface SupplierInfo { id:number; name:string; }
@@ -224,7 +225,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-4 h-4 text-[#7f93b0]"/></Link>
+            <AriaBackButton href="/dashboard/requisiciones" />
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-4 h-4 text-aria-accent"/>Catálogo de Productos</h1>
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>

@@ -5,10 +5,11 @@ import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Alerta {
   id: string;
@@ -66,7 +67,7 @@ export default function AlertasPage() {
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
       <FlashBanner msg={msg} className="mb-4" />
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/configuracion" className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] transition"><ArrowLeft className="w-5 h-5" /></Link>
+        <AriaBackButton href="/dashboard/configuracion" />
         <div>
           <h1 className="text-2xl font-bold">Alertas de Atraso</h1>
           <p className="text-sm text-[#7f93b0]">Monitoreo de actividades atrasadas en obra</p>

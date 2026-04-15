@@ -3,9 +3,10 @@ import { clientLogger } from "@/lib/client-logger";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle, XCircle, MessageSquare, Loader2, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle, MessageSquare, Loader2 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 type Requisition = {
   id: number;
@@ -113,9 +114,7 @@ export default function AuthorizeRequisicionesPage() {
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-4" />
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/dashboard/requisiciones/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
         <div>
           <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
           <p className="text-white/60 text-sm">Revisar y aprobar solicitudes pendientes.</p>

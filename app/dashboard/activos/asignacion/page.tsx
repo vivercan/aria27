@@ -2,10 +2,11 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
+import { UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "lucide-react";
 import Link from "next/link";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface AsignacionRow {
   id: string;
@@ -178,7 +179,7 @@ export default function AsignacionPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></Link>
+          <AriaBackButton href="/dashboard/activos" />
           <div>
             <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
             <p className="text-sm text-[#7f93b0]">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>

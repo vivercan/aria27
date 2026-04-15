@@ -7,12 +7,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Edit2, Trash2, X, Save, Loader2,
+  Plus, Edit2, Trash2, X, Save, Loader2,
   Car, Key, Fuel, Search, MapPin, FolderOpen
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Vehiculo {
   id: string;
@@ -170,9 +171,7 @@ export default function VehiculosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/activos" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/activos" />
           <div>
             <h1 className="text-xl font-bold text-white">Vehículos y Maquinaria</h1>
             <p className="text-xs text-[#7f93b0]">{vehiculos.length} unidades registradas</p>

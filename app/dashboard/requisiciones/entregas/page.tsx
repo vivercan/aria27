@@ -3,9 +3,10 @@ import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
+import { Truck, Plus, Search, Check, Package, Eye, Calendar, Image, FileText, ExternalLink } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Material {
   producto: string;
@@ -148,9 +149,7 @@ export default function EntregasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/requisiciones" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/requisiciones" />
           <div className="p-3 rounded-xl bg-aria-primary-light">
             <Truck className="w-6 h-6 text-aria-accent" />
           </div>

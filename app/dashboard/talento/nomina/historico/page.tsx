@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { History, ArrowLeft, Search, Filter, Download, Users, DollarSign, Calendar, ChevronDown, X, Loader2 } from "lucide-react";
+import { History, Search, Filter, Download, Users, DollarSign, Calendar, ChevronDown, X, Loader2 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface NominaRegistro {
   id: string;
@@ -138,9 +139,7 @@ export default function HistoricoNominaPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/talento/nomina" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </Link>
+          <AriaBackButton href="/dashboard/talento/nomina" />
           <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
             <History className="w-7 h-7 text-violet-400" />
           </div>

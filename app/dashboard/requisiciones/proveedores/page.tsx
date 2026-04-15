@@ -6,7 +6,7 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Plus, Search, Edit2, Phone, Mail, Building2,
+  Plus, Search, Edit2, Phone, Mail, Building2,
   MapPin, X, Save, Copy, Check, Trash2, Globe,
   MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
 } from "lucide-react";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Supplier {
   id: string; name: string; rfc: string | null; phone: string | null;
@@ -140,7 +141,7 @@ export default function ProveedoresPage() {
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/requisiciones" className="p-1 hover:bg-white/[0.06] rounded-lg"><ArrowLeft className="w-4 h-4 text-[#7f93b0]"/></Link>
+            <AriaBackButton href="/dashboard/requisiciones" />
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-emerald-400"/>Proveedores</h1>
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>

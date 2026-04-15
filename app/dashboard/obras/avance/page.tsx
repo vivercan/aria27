@@ -3,9 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
-import { ArrowLeft, TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
+import { TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Avance {
   id: string;
@@ -122,9 +123,7 @@ export default function AvanceObrasPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/obras" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] transition-all">
-              <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-            </Link>
+            <AriaBackButton href="/dashboard/obras" />
             <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
               <TrendingUp className="w-7 h-7 text-emerald-400" />
             </div>

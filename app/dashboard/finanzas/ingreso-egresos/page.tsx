@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
+  Loader2, TrendingUp, TrendingDown, ArrowLeftRight,
   DollarSign, Filter, Calendar
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Gasto {
   id: string;
@@ -74,9 +75,7 @@ export default function IngresoEgresosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/finanzas" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <AriaBackButton href="/dashboard/finanzas" />
           <div>
             <h1 className="text-xl font-bold text-white">Ingreso - Egresos</h1>
             <p className="text-xs text-[#7f93b0] capitalize">{mesLabel()}</p>

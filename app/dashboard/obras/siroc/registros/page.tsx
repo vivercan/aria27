@@ -6,7 +6,8 @@ import { useFlashMessage } from "@/lib/use-flash-message";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search } from "lucide-react";
+import { Plus, Edit2, X, Save, Loader2, ShieldCheck, Trash2, Search } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface SirocRegistro {
   id: string;
@@ -170,7 +171,7 @@ export default function SirocRegistrosPage() {
     <div className="space-y-6">
       <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/obras" className="p-2 rounded-lg hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-white" /></Link>
+        <AriaBackButton href="/dashboard/obras" />
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
           <p className="text-[#7f93b0] mt-1">Registro estructurado de obras ante IMSS.</p>

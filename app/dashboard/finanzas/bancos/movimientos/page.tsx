@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
+import { Plus, Link2, X, Loader2, CheckCircle2, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/lib/use-flash-message";
+import AriaBackButton from "@/components/AriaBackButton";
 
 interface Cuenta { id: string; banco: string; cuenta: string; empresa: string; }
 interface Movimiento {
@@ -159,9 +160,7 @@ export default function MovimientosBancariosPage() {
     <div className="space-y-6">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/finanzas/bancos" className="p-2 hover:bg-white/[0.06] rounded-lg">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </Link>
+        <AriaBackButton href="/dashboard/finanzas/bancos" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white">Movimientos Bancarios · Conciliación</h1>
           <p className="text-[#7f93b0] text-sm">Alta manual + match con cobros y órdenes de compra</p>
