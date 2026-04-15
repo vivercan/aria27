@@ -132,12 +132,17 @@ export async function POST(req: Request) {
     // Notify Compras
     const { data: compras } = await supabase.from("Users").select("*").eq("role", "compras").single();
 
-    // WhatsApp â usar template aprobado oc_generada
+    // WhatsApp — template oc_generada (6 params: Req, OC, Obra, Proveedor, Total, FormaPago)
     if (compras?.phone) {
       const firstOcFolio = ocFolios[0]?.split(" - ")[0] || "OC";
+      const supplierNames = Object.keys(grouped);
+      const firstSupplierName = supplierNames.length === 1
+        ? supplierNames[0]
+        : `${supplierNames[0]} (+${supplierNames.length - 1})`;
+      const firstFormaPago = Object.values(grouped)[0]?.[0]?.forma_pago || "Transferencia";
       await sendWhatsAppLogged(
         "oc_generada",
-        [folio, firstOcFolio, obra || "N/A", `$${grandTotal.toLocaleString()}`, urgency || "normal"],
+        [folio, firstOcFolio, obra || "N/A", firstSupplierName, `$${grandTotal.toLocaleString()}`, firstFormaPago],
         compras.phone,
         { origen: "oc-generada-picking", enviadoPor: "autorizar-picking" }
       );
