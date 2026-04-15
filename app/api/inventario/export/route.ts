@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
     if (format === "excel") {
       return await exportExcel(inventario, obraNombre, generadoEn, email);
     } else if (format === "pdf") {
-      return exportPDFHtml(inventario, obraNombre, generadoEn);
+      return exportPDFHtml(inventario, obraNombre, generadoEn, email);
     } else {
       return NextResponse.json({ error: "Formato inválido. Use 'excel' o 'pdf'" }, { status: 400 });
     }
@@ -280,7 +280,9 @@ async function exportExcel(
   // ── Generar buffer ──
   const buffer = await wb.xlsx.writeBuffer();
   const safeNombre = obraNombre.replace(/[^a-zA-Z0-9_\-áéíóúüñÁÉÍÓÚÜÑ ]/g, "").trim().replace(/ /g, "_");
-  const filename = `Inventario_${safeNombre}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const safeUser  = email.split("@")[0].replace(/[^a-zA-Z0-9_\-]/g, "");
+  const dateStr   = new Date().toISOString().slice(0, 10);
+  const filename  = `ARIA27_Inventario_${safeNombre}_${dateStr}_${safeUser}.xlsx`;
 
   return new NextResponse(buffer as unknown as BodyInit, {
     status: 200,
@@ -297,7 +299,8 @@ async function exportExcel(
 function exportPDFHtml(
   inventario: InventarioRow[],
   obraNombre: string,
-  generadoEn: string
+  generadoEn: string,
+  email: string
 ): NextResponse {
   let totalDisp = 0;
   let totalUsado = 0;
@@ -339,7 +342,7 @@ function exportPDFHtml(
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Inventario — ${escHtml(obraNombre)}</title>
+<title>ARIA27 — Inventario ${escHtml(obraNombre)} — ${escHtml(generadoEn)} — ${escHtml(email)}</title>
 <style>
   /* ── Carta: 216×279mm ── */
   @page {
@@ -559,16 +562,14 @@ function exportPDFHtml(
 </table>
 
 <div class="footer">
-  <span>Generado por <strong>ARIA27 ERP</strong> — Grupo Constructor Urbano Avante</span>
+  <span>Generado por <strong>ARIA27 ERP</strong> — Grupo Constructor Urbano Avante &nbsp;|&nbsp; Usuario: <strong>${escHtml(email)}</strong></span>
   <span>${escHtml(generadoEn)}</span>
 </div>
 
 <script>
-  // Auto-print en modo standalone (abierto desde API directa)
-  if (window.opener === null && !window.location.search.includes('noprint')) {
-    // pequeño delay para que el navegador renderice primero
-    setTimeout(() => window.print(), 400);
-  }
+  // El iframe del cliente ya dispara window.print() desde fuera.
+  // Este script no hace nada para evitar doble-print.
+  // Si se abre standalone (URL directa), mostrar botón manual arriba.
 </script>
 </body>
 </html>`;

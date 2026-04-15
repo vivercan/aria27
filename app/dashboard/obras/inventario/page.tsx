@@ -630,22 +630,40 @@ export default function InventarioObraPage() {
     setExportandoPDF(true);
     const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
     const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
-    // Abrir en nueva pestaña — la página dispara window.print() automáticamente
-    const win = window.open(url, "_blank");
-    if (!win) flash("err", "Permite ventanas emergentes para imprimir el PDF");
-    // Necesitamos pasar el header de auth — usamos un form POST no es posible con window.open
-    // Alternativa: iframe oculto con fetch + blob URL
+
+    // Usar iframe oculto — sin popup, sin ventana emergente.
+    // El diálogo de impresión del sistema operativo permite "Guardar como PDF".
     fetch(url, { headers: { "x-user-email": email } })
-      .then(r => r.text())
-      .then(html => {
-        const blob = new Blob([html], { type: "text/html; charset=utf-8" });
-        const blobUrl = URL.createObjectURL(blob);
-        const printWin = window.open(blobUrl, "_blank");
-        if (win) win.close(); // cerrar la pestaña vacía que abrimos antes
-        if (!printWin) flash("err", "Permite ventanas emergentes para imprimir el PDF");
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      .then(r => {
+        if (!r.ok) throw new Error("No autorizado");
+        return r.text();
       })
-      .catch(() => flash("err", "Error al generar PDF"))
+      .then(html => {
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:0;";
+        document.body.appendChild(iframe);
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!doc) { flash("err", "No se pudo generar el PDF"); return; }
+        doc.open();
+        doc.write(html);
+        doc.close();
+        // Esperar a que cargue el CSS antes de imprimir
+        const cleanup = () => {
+          setTimeout(() => document.body.removeChild(iframe), 2000);
+        };
+        iframe.onload = () => {
+          setTimeout(() => {
+            iframe.contentWindow?.print();
+            cleanup();
+          }, 350);
+        };
+        // Fallback si onload ya fue
+        setTimeout(() => {
+          iframe.contentWindow?.print();
+          cleanup();
+        }, 800);
+      })
+      .catch((e: unknown) => flash("err", "Error al generar PDF: " + ((e as { message?: string })?.message || "desconocido")))
       .finally(() => setExportandoPDF(false));
   };
 
