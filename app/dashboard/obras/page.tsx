@@ -23,41 +23,47 @@ type ModuleItem = {
   hero?: boolean;
 };
 
-const grupos: { label: string; modulos: ModuleItem[] }[] = [
+/* ── un solo color por sección — paleta sobria ── */
+const BLUE   = "#3b82f6";   // Operación
+const CYAN   = "#22d3ee";   // Construcción
+const ROSE   = "#f87171";   // Legal & IMSS
+const EMERALD= "#34d399";   // Documentación
+
+const grupos: { label: string; accent: string; modulos: ModuleItem[] }[] = [
   {
-    label: "Operación",
+    label: "Operación", accent: BLUE,
     modulos: [
-      { title: "Centro de Control", description: "Presupuesto vs gasto real (OC + nómina) por obra. Semáforo de avance.", href: "/dashboard/obras/control",  icon: Activity,    accent: "#3b82f6", hero: true },
-      { title: "Pipeline",          description: "Vista kanban operativa de proyectos activos.",                          href: "/dashboard/obras/pipeline", icon: Kanban,      accent: "#818cf8" },
-      { title: "Avance Físico",     description: "Captura semanal de % de avance físico real por obra.",                 href: "/dashboard/obras/avance",   icon: TrendingUp,  accent: "#10b981" },
-      { title: "Catálogo Maestro",  description: "Alta, edición, archivo e historial de obras.",                         href: "/dashboard/obras/catalogo", icon: BookOpen,    accent: "#a78bfa" },
+      { title: "Centro de Control", description: "Presupuesto vs gasto real (OC + nómina) por obra. Semáforo de avance.", href: "/dashboard/obras/control",  icon: Activity,   accent: BLUE, hero: true },
+      { title: "Pipeline",          description: "Vista kanban operativa de proyectos activos.",                          href: "/dashboard/obras/pipeline", icon: Kanban,     accent: BLUE },
+      { title: "Avance Físico",     description: "Captura semanal de % de avance físico real por obra.",                 href: "/dashboard/obras/avance",   icon: TrendingUp, accent: BLUE },
+      { title: "Catálogo Maestro",  description: "Alta, edición, archivo e historial de obras.",                         href: "/dashboard/obras/catalogo", icon: BookOpen,   accent: BLUE },
     ],
   },
   {
-    label: "Construcción",
+    label: "Construcción", accent: CYAN,
     modulos: [
-      { title: "Control de Concreto", description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.", href: "/dashboard/obras/concreto/remisiones", icon: Droplet,      accent: "#38bdf8" },
-      { title: "Concreto",            description: "Control de colados, resistencias y pedidos.",                       href: "/dashboard/obras/concreto",            icon: Layers,       accent: "#7dd3fc" },
-      { title: "Presupuestos",        description: "Presupuestos base y estimaciones de costo.",                        href: "/dashboard/obras/presupuestos",        icon: Calculator,   accent: "#34d399" },
-      { title: "Inventario",          description: "Inventario de materiales por obra.",                                 href: "/dashboard/obras/inventario",          icon: PackageCheck, accent: "#2dd4bf" },
+      { title: "Control de Concreto", description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.", href: "/dashboard/obras/concreto/remisiones", icon: Droplet,      accent: CYAN },
+      { title: "Concreto",            description: "Control de colados, resistencias y pedidos.",                       href: "/dashboard/obras/concreto",            icon: Layers,       accent: CYAN },
+      { title: "Presupuestos",        description: "Presupuestos base y estimaciones de costo.",                        href: "/dashboard/obras/presupuestos",        icon: Calculator,   accent: CYAN },
+      { title: "Inventario",          description: "Inventario de materiales por obra.",                                 href: "/dashboard/obras/inventario",          icon: PackageCheck, accent: CYAN },
     ],
   },
   {
-    label: "Legal & IMSS",
+    label: "Legal & IMSS", accent: ROSE,
     modulos: [
-      { title: "SIROC IMSS",   description: "Registro de obras ante IMSS: fases, incidencias e importes bimestrales.", href: "/dashboard/obras/siroc/registros", icon: ShieldCheck, accent: "#f87171" },
-      { title: "SIROC",        description: "Registro IMSS de obras ante SIROC.",                                      href: "/dashboard/obras/siroc",           icon: Building,    accent: "#fb923c" },
-      { title: "Contratos",    description: "Contratos y documentación legal por obra.",                               href: "/dashboard/obras/contratos",       icon: Scale,       accent: "#c084fc" },
-      { title: "Licitaciones", description: "Gestión de licitaciones y concursos.",                                    href: "/dashboard/obras/licitaciones",    icon: Gavel,       accent: "#fbbf24" },
+      { title: "SIROC IMSS",   description: "Registro de obras ante IMSS: fases, incidencias e importes bimestrales.", href: "/dashboard/obras/siroc/registros", icon: ShieldCheck, accent: ROSE },
+      { title: "SIROC",        description: "Registro IMSS de obras ante SIROC.",                                      href: "/dashboard/obras/siroc",           icon: Building,    accent: ROSE },
+      { title: "Contratos",    description: "Contratos y documentación legal por obra.",                               href: "/dashboard/obras/contratos",       icon: Scale,       accent: ROSE },
+      { title: "Licitaciones", description: "Gestión de licitaciones y concursos.",                                    href: "/dashboard/obras/licitaciones",    icon: Gavel,       accent: ROSE },
     ],
   },
   {
-    label: "Documentación",
+    label: "Documentación", accent: EMERALD,
     modulos: [
-      { title: "Expedientes",    description: "Expedientes digitales de obra.",                         href: "/dashboard/obras/expedientes", icon: FolderOpen, accent: "#4ade80" },
-      { title: "Planos",         description: "Visor de planos y documentos técnicos.",                 href: "/dashboard/obras/planos",      icon: Map,        accent: "#818cf8" },
-      { title: "Tareas",         description: "Asignación de tareas y seguimiento de cumplimiento.",    href: "/dashboard/obras/tareas",      icon: ListChecks, accent: "#a3e635" },
-      { title: "Fotos de Avance",description: "Registro fotográfico de avance por obra.",               href: "/dashboard/obras/fotos",       icon: Camera,     accent: "#fb923c" },
+      { title: "Expedientes",    description: "Expedientes digitales de obra.",                         href: "/dashboard/obras/expedientes", icon: FolderOpen, accent: EMERALD },
+      { title: "Planos",         description: "Visor de planos y documentos técnicos.",                 href: "/dashboard/obras/planos",      icon: Map,        accent: EMERALD },
+      { title: "Tareas",         description: "Asignación de tareas y seguimiento de cumplimiento.",    href: "/dashboard/obras/tareas",      icon: ListChecks, accent: EMERALD },
+      { title: "Fotos de Avance",description: "Registro fotográfico de avance por obra.",               href: "/dashboard/obras/fotos",       icon: Camera,     accent: EMERALD },
     ],
   },
 ];
@@ -73,26 +79,28 @@ export default function ObrasPage() {
     >
       {/* ── HEADER ── */}
       <div className="flex-shrink-0 mb-4">
-        <h1
-          className="text-[28px] font-extrabold tracking-tight leading-none"
-          style={{
-            background: "linear-gradient(90deg,#fff 0%,rgba(255,255,255,0.55) 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Obras
-        </h1>
-        <p className="text-[12.5px] mt-1" style={{ color: "rgba(255,255,255,0.38)" }}>
-          Gestión de proyectos y construcción
-        </p>
+        <div className="flex items-baseline gap-2.5">
+          <h1
+            className="text-[28px] font-extrabold tracking-tight leading-none"
+            style={{
+              background: "linear-gradient(90deg,#fff 0%,rgba(255,255,255,0.60) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Obras
+          </h1>
+          <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.32)" }}>·</span>
+          <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.42)" }}>
+            Gestión de proyectos y construcción
+          </span>
+        </div>
       </div>
 
-      {/* ── 4 SECCIONES iguales que llenan el espacio ── */}
+      {/* ── 4 SECCIONES ── */}
       <div className="flex-1 flex flex-col gap-3 min-h-0">
         {grupos.map((grupo) => (
           <section key={grupo.label} className="flex-1 flex flex-col gap-2 min-h-0">
-            {/* etiqueta */}
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span
                 className="text-[9.5px] font-bold uppercase tracking-[0.16em]"
@@ -102,7 +110,6 @@ export default function ObrasPage() {
               </span>
               <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
             </div>
-            {/* tiles — crecen para llenar sección */}
             <div className="flex-1 grid grid-cols-4 gap-2 min-h-0" style={{ alignItems: "stretch" }}>
               {grupo.modulos.map((mod) => (
                 <HubCard key={mod.href} module={mod} />
@@ -113,41 +120,36 @@ export default function ObrasPage() {
       </div>
 
       {/* ── ACCESOS RÁPIDOS — dock centrado abajo ── */}
-      <div className="flex-shrink-0 mt-4 flex flex-col items-center gap-2">
-        {/* separador con label centrado */}
+      <div className="flex-shrink-0 mt-4 flex flex-col items-center gap-2.5">
         <div className="flex items-center gap-3 w-full">
-          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-          <span
-            className="text-[9px] font-bold uppercase tracking-[0.18em]"
-            style={{ color: "rgba(255,255,255,0.20)" }}
-          >
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+          <span className="text-[9.5px] font-bold uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.28)" }}>
             Accesos Rápidos
           </span>
-          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
         </div>
-        {/* pills centradas */}
-        <div className="flex gap-2.5">
+        <div className="flex gap-3">
           {quickLinks.map((ql) => (
             <Link
               key={ql.href}
               href={ql.href}
-              className="flex items-center gap-2 rounded-full px-4 py-2 transition-all duration-150 hover:-translate-y-0.5"
+              className="flex items-center gap-2 rounded-full px-5 py-2.5 transition-all duration-150 hover:-translate-y-0.5"
               style={{
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                backdropFilter: "blur(10px)",
+                backgroundColor: "rgba(255,255,255,0.07)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                backdropFilter: "blur(12px)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.09)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.12)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.22)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.05)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.10)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.07)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.14)";
               }}
             >
-              <ql.icon style={{ width: 13, height: 13, color: "rgba(255,255,255,0.45)" }} strokeWidth={1.75} />
-              <span className="text-[11.5px] font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>
+              <ql.icon style={{ width: 14, height: 14, color: "rgba(255,255,255,0.75)" }} strokeWidth={1.6} />
+              <span className="text-[13px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
                 {ql.label}
               </span>
             </Link>
@@ -158,10 +160,9 @@ export default function ObrasPage() {
   );
 }
 
-/* ══════════════════════════════════════════════════════
-   TILE — layout vertical, ícono arriba, texto abajo,
-   contenido distribuido para usar todo el espacio del card
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   TILE — ícono + texto centrados verticalmente
+══════════════════════════════════════════════════ */
 function HubCard({ module }: { module: ModuleItem }) {
   const isHero = module.hero;
   return (
@@ -170,56 +171,49 @@ function HubCard({ module }: { module: ModuleItem }) {
       className="group relative flex flex-col justify-center rounded-xl transition-all duration-200 hover:-translate-y-0.5"
       style={{
         height: "100%",
-        padding: "20px 20px 20px",
-        backgroundColor: isHero ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.04)",
-        border: isHero
-          ? "1px solid rgba(59,130,246,0.28)"
-          : "1px solid rgba(255,255,255,0.08)",
-        borderTop: isHero
-          ? "1px solid rgba(59,130,246,0.45)"
-          : "1px solid rgba(255,255,255,0.12)",
+        padding: "22px 22px",
+        backgroundColor: isHero
+          ? `rgba(${hexToRgb(module.accent)},0.10)`
+          : "rgba(255,255,255,0.04)",
+        border: `1px solid rgba(${hexToRgb(module.accent)},${isHero ? "0.28" : "0.12"})`,
+        borderTop: `1px solid rgba(${hexToRgb(module.accent)},${isHero ? "0.45" : "0.20"})`,
         boxShadow: isHero
-          ? "0 4px 20px rgba(59,130,246,0.10), 0 2px 8px rgba(0,0,0,0.30)"
-          : "0 2px 8px rgba(0,0,0,0.25)",
+          ? `0 4px 20px rgba(${hexToRgb(module.accent)},0.08), 0 2px 8px rgba(0,0,0,0.28)`
+          : "0 2px 8px rgba(0,0,0,0.22)",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.backgroundColor = isHero
-          ? "rgba(59,130,246,0.16)"
-          : "rgba(255,255,255,0.07)";
-        (e.currentTarget as HTMLElement).style.borderColor = `${module.accent}38`;
+        (e.currentTarget as HTMLElement).style.backgroundColor =
+          `rgba(${hexToRgb(module.accent)},${isHero ? "0.15" : "0.08"})`;
         (e.currentTarget as HTMLElement).style.boxShadow =
-          `0 6px 22px rgba(0,0,0,0.42), 0 0 12px ${module.accent}14`;
+          `0 6px 22px rgba(0,0,0,0.38), 0 0 14px rgba(${hexToRgb(module.accent)},0.12)`;
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.backgroundColor = isHero
-          ? "rgba(59,130,246,0.10)"
+          ? `rgba(${hexToRgb(module.accent)},0.10)`
           : "rgba(255,255,255,0.04)";
-        (e.currentTarget as HTMLElement).style.borderColor = isHero
-          ? "rgba(59,130,246,0.28)"
-          : "rgba(255,255,255,0.08)";
         (e.currentTarget as HTMLElement).style.boxShadow = isHero
-          ? "0 4px 20px rgba(59,130,246,0.10), 0 2px 8px rgba(0,0,0,0.30)"
-          : "0 2px 8px rgba(0,0,0,0.25)";
+          ? `0 4px 20px rgba(${hexToRgb(module.accent)},0.08), 0 2px 8px rgba(0,0,0,0.28)`
+          : "0 2px 8px rgba(0,0,0,0.22)";
       }}
     >
-      {/* bloque ícono + texto juntos — sin void en el centro */}
       <div className="flex flex-col gap-3">
+        {/* ícono — strokeWidth fino, más elegante */}
         <module.icon
           style={{ width: isHero ? 34 : 28, height: isHero ? 34 : 28, color: module.accent }}
-          strokeWidth={1.45}
+          strokeWidth={1.35}
         />
         <div>
           <h3
             className="font-semibold leading-snug"
-            style={{ fontSize: isHero ? "16px" : "13.5px", color: "rgba(255,255,255,0.95)" }}
+            style={{ fontSize: isHero ? "20px" : "16px", color: "rgba(255,255,255,0.96)" }}
           >
             {module.title}
           </h3>
           <p
-            className="mt-1 leading-relaxed"
+            className="mt-1.5 leading-relaxed"
             style={{
-              fontSize: "11.5px",
-              color: "rgba(255,255,255,0.42)",
+              fontSize: "13px",
+              color: "rgba(255,255,255,0.44)",
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
@@ -231,11 +225,18 @@ function HubCard({ module }: { module: ModuleItem }) {
         </div>
       </div>
 
-      {/* chevron hover */}
       <ChevronRight
-        className="absolute bottom-3.5 right-3.5 opacity-0 group-hover:opacity-40 transition-opacity duration-200"
-        style={{ width: 12, height: 12, color: module.accent }}
+        className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-40 transition-opacity duration-200"
+        style={{ width: 13, height: 13, color: module.accent }}
       />
     </Link>
   );
+}
+
+/* convierte hex a "r,g,b" para usar en rgba() */
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `${r},${g},${b}`;
 }
