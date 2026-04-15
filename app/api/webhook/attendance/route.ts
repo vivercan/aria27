@@ -684,7 +684,11 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       return;
     }
 
-    await sendWhatsApp(from, `Ya registraste tu asistencia completa hoy.\n${emp.full_name}\nEntrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\nSalida: ${asistenciaHoy.hora_salida.substring(0,5)}\nSi necesitas corregir algo, contacta a RH.`);
+    const [hEC, mEC] = asistenciaHoy.hora_entrada.split(":").map(Number);
+    const [hSC, mSC] = asistenciaHoy.hora_salida.split(":").map(Number);
+    const totalMinsC = (hSC * 60 + mSC) - (hEC * 60 + mEC);
+    const horasStrC = totalMinsC > 0 ? `${Math.floor(totalMinsC/60)}h ${totalMinsC%60}m` : "0h";
+    await sendWhatsApp(from, `✅ ASISTENCIA COMPLETA ✅\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${asistenciaHoy.hora_salida.substring(0,5)}\n⏱️ Total: ${horasStrC}\n\nSi necesitas corregir algo, contacta a RH.`);
     return;
   }
 }
