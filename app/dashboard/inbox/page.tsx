@@ -232,6 +232,17 @@ export default function InboxPage() {
       )
     : emails;
 
+  const todosSeleccionados = emailsFiltrados.length > 0 &&
+    emailsFiltrados.every(e => seleccionados.has(e.seqno));
+
+  const toggleTodos = () => {
+    if (todosSeleccionados) {
+      setSeleccionados(new Set());
+    } else {
+      setSeleccionados(new Set(emailsFiltrados.map(e => e.seqno)));
+    }
+  };
+
   const toggleSel = (seqno: number) => {
     setSeleccionados(prev => {
       const next = new Set(prev);
@@ -373,6 +384,21 @@ export default function InboxPage() {
             </button>
           )}
         </div>
+
+        {/* seleccionar todos */}
+        {emails.length > 0 && (
+          <label className="flex items-center gap-1.5 cursor-pointer select-none group" title={todosSeleccionados ? "Deseleccionar todos" : "Seleccionar todos"}>
+            <input
+              type="checkbox"
+              checked={todosSeleccionados}
+              onChange={toggleTodos}
+              className="w-4 h-4 rounded border-white/[0.12] accent-aria-accent"
+            />
+            <span className="text-xs text-[#7f93b0] group-hover:text-[#c9d8ed] transition-colors hidden sm:inline">
+              {todosSeleccionados ? "Ninguno" : "Todos"}
+            </span>
+          </label>
+        )}
 
         {/* acciones */}
         <button
