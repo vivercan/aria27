@@ -133,25 +133,23 @@ export default function ObrasPage() {
             <Link
               key={ql.href}
               href={ql.href}
-              className="flex items-center gap-2 rounded-full px-5 py-2.5 transition-all duration-100 active:translate-y-[3px]"
+              className="flex items-center gap-2 rounded-full px-5 py-2.5 transition-all duration-150 hover:-translate-y-0.5"
               style={{
-                backgroundColor: "rgba(249,115,22,0.12)",
-                border: "1px solid #f97316",
-                borderBottom: "4px solid #c2410c",
+                backgroundColor: "rgba(255,255,255,0.07)",
+                border: "1px solid rgba(255,255,255,0.14)",
                 backdropFilter: "blur(12px)",
-                boxShadow: "0 4px 14px rgba(249,115,22,0.20)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(249,115,22,0.20)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px rgba(249,115,22,0.30)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.12)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.22)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(249,115,22,0.12)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 14px rgba(249,115,22,0.20)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.07)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.14)";
               }}
             >
-              <ql.icon style={{ width: 14, height: 14, color: "#fb923c" }} strokeWidth={1.6} />
-              <span className="text-[13px] font-semibold" style={{ color: "#fff" }}>
+              <ql.icon style={{ width: 14, height: 14, color: "rgba(255,255,255,0.75)" }} strokeWidth={1.6} />
+              <span className="text-[13px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
                 {ql.label}
               </span>
             </Link>
@@ -170,10 +168,10 @@ function HubCard({ module }: { module: ModuleItem }) {
   return (
     <Link
       href={module.href}
-      className="group relative flex flex-col justify-center rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+      className="group relative flex flex-col justify-start rounded-xl transition-all duration-200 hover:-translate-y-0.5"
       style={{
         height: "100%",
-        padding: "22px 22px",
+        padding: "20px 20px",
         backgroundColor: isHero
           ? `rgba(${hexToRgb(module.accent)},0.10)`
           : "rgba(255,255,255,0.04)",
