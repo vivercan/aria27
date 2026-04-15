@@ -625,46 +625,32 @@ export default function InventarioObraPage() {
     setExportandoExcel(false);
   };
 
-  const exportarPDF = () => {
+  const exportarPDF = async () => {
     if (!obraSeleccionada) return;
     setExportandoPDF(true);
-    const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
-    const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
-
-    // Usar iframe oculto — sin popup, sin ventana emergente.
-    // El diálogo de impresión del sistema operativo permite "Guardar como PDF".
-    fetch(url, { headers: { "x-user-email": email } })
-      .then(r => {
-        if (!r.ok) throw new Error("No autorizado");
-        return r.text();
-      })
-      .then(html => {
-        const iframe = document.createElement("iframe");
-        iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:0;";
-        document.body.appendChild(iframe);
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!doc) { flash("err", "No se pudo generar el PDF"); return; }
-        doc.open();
-        doc.write(html);
-        doc.close();
-        // Esperar a que cargue el CSS antes de imprimir
-        const cleanup = () => {
-          setTimeout(() => document.body.removeChild(iframe), 2000);
-        };
-        iframe.onload = () => {
-          setTimeout(() => {
-            iframe.contentWindow?.print();
-            cleanup();
-          }, 350);
-        };
-        // Fallback si onload ya fue
-        setTimeout(() => {
-          iframe.contentWindow?.print();
-          cleanup();
-        }, 800);
-      })
-      .catch((e: unknown) => flash("err", "Error al generar PDF: " + ((e as { message?: string })?.message || "desconocido")))
-      .finally(() => setExportandoPDF(false));
+    try {
+      const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
+      const res = await fetch(url, { headers: { "x-user-email": email } });
+      if (!res.ok) { flash("err", "Error al generar PDF"); return; }
+      const html = await res.text();
+      // Descarga directa como archivo HTML — cero diálogos, cero ventanas emergentes.
+      // El usuario abre el archivo y usa Ctrl+P → "Guardar como PDF" si lo necesita.
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const now = new Date();
+      const fecha = now.toISOString().slice(0, 10);
+      const hora = now.toTimeString().slice(0, 8).replace(/:/g, "-");
+      const obraNombre = obraSeleccionada.name.replace(/ /g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+      const filename = `ARIA27_Inventario_${obraNombre}_${fecha}_${hora}.html`;
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (e: unknown) {
+      flash("err", "Error al exportar: " + ((e as { message?: string })?.message || "desconocido"));
+    }
+    setExportandoPDF(false);
   };
 
   // ====== COMPUTED ======
@@ -752,17 +738,17 @@ export default function InventarioObraPage() {
             )}
             <span className="hidden sm:inline">Excel</span>
           </button>
-          {/* Exportar PDF */}
+          {/* Exportar PDF (descarga HTML listo para imprimir) */}
           <button
             onClick={exportarPDF}
             disabled={exportandoPDF || inventario.length === 0}
-            title="Ver / Imprimir PDF"
+            title="Descargar reporte listo para imprimir"
             className="flex items-center gap-2 px-3 py-2 bg-blue-700/30 hover:bg-blue-700/60 border border-blue-600/40 rounded-lg text-blue-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {exportandoPDF ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Eye className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             )}
             <span className="hidden sm:inline">PDF</span>
           </button>
