@@ -15,11 +15,6 @@ interface WhatsAppComponent {
 // HMAC SIGNATURE VERIFICATION (Meta Webhooks)
 // ============================================
 export function verifyWebhookSignature(rawBody: string | Buffer, signature: string | null): boolean {
-  // Bypass de diagnóstico: si DISABLE_WEBHOOK_HMAC=true, acepta todo (solo para debug)
-  if (process.env.DISABLE_WEBHOOK_HMAC === "true") {
-    console.warn("[WhatsApp] [WARN] DISABLE_WEBHOOK_HMAC activo — HMAC omitido");
-    return true;
-  }
   const secret = process.env.META_APP_SECRET;
   if (!secret) {
     // Grace mode: si no hay META_APP_SECRET configurado, aceptar (pero loguear warning)
@@ -27,17 +22,30 @@ export function verifyWebhookSignature(rawBody: string | Buffer, signature: stri
     return true;
   }
   if (!signature) {
-    console.warn("[WhatsApp] [WARN] Firma ausente — posible reenvío sin cabecera x-hub-signature-256");
+    // Firma ausente — puede ser proxy que strip headers; el handler intentará URL token
     return false;
   }
   const expectedSig = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex");
   const matches = signature === expectedSig;
   if (!matches) {
-    // Log parcial para diagnóstico (nunca exponer el secret completo)
     console.warn("[WhatsApp] [WARN] HMAC no coincide",
       { received: signature.slice(0, 20) + "...", expected: expectedSig.slice(0, 20) + "..." });
   }
   return matches;
+}
+
+/**
+ * Fallback de autenticación cuando el proxy (Supabase router) elimina x-hub-signature-256.
+ * Verifica que ?token= en la URL coincida con WEBHOOK_URL_TOKEN en env vars.
+ */
+export function verifyWebhookUrlToken(urlToken: string | null): boolean {
+  const expected = process.env.WEBHOOK_URL_TOKEN;
+  if (!expected) return false;
+  if (!urlToken) return false;
+  // Comparación en tiempo constante para evitar timing attacks
+  const a = Buffer.from(urlToken.padEnd(64));
+  const b = Buffer.from(expected.padEnd(64));
+  return a.length === b.length && require("crypto").timingSafeEqual(a, b);
 }
 
 // ============================================

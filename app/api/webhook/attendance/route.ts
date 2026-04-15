@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
+import { sendWhatsAppText, verifyWebhookSignature, verifyWebhookUrlToken } from "@/lib/whatsapp";
 
 const log = logger("WEBHOOK-ATTENDANCE");
 
@@ -19,16 +19,13 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_PHONE || "5218112392266";
 
 (function checkMisconfigOnBoot() {
-  const hasMetaSecret = !!process.env.META_APP_SECRET;
-  const hasHmacBypass = process.env.DISABLE_WEBHOOK_HMAC === "true";
   const missingToken = !process.env.WHATSAPP_ACCESS_TOKEN;
   const missingAnthro = !process.env.ANTHROPIC_API_KEY;
+  const missingUrlToken = !process.env.WEBHOOK_URL_TOKEN;
   const issues: string[] = [];
-  if (hasMetaSecret && !hasHmacBypass) {
-    issues.push("🔴 META_APP_SECRET activo + DISABLE_WEBHOOK_HMAC ausente → webhook retonará 403");
-  }
   if (missingToken) issues.push("🔴 WHATSAPP_ACCESS_TOKEN ausente");
   if (missingAnthro) issues.push("🔴 ANTHROPIC_API_KEY ausente");
+  if (missingUrlToken) issues.push("⚠️ WEBHOOK_URL_TOKEN ausente — agrega a Vercel + URL de Meta webhook");
   if (issues.length > 0) {
     const msg = `⚠️ *ARIA27 — WEBHOOK MAL CONFIGURADO*\\n\\n${issues.join("\\n")}\\n\\nAcción requerida URGENTE.`;
     sendWhatsAppText(ADMIN_PHONE, msg, { origen: "webhook-attendance", enviadoPor: "boot-check" })
@@ -747,9 +744,16 @@ export async function POST(request: NextRequest) {
 
     const rawBody = await request.text();
     const signature = request.headers.get("x-hub-signature-256") || "";
-    const isValid = verifyWebhookSignature(rawBody, signature);
-    if (!isValid) {
-      log.warn("Firma invalida o ausente", { signature: signature ? "present" : "absent" });
+    const hmacOk = verifyWebhookSignature(rawBody, signature);
+    if (!hmacOk) {
+      // Fallback: URL token (cuando Supabase router strips x-hub-signature-256)
+      const urlToken = new URL(request.url).searchParams.get("token");
+      const tokenOk = verifyWebhookUrlToken(urlToken);
+      if (!tokenOk) {
+        log.warn("Auth fallida: HMAC inválido y token URL ausente/incorrecto");
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+      log.info("Auth via URL token (HMAC header ausente por proxy)");
     }
 
     const body = JSON.parse(rawBody);

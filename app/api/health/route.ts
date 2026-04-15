@@ -54,26 +54,34 @@ export async function GET(_req: NextRequest) {
 
   // ── 2. COMBINACIONES PELIGROSAS ───────────────────────────────────────────
 
-  // META_APP_SECRET activo sin DISABLE_WEBHOOK_HMAC → webhook retorna 403
-  const hasMetaSecret   = !!process.env.META_APP_SECRET;
-  const hasHmacBypass   = process.env.DISABLE_WEBHOOK_HMAC === "true";
-  if (hasMetaSecret && !hasHmacBypass) {
-    checks.push({
-      name: "combo:HMAC_BYPASS_MISSING",
-      status: "error",
-      message: "🔴 META_APP_SECRET activo + DISABLE_WEBHOOK_HMAC ausente → todos los webhooks WhatsApp retornarán 403",
-    });
-  } else if (hasMetaSecret && hasHmacBypass) {
+  // Verificación HMAC Meta + URL token fallback
+  const hasMetaSecret    = !!process.env.META_APP_SECRET;
+  const hasWebhookToken  = !!process.env.WEBHOOK_URL_TOKEN;
+  const hasHmacBypass    = process.env.DISABLE_WEBHOOK_HMAC === "true";
+
+  if (hasHmacBypass) {
     checks.push({
       name: "combo:HMAC_BYPASS_ACTIVE",
       status: "warn",
-      message: "⚠️ DISABLE_WEBHOOK_HMAC=true activo (bypass temporal) — solución definitiva: propagar x-hub-signature-256 en whatsapp-router",
+      message: "⚠️ DISABLE_WEBHOOK_HMAC=true sigue activo — ya no es necesario, elimínalo de Vercel env vars",
+    });
+  } else if (hasMetaSecret && hasWebhookToken) {
+    checks.push({
+      name: "combo:HMAC",
+      status: "ok",
+      message: "✅ Auth webhook doble capa: HMAC (Meta) + URL token fallback activos",
+    });
+  } else if (hasMetaSecret && !hasWebhookToken) {
+    checks.push({
+      name: "combo:WEBHOOK_TOKEN_MISSING",
+      status: "warn",
+      message: "⚠️ META_APP_SECRET activo pero WEBHOOK_URL_TOKEN ausente — agrega a Vercel + URL Meta webhook",
     });
   } else {
     checks.push({
       name: "combo:HMAC",
       status: "ok",
-      message: "HMAC: sin META_APP_SECRET — modo sin verificación de firma (aceptable)",
+      message: "HMAC: sin META_APP_SECRET — modo sin verificación de firma (aceptable en dev)",
     });
   }
 

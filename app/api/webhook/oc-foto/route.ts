@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
+import { sendWhatsAppText, verifyWebhookSignature, verifyWebhookUrlToken } from "@/lib/whatsapp";
 const log = logger("WEBHOOK-OC-FOTO");
 
 // (!) ZONA CRITICA META/WHATSAPP -- NO cambiar 'db' a cliente anon.
@@ -38,8 +38,13 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text();
     const signature = req.headers.get("x-hub-signature-256");
     if (!verifyWebhookSignature(rawBody, signature)) {
-      log.warn("HMAC signature inválida", { signature });
-      return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
+      // Fallback: URL token (cuando Supabase router strips x-hub-signature-256)
+      const urlToken = req.nextUrl.searchParams.get("token");
+      if (!verifyWebhookUrlToken(urlToken)) {
+        log.warn("Auth fallida: HMAC inválido y token URL ausente/incorrecto");
+        return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
+      }
+      log.info("Auth via URL token (HMAC header ausente por proxy)");
     }
 
     // RATE LIMIT: webhook publico — 30 req/min por IP (anti-abuso)
