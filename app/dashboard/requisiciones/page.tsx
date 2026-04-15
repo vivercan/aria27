@@ -50,6 +50,7 @@ const subModules = [
     icon: Truck,
     iconBg: "rgba(99,102,241,0.14)",
     iconColor: "#818cf8",
+    iconSize: 21,
   },
   {
     title: "Prospección",
@@ -76,6 +77,7 @@ type ModuleItem = {
   icon: React.ElementType;
   iconBg: string;
   iconColor: string;
+  iconSize?: number;
 };
 
 function HubCard({ module }: { module: ModuleItem }) {
@@ -102,7 +104,7 @@ function HubCard({ module }: { module: ModuleItem }) {
           boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
         }}
       >
-        <module.icon style={{ width: "17px", height: "17px", color: module.iconColor }} strokeWidth={1.75} />
+        <module.icon style={{ width: `${module.iconSize ?? 17}px`, height: `${module.iconSize ?? 17}px`, color: module.iconColor }} strokeWidth={1.75} />
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
         <h3
