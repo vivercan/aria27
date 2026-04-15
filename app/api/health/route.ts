@@ -30,7 +30,6 @@ export async function GET(_req: NextRequest) {
     { key: "WHATSAPP_ACCESS_TOKEN",            label: "WhatsApp Token" },
     { key: "WHATSAPP_PHONE_ID",                label: "WhatsApp Phone ID" },
     { key: "ANTHROPIC_API_KEY",                label: "Anthropic API Key" },
-    { key: "CRON_SECRET",                      label: "Cron Secret" },
     { key: "RESEND_API_KEY",                   label: "Resend API Key" },
   ];
 
@@ -42,6 +41,16 @@ export async function GET(_req: NextRequest) {
       message: present ? `${label} presente` : `🔴 ${label} AUSENTE — funcionalidad degradada`,
     });
   }
+
+  // CRON_SECRET / BACKUP_TOKEN — cualquiera es válido para crons y backup
+  const hasCronAuth = !!(process.env.CRON_SECRET || process.env.BACKUP_TOKEN);
+  checks.push({
+    name: "env:CRON_AUTH",
+    status: hasCronAuth ? "ok" : "error",
+    message: hasCronAuth
+      ? `Cron auth presente (${process.env.CRON_SECRET ? "CRON_SECRET" : "BACKUP_TOKEN"})`
+      : "🔴 CRON_SECRET y BACKUP_TOKEN ausentes — crons y backup sin protección",
+  });
 
   // ── 2. COMBINACIONES PELIGROSAS ───────────────────────────────────────────
 
