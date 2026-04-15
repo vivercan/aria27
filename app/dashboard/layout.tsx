@@ -134,6 +134,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
+  const [inboxUnread, setInboxUnread] = useState(0);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -141,6 +142,22 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     setUserEmail(email);
     loadUser(email);
   }, [router]);
+
+  /* ── Polling no-leídos Inbox (cada 2 min) ── */
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const r = await fetch("/api/mail/unread-count");
+        if (r.ok) {
+          const d = await r.json();
+          setInboxUnread(d.count || 0);
+        }
+      } catch { /* silencioso */ }
+    };
+    fetchUnread();
+    const iv = setInterval(fetchUnread, 2 * 60 * 1000); // cada 2 minutos
+    return () => clearInterval(iv);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -275,10 +292,30 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 );
               }
 
+              const isInbox = item.href === "/dashboard/inbox";
               return (
                 <Link key={item.name} href={item.href} onClick={() => setMobileOpen(false)} style={navStyle}>
                   <item.icon style={{ width: "16px", height: "16px", flexShrink: 0 }} />
                   <span className="truncate flex-1">{item.name}</span>
+                  {isInbox && inboxUnread > 0 && (
+                    <span style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: "18px",
+                      height: "18px",
+                      padding: "0 5px",
+                      borderRadius: "9999px",
+                      backgroundColor: "#ef4444",
+                      color: "#fff",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      flexShrink: 0,
+                    }}>
+                      {inboxUnread > 99 ? "99+" : inboxUnread}
+                    </span>
+                  )}
                   {item.hasSubmenu && <ChevronRight style={{ width: "12px", height: "12px", opacity: 0.4 }} />}
                 </Link>
               );

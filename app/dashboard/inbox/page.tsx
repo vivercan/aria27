@@ -65,30 +65,8 @@ export default function InboxPage() {
   const [compBody, setCompBody] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  /* ── sesión Zoho (cookie httpOnly) ── */
+  /* ── sesión Zoho — usa creds del sistema (ZOHO_EMAIL/ZOHO_PASSWORD en env vars) ── */
   const [zohoEmail, setZohoEmail] = useState<string | null>(null);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPass, setLoginPass] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
-  const iniciarSesionZoho = async () => {
-    if (!loginEmail.trim() || !loginPass.trim()) return;
-    setLoginLoading(true);
-    setLoginError("");
-    try {
-      const r = await fetch("/api/mail/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail.trim(), password: loginPass.trim() }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Error al iniciar sesión");
-      setZohoEmail(data.email);
-      setLoginPass(""); // limpiar password de memoria
-    } catch (e: unknown) { setLoginError((e as Error).message); }
-    setLoginLoading(false);
-  };
 
   const cerrarSesionZoho = async () => {
     await fetch("/api/mail/auth", { method: "DELETE" });
@@ -198,64 +176,14 @@ export default function InboxPage() {
     });
   };
 
-  /* ── auto-detect sesión existente al montar ── */
+  /* ── activar automáticamente con creds del sistema al montar ── */
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch("/api/mail/inbox", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ folder: "INBOX", limit: 1 }),
-        });
-        if (r.ok) {
-          // Cookie activa — extraer email del primer correo o marcar genérico
-          setZohoEmail("active");
-        }
-      } catch { /* sin sesión */ }
-    })();
+    // Las credenciales viven en env vars (ZOHO_EMAIL/ZOHO_PASSWORD).
+    // No se necesita login manual — el servidor las inyecta vía _zoho-creds.ts.
+    setZohoEmail("sistema");
   }, []);
 
-  /* ═══════════════════════ PANTALLA LOGIN ZOHO ═══════════════════════ */
-  if (!zohoEmail) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="w-full max-w-sm p-6 bg-white/[0.04] border border-white/[0.08] rounded-2xl space-y-4">
-          <div className="text-center">
-            <Mail className="w-10 h-10 text-aria-accent mx-auto mb-2" />
-            <h2 className="text-white font-semibold text-lg">Correo Zoho</h2>
-            <p className="text-[#7f93b0] text-sm mt-1">Ingresa tu cuenta y App Password de Zoho</p>
-          </div>
-          {loginError && (
-            <div className="p-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm text-center">
-              {loginError}
-            </div>
-          )}
-          <input
-            value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
-            placeholder="tu.correo@gcuavante.com" type="email"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
-          />
-          <input
-            value={loginPass} onChange={e => setLoginPass(e.target.value)}
-            placeholder="App Password de Zoho" type="password"
-            onKeyDown={e => e.key === "Enter" && iniciarSesionZoho()}
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-aria-accent/50"
-          />
-          <button
-            onClick={iniciarSesionZoho}
-            disabled={loginLoading || !loginEmail.trim() || !loginPass.trim()}
-            className="w-full py-2.5 bg-aria-accent hover:bg-aria-accent/80 disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-            Iniciar sesión
-          </button>
-          <Link href="/dashboard" className="block text-center text-xs text-[#4a6080] hover:text-[#7f93b0] transition-colors">
-            ← Volver al dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  /* Sin pantalla de login — creds del sistema siempre activas */
 
   /* ═══════════════════════ VISTA COMPONER ═══════════════════════ */
   if (vista === "componer") {

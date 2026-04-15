@@ -15,7 +15,7 @@ declare module 'imap' {
 
   interface Box {
     name: string;
-    messages: { total: number; new: number };
+    messages: { total: number; new: number; unseen?: number };
   }
 
   interface ImapMessage extends EventEmitter {
@@ -35,6 +35,7 @@ declare module 'imap' {
     connect(): void;
     end(): void;
     openBox(name: string, readOnly: boolean, callback: (err: Error | null, box: Box) => void): void;
+    search(criteria: unknown[], callback: (err: Error | null, results: number[]) => void): void;
     seq: {
       fetch(source: string, options: object): ImapFetch;
     };
