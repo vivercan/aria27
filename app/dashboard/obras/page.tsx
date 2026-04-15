@@ -105,7 +105,9 @@ export default function ObrasPage() {
             {/* tiles — crecen para llenar sección */}
             <div className="flex-1 grid grid-cols-4 gap-2 min-h-0">
               {grupo.modulos.map((mod) => (
-                <HubCard key={mod.href} module={mod} />
+                <div key={mod.href} className={mod.hero ? "col-span-2" : ""} style={{ minHeight: 0 }}>
+                  <HubCard module={mod} />
+                </div>
               ))}
             </div>
           </section>
@@ -161,10 +163,10 @@ function HubCard({ module }: { module: ModuleItem }) {
   return (
     <Link
       href={module.href}
-      className="group relative flex flex-col justify-between rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+      className="group relative flex flex-col rounded-xl transition-all duration-200 hover:-translate-y-0.5"
       style={{
         height: "100%",
-        padding: "18px 18px 16px",
+        padding: "20px 20px 18px",
         backgroundColor: isHero ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.04)",
         border: isHero
           ? "1px solid rgba(59,130,246,0.28)"
@@ -196,26 +198,33 @@ function HubCard({ module }: { module: ModuleItem }) {
           : "0 2px 8px rgba(0,0,0,0.25)";
       }}
     >
-      {/* ícono — arriba izquierda, color sólido */}
-      <module.icon
-        style={{ width: 26, height: 26, color: module.accent }}
-        strokeWidth={1.55}
-      />
-
-      {/* texto — abajo */}
-      <div>
-        <h3
-          className="text-[14px] font-semibold leading-snug"
-          style={{ color: "rgba(255,255,255,0.95)" }}
-        >
-          {module.title}
-        </h3>
-        <p
-          className="text-[11.5px] mt-1 leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.40)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
-        >
-          {module.description}
-        </p>
+      {/* bloque ícono + texto juntos — sin void en el centro */}
+      <div className="flex flex-col gap-3">
+        <module.icon
+          style={{ width: isHero ? 32 : 28, height: isHero ? 32 : 28, color: module.accent }}
+          strokeWidth={1.5}
+        />
+        <div>
+          <h3
+            className="font-semibold leading-snug"
+            style={{ fontSize: isHero ? "15px" : "14px", color: "rgba(255,255,255,0.95)" }}
+          >
+            {module.title}
+          </h3>
+          <p
+            className="mt-1 leading-relaxed"
+            style={{
+              fontSize: "11.5px",
+              color: "rgba(255,255,255,0.42)",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            } as React.CSSProperties}
+          >
+            {module.description}
+          </p>
+        </div>
       </div>
 
       {/* chevron hover */}
