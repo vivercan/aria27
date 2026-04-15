@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+const supabase = getSupabaseAdmin();
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";

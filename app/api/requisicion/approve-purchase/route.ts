@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+// (!) ZONA CRITICA -- usar admin client. RLS bloquea sequences, purchase_orders, Users.
+const supabase = getSupabaseAdmin();
 import { getResend } from "@/lib/resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
@@ -86,9 +88,21 @@ async function getUserByEmail(email: string): Promise<User | null> {
   return (data as User) || null;
 }
 async function getNextOCFolio(): Promise<string> {
-  const { data } = await supabase.from("sequences").select("current_value").eq("id", "OC").single();
-  const next = (data?.current_value || 0) + 1;
-  await supabase.from("sequences").upsert({ id: "OC", current_value: next });
+  // FIX: Usar RPC atomico para evitar race condition (SELECT+upsert no era atomico).
+  // Mismo patron que autorizar-picking/route.ts y requisicion/route.ts.
+  let next: number;
+  try {
+    const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "OC" });
+    if (!rpcError && rpcData !== null) {
+      next = typeof rpcData === "number" ? rpcData : (rpcData as { current_value: number }).current_value;
+    } else {
+      const { count } = await supabase.from("purchase_orders").select("*", { count: "exact", head: true });
+      next = (count || 0) + 1;
+    }
+  } catch {
+    const { count } = await supabase.from("purchase_orders").select("*", { count: "exact", head: true });
+    next = (count || 0) + 1;
+  }
   return `OC-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
 }
 

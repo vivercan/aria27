@@ -281,8 +281,8 @@ async function handleInventarioWhatsApp(from: string, phone10: string, invData: 
   });
   if (errMovIns) log.error("insert inventario_movimientos failed", { error: errMovIns.message });
 
-  const provLine = invData.proveedor ? `${invData.proveedor}\n` : "";
-  await sendWhatsApp(from, `*INVENTARIO ACTUALIZADO*\n\n${material}\n+${cantidad} ${unidad}\n${obraRow.nombre}\n${provLine}Saldo: ${saldoPost} ${unidad}\nFoto guardada\n\nRegistrado!`);
+  const provLine = invData.proveedor ? `🏭 ${invData.proveedor}\n` : "";
+  await sendWhatsApp(from, `📦 ENTRADA REGISTRADA 📦\n\n📍 ${obraRow.nombre}\n🧱 ${material}\n➕ ${cantidad} ${unidad}\n${provLine}📊 Saldo: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n✅ Registrado en ARIA27`);
 }
 
 // ============== CLAUDE: EXTRAER DATOS DE TRANSFERENCIA DESDE IMAGEN/TEXTO ==============
@@ -349,13 +349,13 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
 
   const { data: existe } = await db.from("inventario_obra").select("*").eq("obra_id", obraRow.id).ilike("producto_nombre", material).single();
   if (!existe) {
-    await sendWhatsApp(from, `*${material}* no esta registrado en inventario de *${obraRow.nombre}*.\n\nSi quieres registrar una ENTRADA de material nuevo:\nENTRADA ${material} [cantidad] [unidad] ${obraRow.nombre}`);
+    await sendWhatsApp(from, `⚠️ MATERIAL NO ENCONTRADO\n\n🧱 ${material}\n📍 ${obraRow.nombre}\n\nPara registrar una ENTRADA nueva:\nENTRADA ${material} [cantidad] [unidad] ${obraRow.nombre}`);
     return;
   }
 
   const saldoActual = Number(existe.cantidad_disponible);
   if (saldoActual < cantidad) {
-    await sendWhatsApp(from, `*STOCK INSUFICIENTE*\n\n${material}\nDisponible: ${saldoActual} ${unidad}\nSolicitado: ${cantidad} ${unidad}\n${obraRow.nombre}`);
+    await sendWhatsApp(from, `❌ STOCK INSUFICIENTE\n\n🧱 ${material}\n📍 ${obraRow.nombre}\n📊 Disponible: ${saldoActual} ${unidad}\n🔢 Solicitado: ${cantidad} ${unidad}`);
     return;
   }
 
@@ -386,7 +386,7 @@ async function handleSalidaInventario(from: string, phone10: string, invData: In
   });
   if (errMovIns) log.error("insert inventario_movimientos (salida) failed", { error: errMovIns.message });
 
-  await sendWhatsApp(from, `*SALIDA REGISTRADA*\n\n${material}\n-${cantidad} ${unidad}\n${obraRow.nombre}\nSaldo restante: ${saldoPost} ${unidad}\nFoto guardada\n\nRegistrado!`);
+  await sendWhatsApp(from, `📦 SALIDA REGISTRADA 📦\n\n📍 ${obraRow.nombre}\n🧱 ${material}\n➖ ${cantidad} ${unidad}\n📊 Saldo: ${saldoPost} ${unidad}\n📷 Foto guardada\n\n✅ Registrado en ARIA27`);
 }
 
 // ============== MANEJAR TRANSFERENCIA DE INVENTARIO (TRASLADO ENTRE OBRAS) ==============
@@ -417,7 +417,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
 
   const saldoOrigen = Number(existeOrigen.cantidad_disponible);
   if (saldoOrigen < cantidad) {
-    await sendWhatsApp(from, `*STOCK INSUFICIENTE EN ORIGEN*\n\n${material}\nDisponible en ${rowOrigen.nombre}: ${saldoOrigen} ${unidad}\nSolicitado: ${cantidad} ${unidad}`);
+    await sendWhatsApp(from, `❌ STOCK INSUFICIENTE EN ORIGEN\n\n🧱 ${material}\n📤 Origen: ${rowOrigen.nombre}\n📊 Disponible: ${saldoOrigen} ${unidad}\n🔢 Solicitado: ${cantidad} ${unidad}`);
     return;
   }
 
@@ -479,7 +479,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
     foto_url: imageUrl,
   });
 
-  await sendWhatsApp(from, `*TRASLADO REGISTRADO*\n\n${material} - ${cantidad} ${unidad}\n\nORIGEN: ${rowOrigen.nombre}\nSaldo: ${saldoOrigenPost} ${unidad}\n\nDESTINO: ${rowDestino.nombre}\nSaldo: ${saldoDestinoPost} ${unidad}\nFoto guardada\n\nTraslado completado!`);
+  await sendWhatsApp(from, `🔄 TRASLADO REGISTRADO 🔄\n\n🧱 ${material} · ${cantidad} ${unidad}\n\n📤 ORIGEN: ${rowOrigen.nombre}\n📊 Saldo: ${saldoOrigenPost} ${unidad}\n\n📥 DESTINO: ${rowDestino.nombre}\n📊 Saldo: ${saldoDestinoPost} ${unidad}\n📷 Foto guardada\n\n✅ Registrado en ARIA27`);
 }
 
 // ============== BUSCAR EMPLEADO POR TELEFONO ==============

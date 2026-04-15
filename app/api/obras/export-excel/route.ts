@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import {
   authenticateRequest,
   fetchObraData,
@@ -16,6 +17,10 @@ const supabase = getSupabaseAdmin();
 
 export async function GET(req: NextRequest) {
   try {
+    // Rate limit: exportar Excel es costoso (queries masivas)
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "obras:export-excel", ...RATE_LIMITS.EXPENSIVE });
+    if (!rl.allowed) return rateLimitResponse(rl);
+
     // Authenticate user
     const userEmail = await authenticateRequest(req, supabase);
     if (!userEmail) {

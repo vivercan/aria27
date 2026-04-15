@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+
+// (!) ZONA CRITICA -- NO cambiar a cliente anon.
+// El anon client tiene RLS activo -- bloquea lectura de asistencias y Personal.
+// Causa: mismo bug class que attendance-webhook 14-Abr-2026.
+const supabase = getSupabaseAdmin();
 
 const AUTHORIZED_ROLES = ["admin", "rh", "compras", "almacen"];
 
