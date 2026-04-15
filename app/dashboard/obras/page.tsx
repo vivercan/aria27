@@ -74,7 +74,7 @@ export default function ObrasPage() {
       className="px-5 pt-5 pb-5 h-full flex flex-col overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 0%, #0d1525 0%, #070d18 35%, #040a12 70%, #020710 100%)",
+          "radial-gradient(ellipse at 50% 30%, #1565c0 0%, #0d47a1 20%, #072a6e 50%, #021440 75%, #010b22 100%)",
       }}
     >
       {/* ── HEADER ── */}
@@ -172,21 +172,28 @@ function HubCard({ module }: { module: ModuleItem }) {
       style={{
         height: "100%",
         padding: "22px 22px",
-        backgroundColor: isHero ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderTop: `2px solid rgba(${hexToRgb(module.accent)},${isHero ? "0.55" : "0.35"})`,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.30)",
+        backgroundColor: isHero
+          ? `rgba(${hexToRgb(module.accent)},0.10)`
+          : "rgba(255,255,255,0.04)",
+        border: `1px solid rgba(${hexToRgb(module.accent)},${isHero ? "0.28" : "0.12"})`,
+        borderTop: `1px solid rgba(${hexToRgb(module.accent)},${isHero ? "0.45" : "0.20"})`,
+        boxShadow: isHero
+          ? `0 4px 20px rgba(${hexToRgb(module.accent)},0.08), 0 2px 8px rgba(0,0,0,0.28)`
+          : "0 2px 8px rgba(0,0,0,0.22)",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.07)";
+        (e.currentTarget as HTMLElement).style.backgroundColor =
+          `rgba(${hexToRgb(module.accent)},${isHero ? "0.15" : "0.08"})`;
         (e.currentTarget as HTMLElement).style.boxShadow =
-          `0 6px 24px rgba(0,0,0,0.40), 0 0 16px rgba(${hexToRgb(module.accent)},0.08)`;
-        (e.currentTarget as HTMLElement).style.borderColor = `rgba(${hexToRgb(module.accent)},0.22)`;
+          `0 6px 22px rgba(0,0,0,0.38), 0 0 14px rgba(${hexToRgb(module.accent)},0.12)`;
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.backgroundColor = isHero ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 10px rgba(0,0,0,0.30)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
+        (e.currentTarget as HTMLElement).style.backgroundColor = isHero
+          ? `rgba(${hexToRgb(module.accent)},0.10)`
+          : "rgba(255,255,255,0.04)";
+        (e.currentTarget as HTMLElement).style.boxShadow = isHero
+          ? `0 4px 20px rgba(${hexToRgb(module.accent)},0.08), 0 2px 8px rgba(0,0,0,0.28)`
+          : "0 2px 8px rgba(0,0,0,0.22)";
       }}
     >
       <div className="flex flex-col gap-3">
