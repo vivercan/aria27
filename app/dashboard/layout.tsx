@@ -323,6 +323,66 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
 
+        {/* Search — sidebar bottom */}
+        <div className="px-3 py-2 relative" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
+          <div
+            className="flex items-center gap-2 px-3 h-8 rounded-lg"
+            style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: `1px solid ${sidebarBorder}` }}
+          >
+            <Search style={{ width: "13px", height: "13px", color: navMuted, flexShrink: 0 }} />
+            <input
+              type="text"
+              placeholder="Buscar módulos..."
+              className="bg-transparent outline-none text-[12px] w-full"
+              style={{ color: isDark ? "rgba(255,255,255,0.70)" : "#1e293b" }}
+              value={searchQuery}
+              onChange={(e) => {
+                const q = e.target.value;
+                setSearchQuery(q);
+                if (q.trim().length > 0) {
+                  setSearchResults(searchableItems.filter(item =>
+                    item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
+                  ));
+                } else {
+                  setSearchResults([]);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); }
+                if (e.key === "Enter" && searchResults.length > 0) {
+                  router.push(searchResults[0].href);
+                  setSearchQuery(""); setSearchResults([]);
+                }
+              }}
+            />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} style={{ color: navMuted }}>
+                <X style={{ width: "12px", height: "12px" }} />
+              </button>
+            )}
+          </div>
+          {/* dropdown abre hacia ARRIBA */}
+          {searchResults.length > 0 && (
+            <div
+              className="absolute bottom-full left-3 right-3 mb-1 rounded-xl border shadow-2xl z-50 overflow-hidden py-1"
+              style={{ backgroundColor: isDark ? "#070f1e" : "#ffffff", borderColor: sidebarBorder }}
+            >
+              {searchResults.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                  className="flex items-center gap-3 px-4 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
+                  style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
+                >
+                  <item.icon style={{ width: "13px", height: "13px", color: "#3b82f6" }} />
+                  <span>{item.name}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Footer */}
         <div
           className="px-5 py-3 flex items-center gap-2"
@@ -373,65 +433,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             >
               <Menu className="w-5 h-5" />
             </button>
-
-            {/* Search */}
-            <div className="relative flex-1 md:w-72 md:flex-none">
-              <div
-                className="flex items-center gap-2 px-3 h-8 rounded-lg"
-                style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: `1px solid ${sidebarBorder}` }}
-              >
-                <Search style={{ width: "13px", height: "13px", color: navMuted, flexShrink: 0 }} />
-                <input
-                  type="text"
-                  placeholder="Buscar módulos..."
-                  className="bg-transparent outline-none text-[13px] w-full"
-                  style={{ color: isDark ? "rgba(255,255,255,0.75)" : "#1e293b" }}
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const q = e.target.value;
-                    setSearchQuery(q);
-                    if (q.trim().length > 0) {
-                      setSearchResults(searchableItems.filter(item =>
-                        item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
-                      ));
-                    } else {
-                      setSearchResults([]);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); }
-                    if (e.key === "Enter" && searchResults.length > 0) {
-                      router.push(searchResults[0].href);
-                      setSearchQuery(""); setSearchResults([]);
-                    }
-                  }}
-                />
-                {searchQuery && (
-                  <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} style={{ color: navMuted }}>
-                    <X style={{ width: "12px", height: "12px" }} />
-                  </button>
-                )}
-              </div>
-              {searchResults.length > 0 && (
-                <div
-                  className="absolute top-full left-0 right-0 mt-1 rounded-xl border shadow-2xl z-50 overflow-hidden py-1"
-                  style={{ backgroundColor: isDark ? "#070f1e" : "#ffffff", borderColor: sidebarBorder }}
-                >
-                  {searchResults.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => { setSearchQuery(""); setSearchResults([]); }}
-                      className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:bg-white/[0.04]"
-                      style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
-                    >
-                      <item.icon style={{ width: "14px", height: "14px", color: "#3b82f6" }} />
-                      <span>{item.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
 
             <div className="flex items-center gap-3 ml-auto">
               <ThemeToggle />
