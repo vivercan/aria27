@@ -89,6 +89,8 @@ export default function InventarioObraPage() {
   const [entregas, setEntregas] = useState<Entrega[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [exportandoExcel, setExportandoExcel] = useState(false);
+  const [exportandoPDF, setExportandoPDF] = useState(false);
 
   // Modal Ajuste
   const [showAjuste, setShowAjuste] = useState<ItemInventario | null>(null);
@@ -602,6 +604,51 @@ export default function InventarioObraPage() {
     loadInventario(obraSeleccionada.id);
   };
 
+  // ====== EXPORTAR ======
+  const exportarExcel = async () => {
+    if (!obraSeleccionada) return;
+    setExportandoExcel(true);
+    try {
+      const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=excel`;
+      const res = await fetch(url, { headers: { "x-user-email": email } });
+      if (!res.ok) { flash("err", "Error al generar Excel"); return; }
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Inventario_${obraSeleccionada.name.replace(/ /g, "_")}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (e: unknown) {
+      flash("err", "Error al exportar: " + ((e as { message?: string })?.message || "desconocido"));
+    }
+    setExportandoExcel(false);
+  };
+
+  const exportarPDF = () => {
+    if (!obraSeleccionada) return;
+    setExportandoPDF(true);
+    const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+    const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
+    // Abrir en nueva pestaña — la página dispara window.print() automáticamente
+    const win = window.open(url, "_blank");
+    if (!win) flash("err", "Permite ventanas emergentes para imprimir el PDF");
+    // Necesitamos pasar el header de auth — usamos un form POST no es posible con window.open
+    // Alternativa: iframe oculto con fetch + blob URL
+    fetch(url, { headers: { "x-user-email": email } })
+      .then(r => r.text())
+      .then(html => {
+        const blob = new Blob([html], { type: "text/html; charset=utf-8" });
+        const blobUrl = URL.createObjectURL(blob);
+        const printWin = window.open(blobUrl, "_blank");
+        if (win) win.close(); // cerrar la pestaña vacía que abrimos antes
+        if (!printWin) flash("err", "Permite ventanas emergentes para imprimir el PDF");
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      })
+      .catch(() => flash("err", "Error al generar PDF"))
+      .finally(() => setExportandoPDF(false));
+  };
+
   // ====== COMPUTED ======
   const inventarioFiltrado = inventario.filter(item =>
     item.producto_nombre.toLowerCase().includes(busqueda.toLowerCase())
@@ -672,13 +719,44 @@ export default function InventarioObraPage() {
             <p className="text-[#7f93b0] text-sm">Inventario de materiales</p>
           </div>
         </div>
-        <button
-          onClick={abrirNuevoMaterial}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Nuevo Material
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Exportar Excel */}
+          <button
+            onClick={exportarExcel}
+            disabled={exportandoExcel || inventario.length === 0}
+            title="Descargar Excel"
+            className="flex items-center gap-2 px-3 py-2 bg-emerald-700/40 hover:bg-emerald-700/70 border border-emerald-600/50 rounded-lg text-emerald-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exportandoExcel ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">Excel</span>
+          </button>
+          {/* Exportar PDF */}
+          <button
+            onClick={exportarPDF}
+            disabled={exportandoPDF || inventario.length === 0}
+            title="Ver / Imprimir PDF"
+            className="flex items-center gap-2 px-3 py-2 bg-blue-700/30 hover:bg-blue-700/60 border border-blue-600/40 rounded-lg text-blue-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exportandoPDF ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">PDF</span>
+          </button>
+          {/* Nuevo Material */}
+          <button
+            onClick={abrirNuevoMaterial}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-medium transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Nuevo Material
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
