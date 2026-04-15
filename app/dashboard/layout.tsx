@@ -342,7 +342,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               {userRole === "admin" ? "Administrador" : "Usuario"}
             </p>
           </div>
-          <button onClick={handleLogout} className="p-1.5 rounded-lg transition-opacity hover:opacity-70 flex-shrink-0" style={{ color: navMuted }}>
+          <button onClick={handleLogout} className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-150 hover:bg-red-500/20" style={{ color: "#ef4444" }} title="Cerrar sesión">
             <LogOut style={{ width: "13px", height: "13px" }} />
           </button>
         </div>
