@@ -133,23 +133,25 @@ export default function ObrasPage() {
             <Link
               key={ql.href}
               href={ql.href}
-              className="flex items-center gap-2 rounded-full px-5 py-2.5 transition-all duration-150 hover:-translate-y-0.5"
+              className="flex items-center gap-2 rounded-full px-5 py-2.5 transition-all duration-100 active:translate-y-[3px]"
               style={{
-                backgroundColor: "rgba(255,255,255,0.07)",
-                border: "1px solid rgba(255,255,255,0.14)",
+                backgroundColor: "rgba(249,115,22,0.12)",
+                border: "1px solid #f97316",
+                borderBottom: "4px solid #c2410c",
                 backdropFilter: "blur(12px)",
+                boxShadow: "0 4px 14px rgba(249,115,22,0.20)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.12)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.22)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(249,115,22,0.20)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px rgba(249,115,22,0.30)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.07)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.14)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(249,115,22,0.12)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 14px rgba(249,115,22,0.20)";
               }}
             >
-              <ql.icon style={{ width: 14, height: 14, color: "rgba(255,255,255,0.75)" }} strokeWidth={1.6} />
-              <span className="text-[13px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
+              <ql.icon style={{ width: 14, height: 14, color: "#fb923c" }} strokeWidth={1.6} />
+              <span className="text-[13px] font-semibold" style={{ color: "#fff" }}>
                 {ql.label}
               </span>
             </Link>
