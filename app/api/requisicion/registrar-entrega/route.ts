@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { sendWhatsAppFallback } from "@/lib/whatsapp";
 import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -148,10 +148,11 @@ export async function POST(req: NextRequest) {
 
     // WhatsApp con plantilla al solicitante
     if (solicitante_phone) {
-      await sendWhatsAppLogged(
+      await sendWhatsAppFallback(
         "entrega_material",
         [purchase_order_folio, obra_nombre || "N/A", supplier_name || "N/A", folioEntrega],
         solicitante_phone,
+        `📦 *Material Entregado*\n\n🛒 OC: ${purchase_order_folio}\n🏗️ Obra: ${obra_nombre || "N/A"}\n🏪 Proveedor: ${supplier_name || "N/A"}\n📄 Folio entrega: ${folioEntrega}\n\n✅ Registrado en ARIA27`,
         { origen: "entrega-material", enviadoPor: solicitante_email || "registrar-entrega" }
       );
     }

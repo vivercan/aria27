@@ -294,6 +294,43 @@ export async function sendWhatsAppLogged(
 }
 
 /**
+ * Envía usando plantilla. Si Meta la rechaza (en revisión/no aprobada),
+ * cae automáticamente a texto libre para que el usuario SIEMPRE reciba algo.
+ * Registra ambos intentos en wa_log.
+ */
+export async function sendWhatsAppFallback(
+  templateName: string,
+  params: string[],
+  phone: string,
+  fallbackText: string,
+  opts: { origen?: string; enviadoPor?: string; buttonToken?: string } = {}
+): Promise<{ success: boolean; usedFallback?: boolean; messageId?: string; error?: string }> {
+  const result = await sendWhatsAppLogged(templateName, params, phone, opts);
+
+  if (result.success) {
+    return result;
+  }
+
+  // Template falló (en revisión, no aprobada, etc.) → texto libre de respaldo
+  log.warn("Template falló → usando fallback texto", {
+    template: templateName,
+    error: result.error,
+    phone,
+  });
+
+  const fallbackResult = await sendWhatsAppText(phone, fallbackText, {
+    origen: opts.origen ? `${opts.origen}:fallback` : "fallback",
+    enviadoPor: opts.enviadoPor || "system",
+  });
+
+  return {
+    success: fallbackResult.success,
+    usedFallback: true,
+    error: fallbackResult.success ? undefined : fallbackResult.error,
+  };
+}
+
+/**
  * Enviar a múltiples destinatarios (con audit trail via wa_log)
  */
 export async function sendWhatsAppToMultiple(

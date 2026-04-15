@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+const db = getSupabaseAdmin();
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO");
@@ -7,7 +8,7 @@ const log = logger("PULSO");
 // AUTH helper: verificar que el email existe en Users
 async function verifyUser(email: string | null): Promise<boolean> {
   if (!email) return false;
-  const { data } = await supabase
+  const { data } = await db
     .from("Users")
     .select("email")
     .eq("email", email)
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
 
 
     // Obtener conversaciones donde participa el usuario
-    const { data: participaciones } = await supabase
+    const { data: participaciones } = await db
       .from("pulso_participantes")
       .select("conversacion_id")
       .eq("user_email", email);
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest) {
     const convIds = participaciones.map(p => p.conversacion_id);
 
     // Obtener detalles de conversaciones
-    const { data: conversaciones } = await supabase
+    const { data: conversaciones } = await db
       .from("pulso_conversaciones")
       .select("*")
       .in("id", convIds)
@@ -48,19 +49,19 @@ export async function GET(req: NextRequest) {
 
     // Para cada conversación, obtener participantes y último mensaje
     const resultado = await Promise.all((conversaciones || []).map(async (conv) => {
-      const { data: participantes } = await supabase
+      const { data: participantes } = await db
         .from("pulso_participantes")
         .select("user_email")
         .eq("conversacion_id", conv.id);
 
-      const { data: ultimoMsg } = await supabase
+      const { data: ultimoMsg } = await db
         .from("pulso_mensajes")
         .select("*")
         .eq("conversacion_id", conv.id)
         .order("created_at", { ascending: false })
         .limit(1);
 
-      const { count: noLeidos } = await supabase
+      const { count: noLeidos } = await db
         .from("pulso_mensajes")
         .select("*", { count: "exact", head: true })
         .eq("conversacion_id", conv.id)
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     // Para chat 1:1, verificar si ya existe
     if (!es_grupo && participantes.length === 2) {
-      const { data: existentes } = await supabase
+      const { data: existentes } = await db
         .from("pulso_participantes")
         .select("conversacion_id")
         .in("user_email", participantes);
@@ -120,7 +121,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Crear nueva conversación
-    const { data: conv, error } = await supabase
+    const { data: conv, error } = await db
       .from("pulso_conversaciones")
       .insert({ nombre: nombre || null, es_grupo: es_grupo || false })
       .select()
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error?.message }, { status: 500 });
 
     // Agregar participantes
-    const { error: err1 } = await supabase.from("pulso_participantes").insert(
+    const { error: err1 } = await db.from("pulso_participantes").insert(
       participantes.map((email: string) => ({
         conversacion_id: conv.id,
         user_email: email

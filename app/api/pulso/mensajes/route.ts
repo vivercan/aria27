@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+const db = getSupabaseAdmin();
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO-MENSAJES");
@@ -7,7 +8,7 @@ const log = logger("PULSO-MENSAJES");
 // AUTH helper: verificar que el email existe en Users
 async function verifyUser(email: string | null): Promise<boolean> {
   if (!email) return false;
-  const { data } = await supabase
+  const { data } = await db
     .from("Users")
     .select("email")
     .eq("email", email)
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
-    const { data: mensajes } = await supabase
+    const { data: mensajes } = await db
       .from("pulso_mensajes")
       .select("*")
       .eq("conversacion_id", convId)
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     // Marcar como leídos los mensajes de otros
     if (email) {
-      await supabase
+      await db
         .from("pulso_mensajes")
         .update({ leido: true })
         .eq("conversacion_id", convId)
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("pulso_mensajes")
       .insert({
         conversacion_id,
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error?.message }, { status: 500 });
 
     // Actualizar timestamp de conversación
-    const { error: err1 } = await supabase
+    const { error: err1 } = await db
       .from("pulso_conversaciones")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversacion_id);

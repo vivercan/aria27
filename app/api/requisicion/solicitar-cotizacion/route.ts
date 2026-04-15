@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { sendWhatsAppFallback } from "@/lib/whatsapp";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -100,10 +100,11 @@ export async function POST(request: NextRequest) {
       // WhatsApp con plantilla
       if (prov.phone) {
         try {
-          const result = await sendWhatsAppLogged(
+          const result = await sendWhatsAppFallback(
             "solicitar_cotizacion",
             [folio, obra, urgencyText],
             prov.phone,
+            `📋 *Solicitud de Cotización — ARIA27*\n\n🔖 Req: ${folio}\n🏗️ Obra: ${obra}\n⚡ Urgencia: ${urgencyText}\n\nIngresa tu cotización respondiendo este mensaje o contacta a compras.`,
             { origen: "solicitar-cotizacion", enviadoPor: user_email || "solicitar-cotizacion" }
           );
           if (result.success) whatsappSent++;

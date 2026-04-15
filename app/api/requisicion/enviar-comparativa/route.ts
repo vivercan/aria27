@@ -220,12 +220,14 @@ export async function POST(req: NextRequest) {
 
     let waResult: WhatsAppResult = { success: false, error: "no enviado (sin telefono)" };
     if (director.phone) {
-      const { sendWhatsAppLogged } = await import("@/lib/whatsapp");
+      const { sendWhatsAppFallback } = await import("@/lib/whatsapp");
       const mejorText = `${mejor.supplier} $${(mejor.total || mejor.subtotal || 0).toLocaleString?.() || 0}`;
-      waResult = await sendWhatsAppLogged(
+      const numProv = String(supList.length || quotes?.length || 0);
+      waResult = await sendWhatsAppFallback(
         "comparativa_enviar",
-        [folio, obra, mejorText, String(supList.length || quotes?.length || 0)],
+        [folio, obra, mejorText, numProv],
         director.phone,
+        `📊 *Comparativa Lista para Revisión*\n\n🔖 Req: ${folio}\n🏗️ Obra: ${obra}\n🏆 Mejor oferta: ${mejorText}\n🏪 Proveedores: ${numProv}\n\nIngresa a ARIA27 para aprobar o rechazar:\nhttps://aria.jjcrm27.com`,
         { origen: "comparativa-enviar", enviadoPor: "enviar-comparativa", buttonToken: token }
       );
       if (!waResult.success) {

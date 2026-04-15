@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+const db = getSupabaseAdmin();
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO-UPLOAD");
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar usuario
-    const { data: user } = await supabase
+    const { data: user } = await db
       .from("Users")
       .select("email")
       .eq("email", senderEmail)
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
     const path = `pulso/${conversacionId}/${ts}_${safeName}`;
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await db.storage
       .from("documentos")
       .upload(path, buffer, {
         contentType: file.type,
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 });
     }
 
-    const { data: urlData } = supabase.storage.from("documentos").getPublicUrl(path);
+    const { data: urlData } = db.storage.from("documentos").getPublicUrl(path);
 
     log.info("Archivo subido OK", { path, size: file.size, sender: senderEmail });
 

@@ -525,9 +525,9 @@ async function handleGasto(from: string, phone10: string, gastoData: GastoData, 
     return;
   }
 
-  const obraLine = gastoData.obra ? `\nObra: ${gastoData.obra}` : "";
-  const fotoLine = imageUrl ? "\nFoto del ticket guardada" : "";
-  await sendWhatsApp(from, `*GASTO REGISTRADO*\n\n$${gastoData.monto}${gastoData.proveedor ? `\n${gastoData.proveedor}` : ""}${gastoData.descripcion ? `\n${gastoData.descripcion}` : ""}${obraLine}${fotoLine}\n\nRegistrado en ARIA27!`);
+  const obraLine = gastoData.obra ? `\n🏗️ Obra: ${gastoData.obra}` : "";
+  const fotoLine = imageUrl ? "\n📷 Foto del ticket guardada" : "";
+  await sendWhatsApp(from, `💰 *GASTO REGISTRADO* 💰\n\n💵 $${gastoData.monto}${gastoData.proveedor ? `\n🏪 ${gastoData.proveedor}` : ""}${gastoData.descripcion ? `\n📝 ${gastoData.descripcion}` : ""}${obraLine}${fotoLine}\n\n✅ Registrado en ARIA27`);
 }
 
 // ============== MANEJAR FOTO OC ==============
@@ -554,7 +554,7 @@ async function handleFotoOC(from: string, folioOC: string, imageUrl: string) {
     return;
   }
 
-  await sendWhatsApp(from, `*FOTO GUARDADA*\n\nOC: ${folioOC}\nEstado: ${oc.status}\nFoto de entrega guardada\n\nRegistrado!`);
+  await sendWhatsApp(from, `📸 *FOTO DE ENTREGA GUARDADA*\n\n🛒 OC: ${folioOC}\n📊 Estado: ${oc.status}\n📷 Foto vinculada a la OC\n\n✅ Registrado en ARIA27`);
 }
 
 // ============== MANEJAR ASISTENCIA ==============
@@ -618,7 +618,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     if (dentroGeocerca) {
       await sendWhatsApp(from, `✅ ENTRADA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Buen día!`);
     } else {
-      await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Buen día!`);
+      await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA ⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n¡Buen día!`);
     }
     return;
   }
@@ -644,7 +644,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     if (dentroGeocerca) {
       await sendWhatsApp(from, `✅ SALIDA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${hora}\n⏱️ Total: ${horasStr}\n\n¡Hasta mañana!`);
     } else {
-      await sendWhatsApp(from, `⚠️ SALIDA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${hora}\n⏱️ Total: ${horasStr}\n\n¡Hasta mañana!`);
+      await sendWhatsApp(from, `⚠️ SALIDA REGISTRADA ⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${hora}\n⏱️ Total: ${horasStr}\n\n¡Hasta mañana!`);
     }
     return;
   }
@@ -679,7 +679,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       if (dentroGeocerca) {
         await sendWhatsApp(from, `✅ ENTRADA REGISTRADA ✅\n\nA ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n(Se actualizó tu registro del día)\n¡Buen día!`);
       } else {
-        await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n(Se actualizó tu registro del día)\n¡Buen día!`);
+        await sendWhatsApp(from, `⚠️ ENTRADA REGISTRADA ⚠️ FUERA: ${distText} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 ${hora}\n\n(Se actualizó tu registro del día)\n¡Buen día!`);
       }
       return;
     }
@@ -692,7 +692,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
     if (dentroGeocerca) {
       await sendWhatsApp(from, `✅ ASISTENCIA COMPLETA ✅\n\nA ${distTextC} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${asistenciaHoy.hora_salida.substring(0,5)}\n⏱️ Total: ${horasStrC}\n\nSi necesitas corregir algo, contacta a RH.`);
     } else {
-      await sendWhatsApp(from, `⚠️ ASISTENCIA COMPLETA⚠️ FUERA: ${distTextC} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${asistenciaHoy.hora_salida.substring(0,5)}\n⏱️ Total: ${horasStrC}\n\nSi necesitas corregir algo, contacta a RH.`);
+      await sendWhatsApp(from, `⚠️ ASISTENCIA COMPLETA ⚠️ FUERA: ${distTextC} de ${workCenter.nombre}\n\n👤 ${emp.full_name}\n📍 ${workCenter.nombre}\n🕐 Entrada: ${asistenciaHoy.hora_entrada.substring(0,5)}\n🕐 Salida: ${asistenciaHoy.hora_salida.substring(0,5)}\n⏱️ Total: ${horasStrC}\n\nSi necesitas corregir algo, contacta a RH.`);
     }
     return;
   }
@@ -866,7 +866,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      await sendWhatsApp(from, `*ARIA27*\n\nASISTENCIA: Envia tu ubicacion actual\n\nGASTO / TICKET: Foto del ticket, o escribe: "Gasto 500 OXXO gasolina"\n\nENTRADA DE MATERIAL: Foto + caption: "Entrada Arena 10 sacos MIRAVALLE"\n\nSALIDA DE MATERIAL: Foto + caption: "Salida Cemento 5 sacos MIRAVALLE"\n\nTRASLADO: Foto + caption: "Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN"\n\nFOTO DE ENTREGA OC: Foto + caption con folio: "OC-2026-00001"\n\nEn que te ayudo?`);
+      await sendWhatsApp(from, `🏗️ *ARIA27 — ¿En qué te ayudo?*\n\n📍 *ASISTENCIA*\nEnvía tu ubicación actual\n\n💰 *GASTO / TICKET*\nFoto del ticket, o escribe:\n_Gasto 500 OXXO gasolina_\n\n📦 *ENTRADA DE MATERIAL*\nFoto + caption:\n_Entrada Arena 10 sacos MIRAVALLE_\n\n📤 *SALIDA DE MATERIAL*\nFoto + caption:\n_Salida Cemento 5 sacos MIRAVALLE_\n\n🔄 *TRASLADO*\nFoto + caption:\n_Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN_\n\n📸 *FOTO ENTREGA OC*\nFoto + caption con folio:\n_OC-2026-00001_`);
       return NextResponse.json({ status: "help sent" });
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+const db = getSupabaseAdmin();
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("PULSO-ESCRIBIENDO");
@@ -7,7 +8,7 @@ const log = logger("PULSO-ESCRIBIENDO");
 // AUTH helper: verificar que el email existe en Users
 async function verifyUser(email: string | null): Promise<boolean> {
   if (!email) return false;
-  const { data } = await supabase
+  const { data } = await db
     .from("Users")
     .select("email")
     .eq("email", email)
@@ -28,14 +29,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (escribiendo) {
-      const { error: err1 } = await supabase.from("pulso_escribiendo").upsert({
+      const { error: err1 } = await db.from("pulso_escribiendo").upsert({
         conversacion_id,
         user_email,
         updated_at: new Date().toISOString()
       }, { onConflict: "conversacion_id,user_email" });
       if (err1) log.error("upsert pulso_escribiendo failed", { error: err1.message });
     } else {
-      const { error: err2 } = await supabase.from("pulso_escribiendo")
+      const { error: err2 } = await db.from("pulso_escribiendo")
         .delete()
         .eq("conversacion_id", conversacion_id)
         .eq("user_email", user_email);
@@ -65,10 +66,10 @@ export async function GET(req: NextRequest) {
 
     // Limpiar escribiendo viejo (mas de 5 segundos)
     const hace5seg = new Date(Date.now() - 5000).toISOString();
-    const { error: errClean } = await supabase.from("pulso_escribiendo").delete().lt("updated_at", hace5seg);
+    const { error: errClean } = await db.from("pulso_escribiendo").delete().lt("updated_at", hace5seg);
     if (errClean) log.error("delete stale pulso_escribiendo failed", { error: errClean.message });
 
-    const { data } = await supabase
+    const { data } = await db
       .from("pulso_escribiendo")
       .select("user_email")
       .eq("conversacion_id", convId)
