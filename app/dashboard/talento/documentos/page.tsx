@@ -71,6 +71,14 @@ export default function MisDocumentosPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentEmail, setCurrentEmail] = useState("anon");
 
+  /* —— DELETE CONFIRM modal —— */
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    ids: string[];
+    word: string;
+    deleting: boolean;
+  }>({ open: false, ids: [], word: "", deleting: false });
+
   /* —— PIN state —— */
   const [pinRequired, setPinRequired] = useState(false);
   const [pinInput, setPinInput] = useState("");
@@ -265,24 +273,33 @@ export default function MisDocumentosPage() {
   }
 
   /* —— DELETE —— */
-  async function handleDelete(docId: string) {
-    const doc = docs.find((d) => d.id === docId);
-    if (!doc) return;
-    const blobPath = doc.url.includes(`/object/public/${BUCKET}/`)
-      ? doc.url.split(`/object/public/${BUCKET}/`)[1]
-      : null;
-    if (blobPath) {
-      await supabase.storage.from(BUCKET).remove([blobPath]);
+  // Abre el modal de confirmación. La eliminación real la ejecuta confirmDelete().
+  function requestDelete(ids: string[]) {
+    if (ids.length === 0) return;
+    setDeleteModal({ open: true, ids, word: "", deleting: false });
+  }
+
+  async function executeDelete(ids: string[]) {
+    for (const docId of ids) {
+      const doc = docs.find((d) => d.id === docId);
+      if (!doc) continue;
+      const blobPath = doc.url.includes(`/object/public/${BUCKET}/`)
+        ? doc.url.split(`/object/public/${BUCKET}/`)[1]
+        : null;
+      if (blobPath) {
+        await supabase.storage.from(BUCKET).remove([blobPath]);
+      }
+      await supabase.from("mis_documentos").delete().eq("id", docId);
     }
-    await supabase.from("mis_documentos").delete().eq("id", docId);
     loadDocs();
   }
 
-  async function handleDeleteSelected() {
-    for (const id of selectedIds) {
-      await handleDelete(id);
-    }
+  async function confirmDelete() {
+    if (deleteModal.word !== "Delete") return;
+    setDeleteModal((prev) => ({ ...prev, deleting: true }));
+    await executeDelete(deleteModal.ids);
     setSelectedIds(new Set());
+    setDeleteModal({ open: false, ids: [], word: "", deleting: false });
   }
 
   /* -- DRAG & DROP -- */
@@ -298,13 +315,25 @@ export default function MisDocumentosPage() {
 
   const { dragging, progress: dropProgress, dropHandlers } = useDropZone(handleDroppedFiles);
 
-  /* —— DOWNLOAD —— */
-  function downloadFile(url: string, nombre: string) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = nombre;
-    a.target = "_blank";
-    a.click();
+  /* —— DOWNLOAD — fetch+blob, cero tab, cero diálogo —— */
+  async function downloadFile(url: string, nombre: string) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Fetch error " + res.status);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = nombre;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Fallback: descarga directa si CORS bloquea el fetch
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nombre;
+      a.click();
+    }
   }
 
   function downloadSelected() {
@@ -427,7 +456,7 @@ export default function MisDocumentosPage() {
                   <Download className="w-4 h-4" /> Descargar ({selectedIds.size})
                 </button>
                 <button
-                  onClick={handleDeleteSelected}
+                  onClick={() => requestDelete(Array.from(selectedIds))}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 text-sm transition-colors"
                 >
                   <Trash2 className="w-4 h-4" /> Eliminar ({selectedIds.size})
@@ -598,7 +627,7 @@ export default function MisDocumentosPage() {
                         <Download className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(doc.id)}
+                        onClick={() => requestDelete([doc.id])}
                         className="p-2 rounded-lg hover:bg-red-900/30 text-[#7f93b0] hover:text-red-400 transition-colors"
                         title="Eliminar"
                       >
@@ -653,6 +682,62 @@ export default function MisDocumentosPage() {
           </div>
         )}
       </div>
+
+      {/* —— DELETE CONFIRM MODAL —— */}
+      {deleteModal.open && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-[#0c1d38] border border-red-500/30 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                <Trash2 className="w-8 h-8 text-red-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white">
+                ¿Eliminar {deleteModal.ids.length === 1 ? "este archivo" : `${deleteModal.ids.length} archivos`}?
+              </h3>
+              <p className="text-sm text-red-300 font-medium">
+                Esta acción no tiene vuelta atrás.
+              </p>
+              <p className="text-sm text-[#7f93b0]">
+                El archivo será eliminado permanentemente del sistema y <span className="text-white font-medium">no podrá ser recuperado</span>.
+              </p>
+              <div className="w-full mt-2">
+                <p className="text-xs text-[#7f93b0] mb-2">
+                  Para confirmar, escribe <span className="text-white font-mono font-bold">Delete</span> en el campo de abajo:
+                </p>
+                <input
+                  type="text"
+                  value={deleteModal.word}
+                  onChange={(e) => setDeleteModal((prev) => ({ ...prev, word: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === "Enter" && deleteModal.word === "Delete") confirmDelete(); }}
+                  placeholder="Delete"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-xl bg-[#0a1628] border border-white/[0.08] text-white text-center font-mono text-lg focus:outline-none focus:border-red-500/50 placeholder-[#4a6080]"
+                />
+              </div>
+              <div className="flex gap-3 w-full mt-2">
+                <button
+                  onClick={() => setDeleteModal({ open: false, ids: [], word: "", deleting: false })}
+                  disabled={deleteModal.deleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#0f2448] text-[#c9d8ed] hover:bg-[#162040] transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleteModal.word !== "Delete" || deleteModal.deleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  {deleteModal.deleting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Eliminando…</>
+                  ) : (
+                    <><Trash2 className="w-4 h-4" /> Eliminar definitivamente</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* —— PIN MODAL —— */}
       {pinRequired && (
