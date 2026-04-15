@@ -497,6 +497,34 @@ async function findEmpleado(phone10: string, from: string) {
   return emp;
 }
 
+// ============== MANEJAR REQUISICIÓN VÍA WHATSAPP ==============
+async function handleRequisicionWA(from: string, extracted: import("@/lib/req-extractor").ExtractedRequisicion) {
+  const { buildPrefilledUrl } = await import("@/lib/req-extractor");
+  const url = buildPrefilledUrl(extracted);
+
+  const prioEmoji: Record<string, string> = {
+    CRITICO: "🔴", URGENTE: "🟠", NORMAL: "🟡", PLANIFICADO: "🟢",
+  };
+  const emoji = prioEmoji[extracted.prioridad] ?? "🟡";
+
+  const matsText = (extracted.materiales ?? [])
+    .slice(0, 6)
+    .map(m => `  • ${m.name}: ${m.qty} ${m.unit}`)
+    .join("\n");
+  const more = (extracted.materiales?.length ?? 0) > 6
+    ? `\n  + ${extracted.materiales.length - 6} más...` : "";
+
+  const obraLine = extracted.obra ? `\n🏗️ Obra: *${extracted.obra}*` : "\n🏗️ Obra: _(no detectada — selecciona en el form)_";
+  const fechaLine = extracted.fecha_requerida ? `\n📅 Para: *${extracted.fecha_requerida}*` : "";
+  const confianzaLine = extracted.confianza < 60
+    ? `\n\n⚠️ Confianza ${extracted.confianza}% — revisa los datos en el form`
+    : "";
+
+  await sendWhatsApp(from,
+    `📋 *PEDIDO DETECTADO* ${emoji}${obraLine}${fechaLine}\n\n📦 Materiales:\n${matsText}${more}${confianzaLine}\n\n*Revisa y envía tu requisición:*\n${url}\n\n_Toca el link para completar y confirmar_`
+  );
+}
+
 // ============== MANEJAR GASTO ==============
 async function handleGasto(from: string, phone10: string, gastoData: GastoData, imageUrl?: string) {
   const emp = await findEmpleado(phone10, from);
@@ -837,7 +865,34 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Si no es OC ni inventario ni traslado, procesar como gasto/ticket
+      // REQUISICIÓN desde imagen (ticket de materiales, lista manuscrita, nota de pedido)
+      const esRequisicionImg =
+        captionLower.includes("pedir") ||
+        captionLower.includes("req ") ||
+        captionLower === "req" ||
+        captionLower.includes("requisicion") ||
+        captionLower.includes("requisición") ||
+        captionLower.includes("necesito") ||
+        captionLower.includes("pedido") ||
+        captionLower.includes("solicitar");
+
+      if (esRequisicionImg) {
+        await sendWhatsApp(from, "🤖 Analizando tu lista de materiales... un momento.");
+        const { extractRequisicionFromImage } = await import("@/lib/req-extractor");
+        const reqData = await extractRequisicionFromImage(
+          mediaInfo.url, mediaInfo.mimeType, WHATSAPP_TOKEN || "", caption
+        );
+        if (reqData && reqData.materiales?.length > 0) {
+          await handleRequisicionWA(from, reqData);
+          return NextResponse.json({ status: "req image processed" });
+        }
+        await sendWhatsApp(from,
+          "No pude identificar materiales en la imagen.\n\nEnvía la imagen con caption:\n_Pedir [descripción]_\n\nO escribe directamente:\n_Pedir 10 sacos cemento para MIRAVALLE_"
+        );
+        return NextResponse.json({ status: "req image extraction failed" });
+      }
+
+      // Si no es OC ni inventario ni traslado ni requisición, procesar como gasto/ticket
       await sendWhatsApp(from, "Analizando ticket... espera un momento.");
       const gastoData = await extractGastoFromImage(mediaInfo.url, mediaInfo.mimeType);
       if (!gastoData || gastoData.monto === null) {
@@ -848,9 +903,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "gasto image processed" });
     }
 
-    // ====== TEXTO = POSIBLE GASTO ======
+    // ====== TEXTO = REQUISICIÓN / GASTO ======
     if (message.type === "text") {
-      const texto = message.text.body.toLowerCase();
+      const textoRaw = message.text.body;
+      const texto = textoRaw.toLowerCase();
+
+      // ── REQUISICIÓN (mayor prioridad que gasto) ──────────────────────
+      const esRequisicion =
+        texto.startsWith("pedir ") ||
+        texto.startsWith("req ") ||
+        texto === "req" ||
+        texto.includes("requisicion") ||
+        texto.includes("requisición") ||
+        texto.startsWith("necesito ") ||
+        texto.startsWith("solicitar ") ||
+        texto.includes("pedir materiales") ||
+        texto.includes("me faltan");
+
+      if (esRequisicion) {
+        await sendWhatsApp(from, "🤖 Analizando tu pedido... un momento.");
+        const { extractRequisicionFromText } = await import("@/lib/req-extractor");
+        const extracted = await extractRequisicionFromText(textoRaw);
+        if (!extracted || !extracted.materiales?.length) {
+          await sendWhatsApp(from,
+            `No pude identificar los materiales.\n\nEjemplo:\n_Pedir 10 sacos de cemento y 5 varillas 3/8 para MIRAVALLE_\n\nO escribe con más detalle qué necesitas.`
+          );
+          return NextResponse.json({ status: "req extraction failed" });
+        }
+        await handleRequisicionWA(from, extracted);
+        return NextResponse.json({ status: "req text processed" });
+      }
+
+      // ── GASTO ────────────────────────────────────────────────────────
       const esGasto = texto.includes("gasto") ||
         texto.includes("compre") ||
         texto.includes("pague") ||
@@ -859,14 +943,14 @@ export async function POST(request: NextRequest) {
         /\$?\d+/.test(texto);
 
       if (esGasto) {
-        const gastoData = await extractGastoFromText(message.text.body);
+        const gastoData = await extractGastoFromText(textoRaw);
         if (gastoData && gastoData.esGasto !== false && gastoData.monto) {
           await handleGasto(from, phone10, gastoData);
           return NextResponse.json({ status: "gasto text processed" });
         }
       }
 
-      await sendWhatsApp(from, `🏗️ *ARIA27 — ¿En qué te ayudo?*\n\n📍 *ASISTENCIA*\nEnvía tu ubicación actual\n\n💰 *GASTO / TICKET*\nFoto del ticket, o escribe:\n_Gasto 500 OXXO gasolina_\n\n📦 *ENTRADA DE MATERIAL*\nFoto + caption:\n_Entrada Arena 10 sacos MIRAVALLE_\n\n📤 *SALIDA DE MATERIAL*\nFoto + caption:\n_Salida Cemento 5 sacos MIRAVALLE_\n\n🔄 *TRASLADO*\nFoto + caption:\n_Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN_\n\n📸 *FOTO ENTREGA OC*\nFoto + caption con folio:\n_OC-2026-00001_`);
+      await sendWhatsApp(from, `🏗️ *ARIA27 — ¿En qué te ayudo?*\n\n📍 *ASISTENCIA*\nEnvía tu ubicación actual\n\n📋 *PEDIR MATERIALES*\n_Pedir 10 sacos cemento y 5 varillas para MIRAVALLE_\n\n💰 *GASTO / TICKET*\nFoto del ticket, o escribe:\n_Gasto 500 OXXO gasolina_\n\n📦 *ENTRADA DE MATERIAL*\nFoto + caption:\n_Entrada Arena 10 sacos MIRAVALLE_\n\n📤 *SALIDA DE MATERIAL*\nFoto + caption:\n_Salida Cemento 5 sacos MIRAVALLE_\n\n🔄 *TRASLADO*\nFoto + caption:\n_Traslado Varilla 20 kg de MIRAVALLE a JESUS TERAN_\n\n📸 *FOTO ENTREGA OC*\nFoto + caption con folio:\n_OC-2026-00001_`);
       return NextResponse.json({ status: "help sent" });
     }
 

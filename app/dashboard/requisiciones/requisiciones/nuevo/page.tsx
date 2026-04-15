@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt, Sparkles, AlertTriangle, Bot, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
 
 type CostCenter = { id: string; code: string; name: string };
@@ -61,6 +61,20 @@ export default function NewRequisitionPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // ── ERP: Prioridad + Presupuesto ──────────────────────────────────────────
+  const [prioridad, setPrioridad] = useState<"CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO">("NORMAL");
+  const [presupuesto, setPresupuesto] = useState<string>("");
+
+  // ── AI Assist: extracción de texto/WA ────────────────────────────────────
+  const [showAI, setShowAI] = useState(false);
+  const [aiTexto, setAiTexto] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  // ── Duplicate warning ────────────────────────────────────────────────────
+  const [duplicadoWarning, setDuplicadoWarning] = useState<{folio:string; obra:string; material:string} | null>(null);
+
+  const searchParams = useSearchParams();
   const formMode = TIPO_MAP[subcategoria] || "catalogo";
 
   useEffect(() => {
@@ -74,6 +88,48 @@ export default function NewRequisitionPage() {
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
+
+  // Pre-fill desde URL params (generados por AI extractor via WhatsApp link)
+  useEffect(() => {
+    if (!costCenters.length) return; // esperar a que carguen
+    const obra = searchParams.get("obra");
+    const prioParam = searchParams.get("prioridad");
+    const fechaParam = searchParams.get("fecha");
+    const comentariosParam = searchParams.get("comentarios");
+    const matsParam = searchParams.get("mats");
+
+    if (obra) {
+      const match = costCenters.find(c =>
+        c.name.toLowerCase().includes(obra.toLowerCase()) ||
+        obra.toLowerCase().includes(c.name.toLowerCase().split(" ")[0])
+      );
+      if (match) setSelectedCostCenterId(match.id);
+    }
+    if (prioParam && ["CRITICO","URGENTE","NORMAL","PLANIFICADO"].includes(prioParam)) {
+      setPrioridad(prioParam as "CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO");
+    }
+    if (fechaParam) setRequiredDate(fechaParam);
+    if (comentariosParam) setGeneralComments(comentariosParam);
+    if (matsParam) {
+      try {
+        const mats = JSON.parse(matsParam) as Array<{name:string;qty:number;unit:string;observations?:string}>;
+        const mapped = mats.map((m, i) => ({
+          id: -(i + 1), // id negativo = manual
+          name: m.name,
+          unit: m.unit || "PZA",
+          qty: m.qty || 1,
+          observations: m.observations || "",
+        }));
+        if (mapped.length > 0) {
+          setMaterials(mapped);
+          // Mostrar banner informativo
+          setAiTexto("(datos pre-llenados desde WhatsApp)");
+          setShowAI(false);
+        }
+      } catch { /* silencio si JSON malformado */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costCenters]);
 
   // Limpiar partidas cuando cambia el modo
   useEffect(() => {
@@ -129,6 +185,59 @@ export default function NewRequisitionPage() {
     return freeRows.length;
   };
 
+  // ── AI Assist: extraer datos de texto libre ──────────────────────────────
+  const handleAI = async () => {
+    if (!aiTexto.trim() || aiTexto === "(datos pre-llenados desde WhatsApp)") return;
+    setAiLoading(true); setAiError(null);
+    try {
+      const res = await fetch("/api/requisicion/extraer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-user-email": "recursos.humanos@gcuavante.com" },
+        body: JSON.stringify({ texto: aiTexto }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setAiError(data.error || "Error de extracción"); return; }
+
+      const { extracted, duplicado } = data;
+
+      // Pre-llenar obra
+      if (extracted.obra) {
+        const match = costCenters.find(c =>
+          c.name.toLowerCase().includes(extracted.obra!.toLowerCase()) ||
+          extracted.obra!.toLowerCase().includes(c.name.toLowerCase().split(" ")[0])
+        );
+        if (match) setSelectedCostCenterId(match.id);
+      }
+      // Pre-llenar fecha
+      if (extracted.fecha_requerida) setRequiredDate(extracted.fecha_requerida);
+      // Pre-llenar comentarios
+      if (extracted.comentarios) setGeneralComments(extracted.comentarios);
+      // Pre-llenar prioridad
+      if (extracted.prioridad) setPrioridad(extracted.prioridad);
+      // Pre-llenar materiales
+      if (extracted.materiales?.length > 0) {
+        setMaterials(extracted.materiales.map((m: {name:string;qty:number;unit:string;observations?:string}, i: number) => ({
+          id: -(i + 1),
+          name: m.name,
+          unit: m.unit || "PZA",
+          qty: m.qty || 1,
+          observations: m.observations || "",
+        })));
+      }
+      // Pre-llenar presupuesto
+      if (extracted.presupuesto_estimado) setPresupuesto(String(extracted.presupuesto_estimado));
+
+      // Duplicate warning
+      if (duplicado) setDuplicadoWarning({ folio: duplicado.folio, obra: duplicado.obra, material: duplicado.material_coincidente });
+
+      setShowAI(false);
+    } catch (e: unknown) {
+      setAiError(e instanceof Error ? e.message : "Error inesperado");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setErrorMsg(null); setMessage(null);
     if (!selectedCostCenterId) { setErrorMsg("Selecciona un centro de costo."); return; }
@@ -164,7 +273,11 @@ export default function NewRequisitionPage() {
         body: JSON.stringify({
           usuario: { nombre: "Usuario ARIA27", email: "recursos.humanos@gcuavante.com" },
           obra: center.name, comentarios: generalComments, materiales,
-          solicitante, subcategoria, requiredDate, costCenterId: center.id
+          solicitante, subcategoria, requiredDate, costCenterId: center.id,
+          // ERP fields
+          prioridad,
+          presupuesto_estimado: presupuesto ? Number(presupuesto) : null,
+          canal_origen: searchParams.get("mats") ? "WHATSAPP" : "WEB",
         })
       });
       const data = await res.json();
@@ -188,6 +301,52 @@ export default function NewRequisitionPage() {
 
       {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
       {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
+
+      {/* ── DUPLICATE WARNING ──────────────────────────────────────────── */}
+      {duplicadoWarning && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-400" />
+          <div className="flex-1">
+            <span className="font-semibold">Posible duplicado detectado: </span>
+            La requisición <span className="font-mono font-bold">{duplicadoWarning.folio}</span> en obra <strong>{duplicadoWarning.obra}</strong> tiene un material similar (<em>{duplicadoWarning.material}</em>) en las últimas 48h. Verifica antes de enviar.
+          </div>
+          <button onClick={() => setDuplicadoWarning(null)} className="text-amber-400/60 hover:text-amber-400">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* ── AI ASSIST PANEL ───────────────────────────────────────────── */}
+      {showAI ? (
+        <div className="rounded-2xl border border-aria-primary/30 bg-aria-primary/5 p-5 shadow-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-aria-accent font-semibold">
+              <Bot className="h-4 w-4" />
+              Asistente IA — Extraer requisición
+            </div>
+            <button onClick={() => { setShowAI(false); setAiError(null); }} className="text-white/40 hover:text-white/70"><X className="h-4 w-4" /></button>
+          </div>
+          <p className="text-xs text-white/50 mb-3">Pega el mensaje de WhatsApp, describe lo que necesitas, o cualquier lista de materiales. La IA llenará el formulario automáticamente.</p>
+          <textarea
+            className="h-24 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+            placeholder={'Ejemplo: "Necesito 10 sacos de cemento, 5 varillas 3/8 y 2 rollos de alambre para la obra Miravalle, lo necesito mañana URGENTE"'}
+            value={aiTexto}
+            onChange={e => setAiTexto(e.target.value)}
+          />
+          {aiError && <p className="mt-1 text-xs text-red-400">{aiError}</p>}
+          <div className="mt-3 flex justify-end gap-2">
+            <button onClick={() => { setShowAI(false); setAiError(null); }} className="rounded-full bg-white/[0.04] px-4 py-2 text-xs text-white/50 hover:bg-white/[0.08]">Cancelar</button>
+            <button onClick={handleAI} disabled={aiLoading || !aiTexto.trim()} className="inline-flex items-center gap-2 rounded-full bg-aria-primary/40 px-5 py-2 text-xs font-semibold text-aria-accent hover:bg-aria-primary/60 disabled:opacity-40 transition">
+              {aiLoading ? <><Loader2 className="h-3 w-3 animate-spin" />Analizando...</> : <><Sparkles className="h-3 w-3" />Extraer con IA</>}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setShowAI(true)} className="inline-flex items-center gap-2 self-start rounded-full border border-aria-primary/40 bg-aria-primary/10 px-4 py-2 text-xs font-medium text-aria-accent hover:bg-aria-primary/20 transition">
+          <Sparkles className="h-3 w-3" />
+          Extraer datos con IA desde texto o WhatsApp
+        </button>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* SECCION 1: CONFIGURACION */}
@@ -220,7 +379,40 @@ export default function NewRequisitionPage() {
               </select>
             </div>
           </div>
-          <div className="mt-4 space-y-1">
+          <div className="mt-3 grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Prioridad</label>
+              <select
+                className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-aria-accent ${
+                  prioridad === "CRITICO" ? "border-red-500/60 bg-red-500/10 text-red-300" :
+                  prioridad === "URGENTE" ? "border-orange-500/60 bg-orange-500/10 text-orange-300" :
+                  prioridad === "PLANIFICADO" ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-300" :
+                  "border-white/15 bg-black/30 text-white"
+                }`}
+                value={prioridad}
+                onChange={e => setPrioridad(e.target.value as "CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO")}
+              >
+                <option value="CRITICO">🔴 CRÍTICO — Hoy/Emergencia</option>
+                <option value="URGENTE">🟠 URGENTE — Mañana/Esta semana</option>
+                <option value="NORMAL">🟡 NORMAL</option>
+                <option value="PLANIFICADO">🟢 PLANIFICADO — +7 días</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Presupuesto estimado (opcional)</label>
+              <div className="flex items-center gap-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2">
+                <span className="text-sm text-white/40">$</span>
+                <input
+                  type="number" min="0" step="0.01"
+                  className="w-full bg-transparent text-sm outline-none"
+                  placeholder="0.00"
+                  value={presupuesto}
+                  onChange={e => setPresupuesto(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
             <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
           </div>

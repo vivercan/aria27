@@ -102,6 +102,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Usuario no autorizado", logs }, { status: 403 });
     }
 
+    // ── Detección de duplicados (últimas 48h, misma obra, material similar) ──
+    if (materiales?.length > 0) {
+      const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      const primerMat = String(materiales[0]?.name || "").trim().toLowerCase().substring(0, 5);
+      if (primerMat.length >= 3) {
+        const { data: recentReqs } = await supabase
+          .from("requisitions")
+          .select("id, folio, cost_center_name, status")
+          .ilike("cost_center_name", `%${obra.substring(0, 8)}%`)
+          .gte("created_at", cutoff)
+          .not("status", "in", '("RECHAZADA","RECHAZADA_DIRECCION")')
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+        if (recentReqs?.length) {
+          for (const rr of recentReqs) {
+            const { data: dupItems } = await supabase
+              .from("requisition_items")
+              .select("product_name")
+              .eq("requisition_id", rr.id)
+              .ilike("product_name", `%${primerMat}%`)
+              .limit(1);
+            if (dupItems?.length) {
+              // Posible duplicado — incluir advertencia en la respuesta pero NO bloquear
+              logs.push(`⚠️ POSIBLE DUPLICADO detectado: ${rr.folio} (${rr.status}) tiene material similar "${dupItems[0].product_name}"`);
+              log.warn(`[REQUISICION] Posible duplicado: ${rr.folio} para ${obra}`, { folio: rr.folio });
+              break;
+            }
+          }
+        }
+      }
+    }
+
     const folio = await getNextFolio();
     const token = crypto.randomUUID();
 
@@ -135,10 +168,21 @@ export async function POST(request: Request) {
     const initialStatus = flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE";
 
     const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
-      folio, cost_center_name: obra, instructions: comentarios,
-      required_date: requiredDate, status: initialStatus,
-      created_by: solicitante || displayName, user_email: usuario.email, authorization_comments: token,
-      subcategoria: subcategoria || null
+      folio,
+      cost_center_name: obra,
+      instructions: comentarios,
+      required_date: requiredDate,
+      status: initialStatus,
+      created_by: solicitante || displayName,
+      user_email: usuario.email,
+      authorization_comments: token,
+      subcategoria: subcategoria || null,
+      // ERP fields (additive — columnas opcionales, backwards compatible)
+      ...(body.prioridad ? { prioridad: body.prioridad } : {}),
+      ...(body.presupuesto_estimado ? { presupuesto_estimado: body.presupuesto_estimado } : {}),
+      canal_origen: body.canal_origen || "WEB",
+      ...(body.duplicado_de ? { duplicado_de: body.duplicado_de } : {}),
+      ...(body.foto_ticket_url ? { foto_ticket_url: body.foto_ticket_url } : {}),
     }).select().single();
 
     if (reqErr) throw reqErr;
@@ -238,7 +282,8 @@ export async function POST(request: Request) {
       notificados.push(`Admin: ${adminUser.email}`);
     }
 
-    return NextResponse.json({ success: true, folio, flujo, notificados, logs });
+    const posibleDuplicado = logs.some(l => l.includes("POSIBLE DUPLICADO"));
+    return NextResponse.json({ success: true, folio, flujo, notificados, logs, posibleDuplicado });
   } catch (error: unknown) {
     log.error(`ERROR:`, error);
     return NextResponse.json({ error: (error as {message?: string})?.message || "Unknown error", logs }, { status: 500 });
