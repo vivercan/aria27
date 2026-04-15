@@ -167,10 +167,10 @@ function HubCard({ module }: { module: ModuleItem }) {
   return (
     <Link
       href={module.href}
-      className="group relative flex flex-col rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+      className="group relative flex flex-col justify-center rounded-xl transition-all duration-200 hover:-translate-y-0.5"
       style={{
         height: "100%",
-        padding: "20px 20px 18px",
+        padding: "20px 20px 20px",
         backgroundColor: isHero ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.04)",
         border: isHero
           ? "1px solid rgba(59,130,246,0.28)"
@@ -205,13 +205,13 @@ function HubCard({ module }: { module: ModuleItem }) {
       {/* bloque ícono + texto juntos — sin void en el centro */}
       <div className="flex flex-col gap-3">
         <module.icon
-          style={{ width: isHero ? 32 : 28, height: isHero ? 32 : 28, color: module.accent }}
-          strokeWidth={1.5}
+          style={{ width: isHero ? 34 : 28, height: isHero ? 34 : 28, color: module.accent }}
+          strokeWidth={1.45}
         />
         <div>
           <h3
             className="font-semibold leading-snug"
-            style={{ fontSize: isHero ? "15px" : "14px", color: "rgba(255,255,255,0.95)" }}
+            style={{ fontSize: isHero ? "16px" : "13.5px", color: "rgba(255,255,255,0.95)" }}
           >
             {module.title}
           </h3>
