@@ -1,9 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Mail, Send, Trash2, RefreshCw, Loader2, Inbox, PenSquare,
-  ChevronLeft, Search, X, Paperclip, Star, Eye, AlertTriangle
+  ChevronLeft, Search, X, AlertTriangle
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -26,12 +25,12 @@ type Vista = "lista" | "leer" | "componer";
 type Carpeta = "INBOX" | "Sent";
 
 /* ── helpers ── */
-
 function fechaCorta(s: string) {
   try {
     const d = new Date(s);
     const hoy = new Date();
-    if (d.toDateString() === hoy.toDateString()) return d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+    if (d.toDateString() === hoy.toDateString())
+      return d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
     return d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
   } catch { return s; }
 }
@@ -42,17 +41,25 @@ function nombreCorto(raw: string) {
   return match ? match[1].trim() : raw.replace(/<.*>/, "").trim() || raw;
 }
 
+const CACHE_KEY = (folder: Carpeta) => `aria27_inbox_${folder}`;
+const AUTO_REFRESH_MS = 2 * 60 * 1000; // 2 minutos
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function InboxPage() {
   const { msg, flash, clear } = useFlashMessage();
-  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({
+    open: false, msg: "", onOk: () => {},
+  });
   const [vista, setVista] = useState<Vista>("lista");
   const [carpeta, setCarpeta] = useState<Carpeta>("INBOX");
   const [emails, setEmails] = useState<EmailHeader[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // recarga en segundo plano
   const [error, setError] = useState("");
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [seleccionados, setSeleccionados] = useState<Set<number>>(new Set());
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ── estado "leer" ── */
   const [emailActual, setEmailActual] = useState<EmailHeader | null>(null);
@@ -65,19 +72,15 @@ export default function InboxPage() {
   const [compBody, setCompBody] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  /* ── sesión Zoho — usa creds del sistema (ZOHO_EMAIL/ZOHO_PASSWORD en env vars) ── */
-  const [zohoEmail, setZohoEmail] = useState<string | null>(null);
-
-  const cerrarSesionZoho = async () => {
-    await fetch("/api/mail/auth", { method: "DELETE" });
-    setZohoEmail(null);
-    setEmails([]);
-  };
-
-  /* ── cargar lista ── */
-  const cargarEmails = useCallback(async () => {
-    if (!zohoEmail) return;
-    setLoading(true);
+  /* ─────────────────────────────────────────────────────────────
+     Cargar lista de correos.
+     - silencioso=true → mantiene emails actuales mientras recarga
+       (auto-refresh en segundo plano).
+     - silencioso=false (default) → muestra spinner de carga inicial.
+  ───────────────────────────────────────────────────────────── */
+  const cargarEmails = useCallback(async (silencioso = false) => {
+    if (!silencioso) setLoading(true);
+    else setRefreshing(true);
     setError("");
     try {
       const r = await fetch("/api/mail/inbox", {
@@ -86,15 +89,74 @@ export default function InboxPage() {
         body: JSON.stringify({ folder: carpeta, limit: 40 }),
       });
       const data = await r.json();
-      if (r.status === 401) { setZohoEmail(null); setLoading(false); return; }
-      if (!r.ok) throw new Error(data.error || "Error al cargar");
-      setEmails(data.emails || []);
-      setSeleccionados(new Set());
-    } catch (e: unknown) { setError((e as Error).message); }
-    setLoading(false);
-  }, [carpeta, zohoEmail]);
 
-  useEffect(() => { cargarEmails(); }, [cargarEmails]);
+      if (r.status === 401) {
+        // Credenciales no configuradas en el servidor
+        setError("Credenciales de correo no configuradas. Verifica ZOHO_EMAIL y ZOHO_PASSWORD en Vercel.");
+        if (!silencioso) setLoading(false);
+        else setRefreshing(false);
+        return;
+      }
+      if (!r.ok) throw new Error(data.error || "Error al conectar con Zoho");
+
+      const lista: EmailHeader[] = data.emails || [];
+      setEmails(lista);
+      setSeleccionados(new Set());
+      setLastUpdate(new Date());
+
+      // Guardar en caché de sesión
+      try {
+        sessionStorage.setItem(CACHE_KEY(carpeta), JSON.stringify({
+          emails: lista,
+          at: new Date().toISOString(),
+        }));
+      } catch { /* sessionStorage puede estar deshabilitado */ }
+
+    } catch (e: unknown) {
+      setError((e as Error).message || "Error de conexión con Zoho Mail");
+    }
+    if (!silencioso) setLoading(false);
+    else setRefreshing(false);
+  }, [carpeta]);
+
+  /* ── carga inicial: mostrar caché inmediatamente + fetch fresco ── */
+  useEffect(() => {
+    // Recuperar caché de sesión al instante (UX: emails visibles de inmediato)
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY(carpeta));
+      if (cached) {
+        const { emails: cachedEmails } = JSON.parse(cached);
+        if (Array.isArray(cachedEmails) && cachedEmails.length > 0) {
+          setEmails(cachedEmails);
+          setLoading(false); // no spinner si ya tenemos caché
+        }
+      }
+    } catch { /* no hay caché */ }
+
+    // Fetch fresco en paralelo
+    cargarEmails(emails.length > 0); // silencioso si ya hay caché
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carpeta]);
+
+  /* ── auto-refresh cada 2 minutos mientras esté en vista lista ── */
+  useEffect(() => {
+    if (vista !== "lista") return; // no refrescar si está leyendo o componiendo
+
+    intervalRef.current = setInterval(() => {
+      cargarEmails(true); // silencioso: sin spinner, sin limpiar lista
+    }, AUTO_REFRESH_MS);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [vista, cargarEmails]);
+
+  /* ── montar: primera carga al entrar ── */
+  useEffect(() => {
+    cargarEmails(false);
+  // Solo al montar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ── abrir email ── */
   const abrirEmail = async (em: EmailHeader) => {
@@ -116,17 +178,21 @@ export default function InboxPage() {
   /* ── eliminar seleccionados ── */
   const eliminarSeleccionados = async () => {
     if (seleccionados.size === 0) return;
-    setConfirmState({ open: true, msg: `¿Eliminar ${seleccionados.size} correo(s)?`, onOk: async () => {
-    try {
-      const uids = emails.filter(e => seleccionados.has(e.seqno)).map(e => e.seqno);
-      await fetch("/api/mail/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uids, folder: carpeta }),
-      });
-      cargarEmails();
-    } catch (e: unknown) { setError((e as Error).message); }
-    }});
+    setConfirmState({
+      open: true,
+      msg: `¿Eliminar ${seleccionados.size} correo(s)? Esta acción no se puede deshacer.`,
+      onOk: async () => {
+        try {
+          const uids = emails.filter(e => seleccionados.has(e.seqno)).map(e => e.seqno);
+          await fetch("/api/mail/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uids, folder: carpeta }),
+          });
+          cargarEmails(false);
+        } catch (e: unknown) { setError((e as Error).message); }
+      },
+    });
   };
 
   /* ── enviar ── */
@@ -137,15 +203,13 @@ export default function InboxPage() {
       const r = await fetch("/api/mail/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: compTo.trim(), subject: compSubject.trim(), body: compBody,
-        }),
+        body: JSON.stringify({ to: compTo.trim(), subject: compSubject.trim(), body: compBody }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Error al enviar");
       setCompTo(""); setCompSubject(""); setCompBody("");
       setVista("lista");
-      cargarEmails();
+      cargarEmails(false);
     } catch (e: unknown) { flash("err", "Error: " + (e as Error).message); }
     setEnviando(false);
   };
@@ -176,20 +240,10 @@ export default function InboxPage() {
     });
   };
 
-  /* ── activar automáticamente con creds del sistema al montar ── */
-  useEffect(() => {
-    // Las credenciales viven en env vars (ZOHO_EMAIL/ZOHO_PASSWORD).
-    // No se necesita login manual — el servidor las inyecta vía _zoho-creds.ts.
-    setZohoEmail("sistema");
-  }, []);
-
-  /* Sin pantalla de login — creds del sistema siempre activas */
-
   /* ═══════════════════════ VISTA COMPONER ═══════════════════════ */
   if (vista === "componer") {
     return (
       <div className="h-full flex flex-col overflow-hidden">
-        {/* header */}
         <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08]">
           <button onClick={() => setVista("lista")} className="p-2 hover:bg-white/[0.06] rounded-lg">
             <ChevronLeft className="w-5 h-5 text-[#7f93b0]" />
@@ -206,7 +260,6 @@ export default function InboxPage() {
             Enviar
           </button>
         </div>
-        {/* campos */}
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-3">
           <div className="flex items-center gap-2">
             <label className="text-sm text-[#7f93b0] w-16">Para:</label>
@@ -233,23 +286,31 @@ export default function InboxPage() {
   if (vista === "leer" && emailActual) {
     return (
       <div className="h-full flex flex-col overflow-hidden">
-        {/* header */}
         <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08]">
-          <button onClick={() => { setVista("lista"); setEmailActual(null); }} className="p-2 hover:bg-white/[0.06] rounded-lg">
+          <button
+            onClick={() => { setVista("lista"); setEmailActual(null); }}
+            className="p-2 hover:bg-white/[0.06] rounded-lg"
+          >
             <ChevronLeft className="w-5 h-5 text-[#7f93b0]" />
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold truncate">{emailActual.subject || "(sin asunto)"}</p>
-            <p className="text-xs text-[#7f93b0] truncate">De: {emailActual.from} · {fechaCorta(emailActual.date)}</p>
+            <p className="text-xs text-[#7f93b0] truncate">
+              De: {emailActual.from} · {fechaCorta(emailActual.date)}
+            </p>
           </div>
-          <button onClick={responder} className="px-3 py-1.5 bg-aria-accent-bg text-aria-accent rounded-lg text-sm hover:bg-aria-accent/30 transition-colors">
+          <button
+            onClick={responder}
+            className="px-3 py-1.5 bg-aria-accent-bg text-aria-accent rounded-lg text-sm hover:bg-aria-accent/30 transition-colors"
+          >
             Responder
           </button>
         </div>
-        {/* cuerpo */}
         <div className="flex-1 overflow-auto p-4 md:p-6">
           {cargandoCuerpo ? (
-            <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
+            </div>
           ) : cuerpo.html ? (
             <div className="bg-white rounded-lg p-4 text-black">
               <iframe
@@ -260,7 +321,9 @@ export default function InboxPage() {
               />
             </div>
           ) : (
-            <pre className="text-[#c9d8ed] whitespace-pre-wrap text-sm leading-relaxed">{cuerpo.body || "Sin contenido"}</pre>
+            <pre className="text-[#c9d8ed] whitespace-pre-wrap text-sm leading-relaxed">
+              {cuerpo.body || "Sin contenido"}
+            </pre>
           )}
         </div>
       </div>
@@ -271,7 +334,8 @@ export default function InboxPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="px-6 pt-3" />
-      {/* header */}
+
+      {/* HEADER */}
       <div className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-white/[0.08] flex-wrap">
         <AriaBackButton href="/dashboard" />
         <Mail className="w-5 h-5 text-aria-accent" />
@@ -280,8 +344,13 @@ export default function InboxPage() {
         {/* tabs carpeta */}
         <div className="flex bg-white/[0.04] rounded-lg p-0.5 ml-2">
           {(["INBOX", "Sent"] as Carpeta[]).map(c => (
-            <button key={c} onClick={() => { setCarpeta(c); setSeleccionados(new Set()); }}
-              className={`px-3 py-1 rounded-md text-sm transition-colors ${carpeta === c ? "bg-aria-accent/30 text-aria-accent" : "text-[#7f93b0] hover:text-white"}`}>
+            <button
+              key={c}
+              onClick={() => { setCarpeta(c); setSeleccionados(new Set()); setBusqueda(""); }}
+              className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                carpeta === c ? "bg-aria-accent/30 text-aria-accent" : "text-[#7f93b0] hover:text-white"
+              }`}
+            >
               {c === "INBOX" ? "Recibidos" : "Enviados"}
             </button>
           ))}
@@ -292,8 +361,12 @@ export default function InboxPage() {
         {/* buscador */}
         <div className="relative w-full md:w-64 order-last md:order-none mt-2 md:mt-0">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar..."
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg pl-9 pr-8 py-1.5 text-sm text-white outline-none focus:border-aria-accent/50" />
+          <input
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            placeholder="Buscar..."
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg pl-9 pr-8 py-1.5 text-sm text-white outline-none focus:border-aria-accent/50"
+          />
           {busqueda && (
             <button onClick={() => setBusqueda("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#4a6080]">
               <X className="w-3.5 h-3.5" />
@@ -302,29 +375,59 @@ export default function InboxPage() {
         </div>
 
         {/* acciones */}
-        <button onClick={() => setVista("componer")} className="px-3 py-1.5 bg-aria-accent hover:bg-aria-accent/80 text-white rounded-lg text-sm flex items-center gap-1.5 transition-colors">
+        <button
+          onClick={() => setVista("componer")}
+          className="px-3 py-1.5 bg-aria-accent hover:bg-aria-accent/80 text-white rounded-lg text-sm flex items-center gap-1.5 transition-colors"
+        >
           <PenSquare className="w-4 h-4" /> Redactar
         </button>
-        <button onClick={cargarEmails} disabled={loading} className="p-2 hover:bg-white/[0.06] rounded-lg text-[#7f93b0] disabled:opacity-40">
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+        <button
+          onClick={() => cargarEmails(false)}
+          disabled={loading}
+          title="Actualizar"
+          className="p-2 hover:bg-white/[0.06] rounded-lg text-[#7f93b0] disabled:opacity-40"
+        >
+          {loading || refreshing
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <RefreshCw className="w-4 h-4" />
+          }
         </button>
         {seleccionados.size > 0 && (
-          <button onClick={eliminarSeleccionados} className="p-2 hover:bg-red-500/20 rounded-lg text-red-400">
+          <button
+            onClick={eliminarSeleccionados}
+            className="p-2 hover:bg-red-500/20 rounded-lg text-red-400"
+            title={`Eliminar ${seleccionados.size} seleccionado(s)`}
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         )}
       </div>
 
-      {/* lista */}
-      <div className="flex-1 overflow-auto">
-        {error && (
-          <div className="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm">
-            {error}
+      {/* ERROR BANNER */}
+      {error && (
+        <div className="mx-4 mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-red-300 text-sm font-medium">Error de conexión</p>
+            <p className="text-red-400/80 text-xs mt-0.5">{error}</p>
           </div>
-        )}
+          <button
+            onClick={() => cargarEmails(false)}
+            className="text-xs text-red-400 hover:text-red-300 underline flex-shrink-0"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {/* LISTA */}
+      <div className="flex-1 overflow-auto">
         {loading && emails.length === 0 ? (
-          <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
-        ) : emailsFiltrados.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
+            <p className="text-sm text-[#7f93b0]">Conectando con Zoho Mail…</p>
+          </div>
+        ) : emailsFiltrados.length === 0 && !error ? (
           <div className="text-center py-16 text-[#4a6080]">
             <Inbox className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p>{busqueda ? "Sin resultados" : "Bandeja vacía"}</p>
@@ -332,12 +435,18 @@ export default function InboxPage() {
         ) : (
           <div className="divide-y divide-white/5">
             {emailsFiltrados.map(em => (
-              <div key={em.uid || em.seqno}
-                className={`flex items-center gap-3 px-4 md:px-6 py-3 hover:bg-white/[0.04] cursor-pointer transition-colors ${!em.seen ? "bg-aria-accent-bg" : ""}`}
+              <div
+                key={em.uid || em.seqno}
+                className={`flex items-center gap-3 px-4 md:px-6 py-3 hover:bg-white/[0.04] cursor-pointer transition-colors ${
+                  !em.seen ? "bg-aria-accent-bg" : ""
+                }`}
               >
-                <input type="checkbox" checked={seleccionados.has(em.seqno)}
+                <input
+                  type="checkbox"
+                  checked={seleccionados.has(em.seqno)}
                   onChange={() => toggleSel(em.seqno)}
-                  className="w-4 h-4 rounded border-white/[0.12] accent-aria-accent flex-shrink-0" />
+                  className="w-4 h-4 rounded border-white/[0.12] accent-aria-accent flex-shrink-0"
+                />
                 <div className="flex-1 min-w-0" onClick={() => abrirEmail(em)}>
                   <div className="flex items-center gap-2">
                     <span className={`text-sm truncate ${!em.seen ? "text-white font-semibold" : "text-[#c9d8ed]"}`}>
@@ -356,21 +465,23 @@ export default function InboxPage() {
         )}
       </div>
 
-      {/* footer */}
+      {/* FOOTER */}
       <div className="px-4 md:px-6 py-2 border-t border-white/[0.08] flex items-center justify-between text-xs text-[#4a6080]">
-        <span>{emails.length} correo(s) en {carpeta === "INBOX" ? "Recibidos" : "Enviados"}</span>
-        <div className="flex items-center gap-3">
-          <span>Zoho Mail</span>
-          <button onClick={cerrarSesionZoho} className="text-red-400 hover:text-red-300 transition-colors">
-            Cerrar sesión
-          </button>
-        </div>
+        <span>
+          {emails.length} correo{emails.length !== 1 ? "s" : ""} · {carpeta === "INBOX" ? "Recibidos" : "Enviados"}
+          {refreshing && <span className="ml-2 text-aria-accent/60">actualizando…</span>}
+        </span>
+        <span>
+          {lastUpdate && `Actualizado ${lastUpdate.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`}
+          <span className="ml-3 text-[#2a3c58]">· auto-refresh 2 min</span>
+        </span>
       </div>
+
       <ConfirmModal
         open={confirmState.open}
         message={confirmState.msg}
-        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }}
-        onCancel={() => setConfirmState(p => ({...p, open: false}))}
+        onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({ ...p, open: false })); }}
+        onCancel={() => setConfirmState(p => ({ ...p, open: false }))}
       />
     </div>
   );
