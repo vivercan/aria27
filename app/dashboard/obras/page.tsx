@@ -103,11 +103,9 @@ export default function ObrasPage() {
               <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
             </div>
             {/* tiles — crecen para llenar sección */}
-            <div className="flex-1 grid grid-cols-4 gap-2 min-h-0">
+            <div className="flex-1 grid grid-cols-4 gap-2 min-h-0" style={{ alignItems: "stretch" }}>
               {grupo.modulos.map((mod) => (
-                <div key={mod.href} className={mod.hero ? "col-span-2" : ""} style={{ minHeight: 0 }}>
-                  <HubCard module={mod} />
-                </div>
+                <HubCard key={mod.href} module={mod} />
               ))}
             </div>
           </section>
