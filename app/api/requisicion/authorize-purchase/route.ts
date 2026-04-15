@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
 import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
     if (autorizadorUser) {
       try {
         const emailResult = await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>",
+          from: RESEND_FROM,
           to: autorizadorUser.email,
           subject: `AUTORIZAR: ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
           html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">

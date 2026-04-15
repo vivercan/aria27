@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
 
     const resend = getResend();
     const { data: sent, error } = await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>",
+      from: RESEND_FROM,
       to: [to],
       subject: `🔔 ARIA27 Digest · ${urgentes.length} urgentes · ${atencion.length} atención`,
       html,

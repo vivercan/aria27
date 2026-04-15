@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
@@ -204,7 +205,7 @@ export async function POST(req: NextRequest) {
     let emailResult: EmailResult | null = null;
     let emailError: string | null = null;
     try {
-      emailResult = await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML }) as unknown as EmailResult;
+      emailResult = await resend.emails.send({ from: RESEND_FROM, to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML }) as unknown as EmailResult;
       if (emailResult?.error) {
         const errMsg = typeof emailResult.error === "string" ? emailResult.error : (emailResult.error as Record<string, unknown>)?.message ? String((emailResult.error as Record<string, unknown>).message) : JSON.stringify(emailResult.error);
         emailError = errMsg;

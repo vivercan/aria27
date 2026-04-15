@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
 import { logger } from "@/lib/logger";
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     const resend = getResend();
 
     const { data, error } = await resend.emails.send({
-      from: "ARIA27 <noreply@mail.jjcrm27.com>",
+      from: RESEND_FROM,
       to: [process.env.ADMIN_EMAIL || "juanviverosv@gmail.com"],
       subject: "✅ ARIA27 — Email de prueba",
       html: `

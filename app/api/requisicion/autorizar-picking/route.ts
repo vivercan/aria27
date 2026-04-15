@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
@@ -153,7 +154,7 @@ export async function POST(req: Request) {
     if (compras?.email) {
       try {
         const emailResult = await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>",
+          from: RESEND_FROM,
           to: compras.email,
           subject: `Compra Autorizada ${folio} - ${obra || "N/A"} ($${grandTotal.toLocaleString()})`,
           html: `

@@ -1,3 +1,4 @@
+import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       if (prov.email) {
         try {
           await resend.emails.send({
-            from: "ARIA27 <noreply@mail.jjcrm27.com>",
+            from: RESEND_FROM,
             to: prov.email,
             subject: `Solicitud de Cotización - ${folio} - ${obra}`,
             html: emailHtml,
