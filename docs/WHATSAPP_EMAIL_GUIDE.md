@@ -1,5 +1,5 @@
 # ARIA27 — Guía de Mensajería WhatsApp & Email
-> Última actualización: 14-Abr-2026 | Root cause 14-Abr + audit completo
+> Última actualización: 14-Abr-2026 noche | Root cause 14-Abr + audit completo + diagnóstico frente WA
 
 ---
 
@@ -156,8 +156,10 @@ Cron cada 15min → llama `/api/health` → si hay errores críticos envía WA a
 |------|--------|----------------|
 | `requisicion_validar` usa `language: "en"` | ⚠️ Riesgo | Confirmar en Meta BM si template está como `en` o `es_MX` |
 | `requisicion_compras` usa `language: "en"` | ⚠️ Riesgo | Mismo — si está como `es_MX` en Meta, cambiar código |
-| Todas las plantillas APROBADAS en Meta | 🔍 Pendiente | Meta BM → Configuración → Plantillas → verificar status APPROVED |
-| WHATSAPP_ACCESS_TOKEN no expirado | 🔍 Pendiente | Token expira c/60 días — verificar fecha en Meta Developer |
+| Todas las plantillas APROBADAS en Meta | 🔍 En revisión | 3 templates reformateados 14-Abr-2026 noche: `entrega_material`, `solicitar_cotizacion`, `comparativa_enviar` — en revisión Meta |
+| WHATSAPP_ACCESS_TOKEN no expirado | ✅ Verificado | Health endpoint /api/health confirma token válido + phone ID OK vs Meta API — 14-Abr-2026 19:12 CST |
+| Webhook `/api/webhook/attendance` responde challenge | ✅ Verificado | GET con hub.verify_token=aria27_webhook_token retorna challenge correctamente |
+| CRON_SECRET ausente en Vercel | ✅ Fix aplicado | health/route.ts acepta BACKUP_TOKEN como alias — commit 17cbfb2 |
 
 **Arquitectura correcta** (NO cambiar):
 - Webhook responses (asistencia/gasto/inventario) → `sendWhatsAppText` (texto libre, dentro ventana 24h) ✅
@@ -169,6 +171,7 @@ Cron cada 15min → llama `/api/health` → si hay errores críticos envía WA a
 
 | Fecha | Bug | Root Cause | Fix |
 |-------|-----|-----------|-----|
+| 14-Abr-2026 noche | Health endpoint 503 falso por CRON_SECRET ausente | `BACKUP_TOKEN` es alias válido pero health sólo revisaba `CRON_SECRET` | `health/route.ts` acepta cualquiera via `env:CRON_AUTH` — commit 17cbfb2 |
 | 14-Abr-2026 | `autorizar-picking` template fallaba | `oc_generada` recibía 5 params (faltaban proveedor+formaPago), template espera 6 | Fix en `autorizar-picking/route.ts` — añadir `firstSupplierName` + `firstFormaPago` |
 | 14-Abr-2026 | "Teléfono no registrado" todos los empleados | `supabase` anon bloqueado por RLS en `employees` | `db = getSupabaseAdmin()` en attendance + oc-foto |
 | 14-Abr-2026 | Mensajes sin emojis, sin "¡Hasta mañana!" | sendWhatsApp usaba texto plano | 6 mensajes handleAsistencia reescritos con formato correcto |
