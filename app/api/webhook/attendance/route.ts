@@ -19,17 +19,13 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_PHONE || "5218112392266";
 
 (function checkMisconfigOnBoot() {
-  const missingToken = !process.env.WHATSAPP_ACCESS_TOKEN;
-  const missingAnthro = !process.env.ANTHROPIC_API_KEY;
-  const missingUrlToken = !process.env.WEBHOOK_URL_TOKEN;
+  // Solo loguea en Vercel — NO envía WA para evitar spam en cold starts.
+  // El health-monitor cron (/api/cron/health-monitor cada 15 min) emite alertas WA si hay problemas.
   const issues: string[] = [];
-  if (missingToken) issues.push("🔴 WHATSAPP_ACCESS_TOKEN ausente");
-  if (missingAnthro) issues.push("🔴 ANTHROPIC_API_KEY ausente");
-  if (missingUrlToken) issues.push("⚠️ WEBHOOK_URL_TOKEN ausente — agrega a Vercel + URL de Meta webhook");
+  if (!process.env.WHATSAPP_ACCESS_TOKEN) issues.push("WHATSAPP_ACCESS_TOKEN ausente");
+  if (!process.env.ANTHROPIC_API_KEY)    issues.push("ANTHROPIC_API_KEY ausente");
+  if (!process.env.WEBHOOK_URL_TOKEN)    issues.push("WEBHOOK_URL_TOKEN ausente — agrega a Vercel + URL Meta webhook");
   if (issues.length > 0) {
-    const msg = `⚠️ *ARIA27 — WEBHOOK MAL CONFIGURADO*\\n\\n${issues.join("\\n")}\\n\\nAcción requerida URGENTE.`;
-    sendWhatsAppText(ADMIN_PHONE, msg, { origen: "webhook-attendance", enviadoPor: "boot-check" })
-      .catch(() => log.error("boot-check: no se pudo enviar alerta"));
     log.error("BOOT MISCONFIGURATION DETECTED", { issues });
   }
 })();
