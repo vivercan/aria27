@@ -114,36 +114,42 @@ export default function ObrasPage() {
         ))}
       </div>
 
-      {/* ── ACCESOS RÁPIDOS ── */}
-      <div className="flex-shrink-0 mt-3">
-        <div className="flex items-center gap-2.5 mb-2">
+      {/* ── ACCESOS RÁPIDOS — dock centrado abajo ── */}
+      <div className="flex-shrink-0 mt-4 flex flex-col items-center gap-2">
+        {/* separador con label centrado */}
+        <div className="flex items-center gap-3 w-full">
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
           <span
-            className="text-[9px] font-bold uppercase tracking-[0.16em]"
+            className="text-[9px] font-bold uppercase tracking-[0.18em]"
             style={{ color: "rgba(255,255,255,0.20)" }}
           >
             Accesos Rápidos
           </span>
-          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
         </div>
-        <div className="flex gap-2">
+        {/* pills centradas */}
+        <div className="flex gap-2.5">
           {quickLinks.map((ql) => (
             <Link
               key={ql.href}
               href={ql.href}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 hover:-translate-y-0.5"
+              className="flex items-center gap-2 rounded-full px-4 py-2 transition-all duration-150 hover:-translate-y-0.5"
               style={{
-                backgroundColor: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                backgroundColor: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                backdropFilter: "blur(10px)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.07)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.09)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.05)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.10)";
               }}
             >
-              <ql.icon style={{ width: 12, height: 12, color: "rgba(255,255,255,0.38)" }} strokeWidth={1.75} />
-              <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.50)" }}>
+              <ql.icon style={{ width: 13, height: 13, color: "rgba(255,255,255,0.45)" }} strokeWidth={1.75} />
+              <span className="text-[11.5px] font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>
                 {ql.label}
               </span>
             </Link>
