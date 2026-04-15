@@ -11,7 +11,7 @@ import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
+  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
 } from "lucide-react";
 
 const menuItems = [
@@ -343,7 +343,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </p>
           </div>
           <button onClick={handleLogout} className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-150 hover:bg-red-500/20" style={{ color: "#ef4444" }} title="Cerrar sesión">
-            <LogOut style={{ width: "13px", height: "13px" }} />
+            <Power style={{ width: "26px", height: "26px" }} />
           </button>
         </div>
       </aside>
