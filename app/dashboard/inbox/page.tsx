@@ -968,14 +968,17 @@ export default function InboxPage() {
               </button>
             ))}
             <div className="flex-1"/>
-            {/* Selector inteligente */}
+            {/* Selector con botón visible */}
             <div className="relative flex items-center gap-2 px-3">
               <div className="relative">
-                <button onClick={()=>setSelectDropdown(p=>!p)} className="flex items-center gap-1" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 2px"}}>
+                <button onClick={()=>setSelectDropdown(p=>!p)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors"
+                  style={{background:seleccionados.size>0?"rgba(123,182,255,0.18)":"rgba(255,255,255,0.07)",border:`1px solid ${seleccionados.size>0?G.blue:G.border}`,cursor:"pointer",color:seleccionados.size>0?G.blue:G.secondary,fontSize:12,fontWeight:seleccionados.size>0?600:400}}>
                   <input type="checkbox" checked={todosSeleccionados} onChange={()=>{}}
                     ref={el=>{if(el) el.indeterminate=algunosSeleccionados;}}
-                    style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none"}}/>
-                  <ChevronDown style={{width:10,height:10,color:G.secondary}}/>
+                    style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none",flexShrink:0}}/>
+                  <span>{seleccionados.size>0?`${seleccionados.size} sel.`:"Seleccionar"}</span>
+                  <ChevronDown style={{width:10,height:10}}/>
                 </button>
                 {selectDropdown&&(
                   <div className="absolute right-0 top-full mt-1 rounded-lg overflow-hidden z-20"
@@ -999,33 +1002,28 @@ export default function InboxPage() {
                 )}
               </div>
               {seleccionados.size>0&&(
-                <>
-                  <span style={{fontSize:11,color:G.secondary}}>{seleccionados.size} sel.</span>
-                  <button onClick={eliminarSeleccionados} className="p-1 rounded"
-                    style={{background:"none",border:"none",cursor:"pointer"}}
-                    onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background="rgba(255,80,60,0.12)")}
-                    onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="none")}>
-                    <Trash2 style={{width:12,height:12,color:G.secondary}}/>
-                  </button>
-                </>
+                <button onClick={eliminarSeleccionados}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                  style={{background:"rgba(255,80,60,0.12)",border:"1px solid rgba(255,80,60,0.25)",color:"#FF6B6B",fontSize:12,cursor:"pointer"}}>
+                  <Trash2 style={{width:12,height:12}}/> Eliminar
+                </button>
               )}
-              {seleccionados.size===0&&(
-                <span style={{fontSize:11,color:G.secondary}}>
-                  {emails.length} correo{emails.length!==1?"s":""}
-                  {unreadCount>0&&<span style={{color:G.blue,fontWeight:600}}> · {unreadCount} sin leer</span>}
-                </span>
-              )}
+              <span style={{fontSize:11,color:G.secondary,marginLeft:4}}>
+                {emails.length} correo{emails.length!==1?"s":""}
+                {unreadCount>0&&<span style={{color:G.blue,fontWeight:600}}> · {unreadCount} sin leer</span>}
+              </span>
             </div>
           </div>
 
           {/* Cabeceras columnas */}
           <div className="flex-shrink-0 flex items-center px-3 py-1.5 border-b"
             style={{background:"rgba(0,0,0,0.18)",borderColor:G.border}}>
-            <div style={{width:14+2+14+2+14+2+28+8,flexShrink:0}}/>
+            {/* offset checkboxes + flags + avatar */}
+            <div style={{width:14+4+13+4+13+4+26+6,flexShrink:0}}/>
             <ColH col="from"    label="De"      width={140}/>
-            <ColH col="subject" label="Asunto"/>
+            <ColH col="subject" label="Asunto"  width={260}/>
             <div className="flex-1"/>
-            <ColH col="date"    label="Recibido · Tamaño" width={120}/>
+            <ColH col="date"    label="Recibido · Tamaño" width={134}/>
           </div>
 
           {/* Error */}
@@ -1097,7 +1095,7 @@ export default function InboxPage() {
                         {name}
                       </span>
 
-                      <div className="flex-1 min-w-0 truncate">
+                      <div className="min-w-0 truncate" style={{width:260,flexShrink:0}}>
                         <span style={{fontSize:12,fontWeight:em.seen?400:600,color:em.seen?G.secondary:G.text}}>
                           {em.subject||"(sin asunto)"}
                         </span>
