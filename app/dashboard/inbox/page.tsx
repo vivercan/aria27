@@ -241,19 +241,20 @@ export default function InboxPage() {
     });
   };
 
-  /* ── palette Gmail ── */
+  /* ── palette: dark navy armónica con ARIA27 ── */
   const G = {
-    bg:        "#F6F8FC",
-    white:     "#FFFFFF",
-    border:    "#E2E8F0",
-    text:      "#202124",
-    secondary: "#5F6368",
-    blue:      "#1A73E8",
-    hover:     "#EAF0FB",
-    unread:    "#FFFFFF",
-    read:      "#F8F9FA",
-    selected:  "#C2DBFF",
-    error:     "#FCE8E6",
+    bg:        "#0D1F38",                      // main content area
+    sidebar:   "#08172E",                      // inbox sidebar ≈ ARIA27 nav (transición suave)
+    white:     "#112640",                      // superficie elevada (cards, modales)
+    border:    "rgba(145,175,225,0.11)",
+    text:      "#E8F0FE",                      // texto principal claro
+    secondary: "#7B9EC4",                      // texto secundario/muted
+    blue:      "#7BB6FF",                      // accent ARIA27
+    hover:     "#152E4D",                      // hover row
+    unread:    "#112844",                      // fila no leída (ligeramente más clara)
+    read:      "#0D1F38",                      // fila leída = mismo bg
+    selected:  "#1B3D6A",                      // fila seleccionada
+    error:     "rgba(217,48,37,0.12)",
   };
 
   /* ══════════════════════════════════════════════════════════
@@ -268,7 +269,7 @@ export default function InboxPage() {
       {/* ────────────── SIDEBAR ────────────── */}
       <aside
         className="flex-shrink-0 flex flex-col pt-3 pb-4"
-        style={{ width: 220, background: G.bg }}
+        style={{ width: 220, background: G.sidebar }}
       >
         {/* Compose */}
         <div className="px-3 mb-4">
@@ -300,7 +301,7 @@ export default function InboxPage() {
                 "0 1px 3px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.10)")
             }
           >
-            <PenSquare style={{ width: 20, height: 20, color: "#444746" }} />
+            <PenSquare style={{ width: 20, height: 20, color: G.text }} />
             Redactar
           </button>
         </div>
@@ -315,8 +316,8 @@ export default function InboxPage() {
               style={{
                 paddingLeft: 16,
                 paddingRight: 16,
-                background: carpeta === item.key ? "#D3E3FD" : "transparent",
-                color: carpeta === item.key ? "#041E49" : G.secondary,
+                background: carpeta === item.key ? "rgba(123,182,255,0.15)" : "transparent",
+                color: carpeta === item.key ? G.blue : G.secondary,
                 fontWeight: carpeta === item.key ? 700 : 400,
                 fontSize: 14,
                 cursor: "pointer",
@@ -331,7 +332,7 @@ export default function InboxPage() {
               }
               <span className="flex-1">{item.label}</span>
               {item.count > 0 && (
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#041E49" }}>{item.count}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: G.blue }}>{item.count}</span>
               )}
             </button>
           ))}
@@ -339,7 +340,7 @@ export default function InboxPage() {
 
         {/* Last update */}
         {lastUpdate && (
-          <div className="px-4" style={{ fontSize: 11, color: "#9AA0A6" }}>
+          <div className="px-4" style={{ fontSize: 11, color: G.secondary }}>
             {lastUpdate.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
             {refreshing && <span style={{ color: G.blue }}> · actualizando…</span>}
           </div>
@@ -365,7 +366,7 @@ export default function InboxPage() {
                 onClick={() => { setVista("lista"); setEmailActual(null); }}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                 title="Volver"
               >
@@ -389,7 +390,7 @@ export default function InboxPage() {
                 }
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                 title="Eliminar"
               >
@@ -402,15 +403,15 @@ export default function InboxPage() {
                 onClick={responder}
                 className="flex items-center gap-2 px-4 py-2 rounded-full transition-colors"
                 style={{
-                  background: "#E8F0FE",
+                  background: "rgba(123,182,255,0.12)",
                   color: G.blue,
                   fontSize: 13,
                   fontWeight: 500,
                   border: "none",
                   cursor: "pointer",
                 }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#D2E3FC")}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#E8F0FE")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(123,182,255,0.22)")}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(123,182,255,0.12)")}
               >
                 <Reply style={{ width: 15, height: 15 }} />
                 Responder
@@ -479,9 +480,9 @@ export default function InboxPage() {
                 <button
                   onClick={responder}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-full border transition-colors"
-                  style={{ borderColor: G.border, color: G.text, fontSize: 13, fontWeight: 500, background: G.white, cursor: "pointer" }}
+                  style={{ borderColor: G.border, color: G.text, fontSize: 13, fontWeight: 500, background: "transparent", cursor: "pointer" }}
                   onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = G.hover)}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = G.white)}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                 >
                   <Reply style={{ width: 15, height: 15 }} />
                   Responder
@@ -515,7 +516,7 @@ export default function InboxPage() {
                   placeholder="Buscar en correos"
                   className="w-full outline-none"
                   style={{
-                    background: "#EAF1FB",
+                    background: "rgba(145,175,225,0.10)",
                     border: "none",
                     borderRadius: 24,
                     padding: "9px 44px",
@@ -523,8 +524,8 @@ export default function InboxPage() {
                     color: G.text,
                     transition: "background 0.15s",
                   }}
-                  onFocus={e  => ((e.target as HTMLElement).style.background = G.white)}
-                  onBlur={e   => ((e.target as HTMLElement).style.background = "#EAF1FB")}
+                  onFocus={e  => ((e.target as HTMLElement).style.background = "rgba(145,175,225,0.18)")}
+                  onBlur={e   => ((e.target as HTMLElement).style.background = "rgba(145,175,225,0.10)")}
                 />
                 {busqueda && (
                   <button
@@ -542,7 +543,7 @@ export default function InboxPage() {
                 disabled={loading}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                 title="Actualizar"
               >
@@ -573,7 +574,7 @@ export default function InboxPage() {
                     onClick={eliminarSeleccionados}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors"
                     style={{ background: "none", border: "none", cursor: "pointer" }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                     onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                     title="Eliminar seleccionados"
                   >
@@ -594,16 +595,16 @@ export default function InboxPage() {
             {error && (
               <div
                 className="mx-4 mt-2 flex items-start gap-3 rounded-lg p-3"
-                style={{ background: G.error, border: "1px solid #F5C6C2" }}
+                style={{ background: G.error, border: "1px solid rgba(255,80,60,0.30)" }}
               >
                 <AlertTriangle style={{ width: 18, height: 18, color: "#D93025", flexShrink: 0, marginTop: 1 }} />
                 <div className="flex-1">
-                  <p style={{ fontSize: 13, color: "#D93025", fontWeight: 500 }}>Error de conexión</p>
-                  <p style={{ fontSize: 12, color: "#C62828", marginTop: 2 }}>{error}</p>
+                  <p style={{ fontSize: 13, color: "#FF6B6B", fontWeight: 500 }}>Error de conexión</p>
+                  <p style={{ fontSize: 12, color: "#FF8C8C", marginTop: 2 }}>{error}</p>
                 </div>
                 <button
                   onClick={() => cargarEmails(false)}
-                  style={{ fontSize: 12, color: "#D93025", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}
+                  style={{ fontSize: 12, color: "#FF6B6B", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}
                 >
                   Reintentar
                 </button>
@@ -611,7 +612,7 @@ export default function InboxPage() {
             )}
 
             {/* Lista */}
-            <div className="flex-1 overflow-auto" style={{ background: G.white }}>
+            <div className="flex-1 overflow-auto" style={{ background: G.bg }}>
               {loading && emails.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader2 style={{ width: 32, height: 32, color: G.blue }} className="animate-spin" />
@@ -619,7 +620,7 @@ export default function InboxPage() {
                 </div>
               ) : emailsFiltrados.length === 0 && !error ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <InboxIcon style={{ width: 56, height: 56, color: "#DADCE0", marginBottom: 12 }} />
+                  <InboxIcon style={{ width: 56, height: 56, color: "rgba(145,175,225,0.25)", marginBottom: 12 }} />
                   <p style={{ fontSize: 14, color: G.secondary }}>
                     {busqueda ? "Sin resultados para esa búsqueda" : "Bandeja vacía"}
                   </p>
@@ -686,7 +687,7 @@ export default function InboxPage() {
                         <Star
                           style={{
                             width: 16, height: 16,
-                            color: isStarred ? "#F4B400" : "#DADCE0",
+                            color: isStarred ? "#F4B400" : "rgba(145,175,225,0.35)",
                             fill:  isStarred ? "#F4B400" : "none",
                           }}
                         />
@@ -757,7 +758,7 @@ export default function InboxPage() {
           {/* Header */}
           <div
             className="flex items-center gap-2 px-4 flex-shrink-0"
-            style={{ height: 48, background: "#404040", cursor: "pointer" }}
+            style={{ height: 48, background: "#0A1929", cursor: "pointer", borderBottom: "1px solid rgba(145,175,225,0.15)" }}
             onClick={() => setCompMinimized(p => !p)}
           >
             <span style={{ fontSize: 14, fontWeight: 500, color: "white", flex: 1 }}>Nuevo mensaje</span>
@@ -839,7 +840,7 @@ export default function InboxPage() {
                   }
                   className="p-2 rounded-full transition-colors"
                   style={{ background: "none", border: "none", cursor: "pointer" }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                   onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                   title="Descartar borrador"
                 >
