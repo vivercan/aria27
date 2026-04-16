@@ -686,12 +686,12 @@ export default function InboxPage() {
               </button>
             </div>
             <p style={{fontSize:12,color:G.secondary,marginTop:2}}>Para: {emailActual.to||"—"} · {fechaLarga(emailActual.date)}</p>
-      style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>ordatorio: {new Date(reminders[emailActual.uid]).toLocaleString("es-MX")}</p>}
+            {reminders[emailActual.uid] && <p style={{fontSize:12,color:G.secondary,marginTop:2}}>Recordatorio: {new Date(reminders[emailActual.uid]).toLocaleString("es-MX")}</p>}
           </div>
         </div>
 
         {/* Body */}
-        <div className="rounded-xl overflow-hidden" style={{background:G.card,border:`1px solid ${G.border}`,padding:"20px 24px"}}>
+        <div className="rounded-xl overflow-hidden" style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
           {cargandoCuerpo ? (
             <div className="flex justify-center py-8"><Loader2 style={{width:24,height:24,color:G.blue}} className="animate-spin"/></div>
           ) : translated ? (
