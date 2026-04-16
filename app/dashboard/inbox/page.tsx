@@ -361,20 +361,29 @@ export default function InboxPage() {
     });
   };
 
-  /* ── palette: azul medio — más claro que sidebar ARIA27 ── */
+  /* ── palette Pearl — sidebar oscuro, contenido luminoso ── */
   const G = {
-    bg:       "#1C2E47",                    // contenido principal — azul medio legible
-    sidebar:  "#141E2E",                    // sidebar inbox — más oscuro, se funde con ARIA27
-    card:     "#213451",                    // superficies elevadas
-    border:   "rgba(145,175,225,0.13)",
-    text:     "#DCE9FF",                    // texto principal nítido
-    secondary:"#85A8CB",                   // texto secundario
-    blue:     "#7BB6FF",                    // accent ARIA27
-    hover:    "#243c5a",                    // hover row
-    unread:   "#1E3358",                    // fila no leída — azul tintado
-    read:     "#1C2E47",                    // fila leída = bg
-    selected: "#1D3E6A",
-    error:    "rgba(255,80,60,0.12)",
+    /* content area (light) */
+    bg:        "#F4F7FB",                   // pearl white — fondo principal
+    card:      "#FFFFFF",                   // cards puras blancas
+    border:    "rgba(30,60,120,0.11)",
+    text:      "#1A2840",                   // texto oscuro sobre claro
+    secondary: "#5B7A9A",                   // texto secundario azul-gris
+    blue:      "#1A73E8",                   // Google blue — legible sobre blanco
+    hover:     "#EBF1F9",                   // hover row
+    unread:    "#FFFFFF",                   // no leído = blanco puro
+    read:      "#F4F7FB",                   // leído = mismo pearl
+    selected:  "#D0E4FF",
+    error:     "#FEF2F2",
+    errorBorder:"rgba(220,60,40,0.25)",
+    /* sidebar (dark — puente hacia ARIA27 nav) */
+    sidebar:   "#1A2D42",
+    sidebarText:      "#E0ECF8",
+    sidebarSecondary: "#7B9EC4",
+    sidebarCard:      "#223550",
+    sidebarBorder:    "rgba(145,175,225,0.13)",
+    sidebarHover:     "rgba(123,182,255,0.10)",
+    sidebarSelected:  "rgba(123,182,255,0.18)",
   };
 
   /* ── shortcut hint ── */
@@ -393,10 +402,15 @@ export default function InboxPage() {
       style={{ background: G.bg, fontFamily: "system-ui, -apple-system, Arial, sans-serif" }}
     >
 
-      {/* ────────────── SIDEBAR ────────────── */}
+      {/* ────────────── SIDEBAR (dark — puente ARIA27 ↔ Pearl) ────────────── */}
       <aside
         className="flex-shrink-0 flex flex-col pt-3 pb-4"
-        style={{ width: 220, background: G.sidebar, borderRight: `1px solid ${G.border}` }}
+        style={{
+          width: 220,
+          background: G.sidebar,
+          boxShadow: "4px 0 20px rgba(0,0,0,0.22)",
+          zIndex: 1,
+        }}
       >
         {/* Redactar */}
         <div className="px-3 mb-4">
@@ -404,23 +418,23 @@ export default function InboxPage() {
             onClick={() => { setCompTo(""); setCompSubject(""); setCompBody(""); setComposeOpen(true); setCompMinimized(false); }}
             className="flex items-center gap-3 transition-all w-full"
             style={{
-              background: G.card,
+              background: G.sidebarCard,
               boxShadow: "0 1px 4px rgba(0,0,0,0.30)",
-              border: `1px solid ${G.border}`,
+              border: `1px solid ${G.sidebarBorder}`,
               borderRadius: 16,
               padding: "13px 18px",
-              color: G.text,
+              color: G.sidebarText,
               fontSize: 14,
               fontWeight: 500,
               cursor: "pointer",
               textAlign: "left",
             }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = G.hover)}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = G.card)}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(123,182,255,0.15)")}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = G.sidebarCard)}
           >
-            <PenSquare style={{ width: 18, height: 18, color: G.blue }} />
+            <PenSquare style={{ width: 18, height: 18, color: "#7BB6FF" }} />
             Redactar
-            <span style={{ marginLeft: "auto", fontSize: 10, color: G.secondary, fontWeight: 400 }}>c</span>
+            <span style={{ marginLeft: "auto", fontSize: 10, color: G.sidebarSecondary, fontWeight: 400 }}>c</span>
           </button>
         </div>
 
@@ -433,8 +447,8 @@ export default function InboxPage() {
               className="flex items-center gap-3 py-2.5 transition-colors"
               style={{
                 paddingLeft: 16, paddingRight: 16,
-                background: carpeta === item.key ? "rgba(123,182,255,0.15)" : "transparent",
-                color: carpeta === item.key ? G.blue : G.secondary,
+                background: carpeta === item.key ? G.sidebarSelected : "transparent",
+                color: carpeta === item.key ? "#7BB6FF" : G.sidebarSecondary,
                 fontWeight: carpeta === item.key ? 700 : 400,
                 fontSize: 14, cursor: "pointer", border: "none",
                 borderRadius: "0 24px 24px 0", textAlign: "left",
@@ -445,24 +459,24 @@ export default function InboxPage() {
                 : <Send      style={{ width: 17, height: 17, flexShrink: 0 }} />
               }
               <span className="flex-1">{item.label}</span>
-              {item.count > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: G.blue }}>{item.count}</span>}
+              {item.count > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: "#7BB6FF" }}>{item.count}</span>}
             </button>
           ))}
         </nav>
 
         {/* Shortcuts hint */}
-        <div className="px-4 pt-3 mt-auto" style={{ borderTop: `1px solid ${G.border}` }}>
-          <p style={{ fontSize: 10, color: G.secondary, marginBottom: 6, letterSpacing: "0.06em" }}>ATAJOS</p>
+        <div className="px-4 pt-3 mt-auto" style={{ borderTop: `1px solid ${G.sidebarBorder}` }}>
+          <p style={{ fontSize: 10, color: G.sidebarSecondary, marginBottom: 6, letterSpacing: "0.06em" }}>ATAJOS</p>
           {shortcuts.map(s => (
             <div key={s.key} className="flex items-center gap-2 mb-1.5">
-              <span style={{ fontSize: 10, background: G.card, color: G.text, padding: "1px 5px", borderRadius: 4, fontFamily: "monospace", border: `1px solid ${G.border}` }}>{s.key}</span>
-              <span style={{ fontSize: 11, color: G.secondary }}>{s.desc}</span>
+              <span style={{ fontSize: 10, background: G.sidebarCard, color: G.sidebarText, padding: "1px 5px", borderRadius: 4, fontFamily: "monospace", border: `1px solid ${G.sidebarBorder}` }}>{s.key}</span>
+              <span style={{ fontSize: 11, color: G.sidebarSecondary }}>{s.desc}</span>
             </div>
           ))}
           {lastUpdate && (
-            <p style={{ fontSize: 10, color: G.secondary, marginTop: 8 }}>
+            <p style={{ fontSize: 10, color: G.sidebarSecondary, marginTop: 8 }}>
               {lastUpdate.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
-              {refreshing && <span style={{ color: G.blue }}> · …</span>}
+              {refreshing && <span style={{ color: "#7BB6FF" }}> · …</span>}
             </p>
           )}
         </div>
@@ -484,7 +498,7 @@ export default function InboxPage() {
                 onClick={() => { setVista("lista"); setEmailActual(null); }}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Volver (Esc)"
               >
@@ -506,7 +520,7 @@ export default function InboxPage() {
               <button onClick={toggleLeido}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title={emailActual.seen ? "Marcar como no leído" : "Marcar como leído"}
               >
@@ -517,7 +531,7 @@ export default function InboxPage() {
               <button onClick={imprimirEmail}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Imprimir"
               >
@@ -680,7 +694,7 @@ export default function InboxPage() {
                 disabled={loading}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Actualizar"
               >
@@ -694,7 +708,7 @@ export default function InboxPage() {
             {/* FEATURE 1: Filtros rápidos */}
             <div
               className="flex-shrink-0 flex items-center border-b"
-              style={{ background: G.card, borderColor: G.border }}
+              style={{ background: "#FFFFFF", borderColor: G.border }}
             >
               {([ { key: "todos", label: "Todos", count: emails.length }, { key: "sinleer", label: "Sin leer", count: unreadCount }, { key: "destacados", label: "Destacados", count: starredCount } ] as { key: Filtro; label: string; count: number }[]).map(f => (
                 <button
@@ -750,14 +764,14 @@ export default function InboxPage() {
             {/* Error */}
             {error && (
               <div className="mx-4 mt-2 flex items-start gap-3 rounded-lg p-3"
-                style={{ background: G.error, border: "1px solid rgba(255,80,60,0.30)" }}>
-                <AlertTriangle style={{ width: 17, height: 17, color: "#FF6B6B", flexShrink: 0, marginTop: 1 }} />
+                style={{ background: G.error, border: `1px solid ${G.errorBorder}` }}>
+                <AlertTriangle style={{ width: 17, height: 17, color: "#DC2626", flexShrink: 0, marginTop: 1 }} />
                 <div className="flex-1">
-                  <p style={{ fontSize: 13, color: "#FF6B6B", fontWeight: 500 }}>Error de conexión</p>
-                  <p style={{ fontSize: 12, color: "#FF8C8C", marginTop: 2 }}>{error}</p>
+                  <p style={{ fontSize: 13, color: "#DC2626", fontWeight: 500 }}>Error de conexión</p>
+                  <p style={{ fontSize: 12, color: "#EF4444", marginTop: 2 }}>{error}</p>
                 </div>
                 <button onClick={() => cargarEmails(false)}
-                  style={{ fontSize: 12, color: "#FF6B6B", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}>
+                  style={{ fontSize: 12, color: "#DC2626", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}>
                   Reintentar
                 </button>
               </div>
@@ -772,7 +786,7 @@ export default function InboxPage() {
                 </div>
               ) : emailsFiltrados.length === 0 && !error ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <InboxIcon style={{ width: 52, height: 52, color: "rgba(145,175,225,0.20)", marginBottom: 12 }} />
+                  <InboxIcon style={{ width: 52, height: 52, color: "rgba(30,60,120,0.15)", marginBottom: 12 }} />
                   <p style={{ fontSize: 14, color: G.secondary }}>
                     {busqueda ? "Sin resultados" : filtro === "sinleer" ? "No hay correos sin leer" : filtro === "destacados" ? "No hay correos destacados" : "Bandeja vacía"}
                   </p>
@@ -819,7 +833,7 @@ export default function InboxPage() {
                           style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0, opacity: isStarred ? 1 : 0, transition: "opacity 0.15s" }}
                           className="group-hover:!opacity-100"
                         >
-                          <Star style={{ width: 15, height: 15, color: isStarred ? "#F4B400" : "rgba(145,175,225,0.35)", fill: isStarred ? "#F4B400" : "none" }} />
+                          <Star style={{ width: 15, height: 15, color: isStarred ? "#F4B400" : "rgba(30,60,120,0.20)", fill: isStarred ? "#F4B400" : "none" }} />
                         </button>
 
                         {/* Avatar */}
