@@ -406,13 +406,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         height: "22px",
                         padding: "0 6px",
                         borderRadius: "9999px",
-                        background: "linear-gradient(135deg,#FF4D4D 0%,#CC1111 100%)",
+                        background: "linear-gradient(160deg,#FF6B6B 0%,#DD0E0E 50%,#A80000 100%)",
                         color: "#fff",
                         fontSize: "12px",
                         fontWeight: 800,
                         lineHeight: 1,
                         flexShrink: 0,
-                        boxShadow: "0 0 10px rgba(255,60,60,0.70), 0 2px 5px rgba(0,0,0,0.40)",
+                        boxShadow: "0 5px 16px rgba(200,15,15,0.65), 0 2px 5px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,200,200,0.30)",
+                        border: "1.5px solid rgba(200,60,60,0.22)",
                         letterSpacing: "-0.3px",
                         textShadow: "0 1px 2px rgba(0,0,0,0.35)",
                       }}>
@@ -569,28 +570,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
                 }}
               >
-                <div className="text-right">
-                  <p
-                    className="text-[11px] uppercase tracking-[0.07em]"
-                    style={{ color: isDark ? "rgba(180,210,255,0.65)" : "#64748b" }}
-                    suppressHydrationWarning
-                  >
-                    {new Date().toLocaleDateString("es-MX", { weekday: "long" })}
-                  </p>
-                  <p
-                    className="text-[12px] font-semibold"
-                    style={{ color: isDark ? "rgba(230,242,255,0.82)" : "#334155" }}
-                    suppressHydrationWarning
-                  >
-                    {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
-                  </p>
+                <div suppressHydrationWarning style={{fontSize:11,fontWeight:600,whiteSpace:"nowrap",color:isDark?"rgba(195,220,255,0.75)":"#475569",letterSpacing:"0.02em",textTransform:"capitalize"}}>
+                  {new Date().toLocaleDateString("es-MX",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}
                 </div>
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
-                  style={{ backgroundColor: "rgba(37,99,235,0.22)", color: "#5b9bf8" }}
-                >
-                  {userName.charAt(0).toUpperCase() || "U"}
-                </div>
+                
               </div>
 
               {/* Mobile avatar only */}
