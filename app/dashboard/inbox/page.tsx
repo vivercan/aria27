@@ -660,7 +660,7 @@ export default function InboxPage() {
       </div>
 
       {/* Cuerpo del email */}
-      <div className="flex-1 overflow-auto px-5 py-4" style={{background:"#EEF2F7"}}>
+      <div className="flex-1 overflow-auto px-5 py-4 flex flex-col" style={{background:"#EEF2F7"}}>
         <h2 style={{fontSize:splitView?17:22,fontWeight:400,color:G.text,marginBottom:14,lineHeight:1.3}}>
           {emailActual.subject||"(sin asunto)"}
           {hasAttachment(emailActual)&&<Paperclip style={{width:15,height:15,display:"inline",marginLeft:8,color:G.secondary,verticalAlign:"middle"}}/>}
@@ -692,7 +692,7 @@ export default function InboxPage() {
         </div>
 
         {/* Body */}
-        <div className="rounded-xl overflow-hidden" style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
+        <div className="rounded-xl overflow-hidden flex-1 min-h-0" style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
           {cargandoCuerpo ? (
             <div className="flex justify-center py-8"><Loader2 style={{width:24,height:24,color:G.blue}} className="animate-spin"/></div>
           ) : translated ? (
