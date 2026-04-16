@@ -203,7 +203,7 @@ export default function InventarioObraPage() {
       formData.append("bucket", "inventario");
       formData.append("path", path);
       const res = await fetch("/api/inventario/watermark", { method: "POST", body: formData });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
         flash("err", "Error al subir foto: " + (data.error || "desconocido"));
         return null;
@@ -262,7 +262,7 @@ export default function InventarioObraPage() {
         headers: { "Content-Type": "application/json", "x-user-email": email },
         body: JSON.stringify({ nombre: nuevoNombre.trim(), obraId: obraSeleccionada.id }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setValidacionResult(data);
       if (data.nombreCorregido && data.esValido) {
         setNuevoNombre(data.nombreCorregido);

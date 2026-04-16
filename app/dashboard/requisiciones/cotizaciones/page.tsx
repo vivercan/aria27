@@ -119,7 +119,7 @@ export default function CotizacionesIAPage() {
         })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (data.success) {
         setResultado(data);

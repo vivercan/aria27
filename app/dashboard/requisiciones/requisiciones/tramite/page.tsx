@@ -247,7 +247,7 @@ Responde SOLO con JSON así:
         })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (data.response) {
         try {
           const match = data.response.match(/\[[\s\S]*\]/);

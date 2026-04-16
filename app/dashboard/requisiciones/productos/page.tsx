@@ -172,7 +172,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
         })
       });
       if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error||`Error ${res.status}`);}
-      const result=await res.json();
+      const result=await res.json().catch(() => ({}));
       let text=result.response||result.text||"";
       text=text.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim();
       const parsed=JSON.parse(text);

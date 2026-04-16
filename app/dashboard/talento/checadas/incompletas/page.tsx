@@ -31,7 +31,7 @@ export default function IncompletasPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/asistencias/incompletas");
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setIncompletas(data.incompletas || []);
       setSinRegistro(data.sinRegistro || []);
       setPeriodo(data.periodo || null);
@@ -62,7 +62,7 @@ export default function IncompletasPage() {
         setMensaje({ tipo: "success", texto: `✓ Salida registrada para ${item.empleado}` });
         setIncompletas(prev => prev.filter(a => a.id !== item.id));
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         setMensaje({ tipo: "error", texto: err.error || "Error al registrar" });
       }
     } catch (error: unknown) {
@@ -90,7 +90,7 @@ export default function IncompletasPage() {
         setMensaje({ tipo: "success", texto: `✓ Asistencia creada para ${item.empleado} - ${item.fecha}` });
         setSinRegistro(prev => prev.filter(a => !(a.employee_id === item.employee_id && a.fecha === item.fecha)));
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         setMensaje({ tipo: "error", texto: err.error || "Error al crear" });
       }
     } catch (error: unknown) {

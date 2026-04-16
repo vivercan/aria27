@@ -74,7 +74,7 @@ export default function ProspeccionPage() {
         throw new Error(errData.error || `Error ${res.status}`);
       }
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setWebResults(data.proveedores_web || []);
       setAnalisis(data.analisis || "");
       setRecomendacion(data.recomendacion || "");

@@ -231,7 +231,7 @@ export default function RequisicionesStatusPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requisitionIds: idsToDelete, userEmail, confirmation: "Borrar" }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setShowDeleteModal(false);
         setSelectedIds([]);

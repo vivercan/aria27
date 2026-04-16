@@ -189,7 +189,7 @@ export default function PreNominaPage() {
         headers: { "Content-Type": "application/json", "x-user-email": userEmail },
         body: JSON.stringify({ fechaReferencia: semanaInfo.inicio, forzar }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) {
         setMensaje({ tipo: "error", texto: data.error || `HTTP ${res.status}` });
       } else {

@@ -69,7 +69,7 @@ export default function WhatsAppLogPage() {
           params: paramsTest.split(",").map((s) => s.trim()).filter(Boolean),
         }),
       });
-      const j = await res.json();
+      const j = await res.json().catch(() => ({}));
       setTestResult(j.success ? `OK msg ${j.messageId}` : `ERROR: ${j.error}`);
       load();
     } catch (e: unknown) {

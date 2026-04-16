@@ -68,7 +68,7 @@ export default function RestorePage() {
       const res = await fetch("/api/backup/restore", {
         headers: { "x-user-email": userEmail },
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setAvailableDates(data.dates || []);
         if (data.dates?.length > 0) setSelectedDate(data.dates[0]);
@@ -100,7 +100,7 @@ export default function RestorePage() {
         body: JSON.stringify({ date: selectedDate, includeStorage }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setError(data.error || "Error desconocido");
