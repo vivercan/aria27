@@ -23,15 +23,15 @@ type ModuleItem = {
   hero?: boolean;
 };
 
-/* ── Paleta exacta por sección ── */
-const BLUE    = "#78B6FF";   // Operación
-const CYAN    = "#44D4FF";   // Construcción
-const ROSE    = "#FF7A72";   // Legal & IMSS
-const EMERALD = "#39D9B0";   // Documentación
+/* ── Colores exactos por sección ── */
+const BLUE    = "#7BB6FF";   // Operación
+const CYAN    = "#46D4FF";   // Construcción
+const ROSE    = "#FF7D74";   // Legal & IMSS
+const EMERALD = "#3AD8B1";   // Documentación
 
-const grupos: { label: string; accent: string; modulos: ModuleItem[] }[] = [
+const grupos: { label: string; modulos: ModuleItem[] }[] = [
   {
-    label: "Operación", accent: BLUE,
+    label: "Operación",
     modulos: [
       { title: "Centro de Control", description: "Presupuesto vs gasto real (OC + nómina) por obra. Semáforo de avance.", href: "/dashboard/obras/control",  icon: Activity,   accent: BLUE, hero: true },
       { title: "Pipeline",          description: "Vista kanban operativa de proyectos activos.",                          href: "/dashboard/obras/pipeline", icon: Kanban,     accent: BLUE },
@@ -40,7 +40,7 @@ const grupos: { label: string; accent: string; modulos: ModuleItem[] }[] = [
     ],
   },
   {
-    label: "Construcción", accent: CYAN,
+    label: "Construcción",
     modulos: [
       { title: "Control de Concreto", description: "Remisiones de colado, f'c, m³, pruebas de cilindro 7/14/28 días.", href: "/dashboard/obras/concreto/remisiones", icon: Droplet,      accent: CYAN },
       { title: "Concreto",            description: "Control de colados, resistencias y pedidos.",                       href: "/dashboard/obras/concreto",            icon: Layers,       accent: CYAN },
@@ -49,7 +49,7 @@ const grupos: { label: string; accent: string; modulos: ModuleItem[] }[] = [
     ],
   },
   {
-    label: "Legal & IMSS", accent: ROSE,
+    label: "Legal & IMSS",
     modulos: [
       { title: "SIROC IMSS",   description: "Registro de obras ante IMSS: fases, incidencias e importes bimestrales.", href: "/dashboard/obras/siroc/registros", icon: ShieldCheck, accent: ROSE },
       { title: "SIROC",        description: "Registro IMSS de obras ante SIROC.",                                      href: "/dashboard/obras/siroc",           icon: Building,    accent: ROSE },
@@ -58,7 +58,7 @@ const grupos: { label: string; accent: string; modulos: ModuleItem[] }[] = [
     ],
   },
   {
-    label: "Documentación", accent: EMERALD,
+    label: "Documentación",
     modulos: [
       { title: "Expedientes",    description: "Expedientes digitales de obra.",                         href: "/dashboard/obras/expedientes", icon: FolderOpen, accent: EMERALD },
       { title: "Planos",         description: "Visor de planos y documentos técnicos.",                 href: "/dashboard/obras/planos",      icon: Map,        accent: EMERALD },
@@ -74,22 +74,22 @@ export default function ObrasPage() {
       className="px-5 pt-4 pb-4 h-full flex flex-col overflow-hidden"
       style={{
         background: [
-          "radial-gradient(circle at 50% 34%, rgba(76,140,255,0.10) 0%, rgba(76,140,255,0.05) 18%, rgba(76,140,255,0.00) 44%)",
-          "linear-gradient(180deg, #06152F 0%, #08204A 42%, #0A2553 100%)",
+          "radial-gradient(circle at 50% 28%, rgba(72,132,235,0.08) 0%, rgba(72,132,235,0.04) 18%, rgba(72,132,235,0.00) 42%)",
+          "linear-gradient(180deg, #06152F 0%, #08204A 44%, #0A2553 100%)",
         ].join(", "),
       }}
     >
       {/* ── HEADER ── */}
       <div
-        className="flex-shrink-0 mb-4 px-4 py-3 rounded-xl"
+        className="flex-shrink-0 rounded-xl px-5 py-3"
         style={{
-          background: "linear-gradient(180deg, #123E92 0%, #0F377F 100%)",
-          borderBottom: "1px solid rgba(145,175,225,0.12)",
+          marginBottom: "30px",
+          background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)",
+          borderBottom: "1px solid rgba(150,180,230,0.10)",
         }}
       >
         <div className="flex items-baseline gap-3.5">
           <h1
-            className="leading-none"
             style={{
               fontSize: "32px",
               fontWeight: 800,
@@ -106,7 +106,6 @@ export default function ObrasPage() {
               fontSize: "14px",
               fontWeight: 500,
               color: "rgba(214,228,255,0.72)",
-              letterSpacing: 0,
             }}
           >
             Gestión de proyectos y construcción
@@ -115,34 +114,44 @@ export default function ObrasPage() {
       </div>
 
       {/* ── 4 SECCIONES ── */}
-      <div className="flex-1 flex flex-col min-h-0" style={{ gap: "18px" }}>
+      <div className="flex-1 flex flex-col min-h-0" style={{ gap: "26px" }}>
         {grupos.map((grupo) => (
           <section key={grupo.label} className="flex-1 flex flex-col min-h-0">
+
             {/* Label de sección */}
-            <div className="flex items-center gap-2.5 flex-shrink-0" style={{ marginBottom: "14px" }}>
+            <div
+              className="flex items-center flex-shrink-0"
+              style={{ gap: "12px", marginBottom: "16px" }}
+            >
               <span
                 className="uppercase"
                 style={{
                   fontSize: "12px",
                   fontWeight: 700,
                   letterSpacing: "0.16em",
-                  color: "rgba(188,208,238,0.66)",
+                  color: "rgba(188,208,238,0.64)",
                   flexShrink: 0,
+                  whiteSpace: "nowrap",
                 }}
               >
                 {grupo.label}
               </span>
               <div
                 className="flex-1 h-px"
-                style={{ background: "rgba(145,175,225,0.12)", marginLeft: "10px" }}
+                style={{ background: "rgba(145,175,225,0.12)" }}
               />
             </div>
+
             {/* Grid de cards */}
-            <div className="flex-1 grid grid-cols-4 gap-2 min-h-0" style={{ alignItems: "stretch" }}>
+            <div
+              className="flex-1 grid grid-cols-4 min-h-0"
+              style={{ gap: "10px", alignItems: "stretch" }}
+            >
               {grupo.modulos.map((mod) => (
                 <HubCard key={mod.href} module={mod} />
               ))}
             </div>
+
           </section>
         ))}
       </div>
@@ -150,9 +159,12 @@ export default function ObrasPage() {
       {/* ── ACCESOS RÁPIDOS ── */}
       <div
         className="flex-shrink-0 flex flex-col items-center"
-        style={{ marginTop: "34px", gap: "18px" }}
+        style={{ marginTop: "40px", gap: "20px" }}
       >
-        <div className="flex items-center gap-3 w-full">
+        <div
+          className="flex items-center w-full"
+          style={{ gap: "20px" }}
+        >
           <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.12)" }} />
           <span
             className="uppercase"
@@ -161,12 +173,14 @@ export default function ObrasPage() {
               fontWeight: 700,
               letterSpacing: "0.16em",
               color: "rgba(205,223,247,0.82)",
+              flexShrink: 0,
             }}
           >
             Accesos Rápidos
           </span>
           <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.12)" }} />
         </div>
+
         <div className="flex gap-3">
           {quickLinks.map((ql) => (
             <Link
@@ -176,18 +190,21 @@ export default function ObrasPage() {
               style={{
                 background: "linear-gradient(180deg, #214A98 0%, #1C428A 100%)",
                 border: "1px solid rgba(150,184,236,0.18)",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.20)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 5px 14px rgba(0,0,0,0.26)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 16px rgba(0,0,0,0.26)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.20)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)";
               }}
             >
-              <ql.icon style={{ width: 14, height: 14, color: "rgba(215,230,255,0.82)" }} strokeWidth={1.6} />
+              <ql.icon
+                style={{ width: 14, height: 14, color: "rgba(215,230,255,0.82)" }}
+                strokeWidth={1.6}
+              />
               <span style={{ fontSize: "13px", fontWeight: 500, color: "#EAF2FF" }}>
                 {ql.label}
               </span>
@@ -200,11 +217,11 @@ export default function ObrasPage() {
 }
 
 /* ══════════════════════════════════════════════════
-   HUBCARD — panel corporativo premium
+   HUBCARD
 ══════════════════════════════════════════════════ */
 function HubCard({ module }: { module: ModuleItem }) {
-  const isHero = module.hero;
-  const iconSize = isHero ? 38 : 32;   // +6% sobre 36 y 30
+  const isHero  = module.hero;
+  const iconSize = isHero ? 37 : 31;   // original 36/30 + 4%
 
   return (
     <Link
@@ -212,32 +229,41 @@ function HubCard({ module }: { module: ModuleItem }) {
       className="group relative flex flex-col justify-start rounded-[18px] transition-all duration-[220ms] ease-out"
       style={{
         height: "100%",
-        padding: "26px 24px 24px 24px",
-        background: "linear-gradient(180deg, #214887 0%, #1E427B 52%, #1A396B 100%)",
-        border: "1px solid rgba(132,170,235,0.16)",
-        boxShadow: "inset 0 1px 0 rgba(210,228,255,0.05), 0 10px 22px rgba(0,0,0,0.16)",
+        paddingTop: "28px",
+        paddingRight: "24px",
+        paddingBottom: "24px",
+        paddingLeft: "24px",
+        background: "linear-gradient(180deg, #294D86 0%, #24457A 54%, #203C69 100%)",
+        border: "1px solid rgba(136,166,214,0.14)",
+        boxShadow:
+          "inset 0 1px 0 rgba(220,232,252,0.04), 0 10px 24px rgba(0,0,0,0.14)",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
         (e.currentTarget as HTMLElement).style.boxShadow =
-          "inset 0 1px 0 rgba(210,228,255,0.08), 0 18px 34px rgba(0,0,0,0.24)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(160,192,245,0.24)";
+          "inset 0 1px 0 rgba(220,232,252,0.07), 0 18px 36px rgba(0,0,0,0.22)";
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(155,190,245,0.22)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
         (e.currentTarget as HTMLElement).style.boxShadow =
-          "inset 0 1px 0 rgba(210,228,255,0.05), 0 10px 22px rgba(0,0,0,0.16)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(132,170,235,0.16)";
+          "inset 0 1px 0 rgba(220,232,252,0.04), 0 10px 24px rgba(0,0,0,0.14)";
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(136,166,214,0.14)";
       }}
     >
-      {/* Ícono solo — sin texto al lado */}
+      {/* Ícono — solo, sin texto */}
       <module.icon
-        style={{ width: iconSize, height: iconSize, color: module.accent, flexShrink: 0 }}
+        style={{
+          width: iconSize,
+          height: iconSize,
+          color: module.accent,
+          flexShrink: 0,
+        }}
         strokeWidth={1.4}
       />
 
-      {/* Separación icono → título */}
-      <div style={{ height: "22px", flexShrink: 0 }} />
+      {/* 24px entre icono y título */}
+      <div style={{ height: "24px", flexShrink: 0 }} />
 
       {/* Título */}
       <h3
@@ -253,13 +279,13 @@ function HubCard({ module }: { module: ModuleItem }) {
         {module.title}
       </h3>
 
-      {/* Descripción */}
+      {/* 12px entre título y descripción */}
       <p
         style={{
           marginTop: "12px",
           fontSize: "14px",
           fontWeight: 500,
-          color: "rgba(220,232,250,0.80)",
+          color: "rgba(224,234,248,0.80)",
           lineHeight: 1.55,
           display: "-webkit-box",
           WebkitLineClamp: 2,
@@ -271,7 +297,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       </p>
 
       <ChevronRight
-        className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-30 transition-opacity duration-200"
+        className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-25 transition-opacity duration-200"
         style={{ width: 13, height: 13, color: module.accent }}
       />
     </Link>
