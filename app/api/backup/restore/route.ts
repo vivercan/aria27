@@ -93,7 +93,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const manifest = JSON.parse(await manifestBlob.text());
+  let manifest: Record<string, unknown>;
+  try {
+    manifest = JSON.parse(await manifestBlob.text());
+  } catch {
+    log.error("Manifest JSON inválido o corrupto", { date });
+    return NextResponse.json({ error: "El archivo manifest.json del backup está corrupto o es inválido" }, { status: 400 });
+  }
   log.info("Restauración iniciada", { date, solicitadoPor: userEmail });
 
   // ── FASE 1: Restaurar tablas ──────────────────────────────────────────

@@ -38,6 +38,7 @@ export default function AuthorizeRequisicionesPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [comments, setComments] = useState("");
+  const userEmail = typeof window !== "undefined" ? (localStorage.getItem("userEmail") || "sistema@aria27") : "sistema@aria27";
 
   useEffect(() => {
     loadPending();
@@ -71,7 +72,7 @@ export default function AuthorizeRequisicionesPage() {
         // Devolver: solo PATCH directo con OPTIMISTIC LOCK sobre status
         const { data: rows, error: updErr } = await supabase.from("requisitions").update({
           status: action,
-          authorized_by: "autorizador@gcuavante.com",
+          authorized_by: userEmail,
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
         }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
@@ -91,7 +92,7 @@ export default function AuthorizeRequisicionesPage() {
         // Fallback: PATCH directo con OPTIMISTIC LOCK sobre status
         const { data: rows, error: updErr } = await supabase.from("requisitions").update({
           status: action,
-          authorized_by: "autorizador@gcuavante.com",
+          authorized_by: userEmail,
           authorized_at: new Date().toISOString(),
           authorization_comments: comments
         }).eq("id", selectedReq.id).in("status", ["PENDIENTE", "EN_AUTORIZACION"]).select("id");
