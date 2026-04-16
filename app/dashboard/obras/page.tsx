@@ -221,7 +221,7 @@ export default function ObrasPage() {
 ══════════════════════════════════════════════════ */
 function HubCard({ module }: { module: ModuleItem }) {
   const isHero  = module.hero;
-  const iconSize = isHero ? 30 : 26;
+  const iconSize = isHero ? 34 : 29;
 
   return (
     <Link
@@ -230,11 +230,15 @@ function HubCard({ module }: { module: ModuleItem }) {
       style={{
         height: "100%",
         padding: "20px 18px 18px 20px",
-        /* GRIS EJECUTIVO — claramente diferente del fondo azul */
-        background: "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)",
-        border: "1px solid rgba(120,158,204,0.18)",
-        boxShadow:
-          "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)",
+        background: isHero
+          ? "linear-gradient(180deg, #314357 0%, #2A3C50 54%, #243448 100%)"
+          : "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)",
+        border: isHero
+          ? `1px solid rgba(120,158,204,0.28)`
+          : "1px solid rgba(120,158,204,0.18)",
+        boxShadow: isHero
+          ? `inset 0 1px 0 rgba(210,228,252,0.08), 0 10px 24px rgba(0,0,0,0.22)`
+          : "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
@@ -252,7 +256,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       {/* Ícono */}
       <module.icon
         style={{ width: iconSize, height: iconSize, color: module.accent, flexShrink: 0 }}
-        strokeWidth={1.4}
+        strokeWidth={1.6}
       />
 
       {/* Espaciado icono → título */}
@@ -261,7 +265,7 @@ function HubCard({ module }: { module: ModuleItem }) {
       {/* Título */}
       <h3
         style={{
-          fontSize: isHero ? "17px" : "15px",
+          fontSize: isHero ? "18px" : "16px",
           fontWeight: 700,
           color: "#F0F6FF",
           letterSpacing: "-0.018em",
