@@ -139,6 +139,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   /* Ref: true mientras el inbox page está montado — suspende el poll */
   const inboxActiveRef = useRef(false);
   const inboxVisitedRef = useRef(false);
+  const lastImapCountRef = useRef<number>(-1);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -156,11 +157,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         if (r.ok) {
           const d = await r.json().catch(() => ({}));
           const serverCount = d.count || 0;
-          setInboxUnread(prev => {
-            if (!inboxVisitedRef.current) return serverCount;
-            if (serverCount > prev) return serverCount;
-            return prev;
-          });
+          if (!inboxVisitedRef.current) {
+            /* inbox nunca visitado: mostrar count IMAP directamente */
+            lastImapCountRef.current = serverCount;
+            setInboxUnread(serverCount);
+          } else if (serverCount > lastImapCountRef.current && lastImapCountRef.current >= 0) {
+            /* IMAP aumentó desde última lectura → nuevos correos llegaron */
+            const delta = serverCount - lastImapCountRef.current;
+            lastImapCountRef.current = serverCount;
+            setInboxUnread(prev => prev + delta);
+          } else {
+            /* Sin cambio o bajó → mantener count preciso del inbox */
+            lastImapCountRef.current = serverCount;
+          }
         }
       } catch { /* silencioso */ }
     };
