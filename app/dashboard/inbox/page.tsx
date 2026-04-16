@@ -692,21 +692,21 @@ export default function InboxPage() {
         </div>
 
         {/* Body */}
-        <div className="rounded-xl overflow-auto flex-1 min-h-0" style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
+        <div className="rounded-xl flex-1 min-h-0 flex flex-col overflow-hidden" style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
           {cargandoCuerpo ? (
             <div className="flex justify-center py-8"><Loader2 style={{width:24,height:24,color:G.blue}} className="animate-spin"/></div>
           ) : translated ? (
-            <div>
+            <div className="flex-1 flex flex-col min-h-0">
               <div className="flex items-center gap-2 mb-3">
                 <span style={{fontSize:11,color:G.blue,background:"rgba(123,182,255,0.12)",borderRadius:10,padding:"2px 8px"}}>Traducido</span>
                 <button onClick={()=>setTranslated("")} style={{fontSize:11,color:G.secondary,background:"none",border:"none",cursor:"pointer"}}>Ver original</button>
               </div>
-              <pre style={{fontSize:`${zoom}%`,color:G.text,whiteSpace:"pre-wrap",lineHeight:1.7,fontFamily:"inherit"}}>{translated}</pre>
+              <pre className="flex-1 overflow-auto" style={{fontSize:`${zoom}%`,color:G.text,whiteSpace:"pre-wrap",lineHeight:1.7,fontFamily:"inherit"}}>{translated}</pre>
             </div>
           ) : cuerpo.html ? (
-            <iframe srcDoc={cuerpo.html} className="w-full border-0" style={{minHeight:300}} sandbox="allow-same-origin" title="Email"/>
+            <iframe srcDoc={cuerpo.html} className="w-full border-0 flex-1 min-h-0" style={{height:"100%"}} sandbox="allow-same-origin" title="Email"/>
           ) : (
-            <pre style={{fontSize:`${zoom}%`,color:G.text,whiteSpace:"pre-wrap",lineHeight:1.7,fontFamily:"inherit"}}>{cuerpo.body||"Sin contenido"}</pre>
+            <pre className="flex-1 overflow-auto" style={{fontSize:`${zoom}%`,color:G.text,whiteSpace:"pre-wrap",lineHeight:1.7,fontFamily:"inherit"}}>{cuerpo.body||"Sin contenido"}</pre>
           )}
         </div>
 
