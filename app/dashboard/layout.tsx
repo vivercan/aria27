@@ -13,6 +13,7 @@ import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
   ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
 } from "lucide-react";
+import React from "react";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
@@ -22,9 +23,11 @@ const menuItems = [
   { name: "Finanzas", icon: Wallet, href: "/dashboard/finanzas" },
   { name: "Activos", icon: Warehouse, href: "/dashboard/activos" },
   { name: "Plantillas", icon: FileText, href: "/dashboard/plantillas" },
+  // ── grupo Administración ──
   { name: "Administración", icon: Briefcase, href: "/dashboard/administracion" },
   { name: "Comunicación", icon: MessageCircle, href: "/dashboard/comunicacion" },
   { name: "Configuración", icon: Settings, href: "/dashboard/configuracion", hasSubmenu: true },
+  // ── herramientas ──
   { name: "ARIA Pulso", icon: MessageCircle, href: "#pulso" },
 ];
 
@@ -89,7 +92,6 @@ const searchableItems = [
   { name: "Correo", icon: ChevronRight, href: "/dashboard/configuracion/correo" },
   { name: "Alertas", icon: ChevronRight, href: "/dashboard/configuracion/alertas" },
   { name: "Recordatorios", icon: ChevronRight, href: "/dashboard/configuracion/recordatorios" },
-  // Módulos no presentes en menuItems pero accesibles via búsqueda
   { name: "Dashboard CEO", icon: ChevronRight, href: "/dashboard/ceo" },
   { name: "KPIs Dirección", icon: ChevronRight, href: "/dashboard/ceo" },
   { name: "Clientes", icon: ChevronRight, href: "/dashboard/clientes" },
@@ -101,7 +103,6 @@ const searchableItems = [
   { name: "Auditoría Sistema", icon: ChevronRight, href: "/dashboard/admin/auditoria" },
   { name: "Roles Permisos", icon: ChevronRight, href: "/dashboard/admin/roles" },
   { name: "WhatsApp Log", icon: ChevronRight, href: "/dashboard/whatsapp/log" },
-  { name: "Mis Documentos", icon: ChevronRight, href: "/dashboard/talento/documentos" },
   { name: "Importar CSV", icon: ChevronRight, href: "/dashboard/import" },
 ];
 
@@ -155,7 +156,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       } catch { /* silencioso */ }
     };
     fetchUnread();
-    const iv = setInterval(fetchUnread, 2 * 60 * 1000); // cada 2 minutos
+    const iv = setInterval(fetchUnread, 2 * 60 * 1000);
     return () => clearInterval(iv);
   }, []);
 
@@ -212,10 +213,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   const isDark = theme === "dark";
   const sidebarBg = isDark ? "#030b18" : "#ffffff";
-  const sidebarBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)";
-  const headerBg = isDark ? "rgba(3,11,24,0.95)" : "rgba(255,255,255,0.92)";
-  const navMuted = isDark ? "rgba(255,255,255,0.62)" : "#3d5470";
-  const navActive = "#5b9bf8";
+  const sidebarBorder = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
+  const headerBg = isDark ? "rgba(5,13,28,0.97)" : "rgba(255,255,255,0.94)";
+  const navMuted = isDark ? "rgba(255,255,255,0.55)" : "#3d5470";
+  const navActive = isDark ? "#7bb6ff" : "#2563eb";
+
+  /* Current top-level module name for header breadcrumb */
+  const currentModule = menuItems.find(
+    (item) => item.href !== "#pulso" && item.href !== "/dashboard" && pathname.startsWith(item.href)
+  )?.name ?? "";
 
   return (
     <div
@@ -236,25 +242,42 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           borderRight: `1px solid ${sidebarBorder}`,
         }}
       >
-        {/* Brand — exactly 52px to match main header */}
+        {/* ── Brand — 52px, matches main header ── */}
         <div
           className="flex-shrink-0 flex items-center px-5"
-          style={{ height: "52px", borderBottom: `1px solid ${sidebarBorder}` }}
+          style={{
+            height: "52px",
+            borderBottom: `1px solid ${sidebarBorder}`,
+            background: isDark
+              ? "linear-gradient(180deg, rgba(37,99,235,0.10) 0%, transparent 100%)"
+              : "transparent",
+          }}
         >
-          <Link href="/dashboard" className="block">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-[20px] font-black tracking-tight" style={{ color: "#2563eb" }}>ARIA</span>
-              <span className="text-[20px] font-black tracking-tight" style={{ color: isDark ? "rgba(255,255,255,0.85)" : "#1e293b" }}>27</span>
+          <Link href="/dashboard" className="block" style={{ textDecoration: "none" }}>
+            <div className="flex items-baseline gap-0.5">
+              <span style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: "#3b82f6" }}>
+                ARIA
+              </span>
+              <span style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: isDark ? "#ffffff" : "#1e293b" }}>
+                27
+              </span>
             </div>
-            <p className="text-[10px] font-medium tracking-[0.12em] mt-0.5 uppercase" style={{ color: navMuted }}>
+            <p style={{
+              fontSize: "10px",
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              marginTop: "1px",
+              textTransform: "uppercase",
+              color: isDark ? "rgba(148,190,245,0.72)" : "#4a6080",
+            }}>
               GCU · Avante
             </p>
           </Link>
         </div>
 
-        {/* Nav */}
+        {/* ── Nav ── */}
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
-          <div className="space-y-0.5 px-2">
+          <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
               if (item.href === "#pulso") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
@@ -262,6 +285,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             }).map((item) => {
               const isActive = pathname.startsWith(item.href) && item.href !== "#pulso";
               const isPulso = item.href === "#pulso";
+              const isAdminGroup = item.name === "Administración";
               const isItemActive = isPulso ? showPulso : isActive;
 
               const navStyle: React.CSSProperties = {
@@ -271,11 +295,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 width: "100%",
                 padding: "8px 12px",
                 borderRadius: "8px",
-                fontSize: "16px",
+                fontSize: "13px",
                 fontWeight: isItemActive ? 600 : 400,
                 color: isItemActive ? navActive : navMuted,
-                backgroundColor: isItemActive ? "rgba(37,99,235,0.12)" : "transparent",
-                boxShadow: isItemActive ? "inset 3px 0 0 #2563eb" : "none",
+                backgroundColor: isItemActive
+                  ? (isDark ? "rgba(59,130,246,0.18)" : "rgba(37,99,235,0.10)")
+                  : "transparent",
+                boxShadow: isItemActive ? "inset 3px 0 0 #3b82f6" : "none",
                 transition: "all 0.15s ease",
                 textDecoration: "none",
                 cursor: "pointer",
@@ -285,45 +311,85 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
               if (isPulso) {
                 return (
-                  <button key={item.name} onClick={() => setShowPulso(!showPulso)} style={navStyle}>
-                    <item.icon style={{ width: "16px", height: "16px", flexShrink: 0 }} />
-                    <span>{item.name}</span>
-                  </button>
+                  <React.Fragment key={item.name}>
+                    {/* Divider before ARIA Pulso */}
+                    <div style={{
+                      margin: "8px 10px 6px",
+                      height: "1px",
+                      background: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)",
+                    }} />
+                    <button onClick={() => setShowPulso(!showPulso)} style={navStyle}>
+                      <item.icon style={{ width: "15px", height: "15px", flexShrink: 0 }} />
+                      <span>{item.name}</span>
+                    </button>
+                  </React.Fragment>
                 );
               }
 
               const isInbox = item.href === "/dashboard/inbox";
               return (
-                <Link key={item.name} href={item.href} onClick={() => setMobileOpen(false)} style={navStyle}>
-                  <item.icon style={{ width: "16px", height: "16px", flexShrink: 0 }} />
-                  <span className="truncate flex-1">{item.name}</span>
-                  {isInbox && inboxUnread > 0 && (
-                    <span style={{
-                      display: "inline-flex",
+                <React.Fragment key={item.name}>
+                  {/* Labeled separator before Administración group */}
+                  {isAdminGroup && (
+                    <div style={{
+                      display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      minWidth: "18px",
-                      height: "18px",
-                      padding: "0 5px",
-                      borderRadius: "9999px",
-                      backgroundColor: "#ef4444",
-                      color: "#fff",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      flexShrink: 0,
+                      gap: "8px",
+                      margin: "10px 10px 6px",
                     }}>
-                      {inboxUnread > 99 ? "99+" : inboxUnread}
-                    </span>
+                      <div style={{
+                        flex: 1,
+                        height: "1px",
+                        background: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)",
+                      }} />
+                      <span style={{
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                        color: isDark ? "rgba(148,190,245,0.38)" : "#94a3b8",
+                        flexShrink: 0,
+                      }}>
+                        Admin
+                      </span>
+                      <div style={{
+                        flex: 1,
+                        height: "1px",
+                        background: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)",
+                      }} />
+                    </div>
                   )}
-                  {item.hasSubmenu && <ChevronRight style={{ width: "12px", height: "12px", opacity: 0.4 }} />}
-                </Link>
+                  <Link href={item.href} onClick={() => setMobileOpen(false)} style={navStyle}>
+                    <item.icon style={{ width: "15px", height: "15px", flexShrink: 0 }} />
+                    <span className="truncate flex-1">{item.name}</span>
+                    {isInbox && inboxUnread > 0 && (
+                      <span style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minWidth: "18px",
+                        height: "18px",
+                        padding: "0 5px",
+                        borderRadius: "9999px",
+                        backgroundColor: "#ef4444",
+                        color: "#fff",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        lineHeight: 1,
+                        flexShrink: 0,
+                      }}>
+                        {inboxUnread > 99 ? "99+" : inboxUnread}
+                      </span>
+                    )}
+                    {item.hasSubmenu && <ChevronRight style={{ width: "12px", height: "12px", opacity: 0.4 }} />}
+                  </Link>
+                </React.Fragment>
               );
             })}
           </div>
         </nav>
 
-        {/* Search — sidebar bottom */}
+        {/* ── Search — sidebar bottom ── */}
         <div className="px-3 py-2 relative" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
           <div
             className="flex items-center gap-2 px-3 h-8 rounded-lg"
@@ -383,27 +449,32 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        {/* Footer */}
+        {/* ── Footer ── */}
         <div
           className="px-5 py-3 flex items-center gap-2"
           style={{ borderTop: `1px solid ${sidebarBorder}` }}
         >
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
-            style={{ backgroundColor: "rgba(37,99,235,0.18)", color: "#5b9bf8" }}
+            style={{ backgroundColor: "rgba(37,99,235,0.20)", color: "#5b9bf8" }}
           >
             {userName.charAt(0).toUpperCase() || "U"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium truncate" style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}>
+            <p className="text-[11px] font-medium truncate" style={{ color: isDark ? "rgba(255,255,255,0.75)" : "#1e293b" }}>
               {userName || "—"}
             </p>
             <p className="text-[10px] truncate" style={{ color: navMuted }}>
               {userRole === "admin" ? "Administrador" : "Usuario"}
             </p>
           </div>
-          <button onClick={handleLogout} className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-150 hover:bg-red-500/20" style={{ color: "#ef4444" }} title="Cerrar sesión">
-            <Power style={{ width: "26px", height: "26px" }} />
+          <button
+            onClick={handleLogout}
+            className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-150 hover:bg-red-500/20"
+            style={{ color: "rgba(239,68,68,0.75)" }}
+            title="Cerrar sesión"
+          >
+            <Power style={{ width: "14px", height: "14px" }} />
           </button>
         </div>
       </aside>
@@ -413,18 +484,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         className="md:ml-[220px] relative z-10 h-screen flex flex-col overflow-hidden"
         style={{ background: "transparent" }}
       >
-
-        {/* Header 52px */}
+        {/* ── Header 52px ── */}
         <header
           className="sticky top-0 z-30 flex-shrink-0"
           style={{
             height: "52px",
             backgroundColor: headerBg,
-            borderBottom: `1px solid ${sidebarBorder}`,
-            backdropFilter: "blur(12px)",
+            borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.09)"}`,
+            backdropFilter: "blur(14px)",
           }}
         >
-          <div className="flex items-center h-full px-5 gap-3">
+          <div className="flex items-center h-full px-5 gap-4">
+            {/* Mobile menu button */}
             <button
               onClick={() => setMobileOpen(true)}
               className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]"
@@ -434,22 +505,59 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <Menu className="w-5 h-5" />
             </button>
 
+            {/* Current module indicator — desktop only */}
+            {currentModule && (
+              <span
+                className="hidden md:block text-[13px] font-semibold"
+                style={{
+                  color: isDark ? "rgba(210,230,255,0.80)" : "#1e293b",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {currentModule}
+              </span>
+            )}
+
+            {/* Right group */}
             <div className="flex items-center gap-3 ml-auto">
               <ThemeToggle />
 
-              {/* Date */}
-              <div className="hidden md:block text-right">
-                <p className="text-[10px] uppercase tracking-[0.08em]" style={{ color: navMuted }} suppressHydrationWarning>
-                  {new Date().toLocaleDateString("es-MX", { weekday: "long" })}
-                </p>
-                <p className="text-[11px] font-medium" style={{ color: isDark ? "rgba(255,255,255,0.6)" : "#475569" }} suppressHydrationWarning>
-                  {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
-                </p>
+              {/* Date + Avatar — grouped pill container */}
+              <div
+                className="hidden md:flex items-center gap-2.5 px-3 rounded-xl"
+                style={{
+                  height: "34px",
+                  background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+                  border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
+                }}
+              >
+                <div className="text-right">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.08em]"
+                    style={{ color: navMuted }}
+                    suppressHydrationWarning
+                  >
+                    {new Date().toLocaleDateString("es-MX", { weekday: "long" })}
+                  </p>
+                  <p
+                    className="text-[11px] font-medium"
+                    style={{ color: isDark ? "rgba(255,255,255,0.62)" : "#475569" }}
+                    suppressHydrationWarning
+                  >
+                    {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+                  style={{ backgroundColor: "rgba(37,99,235,0.22)", color: "#5b9bf8" }}
+                >
+                  {userName.charAt(0).toUpperCase() || "U"}
+                </div>
               </div>
 
-              {/* Avatar */}
+              {/* Mobile avatar only */}
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold"
+                className="w-8 h-8 rounded-full md:hidden flex items-center justify-center text-[12px] font-bold"
                 style={{ backgroundColor: "rgba(37,99,235,0.18)", color: "#5b9bf8" }}
               >
                 {userName.charAt(0).toUpperCase() || "U"}
