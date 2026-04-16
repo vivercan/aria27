@@ -223,8 +223,8 @@ function HubCard({ module }: { module: ModuleItem }) {
   const isHero  = module.hero;
   const iconSize = isHero ? 36 : 28;
 
-  /* Hero tiene fondo notablemente más claro + acento de color en tope */
-  const heroBg     = "linear-gradient(180deg, #3E5870 0%, #334C61 50%, #2B4156 100%)";
+  /* Hero tiene fondo azul marino real — diferente al gris de las demás cards */
+  const heroBg     = "linear-gradient(180deg, #1D3A5E 0%, #162F4E 54%, #112744 100%)";
   const normalBg   = "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)";
   const heroShadow = `inset 0 2px 0 rgba(123,182,255,0.38),
                       inset 0 1px 0 rgba(210,228,252,0.10),
