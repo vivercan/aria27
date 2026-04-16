@@ -189,14 +189,15 @@ export default function NewRequisitionPage() {
   const handleAI = async () => {
     if (!aiTexto.trim() || aiTexto === "(datos pre-llenados desde WhatsApp)") return;
     setAiLoading(true); setAiError(null);
+    const userEmail = localStorage.getItem("userEmail") || "";
     try {
       const res = await fetch("/api/requisicion/extraer", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": "recursos.humanos@gcuavante.com" },
+        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
         body: JSON.stringify({ texto: aiTexto }),
       });
-      const data = await res.json();
-      if (!res.ok) { setAiError(data.error || "Error de extracción"); return; }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setAiError((data as {error?: string}).error || "Error de extracción"); return; }
 
       const { extracted, duplicado } = data;
 
@@ -252,6 +253,11 @@ export default function NewRequisitionPage() {
     if (!center) return;
     setSending(true);
 
+    const userEmail = localStorage.getItem("userEmail") || "";
+    const userName = localStorage.getItem("userRole") === "admin"
+      ? (solicitante || "Administrador")
+      : (solicitante || "Usuario ARIA27");
+
     let materiales: Record<string, unknown>[] = [];
     if (formMode === "catalogo") {
       const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
@@ -271,7 +277,7 @@ export default function NewRequisitionPage() {
       const res = await fetch("/api/requisicion", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario: { nombre: "Usuario ARIA27", email: "recursos.humanos@gcuavante.com" },
+          usuario: { nombre: userName, email: userEmail },
           obra: center.name, comentarios: generalComments, materiales,
           solicitante, subcategoria, requiredDate, costCenterId: center.id,
           // ERP fields
@@ -280,13 +286,13 @@ export default function NewRequisitionPage() {
           canal_origen: searchParams.get("mats") ? "WHATSAPP" : "WEB",
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
+      if (!res.ok) throw new Error(data.error || `Error del servidor (${res.status})`);
       setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
       setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments("");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición.");
+      setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición. Intenta de nuevo.");
     } finally { setSending(false); }
   };
 
