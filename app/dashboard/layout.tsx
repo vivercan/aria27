@@ -138,6 +138,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [inboxUnread, setInboxUnread] = useState(0);
   /* Ref: true mientras el inbox page está montado — suspende el poll */
   const inboxActiveRef = useRef(false);
+  const inboxVisitedRef = useRef(false);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -146,7 +147,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  /* ── Polling no-leídos Inbox (cada 2 min) — PAUSA si inbox/page está activo ── */
+  /* ── Polling no-leídos Inbox (cada 30s) — PAUSA si inbox/page está activo ── */
   useEffect(() => {
     const fetchUnread = async () => {
       if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
@@ -154,12 +155,17 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         const r = await fetch("/api/mail/unread-count");
         if (r.ok) {
           const d = await r.json().catch(() => ({}));
-          setInboxUnread(d.count || 0);
+          const serverCount = d.count || 0;
+          setInboxUnread(prev => {
+            if (!inboxVisitedRef.current) return serverCount;
+            if (serverCount > prev) return serverCount;
+            return prev;
+          });
         }
       } catch { /* silencioso */ }
     };
     fetchUnread();
-    const iv = setInterval(fetchUnread, 2 * 60 * 1000);
+    const iv = setInterval(fetchUnread, 30 * 1000);
     return () => clearInterval(iv);
   }, []);
 
@@ -167,6 +173,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const hUpdate = (e: Event) => {
       inboxActiveRef.current = true; /* inbox está activo → poll suspendido */
+      inboxVisitedRef.current = true; /* inbox visitado → count preciso */
       const count = (e as CustomEvent<{count:number}>).detail?.count;
       if (typeof count === "number") setInboxUnread(count);
     };
