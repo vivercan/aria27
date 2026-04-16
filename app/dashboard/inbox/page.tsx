@@ -504,6 +504,8 @@ export default function InboxPage() {
   const todosSeleccionados = emailsFiltrados.length>0&&emailsFiltrados.every(e=>seleccionados.has(e.seqno));
   const algunosSeleccionados = seleccionados.size>0&&!todosSeleccionados;
 
+  const [hoveredSeqno, setHoveredSeqno] = useState<number|null>(null);
+
   const toggleStar = (seqno:number,ev:React.MouseEvent)=>{ ev.stopPropagation(); setStarred(p=>{const n=new Set(p);n.has(seqno)?n.delete(seqno):n.add(seqno);return n;}); };
   const toggleFlag = (seqno:number,ev:React.MouseEvent)=>{ ev.stopPropagation(); setFlagged(p=>{const n=new Set(p);n.has(seqno)?n.delete(seqno):n.add(seqno);return n;}); };
   const toggleSel  = (seqno:number) => setSeleccionados(p=>{const n=new Set(p);n.has(seqno)?n.delete(seqno):n.add(seqno);return n;});
@@ -1078,22 +1080,32 @@ export default function InboxPage() {
                   const name    = carpeta==="Sent"?nombreCorto(em.to):nombreCorto(em.from);
                   const catCol  = emailCats[em.uid]?CATEGORIES.find(c=>c.label===emailCats[em.uid])?.color:undefined;
 
+                  /* visible = seleccionado O hovering esta fila */
+                  const chkVisible = isSel || hoveredSeqno===em.seqno;
+
                   return (
                     <div key={em.uid||em.seqno}
                       className="group flex items-center gap-2 px-3 cursor-pointer transition-all border-b"
                       style={{paddingTop:rowPy,paddingBottom:rowPy,background:isSel||isAct?G.selected:em.seen?G.read:G.unread,borderColor:G.border,borderLeft:isFlag?"3px solid #E53935":em.seen?"3px solid transparent":`3px solid ${G.blue}`}}
-                      onClick={e=>{
-                        /* Si el click fue en zona de selección (checkbox/botones), no abrir */
-                        if ((e.target as HTMLElement).closest("[data-sel]")) return;
-                        abrirEmail(em);
+                      onClick={()=>abrirEmail(em)}
+                      onMouseEnter={e=>{
+                        setHoveredSeqno(em.seqno);
+                        if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=G.hover;
                       }}
-                      onMouseEnter={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=G.hover;}}
-                      onMouseLeave={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=em.seen?G.read:G.unread;}}>
+                      onMouseLeave={e=>{
+                        setHoveredSeqno(null);
+                        if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=em.seen?G.read:G.unread;
+                      }}>
 
-                      {/* Checkbox — visible al hover/seleccionado; pointer-events-none cuando invisible */}
-                      <div data-sel="1"
-                        className={isSel?"flex-shrink-0 opacity-100 pointer-events-auto":"flex-shrink-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}
-                        style={{width:13,height:13,transition:"opacity 0.12s"}}
+                      {/* Checkbox — clickable SOLO cuando visible (hover o seleccionado).
+                          pointerEvents inline = sin dependencia de Tailwind purge. */}
+                      <div
+                        style={{
+                          width:13,height:13,flexShrink:0,
+                          opacity: chkVisible?1:0,
+                          pointerEvents: chkVisible?"auto":"none",
+                          transition:"opacity 0.12s",cursor:"pointer"
+                        }}
                         onClick={e=>{e.stopPropagation();toggleSel(em.seqno);}}>
                         <input type="checkbox" checked={isSel} onChange={()=>{}}
                           style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none",display:"block"}}/>
