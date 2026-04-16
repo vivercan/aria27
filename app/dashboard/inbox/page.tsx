@@ -593,7 +593,8 @@ export default function InboxPage() {
             </button>
             <button onClick={()=>next&&abrirEmail(next)} disabled={!next}
               title={next?next.subject?.substring(0,40):"Último correo"}
-              ststyle={{background:next?"rgba(255,255,255,0.12)":"transparent",border:"1px solid",borderColor:next?"rgba(180,212,240,0.30)":"transparent",cursor:next?"pointer":"default",padding:5,borderRadius:6,opacity:next?1:0.22,display:"flex",alignItems:"center"}}             onMouseEnter={e=>{if(next)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
+              style={{background:next?"rgba(255,255,255,0.12)":"transparent",border:"1px solid",borderColor:next?"rgba(180,212,240,0.30)":"transparent",cursor:next?"pointer":"default",padding:5,borderRadius:6,opacity:next?1:0.22,display:"flex",alignItems:"center"}}
+              onMouseEnter={e=>{if(next)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
               onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="none";}}>
               <ChevronDown style={{width:18,height:18,color:"#B8D4F0"}}/>
             </button>
