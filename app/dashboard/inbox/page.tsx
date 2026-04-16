@@ -652,14 +652,14 @@ export default function InboxPage() {
           className="flex items-center gap-1 px-2 py-1 rounded-full"
           style={{background:"rgba(255,255,255,0.04)",border:`1px solid ${G.border}`,color:G.secondary,fontSize:11,cursor:"pointer"}}
           onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.08)")}
-          onMouseLeave<div className="flex-1 overflow-auto px-5 py-4" style={{background:"#EEF2F7"}}>kground="rgba(255,255,255,0.04)")}
+          onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.04)")}
           title="Ver todos los correos de este remitente">
           <UserSearch style={{width:12,height:12}}/>
         </button>
       </div>
 
       {/* Cuerpo del email */}
-      <div className="flex-1 overflow-auto px-5 py-4">
+      <div className="flex-1 overflow-auto px-5 py-4" style={{background:"#EEF2F7"}}>
         <h2 style={{fontSize:splitView?17:22,fontWeight:400,color:G.text,marginBottom:14,lineHeight:1.3}}>
           {emailActual.subject||"(sin asunto)"}
           {hasAttachment(emailActual)&&<Paperclip style={{width:15,height:15,display:"inline",marginLeft:8,color:G.secondary,verticalAlign:"middle"}}/>}
