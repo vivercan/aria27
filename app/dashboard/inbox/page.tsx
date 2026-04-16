@@ -494,6 +494,11 @@ export default function InboxPage() {
   });
 
   const unreadCount        = emails.filter(e=>!e.seen).length;
+
+  /* ── Notificar al layout cuando cambia el conteo de no leídos ── */
+  useEffect(()=>{
+    window.dispatchEvent(new CustomEvent("inboxUnreadUpdate",{detail:{count:unreadCount}}));
+  },[unreadCount]);
   const starredCount       = starred.size;
   const flaggedCount       = flagged.size;
   const todosSeleccionados = emailsFiltrados.length>0&&emailsFiltrados.every(e=>seleccionados.has(e.seqno));
@@ -1077,13 +1082,22 @@ export default function InboxPage() {
                     <div key={em.uid||em.seqno}
                       className="group flex items-center gap-2 px-3 cursor-pointer transition-all border-b"
                       style={{paddingTop:rowPy,paddingBottom:rowPy,background:isSel||isAct?G.selected:em.seen?G.read:G.unread,borderColor:G.border,borderLeft:isFlag?"3px solid #E53935":em.seen?"3px solid transparent":`3px solid ${G.blue}`}}
-                      onClick={()=>abrirEmail(em)}
+                      onClick={e=>{
+                        /* Si el click fue en zona de selección (checkbox/botones), no abrir */
+                        if ((e.target as HTMLElement).closest("[data-sel]")) return;
+                        abrirEmail(em);
+                      }}
                       onMouseEnter={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=G.hover;}}
                       onMouseLeave={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=em.seen?G.read:G.unread;}}>
 
-                      {/* Checkbox — solo visible al hover o cuando está marcado */}
-                      <input type="checkbox" checked={isSel} onChange={()=>toggleSel(em.seqno)} onClick={e=>e.stopPropagation()}
-                        style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",flexShrink:0,opacity:isSel?1:0,transition:"opacity 0.12s"}} className="group-hover:!opacity-100"/>
+                      {/* Checkbox — visible al hover/seleccionado; pointer-events-none cuando invisible */}
+                      <div data-sel="1"
+                        className={isSel?"flex-shrink-0 opacity-100 pointer-events-auto":"flex-shrink-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}
+                        style={{width:13,height:13,transition:"opacity 0.12s"}}
+                        onClick={e=>{e.stopPropagation();toggleSel(em.seqno);}}>
+                        <input type="checkbox" checked={isSel} onChange={()=>{}}
+                          style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",pointerEvents:"none",display:"block"}}/>
+                      </div>
 
                       {/* Estrella — SIEMPRE visible */}
                       <button onClick={e=>toggleStar(em.seqno,e)} title="Marcar relevante"

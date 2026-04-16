@@ -160,6 +160,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return () => clearInterval(iv);
   }, []);
 
+  /* ── Actualización inmediata desde inbox/page (custom event) ── */
+  useEffect(() => {
+    const h = (e: Event) => {
+      const count = (e as CustomEvent<{count:number}>).detail?.count;
+      if (typeof count === "number") setInboxUnread(count);
+    };
+    window.addEventListener("inboxUnreadUpdate", h);
+    return () => window.removeEventListener("inboxUnreadUpdate", h);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.altKey || e.key !== "ArrowLeft") return;
@@ -367,16 +377,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        minWidth: "18px",
-                        height: "18px",
-                        padding: "0 5px",
+                        minWidth: "22px",
+                        height: "22px",
+                        padding: "0 6px",
                         borderRadius: "9999px",
-                        backgroundColor: "#ef4444",
+                        background: "linear-gradient(135deg,#FF4D4D 0%,#CC1111 100%)",
                         color: "#fff",
-                        fontSize: "11px",
-                        fontWeight: 700,
+                        fontSize: "12px",
+                        fontWeight: 800,
                         lineHeight: 1,
                         flexShrink: 0,
+                        boxShadow: "0 0 10px rgba(255,60,60,0.70), 0 2px 5px rgba(0,0,0,0.40)",
+                        letterSpacing: "-0.3px",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.35)",
                       }}>
                         {inboxUnread > 99 ? "99+" : inboxUnread}
                       </span>
