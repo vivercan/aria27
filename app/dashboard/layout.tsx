@@ -1,7 +1,7 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
 import AlertasGlobales from "@/components/AlertasGlobales";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -136,6 +136,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
   const [inboxUnread, setInboxUnread] = useState(0);
+  /* Ref: true mientras el inbox page está montado — suspende el poll */
+  const inboxActiveRef = useRef(false);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -144,9 +146,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     loadUser(email);
   }, [router]);
 
-  /* ── Polling no-leídos Inbox (cada 2 min) ── */
+  /* ── Polling no-leídos Inbox (cada 2 min) — PAUSA si inbox/page está activo ── */
   useEffect(() => {
     const fetchUnread = async () => {
+      if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
       try {
         const r = await fetch("/api/mail/unread-count");
         if (r.ok) {
@@ -162,12 +165,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   /* ── Actualización inmediata desde inbox/page (custom event) ── */
   useEffect(() => {
-    const h = (e: Event) => {
+    const hUpdate = (e: Event) => {
+      inboxActiveRef.current = true; /* inbox está activo → poll suspendido */
       const count = (e as CustomEvent<{count:number}>).detail?.count;
       if (typeof count === "number") setInboxUnread(count);
     };
-    window.addEventListener("inboxUnreadUpdate", h);
-    return () => window.removeEventListener("inboxUnreadUpdate", h);
+    const hUnmount = () => { inboxActiveRef.current = false; }; /* inbox desmontado → poll reanuda */
+    window.addEventListener("inboxUnreadUpdate", hUpdate);
+    window.addEventListener("inboxUnmount", hUnmount);
+    return () => {
+      window.removeEventListener("inboxUnreadUpdate", hUpdate);
+      window.removeEventListener("inboxUnmount", hUnmount);
+    };
   }, []);
 
   useEffect(() => {

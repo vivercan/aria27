@@ -499,6 +499,11 @@ export default function InboxPage() {
   useEffect(()=>{
     window.dispatchEvent(new CustomEvent("inboxUnreadUpdate",{detail:{count:unreadCount}}));
   },[unreadCount]);
+
+  /* ── Al desmontar: reanudar poll del layout ── */
+  useEffect(()=>{
+    return ()=>{ window.dispatchEvent(new CustomEvent("inboxUnmount")); };
+  },[]);
   const starredCount       = starred.size;
   const flaggedCount       = flagged.size;
   const todosSeleccionados = emailsFiltrados.length>0&&emailsFiltrados.every(e=>seleccionados.has(e.seqno));
@@ -1117,9 +1122,12 @@ export default function InboxPage() {
                         <Star style={{width:13,height:13,color:isStar?"#F4B400":"rgba(145,175,225,0.28)",fill:isStar?"#F4B400":"none",transition:"color 0.15s"}}/>
                       </button>
 
-                      {/* Bandera — hover */}
+                      {/* Bandera — visible solo si flagged o hovering (pointerEvents inline = sin Tailwind) */}
                       <button onClick={e=>toggleFlag(em.seqno,e)} title="Marcar pendiente"
-                        style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0,opacity:isFlag?1:0,transition:"opacity 0.12s"}} className="group-hover:!opacity-100">
+                        style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0,
+                          opacity: isFlag||hoveredSeqno===em.seqno ? 1 : 0,
+                          pointerEvents: isFlag||hoveredSeqno===em.seqno ? "auto" : "none",
+                          transition:"opacity 0.12s"}}>
                         <Flag style={{width:12,height:12,color:isFlag?"#E53935":"rgba(145,175,225,0.28)",fill:isFlag?"#E53935":"none"}}/>
                       </button>
 
@@ -1178,8 +1186,11 @@ export default function InboxPage() {
                         <span style={{fontSize:11,fontWeight:em.seen?400:700,color:em.seen?G.secondary:G.text,whiteSpace:"nowrap"}}>{fechaCorta(em.date)}</span>
                       </div>
 
-                      {/* Hover actions (responder, categoría, eliminar) */}
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-1">
+                      {/* Hover actions — pointerEvents inline para no depender de Tailwind purge */}
+                      <div style={{display:"flex",alignItems:"center",gap:2,flexShrink:0,marginLeft:4,
+                        opacity: hoveredSeqno===em.seqno ? 1 : 0,
+                        pointerEvents: hoveredSeqno===em.seqno ? "auto" : "none",
+                        transition:"opacity 0.15s"}}>
                         <button onClick={e=>{e.stopPropagation();quickReplyFn(em);}} className="p-1 rounded"
                           style={{background:"none",border:"none",cursor:"pointer"}}
                           onMouseEnter={ev=>((ev.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.10)")}
