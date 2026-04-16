@@ -434,6 +434,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               <Menu className="w-5 h-5" />
             </button>
 
+            <span
+              className="hidden md:block text-[12px] font-semibold uppercase"
+              style={{ letterSpacing: "0.16em", color: "rgba(198,214,240,0.58)" }}
+            >
+              Sistema Maestro de Gestión
+            </span>
+
             <div className="flex items-center gap-3 ml-auto">
               <ThemeToggle />
 
