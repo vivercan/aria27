@@ -361,29 +361,29 @@ export default function InboxPage() {
     });
   };
 
-  /* ── palette Pearl — sidebar oscuro, contenido luminoso ── */
+  /* ── palette: degradado oscuro → gris medio ── */
   const G = {
-    /* content area (light) */
-    bg:        "#F4F7FB",                   // pearl white — fondo principal
-    card:      "#FFFFFF",                   // cards puras blancas
-    border:    "rgba(30,60,120,0.11)",
-    text:      "#1A2840",                   // texto oscuro sobre claro
-    secondary: "#5B7A9A",                   // texto secundario azul-gris
-    blue:      "#1A73E8",                   // Google blue — legible sobre blanco
-    hover:     "#EBF1F9",                   // hover row
-    unread:    "#FFFFFF",                   // no leído = blanco puro
-    read:      "#F4F7FB",                   // leído = mismo pearl
-    selected:  "#D0E4FF",
-    error:     "#FEF2F2",
-    errorBorder:"rgba(220,60,40,0.25)",
-    /* sidebar (dark — puente hacia ARIA27 nav) */
-    sidebar:   "#1A2D42",
-    sidebarText:      "#E0ECF8",
-    sidebarSecondary: "#7B9EC4",
-    sidebarCard:      "#223550",
-    sidebarBorder:    "rgba(145,175,225,0.13)",
-    sidebarHover:     "rgba(123,182,255,0.10)",
-    sidebarSelected:  "rgba(123,182,255,0.18)",
+    /* content area — degradado horizontal del sidebar hacia la derecha */
+    bg:        "linear-gradient(to right, #0E1B2E 0%, #1C3048 45%, #2A3F5A 100%)",
+    card:      "rgba(0,0,0,0.18)",           // superficies ligeramente más oscuras
+    border:    "rgba(145,175,225,0.12)",
+    text:      "#DCE9FF",
+    secondary: "#7B9EC4",
+    blue:      "#7BB6FF",
+    hover:     "rgba(255,255,255,0.07)",
+    unread:    "rgba(255,255,255,0.06)",     // filas no leídas: tinte claro sobre degradado
+    read:      "transparent",               // filas leídas: muestran el degradado directo
+    selected:  "rgba(123,182,255,0.16)",
+    error:     "rgba(217,48,37,0.12)",
+    errorBorder: "rgba(255,80,60,0.30)",
+    /* sidebar (dark — fundido con ARIA27) */
+    sidebar:         "#0A1624",
+    sidebarText:     "#E0ECF8",
+    sidebarSecondary:"#7B9EC4",
+    sidebarCard:     "#182435",
+    sidebarBorder:   "rgba(145,175,225,0.12)",
+    sidebarHover:    "rgba(123,182,255,0.10)",
+    sidebarSelected: "rgba(123,182,255,0.18)",
   };
 
   /* ── shortcut hint ── */
@@ -498,7 +498,7 @@ export default function InboxPage() {
                 onClick={() => { setVista("lista"); setEmailActual(null); }}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Volver (Esc)"
               >
@@ -520,7 +520,7 @@ export default function InboxPage() {
               <button onClick={toggleLeido}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title={emailActual.seen ? "Marcar como no leído" : "Marcar como leído"}
               >
@@ -531,7 +531,7 @@ export default function InboxPage() {
               <button onClick={imprimirEmail}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Imprimir"
               >
@@ -694,7 +694,7 @@ export default function InboxPage() {
                 disabled={loading}
                 className="p-2 rounded-full transition-colors"
                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)")}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "none")}
                 title="Actualizar"
               >
@@ -708,7 +708,7 @@ export default function InboxPage() {
             {/* FEATURE 1: Filtros rápidos */}
             <div
               className="flex-shrink-0 flex items-center border-b"
-              style={{ background: "#FFFFFF", borderColor: G.border }}
+              style={{ background: "rgba(0,0,0,0.14)", borderColor: G.border }}
             >
               {([ { key: "todos", label: "Todos", count: emails.length }, { key: "sinleer", label: "Sin leer", count: unreadCount }, { key: "destacados", label: "Destacados", count: starredCount } ] as { key: Filtro; label: string; count: number }[]).map(f => (
                 <button
@@ -765,13 +765,13 @@ export default function InboxPage() {
             {error && (
               <div className="mx-4 mt-2 flex items-start gap-3 rounded-lg p-3"
                 style={{ background: G.error, border: `1px solid ${G.errorBorder}` }}>
-                <AlertTriangle style={{ width: 17, height: 17, color: "#DC2626", flexShrink: 0, marginTop: 1 }} />
+                <AlertTriangle style={{ width: 17, height: 17, color: "#FF6B6B", flexShrink: 0, marginTop: 1 }} />
                 <div className="flex-1">
-                  <p style={{ fontSize: 13, color: "#DC2626", fontWeight: 500 }}>Error de conexión</p>
-                  <p style={{ fontSize: 12, color: "#EF4444", marginTop: 2 }}>{error}</p>
+                  <p style={{ fontSize: 13, color: "#FF6B6B", fontWeight: 500 }}>Error de conexión</p>
+                  <p style={{ fontSize: 12, color: "#FF8C8C", marginTop: 2 }}>{error}</p>
                 </div>
                 <button onClick={() => cargarEmails(false)}
-                  style={{ fontSize: 12, color: "#DC2626", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}>
+                  style={{ fontSize: 12, color: "#FF6B6B", textDecoration: "underline", cursor: "pointer", background: "none", border: "none" }}>
                   Reintentar
                 </button>
               </div>
@@ -786,7 +786,7 @@ export default function InboxPage() {
                 </div>
               ) : emailsFiltrados.length === 0 && !error ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <InboxIcon style={{ width: 52, height: 52, color: "rgba(30,60,120,0.15)", marginBottom: 12 }} />
+                  <InboxIcon style={{ width: 52, height: 52, color: "rgba(145,175,225,0.20)", marginBottom: 12 }} />
                   <p style={{ fontSize: 14, color: G.secondary }}>
                     {busqueda ? "Sin resultados" : filtro === "sinleer" ? "No hay correos sin leer" : filtro === "destacados" ? "No hay correos destacados" : "Bandeja vacía"}
                   </p>
@@ -833,7 +833,7 @@ export default function InboxPage() {
                           style={{ background: "none", border: "none", cursor: "pointer", padding: 2, flexShrink: 0, opacity: isStarred ? 1 : 0, transition: "opacity 0.15s" }}
                           className="group-hover:!opacity-100"
                         >
-                          <Star style={{ width: 15, height: 15, color: isStarred ? "#F4B400" : "rgba(30,60,120,0.20)", fill: isStarred ? "#F4B400" : "none" }} />
+                          <Star style={{ width: 15, height: 15, color: isStarred ? "#F4B400" : "rgba(145,175,225,0.35)", fill: isStarred ? "#F4B400" : "none" }} />
                         </button>
 
                         {/* Avatar */}
