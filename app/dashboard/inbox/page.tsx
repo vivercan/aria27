@@ -586,17 +586,16 @@ export default function InboxPage() {
           return (<>
             <button onClick={()=>prev&&abrirEmail(prev)} disabled={!prev}
               title={prev?prev.subject?.substring(0,40):"Primer correo"}
-              style={{background:"none",border:"none",cursor:prev?"pointer":"default",padding:4,borderRadius:4,opacity:prev?1:0.3}}
+              style={{background:prev?"rgba(255,255,255,0.12)":"transparent",border:"1px solid",borderColor:prev?"rgba(180,212,240,0.30)":"transparent",cursor:prev?"pointer":"default",padding:5,borderRadius:6,opacity:prev?1:0.22,display:"flex",alignItems:"center"}}
               onMouseEnter={e=>{if(prev)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
               onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="none";}}>
-              <ChevronUp style={{width:16,height:16,color:G.secondary}}/>
+              <ChevronUp style={{width:18,height:18,color:"#B8D4F0"}}/>
             </button>
             <button onClick={()=>next&&abrirEmail(next)} disabled={!next}
               title={next?next.subject?.substring(0,40):"Último correo"}
-              style={{background:"none",border:"none",cursor:next?"pointer":"default",padding:4,borderRadius:4,opacity:next?1:0.3}}
-              onMouseEnter={e=>{if(next)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
+              ststyle={{background:next?"rgba(255,255,255,0.12)":"transparent",border:"1px solid",borderColor:next?"rgba(180,212,240,0.30)":"transparent",cursor:next?"pointer":"default",padding:5,borderRadius:6,opacity:next?1:0.22,display:"flex",alignItems:"center"}}             onMouseEnter={e=>{if(next)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
               onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="none";}}>
-              <ChevronDown style={{width:16,height:16,color:G.secondary}}/>
+              <ChevronDown style={{width:18,height:18,color:"#B8D4F0"}}/>
             </button>
           </>);
         })()}
@@ -653,7 +652,7 @@ export default function InboxPage() {
           className="flex items-center gap-1 px-2 py-1 rounded-full"
           style={{background:"rgba(255,255,255,0.04)",border:`1px solid ${G.border}`,color:G.secondary,fontSize:11,cursor:"pointer"}}
           onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.08)")}
-          onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.04)")}
+          onMouseLeave<div className="flex-1 overflow-auto px-5 py-4" style={{background:"#EEF2F7"}}>kground="rgba(255,255,255,0.04)")}
           title="Ver todos los correos de este remitente">
           <UserSearch style={{width:12,height:12}}/>
         </button>
@@ -687,7 +686,7 @@ export default function InboxPage() {
               </button>
             </div>
             <p style={{fontSize:12,color:G.secondary,marginTop:2}}>Para: {emailActual.to||"—"} · {fechaLarga(emailActual.date)}</p>
-            {reminders[emailActual.uid]&&<p style={{fontSize:11,color:G.blue}}>🔔 Recordatorio: {new Date(reminders[emailActual.uid]).toLocaleString("es-MX")}</p>}
+      style={{background:"#ffffff",border:"1px solid #d0dce8",padding:"24px 28px",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>ordatorio: {new Date(reminders[emailActual.uid]).toLocaleString("es-MX")}</p>}
           </div>
         </div>
 
@@ -711,48 +710,6 @@ export default function InboxPage() {
         </div>
 
         {/* Respuesta inline */}
-        <div className="mt-4">
-          {!showInlineReply ? (
-            <button onClick={()=>setShowInlineReply(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border"
-              style={{borderColor:G.border,color:G.secondary,fontSize:12,background:"transparent",cursor:"pointer"}}
-              onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background=G.hover)}
-              onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="transparent")}>
-              <Reply style={{width:13,height:13}}/> Responder aquí…
-            </button>
-          ) : (
-            <div className="rounded-xl overflow-hidden border" style={{borderColor:G.border,background:G.card}}>
-              <textarea value={inlineReply} onChange={e=>setInlineReply(e.target.value)}
-                placeholder={`Responder a ${nombreCorto(emailActual.from)}…`}
-                rows={3} className="w-full outline-none resize-none px-4 py-3"
-                style={{fontSize:13,color:G.text,background:"transparent",border:"none"}}/>
-              <div className="flex gap-2 px-4 py-2 border-t" style={{borderColor:G.border}}>
-                <button onClick={enviarInlineReply}
-                  className="px-4 py-1.5 rounded-full"
-                  style={{background:G.blue,color:"#0A1929",fontSize:13,fontWeight:600,border:"none",cursor:"pointer"}}>
-                  Enviar
-                </button>
-                <button onClick={()=>{setShowInlineReply(false);setInlineReply("");}}
-                  style={{fontSize:12,color:G.secondary,background:"none",border:"none",cursor:"pointer"}}>Cancelar</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-3 mt-4">
-          <button onClick={responder} className="flex items-center gap-2 px-5 py-2 rounded-full border"
-            style={{borderColor:G.border,color:G.text,fontSize:13,background:"transparent",cursor:"pointer"}}
-            onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background=G.hover)}
-            onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="transparent")}>
-            <Reply style={{width:13,height:13}}/> Responder
-          </button>
-          <button onClick={reenviar} className="flex items-center gap-2 px-5 py-2 rounded-full border"
-            style={{borderColor:G.border,color:G.secondary,fontSize:13,background:"transparent",cursor:"pointer"}}
-            onMouseEnter={e=>((e.currentTarget as HTMLElement).style.background=G.hover)}
-            onMouseLeave={e=>((e.currentTarget as HTMLElement).style.background="transparent")}>
-            <Forward style={{width:13,height:13}}/> Reenviar
-          </button>
-        </div>
       </div>
     </div>
   );
