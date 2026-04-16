@@ -577,6 +577,29 @@ export default function InboxPage() {
             <ChevronLeft style={{width:19,height:19,color:G.secondary}}/>
           </button>
         )}
+        {/* nav anterior/siguiente */}
+        {emailActual&&(()=>{
+          const lista = emailsOrdenados||emails;
+          const idx = lista.findIndex(e=>e.uid===emailActual.uid);
+          const prev = lista[idx-1];
+          const next = lista[idx+1];
+          return (<>
+            <button onClick={()=>prev&&abrirEmail(prev)} disabled={!prev}
+              title={prev?prev.subject?.substring(0,40):"Primer correo"}
+              style={{background:"none",border:"none",cursor:prev?"pointer":"default",padding:4,borderRadius:4,opacity:prev?1:0.3}}
+              onMouseEnter={e=>{if(prev)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="none";}}>
+              <ChevronUp style={{width:16,height:16,color:G.secondary}}/>
+            </button>
+            <button onClick={()=>next&&abrirEmail(next)} disabled={!next}
+              title={next?next.subject?.substring(0,40):"Último correo"}
+              style={{background:"none",border:"none",cursor:next?"pointer":"default",padding:4,borderRadius:4,opacity:next?1:0.3}}
+              onMouseEnter={e=>{if(next)(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.07)";}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="none";}}>
+              <ChevronDown style={{width:16,height:16,color:G.secondary}}/>
+            </button>
+          </>);
+        })()}
         {/* acciones icono */}
         {([
           { icon:Trash2,    title:"Eliminar",           fn:()=>eliminarEmail(emailActual), hov:"rgba(255,80,60,0.12)" },
