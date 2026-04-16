@@ -419,19 +419,14 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"])
    * 5) Drop shadow ambiental
    */
   box-shadow:
-    /* ── FILO AFILADO — perímetro crisp de la tecla ── */
-    0 0 0 1.5px       rgba(0,   0,   0,   0.75),   /* borde exterior oscuro — define el filo */
-    inset 0  1px 0    rgba(255, 255, 255, 0.55),   /* rim top: brillante, opaco — arista superior */
-    inset 1px  0 0    rgba(255, 255, 255, 0.20),   /* rim izquierdo */
-    inset -1px 0 0    rgba(255, 255, 255, 0.20),   /* rim derecho */
-    inset 0 -2px 0    rgba(0,   0,   0,   0.55),   /* filo inferior de la cara antes de la pared */
-    /* ── CONCAVIDAD DISH ── */
-    inset 0  4px 9px  rgba(0,   0,   0,   0.50),   /* dish top — profundidad desde arriba */
-    inset 3px  0 6px  rgba(0,   0,   0,   0.22),   /* dish lateral izq */
-    inset -3px 0 6px  rgba(0,   0,   0,   0.22),   /* dish lateral der */
-    /* ── LA PARED — sólida, gruesa, visible ── */
-    0 7px 0  0        rgba(0,   0,   0,   0.70),   /* pared principal */
-    0 10px 24px       rgba(0,   0,   0,   0.45);   /* sombra ambiental */
+    /* ── Highlight superior suave — borde superior recibe la luz ── */
+    inset 0 1px 0     rgba(255, 255, 255, 0.28),
+    /* ── Sombra interna leve — da volumen sin concavidad extrema ── */
+    inset 0 -1px 0    rgba(0,   0,   0,   0.22),
+    /* ── LA PARED — sólida, 4px — simula elevación física ── */
+    0 4px 0  0        rgba(0,   0,   0,   0.50),
+    /* ── Sombra ambiental suave ── */
+    0 6px 14px        rgba(0,   0,   0,   0.28);
   transform: translateY(0);
   transition:
     transform 75ms cubic-bezier(.15, .65, .3, 1),
@@ -456,13 +451,12 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"])
   content: '';
   position: absolute;
   inset: 0;
-  /* Centro oscuro (fondo concave) → borde más claro (rim) */
-  background: radial-gradient(
-    ellipse at 50% 38%,
-    rgba(0,   0,   0,   0.22) 0%,
-    rgba(0,   0,   0,   0.10) 40%,
-    rgba(255, 255, 255, 0.06) 75%,
-    rgba(255, 255, 255, 0.14) 100%
+  /* Gradiente lineal — más claro arriba, más oscuro abajo */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(0,   0,   0,   0.12) 100%
   );
   border-radius: inherit;
   pointer-events: none;
@@ -482,18 +476,13 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"])
 ):active,
 .aria-btn-primary:active,
 .aria-btn-danger:active {
-  transform: translateY(6px);
+  transform: translateY(3px);
   box-shadow:
-    0 0 0 1.5px       rgba(0,   0,   0,   0.75),   /* borde exterior — filo sigue afilado */
-    inset 0  1px 0    rgba(255, 255, 255, 0.20),   /* rim top apagado al hundir */
-    inset 1px  0 0    rgba(255, 255, 255, 0.10),
-    inset -1px 0 0    rgba(255, 255, 255, 0.10),
-    inset 0 -1px 0    rgba(0,   0,   0,   0.40),
-    inset 0  6px 14px rgba(0,   0,   0,   0.60),   /* dish más profundo — hundido */
-    inset 3px  0 8px  rgba(0,   0,   0,   0.28),
-    inset -3px 0 8px  rgba(0,   0,   0,   0.28),
-    0 1px 0           rgba(0,   0,   0,   0.70),   /* pared colapsada */
-    0 2px 8px         rgba(0,   0,   0,   0.35);
+    inset 0 1px 0     rgba(255, 255, 255, 0.10),
+    inset 0 2px 6px   rgba(0,   0,   0,   0.30),   /* sombra interna al hundirse */
+    inset 0 -1px 0    rgba(0,   0,   0,   0.20),
+    0 1px 0           rgba(0,   0,   0,   0.50),   /* pared colapsada */
+    0 2px 6px         rgba(0,   0,   0,   0.22);
 }
 
 /* Escape hatch: .btn-flat = sin efecto 3D */

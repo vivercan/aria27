@@ -158,16 +158,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           const d = await r.json().catch(() => ({}));
           const serverCount = d.count || 0;
           if (!inboxVisitedRef.current) {
-            /* inbox nunca visitado: mostrar count IMAP directamente */
+            /* inbox nunca visitado: solo guardar baseline, badge queda en 0
+               (el raw IMAP no es confiable — emails leídos en app no sincronizan \Seen) */
             lastImapCountRef.current = serverCount;
-            setInboxUnread(serverCount);
-          } else if (serverCount > lastImapCountRef.current && lastImapCountRef.current >= 0) {
-            /* IMAP aumentó desde última lectura → nuevos correos llegaron */
+          } else if (lastImapCountRef.current >= 0 && serverCount > lastImapCountRef.current) {
+            /* IMAP subió → llegaron correos nuevos reales → incrementar badge */
             const delta = serverCount - lastImapCountRef.current;
             lastImapCountRef.current = serverCount;
             setInboxUnread(prev => prev + delta);
           } else {
-            /* Sin cambio o bajó → mantener count preciso del inbox */
+            /* Sin correos nuevos → solo actualizar baseline, no tocar badge */
             lastImapCountRef.current = serverCount;
           }
         }
