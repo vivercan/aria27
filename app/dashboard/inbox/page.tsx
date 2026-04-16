@@ -152,6 +152,25 @@ export default function InboxPage() {
   const [sortBy,  setSortBy]  = useState<SortBy>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
+  /* ── anchos de columna arrastrables ── */
+  const [colWidths, setColWidths] = useState({ from: 140, subject: 170, date: 134 });
+  const resizingRef = useRef<{ col: keyof typeof colWidths; startX: number; startW: number } | null>(null);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!resizingRef.current) return;
+      const { col, startX, startW } = resizingRef.current;
+      const delta = e.clientX - startX;
+      const minW  = col === "date" ? 90 : 80;
+      const maxW  = col === "subject" ? 500 : col === "from" ? 280 : 220;
+      setColWidths(prev => ({ ...prev, [col]: Math.min(maxW, Math.max(minW, startW + delta)) }));
+    };
+    const onUp = () => { resizingRef.current = null; document.body.style.cursor = ""; document.body.style.userSelect = ""; };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup",   onUp);
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+  }, []);
+
   /* ── vista ── */
   const [splitView, setSplitView] = useState(false);
   const [compacto,  setCompacto]  = useState(false);
@@ -533,11 +552,30 @@ export default function InboxPage() {
       ? <ChevronUp   style={{width:11,height:11,color:G.blue,marginLeft:3}}/>
       : <ChevronDown style={{width:11,height:11,color:G.blue,marginLeft:3}}/>;
 
-  const ColH = ({col,label,width}:{col:SortBy;label:string;width?:number|string}) => (
-    <button onClick={()=>handleSort(col)} style={{ background:"none",border:"none",cursor:"pointer", color:sortBy===col?G.blue:G.secondary, fontSize:11,fontWeight:sortBy===col?700:500, letterSpacing:"0.04em",textTransform:"uppercase" as const, padding:"0 4px",width:width||"auto",flexShrink:0,userSelect:"none" as const, display:"flex",alignItems:"center" }}>
-      {label}<SI col={col}/>
-    </button>
-  );
+  const ColH = ({ col, label }: { col: SortBy; label: string }) => {
+    const w = colWidths[col];
+    return (
+      <div style={{ width: w, flexShrink: 0, display: "flex", alignItems: "center", position: "relative", userSelect: "none" }}>
+        <button onClick={() => handleSort(col)}
+          style={{ background:"none",border:"none",cursor:"pointer", color:sortBy===col?G.blue:G.secondary, fontSize:11,fontWeight:sortBy===col?700:500, letterSpacing:"0.04em",textTransform:"uppercase" as const, padding:"0 4px", display:"flex",alignItems:"center", flex:1, overflow:"hidden", whiteSpace:"nowrap" as const }}>
+          {label}<SI col={col}/>
+        </button>
+        {/* Handle de resize */}
+        <div
+          onMouseDown={e => {
+            e.preventDefault();
+            resizingRef.current = { col, startX: e.clientX, startW: w };
+            document.body.style.cursor = "col-resize";
+            document.body.style.userSelect = "none";
+          }}
+          style={{ position:"absolute", right:0, top:0, bottom:0, width:6, cursor:"col-resize", display:"flex", alignItems:"center", justifyContent:"center", zIndex:10 }}
+          title="Arrastrar para redimensionar"
+        >
+          <div style={{ width:2, height:14, background:"rgba(145,175,225,0.30)", borderRadius:2 }} />
+        </div>
+      </div>
+    );
+  };
 
   /* ══════════════════════════════════════════════════════════════
      PANEL LEER
@@ -1018,12 +1056,12 @@ export default function InboxPage() {
           {/* Cabeceras columnas */}
           <div className="flex-shrink-0 flex items-center px-3 py-1.5 border-b"
             style={{background:"rgba(0,0,0,0.18)",borderColor:G.border}}>
-            {/* offset checkboxes + flags + avatar */}
-            <div style={{width:14+4+13+4+13+4+26+6,flexShrink:0}}/>
-            <ColH col="from"    label="De"      width={140}/>
-            <ColH col="subject" label="Asunto"  width={260}/>
+            {/* offset: checkbox + star + flag + avatar + catdot gap */}
+            <div style={{width:84,flexShrink:0}}/>
+            <ColH col="from"    label="De" />
+            <ColH col="subject" label="Asunto" />
             <div className="flex-1"/>
-            <ColH col="date"    label="Recibido · Tamaño" width={134}/>
+            <ColH col="date"    label="Recibido · Tamaño" />
           </div>
 
           {/* Error */}
@@ -1091,11 +1129,11 @@ export default function InboxPage() {
                       {catCol&&<div style={{width:6,height:6,borderRadius:"50%",background:catCol,flexShrink:0}} title={emailCats[em.uid]}/>}
 
                       <span className="flex-shrink-0 truncate"
-                        style={{width:138,fontSize:12,fontWeight:em.seen?400:700,color:G.text}}>
+                        style={{width:colWidths.from,fontSize:12,fontWeight:em.seen?400:700,color:G.text}}>
                         {name}
                       </span>
 
-                      <div className="min-w-0 truncate" style={{width:260,flexShrink:0}}>
+                      <div className="min-w-0 truncate" style={{width:colWidths.subject,flexShrink:0}}>
                         <span style={{fontSize:12,fontWeight:em.seen?400:600,color:em.seen?G.secondary:G.text}}>
                           {em.subject||"(sin asunto)"}
                         </span>
@@ -1152,7 +1190,7 @@ export default function InboxPage() {
                       </div>
 
                       {/* Fecha + tamaño */}
-                      <div className="flex-shrink-0 flex flex-col items-end" style={{minWidth:96}}>
+                      <div className="flex-shrink-0 flex flex-col items-end" style={{width:colWidths.date}}>
                         <span style={{fontSize:11,fontWeight:em.seen?400:700,color:em.seen?G.secondary:G.text,whiteSpace:"nowrap"}}>{fechaCorta(em.date)}</span>
                         {em.size&&em.size>0&&<span style={{fontSize:10,color:"rgba(138,175,200,0.55)",marginTop:1}}>{pesoLegible(em.size)}</span>}
                       </div>
