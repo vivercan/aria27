@@ -221,7 +221,18 @@ export default function ObrasPage() {
 ══════════════════════════════════════════════════ */
 function HubCard({ module }: { module: ModuleItem }) {
   const isHero  = module.hero;
-  const iconSize = isHero ? 34 : 29;
+  const iconSize = isHero ? 36 : 28;
+
+  /* Hero tiene fondo notablemente más claro + acento de color en tope */
+  const heroBg     = "linear-gradient(180deg, #3E5870 0%, #334C61 50%, #2B4156 100%)";
+  const normalBg   = "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)";
+  const heroShadow = `inset 0 2px 0 rgba(123,182,255,0.38),
+                      inset 0 1px 0 rgba(210,228,252,0.10),
+                      0 0 0 1px rgba(123,182,255,0.10),
+                      0 12px 28px rgba(0,0,0,0.26)`;
+  const normalShadow = "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)";
+  const heroBorder   = "rgba(123,182,255,0.32)";
+  const normalBorder = "rgba(120,158,204,0.18)";
 
   return (
     <Link
@@ -230,33 +241,29 @@ function HubCard({ module }: { module: ModuleItem }) {
       style={{
         height: "100%",
         padding: "20px 18px 18px 20px",
-        background: isHero
-          ? "linear-gradient(180deg, #314357 0%, #2A3C50 54%, #243448 100%)"
-          : "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)",
-        border: isHero
-          ? `1px solid rgba(120,158,204,0.28)`
-          : "1px solid rgba(120,158,204,0.18)",
-        boxShadow: isHero
-          ? `inset 0 1px 0 rgba(210,228,252,0.08), 0 10px 24px rgba(0,0,0,0.22)`
-          : "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)",
+        background: isHero ? heroBg : normalBg,
+        border: `1px solid ${isHero ? heroBorder : normalBorder}`,
+        boxShadow: isHero ? heroShadow : normalShadow,
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(140,178,228,0.30)";
+        (e.currentTarget as HTMLElement).style.boxShadow = isHero
+          ? `inset 0 2px 0 rgba(123,182,255,0.45), inset 0 1px 0 rgba(210,228,252,0.12), 0 0 0 1px rgba(123,182,255,0.16), 0 18px 36px rgba(0,0,0,0.30)`
+          : "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)";
+        (e.currentTarget as HTMLElement).style.borderColor = isHero
+          ? "rgba(123,182,255,0.45)"
+          : "rgba(140,178,228,0.30)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)";
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(120,158,204,0.18)";
+        (e.currentTarget as HTMLElement).style.boxShadow = isHero ? heroShadow : normalShadow;
+        (e.currentTarget as HTMLElement).style.borderColor = isHero ? heroBorder : normalBorder;
       }}
     >
       {/* Ícono */}
       <module.icon
         style={{ width: iconSize, height: iconSize, color: module.accent, flexShrink: 0 }}
-        strokeWidth={1.6}
+        strokeWidth={1.5}
       />
 
       {/* Espaciado icono → título */}
@@ -265,9 +272,9 @@ function HubCard({ module }: { module: ModuleItem }) {
       {/* Título */}
       <h3
         style={{
-          fontSize: isHero ? "18px" : "16px",
-          fontWeight: 700,
-          color: "#F0F6FF",
+          fontSize: isHero ? "18px" : "15px",
+          fontWeight: isHero ? 800 : 700,
+          color: isHero ? "#FFFFFF" : "#EAF2FF",
           letterSpacing: "-0.018em",
           lineHeight: 1.2,
           flexShrink: 0,

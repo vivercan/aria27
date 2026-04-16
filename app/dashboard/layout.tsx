@@ -215,8 +215,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarBg = isDark ? "#030b18" : "#ffffff";
   const sidebarBorder = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
   const headerBg = isDark ? "rgba(5,13,28,0.97)" : "rgba(255,255,255,0.94)";
-  const navMuted = isDark ? "rgba(255,255,255,0.55)" : "#3d5470";
-  const navActive = isDark ? "#7bb6ff" : "#2563eb";
+  const navMuted = isDark ? "rgba(255,255,255,0.52)" : "#3d5470";
+  const navActive = isDark ? "#a5c8ff" : "#2563eb";
 
   /* Current top-level module name for header breadcrumb */
   const currentModule = menuItems.find(
@@ -533,15 +533,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               >
                 <div className="text-right">
                   <p
-                    className="text-[10px] uppercase tracking-[0.08em]"
-                    style={{ color: navMuted }}
+                    className="text-[11px] uppercase tracking-[0.07em]"
+                    style={{ color: isDark ? "rgba(180,210,255,0.65)" : "#64748b" }}
                     suppressHydrationWarning
                   >
                     {new Date().toLocaleDateString("es-MX", { weekday: "long" })}
                   </p>
                   <p
-                    className="text-[11px] font-medium"
-                    style={{ color: isDark ? "rgba(255,255,255,0.62)" : "#475569" }}
+                    className="text-[12px] font-semibold"
+                    style={{ color: isDark ? "rgba(230,242,255,0.82)" : "#334155" }}
                     suppressHydrationWarning
                   >
                     {new Date().toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
