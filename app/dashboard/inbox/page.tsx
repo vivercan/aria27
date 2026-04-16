@@ -24,6 +24,8 @@ interface EmailHeader {
   date: string;
   seen: boolean;
   flags: string[];
+  size?: number;          /* tamaño en bytes, si el servidor lo devuelve */
+  hasAttach?: boolean;    /* adjunto detectado por el servidor */
 }
 
 type Vista   = "lista" | "leer";
@@ -44,11 +46,20 @@ const CATEGORIES: Category[] = [
 /* ── helpers ── */
 function fechaCorta(s: string) {
   try {
-    const d = new Date(s); const hoy = new Date();
-    if (d.toDateString() === hoy.toDateString())
-      return d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-    return d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+    const d   = new Date(s);
+    const hoy = new Date();
+    const hora = d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+    if (d.toDateString() === hoy.toDateString()) return hora;
+    const fecha = d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+    return `${fecha} · ${hora}`;
   } catch { return s; }
+}
+
+function pesoLegible(bytes?: number) {
+  if (!bytes || bytes <= 0) return "";
+  if (bytes < 1024)           return `${bytes} B`;
+  if (bytes < 1024 * 1024)    return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function fechaLarga(s: string) {
@@ -70,7 +81,8 @@ function emailAddr(raw: string) {
 }
 
 function hasAttachment(em: EmailHeader) {
-  return (em.flags || []).some(f => f.toLowerCase().includes("attach")) ||
+  return em.hasAttach === true ||
+    (em.flags || []).some(f => f.toLowerCase().includes("attach")) ||
     (em.subject || "").toLowerCase().includes("[adj") ||
     (em.subject || "").toLowerCase().includes("adjunto");
 }
@@ -509,18 +521,18 @@ export default function InboxPage() {
   /* ── row height ── */
   const rowPy = compacto ? 5 : 9;
 
-  /* ── palette ── */
+  /* ── palette: gris acero medio — más claro, formal ── */
   const G = {
-    bg:        "linear-gradient(to right, #0E1B2E 0%, #1C3048 45%, #2A3F5A 100%)",
-    card:      "rgba(0,0,0,0.18)",
-    border:    "rgba(145,175,225,0.12)",
-    text:      "#DCE9FF",
-    secondary: "#7B9EC4",
+    bg:        "linear-gradient(to right, #2B3544 0%, #323E4F 45%, #3A4759 100%)",
+    card:      "rgba(0,0,0,0.14)",
+    border:    "rgba(180,200,230,0.14)",
+    text:      "#E8F0FA",
+    secondary: "#8AAFC8",
     blue:      "#7BB6FF",
-    hover:     "rgba(255,255,255,0.07)",
-    unread:    "rgba(255,255,255,0.06)",
+    hover:     "rgba(255,255,255,0.08)",
+    unread:    "rgba(255,255,255,0.08)",
     read:      "transparent",
-    selected:  "rgba(123,182,255,0.16)",
+    selected:  "rgba(123,182,255,0.18)",
     error:     "rgba(217,48,37,0.12)",
     errorBorder: "rgba(255,80,60,0.30)",
     sidebar:         "#0A1624",
@@ -1022,7 +1034,7 @@ export default function InboxPage() {
             <ColHeader col="from"    label="De"       width={148} />
             <ColHeader col="subject" label="Asunto"   />
             <div className="flex-1" />
-            <ColHeader col="date"    label="Recibido" />
+            <ColHeader col="date"    label="Recibido · Tamaño" width={120} />
           </div>
 
           {/* Error */}
@@ -1178,10 +1190,17 @@ export default function InboxPage() {
                         </button>
                       </div>
 
-                      {/* Fecha */}
-                      <span className="flex-shrink-0" style={{ fontSize: 11, fontWeight: em.seen ? 400 : 700, color: em.seen ? G.secondary : G.text, minWidth: 46, textAlign: "right" }}>
-                        {fechaCorta(em.date)}
-                      </span>
+                      {/* Fecha + hora + tamaño */}
+                      <div className="flex-shrink-0 flex flex-col items-end" style={{ minWidth: 90 }}>
+                        <span style={{ fontSize: 11, fontWeight: em.seen ? 400 : 700, color: em.seen ? G.secondary : G.text, whiteSpace: "nowrap" }}>
+                          {fechaCorta(em.date)}
+                        </span>
+                        {em.size && em.size > 0 && (
+                          <span style={{ fontSize: 10, color: "rgba(138,175,200,0.60)", marginTop: 1 }}>
+                            {pesoLegible(em.size)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
