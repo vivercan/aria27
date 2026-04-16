@@ -152,24 +152,8 @@ export default function InboxPage() {
   const [sortBy,  setSortBy]  = useState<SortBy>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  /* ── anchos de columna arrastrables ── */
-  const [colWidths, setColWidths] = useState({ from: 140, subject: 170, date: 134 });
-  const resizingRef = useRef<{ col: keyof typeof colWidths; startX: number; startW: number } | null>(null);
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!resizingRef.current) return;
-      const { col, startX, startW } = resizingRef.current;
-      const delta = e.clientX - startX;
-      const minW  = col === "date" ? 90 : 80;
-      const maxW  = col === "subject" ? 500 : col === "from" ? 280 : 220;
-      setColWidths(prev => ({ ...prev, [col]: Math.min(maxW, Math.max(minW, startW + delta)) }));
-    };
-    const onUp = () => { resizingRef.current = null; document.body.style.cursor = ""; document.body.style.userSelect = ""; };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup",   onUp);
-    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
-  }, []);
+  /* ── anchos fijos de columna ── */
+  const COL = { from: 120, attach: 68, unread: 20, date: 118 } as const;
 
   /* ── vista ── */
   const [splitView, setSplitView] = useState(false);
@@ -524,7 +508,7 @@ export default function InboxPage() {
 
   /* ── palette: gris acero medio ── */
   const G = {
-    bg:        "linear-gradient(to right, #2B3544 0%, #323E4F 45%, #3A4759 100%)",
+    bg:        "linear-gradient(to right, #354151 0%, #3C4D5E 45%, #44566A 100%)",
     card:      "rgba(0,0,0,0.14)",
     border:    "rgba(180,200,230,0.14)",
     text:      "#E8F0FA",
@@ -552,30 +536,12 @@ export default function InboxPage() {
       ? <ChevronUp   style={{width:11,height:11,color:G.blue,marginLeft:3}}/>
       : <ChevronDown style={{width:11,height:11,color:G.blue,marginLeft:3}}/>;
 
-  const ColH = ({ col, label }: { col: SortBy; label: string }) => {
-    const w = colWidths[col];
-    return (
-      <div style={{ width: w, flexShrink: 0, display: "flex", alignItems: "center", position: "relative", userSelect: "none" }}>
-        <button onClick={() => handleSort(col)}
-          style={{ background:"none",border:"none",cursor:"pointer", color:sortBy===col?G.blue:G.secondary, fontSize:11,fontWeight:sortBy===col?700:500, letterSpacing:"0.04em",textTransform:"uppercase" as const, padding:"0 4px", display:"flex",alignItems:"center", flex:1, overflow:"hidden", whiteSpace:"nowrap" as const }}>
-          {label}<SI col={col}/>
-        </button>
-        {/* Handle de resize */}
-        <div
-          onMouseDown={e => {
-            e.preventDefault();
-            resizingRef.current = { col, startX: e.clientX, startW: w };
-            document.body.style.cursor = "col-resize";
-            document.body.style.userSelect = "none";
-          }}
-          style={{ position:"absolute", right:0, top:0, bottom:0, width:6, cursor:"col-resize", display:"flex", alignItems:"center", justifyContent:"center", zIndex:10 }}
-          title="Arrastrar para redimensionar"
-        >
-          <div style={{ width:2, height:14, background:"rgba(145,175,225,0.30)", borderRadius:2 }} />
-        </div>
-      </div>
-    );
-  };
+  const ColH = ({ col, label, width, right }: { col: SortBy; label: string; width?: number; right?: boolean }) => (
+    <button onClick={() => handleSort(col)}
+      style={{ background:"none",border:"none",cursor:"pointer", color:sortBy===col?G.blue:G.secondary, fontSize:10,fontWeight:sortBy===col?700:600, letterSpacing:"0.05em",textTransform:"uppercase" as const, padding:"0 4px",width:width||"auto",flexShrink:0,userSelect:"none" as const, display:"flex",alignItems:"center",justifyContent:right?"flex-end":"flex-start" }}>
+      {label}<SI col={col}/>
+    </button>
+  );
 
   /* ══════════════════════════════════════════════════════════════
      PANEL LEER
@@ -1053,15 +1019,20 @@ export default function InboxPage() {
             </div>
           </div>
 
-          {/* Cabeceras columnas */}
+          {/* Cabeceras columnas — offset: checkbox13+gap4+star14+gap4+flag14+gap4+avatar26+gap4 = 83px */}
           <div className="flex-shrink-0 flex items-center px-3 py-1.5 border-b"
-            style={{background:"rgba(0,0,0,0.18)",borderColor:G.border}}>
-            {/* offset: checkbox + star + flag + avatar + catdot gap */}
-            <div style={{width:84,flexShrink:0}}/>
-            <ColH col="from"    label="De" />
-            <ColH col="subject" label="Asunto" />
+            style={{background:"rgba(0,0,0,0.20)",borderColor:G.border}}>
+            <div style={{width:83,flexShrink:0}}/>
+            <ColH col="from"    label="De"     width={COL.from}/>
+            <ColH col="subject" label="Asunto"/>
             <div className="flex-1"/>
-            <ColH col="date"    label="Recibido · Tamaño" />
+            {/* adjunto + peso */}
+            <div style={{width:COL.attach,flexShrink:0,display:"flex",alignItems:"center",gap:3}}>
+              <span style={{fontSize:10,fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase" as const,color:G.secondary}}>Adj.</span>
+            </div>
+            {/* leído */}
+            <div style={{width:COL.unread,flexShrink:0}}/>
+            <ColH col="date" label="Recibido" width={COL.date} right/>
           </div>
 
           {/* Error */}
@@ -1110,39 +1081,79 @@ export default function InboxPage() {
                       onMouseEnter={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=G.hover;}}
                       onMouseLeave={e=>{if(!isSel&&!isAct)(e.currentTarget as HTMLElement).style.background=em.seen?G.read:G.unread;}}>
 
+                      {/* Checkbox — solo visible al hover o cuando está marcado */}
                       <input type="checkbox" checked={isSel} onChange={()=>toggleSel(em.seqno)} onClick={e=>e.stopPropagation()}
-                        style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",flexShrink:0,opacity:isSel?1:0,transition:"opacity 0.15s"}} className="group-hover:!opacity-100"/>
+                        style={{width:13,height:13,accentColor:G.blue,cursor:"pointer",flexShrink:0,opacity:isSel?1:0,transition:"opacity 0.12s"}} className="group-hover:!opacity-100"/>
 
-                      <button onClick={e=>toggleStar(em.seqno,e)} style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0,opacity:isStar?1:0,transition:"opacity 0.15s"}} className="group-hover:!opacity-100">
-                        <Star style={{width:12,height:12,color:isStar?"#F4B400":"rgba(145,175,225,0.35)",fill:isStar?"#F4B400":"none"}}/>
+                      {/* Estrella — SIEMPRE visible */}
+                      <button onClick={e=>toggleStar(em.seqno,e)} title="Marcar relevante"
+                        style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0}}>
+                        <Star style={{width:13,height:13,color:isStar?"#F4B400":"rgba(145,175,225,0.28)",fill:isStar?"#F4B400":"none",transition:"color 0.15s"}}/>
                       </button>
 
-                      <button onClick={e=>toggleFlag(em.seqno,e)} style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0,opacity:isFlag?1:0,transition:"opacity 0.15s"}} className="group-hover:!opacity-100" title="Bandera">
-                        <Flag style={{width:12,height:12,color:isFlag?"#E53935":"rgba(145,175,225,0.35)",fill:isFlag?"#E53935":"none"}}/>
+                      {/* Bandera — hover */}
+                      <button onClick={e=>toggleFlag(em.seqno,e)} title="Marcar pendiente"
+                        style={{background:"none",border:"none",cursor:"pointer",padding:1,flexShrink:0,opacity:isFlag?1:0,transition:"opacity 0.12s"}} className="group-hover:!opacity-100">
+                        <Flag style={{width:12,height:12,color:isFlag?"#E53935":"rgba(145,175,225,0.28)",fill:isFlag?"#E53935":"none"}}/>
                       </button>
 
-                      <div className="flex-shrink-0 flex items-center justify-center rounded-full text-white font-semibold"
-                        style={{width:26,height:26,fontSize:11,background:avatarColor(name)}}>
-                        {(name[0]||"?").toUpperCase()}
+                      {/* Avatar con dot de categoría */}
+                      <div className="relative flex-shrink-0">
+                        <div className="flex items-center justify-center rounded-full text-white font-semibold"
+                          style={{width:26,height:26,fontSize:11,background:avatarColor(name)}}>
+                          {(name[0]||"?").toUpperCase()}
+                        </div>
+                        {catCol&&<div style={{position:"absolute",bottom:0,right:-1,width:7,height:7,borderRadius:"50%",background:catCol,border:"1px solid rgba(0,0,0,0.3)"}} title={emailCats[em.uid]}/>}
                       </div>
 
-                      {catCol&&<div style={{width:6,height:6,borderRadius:"50%",background:catCol,flexShrink:0}} title={emailCats[em.uid]}/>}
-
+                      {/* DE */}
                       <span className="flex-shrink-0 truncate"
-                        style={{width:colWidths.from,fontSize:12,fontWeight:em.seen?400:700,color:G.text}}>
+                        style={{width:COL.from,fontSize:12,fontWeight:em.seen?400:700,color:G.text}}>
                         {name}
                       </span>
 
-                      <div className="min-w-0 truncate" style={{width:colWidths.subject,flexShrink:0}}>
+                      {/* ASUNTO — flex-1 */}
+                      <div className="flex-1 min-w-0 truncate">
                         <span style={{fontSize:12,fontWeight:em.seen?400:600,color:em.seen?G.secondary:G.text}}>
                           {em.subject||"(sin asunto)"}
                         </span>
                       </div>
 
-                      {hasAttachment(em)&&<Paperclip style={{width:11,height:11,color:G.secondary,flexShrink:0}}/>}
+                      {/* ADJ + PESO — columna fija */}
+                      <div className="flex-shrink-0 flex items-center gap-1" style={{width:COL.attach}}>
+                        {hasAttachment(em) ? (
+                          <>
+                            <Paperclip style={{width:11,height:11,color:G.secondary,flexShrink:0}}/>
+                            {em.size&&em.size>0
+                              ? <span style={{fontSize:10,color:G.secondary,whiteSpace:"nowrap"}}>{pesoLegible(em.size)}</span>
+                              : <span style={{fontSize:10,color:"rgba(138,175,200,0.45)"}}>adj.</span>
+                            }
+                          </>
+                        ) : (
+                          em.size&&em.size>0
+                            ? <span style={{fontSize:10,color:"rgba(138,175,200,0.45)",whiteSpace:"nowrap"}}>{pesoLegible(em.size)}</span>
+                            : null
+                        )}
+                      </div>
 
-                      {/* Hover actions */}
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                      {/* LEÍDO / NO LEÍDO — siempre visible */}
+                      <button
+                        onClick={e=>{
+                          e.stopPropagation();
+                          setEmails(prev=>prev.map(x=>x.uid===em.uid?{...x,seen:!x.seen}:x));
+                        }}
+                        title={em.seen?"Marcar como no leído":"Marcar como leído"}
+                        style={{background:"none",border:"none",cursor:"pointer",padding:2,flexShrink:0,width:COL.unread,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:em.seen?"transparent":G.blue,border:`1.5px solid ${em.seen?"rgba(138,175,200,0.35)":G.blue}`,transition:"all 0.15s",flexShrink:0}}/>
+                      </button>
+
+                      {/* FECHA */}
+                      <div className="flex-shrink-0 flex flex-col items-end" style={{width:COL.date}}>
+                        <span style={{fontSize:11,fontWeight:em.seen?400:700,color:em.seen?G.secondary:G.text,whiteSpace:"nowrap"}}>{fechaCorta(em.date)}</span>
+                      </div>
+
+                      {/* Hover actions (responder, categoría, eliminar) */}
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-1">
                         <button onClick={e=>{e.stopPropagation();quickReplyFn(em);}} className="p-1 rounded"
                           style={{background:"none",border:"none",cursor:"pointer"}}
                           onMouseEnter={ev=>((ev.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.10)")}
@@ -1187,12 +1198,6 @@ export default function InboxPage() {
                           onMouseLeave={ev=>((ev.currentTarget as HTMLElement).style.background="none")} title="Eliminar">
                           <Trash2 style={{width:11,height:11,color:G.secondary}}/>
                         </button>
-                      </div>
-
-                      {/* Fecha + tamaño */}
-                      <div className="flex-shrink-0 flex flex-col items-end" style={{width:colWidths.date}}>
-                        <span style={{fontSize:11,fontWeight:em.seen?400:700,color:em.seen?G.secondary:G.text,whiteSpace:"nowrap"}}>{fechaCorta(em.date)}</span>
-                        {em.size&&em.size>0&&<span style={{fontSize:10,color:"rgba(138,175,200,0.55)",marginTop:1}}>{pesoLegible(em.size)}</span>}
                       </div>
                     </div>
                   );
