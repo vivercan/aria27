@@ -152,8 +152,8 @@ export default function ObrasPage() {
                   className="grid grid-cols-2"
                   style={{ gap: "10px" }}
                 >
-                  {grupo.modulos.map((mod) => (
-                    <HubCard key={mod.href} module={mod} />
+                  {grupo.modulos.map((mod, idx) => (
+                    <HubCard key={mod.href} module={mod} spanFull={grupo.modulos.length % 2 === 1 && idx === grupo.modulos.length - 1} />
                   ))}
                 </div>
 
@@ -219,7 +219,7 @@ export default function ObrasPage() {
 /* ══════════════════════════════════════════════════
    HUBCARD — gris ejecutivo con contraste claro
 ══════════════════════════════════════════════════ */
-function HubCard({ module }: { module: ModuleItem }) {
+function HubCard({ module, spanFull }: { module: ModuleItem; spanFull?: boolean }) {
   const isHero  = module.hero;
   const iconSize = isHero ? 36 : 28;
 
@@ -244,6 +244,7 @@ function HubCard({ module }: { module: ModuleItem }) {
         background: isHero ? heroBg : normalBg,
         border: `1px solid ${isHero ? heroBorder : normalBorder}`,
         boxShadow: isHero ? heroShadow : normalShadow,
+        ...(spanFull ? { gridColumn: "1 / -1" } : {}),
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";

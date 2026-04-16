@@ -62,7 +62,7 @@ export default function PlantillasPage() {
                   <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.11)" }} />
                 </div>
                 <div className="grid grid-cols-2" style={{ gap: "10px" }}>
-                  {grupo.modulos.map((mod) => <HubCard key={mod.href} module={mod} />)}
+                  {grupo.modulos.map((mod, idx) => <HubCard key={mod.href} module={mod} spanFull={grupo.modulos.length % 2 === 1 && idx === grupo.modulos.length - 1} />)}
                 </div>
               </section>
             ))}
@@ -73,7 +73,7 @@ export default function PlantillasPage() {
   );
 }
 
-function HubCard({ module }: { module: ModuleItem }) {
+function HubCard({ module, spanFull }: { module: ModuleItem; spanFull?: boolean }) {
   const isHero     = module.hero;
   const iconSize   = isHero ? 36 : 28;
   const heroBg     = "linear-gradient(180deg, #1D3A5E 0%, #162F4E 54%, #112744 100%)";
@@ -84,7 +84,7 @@ function HubCard({ module }: { module: ModuleItem }) {
   const normalBorder = "rgba(120,158,204,0.18)";
   return (
     <Link href={module.href} className="group relative flex flex-col justify-start rounded-2xl transition-all duration-200 ease-out"
-      style={{ height: "100%", padding: "20px 18px 18px 20px", background: isHero ? heroBg : normalBg, border: `1px solid ${isHero ? heroBorder : normalBorder}`, boxShadow: isHero ? heroShadow : normalShadow }}
+      style={{ height: "100%", padding: "20px 18px 18px 20px", background: isHero ? heroBg : normalBg, border: `1px solid ${isHero ? heroBorder : normalBorder}`, boxShadow: isHero ? heroShadow : normalShadow, ...(spanFull ? { gridColumn: "1 / -1" } : {}) }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? "inset 0 2px 0 rgba(123,182,255,0.45), inset 0 1px 0 rgba(210,228,252,0.12), 0 0 0 1px rgba(123,182,255,0.16), 0 18px 36px rgba(0,0,0,0.30)" : "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)"; (e.currentTarget as HTMLElement).style.borderColor = isHero ? "rgba(123,182,255,0.45)" : "rgba(140,178,228,0.30)"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? heroShadow : normalShadow; (e.currentTarget as HTMLElement).style.borderColor = isHero ? heroBorder : normalBorder; }}
     >
