@@ -419,13 +419,19 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"])
    * 5) Drop shadow ambiental
    */
   box-shadow:
-    inset 0  1px 0   rgba(255, 255, 255, 0.30),   /* rim superior — luz directa */
-    inset 0  4px 8px rgba(0,   0,   0,   0.45),   /* dish top — concavidad desde arriba */
-    inset 3px 0  5px rgba(0,   0,   0,   0.18),   /* dish izq — concavidad lateral */
-    inset -3px 0 5px rgba(0,   0,   0,   0.18),   /* dish der — concavidad lateral */
-    inset 0 -1px 0   rgba(255, 255, 255, 0.10),   /* rim inferior sutil */
-    0 7px 0  0       rgba(0,   0,   0,   0.65),   /* LA PARED — sólida, gruesa */
-    0 10px 22px      rgba(0,   0,   0,   0.40);   /* sombra ambiental */
+    /* ── FILO AFILADO — perímetro crisp de la tecla ── */
+    0 0 0 1.5px       rgba(0,   0,   0,   0.75),   /* borde exterior oscuro — define el filo */
+    inset 0  1px 0    rgba(255, 255, 255, 0.55),   /* rim top: brillante, opaco — arista superior */
+    inset 1px  0 0    rgba(255, 255, 255, 0.20),   /* rim izquierdo */
+    inset -1px 0 0    rgba(255, 255, 255, 0.20),   /* rim derecho */
+    inset 0 -2px 0    rgba(0,   0,   0,   0.55),   /* filo inferior de la cara antes de la pared */
+    /* ── CONCAVIDAD DISH ── */
+    inset 0  4px 9px  rgba(0,   0,   0,   0.50),   /* dish top — profundidad desde arriba */
+    inset 3px  0 6px  rgba(0,   0,   0,   0.22),   /* dish lateral izq */
+    inset -3px 0 6px  rgba(0,   0,   0,   0.22),   /* dish lateral der */
+    /* ── LA PARED — sólida, gruesa, visible ── */
+    0 7px 0  0        rgba(0,   0,   0,   0.70),   /* pared principal */
+    0 10px 24px       rgba(0,   0,   0,   0.45);   /* sombra ambiental */
   transform: translateY(0);
   transition:
     transform 75ms cubic-bezier(.15, .65, .3, 1),
@@ -478,13 +484,16 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"])
 .aria-btn-danger:active {
   transform: translateY(6px);
   box-shadow:
-    inset 0  1px 0    rgba(255, 255, 255, 0.15),  /* rim top apagado */
-    inset 0  6px 12px rgba(0,   0,   0,   0.55),  /* dish más profundo */
-    inset 3px  0 7px  rgba(0,   0,   0,   0.25),
-    inset -3px 0 7px  rgba(0,   0,   0,   0.25),
-    inset 0 -1px 0    rgba(255, 255, 255, 0.06),
-    0 1px 0           rgba(0,   0,   0,   0.65),  /* pared colapsada */
-    0 2px 6px         rgba(0,   0,   0,   0.30);
+    0 0 0 1.5px       rgba(0,   0,   0,   0.75),   /* borde exterior — filo sigue afilado */
+    inset 0  1px 0    rgba(255, 255, 255, 0.20),   /* rim top apagado al hundir */
+    inset 1px  0 0    rgba(255, 255, 255, 0.10),
+    inset -1px 0 0    rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0    rgba(0,   0,   0,   0.40),
+    inset 0  6px 14px rgba(0,   0,   0,   0.60),   /* dish más profundo — hundido */
+    inset 3px  0 8px  rgba(0,   0,   0,   0.28),
+    inset -3px 0 8px  rgba(0,   0,   0,   0.28),
+    0 1px 0           rgba(0,   0,   0,   0.70),   /* pared colapsada */
+    0 2px 8px         rgba(0,   0,   0,   0.35);
 }
 
 /* Escape hatch: .btn-flat = sin efecto 3D */
