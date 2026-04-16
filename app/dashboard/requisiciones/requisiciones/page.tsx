@@ -30,6 +30,7 @@ export default function RequisicionesPage() {
   const log = clientLogger("REQUISICIONES");
   const [registros, setRegistros] = useState<ReqHist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [exportando, setExportando] = useState(false);
   const [mostrarHistorico, setMostrarHistorico] = useState(false);
   const [filtros, setFiltros] = useState({ buscar: "", obra: "", status: "", solicitante: "", fechaInicio: "", fechaFin: "", mes: "" });
@@ -41,8 +42,12 @@ export default function RequisicionesPage() {
 
   const cargarDatos = async () => {
     setLoading(true);
-    const { data } = await supabase.from("requisiciones_historico").select("*").order("fecha", { ascending: false });
-    if (data) {
+    setFetchError(null);
+    const { data, error } = await supabase.from("requisiciones_historico").select("*").order("fecha", { ascending: false });
+    if (error) {
+      log.error("Error cargando histórico de requisiciones", String(error.message));
+      setFetchError("No se pudo cargar el histórico. Intenta recargar la página.");
+    } else if (data) {
       setRegistros(data);
       setObras([...new Set(data.map(r => r.obra).filter(Boolean))].sort());
       setStatuses([...new Set(data.map(r => r.status).filter(Boolean))].sort());
@@ -104,6 +109,12 @@ export default function RequisicionesPage() {
 
   return (
     <div className="space-y-6">
+      {fetchError && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <X className="w-4 h-4 shrink-0" />
+          {fetchError}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/requisiciones" />

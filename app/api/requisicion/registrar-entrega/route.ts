@@ -23,8 +23,9 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e: unknown) { log.error("Error email:", e); }
 }
 
-async function actualizarInventario(obraId: number, obraNombre: string, materiales: Material[]): Promise<number> {
+async function actualizarInventario(obraId: number, obraNombre: string, materiales: Material[]): Promise<{ ok: number; errors: number }> {
   let itemsActualizados = 0;
+  let itemsConError = 0;
 
   for (const mat of materiales) {
     const productoNombre = mat.product_name || mat.producto || "";
@@ -48,7 +49,12 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
           ultimo_movimiento: new Date().toISOString(),
         })
         .eq("id", existe.id);
-      if (!error) itemsActualizados++;
+      if (error) {
+        log.error("[INVENTARIO] Error al actualizar stock de producto", { productoNombre, obraId, error: error.message });
+        itemsConError++;
+      } else {
+        itemsActualizados++;
+      }
     } else {
       const { error } = await supabase.from("inventario_obra").insert({
         obra_id: obraId,
@@ -59,11 +65,16 @@ async function actualizarInventario(obraId: number, obraNombre: string, material
         cantidad_usada: 0,
         ultimo_movimiento: new Date().toISOString(),
       });
-      if (!error) itemsActualizados++;
+      if (error) {
+        log.error("[INVENTARIO] Error al insertar producto nuevo", { productoNombre, obraId, error: error.message });
+        itemsConError++;
+      } else {
+        itemsActualizados++;
+      }
     }
   }
 
-  return itemsActualizados;
+  return { ok: itemsActualizados, errors: itemsConError };
 }
 
 export async function POST(req: NextRequest) {
@@ -124,7 +135,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error;
 
     // Actualizar inventario
-    let itemsInventario = 0;
+    let inventarioResult = { ok: 0, errors: 0 };
     let obraIdFinal = obra_id;
 
     if (!obraIdFinal && obra_nombre) {
@@ -141,7 +152,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (obraIdFinal && materiales && materiales.length > 0) {
-      itemsInventario = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
+      inventarioResult = await actualizarInventario(obraIdFinal, obra_nombre, materiales);
+      if (inventarioResult.errors > 0) {
+        log.warn("[ENTREGA] Inventario parcialmente actualizado", { ok: inventarioResult.ok, errors: inventarioResult.errors, obraIdFinal });
+      }
     } else {
       log.warn("[ENTREGA] Sin obra_id o sin materiales - inventario no actualizado", { obra_id: obraIdFinal, materiales: materiales?.length });
     }
@@ -159,8 +173,8 @@ export async function POST(req: NextRequest) {
 
     // Email al solicitante
     if (solicitante_email) {
-      const inventarioHtml = itemsInventario > 0
-        ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">${itemsInventario} items actualizados &#x2713;</strong></td></tr>`
+      const inventarioHtml = inventarioResult.ok > 0
+        ? `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><strong style="color:#10b981;">${inventarioResult.ok} items actualizados &#x2713;${inventarioResult.errors > 0 ? ` (${inventarioResult.errors} con error)` : ""}</strong></td></tr>`
         : `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Inventario:</td><td style="padding:8px;border-bottom:1px solid #eee;"><span style="color:#f59e0b;">Pendiente de procesar</span></td></tr>`;
 
       await sendEmail(
@@ -185,7 +199,8 @@ export async function POST(req: NextRequest) {
       success: true,
       entrega,
       folio: folioEntrega,
-      inventario_actualizado: itemsInventario,
+      inventario_actualizado: inventarioResult.ok,
+      inventario_errores: inventarioResult.errors,
       obra_id_usado: obraIdFinal
     });
   } catch (error: unknown) {

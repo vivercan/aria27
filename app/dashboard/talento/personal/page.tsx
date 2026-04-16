@@ -78,6 +78,7 @@ export default function PersonalPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [centros, setCentros] = useState<CentroTrabajo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [editando, setEditando] = useState<string | null>(null);
@@ -92,11 +93,17 @@ export default function PersonalPage() {
   }, []);
 
   const cargarDatos = async () => {
-    const { data: emps } = await supabase
+    setFetchError(null);
+    const { data: emps, error: empsErr } = await supabase
       .from("Personal")
       .select("*")
       .eq("status", "ACTIVO")
       .order("full_name");
+    if (empsErr) {
+      setFetchError("No se pudo cargar el personal. Intenta recargar la página.");
+      setLoading(false);
+      return;
+    }
     if (emps) setEmpleados(emps);
 
     const { data: emp } = await supabase.from("empresas").select("id, nombre").order("nombre");
@@ -253,6 +260,12 @@ export default function PersonalPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
+      {fetchError && (
+        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex-shrink-0">
+          <X className="w-4 h-4 shrink-0" />
+          {fetchError}
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">

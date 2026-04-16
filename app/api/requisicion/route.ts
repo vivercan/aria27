@@ -20,9 +20,14 @@ async function getNextFolio(): Promise<string> {
       const next = typeof rpcData === "number" ? rpcData : rpcData.current_value;
       return `${prefix}${String(next).padStart(5, "0")}`;
     }
-  } catch {}
+  } catch (rpcErr: unknown) {
+    log.warn("[FOLIO] RPC increment_sequence falló, usando fallback", { error: (rpcErr as { message?: string })?.message });
+  }
 
-  // Estrategia 2: Leer MAX folio real de la tabla (evita race condition del sequence)
+  // Estrategia 2: Leer MAX folio real de la tabla + sequence, tomar el mayor
+  // NOTA: Esta ruta es solo fallback cuando el RPC falla. Se acepta la posibilidad
+  // de colisión en concurrencia extrema (el INSERT fallará con constraint y el
+  // usuario verá un error claro en lugar de duplicar el folio silenciosamente).
   const { data: maxFolioData } = await supabase
     .from("requisitions")
     .select("folio")
@@ -47,9 +52,10 @@ async function getNextFolio(): Promise<string> {
   // Usar el mayor entre ambos + 1
   const next = Math.max(maxNum, seqNum) + 1;
 
-  // Actualizar sequence para mantenerlo sincronizado
-  await supabase.from("sequences").update({ current_value: next }).eq("id", "requisitions");
+  // Upsert sequence para mantenerlo sincronizado (upsert en vez de update evita errores si no existe el registro)
+  await supabase.from("sequences").upsert({ id: "requisitions", current_value: next }, { onConflict: "id", ignoreDuplicates: false });
 
+  log.warn("[FOLIO] Usando fallback Strategy 2 (sin RPC atómico)", { next, maxNum, seqNum });
   return `${prefix}${String(next).padStart(5, "0")}`;
 }
 
