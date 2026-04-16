@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
   try {
     const { getResend } = await import("@/lib/resend");
     const resend = getResend();
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { requisition_id, folio, obra, quotes, items, items_detail, suppliers, user_email } = body;
 
     // Auth check: verificar usuario y rol

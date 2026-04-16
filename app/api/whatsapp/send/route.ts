@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const email = req.headers.get("x-user-email");
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-    const { phone, message } = await req.json();
+    const { phone, message } = await req.json().catch(() => ({}));
     if (!phone || !message) {
       return NextResponse.json({ error: "Faltan campos: phone, message" }, { status: 400 });
     }

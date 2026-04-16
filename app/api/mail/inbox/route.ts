@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:inbox", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { folder = "INBOX", limit = 25 } = await req.json();
+    const { folder = "INBOX", limit = 25 } = await req.json().catch(() => ({}));
     const creds = await getZohoCreds();
     if (!creds) {
       return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });

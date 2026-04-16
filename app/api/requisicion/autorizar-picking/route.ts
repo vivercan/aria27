@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     if (!rl.allowed) return rateLimitResponse(rl);
 
     // Validación básica: verificar que el request viene con datos esperados
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { requisition_id, folio, obra, urgency, selections, user_email } = body;
 
     if (!requisition_id || !selections || selections.length === 0) {

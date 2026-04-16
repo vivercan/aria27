@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   // ── Parámetros ──────────────────────────────────────────
   let body: { date?: string; includeStorage?: boolean };
   try {
-    body = await req.json();
+    body = await req.json().catch(() => ({}));
   } catch {
     return NextResponse.json({ error: "Body JSON inválido" }, { status: 400 });
   }

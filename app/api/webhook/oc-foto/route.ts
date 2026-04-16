@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       const mediaRes = await fetch(`https://graph.facebook.com/v22.0/${imageId}`, {
         headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` },
       });
-      const mediaData = await mediaRes.json();
+      const mediaData = await mediaRes.json().catch(() => ({}));
       const tempUrl = mediaData.url || "";
 
       if (tempUrl) {

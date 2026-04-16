@@ -88,7 +88,7 @@ export default function InboxPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folder: carpeta, limit: 40 }),
       });
-      const data = await r.json();
+      const data = await r.json().catch(() => ({}));
 
       if (r.status === 401) {
         // Credenciales no configuradas en el servidor
@@ -169,7 +169,7 @@ export default function InboxPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid: em.uid, folder: carpeta }),
       });
-      const data = await r.json();
+      const data = await r.json().catch(() => ({}));
       setCuerpo({ body: data.body || "", html: data.html || "" });
     } catch { setCuerpo({ body: "Error al cargar contenido", html: "" }); }
     setCargandoCuerpo(false);
@@ -205,7 +205,7 @@ export default function InboxPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ to: compTo.trim(), subject: compSubject.trim(), body: compBody }),
       });
-      const data = await r.json();
+      const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || "Error al enviar");
       setCompTo(""); setCompSubject(""); setCompBody("");
       setVista("lista");

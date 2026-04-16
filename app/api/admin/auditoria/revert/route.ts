@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAdmin(req);
     if (!auth.ok) return auth.res;
 
-    const { audit_id } = await req.json();
+    const { audit_id } = await req.json().catch(() => ({}));
     if (!audit_id) return NextResponse.json({ error: "audit_id requerido" }, { status: 400 });
 
     const sb = getSupabaseAdmin();

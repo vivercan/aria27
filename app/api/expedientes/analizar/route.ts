@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   let archivoId: string | undefined;
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     archivoId = body.archivoId;
 
     if (!archivoId) {

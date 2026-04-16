@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   const resend = getResend();
 
   try {
-    const { folio, obra, fecha_requerida, items, proveedores, user_email } = await request.json();
+    const { folio, obra, fecha_requerida, items, proveedores, user_email } = await request.json().catch(() => ({}));
 
     // Auth check: verificar usuario y rol
     if (!user_email) {

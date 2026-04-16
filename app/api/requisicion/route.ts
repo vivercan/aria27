@@ -87,7 +87,7 @@ export async function POST(request: Request) {
   const logs: string[] = [];
 
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { usuario, obra, comentarios, materiales, requiredDate, solicitante, subcategoria } = body;
 
     // P0 hardening 7-Abr-2026: validar usuario activo antes de crear requisicion

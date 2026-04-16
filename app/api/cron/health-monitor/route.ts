@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       headers: { "User-Agent": "aria27-health-monitor/1.0" },
       cache: "no-store",
     });
-    healthData = await res.json();
+    healthData = await res.json().catch(() => ({}));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     log.error("No se pudo llamar a /api/health", { error: msg });

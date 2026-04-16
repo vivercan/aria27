@@ -149,7 +149,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       try {
         const r = await fetch("/api/mail/unread-count");
         if (r.ok) {
-          const d = await r.json();
+          const d = await r.json().catch(() => ({}));
           setInboxUnread(d.count || 0);
         }
       } catch { /* silencioso */ }

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "wa:test", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { template, params, phone } = body || {};
 
     if (!template || !phone || !Array.isArray(params)) {

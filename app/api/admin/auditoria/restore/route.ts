@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const auth = await requireAdmin(req);
     if (!auth.ok) return auth.res;
 
-    const { deleted_id } = await req.json();
+    const { deleted_id } = await req.json().catch(() => ({}));
     if (!deleted_id) return NextResponse.json({ error: "deleted_id requerido" }, { status: 400 });
 
     const sb = getSupabaseAdmin();

@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { texto, imageUrl, mimeType } = body as {
       texto?: string;
       imageUrl?: string;

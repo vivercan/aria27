@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       headers: { "x-user-email": to, "x-digest": "1" },
       cache: "no-store",
     });
-    const data = await r.json();
+    const data = await r.json().catch(() => ({}));
     if (!r.ok) {
       log.error("alertas endpoint failed", { status: r.status });
       return NextResponse.json({ error: "alertas endpoint failed" }, { status: 500 });

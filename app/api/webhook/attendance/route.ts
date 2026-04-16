@@ -99,7 +99,7 @@ async function extractGastoFromImage(imageUrl: string, mediaType: string): Promi
         ]}]
       })
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     const text = result.content?.[0]?.text || "{}";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
@@ -123,7 +123,7 @@ async function extractGastoFromText(text: string): Promise<GastoData | null> {
         messages: [{ role: "user", content: `Extrae informacion de gasto de este mensaje: "${text}" Responde SOLO con JSON: { "proveedor": "nombre si lo menciona o null", "monto": 123.45, "descripcion": "que compro", "categoria": "una de: MATERIAL, GASOLINA, COMIDA, HERRAMIENTA, SERVICIO, OTRO", "obra": "nombre de obra si la menciona o null" } Si no parece ser un gasto, responde: {"esGasto": false}` }]
       })
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     const responseText = result.content?.[0]?.text || "{}";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
@@ -137,7 +137,7 @@ async function getMediaUrl(mediaId: string): Promise<MediaInfo | null> {
     const response = await fetch(`https://graph.facebook.com/v22.0/${mediaId}`, {
       headers: { "Authorization": `Bearer ${WHATSAPP_TOKEN}` }
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     return { url: data.url, mimeType: data.mime_type };
   } catch (error: unknown) {
     return null;
@@ -166,7 +166,7 @@ async function extractInventarioFromImage(imageUrl: string, mediaType: string, c
         ]}]
       })
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     const text = result.content?.[0]?.text || "{}";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
@@ -300,7 +300,7 @@ async function extractTransferenciaFromImage(imageUrl: string, mediaType: string
         ]}]
       })
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     const text = result.content?.[0]?.text || "{}";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;

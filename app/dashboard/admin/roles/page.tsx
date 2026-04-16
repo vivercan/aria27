@@ -48,7 +48,7 @@ export default function RolesAdminPage() {
         setLoading(false);
         return;
       }
-      const j = await r.json();
+      const j = await r.json().catch(() => ({}));
       if (!r.ok) {
         setMsg({ tipo: "err", texto: j.error || "Error" });
         setAuthorized(true);

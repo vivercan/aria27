@@ -9,7 +9,7 @@ const AUTHORIZED_ROLES = ["admin", "rh"];
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { requisitionIds, userEmail, confirmation } = body;
 
     // ── Validación de entrada ──────────────────────────────

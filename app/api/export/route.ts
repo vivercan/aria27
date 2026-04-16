@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-    const { tipo, filtros } = await req.json();
+    const { tipo, filtros } = await req.json().catch(() => ({}));
     
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "ARIA27 - Grupo Constructor Avante";

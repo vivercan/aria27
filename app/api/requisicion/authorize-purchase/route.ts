@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   const resend = getResend();
 
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
 
     // Soportar AMBOS formatos:
     // Formato A (tramite): { requisition, items, total, token }

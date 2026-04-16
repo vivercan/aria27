@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     return rateLimitResponse(rl);
   }
 
-    const { fechaReferencia, forzar } = await req.json();
+    const { fechaReferencia, forzar } = await req.json().catch(() => ({}));
     const fecha = fechaReferencia ? new Date(fechaReferencia) : new Date();
     const semana = getWeekNumber(fecha);
     const anio = fecha.getFullYear();

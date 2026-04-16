@@ -91,7 +91,7 @@ export default function LoginPage() {
       })
       
       if (validateRes.ok) {
-        const data = await validateRes.json()
+        const data = await validateRes.json().catch(() => ({}))
         isPasswordValid = data.valid === true
         if (!isPasswordValid && data.error) {
           setError(data.error)

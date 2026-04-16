@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest) {
     if (!auth.ok) return auth.res;
 
     let body: RolePatchBody;
-    try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
+    try { body = await req.json().catch(() => ({})); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
 
     const { id, role, permissions, email: newEmail, phone } = body || {};
     if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });

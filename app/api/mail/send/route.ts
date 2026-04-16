@@ -9,7 +9,7 @@ const log = logger("MAIL-SEND");
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, subject, body, user_email } = await req.json();
+    const { to, subject, body, user_email } = await req.json().catch(() => ({}));
     const creds = await getZohoCreds();
     if (!creds) {
       return NextResponse.json({ error: "Sesión de correo no activa" }, { status: 401 });

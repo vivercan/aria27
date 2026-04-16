@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:main", ...RATE_LIMITS.CHAT });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { participantes, nombre, es_grupo } = await req.json();
+    const { participantes, nombre, es_grupo } = await req.json().catch(() => ({}));
 
     // AUTH: Verificar que al menos el primer participante es usuario del sistema
     const creadorEmail = participantes?.[0];

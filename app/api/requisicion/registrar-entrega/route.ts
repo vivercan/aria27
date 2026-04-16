@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "req:entrega", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const {
       purchase_order_id,
       purchase_order_folio,

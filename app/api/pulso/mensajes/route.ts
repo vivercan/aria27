@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       tipo,
       archivo_url,
       archivo_nombre,
-    } = await req.json();
+    } = await req.json().catch(() => ({}));
 
     if (!conversacion_id || !sender_email || !contenido) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });

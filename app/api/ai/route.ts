@@ -5,7 +5,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, context, user_email } = await request.json();
+    const { prompt, context, user_email } = await request.json().catch(() => ({}));
 
     // AUTH: Verificar que el usuario existe en el sistema
     if (!user_email) {
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     return NextResponse.json({
       response: data.choices?.[0]?.message?.content || "Sin respuesta",

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:estado", ...RATE_LIMITS.CHAT });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { email, status, status_message } = await req.json();
+    const { email, status, status_message } = await req.json().catch(() => ({}));
     if (!email) return NextResponse.json({ error: "Email requerido" }, { status: 400 });
 
     // AUTH: Verificar que el email pertenece a un usuario del sistema

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "pulso:escribiendo", ...RATE_LIMITS.CHAT });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { conversacion_id, user_email, escribiendo } = await req.json();
+    const { conversacion_id, user_email, escribiendo } = await req.json().catch(() => ({}));
 
     // AUTH: Verificar que el user_email es un usuario real del sistema
     if (!user_email || !(await verifyUser(user_email))) {

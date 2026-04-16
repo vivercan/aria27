@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:auth", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { email, password } = await req.json();
+    const { email, password } = await req.json().catch(() => ({}));
     if (!email || !password) {
       return NextResponse.json({ error: "Email y password requeridos" }, { status: 400 });
     }

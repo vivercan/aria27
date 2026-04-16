@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "prov:buscar-ai", ...RATE_LIMITS.EXPENSIVE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const { productos, requisicion_id, user_email } = await req.json();
+    const { productos, requisicion_id, user_email } = await req.json().catch(() => ({}));
 
     // Auth check: verificar usuario y rol
     if (!user_email) {

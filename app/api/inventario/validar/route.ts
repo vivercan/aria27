@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     const email = req.headers.get("x-user-email");
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-    const { nombre, obraId } = await req.json();
+    const { nombre, obraId } = await req.json().catch(() => ({}));
     if (!nombre || typeof nombre !== "string" || nombre.trim().length < 2) {
       return NextResponse.json({ error: "Nombre de material requerido (mín 2 caracteres)" }, { status: 400 });
     }
@@ -153,7 +153,7 @@ REGLAS:
             }]
           })
         });
-        const aiData = await aiRes.json();
+        const aiData = await aiRes.json().catch(() => ({}));
         const text = aiData.content?.[0]?.text || "{}";
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {

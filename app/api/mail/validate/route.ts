@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   let password = "";
   
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     email = body.email || "";
     password = body.password || "";
   } catch {

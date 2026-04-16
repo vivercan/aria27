@@ -110,7 +110,7 @@ export default function AuditoriaPage() {
             headers: { "Content-Type": "application/json", "x-user-email": userEmail },
             body: JSON.stringify({ deleted_id: row.id }),
           });
-          const j = await resp.json();
+          const j = await resp.json().catch(() => ({}));
           if (!resp.ok) throw new Error(j.error || "Error al restaurar");
           setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
           cargar();
@@ -140,7 +140,7 @@ export default function AuditoriaPage() {
             headers: { "Content-Type": "application/json", "x-user-email": userEmail },
             body: JSON.stringify({ audit_id: row.id }),
           });
-          const j = await resp.json();
+          const j = await resp.json().catch(() => ({}));
           if (!resp.ok) throw new Error(j.error || "Error al revertir");
           setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
           cargar();

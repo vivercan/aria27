@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
 
     // AUTH CHECK
     const auth = await checkAuth(req, body);
@@ -212,7 +212,7 @@ export async function PUT(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "asist:incompletas", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
 
     // AUTH CHECK
     const auth = await checkAuth(req, body);

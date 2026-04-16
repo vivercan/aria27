@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-    const { semana, anio } = await req.json();
+    const { semana, anio } = await req.json().catch(() => ({}));
 
     // Obtener datos de nómina
     const { data: nominas, error } = await supabase
