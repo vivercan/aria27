@@ -387,107 +387,96 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ARIA27 — SKEUOMORPHIC PUSHABLE BUTTON SYSTEM
-   Mechkey 3D: bevel inset + pared sólida gruesa + hundimiento clic
-   Auto-aplicado globalmente. Excluir con clase .btn-flat
+   ARIA27 — PUSHABLE BUTTON SYSTEM v3
+   Aplica SOLO a botones de acción pequeños (NO hub-cards nav).
+   Excluye automáticamente cards con h1-h4/p (hub nav, tiles).
+   Opt-in manual: clase .btn-sku
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Selector automático global ──
-   Atrapa botones con background visible (sólidos o rgba con alpha alto).
-   Excluye: none, transparent, rgba(0,*), ghost, icon, flat, tabs, switches */
-button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"]):not([role="switch"]):not([role="menuitem"]):not([disabled]):where(
+/* ── Base: quién recibe el efecto ──
+   ✅ .aria-btn-primary, .aria-btn-danger (design system)
+   ✅ .btn-sku (opt-in explícito en cualquier botón)
+   ✅ button con inline background sólido SIN contenido de card
+      (excluye si contiene h1-h4 o p → hub nav cards)
+   ❌ ghost, icon, tab, switch, disabled, .btn-flat            */
+
+.btn-sku,
+.aria-btn-primary,
+.aria-btn-danger,
+button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
+       :not([role="tab"]):not([role="switch"]):not([role="menuitem"])
+       :not([disabled]):not(:has(h1,h2,h3,h4,p)):where(
   [style*="background: #"],
   [style*="background:#"],
-  [style*="background: rgb("],
-  [style*="background:rgb("],
+  [style*="background: rgb"],
   [style*="background: linear-gradient"],
-  [style*="background:linear-gradient"],
-  .aria-btn-primary,
-  .aria-btn-danger,
-  .aria-btn-secondary
-),
-.aria-btn-primary,
-.aria-btn-danger {
+  [style*="background:linear-gradient"]
+) {
   position: relative;
   overflow: hidden;
-  /*
-   * CONCAVE KEYCAP — superficie hundida como tecla mecánica
-   * 1) Rim superior brillante (borde de la tecla que recibe la luz)
-   * 2) Inset shadows desde arriba y lados → crean el "dish" concave
-   * 3) Rim inferior sutil
-   * 4) LA PARED — sombra sólida gruesa abajo (la "altura" de la tecla)
-   * 5) Drop shadow ambiental
-   */
   box-shadow:
-    /* ── Highlight superior suave — borde superior recibe la luz ── */
-    inset 0 1px 0     rgba(255, 255, 255, 0.28),
-    /* ── Sombra interna leve — da volumen sin concavidad extrema ── */
-    inset 0 -1px 0    rgba(0,   0,   0,   0.22),
-    /* ── LA PARED — sólida, 4px — simula elevación física ── */
-    0 4px 0  0        rgba(0,   0,   0,   0.50),
-    /* ── Sombra ambiental suave ── */
-    0 6px 14px        rgba(0,   0,   0,   0.28);
+    inset 0  1px 0  rgba(255,255,255,0.26),  /* rim superior — luz */
+    inset 0 -1px 0  rgba(0,0,0,0.24),        /* rim inferior — sombra */
+    0 4px 0 0       rgba(0,0,0,0.52),        /* LA PARED — sólida */
+    0 6px 12px      rgba(0,0,0,0.26);        /* sombra ambiental */
   transform: translateY(0);
   transition:
-    transform 75ms cubic-bezier(.15, .65, .3, 1),
-    box-shadow 75ms cubic-bezier(.15, .65, .3, 1);
+    transform 75ms cubic-bezier(.15,.65,.3,1),
+    box-shadow 75ms cubic-bezier(.15,.65,.3,1);
 }
 
-/* Radial gradient overlay — oscurece el centro (fondo del dish),
-   aclara los bordes (el rim de la tecla). Funciona en cualquier color. */
-button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"]):not([role="switch"]):not([role="menuitem"]):not([disabled]):where(
+/* Gradiente overlay — claro arriba, oscuro abajo, sobre cualquier color */
+.btn-sku::after,
+.aria-btn-primary::after,
+.aria-btn-danger::after,
+button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
+       :not([role="tab"]):not([role="switch"]):not([role="menuitem"])
+       :not([disabled]):not(:has(h1,h2,h3,h4,p)):where(
   [style*="background: #"],
   [style*="background:#"],
-  [style*="background: rgb("],
-  [style*="background:rgb("],
+  [style*="background: rgb"],
   [style*="background: linear-gradient"],
-  [style*="background:linear-gradient"],
-  .aria-btn-primary,
-  .aria-btn-danger,
-  .aria-btn-secondary
-)::after,
-.aria-btn-primary::after,
-.aria-btn-danger::after {
+  [style*="background:linear-gradient"]
+)::after {
   content: '';
   position: absolute;
   inset: 0;
-  /* Gradiente lineal — más claro arriba, más oscuro abajo */
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    rgba(255, 255, 255, 0.04) 50%,
-    rgba(0,   0,   0,   0.12) 100%
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.13) 0%,
+    rgba(255,255,255,0.03) 50%,
+    rgba(0,0,0,0.11) 100%
   );
   border-radius: inherit;
   pointer-events: none;
 }
 
-/* PRESS — la tecla se hunde: pared desaparece, dish se profundiza */
-button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon):not([role="tab"]):not([role="switch"]):not([disabled]):where(
+/* PRESS — hundimiento al hacer clic */
+.btn-sku:active,
+.aria-btn-primary:active,
+.aria-btn-danger:active,
+button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
+       :not([role="tab"]):not([role="switch"]):not([disabled])
+       :not(:has(h1,h2,h3,h4,p)):where(
   [style*="background: #"],
   [style*="background:#"],
-  [style*="background: rgb("],
-  [style*="background:rgb("],
+  [style*="background: rgb"],
   [style*="background: linear-gradient"],
-  [style*="background:linear-gradient"],
-  .aria-btn-primary,
-  .aria-btn-danger,
-  .aria-btn-secondary
-):active,
-.aria-btn-primary:active,
-.aria-btn-danger:active {
+  [style*="background:linear-gradient"]
+):active {
   transform: translateY(3px);
   box-shadow:
-    inset 0 1px 0     rgba(255, 255, 255, 0.10),
-    inset 0 2px 6px   rgba(0,   0,   0,   0.30),   /* sombra interna al hundirse */
-    inset 0 -1px 0    rgba(0,   0,   0,   0.20),
-    0 1px 0           rgba(0,   0,   0,   0.50),   /* pared colapsada */
-    0 2px 6px         rgba(0,   0,   0,   0.22);
+    inset 0 1px 0    rgba(255,255,255,0.10),
+    inset 0 2px 6px  rgba(0,0,0,0.28),
+    inset 0 -1px 0   rgba(0,0,0,0.18),
+    0 1px 0          rgba(0,0,0,0.52),
+    0 2px 5px        rgba(0,0,0,0.20);
 }
 
-/* Escape hatch: .btn-flat = sin efecto 3D */
-.btn-flat {
+/* Escape hatch: .btn-flat = sin efecto */
+.btn-flat,
+.btn-flat::after {
   box-shadow: none !important;
   transform: none !important;
+  background-image: none !important;
+  content: none !important;
 }
-.btn-flat::after { display: none !important; }
