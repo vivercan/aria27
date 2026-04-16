@@ -290,10 +290,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         >
           <Link href="/dashboard" className="block" style={{ textDecoration: "none" }}>
             <div className="flex items-baseline gap-0.5">
-              <span style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: "#3b82f6" }}>
+              <span style={{
+                fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: "#4a9eff",
+                textShadow: "0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.45), 1px 0 3px rgba(0,80,200,0.30), -1px 0 3px rgba(0,80,200,0.20), 0 2px 8px rgba(30,100,255,0.35)",
+              }}>
                 ARIA
               </span>
-              <span style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: isDark ? "#ffffff" : "#1e293b" }}>
+              <span style={{
+                fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em",
+                color: isDark ? "#ffffff" : "#1e293b",
+                textShadow: isDark
+                  ? "0 1px 0 rgba(255,255,255,0.20), 0 -1px 0 rgba(0,0,0,0.50), 0 2px 6px rgba(0,0,0,0.40)"
+                  : "0 1px 0 rgba(255,255,255,0.80), 0 -1px 0 rgba(0,0,0,0.15)",
+              }}>
                 27
               </span>
             </div>

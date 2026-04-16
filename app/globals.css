@@ -405,7 +405,7 @@
 .aria-btn-danger,
 button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
        :not([role="tab"]):not([role="switch"]):not([role="menuitem"])
-       :not([disabled]):not(:has(h1,h2,h3,h4,p)):where(
+       :not([disabled]):not(:has(input,textarea,select)):where(
   [style*="background: #"],
   [style*="background:#"],
   [style*="background: rgb"],
@@ -431,7 +431,7 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
 .aria-btn-danger::after,
 button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
        :not([role="tab"]):not([role="switch"]):not([role="menuitem"])
-       :not([disabled]):not(:has(h1,h2,h3,h4,p)):where(
+       :not([disabled]):not(:has(input,textarea,select)):where(
   [style*="background: #"],
   [style*="background:#"],
   [style*="background: rgb"],
@@ -456,7 +456,7 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
 .aria-btn-danger:active,
 button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
        :not([role="tab"]):not([role="switch"]):not([disabled])
-       :not(:has(h1,h2,h3,h4,p)):where(
+       :not(:has(input,textarea,select)):where(
   [style*="background: #"],
   [style*="background:#"],
   [style*="background: rgb"],
