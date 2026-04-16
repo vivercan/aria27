@@ -474,7 +474,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             style={{ color: "rgba(239,68,68,0.75)" }}
             title="Cerrar sesión"
           >
-            <Power style={{ width: "14px", height: "14px" }} />
+            <Power style={{ width: "18px", height: "18px" }} />
           </button>
         </div>
       </aside>

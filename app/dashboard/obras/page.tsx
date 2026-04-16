@@ -149,8 +149,8 @@ export default function ObrasPage() {
 
                 {/* 2×2 card grid */}
                 <div
-                  className="flex-1 grid grid-cols-2 min-h-0"
-                  style={{ gap: "10px", alignItems: "stretch" }}
+                  className="grid grid-cols-2"
+                  style={{ gap: "10px" }}
                 >
                   {grupo.modulos.map((mod) => (
                     <HubCard key={mod.href} module={mod} />

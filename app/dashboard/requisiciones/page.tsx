@@ -72,7 +72,7 @@ export default function RequisicionesPage() {
                   <span className="uppercase" style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(188,208,238,0.58)", flexShrink: 0, whiteSpace: "nowrap" }}>{grupo.label}</span>
                   <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.11)" }} />
                 </div>
-                <div className="flex-1 grid grid-cols-2 min-h-0" style={{ gap: "10px", alignItems: "stretch" }}>
+                <div className="grid grid-cols-2" style={{ gap: "10px" }}>
                   {grupo.modulos.map((mod) => <HubCard key={mod.href} module={mod} />)}
                 </div>
               </section>
