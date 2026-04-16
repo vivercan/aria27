@@ -1,142 +1,109 @@
 "use client";
-import { FileText, Package, Users, ShoppingCart, CreditCard, Truck, Search, Receipt } from "lucide-react";
-import Link from "next/link";
 
-const subModules = [
-  {
-    title: "Requisiciones",
-    description: "Solicitudes de materiales para obra.",
-    href: "/dashboard/requisiciones/requisiciones",
-    icon: FileText,
-    iconBg: "rgba(37,99,235,0.15)",
-    iconColor: "#3b82f6",
-  },
-  {
-    title: "Productos",
-    description: "Control de stock y almacén.",
-    href: "/dashboard/requisiciones/productos",
-    icon: Package,
-    iconBg: "rgba(20,184,166,0.14)",
-    iconColor: "#2dd4bf",
-  },
-  {
-    title: "Proveedores",
-    description: "Catálogo de proveedores.",
-    href: "/dashboard/requisiciones/proveedores",
-    icon: Users,
-    iconBg: "rgba(16,185,129,0.14)",
-    iconColor: "#10b981",
-  },
-  {
-    title: "Compras",
-    description: "Cotizaciones y comparativas.",
-    href: "/dashboard/requisiciones/compras",
-    icon: ShoppingCart,
-    iconBg: "rgba(6,182,212,0.13)",
-    iconColor: "#22d3ee",
-  },
-  {
-    title: "Pagos",
-    description: "Control de pagos a proveedores.",
-    href: "/dashboard/requisiciones/pagos",
-    icon: CreditCard,
-    iconBg: "rgba(244,63,94,0.14)",
-    iconColor: "#f43f5e",
-  },
-  {
-    title: "Entregas",
-    description: "Entregas y seguimiento de órdenes.",
-    href: "/dashboard/requisiciones/entregas",
-    icon: Truck,
-    iconBg: "rgba(99,102,241,0.14)",
-    iconColor: "#818cf8",
-    iconSize: 21,
-  },
-  {
-    title: "Prospección",
-    description: "Búsqueda de nuevos proveedores.",
-    href: "/dashboard/requisiciones/prospeccion",
-    icon: Search,
-    iconBg: "rgba(139,92,246,0.14)",
-    iconColor: "#a78bfa",
-  },
-  {
-    title: "Cotizaciones",
-    description: "Comparativas y selección de proveedores.",
-    href: "/dashboard/requisiciones/cotizaciones",
-    icon: Receipt,
-    iconBg: "rgba(245,158,11,0.13)",
-    iconColor: "#fbbf24",
-  },
-];
+import {
+  FileText, Package, Users, ShoppingCart,
+  CreditCard, Truck, Search, Receipt, ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
 type ModuleItem = {
   title: string;
   description: string;
   href: string;
   icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-  iconSize?: number;
+  accent: string;
+  hero?: boolean;
 };
 
-function HubCard({ module }: { module: ModuleItem }) {
-  return (
-    <Link
-      href={module.href}
-      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
-      style={{
-        backgroundColor: "rgba(8,18,38,0.85)",
-        backdropFilter: "blur(8px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderTop: "1px solid rgba(255,255,255,0.14)",
-        borderBottom: "1px solid rgba(0,0,0,0.30)",
-        padding: "15px 14px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.06)",
-      }}
-    >
-      <div
-        style={{
-          flexShrink: 0,
-          width: "36px", height: "36px", borderRadius: "8px",
-          backgroundColor: "rgba(255,255,255,0.07)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
-        }}
-      >
-        <module.icon style={{ width: `${module.iconSize ?? 17}px`, height: `${module.iconSize ?? 17}px`, color: module.iconColor }} strokeWidth={1.75} />
-      </div>
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <h3
-          className="text-[13px] font-semibold leading-tight truncate group-hover:text-white transition-colors"
-          style={{ color: "rgba(255,255,255,0.92)" }}
-        >
-          {module.title}
-        </h3>
-        <p className="text-[11.5px] mt-[3px] truncate" style={{ color: "rgba(255,255,255,0.45)" }}>
-          {module.description}
-        </p>
-      </div>
-    </Link>
-  );
-}
+const BLUE  = "#7BB6FF";
+const AMBER = "#FFD074";
+
+const grupos: { label: string; modulos: ModuleItem[] }[] = [
+  {
+    label: "Solicitudes",
+    modulos: [
+      { title: "Requisiciones", description: "Solicitudes de compra con flujo de aprobación.",     href: "/dashboard/requisiciones/requisiciones", icon: FileText,     accent: BLUE, hero: true },
+      { title: "Productos",     description: "Catálogo de materiales y control de stock.",         href: "/dashboard/requisiciones/productos",     icon: Package,      accent: BLUE },
+      { title: "Proveedores",   description: "Directorio de proveedores y evaluaciones.",          href: "/dashboard/requisiciones/proveedores",   icon: Users,        accent: BLUE },
+      { title: "Compras",       description: "Órdenes de compra y comparativas de cotización.",    href: "/dashboard/requisiciones/compras",       icon: ShoppingCart, accent: BLUE },
+    ],
+  },
+  {
+    label: "Comercial",
+    modulos: [
+      { title: "Pagos",       description: "Control de pagos y cuentas por pagar.",               href: "/dashboard/requisiciones/pagos",       icon: CreditCard, accent: AMBER },
+      { title: "Entregas",    description: "Seguimiento de entregas y órdenes en tránsito.",      href: "/dashboard/requisiciones/entregas",    icon: Truck,      accent: AMBER },
+      { title: "Prospección", description: "Búsqueda y evaluación de nuevos proveedores.",        href: "/dashboard/requisiciones/prospeccion", icon: Search,     accent: AMBER },
+      { title: "Cotizaciones",description: "Cotizaciones a clientes y seguimiento comercial.",    href: "/dashboard/requisiciones/cotizaciones",icon: Receipt,    accent: AMBER },
+    ],
+  },
+];
+
+const filas = [[grupos[0], grupos[1]]];
 
 export default function RequisicionesPage() {
   return (
-    <div className="px-6 pt-6 pb-8 h-full overflow-auto" style={{ background: "radial-gradient(ellipse at 50% 35%, #1a6bc0 0%, #0e52a0 25%, #083070 55%, #021845 80%, #010c2a 100%)" }}>
-      <div className="mb-6">
-        <h1 className="text-[22px] font-bold tracking-tight" style={{ color: "#1a2535" }}>
-          Requisiciones
-        </h1>
-        <p className="text-[12px] mt-0.5" style={{ color: "#3d5470" }}>
-          Gestión de compras, inventario y proveedores
-        </p>
+    <div
+      className="px-5 pt-4 pb-4 h-full flex flex-col overflow-hidden"
+      style={{
+        background: [
+          "radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%)",
+          "linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%)",
+        ].join(", "),
+      }}
+    >
+      {/* ── HEADER ── */}
+      <div className="flex-shrink-0 rounded-xl px-5 py-3" style={{ marginBottom: "24px", background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)", borderBottom: "1px solid rgba(150,180,230,0.10)" }}>
+        <div className="flex items-baseline gap-3.5">
+          <h1 style={{ fontSize: "30px", fontWeight: 800, letterSpacing: "-0.035em", color: "#F4F8FF", lineHeight: 1 }}>Requisiciones</h1>
+          <span style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
+          <span style={{ fontSize: "14px", fontWeight: 500, color: "rgba(214,228,255,0.70)" }}>Compras y gestión de proveedores</span>
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {subModules.map((module) => (
-          <HubCard key={module.href} module={module} />
+
+      {/* ── SECCIONES ── */}
+      <div className="flex-1 flex flex-col min-h-0" style={{ gap: "22px" }}>
+        {filas.map((fila, fi) => (
+          <div key={fi} className="flex-1 grid grid-cols-2 min-h-0" style={{ gap: "20px" }}>
+            {fila.map((grupo) => (
+              <section key={grupo.label} className="flex flex-col min-h-0">
+                <div className="flex items-center flex-shrink-0" style={{ gap: "12px", marginBottom: "12px" }}>
+                  <span className="uppercase" style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(188,208,238,0.58)", flexShrink: 0, whiteSpace: "nowrap" }}>{grupo.label}</span>
+                  <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.11)" }} />
+                </div>
+                <div className="flex-1 grid grid-cols-2 min-h-0" style={{ gap: "10px", alignItems: "stretch" }}>
+                  {grupo.modulos.map((mod) => <HubCard key={mod.href} module={mod} />)}
+                </div>
+              </section>
+            ))}
+          </div>
         ))}
       </div>
     </div>
+  );
+}
+
+function HubCard({ module }: { module: ModuleItem }) {
+  const isHero     = module.hero;
+  const iconSize   = isHero ? 36 : 28;
+  const heroBg     = "linear-gradient(180deg, #1D3A5E 0%, #162F4E 54%, #112744 100%)";
+  const normalBg   = "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)";
+  const heroShadow = "inset 0 2px 0 rgba(123,182,255,0.38), inset 0 1px 0 rgba(210,228,252,0.10), 0 0 0 1px rgba(123,182,255,0.10), 0 12px 28px rgba(0,0,0,0.26)";
+  const normalShadow = "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)";
+  const heroBorder   = "rgba(123,182,255,0.32)";
+  const normalBorder = "rgba(120,158,204,0.18)";
+  return (
+    <Link href={module.href} className="group relative flex flex-col justify-start rounded-2xl transition-all duration-200 ease-out"
+      style={{ height: "100%", padding: "20px 18px 18px 20px", background: isHero ? heroBg : normalBg, border: `1px solid ${isHero ? heroBorder : normalBorder}`, boxShadow: isHero ? heroShadow : normalShadow }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? "inset 0 2px 0 rgba(123,182,255,0.45), inset 0 1px 0 rgba(210,228,252,0.12), 0 0 0 1px rgba(123,182,255,0.16), 0 18px 36px rgba(0,0,0,0.30)" : "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)"; (e.currentTarget as HTMLElement).style.borderColor = isHero ? "rgba(123,182,255,0.45)" : "rgba(140,178,228,0.30)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? heroShadow : normalShadow; (e.currentTarget as HTMLElement).style.borderColor = isHero ? heroBorder : normalBorder; }}
+    >
+      <module.icon style={{ width: iconSize, height: iconSize, color: module.accent, flexShrink: 0 }} strokeWidth={1.5} />
+      <div style={{ height: "14px", flexShrink: 0 }} />
+      <h3 style={{ fontSize: isHero ? "18px" : "15px", fontWeight: isHero ? 800 : 700, color: isHero ? "#FFFFFF" : "#EAF2FF", letterSpacing: "-0.018em", lineHeight: 1.2, flexShrink: 0 }}>{module.title}</h3>
+      <p style={{ marginTop: "7px", fontSize: "12px", fontWeight: 400, color: "rgba(200,220,248,0.72)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{module.description}</p>
+      <ChevronRight className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-25 transition-opacity duration-200" style={{ width: 12, height: 12, color: module.accent }} />
+    </Link>
   );
 }

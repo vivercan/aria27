@@ -1,104 +1,98 @@
 "use client";
-import Link from "next/link";
-import { MessageCircle, Inbox, Upload, Bell } from "lucide-react";
 
-const moduleItems = [
-  {
-    title: "WhatsApp Log",
-    description: "Historial de mensajes enviados por el sistema.",
-    href: "/dashboard/whatsapp/log",
-    icon: MessageCircle,
-    iconBg: "rgba(34,197,94,0.15)",
-    iconColor: "#22c55e",
-  },
-  {
-    title: "Inbox",
-    description: "Bandeja de entrada de correo Zoho.",
-    href: "/dashboard/inbox",
-    icon: Inbox,
-    iconBg: "rgba(59,130,246,0.15)",
-    iconColor: "#3b82f6",
-  },
-  {
-    title: "Importar CSV",
-    description: "Importación masiva de datos desde archivo.",
-    href: "/dashboard/import",
-    icon: Upload,
-    iconBg: "rgba(168,85,247,0.15)",
-    iconColor: "#a855f7",
-  },
-  {
-    title: "Alertas",
-    description: "Configuración de alertas y notificaciones.",
-    href: "/dashboard/configuracion/alertas",
-    icon: Bell,
-    iconBg: "rgba(251,191,36,0.15)",
-    iconColor: "#fbbf24",
-  },
-];
+import {
+  MessageCircle, Inbox, Upload, Bell, ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
 type ModuleItem = {
   title: string;
   description: string;
   href: string;
   icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
+  accent: string;
+  hero?: boolean;
 };
 
-function HubCard({ module }: { module: ModuleItem }) {
+const GREEN = "#3AD8B1";
+
+const grupos: { label: string; modulos: ModuleItem[] }[] = [
+  {
+    label: "Comunicación",
+    modulos: [
+      { title: "WhatsApp Log",  description: "Historial de mensajes enviados por el sistema.",     href: "/dashboard/whatsapp/log", icon: MessageCircle, accent: GREEN, hero: true },
+      { title: "Inbox",         description: "Bandeja de entrada de correo corporativo.",          href: "/dashboard/inbox",        icon: Inbox,         accent: GREEN },
+      { title: "Importar CSV",  description: "Importación masiva de datos desde archivo CSV.",     href: "/dashboard/import",       icon: Upload,        accent: GREEN },
+      { title: "Alertas",       description: "Configuración de alertas y notificaciones.",         href: "/dashboard/configuracion/alertas", icon: Bell, accent: GREEN },
+    ],
+  },
+];
+
+const filas = [[grupos[0]]];
+
+export default function ComunicacionPage() {
   return (
-    <Link
-      href={module.href}
-      className="group flex items-center gap-3 rounded-[10px] transition-all duration-150 hover:-translate-y-0.5"
+    <div
+      className="px-5 pt-4 pb-4 h-full flex flex-col overflow-hidden"
       style={{
-        backgroundColor: "rgba(4,13,40,0.82)",
-        backdropFilter: "blur(8px)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        padding: "13px 14px",
+        background: [
+          "radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%)",
+          "linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%)",
+        ].join(", "),
       }}
     >
-      <div
-        className="flex items-center justify-center rounded-[8px] shrink-0"
-        style={{ width: "36px", height: "36px", backgroundColor: module.iconBg }}
-      >
-        <module.icon style={{ width: "17px", height: "17px", color: module.iconColor }} strokeWidth={1.75} />
+      {/* ── HEADER ── */}
+      <div className="flex-shrink-0 rounded-xl px-5 py-3" style={{ marginBottom: "24px", background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)", borderBottom: "1px solid rgba(150,180,230,0.10)" }}>
+        <div className="flex items-baseline gap-3.5">
+          <h1 style={{ fontSize: "30px", fontWeight: 800, letterSpacing: "-0.035em", color: "#F4F8FF", lineHeight: 1 }}>Comunicación</h1>
+          <span style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
+          <span style={{ fontSize: "14px", fontWeight: 500, color: "rgba(214,228,255,0.70)" }}>WhatsApp, correo y notificaciones</span>
+        </div>
       </div>
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <p className="text-[13px] font-semibold truncate" style={{ color: "rgba(255,255,255,0.92)" }}>
-          {module.title}
-        </p>
-        <p className="text-[11.5px] mt-[3px] truncate" style={{ color: "rgba(255,255,255,0.42)" }}>
-          {module.description}
-        </p>
+
+      {/* ── SECCIONES ── */}
+      <div className="flex-1 flex flex-col min-h-0" style={{ gap: "22px" }}>
+        {filas.map((fila, fi) => (
+          <div key={fi} className={`flex-1 grid min-h-0 ${fila.length === 1 ? "grid-cols-1" : "grid-cols-2"}`} style={{ gap: "20px" }}>
+            {fila.map((grupo) => (
+              <section key={grupo.label} className="flex flex-col min-h-0">
+                <div className="flex items-center flex-shrink-0" style={{ gap: "12px", marginBottom: "12px" }}>
+                  <span className="uppercase" style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.16em", color: "rgba(188,208,238,0.58)", flexShrink: 0, whiteSpace: "nowrap" }}>{grupo.label}</span>
+                  <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.11)" }} />
+                </div>
+                <div className="flex-1 grid grid-cols-2 min-h-0" style={{ gap: "10px", alignItems: "stretch" }}>
+                  {grupo.modulos.map((mod) => <HubCard key={mod.href} module={mod} />)}
+                </div>
+              </section>
+            ))}
+          </div>
+        ))}
       </div>
-    </Link>
+    </div>
   );
 }
 
-export default function ComunicacionHub() {
+function HubCard({ module }: { module: ModuleItem }) {
+  const isHero     = module.hero;
+  const iconSize   = isHero ? 36 : 28;
+  const heroBg     = "linear-gradient(180deg, #1D3A5E 0%, #162F4E 54%, #112744 100%)";
+  const normalBg   = "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)";
+  const heroShadow = "inset 0 2px 0 rgba(123,182,255,0.38), inset 0 1px 0 rgba(210,228,252,0.10), 0 0 0 1px rgba(123,182,255,0.10), 0 12px 28px rgba(0,0,0,0.26)";
+  const normalShadow = "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)";
+  const heroBorder   = "rgba(123,182,255,0.32)";
+  const normalBorder = "rgba(120,158,204,0.18)";
   return (
-    <div className="h-full overflow-auto relative" style={{ background: "#040d1e" }}>
-      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <div style={{ position: "absolute", top: "10%", left: "-8%", width: "420px", height: "420px", background: "linear-gradient(135deg, #0d2060 0%, #081540 100%)", transform: "rotate(45deg)", borderRadius: "18px", opacity: 0.85 }} />
-        <div style={{ position: "absolute", top: "18%", left: "4%", width: "300px", height: "300px", background: "linear-gradient(135deg, #0a1a50 0%, #05102e 100%)", transform: "rotate(45deg)", borderRadius: "14px", opacity: 0.9 }} />
-        <div style={{ position: "absolute", bottom: "-12%", right: "-6%", width: "480px", height: "480px", background: "linear-gradient(135deg, #0c1e5a 0%, #071236 100%)", transform: "rotate(45deg)", borderRadius: "20px", opacity: 0.75 }} />
-        <div style={{ position: "absolute", top: "-5%", right: "12%", width: "200px", height: "200px", background: "linear-gradient(135deg, #0f2468 0%, #091845 100%)", transform: "rotate(45deg)", borderRadius: "10px", opacity: 0.7 }} />
-        <div style={{ position: "absolute", top: "40%", right: "20%", width: "260px", height: "260px", background: "linear-gradient(135deg, #0b1b55 0%, #06103a 100%)", transform: "rotate(45deg)", borderRadius: "12px", opacity: 0.6 }} />
-      </div>
-      <div className="relative px-6 pt-6 pb-8" style={{ zIndex: 1 }}>
-        <h1 className="text-[22px] font-bold tracking-tight mb-1" style={{ color: "rgba(255,255,255,0.93)" }}>
-          Comunicación
-        </h1>
-        <p className="text-[12.5px] mb-6" style={{ color: "rgba(255,255,255,0.42)" }}>
-          Mensajería, correo y notificaciones del sistema
-        </p>
-        <div className="grid grid-cols-1 gap-2.5" style={{ maxWidth: "480px" }}>
-          {moduleItems.map((item) => (
-            <HubCard key={item.href} module={item} />
-          ))}
-        </div>
-      </div>
-    </div>
+    <Link href={module.href} className="group relative flex flex-col justify-start rounded-2xl transition-all duration-200 ease-out"
+      style={{ height: "100%", padding: "20px 18px 18px 20px", background: isHero ? heroBg : normalBg, border: `1px solid ${isHero ? heroBorder : normalBorder}`, boxShadow: isHero ? heroShadow : normalShadow }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? "inset 0 2px 0 rgba(123,182,255,0.45), inset 0 1px 0 rgba(210,228,252,0.12), 0 0 0 1px rgba(123,182,255,0.16), 0 18px 36px rgba(0,0,0,0.30)" : "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)"; (e.currentTarget as HTMLElement).style.borderColor = isHero ? "rgba(123,182,255,0.45)" : "rgba(140,178,228,0.30)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = isHero ? heroShadow : normalShadow; (e.currentTarget as HTMLElement).style.borderColor = isHero ? heroBorder : normalBorder; }}
+    >
+      <module.icon style={{ width: iconSize, height: iconSize, color: module.accent, flexShrink: 0 }} strokeWidth={1.5} />
+      <div style={{ height: "14px", flexShrink: 0 }} />
+      <h3 style={{ fontSize: isHero ? "18px" : "15px", fontWeight: isHero ? 800 : 700, color: isHero ? "#FFFFFF" : "#EAF2FF", letterSpacing: "-0.018em", lineHeight: 1.2, flexShrink: 0 }}>{module.title}</h3>
+      <p style={{ marginTop: "7px", fontSize: "12px", fontWeight: 400, color: "rgba(200,220,248,0.72)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>{module.description}</p>
+      <ChevronRight className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-25 transition-opacity duration-200" style={{ width: 12, height: 12, color: module.accent }} />
+    </Link>
   );
 }
