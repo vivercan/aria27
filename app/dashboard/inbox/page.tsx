@@ -888,7 +888,7 @@ export default function InboxPage() {
 
         {/* PANEL LISTA */}
         <div className="flex flex-col overflow-hidden"
-          style={{width:splitView?430:"100%",flexShrink:0,borderRight:splitView?`1px solid ${G.border}`:"none"}}>
+          style={{width:splitView?430:"100%",flexShrink:0,borderRight:splitView?`1px solid ${G.border}`:"none",display:!splitView&&vista==="leer"?"none":"flex"}}>
 
           <FlashBanner msg={msg} className="px-4 pt-2"/>
 
