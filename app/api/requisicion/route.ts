@@ -2,16 +2,18 @@ import { NextResponse, NextRequest } from "next/server";
 import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { logger } from "@/lib/logger";
+import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+
+const log = logger("REQUISICION");
+
 // Lazy init — evita throw en module-level que bypassea try-catch del handler (B8 fix)
 let _db: SupabaseClient | undefined;
 function getDb(): SupabaseClient {
   if (!_db) _db = getSupabaseAdmin();
   return _db;
 }
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
-import { logger } from "@/lib/logger";
-import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
-const log = logger("REQUISICION");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
