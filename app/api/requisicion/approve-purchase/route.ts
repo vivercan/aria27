@@ -1,12 +1,20 @@
 import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-// (!) ZONA CRITICA -- usar admin client. RLS bloquea sequences, purchase_orders, Users.
-const supabase = getSupabaseAdmin();
 import { getResend } from "@/lib/resend";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+
+// (!) ZONA CRITICA -- usar admin client. RLS bloquea sequences, purchase_orders, Users.
+// B9 fix: lazy-init para evitar throw en module-level (mismo patrón que B8 en route.ts principal)
+import type { SupabaseClient } from "@supabase/supabase-js";
+let _db: SupabaseClient | undefined;
+function getDb(): SupabaseClient {
+  if (!_db) _db = getSupabaseAdmin();
+  return _db;
+}
+
 const log = logger("REQUISICION-APPROVE-PURCHASE");
 
 // ===== Supabase Query Result Types =====
@@ -81,11 +89,11 @@ interface User {
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
 async function getUserByRole(role: string): Promise<User | null> {
-  const { data } = await supabase.from("Users").select("*").eq("role", role).single();
+  const { data } = await getDb().from("Users").select("*").eq("role", role).single();
   return (data as User) || null;
 }
 async function getUserByEmail(email: string): Promise<User | null> {
-  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
+  const { data } = await getDb().from("Users").select("*").eq("email", email).single();
   return (data as User) || null;
 }
 async function getNextOCFolio(): Promise<string> {
@@ -93,15 +101,15 @@ async function getNextOCFolio(): Promise<string> {
   // Mismo patron que autorizar-picking/route.ts y requisicion/route.ts.
   let next: number;
   try {
-    const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "OC" });
+    const { data: rpcData, error: rpcError } = await getDb().rpc("increment_sequence", { seq_id: "OC" });
     if (!rpcError && rpcData !== null) {
       next = typeof rpcData === "number" ? rpcData : (rpcData as { current_value: number }).current_value;
     } else {
-      const { count } = await supabase.from("purchase_orders").select("*", { count: "exact", head: true });
+      const { count } = await getDb().from("purchase_orders").select("*", { count: "exact", head: true });
       next = (count || 0) + 1;
     }
   } catch {
-    const { count } = await supabase.from("purchase_orders").select("*", { count: "exact", head: true });
+    const { count } = await getDb().from("purchase_orders").select("*", { count: "exact", head: true });
     next = (count || 0) + 1;
   }
   return `OC-${new Date().getFullYear()}-${String(next).padStart(5, "0")}`;
@@ -264,7 +272,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const { error: updReqErr } = await supabase.from("requisitions").update({
+      const { error: updReqErr } = await getDb().from("requisitions").update({
         status: "OC_GENERADA",
         authorization_comments: null,
         authorized_by: `magic_link:${String(token).substring(0, 12)}`,
@@ -275,7 +283,7 @@ export async function GET(request: NextRequest) {
       }).eq("id", req.id);
       if (updReqErr) { log.error("Error update requisition", { error: updReqErr.message, req: req.folio }); throw new Error(`Error actualizando requisición ${req.folio}: ${updReqErr.message}`); }
 
-      const { error: poInsErr } = await supabase.from("purchase_orders").insert({
+      const { error: poInsErr } = await getDb().from("purchase_orders").insert({
         folio: ocFolio,
         requisition_id: req.id,
         supplier_name: supplierName,
@@ -298,7 +306,7 @@ export async function GET(request: NextRequest) {
         for (const item of reqItems) {
           const price = elegidoData.items_prices?.[item.product_name] || 0;
           if (price > 0) {
-            const { error: itemUpdErr } = await supabase.from("requisition_items").update({
+            const { error: itemUpdErr } = await getDb().from("requisition_items").update({
               selected_supplier_name: supplierName,
               selected_price: price
             }).eq("id", item.id);
@@ -335,7 +343,7 @@ export async function GET(request: NextRequest) {
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
     } else if (action === "rechazar" || action === "RECHAZADA") {
-      const { error: rechErr } = await supabase.from("requisitions").update({
+      const { error: rechErr } = await getDb().from("requisitions").update({
         status: "RECHAZADA_DIRECCION",
         authorization_comments: null
       }).eq("id", req.id);

@@ -116,7 +116,8 @@ export default function ComprasPickingPage() {
   const cart = useMemo(() => {
     const bySupplier: Record<string, { count: number; total: number }> = {};
     Object.entries(selections).forEach(([itemId, sel]) => {
-      const item = items.find(i => i.id === Number(itemId));
+      // B9 fix: usar String() en ambos lados — item.id puede ser UUID o int
+      const item = items.find(i => String(i.id) === itemId);
       if (!item) return;
       if (!bySupplier[sel.supplier_name]) bySupplier[sel.supplier_name] = { count: 0, total: 0 };
       bySupplier[sel.supplier_name].count++;
@@ -147,10 +148,11 @@ export default function ComprasPickingPage() {
             obra: selectedReq!.cost_center_name,
             urgency: selectedReq!.urgency,
             selections: Object.entries(selections).map(([itemId, sel]) => {
-              const item = items.find(i => i.id === Number(itemId))!;
+              // B9 fix: String() comparison para item_id UUID/int
+              const item = items.find(i => String(i.id) === itemId)!;
               const info = supplierInfo[sel.supplier_name];
               return {
-                item_id: Number(itemId),
+                item_id: item.id,
                 product_name: item.product_name,
                 quantity: item.quantity,
                 unit: item.unit,
