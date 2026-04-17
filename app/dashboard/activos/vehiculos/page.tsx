@@ -47,6 +47,7 @@ interface VehiclePayload {
 
 const ESTADO_OPTIONS = [
   { value: "bueno", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "EN_USO", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" }, // B7 fix: migración legacy llenó con EN_USO en lugar de "bueno"
   { value: "mantenimiento", label: "En Mantenimiento", color: "bg-amber-500/20 text-amber-400" },
   { value: "reparacion", label: "En Reparación", color: "bg-orange-500/20 text-orange-400" },
   { value: "baja", label: "Dado de Baja", color: "bg-red-500/20 text-red-400" },
@@ -161,7 +162,8 @@ export default function VehiculosPage() {
       v.marca?.toLowerCase().includes(q) || v.ubicacion_actual?.toLowerCase().includes(q);
   });
 
-  const operativos = vehiculos.filter(v => v.estado === "bueno").length;
+  // B7 fix: incluir "EN_USO" como estado operativo (legacy data usa EN_USO en vez de "bueno")
+  const operativos = vehiculos.filter(v => v.estado === "bueno" || v.estado === "EN_USO").length;
   const enMant = vehiculos.filter(v => v.estado === "mantenimiento" || v.estado === "reparacion").length;
 
   const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";

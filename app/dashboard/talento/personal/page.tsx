@@ -451,7 +451,7 @@ export default function PersonalPage() {
                     ]} />
                   <Field label="Hora entrada" field="hora_entrada" type="time" />
                   <Field label="Hora salida" field="hora_salida" type="time" />
-                  <Field label="D\u00edas laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
+                  <Field label="Días laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
                 </div>
               )}
               {tab === "bancario" && (

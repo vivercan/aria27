@@ -93,7 +93,8 @@ export async function POST(req: NextRequest) {
       requisition_id,
       solicitante_email,
       solicitante_phone,
-      user_email
+      user_email,
+      recibido_por_nombre,  // B3 fix: UI lo envía pero API lo ignoraba — hardcodeaba "Pendiente confirmar"
     } = body;
 
     // Validación básica de datos requeridos
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest) {
       hora_entrega: new Date().toTimeString().slice(0, 5),
       proveedor_nombre: supplier_name,
       obra_nombre: obra_nombre,
-      recibido_por_nombre: "Pendiente confirmar",
+      recibido_por_nombre: recibido_por_nombre || "Pendiente confirmar",
       status: "COMPLETA",
       materiales_recibidos: materiales,
       purchase_order_id: purchase_order_id || null,

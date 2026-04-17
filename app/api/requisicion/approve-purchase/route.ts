@@ -288,7 +288,9 @@ export async function GET(request: NextRequest) {
         status: "GENERADA",
         payment_method: elegidoData.forma_pago || "Transferencia",
         credit_days: elegidoData.dias_credito || 0,
-        authorized_at: new Date().toISOString()
+        authorized_at: new Date().toISOString(),
+        // B5 fix: propagar obra desde la requisición para que sea visible en Pagos/Por Pagar
+        obra_nombre: req.cost_center_name || null,
       });
       if (poInsErr) { log.error("Error insert purchase_order", { error: poInsErr.message, ocFolio }); throw new Error(`Error creando OC ${ocFolio}: ${poInsErr.message}`); }
 
