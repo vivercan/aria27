@@ -17,7 +17,7 @@ type ModuleItem = {
 };
 
 const BLUE  = "#7BB6FF";
-const AMBER = "#FFD074";
+const AMBER = "#67E8F9";
 
 const grupos: { label: string; modulos: ModuleItem[] }[] = [
   {

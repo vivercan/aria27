@@ -291,8 +291,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           <Link href="/dashboard" className="block" style={{ textDecoration: "none" }}>
             <div className="flex items-baseline gap-0.5">
               <span style={{
-                fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: "#4a9eff",
-                textShadow: "0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.45), 1px 0 3px rgba(0,80,200,0.30), -1px 0 3px rgba(0,80,200,0.20), 0 2px 8px rgba(30,100,255,0.35)",
+                fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em", color: "#5BAEFF",
+                textShadow: [
+                  "0 -1px 0 rgba(180,220,255,0.75)",   /* rim superior — luz incidente */
+                  "0  1px 0 rgba(0,18,70,0.95)",        /* pared inferior — profundidad */
+                  "1px 0 0 rgba(0,40,130,0.50)",        /* sombra lateral derecha */
+                  "-1px 0 0 rgba(120,190,255,0.30)",    /* highlight lateral izquierda */
+                  "0 0 14px rgba(74,158,255,0.50)",     /* halo luminoso */
+                  "0 2px 6px rgba(0,0,0,0.60)",        /* drop shadow profundo */
+                ].join(", "),
               }}>
                 ARIA
               </span>
@@ -300,8 +307,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em",
                 color: isDark ? "#ffffff" : "#1e293b",
                 textShadow: isDark
-                  ? "0 1px 0 rgba(255,255,255,0.20), 0 -1px 0 rgba(0,0,0,0.50), 0 2px 6px rgba(0,0,0,0.40)"
-                  : "0 1px 0 rgba(255,255,255,0.80), 0 -1px 0 rgba(0,0,0,0.15)",
+                  ? [
+                      "0 -1px 0 rgba(255,255,255,0.55)",
+                      "0  1px 0 rgba(0,0,0,0.95)",
+                      "1px 0 0 rgba(0,0,0,0.35)",
+                      "-1px 0 0 rgba(255,255,255,0.20)",
+                      "0 2px 5px rgba(0,0,0,0.60)",
+                    ].join(", ")
+                  : "0 1px 0 rgba(255,255,255,0.85), 0 -1px 0 rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.15)",
               }}>
                 27
               </span>

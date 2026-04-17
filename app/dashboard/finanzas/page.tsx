@@ -21,7 +21,7 @@ type ModuleItem = {
 };
 
 const GREEN = "#3AD8B1";
-const GOLD  = "#FFD074";
+const GOLD  = "#67E8F9";
 
 const grupos: { label: string; modulos: ModuleItem[] }[] = [
   {

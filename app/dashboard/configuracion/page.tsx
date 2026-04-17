@@ -40,7 +40,7 @@ const restoreItem: ModuleItem = {
   description: "Punto de restauración — snapshot de respaldo.",
   href: "/dashboard/admin/restore",
   icon: DatabaseBackup,
-  accent: "#FF7D74",
+  accent: "#94B4D8",
 };
 
 export default function ConfiguracionPage() {
