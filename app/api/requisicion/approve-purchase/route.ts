@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${BASE_URL}/autorizar/${token}`);
     }
 
-    const { data: reqData, error: reqError } = await supabase
+    const { data: reqData, error: reqError } = await getDb()
       .from("requisitions")
       .select("*")
       .eq("authorization_comments", token)
@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
 
     const comprasUser = await getUserByRole("compras");
     // Query items separately (no FK relationship between Requisiciones and requisition_items)
-    const { data: reqItemsData } = await supabase
+    const { data: reqItemsData } = await getDb()
       .from("requisition_items")
       .select("*")
       .eq("requisition_id", req.id);
