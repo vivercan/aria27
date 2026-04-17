@@ -1,7 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-const supabase = getSupabaseAdmin();
+import type { SupabaseClient } from "@supabase/supabase-js";
+// Lazy init — evita throw en module-level que bypassea try-catch del handler (B8 fix)
+let _db: SupabaseClient | undefined;
+function getDb(): SupabaseClient {
+  if (!_db) _db = getSupabaseAdmin();
+  return _db;
+}
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -15,7 +21,7 @@ async function getNextFolio(): Promise<string> {
 
   // Estrategia 1: RPC atómico (ideal)
   try {
-    const { data: rpcData, error: rpcError } = await supabase.rpc("increment_sequence", { seq_id: "requisitions" });
+    const { data: rpcData, error: rpcError } = await getDb().rpc("increment_sequence", { seq_id: "requisitions" });
     if (!rpcError && rpcData !== null) {
       const next = typeof rpcData === "number" ? rpcData : rpcData.current_value;
       return `${prefix}${String(next).padStart(5, "0")}`;
@@ -28,7 +34,7 @@ async function getNextFolio(): Promise<string> {
   // NOTA: Esta ruta es solo fallback cuando el RPC falla. Se acepta la posibilidad
   // de colisión en concurrencia extrema (el INSERT fallará con constraint y el
   // usuario verá un error claro en lugar de duplicar el folio silenciosamente).
-  const { data: maxFolioData } = await supabase
+  const { data: maxFolioData } = await getDb()
     .from("requisitions")
     .select("folio")
     .like("folio", `${prefix}%`)
@@ -42,7 +48,7 @@ async function getNextFolio(): Promise<string> {
   }
 
   // También leer sequence por si está más adelante
-  const { data: seqData } = await supabase
+  const { data: seqData } = await getDb()
     .from("sequences")
     .select("current_value")
     .eq("id", "requisitions")
@@ -53,7 +59,7 @@ async function getNextFolio(): Promise<string> {
   const next = Math.max(maxNum, seqNum) + 1;
 
   // Upsert sequence para mantenerlo sincronizado (upsert en vez de update evita errores si no existe el registro)
-  await supabase.from("sequences").upsert({ id: "requisitions", current_value: next }, { onConflict: "id", ignoreDuplicates: false });
+  await getDb().from("sequences").upsert({ id: "requisitions", current_value: next }, { onConflict: "id", ignoreDuplicates: false });
 
   log.warn("[FOLIO] Usando fallback Strategy 2 (sin RPC atómico)", { next, maxNum, seqNum });
   return `${prefix}${String(next).padStart(5, "0")}`;
@@ -71,13 +77,13 @@ interface User {
 }
 
 async function getUserByEmail(email: string): Promise<User | null> {
-  const { data } = await supabase.from("Users").select("*").eq("email", email).single();
+  const { data } = await getDb().from("Users").select("*").eq("email", email).single();
   return (data as User) || null;
 }
 
 async function getUserByRole(role: string): Promise<User | null> {
   try {
-    const { data, error } = await supabase.from("Users").select("*").eq("role", role).eq("active", true).limit(1);
+    const { data, error } = await getDb().from("Users").select("*").eq("role", role).eq("active", true).limit(1);
     if (error) { log.error(`Error buscando rol ${role}:`, (error as {message?: string})?.message || "Unknown error"); return null; }
     if (!data || data.length === 0) { log.error(`No se encontro usuario con rol: ${role}`); return null; }
     return (data[0] as User) || null;
@@ -101,7 +107,7 @@ export async function POST(request: Request) {
       logger("REQUISICION").warn("[REQUISICION] usuario.email ausente - 401");
       return NextResponse.json({ error: "usuario.email requerido", logs }, { status: 401 });
     }
-    const { data: callerCheck } = await supabase
+    const { data: callerCheck } = await getDb()
       .from("Users").select("email,role,active").eq("email", usuario.email).single();
     if (!callerCheck || callerCheck.active === false) {
       logger("REQUISICION").warn(`[REQUISICION] usuario no autorizado: ${usuario.email}`);
@@ -113,7 +119,7 @@ export async function POST(request: Request) {
       const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
       const primerMat = String(materiales[0]?.name || "").trim().toLowerCase().substring(0, 5);
       if (primerMat.length >= 3) {
-        const { data: recentReqs } = await supabase
+        const { data: recentReqs } = await getDb()
           .from("requisitions")
           .select("id, folio, cost_center_name, status")
           .ilike("cost_center_name", `%${obra.substring(0, 8)}%`)
@@ -124,7 +130,7 @@ export async function POST(request: Request) {
 
         if (recentReqs?.length) {
           for (const rr of recentReqs) {
-            const { data: dupItems } = await supabase
+            const { data: dupItems } = await getDb()
               .from("requisition_items")
               .select("product_name")
               .eq("requisition_id", rr.id)
@@ -147,7 +153,7 @@ export async function POST(request: Request) {
     // Determinar flujo: compras (default) o direccion (directo a autorización)
     let flujo = "compras";
     if (subcategoria) {
-      const { data: catData } = await supabase
+      const { data: catData } = await getDb()
         .from("catalogos_requisiciones")
         .select("flujo")
         .eq("tipo", "SUBCATEGORIA")
@@ -173,7 +179,7 @@ export async function POST(request: Request) {
 
     const initialStatus = flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE";
 
-    const { data: req, error: reqErr } = await supabase.from("requisitions").insert({
+    const { data: req, error: reqErr } = await getDb().from("requisitions").insert({
       folio,
       cost_center_name: obra,
       instructions: comentarios,
@@ -197,7 +203,7 @@ export async function POST(request: Request) {
       requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
       quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
     }));
-    const { error: itemsErr } = await supabase.from("requisition_items").insert(items);
+    const { error: itemsErr } = await getDb().from("requisition_items").insert(items);
     if (itemsErr) throw itemsErr;
 
     const daysUntil = Math.ceil((new Date(requiredDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
