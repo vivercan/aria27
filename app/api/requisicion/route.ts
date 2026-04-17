@@ -196,6 +196,10 @@ export async function POST(request: NextRequest) {
       canal_origen: body.canal_origen || "WEB",
       ...(body.duplicado_de ? { duplicado_de: body.duplicado_de } : {}),
       ...(body.foto_ticket_url ? { foto_ticket_url: body.foto_ticket_url } : {}),
+      // Datos de pago e IVA para PDF
+      ...(body.forma_pago ? { forma_pago: body.forma_pago } : {}),
+      ...(body.fecha_pago ? { fecha_pago: body.fecha_pago } : {}),
+      ...(body.iva_porcentaje != null ? { iva_porcentaje: body.iva_porcentaje } : {}),
     }).select().single();
 
     if (reqErr) throw reqErr;

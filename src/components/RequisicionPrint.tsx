@@ -107,7 +107,7 @@ function generateHTML(props: RequisicionPrintProps): string {
     .header-right { width: 45%; text-align: right; }
     
     .logo-section { display: flex; align-items: flex-start; gap: 5px; margin-bottom: 5px; }
-    .logo { height: 40px; }
+    .logo { height: 65px; }
     .company-name { font-size: 9px; font-weight: bold; font-style: italic; }
     
     .title { font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 10px; }
@@ -120,7 +120,7 @@ function generateHTML(props: RequisicionPrintProps): string {
     .field-label-right { font-weight: bold; text-align: right; min-width: 120px; }
     .field-value-right { border-bottom: 1px solid #000; min-width: 180px; padding-left: 3px; text-align: left; }
     
-    .folio-box { border: 2px solid #000; padding: 3px 15px; font-weight: bold; font-size: 11px; display: inline-block; }
+    .folio-box { border: 3px solid #000; padding: 6px 20px; font-weight: bold; font-size: 17px; display: inline-block; background: #f0f0f0; letter-spacing: 1px; }
     
     .uso-row { display: flex; margin: 8px 0; font-size: 9px; }
     .uso-label { font-weight: bold; min-width: 30px; }
@@ -218,14 +218,14 @@ function generateHTML(props: RequisicionPrintProps): string {
     </div>
     
     <div class="firmas-section">
-      <div class="firmas-row">
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || 'RECEPCIÓN DE MATERIALES'}</div><div class="firma-title">RECEPCIÓN DE MATERIALES</div></div></div>
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
-      </div>
       <div class="firmas-row" style="justify-content: space-around;">
-        <div class="firma-box-third"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO:RR.HH.ADMC</div></div></div>
+        <div class="firma-box-third"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC</div></div></div>
         <div class="firma-box-third"><div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
         <div class="firma-box-third"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div><div class="firma-code">${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
+      </div>
+      <div class="firmas-row" style="margin-top: 15px;">
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || ''}</div><div class="firma-title">PROVEEDOR / RECEPCIÓN</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
       </div>
     </div>
   </div>

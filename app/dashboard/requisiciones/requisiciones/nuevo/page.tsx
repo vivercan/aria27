@@ -65,6 +65,11 @@ export default function NewRequisitionPage() {
   const [prioridad, setPrioridad] = useState<"CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO">("NORMAL");
   const [presupuesto, setPresupuesto] = useState<string>("");
 
+  // ── Datos de pago e IVA (para PDF) ────────────────────────────────────────
+  const [formaPago, setFormaPago] = useState<string>("EFECTIVO");
+  const [fechaPago, setFechaPago] = useState<string>("");
+  const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
+
   // ── AI Assist: extracción de texto/WA ────────────────────────────────────
   const [showAI, setShowAI] = useState(false);
   const [aiTexto, setAiTexto] = useState("");
@@ -284,6 +289,10 @@ export default function NewRequisitionPage() {
           prioridad,
           presupuesto_estimado: presupuesto ? Number(presupuesto) : null,
           canal_origen: searchParams.get("mats") ? "WHATSAPP" : "WEB",
+          // Datos de pago e IVA
+          forma_pago: formaPago,
+          fecha_pago: fechaPago || null,
+          iva_porcentaje: ivaPorcentaje,
         })
       });
       const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
@@ -418,6 +427,31 @@ export default function NewRequisitionPage() {
               </div>
             </div>
           </div>
+
+          {/* ── DATOS DE PAGO E IVA ─────────────────────────────────── */}
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Forma de pago</label>
+              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="TRANSFERENCIA">Transferencia</option>
+                <option value="CHEQUE">Cheque</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Fecha de pago</label>
+              <input type="date" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={fechaPago} onChange={e => setFechaPago(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">IVA</label>
+              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
+                <option value={0}>0% (Sin IVA)</option>
+                <option value={8}>8%</option>
+                <option value={16}>16%</option>
+              </select>
+            </div>
+          </div>
+
           <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
             <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />

@@ -45,6 +45,7 @@ interface ReqItem {
   unit: string;
   quantity: number;
   comments?: string;
+  selected_price?: number;
   precio_unitario?: number;
   precio_total?: number;
 }
@@ -107,9 +108,14 @@ export default function RequisicionesStatusPage() {
     if (itemsCache[reqId]) return itemsCache[reqId];
     const { data } = await supabase
       .from("requisition_items")
-      .select("id, product_name, unit, quantity, comments, precio_unitario, precio_total")
+      .select("id, product_name, unit, quantity, comments, selected_price")
       .eq("requisition_id", reqId);
-    const items = (data || []) as ReqItem[];
+    // Mapear selected_price → precio_unitario / precio_total para el componente de impresión
+    const items = (data || []).map((i: ReqItem) => ({
+      ...i,
+      precio_unitario: i.selected_price ?? undefined,
+      precio_total: i.selected_price != null ? i.selected_price * i.quantity : undefined,
+    })) as ReqItem[];
     setItemsCache((prev) => ({ ...prev, [reqId]: items }));
     return items;
   }

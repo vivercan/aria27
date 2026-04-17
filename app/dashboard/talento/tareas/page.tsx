@@ -132,6 +132,7 @@ export default function TareasTalentoPage() {
       asignado_por: userEmail || "sistema",
     };
     let error;
+    const esNueva = !editando;
     if (editando) {
       ({ error } = await supabase.from("tareas_asignadas").update(payload).eq("id", editando));
     } else {
@@ -139,6 +140,23 @@ export default function TareasTalentoPage() {
     }
     setGuardando(false);
     if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+
+    // Notificar al colaborador asignado solo en creación nueva
+    if (esNueva && form.asignado_id) {
+      fetch("/api/tareas/notificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          asignado_id: form.asignado_id,
+          titulo: form.titulo,
+          descripcion: form.descripcion,
+          fecha_compromiso: form.fecha_compromiso,
+          obra: form.obra,
+          asignado_por: userEmail || "Administrador",
+        }),
+      }).catch(() => { /* silent — no bloquear UI por notificación */ });
+    }
+
     setShowForm(false);
     setEditando(null);
     setForm(EMPTY_FORM);

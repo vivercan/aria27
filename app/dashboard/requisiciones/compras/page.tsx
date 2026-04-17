@@ -40,8 +40,12 @@ export default function ComprasPickingPage() {
   const [authorizing, setAuthorizing] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
+  const [userEmail, setUserEmail] = useState("");
 
-  useEffect(() => { loadReqs(); }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") setUserEmail(localStorage.getItem("userEmail") || "");
+    loadReqs();
+  }, []);
 
   const loadReqs = async () => {
     setLoading(true);
@@ -81,8 +85,8 @@ export default function ComprasPickingPage() {
 
   const suppliers = useMemo(() => Object.keys(supplierInfo), [supplierInfo]);
 
-  // Get quotes for a specific item
-  const getQuotesForItem = (itemId: number) => itemQuotes.filter(iq => iq.requisition_item_id === itemId);
+  // Get quotes for a specific item — String() comparison cubre UUID y entero
+  const getQuotesForItem = (itemId: number) => itemQuotes.filter(iq => String(iq.requisition_item_id) === String(itemId));
 
   // Best price per item
   const bestPriceForItem = (itemId: number) => {
@@ -104,7 +108,7 @@ export default function ComprasPickingPage() {
   const selectAllFrom = (supplierName: string) => {
     const newSel = { ...selections };
     items.forEach(item => {
-      const q = itemQuotes.find(iq => iq.requisition_item_id === item.id && iq.supplier_name === supplierName);
+      const q = itemQuotes.find(iq => String(iq.requisition_item_id) === String(item.id) && iq.supplier_name === supplierName);
       if (q) newSel[item.id] = { supplier_name: supplierName, unit_price: q.unit_price };
     });
     setSelections(newSel);
@@ -147,6 +151,7 @@ export default function ComprasPickingPage() {
             folio: selectedReq!.folio,
             obra: selectedReq!.cost_center_name,
             urgency: selectedReq!.urgency,
+            user_email: userEmail || localStorage.getItem("userEmail") || "",
             selections: Object.entries(selections).map(([itemId, sel]) => {
               // B9 fix: String() comparison para item_id UUID/int
               const item = items.find(i => String(i.id) === itemId)!;
@@ -201,18 +206,18 @@ export default function ComprasPickingPage() {
   const pagoShort = (fp: string) => fp === "TRANSFERENCIA" ? "Transf." : fp === "EFECTIVO" ? "Efectivo" : "Cheque";
   const creditoShort = (tc: string, dc: number) => tc === "CONTADO" ? "Contado" : dc + "d crédito";
 
-  // Supplier total for quick select
+  // Supplier total for quick select — String() comparison cubre UUID y entero
   const supplierTotal = (name: string) => {
     let total = 0;
     items.forEach(item => {
-      const q = itemQuotes.find(iq => iq.requisition_item_id === item.id && iq.supplier_name === name);
+      const q = itemQuotes.find(iq => String(iq.requisition_item_id) === String(item.id) && iq.supplier_name === name);
       if (q) total += q.unit_price * item.quantity;
     });
     return total;
   };
 
   const supplierItemCount = (name: string) => {
-    return items.filter(item => itemQuotes.some(iq => iq.requisition_item_id === item.id && iq.supplier_name === name)).length;
+    return items.filter(item => itemQuotes.some(iq => String(iq.requisition_item_id) === String(item.id) && iq.supplier_name === name)).length;
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
@@ -301,7 +306,7 @@ export default function ComprasPickingPage() {
               const total = supplierTotal(name);
               const count = supplierItemCount(name);
               const allSelected = items.every(item => {
-                const q = itemQuotes.find(iq => iq.requisition_item_id === item.id && iq.supplier_name === name);
+                const q = itemQuotes.find(iq => String(iq.requisition_item_id) === String(item.id) && iq.supplier_name === name);
                 return !q || selections[item.id]?.supplier_name === name;
               });
               const bestTotal = Math.min(...suppliers.map(s => supplierTotal(s)));

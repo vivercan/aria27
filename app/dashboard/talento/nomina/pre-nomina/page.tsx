@@ -35,21 +35,21 @@ interface DetalleNomina {
   pago_efectivo: number;
 }
 
-// Rango Jueves-Miércoles
+// Rango Viernes-Jueves
 function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
   const d = new Date(date);
   const day = d.getDay();
-  const diffToThursday = day >= 4 ? day - 4 : day + 3;
-  const jueves = new Date(d);
-  jueves.setDate(d.getDate() - diffToThursday);
-  jueves.setHours(0, 0, 0, 0);
-  const miercoles = new Date(jueves);
-  miercoles.setDate(jueves.getDate() + 6);
-  const tempDate = new Date(jueves);
+  const diffToFriday = day >= 5 ? day - 5 : day + 2;
+  const viernes = new Date(d);
+  viernes.setDate(d.getDate() - diffToFriday);
+  viernes.setHours(0, 0, 0, 0);
+  const jueves = new Date(viernes);
+  jueves.setDate(viernes.getDate() + 6);
+  const tempDate = new Date(viernes);
   tempDate.setDate(tempDate.getDate() + 4 - (tempDate.getDay() || 7));
   const yearStart = new Date(tempDate.getFullYear(), 0, 1);
   const semana = Math.ceil((((tempDate.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-  return { inicio: jueves, fin: miercoles, semana };
+  return { inicio: viernes, fin: jueves, semana };
 }
 
 const fmtIso = (d: Date) => d.toISOString().split("T")[0];
@@ -261,7 +261,7 @@ export default function PreNominaPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Pre-Nómina</h1>
             <p className="text-[#7f93b0] text-sm">
-              Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFecha(semanaInfo.inicio)} – {fmtFecha(semanaInfo.fin)} (Jue–Mié) · Modo <strong className={modoNomina === "ONBOARDING" ? "text-amber-400" : "text-emerald-400"}>{modoNomina}</strong>
+              Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFecha(semanaInfo.inicio)} – {fmtFecha(semanaInfo.fin)} (Vie–Jue) · Modo <strong className={modoNomina === "ONBOARDING" ? "text-amber-400" : "text-emerald-400"}>{modoNomina}</strong>
             </p>
           </div>
         </div>
