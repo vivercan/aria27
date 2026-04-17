@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+
+// Ampliar timeout Vercel a 60s — esta ruta llama Claude con web_search (lento por diseño)
+export const maxDuration = 60;
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -68,12 +71,12 @@ export async function POST(req: NextRequest) {
     // 4. Llamar a Claude con web search mejorado
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 8192,
+      max_tokens: 3000,
       tools: [
         {
           type: "web_search_20250305",
           name: "web_search",
-          max_uses: 10
+          max_uses: 3
         }
       ],
       messages: [

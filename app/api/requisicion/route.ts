@@ -89,10 +89,10 @@ export async function POST(request: Request) {
   const rl = checkRateLimit(getClientIdentifier(req), { key: "req:create", ...RATE_LIMITS.WRITE });
   if (!rl.allowed) return rateLimitResponse(rl);
 
-  const resend = getResend();
   const logs: string[] = [];
 
   try {
+    const resend = getResend();
     const body = await request.json().catch(() => ({}));
     const { usuario, obra, comentarios, materiales, requiredDate, solicitante, subcategoria } = body;
 
