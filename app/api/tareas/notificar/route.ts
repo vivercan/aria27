@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Buscar datos del empleado asignado
     const { data: empleado } = await supabase
       .from("employees")
-      .select("full_name, phone, email")
+      .select("full_name, whatsapp, email")
       .eq("id", asignado_id)
       .single();
 
@@ -35,16 +35,16 @@ export async function POST(req: NextRequest) {
     const notificaciones: string[] = [];
 
     // ── WhatsApp (texto libre — best effort) ─────────────────────────────
-    if (empleado.phone) {
+    if (empleado.whatsapp) {
       const mensaje = `*📋 Nueva tarea asignada — ARIA27*\n\nHola *${empleado.full_name}*, se te asignó una tarea:\n\n*${titulo}*${descripcion ? `\n${descripcion}` : ""}\n\n📅 Fecha compromiso: ${fechaFmt}${obraStr}\n✍️ Asignado por: ${asignado_por || "Administrador"}\n\n_Revisa el sistema para marcar tu avance._`;
       const waResult = await sendWhatsAppText(
-        empleado.phone,
+        empleado.whatsapp,
         mensaje,
         { origen: "tarea-asignada", enviadoPor: asignado_por || "sistema" }
       );
       if (waResult.success) {
-        notificaciones.push(`WA OK: ${empleado.phone}`);
-        log.info(`[TAREAS-NOTIFICAR] WA enviado a ${empleado.full_name} (${empleado.phone})`);
+        notificaciones.push(`WA OK: ${empleado.whatsapp}`);
+        log.info(`[TAREAS-NOTIFICAR] WA enviado a ${empleado.full_name} (${empleado.whatsapp})`);
       } else {
         log.warn(`[TAREAS-NOTIFICAR] WA error para ${empleado.full_name}: ${waResult.error}`);
       }
