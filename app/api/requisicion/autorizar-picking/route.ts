@@ -1,7 +1,6 @@
 import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-const supabase = getSupabaseAdmin();
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -19,10 +18,10 @@ const REQUISITION_STATUS = {
   RECHAZADA_DIRECCION: "RECHAZADA_DIRECCION",
 } as const;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const supabase = getSupabaseAdmin();
   try {
-    const nextReq = new NextRequest(req);
-    const rl = checkRateLimit(getClientIdentifier(nextReq), { key: "req:auth-picking", ...RATE_LIMITS.WRITE });
+    const rl = checkRateLimit(getClientIdentifier(req), { key: "req:auth-picking", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
     // Validación básica: verificar que el request viene con datos esperados
