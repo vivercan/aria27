@@ -200,13 +200,21 @@ export async function POST(request: NextRequest) {
       ...(body.forma_pago ? { forma_pago: body.forma_pago } : {}),
       ...(body.fecha_pago ? { fecha_pago: body.fecha_pago } : {}),
       ...(body.iva_porcentaje != null ? { iva_porcentaje: body.iva_porcentaje } : {}),
+      // Datos de proveedor pre-seleccionado
+      ...(body.proveedor_nombre ? { proveedor: body.proveedor_nombre } : {}),
+      ...(body.proveedor_banco ? { banco: body.proveedor_banco } : {}),
+      ...(body.proveedor_clabe ? { clabe_interbancaria: body.proveedor_clabe } : {}),
+      ...(body.proveedor_cuenta ? { numero_cuenta: body.proveedor_cuenta } : {}),
+      ...(body.proveedor_razon_social ? { nombre_cuenta: body.proveedor_razon_social } : {}),
     }).select().single();
 
     if (reqErr) throw reqErr;
 
     const items = materiales.map((m: Record<string, unknown>) => ({
       requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
-      quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || ""
+      quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || "",
+      // Precio capturado al crear (modo libre: monto por ítem; catálogo: null hasta picking)
+      ...(m.price != null ? { selected_price: Number(m.price) } : {}),
     }));
     const { error: itemsErr } = await getDb().from("requisition_items").insert(items);
     if (itemsErr) throw itemsErr;

@@ -10,6 +10,7 @@ type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
 type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string };
 type FreeRow = { tempId: number; descripcion: string; unidad: string; cantidad: number; monto: number; observaciones: string };
+type ProveedorOption = { id: string; name: string; bank_name: string | null; bank_clabe: string | null; payment_method: string | null; razon_social: string | null };
 
 const TIPO_MAP: Record<string, string> = {
   "MATERIALES": "catalogo", "ACEROS": "catalogo", "FERRETERIA": "catalogo",
@@ -70,6 +71,11 @@ export default function NewRequisitionPage() {
   const [fechaPago, setFechaPago] = useState<string>("");
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
 
+  // ── Proveedor pre-seleccionado ─────────────────────────────────────────────
+  const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
+  const [proveedorSearch, setProveedorSearch] = useState<string>("");
+  const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
+
   // ── AI Assist: extracción de texto/WA ────────────────────────────────────
   const [showAI, setShowAI] = useState(false);
   const [aiTexto, setAiTexto] = useState("");
@@ -90,6 +96,7 @@ export default function NewRequisitionPage() {
         setSubcategorias(data.filter(d => d.tipo === "SUBCATEGORIA").map(d => d.valor));
       }
     });
+    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
@@ -293,6 +300,13 @@ export default function NewRequisitionPage() {
           forma_pago: formaPago,
           fecha_pago: fechaPago || null,
           iva_porcentaje: ivaPorcentaje,
+          // Proveedor pre-seleccionado
+          ...(selectedProveedor ? {
+            proveedor_nombre: selectedProveedor.name,
+            proveedor_banco: selectedProveedor.bank_name || null,
+            proveedor_clabe: selectedProveedor.bank_clabe || null,
+            proveedor_razon_social: selectedProveedor.razon_social || null,
+          } : {}),
         })
       });
       const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
@@ -450,6 +464,45 @@ export default function NewRequisitionPage() {
                 <option value={16}>16%</option>
               </select>
             </div>
+          </div>
+
+          {/* ── PROVEEDOR PRE-SELECCIONADO ─────────────────────────── */}
+          <div className="mt-3 space-y-1">
+            <label className="text-xs font-medium text-white/70">Proveedor (opcional — auto-llena datos de pago)</label>
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                placeholder="Buscar proveedor..."
+                value={selectedProveedor ? selectedProveedor.name : proveedorSearch}
+                onChange={e => { setProveedorSearch(e.target.value); setSelectedProveedor(null); }}
+              />
+              {selectedProveedor && (
+                <button onClick={() => { setSelectedProveedor(null); setProveedorSearch(""); }} className="absolute right-2 top-2 text-white/40 hover:text-white/70">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {!selectedProveedor && proveedorSearch.length >= 2 && (
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c1d38]">
+                {proveedores.filter(p => p.name.toLowerCase().includes(proveedorSearch.toLowerCase())).slice(0, 8).map(p => (
+                  <div key={p.id} onClick={() => { setSelectedProveedor(p); setProveedorSearch(""); if (p.payment_method) setFormaPago(p.payment_method); }} className="cursor-pointer px-3 py-2 text-sm hover:bg-white/[0.06] transition-colors">
+                    <div className="text-white">{p.name}</div>
+                    {(p.bank_name || p.bank_clabe) && <div className="text-xs text-white/40">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
+                  </div>
+                ))}
+                {proveedores.filter(p => p.name.toLowerCase().includes(proveedorSearch.toLowerCase())).length === 0 && (
+                  <div className="px-3 py-2 text-xs text-white/40">Sin resultados</div>
+                )}
+              </div>
+            )}
+            {selectedProveedor && (selectedProveedor.bank_name || selectedProveedor.bank_clabe) && (
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-xs text-emerald-300 flex flex-wrap gap-3">
+                {selectedProveedor.razon_social && <span>Cuenta: {selectedProveedor.razon_social}</span>}
+                {selectedProveedor.bank_name && <span>Banco: {selectedProveedor.bank_name}</span>}
+                {selectedProveedor.bank_clabe && <span>CLABE: {selectedProveedor.bank_clabe}</span>}
+              </div>
+            )}
           </div>
 
           <div className="mt-3 space-y-1">

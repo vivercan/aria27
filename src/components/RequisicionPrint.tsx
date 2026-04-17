@@ -57,7 +57,7 @@ function formatDate(date?: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function generateHTML(props: RequisicionPrintProps): string {
+function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
   const { 
     folio, fechaCreacion, fechaRequerida, solicitante, obra, materiales, comentarios, status,
     categoria, subcategoria, proveedor, forma_pago, tipo_pago, fecha_pago, forma_entrega, 
@@ -162,7 +162,7 @@ function generateHTML(props: RequisicionPrintProps): string {
     <div class="header">
       <div class="header-left">
         <div class="logo-section">
-          <img src="/logo-cuavante.png" alt="Logo" class="logo" onerror="this.outerHTML='<div style=\\'font-size:20px;font-weight:bold;font-style:italic\\'>AVANTE</div>'">
+          <img src="${logoUrl || '/logo-cuavante.png'}" alt="Logo" class="logo" onerror="this.outerHTML='<div style=\\'font-size:20px;font-weight:bold;font-style:italic\\'>AVANTE</div>'">
         </div>
         <div class="company-name">GRUPO CONSTRUCTOR URBANO</div>
         
@@ -218,13 +218,15 @@ function generateHTML(props: RequisicionPrintProps): string {
     </div>
     
     <div class="firmas-section">
-      <div class="firmas-row" style="justify-content: space-around;">
-        <div class="firma-box-third"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC</div></div></div>
-        <div class="firma-box-third"><div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
-        <div class="firma-box-third"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div><div class="firma-code">${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
+      <div class="firmas-row" style="margin-top: 0;">
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
       </div>
       <div class="firmas-row" style="margin-top: 15px;">
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div><div class="firma-code">${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
         <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || ''}</div><div class="firma-title">PROVEEDOR / RECEPCIÓN</div></div></div>
+      </div>
+      <div class="firmas-row" style="margin-top: 15px; justify-content: center;">
         <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
       </div>
     </div>
@@ -234,7 +236,8 @@ function generateHTML(props: RequisicionPrintProps): string {
 }
 
 export function handlePrint(props: RequisicionPrintProps) {
-  const html = generateHTML(props);
+  const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/logo-cuavante.png` : "/logo-cuavante.png";
+  const html = generateHTML(props, logoUrl);
   const printWindow = window.open("", "_blank", "width=900,height=700");
   if (printWindow) {
     printWindow.document.write(html);
@@ -244,7 +247,8 @@ export function handlePrint(props: RequisicionPrintProps) {
 }
 
 export function handleDownloadPDF(props: RequisicionPrintProps) {
-  const html = generateHTML(props);
+  const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/logo-cuavante.png` : "/logo-cuavante.png";
+  const html = generateHTML(props, logoUrl);
   const pdfWindow = window.open("", "_blank", "width=900,height=700");
   if (pdfWindow) {
     pdfWindow.document.write(html);
