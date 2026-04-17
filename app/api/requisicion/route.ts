@@ -90,9 +90,8 @@ async function getUserByRole(role: string): Promise<User | null> {
   } catch (e: unknown) { log.error(`Excepcion buscando rol ${role}:`, (e as {message?: string})?.message); return null; }
 }
 
-export async function POST(request: Request) {
-  const req = new NextRequest(request);
-  const rl = checkRateLimit(getClientIdentifier(req), { key: "req:create", ...RATE_LIMITS.WRITE });
+export async function POST(request: NextRequest) {
+  const rl = checkRateLimit(getClientIdentifier(request), { key: "req:create", ...RATE_LIMITS.WRITE });
   if (!rl.allowed) return rateLimitResponse(rl);
 
   const logs: string[] = [];
