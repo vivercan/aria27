@@ -21,8 +21,8 @@ interface ReqHist {
 const submodules = [
   { title: "Nueva Requisición", description: "Crear solicitud", icon: FilePlus, href: "/dashboard/requisiciones/requisiciones/nuevo", color: "from-emerald-500 to-emerald-600" },
   { title: "Estatus", description: "Monitor de solicitudes", icon: ListChecks, href: "/dashboard/requisiciones/requisiciones/estatus", color: "from-aria-primary to-aria-primary" },
-  { title: "Autorizar", description: "Aprobar pendientes", icon: ShieldCheck, href: "/dashboard/requisiciones/requisiciones/autorizar", color: "from-amber-500 to-amber-600" },
-  { title: "Compras", description: "Cotizaciones", icon: ShoppingCart, href: "/dashboard/requisiciones/requisiciones/tramite", color: "from-purple-500 to-purple-600" },
+  { title: "Autorizar", description: "Aprobar pendientes", icon: ShieldCheck, href: "/dashboard/requisiciones/requisiciones/autorizar", color: "from-sky-500 to-sky-600" },
+  { title: "Compras", description: "Cotizaciones", icon: ShoppingCart, href: "/dashboard/requisiciones/requisiciones/tramite", color: "from-indigo-500 to-indigo-600" },
   { title: "Órdenes de Compra", description: "OC autorizadas", icon: ClipboardList, href: "/dashboard/requisiciones/requisiciones/ordenes", color: "from-aria-accent to-aria-accent" },
 ];
 
@@ -118,15 +118,22 @@ export default function RequisicionesPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/requisiciones" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
-            <ClipboardList className="w-7 h-7 text-amber-400" />
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-700/20 border border-blue-500/20">
+            <ClipboardList className="w-7 h-7 text-blue-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Requisiciones</h1>
             <p className="text-[#7f93b0] text-sm">Gestión de solicitudes de materiales</p>
           </div>
         </div>
-        <button onClick={() => setMostrarHistorico(!mostrarHistorico)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm transition-all ${mostrarHistorico ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25" : "bg-white/[0.04] text-[#c9d8ed] hover:bg-white/[0.06] border border-white/[0.08]"}`}>
+        <button
+          onClick={() => setMostrarHistorico(!mostrarHistorico)}
+          className="btn-sku flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium"
+          style={mostrarHistorico
+            ? { background: "linear-gradient(135deg,#1D4ED8,#1E40AF)", color: "#ffffff", border: "1px solid rgba(59,130,246,0.35)" }
+            : { background: "rgba(30,55,90,0.65)", color: "#c9d8ed", border: "1px solid rgba(120,160,210,0.18)" }
+          }
+        >
           <History className="w-4 h-4" />{mostrarHistorico ? "Ocultar Histórico" : `Ver Histórico (${registros.length})`}
         </button>
       </div>
@@ -158,9 +165,9 @@ export default function RequisicionesPage() {
               <span className="text-[#7f93b0] text-xs">Registros</span>
               <p className="text-xl font-bold text-aria-accent mt-1">{registrosFiltrados.length}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-500/10 to-sky-700/5 border border-sky-500/20">
               <span className="text-[#7f93b0] text-xs">Obras</span>
-              <p className="text-xl font-bold text-amber-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
+              <p className="text-xl font-bold text-sky-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-accent/10 to-aria-primary/5 border border-aria-accent/20">
               <span className="text-[#7f93b0] text-xs">Proveedores</span>
@@ -177,7 +184,7 @@ export default function RequisicionesPage() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
-                <input type="text" placeholder="Buscar descripción, proveedor..." value={filtros.buscar} onChange={e => setFiltros({...filtros, buscar: e.target.value})} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-amber-500/50 focus:outline-none" />
+                <input type="text" placeholder="Buscar descripción, proveedor..." value={filtros.buscar} onChange={e => setFiltros({...filtros, buscar: e.target.value})} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-blue-500/50 focus:outline-none" />
               </div>
               <select value={filtros.mes} onChange={e => setFiltros({...filtros, mes: e.target.value})} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white">
                 <option value="">📅 Todos los meses</option>
@@ -203,7 +210,7 @@ export default function RequisicionesPage() {
               <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20" title="Limpiar">
                 <X className="w-4 h-4" />
               </button>
-              <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 hover:from-amber-500/30 hover:to-orange-500/30 disabled:opacity-50">
+              <button onClick={exportarExcel} disabled={exportando} className="btn-sku flex items-center gap-2 px-4 py-2.5 rounded-xl disabled:opacity-50" style={{background:"rgba(30,55,90,0.65)",color:"#93C5FD",border:"1px solid rgba(120,160,210,0.20)"}}>
                 {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
                 {exportando ? "..." : "Excel"}
               </button>
@@ -215,7 +222,7 @@ export default function RequisicionesPage() {
             {/* Tabla */}
             <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <ClipboardList className="w-5 h-5 text-amber-400" />Detalle de Requisiciones
+                <ClipboardList className="w-5 h-5 text-blue-400" />Detalle de Requisiciones
               </h2>
               {loading ? <div className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></div> : (
                 <div className="max-h-[400px] overflow-y-auto rounded-xl">
@@ -237,7 +244,7 @@ export default function RequisicionesPage() {
                           <td className="px-3 py-2.5 text-aria-accent font-mono text-xs">{r.folio_excel}</td>
                           <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{r.fecha || "—"}</td>
                           <td className="px-3 py-2.5 text-[#c9d8ed] text-xs truncate max-w-[100px]">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</td>
-                          <td className="px-3 py-2.5"><span className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs truncate block max-w-[100px]">{r.obra?.substring(0,18) || "—"}</span></td>
+                          <td className="px-3 py-2.5"><span className="px-2 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-xs truncate block max-w-[100px]">{r.obra?.substring(0,18) || "—"}</span></td>
                           <td className="px-3 py-2.5 text-white text-xs truncate max-w-[180px]">{r.descripcion || "—"}</td>
                           <td className="px-3 py-2.5 text-right"><span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span></td>
                           <td className="px-3 py-2.5"><span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span></td>
@@ -253,17 +260,17 @@ export default function RequisicionesPage() {
             {/* Resumen */}
             <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-amber-400" />Top Obras
+                <TrendingUp className="w-5 h-5 text-blue-400" />Top Obras
               </h2>
               <div className="space-y-3">
                 {resumenObras.map((o, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, obra: o.nombre})}>
+                  <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-blue-500/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, obra: o.nombre})}>
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-sm font-medium text-white truncate flex-1">{o.nombre}</p>
                       <span className="text-emerald-400 font-bold text-sm">{formatMoney(o.total)}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all" style={{width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%`}}/>
+                      <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-sky-400 transition-all" style={{width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%`}}/>
                     </div>
                   </div>
                 ))}
