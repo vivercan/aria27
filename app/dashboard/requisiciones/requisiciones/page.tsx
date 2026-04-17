@@ -3,7 +3,7 @@ import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search, Download, Calendar, Building2, Filter, X, Loader2, History, FileSpreadsheet, TrendingUp } from "lucide-react";
+import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search, X, Loader2, History, FileSpreadsheet, TrendingUp, ChevronRight } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface ReqHist {
@@ -107,47 +107,57 @@ export default function RequisicionesPage() {
     return acc;
   }, {} as Record<string, number>)).map(([nombre, total]) => ({ nombre, total })).sort((a, b) => b.total - a.total).slice(0, 5);
 
+  /* ── Constantes de estilo — idénticos al HubCard del hub ── */
+  const HUB_BG   = "radial-gradient(circle at 50% 20%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 25%, rgba(72,128,230,0.00) 48%), linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%)";
+  const CARD_BG  = "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)";
+  const CARD_SHD = "inset 0 1px 0 rgba(210,228,252,0.05), 0 8px 20px rgba(0,0,0,0.20)";
+  const CARD_BDR = "rgba(120,158,204,0.18)";
+  const PANEL_BG = "rgba(12,28,56,0.55)";
+  const PANEL_BD = "rgba(120,158,204,0.14)";
+
   return (
-    <div className="space-y-6">
+    <div className="px-5 pt-4 pb-6 min-h-full overflow-y-auto" style={{ background: HUB_BG }}>
       {fetchError && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-          <X className="w-4 h-4 shrink-0" />
-          {fetchError}
+        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <X className="w-4 h-4 shrink-0" />{fetchError}
         </div>
       )}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+
+      {/* ── HEADER ── */}
+      <div className="flex items-center justify-between rounded-xl px-5 py-3 mb-5 flex-shrink-0"
+        style={{ background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)", border: "1px solid rgba(150,180,230,0.10)" }}>
+        <div className="flex items-baseline gap-3.5">
           <AriaBackButton href="/dashboard/requisiciones" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-700/20 border border-blue-500/20">
-            <ClipboardList className="w-7 h-7 text-blue-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Requisiciones</h1>
-            <p className="text-[#7f93b0] text-sm">Gestión de solicitudes de materiales</p>
-          </div>
+          <h1 style={{ fontSize: "28px", fontWeight: 800, letterSpacing: "-0.035em", color: "#F4F8FF", lineHeight: 1 }}>Requisiciones</h1>
+          <span style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
+          <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(214,228,255,0.65)" }}>Gestión de solicitudes de materiales</span>
         </div>
         <button
           onClick={() => setMostrarHistorico(!mostrarHistorico)}
-          className="btn-sku flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium"
+          className="btn-sku flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium flex-shrink-0"
           style={mostrarHistorico
             ? { background: "linear-gradient(135deg,#1D4ED8,#1E40AF)", color: "#ffffff", border: "1px solid rgba(59,130,246,0.35)" }
-            : { background: "rgba(30,55,90,0.65)", color: "#c9d8ed", border: "1px solid rgba(120,160,210,0.18)" }
+            : { background: "rgba(10,28,60,0.70)", color: "#c9d8ed", border: "1px solid rgba(120,160,210,0.25)" }
           }
         >
           <History className="w-4 h-4" />{mostrarHistorico ? "Ocultar Histórico" : `Ver Histórico (${registros.length})`}
         </button>
       </div>
 
-      {/* Accesos rápidos */}
-      <div className="grid grid-cols-5 gap-4">
+      {/* ── ACCESOS RÁPIDOS — HubCard idéntico ── */}
+      <div className="grid grid-cols-5 gap-4 mb-5">
         {submodules.map((mod, idx) => (
-          <Link key={idx} href={mod.href} className="group block">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 hover:border-white/[0.12] hover:bg-white/[0.05] transition-all">
-              <div className={`absolute inset-0 bg-gradient-to-br ${mod.color} opacity-0 group-hover:opacity-10 transition-all duration-300`} />
-              <mod.icon className="w-8 h-8 text-white/70 mb-3 group-hover:text-white transition-colors" />
-              <h3 className="text-white font-medium text-sm">{mod.title}</h3>
-              <p className="text-[#4a6080] text-xs mt-1">{mod.description}</p>
-            </div>
+          <Link key={idx} href={mod.href}
+            className="group relative flex flex-col justify-start rounded-2xl transition-all duration-200 ease-out"
+            style={{ padding: "20px 18px 18px 20px", background: CARD_BG, border: `1px solid ${CARD_BDR}`, boxShadow: CARD_SHD }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(-3px)"; el.style.boxShadow = "inset 0 1px 0 rgba(210,228,252,0.08), 0 16px 32px rgba(0,0,0,0.26)"; el.style.borderColor = "rgba(140,178,228,0.30)"; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(0)"; el.style.boxShadow = CARD_SHD; el.style.borderColor = CARD_BDR; }}
+          >
+            <mod.icon style={{ width: 28, height: 28, color: "#7BB6FF", flexShrink: 0 }} strokeWidth={1.5} />
+            <div style={{ height: "14px", flexShrink: 0 }} />
+            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#EAF2FF", letterSpacing: "-0.018em", lineHeight: 1.2 }}>{mod.title}</h3>
+            <p style={{ marginTop: "7px", fontSize: "12px", color: "rgba(200,220,248,0.72)", lineHeight: 1.5 }}>{mod.description}</p>
+            <ChevronRight className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-25 transition-opacity duration-200" style={{ width: 12, height: 12, color: "#7BB6FF" }} />
           </Link>
         ))}
       </div>
@@ -180,7 +190,7 @@ export default function RequisicionesPage() {
           </div>
 
           {/* Filtros */}
-          <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+          <div className="p-5 rounded-2xl" style={{background:PANEL_BG,border:`1px solid ${PANEL_BD}`}}>
             <div className="flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
@@ -220,7 +230,7 @@ export default function RequisicionesPage() {
           {/* Content */}
           <div className="grid grid-cols-3 gap-6">
             {/* Tabla */}
-            <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+            <div className="col-span-2 p-5 rounded-2xl" style={{background:PANEL_BG,border:`1px solid ${PANEL_BD}`}}>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-blue-400" />Detalle de Requisiciones
               </h2>
@@ -258,7 +268,7 @@ export default function RequisicionesPage() {
             </div>
 
             {/* Resumen */}
-            <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+            <div className="p-5 rounded-2xl" style={{background:PANEL_BG,border:`1px solid ${PANEL_BD}`}}>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-400" />Top Obras
               </h2>
