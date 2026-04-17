@@ -110,7 +110,7 @@ function insertAtCursor(el: HTMLTextAreaElement|null, text: string, setter: (v:s
 
 const CACHE_KEY      = (f: string) => `aria27_inbox_${f}`;
 const DRAFT_KEY      = "aria27_drafts";
-const AUTO_MS        = 2 * 60 * 1000;
+const AUTO_MS        = 1 * 60 * 1000;
 
 /* ══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -153,7 +153,7 @@ export default function InboxPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   /* ── anchos fijos de columna ── */
-  const COL = { from: 120, attach: 68, unread: 20, date: 118 } as const;
+  const COL = { from: 156, attach: 32, unread: 20, date: 118 } as const;
 
   /* ── vista ── */
   const [splitView, setSplitView] = useState(false);
@@ -527,7 +527,7 @@ export default function InboxPage() {
     secondary: "#8AAFC8",
     blue:      "#7BB6FF",
     hover:     "rgba(255,255,255,0.08)",
-    unread:    "rgba(255,255,255,0.08)",
+    unread:    "rgba(59,130,246,0.12)",
     read:      "transparent",
     selected:  "rgba(123,182,255,0.18)",
     error:     "rgba(217,48,37,0.12)",
@@ -1019,9 +1019,9 @@ export default function InboxPage() {
             <ColH col="from"    label="De"     width={COL.from}/>
             <ColH col="subject" label="Asunto"/>
             <div className="flex-1"/>
-            {/* adjunto + peso */}
-            <div style={{width:COL.attach,flexShrink:0,display:"flex",alignItems:"center",gap:3}}>
-              <span style={{fontSize:10,fontWeight:600,letterSpacing:"0.05em",textTransform:"uppercase" as const,color:G.secondary}}>Adj.</span>
+            {/* adjunto — solo clip icon */}
+            <div style={{width:COL.attach,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <Paperclip style={{width:11,height:11,color:G.secondary,opacity:0.6}}/>
             </div>
             {/* leído */}
             <div style={{width:COL.unread,flexShrink:0}}/>
@@ -1127,28 +1127,16 @@ export default function InboxPage() {
                         {name}
                       </span>
 
-                      {/* ASUNTO — flex-1 */}
-                      <div className="flex-1 min-w-0 truncate">
-                        <span style={{fontSize:12,fontWeight:em.seen?400:600,color:em.seen?G.secondary:G.text}}>
+                      {/* ASUNTO — flex-1 con tope de ancho */}
+                      <div className="flex-1 min-w-0" style={{maxWidth:260,overflow:"hidden"}}>
+                        <span className="block truncate" style={{fontSize:12,fontWeight:em.seen?400:600,color:em.seen?G.secondary:G.text}}>
                           {em.subject||"(sin asunto)"}
                         </span>
                       </div>
 
-                      {/* ADJ + PESO — columna fija */}
-                      <div className="flex-shrink-0 flex items-center gap-1" style={{width:COL.attach}}>
-                        {hasAttachment(em) ? (
-                          <>
-                            <Paperclip style={{width:11,height:11,color:G.secondary,flexShrink:0}}/>
-                            {em.size&&em.size>0
-                              ? <span style={{fontSize:10,color:G.secondary,whiteSpace:"nowrap"}}>{pesoLegible(em.size)}</span>
-                              : <span style={{fontSize:10,color:"rgba(138,175,200,0.45)"}}>adj.</span>
-                            }
-                          </>
-                        ) : (
-                          em.size&&em.size>0
-                            ? <span style={{fontSize:10,color:"rgba(138,175,200,0.45)",whiteSpace:"nowrap"}}>{pesoLegible(em.size)}</span>
-                            : null
-                        )}
+                      {/* ADJ — solo clip si hay adjunto */}
+                      <div className="flex-shrink-0 flex items-center justify-center" style={{width:COL.attach}}>
+                        {hasAttachment(em) && <Paperclip style={{width:12,height:12,color:G.blue,opacity:0.80,flexShrink:0}}/>}
                       </div>
 
                       {/* LEÍDO / NO LEÍDO — siempre visible */}
