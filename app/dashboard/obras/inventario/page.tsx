@@ -852,10 +852,10 @@ export default function InventarioObraPage() {
                       <div className="flex items-center justify-center gap-1">
                         <Link
                           href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`}
-                          className="p-2 bg-purple-500/20 hover:bg-purple-500/40 rounded-lg transition-colors"
+                          className="p-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 rounded-lg transition-colors"
                           title="Ver kardex"
                         >
-                          <History className="w-4 h-4 text-purple-400" />
+                          <History className="w-4 h-4 text-aria-accent" />
                         </Link>
                         <button
                           onClick={() => abrirRegistrarEntrada(item)}
@@ -986,7 +986,7 @@ export default function InventarioObraPage() {
                 <button
                   onClick={validarMaterial}
                   disabled={validando}
-                  className="px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 bg-aria-primary-light hover:bg-aria-primary-hover/40 text-aria-accent rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                 >
                   {validando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />}
                   {validando ? "Validando..." : "Validar nombre con IA"}

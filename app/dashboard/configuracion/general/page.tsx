@@ -145,7 +145,7 @@ export default function ConfigGeneralPage() {
       {/* USUARIOS */}
       <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-violet-400" />
+          <Users className="w-5 h-5 text-aria-accent" />
           <h2 className="text-lg font-semibold">Usuarios del Sistema</h2>
           <span className="text-xs text-[#7f93b0] ml-auto">{users.length} usuarios</span>
         </div>

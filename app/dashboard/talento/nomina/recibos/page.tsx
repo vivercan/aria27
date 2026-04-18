@@ -414,7 +414,7 @@ export default function RecibosNominaPage() {
                 <Banknote className="w-5 h-5 text-amber-600" />
                 <span className="text-sm text-amber-800 font-medium">Efectivo</span>
               </div>
-              <p className="text-2xl font-bold text-amber-700">{fmtMoney(nomina.pago_efectivo)}</p>
+              <p className="text-2xl font-bold text-aria-accent">{fmtMoney(nomina.pago_efectivo)}</p>
             </div>
           </div>
 

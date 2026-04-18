@@ -130,7 +130,7 @@ export default function BancosPage() {
             <p className="text-[#7f93b0] text-sm">Cuentas bancarias del grupo · CRUD completo · baja lógica reversible</p>
           </div>
           <div className="flex items-center gap-2">
-          <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-xl text-sm font-medium hover:bg-purple-500/30 transition-colors flex items-center gap-2">
+          <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <ListChecks className="w-4 h-4" /> Movimientos / Conciliación
           </Link>
           <label className="flex items-center gap-2 text-xs text-[#7f93b0] px-3 py-2 bg-white/[0.04] rounded-lg cursor-pointer">
@@ -152,7 +152,7 @@ export default function BancosPage() {
           { label: "Activas", value: cuentas.filter(c => c.activa !== false).length, icon: CreditCard, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Inactivas", value: cuentas.filter(c => c.activa === false).length, icon: Power, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Saldo total (vista)", value: `$${totalSaldo.toLocaleString()}`, icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-          { label: "Bancos", value: new Set(cuentas.map(c => c.banco)).size, icon: Building2, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Bancos", value: new Set(cuentas.map(c => c.banco)).size, icon: Building2, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>

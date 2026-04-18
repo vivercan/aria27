@@ -58,7 +58,7 @@ function KardexContent() {
         <AriaBackButton href="/dashboard/obras/inventario" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <History className="w-6 h-6 text-purple-400" /> Kardex
+            <History className="w-6 h-6 text-aria-accent" /> Kardex
           </h1>
           <p className="text-[#7f93b0] text-sm">
             {obra ? <>Obra: <span className="text-white">{obra}</span></> : "Todas las obras"}
@@ -99,7 +99,7 @@ function KardexContent() {
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading && (
-              <tr><td colSpan={9} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-400" /></td></tr>
+              <tr><td colSpan={9} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             )}
             {!loading && movs.map(m => (
               <tr key={m.id} className="hover:bg-white/[0.04]">
@@ -160,7 +160,7 @@ function KardexContent() {
 
 export default function KardexPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>}>
       <KardexContent />
     </Suspense>
   );

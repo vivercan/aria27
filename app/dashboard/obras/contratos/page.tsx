@@ -114,7 +114,7 @@ export default function ContratosPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total Contratado", value: `$${totalContratado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Contratos", value: contratos.length, icon: FileText, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Contratos", value: contratos.length, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary-light" },
           { label: "Vigentes", value: vigentes, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Terminados", value: terminados, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (

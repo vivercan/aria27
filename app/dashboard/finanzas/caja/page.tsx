@@ -286,7 +286,7 @@ export default function CajaChicaPage() {
         <AriaBackButton href="/dashboard/finanzas" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Wallet className="w-6 h-6 text-amber-400" /> Caja Chica
+            <Wallet className="w-6 h-6 text-aria-accent" /> Caja Chica
           </h1>
           <p className="text-sm text-[#7f93b0] mt-0.5">Fondos revolventes · gastos · reposiciones · cortes</p>
         </div>
@@ -344,7 +344,7 @@ export default function CajaChicaPage() {
             if (tab === "Fondos") { setFondoForm(FONDO_INIT); setEditFondoId(null); setShowFondoForm(true); }
             else if (tab === "Movimientos") { setMovForm({ ...MOV_INIT, fondo_id: filterFondo !== "TODOS" ? filterFondo : (fondosActivos[0]?.id || "") }); setShowMovForm(true); }
             else { setCorteForm({ fondo_id: filterFondo !== "TODOS" ? filterFondo : (fondosActivos[0]?.id || ""), fecha_inicio: "", fecha_fin: "", periodo: "" }); setShowCorteForm(true); }
-          }} className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+          }} className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
             <Plus className="w-4 h-4" />
             {tab === "Fondos" ? "Nuevo Fondo" : tab === "Movimientos" ? "Registrar" : "Generar Corte"}
           </button>
@@ -396,7 +396,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={guardarFondo} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={guardarFondo} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         {editFondoId ? "Actualizar" : "Crear Fondo"}
                       </button>
@@ -517,7 +517,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setShowMovForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={guardarMov} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={guardarMov} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         Registrar
                       </button>
@@ -603,7 +603,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setShowCorteForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={generarCorte} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={generarCorte} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                         Generar Corte
                       </button>

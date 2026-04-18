@@ -93,7 +93,7 @@ export default function PresupuestosPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total Presupuesto", value: `$${totalPresupuesto.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Partidas", value: filtered.length, icon: Layers, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Partidas", value: filtered.length, icon: Layers, color: "text-aria-accent", bg: "bg-aria-primary-light" },
           { label: "Obras", value: obras.length, icon: BarChart3, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Categorías", value: categorias.length, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (

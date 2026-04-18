@@ -301,7 +301,7 @@ export default function EstimacionesPage() {
       case "APROBADA":
         return "bg-emerald-500/20 text-emerald-400";
       case "COBRADA":
-        return "bg-violet-500/20 text-violet-400";
+        return "bg-aria-primary-light text-aria-accent";
       case "RECHAZADA":
         return "bg-red-500/20 text-red-400";
       default:
@@ -352,8 +352,8 @@ export default function EstimacionesPage() {
             label: "Estimaciones",
             value: filtered.length,
             icon: CheckCircle2,
-            color: "text-violet-400",
-            bg: "bg-violet-500/10",
+            color: "text-aria-accent",
+            bg: "bg-aria-primary-light",
           },
           {
             label: "Obras",
@@ -817,7 +817,7 @@ export default function EstimacionesPage() {
                 {selectedEstimacion.status === "APROBADA" && (
                   <button
                     onClick={() => cambiarStatus(selectedEstimacion.id, "COBRADA")}
-                    className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Marcar como Cobrada
                   </button>

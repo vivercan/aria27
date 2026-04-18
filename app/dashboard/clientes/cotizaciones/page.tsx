@@ -450,7 +450,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
           { label: "Total Vigente", value: fmtMoney(totTotal), icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Aprobadas", value: fmtMoney(totAprobado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Enviadas", value: fmtMoney(totEnviado), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Registros", value: cots.length, icon: AlertTriangle, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Registros", value: cots.length, icon: AlertTriangle, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
@@ -511,7 +511,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   <td className="p-3 text-center">
                     <div className="flex gap-1 justify-center">
                       <button onClick={() => imprimirCotizacion(c)} title="Imprimir / PDF"
-                        className="p-1.5 bg-violet-500/20 text-violet-400 rounded hover:bg-violet-500/30">
+                        className="p-1.5 bg-aria-primary-light text-aria-accent rounded hover:bg-aria-primary-hover/30">
                         <Printer className="w-3 h-3" />
                       </button>
                       <button onClick={() => abrirEdicion(c)} disabled={["CANCELADA"].includes(c.estatus)}

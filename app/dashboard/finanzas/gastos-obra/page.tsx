@@ -326,19 +326,20 @@ export default function GastosObraPage() {
           </div>
           <p className="text-2xl font-bold text-aria-accent">{gastosFiltrados.length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 ">
+        {/* Fix arcade 18-Abr-2026 PM: amber/orange/purple → canon aria-primary / slate */}
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/20 ">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-amber-500/20"><Building2 className="w-5 h-5 text-amber-400" /></div>
+            <div className="p-2 rounded-xl bg-aria-primary-light"><Building2 className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Obras</span>
           </div>
-          <p className="text-2xl font-bold text-amber-400">{[...new Set(gastosFiltrados.map(g => g.obra))].length}</p>
+          <p className="text-2xl font-bold text-aria-accent">{[...new Set(gastosFiltrados.map(g => g.obra))].length}</p>
         </div>
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 ">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.02] border border-white/[0.08] ">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-purple-500/20"><Calendar className="w-5 h-5 text-purple-400" /></div>
+            <div className="p-2 rounded-xl bg-white/[0.06]"><Calendar className="w-5 h-5 text-[#c9d8ed]" /></div>
             <span className="text-[#7f93b0] text-sm">Semanas</span>
           </div>
-          <p className="text-2xl font-bold text-purple-400">{[...new Set(gastosFiltrados.map(g => g.semana))].length}</p>
+          <p className="text-2xl font-bold text-white">{[...new Set(gastosFiltrados.map(g => g.semana))].length}</p>
         </div>
       </div>
 
@@ -389,8 +390,9 @@ export default function GastosObraPage() {
                 {gastosFiltrados.slice(0, 150).map((g, idx) => (
                   <tr key={g.id} onClick={() => openViewGasto(g)} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors cursor-pointer`}>
                     <td className="px-4 py-3 text-[#c9d8ed] whitespace-nowrap">{g.fecha || "—"}</td>
-                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-medium">{g.semana || "—"}</span></td>
-                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
+                    {/* Fix arcade 18-Abr-2026 PM: badges purple/amber → slate neutral + aria-primary */}
+                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-white/[0.06] text-[#c9d8ed] text-xs font-medium">{g.semana || "—"}</span></td>
+                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
                     <td className="px-4 py-3 text-[#7f93b0] truncate max-w-[120px]">{g.proveedor || "—"}</td>
                     <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span></td>
@@ -405,7 +407,7 @@ export default function GastosObraPage() {
 
         <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-amber-400" />Top Obras
+            <TrendingUp className="w-5 h-5 text-emerald-400" />Top Obras
           </h2>
           <div className="space-y-3">
             {resumenObras.map((o, i) => (

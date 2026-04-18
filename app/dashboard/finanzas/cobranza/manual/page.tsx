@@ -221,7 +221,7 @@ export default function CobranzaManualPage() {
           { label: "Monto Total", value: fmtMoney(totMonto), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Cobrado", value: fmtMoney(totCobrado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { label: "Saldo Pendiente", value: fmtMoney(totSaldo), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Registros", value: cobros.length, icon: AlertTriangle, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Registros", value: cobros.length, icon: AlertTriangle, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>

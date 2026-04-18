@@ -138,7 +138,7 @@ export default function CobranzaPage() {
           <p className="text-[#7f93b0] text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
         </div>
         <div className="flex gap-2">
-          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-xl text-sm font-medium hover:bg-violet-500/30 transition-colors flex items-center gap-2">
+          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
             <DollarSign className="w-4 h-4" /> Cobros Manuales
           </a>
           <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">

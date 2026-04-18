@@ -378,7 +378,7 @@ export default function NominaManualPage() {
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Neto Estimado</span></div>
-              <p className="text-2xl font-bold text-amber-400">{formatMoney(calculo.neto)}</p>
+              <p className="text-2xl font-bold text-emerald-400">{formatMoney(calculo.neto)}</p>
             </div>
           </div>
 

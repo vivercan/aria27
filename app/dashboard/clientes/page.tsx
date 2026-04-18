@@ -320,7 +320,7 @@ export default function ClientesPage() {
                   </td>
                   <td className="p-3">
                     <div className="flex items-center justify-center gap-1">
-                      <button onClick={() => setExpedienteCli(c)} title="Expediente" className="p-1.5 text-violet-400/70 hover:text-violet-400 hover:bg-violet-500/10 rounded">
+                      <button onClick={() => setExpedienteCli(c)} title="Expediente" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-light rounded">
                         <FolderOpen className="w-4 h-4" />
                       </button>
                       <button onClick={() => abrirEdicion(c)} title="Editar" className="p-1.5 text-aria-accent/70 hover:text-aria-accent hover:bg-aria-primary-hover/10 rounded">

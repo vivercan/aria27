@@ -215,7 +215,7 @@ export default function ControlObrasPage() {
           <p className="text-[#7f93b0] text-xs">Gasto OC</p>
           <p className="text-lg font-bold text-orange-300">{fmt(totales.gastoOC)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+        <div className="p-4 rounded-xl bg-aria-primary-light border border-aria-primary/20">
           <p className="text-[#7f93b0] text-xs">Gasto Nómina</p>
           <p className="text-lg font-bold text-violet-300">{fmt(totales.gastoNomina)}</p>
         </div>

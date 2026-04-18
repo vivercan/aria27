@@ -144,7 +144,7 @@ export default function SirocBimestralesPage() {
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras/siroc/registros" />
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-aria-accent" />SIROC · Reportes Bimestrales</h1>
           <p className="text-[#7f93b0] mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>
         </div>
         <button onClick={() => { setForm(EMPTY); setShowForm(true); }}

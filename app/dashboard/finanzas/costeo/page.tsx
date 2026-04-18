@@ -150,7 +150,7 @@ export default function CosteoPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Presupuesto Total", value: fmtMoney(totalPresupuesto), icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Costo Real", value: fmtMoney(totalReal), icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Costo Real", value: fmtMoney(totalReal), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary-light" },
           { label: "Diferencia", value: fmtMoney(totalDiferencia), icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
           { label: "Obras", value: obras.length, icon: HardHat, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
@@ -194,7 +194,7 @@ export default function CosteoPage() {
                   <td className="p-3 text-white font-medium">{o.obra}</td>
                   <td className="p-3 text-right text-[#c9d8ed]">{fmtMoney(o.presupuesto)}</td>
                   <td className="p-3 text-right text-aria-accent">{fmtMoney(o.materiales)}</td>
-                  <td className="p-3 text-right text-violet-400">{fmtMoney(o.mano_obra)}</td>
+                  <td className="p-3 text-right text-aria-accent">{fmtMoney(o.mano_obra)}</td>
                   <td className="p-3 text-right text-aria-accent">{fmtMoney(o.subcontratos)}</td>
                   <td className="p-3 text-right text-[#7f93b0]">{fmtMoney(o.indirectos)}</td>
                   <td className="p-3 text-right text-white font-medium">{fmtMoney(o.total_real)}</td>
