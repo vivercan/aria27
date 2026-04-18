@@ -126,7 +126,37 @@ export default function TareasPage() {
       payload.status = "pendiente";
       const { error } = await supabase.from("tareas_obra").insert(payload);
       if (error) { msg("error", ((error as {message?: string})?.message) || "Error al crear"); }
-      else { msg("success", "Tarea creada"); setShowForm(false); cargarTareas(); }
+      else {
+        msg("success", "Tarea creada");
+        setShowForm(false);
+        cargarTareas();
+        // FIX-D: notificar al responsable vía WA (best-effort, match por nombre)
+        if (form.responsable?.trim()) {
+          try {
+            const { data: emp } = await supabase
+              .from("employees")
+              .select("id")
+              .ilike("full_name", form.responsable.trim())
+              .maybeSingle();
+            if (emp?.id) {
+              const obraSeleccionada = obras.find(o => o.id === Number(form.obra_id));
+              await fetch("/api/tareas/notificar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  asignado_id: emp.id,
+                  titulo: form.titulo.trim(),
+                  fecha_compromiso: form.fecha_limite || undefined,
+                  asignado_por: "Sistema ARIA27",
+                  obra: obraSeleccionada?.nombre || undefined,
+                }),
+              });
+            }
+          } catch (notifErr: unknown) {
+            log.warn("Error notificando tarea obras WA", (notifErr as {message?: string})?.message || "Unknown");
+          }
+        }
+      }
     }
     setGuardando(false);
   };

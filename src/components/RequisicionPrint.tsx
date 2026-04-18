@@ -68,6 +68,10 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
   const calcIvaPct = iva_porcentaje ?? 0;
   const calcIvaMonto = iva_monto || (calcSubtotal * calcIvaPct / 100);
   const calcTotal = total || (calcSubtotal + calcIvaMonto);
+  // FIX-A: detectar si la requisición tiene precios — catálogo no los tiene
+  const hasPrecios = materiales.some(m => m.precio_unitario != null && m.precio_unitario > 0) ||
+                     materiales.some(m => m.precio_total != null && m.precio_total > 0) ||
+                     (subtotal != null && subtotal > 0) || (total != null && total > 0);
 
   const materialesRows = materiales.map((m) => `
     <tr>
@@ -210,21 +214,21 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
       </div>
       <div class="totales-box">
         <table class="totales-table">
-          <tr><td class="totales-label">SUBTOTAL</td><td class="totales-value">${formatCurrency(calcSubtotal)}</td></tr>
-          <tr><td class="totales-label">IVA ${calcIvaPct.toFixed(2)}%</td><td class="totales-value">${formatCurrency(calcIvaMonto)}</td></tr>
-          <tr><td class="totales-label totales-final">TOTAL</td><td class="totales-value totales-final">${formatCurrency(calcTotal)}</td></tr>
+          <tr><td class="totales-label">SUBTOTAL</td><td class="totales-value">${hasPrecios ? formatCurrency(calcSubtotal) : "—"}</td></tr>
+          <tr><td class="totales-label">IVA ${calcIvaPct.toFixed(2)}%</td><td class="totales-value">${hasPrecios ? formatCurrency(calcIvaMonto) : "—"}</td></tr>
+          <tr><td class="totales-label totales-final">TOTAL</td><td class="totales-value totales-final">${hasPrecios ? formatCurrency(calcTotal) : "—"}</td></tr>
         </table>
       </div>
     </div>
     
     <div class="firmas-section">
       <div class="firmas-row" style="margin-top: 0;">
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || ''}</div><div class="firma-title">PROVEEDOR / RECEPCIÓN</div></div></div>
         <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. JESSICA MONTSERRAT GALLARDO ACOSTA</div><div class="firma-title">COMPRAS</div></div></div>
       </div>
       <div class="firmas-row" style="margin-top: 15px;">
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div><div class="firma-code">${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
-        <div class="firma-box"><div class="firma-line"><div class="firma-name">${proveedor?.nombre || ''}</div><div class="firma-title">PROVEEDOR / RECEPCIÓN</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">ARQ. DAISY SANCHEZ CALVILLO</div><div class="firma-title">REVISIÓN DE MATERIALES</div><div class="firma-code">ELABORADO: RR.HH.ADMC — ${folio.replace('REQ-', 'REQPD-AX-').replace(/-(\d{5})$/, '-$1/' + new Date().getFullYear())}</div></div></div>
+        <div class="firma-box"><div class="firma-line"><div class="firma-name">LIC. DEYANIRA MONTALVO CORONEL</div><div class="firma-title">VALIDACIÓN DE INFORMACIÓN</div></div></div>
       </div>
       <div class="firmas-row" style="margin-top: 15px; justify-content: center;">
         <div class="firma-box"><div class="firma-line"><div class="firma-name">ING. LUIS FERNANDO LÓPEZ MARTÍNEZ</div><div class="firma-title">DIRECTOR GENERAL</div></div></div>
