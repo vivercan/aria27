@@ -134,8 +134,10 @@ COMMENT ON FUNCTION delete_requisition_cascade(UUID, TEXT) IS
 CREATE UNIQUE INDEX IF NOT EXISTS inventario_obra_uniq_obra_producto
   ON inventario_obra (obra_id, producto_nombre);
 
+-- FIX 18-Abr-2026: firma corregida INT->UUID tras validar schema real
+-- (inventario_obra.obra_id es UUID en prod, no INT como asumía el draft original).
 CREATE OR REPLACE FUNCTION aplicar_entrega_inventario(
-  p_obra_id      INT,
+  p_obra_id      UUID,
   p_obra_nombre  TEXT,
   p_materiales   JSONB     -- [{product_name,quantity,unit}, ...]
 ) RETURNS JSONB
