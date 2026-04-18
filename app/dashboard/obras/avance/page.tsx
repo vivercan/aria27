@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Avance {

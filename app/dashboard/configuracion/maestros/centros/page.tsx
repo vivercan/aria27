@@ -5,8 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { Plus, MapPin, Edit2, Trash2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Centro {
   id: string;
@@ -114,11 +115,11 @@ export default function CentrosPage() {
         {loading ? (
           <div className="text-center py-12 text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></div>
         ) : centros.length === 0 ? (
-          <div className="text-center py-12">
-            <MapPin className="w-12 h-12 mx-auto text-[#4a6080] mb-4" />
-            <p className="text-[#7f93b0] mb-4">No hay centros de trabajo</p>
-            <p className="text-sm text-[#4a6080]">Agrega obras con coordenadas GPS para el sistema de asistencias</p>
-          </div>
+          <EmptyState
+            icon={<MapPin className="w-6 h-6" />}
+            title="No hay centros de trabajo"
+            description="Agrega obras con coordenadas GPS para el sistema de asistencias."
+          />
         ) : (
           <div className="grid gap-4">
             {centros.map(c => (

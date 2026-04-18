@@ -5,8 +5,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney, fmtDate } from "@/lib/formatters";
 
 interface Requisition {
   id: string;
@@ -260,13 +261,10 @@ export default function RequisicionesStatusPage() {
     return "bg-slate-500/20 text-[#7f93b0]";
   };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+  // CV 18-Abr: formatDate/formatCurrency migrados a fmtDate/fmtMoney canon
+  const formatDate = (date: string) => fmtDate(date);
 
-  const formatCurrency = (value?: number) => {
-    if (!value) return "-";
-    return "$" + value.toLocaleString("es-MX", { minimumFractionDigits: 2 });
-  };
+  const formatCurrency = (value?: number) => (value ? fmtMoney(value) : "-");
 
   return (
     <div className="space-y-4">
@@ -275,7 +273,7 @@ export default function RequisicionesStatusPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
-            <h1 className="text-xl font-bold text-white">Estatus de Requisiciones</h1>
+            <h1 className="text-2xl font-bold text-white">Estatus de Requisiciones</h1>
             <p className="text-[#4a6080] text-sm">{requisiciones.length} requisiciones</p>
           </div>
         </div>

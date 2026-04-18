@@ -3,7 +3,8 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Trash2, Loader2 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import type { FlashMsg } from "@/lib/use-flash-message";
+import ConfirmModal from "@/components/ConfirmModal";
+import type { FlashMsg } from "@/hooks/useFlashMessage";
 
 interface Carpeta {
   id: string;
@@ -30,6 +31,8 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   const [newName, setNewName] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<FlashMsg | null>(null);
+  // CV-07 18-Abr-2026: reemplaza confirm() nativo por ConfirmModal canónico
+  const [deleteTarget, setDeleteTarget] = useState<{id: string; nombre: string} | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -69,8 +72,15 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
     cargar();
   };
 
-  const borrar = async (id: string, nombre: string) => {
-    if (!confirm(`Borrar "${nombre}" y todas sus subcarpetas?`)) return;
+  // CV-07 18-Abr-2026: abre ConfirmModal en lugar de confirm() nativo
+  const borrar = (id: string, nombre: string) => {
+    setDeleteTarget({ id, nombre });
+  };
+
+  const confirmBorrar = async () => {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
+    setDeleteTarget(null);
     const { error } = await supabase.from("arbol_carpetas").delete().eq("id", id);
     if (error) { setMsg({tipo: "err", texto: "Error: " + (error as {message?: string})?.message || "Error"}); setTimeout(() => setMsg(null), 2500); return; }
     if (selectedId === id) onSelect?.(null);
@@ -135,6 +145,15 @@ export default function FolderTree({ scope, selectedId, onSelect, title = "Carpe
   return (
     <div className="h-full flex flex-col bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-2 mt-2" />}
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Borrar carpeta"
+        message={deleteTarget ? `¿Borrar "${deleteTarget.nombre}" y todas sus subcarpetas?` : ""}
+        confirmLabel="Borrar"
+        variant="danger"
+        onConfirm={confirmBorrar}
+        onCancel={() => setDeleteTarget(null)}
+      />
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.08] flex-shrink-0">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
         <button

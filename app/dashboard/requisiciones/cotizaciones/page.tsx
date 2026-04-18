@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Search, Sparkles, Building2, Phone, Globe, MapPin, ExternalLink, Loader2, Package, CheckCircle2, Save, X, Plus, DollarSign } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface ReqItem {
   id: string;

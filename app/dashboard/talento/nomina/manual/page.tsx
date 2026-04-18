@@ -8,6 +8,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Edit3, Trash2, Plus, Save, RefreshCw, Loader2, Calendar, Clock, User, AlertCircle, Check } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Empleado {
   id: string;
@@ -67,7 +70,13 @@ export default function NominaManualPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState<{tipo: "success" | "error"; texto: string} | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
+  // EX-3 18-Abr-2026: wrapper retrocompatible setMensaje
+  const setMensaje = (v: { tipo: "success" | "error" | "info"; texto: string } | null) => {
+    if (v === null) return; // el hook auto-limpia tras timeout
+    _flash(v.tipo === "success" ? "ok" : "err", v.texto);
+  };
   const [semanaInfo, setSemanaInfo] = useState({ inicio: "", fin: "", dias: [] as string[] });
   const [refDate, setRefDate] = useState<Date>(new Date());
   const [calculo, setCalculo] = useState({ dias: 0, salarioBase: 0, neto: 0 });
@@ -283,7 +292,7 @@ export default function NominaManualPage() {
     }
   };
 
-  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatMoney = (n: number) => `${fmtMoney((n || 0))}`;
   const formatDate = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
@@ -349,11 +358,7 @@ export default function NominaManualPage() {
       </div>
 
       {/* Mensaje */}
-      {mensaje && (
-        <div className={`p-4 rounded-xl border ${mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       {empleadoSeleccionado && (
         <>

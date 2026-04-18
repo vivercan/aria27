@@ -6,8 +6,9 @@ import { supabase } from "@/lib/supabase";
 import { Plus, Edit2, X, Save, Loader2, Droplet, Trash2, Search, FlaskConical, CheckCircle2, XCircle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney, fmtNumber } from "@/lib/formatters";
 
 interface Remision {
   id: string;
@@ -237,7 +238,7 @@ export default function ConcretoRemisionesPage() {
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras" />
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Droplet className="w-8 h-8 text-aria-accent" />Control de Concreto · Remisiones</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Droplet className="w-8 h-8 text-aria-accent" />Control de Concreto · Remisiones</h1>
           <p className="text-[#7f93b0] mt-1">Remisiones de colado y pruebas de cilindro 7/14/28 días.</p>
         </div>
         <Link href="/dashboard/obras/concreto" className="px-3 py-2 bg-white/[0.05] hover:bg-[#0f2448] text-white rounded-lg text-sm">Carpetas</Link>
@@ -250,8 +251,8 @@ export default function ConcretoRemisionesPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           { l: "Remisiones", v: stats.totalRem, c: "text-white" },
-          { l: "m³ totales", v: stats.totalM3.toLocaleString("es-MX"), c: "text-aria-accent" },
-          { l: "Costo total", v: `$${stats.costoTotal.toLocaleString("es-MX")}`, c: "text-emerald-300" },
+          { l: "m³ totales", v: fmtNumber(stats.totalM3), c: "text-aria-accent" },
+          { l: "Costo total", v: fmtMoney(stats.costoTotal, { noDecimals: true }), c: "text-emerald-300" },
           { l: "Pruebas OK", v: stats.pruebasOk, c: "text-emerald-300" },
           { l: "Pruebas fallidas", v: stats.pruebasFail, c: "text-rose-300" },
         ].map((k, i) => (
@@ -289,7 +290,7 @@ export default function ConcretoRemisionesPage() {
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-aria-accent">{r.m3} m³</div>
-                    <div className="text-sm text-emerald-300">${(Number(r.costo_total) || 0).toLocaleString("es-MX")}</div>
+                    <div className="text-sm text-emerald-300">{fmtMoney(Number(r.costo_total), { noDecimals: true })}</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.05] flex-wrap gap-2">
@@ -340,7 +341,7 @@ export default function ConcretoRemisionesPage() {
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Costo por m³ ($)</label><input type="number" min="0" value={formRem.costo_unitario} onChange={e => setFormRem({ ...formRem, costo_unitario: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent" /></div>
               </div>
               <div><label className="text-sm text-[#7f93b0] mb-1 block">Observaciones</label><textarea value={formRem.observaciones} onChange={e => setFormRem({ ...formRem, observaciones: e.target.value })} rows={2} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent" /></div>
-              <div className="text-sm text-[#7f93b0]">Total estimado: <span className="text-emerald-300 font-bold">${((Number(formRem.m3) || 0) * (Number(formRem.costo_unitario) || 0)).toLocaleString("es-MX")}</span></div>
+              <div className="text-sm text-[#7f93b0]">Total estimado: <span className="text-emerald-300 font-bold">{fmtMoney((Number(formRem.m3) || 0) * (Number(formRem.costo_unitario) || 0), { noDecimals: true })}</span></div>
             </div>
             <div className="sticky bottom-0 bg-[#0a1628] border-t border-white/[0.08] p-5 flex justify-end gap-3">
               <button onClick={() => { setShowFormRem(false); setEditando(null); setFormRem(EMPTY_REM); }} className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>

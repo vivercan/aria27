@@ -6,8 +6,10 @@ import {
   Loader2, Wrench, AlertTriangle, Calendar, ClipboardList,
   Clock, CheckCircle2, Settings, Package, DollarSign, Play,
 } from "lucide-react";
-import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import PageHeader from "@/components/ui/PageHeader";
 
 /* ────────── types ────────── */
 interface Orden {
@@ -84,9 +86,9 @@ export default function MantenimientoPage() {
   const [editProgId, setEditProgId] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash } = useFlashMessage(3200);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
 
   useEffect(() => { loadAll(); }, []);
 
@@ -279,22 +281,19 @@ export default function MantenimientoPage() {
   /* ────────── render ────────── */
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
-        <AriaBackButton href="/dashboard/activos" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Wrench className="w-6 h-6 text-orange-400" /> Mantenimiento de Activos
-          </h1>
-          <p className="text-sm text-[#7f93b0] mt-0.5">Órdenes de trabajo · Programas preventivos · Historial</p>
-        </div>
+      {/* EX-4 18-Abr-2026: PageHeader canónico */}
+      <div className="flex-none px-6 pt-6">
+        <PageHeader
+          title="Mantenimiento de Activos"
+          subtitle="Órdenes de trabajo · Programas preventivos · Historial"
+          backHref="/dashboard/activos"
+          icon={<Wrench className="w-6 h-6 text-orange-400" />}
+          sticky={false}
+        />
       </div>
 
-      {msg && (
-        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
+      {/* EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} className="mx-6 flex-none" />
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">

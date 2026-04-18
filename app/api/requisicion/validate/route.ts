@@ -50,11 +50,11 @@ export async function GET(request: Request) {
       .single();
 
     if (error || !req) {
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">â</div><h1 style="color:#f87171">Token Invalido</h1><p style="color:#94a3b8">Esta requisicion ya fue procesada o el enlace expiro.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">❌</div><h1 style="color:#f87171">Token Invalido</h1><p style="color:#94a3b8">Esta requisicion ya fue procesada o el enlace expiro.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
     if (req.status !== "PENDIENTE" && req.status !== "EN_VALIDACION") {
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">â ï¸</div><h1 style="color:#fbbf24">Ya Procesada</h1><p style="color:#94a3b8">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">⚠️</div><h1 style="color:#fbbf24">Ya Procesada</h1><p style="color:#94a3b8">${req.folio} ya tiene estado: ${req.status}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
 
     // Si no viene action, mostrar página de validación con botones
@@ -82,8 +82,8 @@ export async function GET(request: Request) {
       <tbody>${materialesHtml}</tbody>
     </table>
     <div style="display:flex;gap:15px;justify-content:center">
-      <a href="${BASE_URL}/api/requisicion/validate?token=${token}&action=APROBADA" style="display:inline-block;background:#10b981;color:white;padding:15px 35px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">â APROBAR</a>
-      <a href="${BASE_URL}/api/requisicion/validate?token=${token}&action=RECHAZADA" style="display:inline-block;background:#ef4444;color:white;padding:15px 35px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">â RECHAZAR</a>
+      <a href="${BASE_URL}/api/requisicion/validate?token=${token}&action=APROBADA" style="display:inline-block;background:#10b981;color:white;padding:15px 35px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">✅ APROBAR</a>
+      <a href="${BASE_URL}/api/requisicion/validate?token=${token}&action=RECHAZADA" style="display:inline-block;background:#ef4444;color:white;padding:15px 35px;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">❌ RECHAZAR</a>
     </div>
   </div>
   <div style="background:#f8fafc;padding:15px;text-align:center;color:#94a3b8;font-size:12px">ARIA27 - CUAVANTE</div>
@@ -129,7 +129,7 @@ export async function GET(request: Request) {
         }
       }
 
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">â</div><h1 style="color:#10b981">Requisicion Validada</h1><p style="color:#94a3b8">${req.folio}</p><p>Se notifico a Compras (${comprasUser?.email || 'N/A'})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0fdf4"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">✅</div><h1 style="color:#10b981">Requisicion Validada</h1><p style="color:#94a3b8">${req.folio}</p><p>Se notifico a Compras (${comprasUser?.email || 'N/A'})</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     } else {
       // RECHAZADA - Notificar al creador por EMAIL + WHATSAPP
       const creatorUser = await getUserByEmail(req.user_email);
@@ -155,7 +155,7 @@ export async function GET(request: Request) {
         );
       }
 
-      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">â</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)"><div style="font-size:80px">❌</div><h1 style="color:#ef4444">Requisicion Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     }
   } catch (error: unknown) {
     log.error("[VALIDATE]", error);

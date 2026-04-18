@@ -1,7 +1,7 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { Plus, Search, FileText, Calendar, DollarSign, Building2, CheckCircle2, Clock, X, Save, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Licitacion {
   id: string;
@@ -149,7 +150,7 @@ export default function LicitacionesPage() {
     perdidas: licitaciones.filter(l => l.status === "PERDIDA").length,
   };
 
-  const fmt = (n: number) => `$${(n||0).toLocaleString("es-MX", { minimumFractionDigits: 0 })}`;
+  const fmt = (n: number) => fmtMoney(n, { noDecimals: true });
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "licitaciones", id: deleteModal.id, userEmail });

@@ -33,8 +33,8 @@ interface ObraRow {
 
 const CATS = ["MATERIALES", "MANO_OBRA", "HERRAMIENTA", "SUBCONTRATO", "INDIRECTOS", "OTROS"];
 
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const log = clientLogger("CONTROL");
+import { fmtMoney as fmt } from "@/lib/formatters";
+const log = clientLogger("CONTROL");
 
 function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
   if (presupuesto <= 0) return "SIN_PRESUPUESTO";

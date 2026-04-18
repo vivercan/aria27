@@ -12,6 +12,8 @@ import {
   Filter, Search
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Obra {
   id: number;
@@ -57,7 +59,8 @@ export default function TareasPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<any>({ ...EMPTY_FORM });
   const [editId, setEditId] = useState<string | null>(null);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
   const [filtroObra, setFiltroObra] = useState<string>("");
   const [filtroStatus, setFiltroStatus] = useState<string>("");
   const [busqueda, setBusqueda] = useState("");
@@ -83,10 +86,7 @@ export default function TareasPage() {
     setLoading(false);
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
-  };
+  const msg = (tipo: "success" | "error" | "info", texto: string) => _flash(tipo === "success" ? "ok" : "err", texto);
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -241,7 +241,7 @@ export default function TareasPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/obras" />
           <div>
-            <h1 className="text-xl font-bold text-white">Tareas de Obra</h1>
+            <h1 className="text-2xl font-bold text-white">Tareas de Obra</h1>
             <p className="text-xs text-[#7f93b0]">{tareas.length} tareas registradas</p>
           </div>
         </div>
@@ -303,11 +303,7 @@ export default function TareasPage() {
         </select>
       </div>
 
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">

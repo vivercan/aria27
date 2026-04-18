@@ -7,6 +7,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ClipboardList, Search, Plus, Eye, Printer, Loader2, Package, CheckCircle, X, Save, Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface OrdenFormato {
   id: string;
@@ -37,7 +39,8 @@ export default function OrdenesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [obras, setObras] = useState<string[]>([]);
   const [proveedores, setProveedores] = useState<string[]>([]);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); cargarObras(); cargarProveedores(); }, []);
@@ -58,10 +61,7 @@ export default function OrdenesPage() {
     setProveedores((data || []).map(s => s.name));
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
-  };
+  const msg = (tipo: "success" | "error" | "info", texto: string) => _flash(tipo === "success" ? "ok" : "err", texto);
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -128,11 +128,7 @@ export default function OrdenesPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
-      {mensaje && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       <AriaBackButton href="/dashboard/plantillas" />
 

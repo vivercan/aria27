@@ -9,6 +9,8 @@ import { supabase } from "@/lib/supabase";
 import { Plus, Upload, Users, Edit2, Trash2, X, Save, Loader2, FileSpreadsheet, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Obra {
   id: string;
@@ -60,7 +62,8 @@ export default function PipelinePage() {
   const [modo, setModo] = useState<Modo>("manual");
   const [form, setForm] = useState<ObraForm>({ ...EMPTY });
   const [editId, setEditId] = useState<string | null>(null);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
   const [grupoTexto, setGrupoTexto] = useState("");
   const [excelData, setExcelData] = useState<Record<string, unknown>[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -83,10 +86,7 @@ export default function PipelinePage() {
     setLoading(false);
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
-  };
+  const msg = (tipo: "success" | "error" | "info", texto: string) => _flash(tipo === "success" ? "ok" : "err", texto);
 
   const guardarManual = async () => {
     if (!validarManual()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
@@ -244,7 +244,7 @@ export default function PipelinePage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/obras" />
           <div>
-            <h1 className="text-xl font-bold text-white">Pipeline de Obras</h1>
+            <h1 className="text-2xl font-bold text-white">Pipeline de Obras</h1>
             <p className="text-xs text-[#7f93b0]">{obras.length} obras registradas</p>
           </div>
         </div>
@@ -253,11 +253,7 @@ export default function PipelinePage() {
         </button>
       </div>
 
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">

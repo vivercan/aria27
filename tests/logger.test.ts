@@ -81,4 +81,55 @@ describe("logger (server-side structured)", () => {
     const parsed = JSON.parse(spy.mock.calls[0][0] as string);
     expect(parsed.data).toBeUndefined();
   });
+
+  // PL09 17-Abr-2026: PII masking automático
+  it("enmascara email en claves '*email'", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logger("R").info("delete", { email: "juan.perez@example.com", user_email: "admin@foo.com" });
+    const parsed = JSON.parse(spy.mock.calls[0][0] as string);
+    expect(parsed.data.email).toBe("j***z@example.com");
+    expect(parsed.data.user_email).toBe("a***n@foo.com");
+  });
+
+  it("enmascara teléfonos en claves phone/telefono/whatsapp", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logger("R").info("wa", { phone: "5218112392266", telefono: "+52 811 239 2266", whatsapp: "8112392266" });
+    const parsed = JSON.parse(spy.mock.calls[0][0] as string);
+    expect(parsed.data.phone).toMatch(/^52.*66$/);
+    expect(parsed.data.phone).not.toContain("8112392");
+    expect(parsed.data.telefono).not.toContain("2392");
+    expect(parsed.data.whatsapp).not.toContain("239");
+  });
+
+  it("enmascara tokens, secrets, passwords, cuentas", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logger("R").info("x", {
+      token: "sk_live_abcdef123456",
+      password: "hunter2",
+      numero_cuenta: "1234567890",
+      clabe_interbancaria: "012345678901234567",
+    });
+    const parsed = JSON.parse(spy.mock.calls[0][0] as string);
+    expect(parsed.data.token).not.toContain("abcdef");
+    expect(parsed.data.password).not.toBe("hunter2");
+    expect(parsed.data.numero_cuenta).not.toContain("34567");
+    expect(parsed.data.clabe_interbancaria).not.toContain("456789");
+  });
+
+  it("no enmascara claves que no son PII conocida", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logger("R").info("safe", { folio: "REQ-2026-001", obra: "MIRAVALLE", count: 10 });
+    const parsed = JSON.parse(spy.mock.calls[0][0] as string);
+    expect(parsed.data.folio).toBe("REQ-2026-001");
+    expect(parsed.data.obra).toBe("MIRAVALLE");
+    expect(parsed.data.count).toBe(10);
+  });
+
+  it("enmascara PII en objetos anidados", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logger("R").info("nested", { user: { email: "a@b.com", name: "JJ" } });
+    const parsed = JSON.parse(spy.mock.calls[0][0] as string);
+    expect(parsed.data.user.email).toBe("a***@b.com");
+    expect(parsed.data.user.name).toBe("JJ");
+  });
 });

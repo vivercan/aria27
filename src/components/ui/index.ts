@@ -1,0 +1,13 @@
+/**
+ * ARIA27 UI primitives (PL32 17-Abr-2026).
+ *
+ * Canon de componentes compartidos. Uso:
+ *   import { PageHeader, EmptyState, LoadingSpinner, Modal, Button } from "@/components/ui";
+ */
+
+export { default as PageHeader, type PageHeaderProps } from "./PageHeader";
+export { default as EmptyState, type EmptyStateProps } from "./EmptyState";
+export { default as LoadingSpinner, type LoadingSpinnerProps } from "./LoadingSpinner";
+export { default as Modal, type ModalProps } from "./Modal";
+export { default as Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./Button";
+export { default as PromptModal, type PromptModalProps } from "./PromptModal";

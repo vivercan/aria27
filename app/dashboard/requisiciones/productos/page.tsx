@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Product { id:number; sku:string; name:string; description:string|null; unit:string; category:string|null; }

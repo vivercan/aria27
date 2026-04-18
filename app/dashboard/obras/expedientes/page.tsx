@@ -10,7 +10,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import {
   ArrowLeft,
   FolderOpen,
@@ -35,6 +35,7 @@ import {
   Inbox,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { PromptModal } from "@/components/ui";
 
 interface Obra {
   id: string;
@@ -109,6 +110,8 @@ export default function ExpedientesPage() {
   const [nuevaSubcarpetaNombre, setNuevaSubcarpetaNombre] = useState("");
   const [archivosSeleccionados, setArchivosSeleccionados] = useState<Set<string>>(new Set());
   const [deleteCarpetaModal, setDeleteCarpetaModal] = useState<{open:boolean;id:string;nombre:string;isSub:boolean}>({open:false,id:"",nombre:"",isSub:false});
+  // CV-07 18-Abr-2026: reemplaza window.prompt para renombrar carpeta
+  const [renameModal, setRenameModal] = useState<{open:boolean;id:string;nombreActual:string;isSub:boolean}>({open:false,id:"",nombreActual:"",isSub:false});
   const [carpetaSeleccionada, setCarpetaSeleccionada] = useState<Carpeta | null>(null);
   const [archivos, setArchivos] = useState<Archivo[]>([]);
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -229,7 +232,7 @@ export default function ExpedientesPage() {
   };
 
   const irANivel = (idx: number) => {
-    // idx = -1 âÂ" raíz (año); 0..n-1 → nodos en ruta
+    // idx = -1 â†Â" raíz (año); 0..n-1 → nodos en ruta
     if (idx < 0) {
       setCarpetaAnioSeleccionada(null);
       return;
@@ -287,13 +290,24 @@ export default function ExpedientesPage() {
     }
   };
 
-  const editarNombreCarpeta = async (id: string, nombreActual: string, isSub: boolean) => {
-    const nuevo = window.prompt("Nuevo nombre:", nombreActual);
-    if (!nuevo || !nuevo.trim() || nuevo.trim() === nombreActual) return;
+  // CV-07 18-Abr-2026: window.prompt reemplazado por <PromptModal> canónico.
+  // Abre modal, no ejecuta inmediatamente. La acción real vive en renameFolderSubmit.
+  const editarNombreCarpeta = (id: string, nombreActual: string, isSub: boolean) => {
+    setRenameModal({ open: true, id, nombreActual, isSub });
+  };
+
+  const renameFolderSubmit = async (nuevoNombre: string) => {
+    const nuevo = nuevoNombre.trim();
+    if (!renameModal.id || !nuevo || nuevo === renameModal.nombreActual) {
+      setRenameModal({ open: false, id: "", nombreActual: "", isSub: false });
+      return;
+    }
     const { error } = await supabase
       .from("expedientes_carpetas")
-      .update({ nombre: nuevo.trim() })
-      .eq("id", id);
+      .update({ nombre: nuevo })
+      .eq("id", renameModal.id);
+    const isSub = renameModal.isSub;
+    const id = renameModal.id;
     if (error) {
       flash("err", "Error al renombrar: " + (error as {message?: string})?.message || "Error desconocido");
       return;
@@ -1349,6 +1363,16 @@ export default function ExpedientesPage() {
     <DropWrap><div className="space-y-6">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <ConfirmModal open={confirmState.open} message={confirmState.msg} onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }} onCancel={() => setConfirmState(p => ({...p, open: false}))} />
+      <PromptModal
+        open={renameModal.open}
+        title="Renombrar carpeta"
+        label="Nuevo nombre"
+        initialValue={renameModal.nombreActual}
+        placeholder="Ej. Contratos 2026"
+        submitLabel="Renombrar"
+        onClose={() => setRenameModal({ open: false, id: "", nombreActual: "", isSub: false })}
+        onSubmit={renameFolderSubmit}
+      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -1532,7 +1556,7 @@ export default function ExpedientesPage() {
                     </h3>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                       {tarea.responsable && (
-                        <span className="text-[#7f93b0]">ð¤ {tarea.responsable}</span>
+                        <span className="text-[#7f93b0]">👤 {tarea.responsable}</span>
                       )}
                       {tarea.fecha_limite && (
                         <span className="text-[#7f93b0] flex items-center gap-1">

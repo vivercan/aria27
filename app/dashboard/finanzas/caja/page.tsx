@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 /* ────────── types ────────── */
 interface Fondo {
@@ -46,8 +48,9 @@ const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autoriza
 const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "" };
   const log = clientLogger("CAJA");
 
-const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
-const fmtDate = (d: string) => { try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
+import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
+const fmt = fmtMoney;
+const fmtDate = fmtDateCanon;
 
 /* ────────── component ────────── */
 export default function CajaChicaPage() {
@@ -74,10 +77,9 @@ export default function CajaChicaPage() {
   const [corteForm, setCorteForm] = useState({ fondo_id: "", fecha_inicio: "", fecha_fin: "", periodo: "" });
 
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash } = useFlashMessage(3200);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
-
-  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
 
   /* ── load ── */
   useEffect(() => { loadAll(); }, []);
@@ -290,12 +292,8 @@ export default function CajaChicaPage() {
         </div>
       </div>
 
-      {/* Flash */}
-      {msg && (
-        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
+      {/* Flash — EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} className="mx-6 flex-none" />
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">

@@ -295,7 +295,7 @@ export default function MisDocumentosPage() {
   }
 
   async function confirmDelete() {
-    if (deleteModal.word !== "Delete") return;
+    if (deleteModal.word !== "Eliminar") return;
     setDeleteModal((prev) => ({ ...prev, deleting: true }));
     await executeDelete(deleteModal.ids);
     setSelectedIds(new Set());
@@ -425,7 +425,7 @@ export default function MisDocumentosPage() {
             </button>
           )}
           <div>
-            <h1 className="text-xl font-bold text-white">Mis Documentos</h1>
+            <h1 className="text-2xl font-bold text-white">Mis Documentos</h1>
             <p className="text-xs text-[#7f93b0]">
               {view === "folders" && userName(currentUser)}
               {view === "files" && (
@@ -702,14 +702,14 @@ export default function MisDocumentosPage() {
               </p>
               <div className="w-full mt-2">
                 <p className="text-xs text-[#7f93b0] mb-2">
-                  Para confirmar, escribe <span className="text-white font-mono font-bold">Delete</span> en el campo de abajo:
+                  Para confirmar, escribe <span className="text-white font-mono font-bold">Eliminar</span> en el campo de abajo:
                 </p>
                 <input
                   type="text"
                   value={deleteModal.word}
                   onChange={(e) => setDeleteModal((prev) => ({ ...prev, word: e.target.value }))}
-                  onKeyDown={(e) => { if (e.key === "Enter" && deleteModal.word === "Delete") confirmDelete(); }}
-                  placeholder="Delete"
+                  onKeyDown={(e) => { if (e.key === "Enter" && deleteModal.word === "Eliminar") confirmDelete(); }}
+                  placeholder="Eliminar"
                   autoFocus
                   className="w-full px-4 py-3 rounded-xl bg-[#0a1628] border border-white/[0.08] text-white text-center font-mono text-lg focus:outline-none focus:border-red-500/50 placeholder-[#4a6080]"
                 />
@@ -724,7 +724,7 @@ export default function MisDocumentosPage() {
                 </button>
                 <button
                   onClick={confirmDelete}
-                  disabled={deleteModal.word !== "Delete" || deleteModal.deleting}
+                  disabled={deleteModal.word !== "Eliminar" || deleteModal.deleting}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   {deleteModal.deleting ? (

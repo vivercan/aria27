@@ -4,6 +4,8 @@ import AriaBackButton from "@/components/AriaBackButton";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 type Tab = "audit" | "deleted";
 
@@ -42,7 +44,8 @@ export default function AuditoriaPage() {
   const [selRow, setSelRow] = useState<AuditRow | DeletedRow | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [restoring, setRestoring] = useState<string | null>(null);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => {
     (async () => {
@@ -103,7 +106,7 @@ export default function AuditoriaPage() {
       msg: `Restaurar ${row.source_table} · ${row.source_id}?`,
       onOk: async () => {
         setRestoring(row.id);
-        setMsg(null);
+        clear();
         try {
           const resp = await fetch("/api/admin/auditoria/restore", {
             method: "POST",
@@ -112,10 +115,10 @@ export default function AuditoriaPage() {
           });
           const j = await resp.json().catch(() => ({}));
           if (!resp.ok) throw new Error(j.error || "Error al restaurar");
-          setMsg({ tipo: "ok", texto: `Restaurado en ${row.source_table}` });
+          flash("ok", `Restaurado en ${row.source_table}`);
           cargar();
         } catch (e: unknown) {
-          setMsg({ tipo: "err", texto: (e as Error).message });
+          flash("err", (e as Error).message);
         } finally {
           setRestoring(null);
         }
@@ -125,7 +128,7 @@ export default function AuditoriaPage() {
 
   async function revertirAudit(row: AuditRow) {
     if (row.op !== "UPDATE" || !row.before) {
-      setMsg({ tipo: "err", texto: "Solo se puede revertir un UPDATE con snapshot previo" });
+      flash("err", "Solo se puede revertir un UPDATE con snapshot previo");
       return;
     }
     setConfirmState({
@@ -133,7 +136,7 @@ export default function AuditoriaPage() {
       msg: `Revertir ${row.table_name} al estado antes del cambio?`,
       onOk: async () => {
         setRestoring(String(row.id));
-        setMsg(null);
+        clear();
         try {
           const resp = await fetch("/api/admin/auditoria/revert", {
             method: "POST",
@@ -142,10 +145,10 @@ export default function AuditoriaPage() {
           });
           const j = await resp.json().catch(() => ({}));
           if (!resp.ok) throw new Error(j.error || "Error al revertir");
-          setMsg({ tipo: "ok", texto: `Revertido en ${row.table_name}` });
+          flash("ok", `Revertido en ${row.table_name}`);
           cargar();
         } catch (e: unknown) {
-          setMsg({ tipo: "err", texto: (e as Error).message });
+          flash("err", (e as Error).message);
         } finally {
           setRestoring(null);
         }
@@ -174,7 +177,7 @@ export default function AuditoriaPage() {
             <AriaBackButton href="/dashboard/admin" />
             <Database className="w-6 h-6 text-aria-accent" />
             <div>
-              <h1 className="text-xl font-bold">Auditoría y Respaldos</h1>
+              <h1 className="text-2xl font-bold">Auditoría y Respaldos</h1>
               <p className="text-xs text-white/50">Historial perpetuo de cambios · {audit.length} eventos · {deleted.length} registros borrados</p>
             </div>
           </div>
@@ -222,11 +225,8 @@ export default function AuditoriaPage() {
           )}
         </div>
 
-        {msg && (
-          <div className={`mt-3 px-3 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/10 text-emerald-300" : "bg-red-500/10 text-red-300"}`}>
-            {msg.texto}
-          </div>
-        )}
+        {/* EX-3 18-Abr-2026: FlashBanner canónico */}
+        <FlashBanner msg={msg} className="mt-3" />
       </header>
 
       <main className="flex-1 overflow-auto px-6 py-4">

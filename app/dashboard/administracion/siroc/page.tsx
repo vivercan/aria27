@@ -11,6 +11,8 @@ import {
   Search, Building2, ClipboardList
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Obra { id: number; nombre: string; }
 
@@ -78,7 +80,8 @@ export default function SIROCPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<SIROCForm>({ ...EMPTY_FORM });
   const [editId, setEditId] = useState<string | null>(null);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
   const [busqueda, setBusqueda] = useState("");
   const [filtroObra, setFiltroObra] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -94,7 +97,7 @@ export default function SIROCPage() {
     setLoading(false);
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => { setMensaje({ tipo, texto }); setTimeout(() => setMensaje(null), 3000); };
+  const msg = (tipo: "success" | "error" | "info", texto: string) => _flash(tipo === "success" ? "ok" : "err", texto);
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -188,7 +191,7 @@ export default function SIROCPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/administracion" />
-          <div><h1 className="text-xl font-bold text-white">SIROC / Registro IMSS</h1><p className="text-xs text-[#7f93b0]">{registros.length} registros</p></div>
+          <div><h1 className="text-2xl font-bold text-white">SIROC / Registro IMSS</h1><p className="text-xs text-[#7f93b0]">{registros.length} registros</p></div>
         </div>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover"><Plus className="w-4 h-4" /> Nuevo Registro</button>
       </div>
@@ -204,7 +207,7 @@ export default function SIROCPage() {
         <select value={filtroObra} onChange={e => setFiltroObra(e.target.value)} className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>
       </div>
 
-      {mensaje && (<div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>{mensaje.texto}</div>)}
+      <FlashBanner msg={mensaje} />
 
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">

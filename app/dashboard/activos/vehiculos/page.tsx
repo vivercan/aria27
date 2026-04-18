@@ -13,7 +13,7 @@ import {
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
-import AriaBackButton from "@/components/AriaBackButton";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface Vehiculo {
   id: string;
@@ -71,7 +71,7 @@ export default function VehiculosPage() {
   const [expedienteVeh, setExpedienteVeh] = useState<Vehiculo|null>(null);
 
   // Shared hooks — replace manual modal/form/flash state
-  const { mensaje, msg } = useFlashMessage();
+  const { msg, flash } = useFlashMessage();
   const { showModal: showForm, editId, form, saving: guardando, openNew, openEdit, closeModal, setForm, setSaving: setGuardando } = useEntityForm(EMPTY_FORM);
 
   useEffect(() => { cargar(); }, []);
@@ -122,12 +122,12 @@ export default function VehiculosPage() {
 
     if (editId) {
       const { error } = await supabase.from("activos").update(payload).eq("id", editId);
-      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al actualizar"); }
-      else { msg("success", "Vehículo actualizado"); closeModal(); cargar(); }
+      if (error) { flash("err", ((error as {message?: string})?.message) || "Error al actualizar"); }
+      else { flash("ok", "Vehículo actualizado"); closeModal(); cargar(); }
     } else {
       const { error } = await supabase.from("activos").insert(payload);
-      if (error) { msg("error", ((error as {message?: string})?.message) || "Error al crear"); }
-      else { msg("success", "Vehículo registrado"); closeModal(); cargar(); }
+      if (error) { flash("err", ((error as {message?: string})?.message) || "Error al crear"); }
+      else { flash("ok", "Vehículo registrado"); closeModal(); cargar(); }
     }
     setGuardando(false);
   };
@@ -146,8 +146,8 @@ export default function VehiculosPage() {
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail });
-      msg("success", "Vehículo eliminado");
-    } catch (e: unknown) { msg("error", (e as {message?: string})?.message || "Error"); }
+      flash("ok", "Vehículo eliminado");
+    } catch (e: unknown) { flash("err", (e as {message?: string})?.message || "Error"); }
     setDeleteModal({ open: false, id: "", name: "" });
     cargar();
   };
@@ -170,21 +170,22 @@ export default function VehiculosPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
-          <div>
-            <h1 className="text-xl font-bold text-white">Vehículos y Maquinaria</h1>
-            <p className="text-xs text-[#7f93b0]">{vehiculos.length} unidades registradas</p>
-          </div>
-        </div>
-        <button
-          onClick={() => openNew()}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700"
-        >
-          <Plus className="w-4 h-4" /> Nuevo Vehículo
-        </button>
+      {/* EX-4 18-Abr-2026: PageHeader canónico */}
+      <div className="flex-shrink-0 mb-4">
+        <PageHeader
+          title="Vehículos y Maquinaria"
+          subtitle={`${vehiculos.length} unidades registradas`}
+          backHref="/dashboard/activos"
+          sticky={false}
+          actions={
+            <button
+              onClick={() => openNew()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700"
+            >
+              <Plus className="w-4 h-4" /> Nuevo Vehículo
+            </button>
+          }
+        />
       </div>
 
       {/* KPIs */}
@@ -215,9 +216,9 @@ export default function VehiculosPage() {
         </div>
       </div>
 
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
+      {msg && (
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+          {msg.texto}
         </div>
       )}
 

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Empleado {
   id: string;
@@ -84,7 +86,13 @@ export default function PersonalPage() {
   const [editando, setEditando] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...EMPTY_FORM });
   const [tab, setTab] = useState<"general" | "laboral" | "bancario" | "fiscal">("general");
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
+  // EX-3 18-Abr-2026: wrapper retrocompatible setMensaje
+  const setMensaje = (v: { tipo: "success" | "error" | "info"; texto: string } | null) => {
+    if (v === null) return; // el hook auto-limpia tras timeout
+    _flash(v.tipo === "success" ? "ok" : "err", v.texto);
+  };
   const [expedienteEmp, setExpedienteEmp] = useState<Empleado | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -271,7 +279,7 @@ export default function PersonalPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/talento" />
           <div>
-            <h1 className="text-xl font-bold text-white">Personal</h1>
+            <h1 className="text-2xl font-bold text-white">Personal</h1>
             <p className="text-xs text-[#7f93b0]">{empleados.length} empleados activos</p>
           </div>
         </div>
@@ -295,13 +303,7 @@ export default function PersonalPage() {
       </div>
 
       {/* Mensaje */}
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${
-          mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
-        }`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       {/* Tabla */}
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">

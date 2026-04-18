@@ -2,7 +2,7 @@
 import { clientLogger } from "@/lib/client-logger";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -173,7 +173,7 @@ export default function SirocRegistrosPage() {
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras" />
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-red-400" />SIROC IMSS · Registros</h1>
           <p className="text-[#7f93b0] mt-1">Registro estructurado de obras ante IMSS.</p>
         </div>
         <Link href="/dashboard/obras/siroc/bimestrales" className="px-3 py-2 bg-amber-600/80 hover:bg-amber-600 text-white rounded-lg text-sm">Reportes bimestrales</Link>

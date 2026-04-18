@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import EmptyState from "@/components/ui/EmptyState";
 
 type PO = {
   id: number;
@@ -176,7 +177,7 @@ export default function OrdenesCompraPage() {
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <button onClick={closeDetail} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-white">{selectedPO.folio}</h1>
+            <h1 className="text-2xl font-bold text-white">{selectedPO.folio}</h1>
             <p className="text-[#7f93b0] text-sm truncate">{selectedPO.supplier_name}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -251,7 +252,7 @@ export default function OrdenesCompraPage() {
       <FlashBanner msg={msg} className="mx-0 mb-3" />
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
-        <div className="flex-1"><h1 className="text-xl font-bold text-white">Órdenes de Compra</h1><p className="text-[#7f93b0] text-sm">{orders.length} órdenes generadas</p></div>
+        <div className="flex-1"><h1 className="text-2xl font-bold text-white">Órdenes de Compra</h1><p className="text-[#7f93b0] text-sm">{orders.length} órdenes generadas</p></div>
       </div>
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
@@ -270,7 +271,7 @@ export default function OrdenesCompraPage() {
         </div>
       )}
       <div className="flex-1 overflow-y-auto space-y-2">
-        {filtered.length === 0 ? <div className="text-center py-20"><Package className="w-12 h-12 text-[#4a6080] mx-auto mb-3" /><p className="text-[#7f93b0]">No hay órdenes de compra</p></div> : filtered.map(po => {
+        {filtered.length === 0 ? <EmptyState icon={<Package className="w-6 h-6" />} title="No hay órdenes de compra" /> : filtered.map(po => {
           const st = getStatus(po.status); const StatusIcon = st.icon;
           return (<button key={po.id} onClick={() => openDetail(po)} className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all text-left group">
             <div className="flex items-center justify-between mb-2"><span className="text-white font-bold">{po.folio}</span><span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${st.bg} ${st.color}`}><StatusIcon className="w-3 h-3" />{st.label}</span></div>

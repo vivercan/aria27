@@ -6,7 +6,8 @@ import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle,
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -256,7 +257,7 @@ export default function CotizacionesClientesPage() {
     }
     const cliExtra = (cliRes as { data: ClienteExtra | null }).data || {};
 
-    const fmt = (n: number) => `$${Number(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+    const fmt = fmtMoney;
     const fechaLimite = new Date(c.fecha);
     fechaLimite.setDate(fechaLimite.getDate() + (c.vigencia_dias || 30));
     const vence = fechaLimite.toISOString().split("T")[0];
@@ -446,9 +447,9 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Vigente", value: `$${totTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Aprobadas", value: `$${totAprobado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-          { label: "Enviadas", value: `$${totEnviado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
+          { label: "Total Vigente", value: fmtMoney(totTotal), icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
+          { label: "Aprobadas", value: fmtMoney(totAprobado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Enviadas", value: fmtMoney(totEnviado), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Registros", value: cots.length, icon: AlertTriangle, color: "text-violet-400", bg: "bg-violet-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -500,7 +501,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white">{c.cliente_nombre}</td>
                   <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
-                  <td className="p-3 text-right text-white">${Number(c.total || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-white">{fmtMoney(Number(c.total))}</td>
                   <td className="p-3 text-center">
                     <select value={c.estatus} onChange={e => cambiarEstatus(c, e.target.value)}
                       className="px-2 py-1 rounded text-xs bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none">
@@ -603,7 +604,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                           className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
                         <td className="p-1"><input type="number" required step="0.01" min="0" value={it.precio_unitario} onChange={e => actualizarItem(idx, { precio_unitario: parseFloat(e.target.value) || 0 })}
                           className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
-                        <td className="p-1 text-right text-emerald-400 font-medium">${it.importe.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                        <td className="p-1 text-right text-emerald-400 font-medium">{fmtMoney(it.importe)}</td>
                         <td className="p-1 text-center">
                           {items.length > 1 && (
                             <button onClick={() => quitarItem(idx)} className="p-1 text-red-400 hover:bg-red-500/20 rounded">
@@ -647,9 +648,9 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             </div>
 
             <div className="flex justify-end gap-6 mb-4 text-sm">
-              <div className="text-[#7f93b0]">Subtotal: <span className="text-white font-medium">${subtotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
-              <div className="text-[#7f93b0]">IVA ({form.iva_pct}%): <span className="text-white font-medium">${iva.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
-              <div className="text-[#c9d8ed] text-base">Total: <span className="text-emerald-400 font-bold">${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span></div>
+              <div className="text-[#7f93b0]">Subtotal: <span className="text-white font-medium">{fmtMoney(subtotal)}</span></div>
+              <div className="text-[#7f93b0]">IVA ({form.iva_pct}%): <span className="text-white font-medium">{fmtMoney(iva)}</span></div>
+              <div className="text-[#c9d8ed] text-base">Total: <span className="text-emerald-400 font-bold">{fmtMoney(total)}</span></div>
             </div>
 
             <div className="flex gap-3">

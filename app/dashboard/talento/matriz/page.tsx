@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Empleado {
   id: string;
@@ -69,7 +70,7 @@ export default function MatrizSalarialPage() {
         </div>
         <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
           <DollarSign className="w-5 h-5 text-emerald-400 mb-2" />
-          <p className="text-2xl font-bold text-white">${totalNomina.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
+          <p className="text-2xl font-bold text-white">{fmtMoney(totalNomina)}</p>
           <p className="text-xs text-[#7f93b0]">Nómina Diaria Total</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
@@ -85,7 +86,7 @@ export default function MatrizSalarialPage() {
             <div key={group} className="rounded-xl border border-white/[0.08] overflow-hidden">
               <div className="px-4 py-3 bg-white/[0.04] flex items-center justify-between">
                 <h3 className="font-semibold text-white">{group}</h3>
-                <span className="text-xs text-[#7f93b0]">{emps.length} empleados | ${emps.reduce((s, e) => s + (e.salario_diario || 0), 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}/día</span>
+                <span className="text-xs text-[#7f93b0]">{emps.length} empleados | {fmtMoney(emps.reduce((s, e) => s + (e.salario_diario || 0), 0))}/día</span>
               </div>
               <table className="w-full text-sm">
                 <thead>
@@ -104,9 +105,9 @@ export default function MatrizSalarialPage() {
                       <td className="px-4 py-2 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                       <td className="px-4 py-2 text-white">{e.full_name}</td>
                       <td className="px-4 py-2 text-[#c9d8ed]">{e.position || "-"}</td>
-                      <td className="px-4 py-2 text-right text-emerald-400 font-mono">${(e.salario_diario || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                      <td className="px-4 py-2 text-right text-[#c9d8ed] font-mono">${(e.salario_imss || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                      <td className="px-4 py-2 text-right text-white font-mono">${((e.salario_diario || 0) * 30).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                      <td className="px-4 py-2 text-right text-emerald-400 font-mono">{fmtMoney((e.salario_diario || 0))}</td>
+                      <td className="px-4 py-2 text-right text-[#c9d8ed] font-mono">{fmtMoney((e.salario_imss || 0))}</td>
+                      <td className="px-4 py-2 text-right text-white font-mono">{fmtMoney(((e.salario_diario || 0) * 30))}</td>
                     </tr>
                   ))}
                 </tbody>

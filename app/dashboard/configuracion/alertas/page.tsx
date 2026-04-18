@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { Bell, Plus, Trash2, Loader2, X, Save, AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Alerta {
@@ -105,18 +105,18 @@ export default function AlertasPage() {
           </div>
         ) : alertas.map(a => (
           <div key={a.id} className="grid grid-cols-[1fr_100px_120px_100px_80px] gap-2 px-4 py-3 text-sm border-b border-white/[0.04] hover:bg-white/[0.02]">
-            <div className="truncate">{a.obra_id || "â"}</div>
+            <div className="truncate">{a.obra_id || "—"}</div>
             <div className="text-amber-400 font-medium">{a.dias_atraso} días</div>
-            <div className="text-xs text-[#7f93b0]">{a.fecha_deteccion || "â"}</div>
+            <div className="text-xs text-[#7f93b0]">{a.fecha_deteccion || "—"}</div>
             <div>
               {a.notificado ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300">Notificado</span>
               ) : (
-                <button onClick={() => marcarNotificado(a.id)} className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition">Marcar â</button>
+                <button onClick={() => marcarNotificado(a.id)} className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition">Marcar ✓</button>
               )}
             </div>
             <div className="text-right">
-              <button onClick={() => eliminar(a.id)} className="text-red-400/50 hover:text-red-400 text-xs">â</button>
+              <button onClick={() => eliminar(a.id)} className="text-red-400/50 hover:text-red-400 text-xs">✕</button>
             </div>
           </div>
         ))}

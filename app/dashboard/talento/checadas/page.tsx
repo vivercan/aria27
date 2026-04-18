@@ -4,8 +4,9 @@ import { supabase } from "@/lib/supabase";
 import { Calendar, Clock, MapPin, CheckCircle, XCircle, Filter, Plus, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Asistencia {
   id: string;
@@ -176,10 +177,10 @@ export default function ChecadasPage() {
         {loading ? (
           <div className="text-center py-12 text-[#7f93b0]">Cargando...</div>
         ) : asistencias.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="w-12 h-12 mx-auto text-[#4a6080] mb-4" />
-            <p className="text-[#7f93b0]">No hay registros para esta fecha</p>
-          </div>
+          <EmptyState
+            icon={<Calendar className="w-6 h-6" />}
+            title="No hay registros para esta fecha"
+          />
         ) : (
           <div className="space-y-3">
             {asistencias.map(a => (

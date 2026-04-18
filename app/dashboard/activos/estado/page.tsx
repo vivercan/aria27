@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
-import AriaBackButton from "@/components/AriaBackButton";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function EstadoActivosPage() {
   const log = clientLogger("ESTADO");
@@ -58,14 +58,14 @@ export default function EstadoActivosPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Estado de Activos</h1>
-            <p className="text-sm text-[#7f93b0]">{activos.length} activos registrados</p>
-          </div>
-        </div>
+      {/* EX-4 18-Abr-2026: PageHeader canónico */}
+      <PageHeader
+        title="Estado de Activos"
+        subtitle={`${activos.length} activos registrados`}
+        backHref="/dashboard/activos"
+      />
+      <div className="pb-4">
+
 
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setFiltro("todos")} className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${filtro === "todos" ? "bg-aria-accent-bg text-aria-accent" : "bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06]"}`}>

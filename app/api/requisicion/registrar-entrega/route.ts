@@ -23,58 +23,23 @@ async function sendEmail(to: string, subject: string, html: string) {
   } catch (e: unknown) { log.error("Error email:", e); }
 }
 
+// PL07 17-Abr-2026: aplica materiales a inventario_obra vía RPC atómico.
+// Reemplaza el read-then-write que tenía race condition bajo entregas concurrentes.
+// Requiere migración sql/pl06-pl07-atomic-rpcs.sql aplicada en Supabase.
 async function actualizarInventario(obraId: number, obraNombre: string, materiales: Material[]): Promise<{ ok: number; errors: number }> {
-  let itemsActualizados = 0;
-  let itemsConError = 0;
+  const { data, error } = await supabase.rpc("aplicar_entrega_inventario", {
+    p_obra_id: obraId,
+    p_obra_nombre: obraNombre,
+    p_materiales: materiales,
+  });
 
-  for (const mat of materiales) {
-    const productoNombre = mat.product_name || mat.producto || "";
-    const cantidad = mat.quantity || mat.cantidad_recibida || 0;
-    const unidad = mat.unit || mat.unidad || "PZA";
-
-    if (!productoNombre || cantidad <= 0) continue;
-
-    const { data: existe } = await supabase
-      .from("inventario_obra")
-      .select("*")
-      .eq("obra_id", obraId)
-      .eq("producto_nombre", productoNombre)
-      .single();
-
-    if (existe) {
-      const { error } = await supabase
-        .from("inventario_obra")
-        .update({
-          cantidad_disponible: (existe.cantidad_disponible || 0) + cantidad,
-          ultimo_movimiento: new Date().toISOString(),
-        })
-        .eq("id", existe.id);
-      if (error) {
-        log.error("[INVENTARIO] Error al actualizar stock de producto", { productoNombre, obraId, error: error.message });
-        itemsConError++;
-      } else {
-        itemsActualizados++;
-      }
-    } else {
-      const { error } = await supabase.from("inventario_obra").insert({
-        obra_id: obraId,
-        obra_nombre: obraNombre,
-        producto_nombre: productoNombre,
-        unidad: unidad,
-        cantidad_disponible: cantidad,
-        cantidad_usada: 0,
-        ultimo_movimiento: new Date().toISOString(),
-      });
-      if (error) {
-        log.error("[INVENTARIO] Error al insertar producto nuevo", { productoNombre, obraId, error: error.message });
-        itemsConError++;
-      } else {
-        itemsActualizados++;
-      }
-    }
+  if (error) {
+    log.error("[INVENTARIO] RPC aplicar_entrega_inventario fail", { obraId, error: error.message });
+    return { ok: 0, errors: materiales.length };
   }
 
-  return { ok: itemsActualizados, errors: itemsConError };
+  const r = data as { ok?: number; errors?: number } | null;
+  return { ok: r?.ok ?? 0, errors: r?.errors ?? 0 };
 }
 
 export async function POST(req: NextRequest) {

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Building2, Plus, DollarSign, CreditCard, Pencil, Trash2, Loader2, Power, X, ListChecks } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface CuentaBancaria {
   id: string;

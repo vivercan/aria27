@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
 
 const MODULES = [
@@ -31,7 +33,8 @@ export default function RolesAdminPage() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [filter, setFilter] = useState("");
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash } = useFlashMessage(2500);
 
   const authEmail = () => (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "");
 
@@ -50,7 +53,7 @@ export default function RolesAdminPage() {
       }
       const j = await r.json().catch(() => ({}));
       if (!r.ok) {
-        setMsg({ tipo: "err", texto: j.error || "Error" });
+        flash("err", j.error || "Error");
         setAuthorized(true);
         setLoading(false);
         return;
@@ -58,15 +61,10 @@ export default function RolesAdminPage() {
       setAuthorized(true);
       setUsers((j.users as UserRow[]) || []);
     } catch (e: unknown) {
-      setMsg({ tipo: "err", texto: (e as {message?: string})?.message || "Error de red" });
+      flash("err", (e as {message?: string})?.message || "Error de red");
       setAuthorized(true);
     }
     setLoading(false);
-  };
-
-  const flash = (tipo: "ok" | "err", texto: string) => {
-    setMsg({ tipo, texto });
-    setTimeout(() => setMsg(null), 2500);
   };
 
   const toggleModule = (u: UserRow, moduleKey: string) => {
@@ -132,7 +130,7 @@ export default function RolesAdminPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard" />
           <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400" /> Roles y Permisos
             </h1>
             <p className="text-xs text-[#7f93b0]">{users.length} usuarios · marca los modulos que cada uno puede ver</p>
@@ -150,11 +148,8 @@ export default function RolesAdminPage() {
         </div>
       </div>
 
-      {msg && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
+      {/* EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} className="mb-3 flex-shrink-0" />
 
       <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
         <table className="w-full">

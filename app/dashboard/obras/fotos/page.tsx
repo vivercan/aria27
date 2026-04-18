@@ -118,7 +118,7 @@ export default function FotosPage() {
   }, []);
 
 
-  /** Shared upload logic for both input and drag & drop â sequential con concurrencia 3 */
+  /** Shared upload logic for both input and drag & drop — sequential con concurrencia 3 */
   const uploadFiles = useCallback(
     async (files: File[]) => {
       if (!files.length || !selectedObraId) return;
@@ -318,7 +318,7 @@ export default function FotosPage() {
           <div className="flex items-center gap-3">
             <AriaBackButton href="/dashboard/obras" />
             <Camera className="h-5 w-5 text-aria-accent" />
-            <h1 className="text-xl font-semibold">GalerÃÂ­a de Fotos</h1>
+            <h1 className="text-2xl font-semibold">Galería de Fotos</h1>
           </div>
 
           {selectedObraId && (
@@ -435,7 +435,7 @@ export default function FotosPage() {
                 <Image className="h-12 w-12 mx-auto text-white/30 mb-4" />
                 <h2 className="text-lg font-semibold text-white/70 mb-2">Sin fotos</h2>
                 <p className="text-sm text-white/50 mb-4">
-                  Esta obra aÃÂºn no tiene fotos. Sube algunas para comenzar.
+                  Esta obra aún no tiene fotos. Sube algunas para comenzar.
                 </p>
                 <button
                   onClick={handleUploadClick}

@@ -6,7 +6,8 @@ import { UserCheck, Search, Package, Plus, RotateCcw, Loader2, X, Save } from "l
 import Link from "next/link";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useEntityForm } from "@/hooks/useEntityForm";
-import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface AsignacionRow {
   id: string;
@@ -43,7 +44,7 @@ export default function AsignacionPage() {
   const [search, setSearch] = useState("");
 
   // Shared hooks — replace manual modal/form/flash state
-  const { mensaje, msg } = useFlashMessage();
+  const { msg, flash } = useFlashMessage();
   const { showModal, form, saving, openNew, closeModal, setForm, setSaving } = useEntityForm(EMPTY_ASIGNACION);
 
   useEffect(() => { load(); }, []);
@@ -122,9 +123,9 @@ export default function AsignacionPage() {
       .eq("id", form.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
+    if (lockErr) { flash("err", "Error al reservar activo: " + lockErr.message); setSaving(false); return; }
     if (!lockRows || lockRows.length === 0) {
-      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
+      flash("err", "Este activo ya no está DISPONIBLE. Recarga.");
       setSaving(false); load(); return;
     }
 
@@ -139,12 +140,12 @@ export default function AsignacionPage() {
     if (error) {
       // Rollback
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", form.activo_id).eq("estado", "EN_USO");
-      msg("error", "Error al crear asignación: " + (error as {message?: string})?.message || "Error desconocido");
+      flash("err", "Error al crear asignación: " + (error as {message?: string})?.message || "Error desconocido");
       setSaving(false);
       return;
     }
 
-    msg("success", "Activo asignado correctamente");
+    flash("ok", "Activo asignado correctamente");
     closeModal();
     load();
   };
@@ -156,14 +157,14 @@ export default function AsignacionPage() {
       fecha_devolucion: new Date().toISOString().split("T")[0]
     }).eq("id", id).eq("estado", "asignado").select("activo_id");
 
-    if (error) { msg("error", "Error al devolver: " + (error as {message?: string})?.message || "Error desconocido"); return; }
-    if (!rows || rows.length === 0) { msg("error", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
+    if (error) { flash("err", "Error al devolver: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (!rows || rows.length === 0) { flash("err", "Esta asignación ya fue devuelta. Recarga."); load(); return; }
 
     // Liberar activo
     if (rows[0].activo_id) {
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", rows[0].activo_id);
     }
-    msg("success", "Activo devuelto correctamente");
+    flash("ok", "Activo devuelto correctamente");
     load();
   };
 
@@ -177,24 +178,21 @@ export default function AsignacionPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/activos" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Asignación de Activos</h1>
-            <p className="text-sm text-[#7f93b0]">{asignaciones.filter(a => a.estado === "asignado").length} activos asignados</p>
-          </div>
-        </div>
-        <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30 transition-colors">
-          <Plus className="w-4 h-4" /> Asignar
-        </button>
-      </div>
+      {/* EX-4 18-Abr-2026: PageHeader canónico */}
+      <PageHeader
+        title="Asignación de Activos"
+        subtitle={`${asignaciones.filter(a => a.estado === "asignado").length} activos asignados`}
+        backHref="/dashboard/activos"
+        sticky={false}
+        actions={
+          <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2 bg-aria-accent-bg text-aria-accent rounded-lg hover:bg-aria-accent/30 transition-colors">
+            <Plus className="w-4 h-4" /> Asignar
+          </button>
+        }
+      />
 
-      {mensaje && (
-        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      {/* EX-4 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} />
 
       <div className="flex items-center gap-2 bg-white/[0.04] rounded-lg px-3 py-2 border border-white/[0.08]">
         <Search className="w-4 h-4 text-[#7f93b0]" />

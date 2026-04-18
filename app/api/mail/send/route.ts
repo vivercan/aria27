@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     if (!senderUser) {
       return NextResponse.json(
-        { error: "No autorizado â el remitente no es un usuario registrado del sistema" },
+        { error: "No autorizado — el remitente no es un usuario registrado del sistema" },
         { status: 403 }
       );
     }
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     // (previene uso como relay con credenciales ajenas)
     if (email !== senderUser.email && senderUser.role !== "admin") {
       return NextResponse.json(
-        { error: "No autorizado â solo puedes enviar desde tu propio email" },
+        { error: "No autorizado — solo puedes enviar desde tu propio email" },
         { status: 403 }
       );
     }

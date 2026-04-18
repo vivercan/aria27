@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search, X, Loader2, History, FileSpreadsheet, TrendingUp, ChevronRight } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface ReqHist {
   id: string;
@@ -69,7 +70,7 @@ export default function RequisicionesPage() {
 
   const totalFiltrado = registrosFiltrados.reduce((s, r) => s + (r.monto || 0), 0);
   const limpiarFiltros = () => setFiltros({ buscar: "", obra: "", status: "", solicitante: "", fechaInicio: "", fechaFin: "", mes: "" });
-  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatMoney = (n: number) => `${fmtMoney((n || 0))}`;
 
   const exportarExcel = async () => {
     setExportando(true);

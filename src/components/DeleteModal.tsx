@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 
 interface DeleteModalProps {
@@ -14,10 +14,28 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
   const [confirmation, setConfirmation] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  // PL43 17-Abr-2026: ESC-to-close + block body scroll mientras el modal está abierto.
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !deleting) {
+        setConfirmation("");
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open, deleting, onClose]);
+
   if (!open) return null;
 
   const handleConfirm = async () => {
-    if (confirmation !== "Borrar") return;
+    if (confirmation !== "Borrar" || deleting) return; // PL50: guard contra doble-submit
     setDeleting(true);
     await onConfirm();
     setDeleting(false);
@@ -29,6 +47,8 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)" }}
+      onClick={() => { if (!deleting) { setConfirmation(""); onClose(); } }}
+      role="presentation"
     >
       <div
         className="rounded-2xl p-6 w-[420px] max-w-[calc(100vw-2rem)] shadow-2xl"
@@ -36,6 +56,10 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
           backgroundColor: "#0c1d38",
           border: "1px solid rgba(220,38,38,0.25)",
         }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 mb-5">
           <div
@@ -45,7 +69,7 @@ export default function DeleteModal({ open, onClose, onConfirm, count = 1, itemL
             <Trash2 className="w-5 h-5" style={{ color: "#f87171" }} />
           </div>
           <div>
-            <h3 className="text-[15px] font-semibold text-white">Eliminar {itemLabel}</h3>
+            <h3 id="delete-modal-title" className="text-[15px] font-semibold text-white">Eliminar {itemLabel}</h3>
             <p className="text-xs font-medium" style={{ color: "#f87171" }}>Acción irreversible</p>
           </div>
         </div>

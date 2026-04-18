@@ -1,46 +1,46 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { useFlashMessage, type FlashMessageType, type UseFlashMessageReturn } from "@/hooks/useFlashMessage";
+import { useFlashMessage, type FlashMsg, type UseFlashMessageReturn } from "@/hooks/useFlashMessage";
 import { useEntityForm, type UseEntityFormReturn } from "@/hooks/useEntityForm";
 
 /**
- * Test hook behavior by simulating state changes
- * These tests verify pure logic without requiring @testing-library/react
+ * Test hook behavior by simulating state changes.
+ * These tests verify pure logic without requiring @testing-library/react.
+ * PL34 17-Abr-2026: useFlashMessage API unificada con tipos "ok" | "err".
  */
 
-describe("useFlashMessage", () => {
+describe("useFlashMessage (PL34 canónica)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
 
-  it("msg() sets message with tipo and texto", () => {
-    // Simulate hook behavior with state tracking
-    let message: FlashMessageType | null = null;
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+  it("flash() establece msg con tipo y texto", () => {
+    let message: FlashMsg | null = null;
+
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
     };
 
-    msg("success", "Test message");
+    flash("ok", "Test message");
 
-    expect(message).toEqual({
-      tipo: "success",
-      texto: "Test message",
-    });
+    expect(message).toEqual({ tipo: "ok", texto: "Test message" });
   });
 
-  it("msg() auto-clears message after 3 seconds", () => {
-    vi.useFakeTimers();
-    let message: FlashMessageType | null = null;
-    let timeoutId: NodeJS.Timeout | undefined;
+  it("flash() auto-limpia tras 3 segundos", () => {
+    let message: FlashMsg | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
       timeoutId = setTimeout(() => {
         message = null;
       }, 3000);
     };
 
-    msg("error", "Error occurred");
+    flash("err", "Error occurred");
     expect(message).not.toBeNull();
 
     vi.advanceTimersByTime(2999);
@@ -52,35 +52,37 @@ describe("useFlashMessage", () => {
     if (timeoutId) clearTimeout(timeoutId);
   });
 
-  it("clearMsg() immediately clears the message", () => {
-    let message: FlashMessageType | null = { tipo: "success", texto: "Test" };
+  it("clear() limpia el msg inmediatamente", () => {
+    let message: FlashMsg | null = { tipo: "ok", texto: "Test" };
 
-    const clearMsg = () => {
+    const clear = () => {
       message = null;
     };
 
-    clearMsg();
+    clear();
     expect(message).toBeNull();
   });
 
-  it("supports both 'success' and 'error' tipos", () => {
-    let message: FlashMessageType | null = null;
+  it("soporta ambos tipos 'ok' y 'err'", () => {
+    let message: FlashMsg | null = null;
 
-    const msg = (tipo: "success" | "error", texto: string) => {
+    const flash = (tipo: "ok" | "err", texto: string) => {
       message = { tipo, texto };
     };
 
-    msg("success", "Success!");
+    flash("ok", "Success!");
     expect(message).not.toBeNull();
-    expect((message as unknown as FlashMessageType).tipo).toBe("success");
+    expect((message as unknown as FlashMsg).tipo).toBe("ok");
 
-    msg("error", "Error!");
+    flash("err", "Error!");
     expect(message).not.toBeNull();
-    expect((message as unknown as FlashMessageType).tipo).toBe("error");
+    expect((message as unknown as FlashMsg).tipo).toBe("err");
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
+  it("la función useFlashMessage es exportable y UseFlashMessageReturn es tipo válido", () => {
+    expect(typeof useFlashMessage).toBe("function");
+    const r: UseFlashMessageReturn = { msg: null, flash: () => {}, clear: () => {} };
+    expect(r.msg).toBeNull();
   });
 });
 
@@ -102,10 +104,7 @@ describe("useEntityForm", () => {
   it("openNew() resets form to initial state", () => {
     let showModal = false;
     let editId: string | null = "existing-id";
-    let form: TestEntity = {
-      ...initialForm,
-      nombre: "Old Name",
-    };
+    let form: TestEntity = { ...initialForm, nombre: "Old Name" };
 
     const openNew = () => {
       form = { ...initialForm };
@@ -131,27 +130,19 @@ describe("useEntityForm", () => {
       showModal = true;
     };
 
-    openEdit("prov-123", {
-      nombre: "Proveedor ABC",
-      email: "abc@example.com",
-    });
+    openEdit("prov-123", { nombre: "Proveedor ABC", email: "abc@example.com" });
 
     expect(editId).toBe("prov-123");
     expect(showModal).toBe(true);
     expect(form.nombre).toBe("Proveedor ABC");
     expect(form.email).toBe("abc@example.com");
-    expect(form.id).toBe(""); // Untouched
+    expect(form.id).toBe("");
   });
 
   it("closeModal() clears all state", () => {
     let showModal = true;
     let editId: string | null = "edit-123";
-    let form: TestEntity = {
-      id: "123",
-      nombre: "Test",
-      email: "test@example.com",
-      telefono: "555-1234",
-    };
+    let form: TestEntity = { id: "123", nombre: "Test", email: "test@example.com", telefono: "555-1234" };
     let saving = true;
 
     const closeModal = () => {
@@ -169,32 +160,26 @@ describe("useEntityForm", () => {
     expect(saving).toBe(false);
   });
 
-  it("updateField() updates a single field in the form", () => {
+  it("updateField() updates a single field", () => {
     let form: TestEntity = { ...initialForm };
 
-    const updateField = <K extends keyof TestEntity>(
-      key: K,
-      value: TestEntity[K]
-    ) => {
+    const updateField = <K extends keyof TestEntity>(key: K, value: TestEntity[K]) => {
       form = { ...form, [key]: value };
     };
 
-    updateField("nombre", "Juan P\u00e9rez");
-    expect(form.nombre).toBe("Juan P\u00e9rez");
-    expect(form.email).toBe(""); // Other fields untouched
+    updateField("nombre", "Juan Pérez");
+    expect(form.nombre).toBe("Juan Pérez");
+    expect(form.email).toBe("");
 
     updateField("email", "juan@example.com");
-    expect(form.nombre).toBe("Juan P\u00e9rez"); // Previous value preserved
+    expect(form.nombre).toBe("Juan Pérez");
     expect(form.email).toBe("juan@example.com");
   });
 
-  it("updateField() handles multiple field updates sequentially", () => {
+  it("updateField() sequential updates", () => {
     let form: TestEntity = { ...initialForm };
 
-    const updateField = <K extends keyof TestEntity>(
-      key: K,
-      value: TestEntity[K]
-    ) => {
+    const updateField = <K extends keyof TestEntity>(key: K, value: TestEntity[K]) => {
       form = { ...form, [key]: value };
     };
 
@@ -202,15 +187,10 @@ describe("useEntityForm", () => {
     updateField("email", "test@example.com");
     updateField("telefono", "555-9999");
 
-    expect(form).toEqual({
-      id: "",
-      nombre: "Test Name",
-      email: "test@example.com",
-      telefono: "555-9999",
-    });
+    expect(form).toEqual({ id: "", nombre: "Test Name", email: "test@example.com", telefono: "555-9999" });
   });
 
-  it("modal state transitions correctly through open \u2192 update \u2192 close", () => {
+  it("modal flow open → update → close", () => {
     let showModal = false;
     let editId: string | null = null;
     let form: TestEntity = { ...initialForm };
@@ -220,46 +200,37 @@ describe("useEntityForm", () => {
       form = { ...form, ...data };
       showModal = true;
     };
-
-    const updateField = <K extends keyof TestEntity>(
-      key: K,
-      value: TestEntity[K]
-    ) => {
+    const updateField = <K extends keyof TestEntity>(key: K, value: TestEntity[K]) => {
       form = { ...form, [key]: value };
     };
-
     const closeModal = () => {
       showModal = false;
       editId = null;
       form = { ...initialForm };
     };
 
-    // Open edit
     openEdit("vendor-1", { nombre: "Initial Vendor" });
     expect(showModal).toBe(true);
     expect(form.nombre).toBe("Initial Vendor");
 
-    // Update field
     updateField("email", "vendor@example.com");
     expect(form.email).toBe("vendor@example.com");
 
-    // Close
     closeModal();
     expect(showModal).toBe(false);
     expect(form).toEqual(initialForm);
   });
 
-  it("openNew() can be called after openEdit()", () => {
-    let showModal = false;
+  it("openNew() after openEdit() resets edit context", () => {
     let editId: string | null = null;
     let form: TestEntity = { ...initialForm };
+    let showModal = false;
 
     const openEdit = (id: string, data: Partial<TestEntity>) => {
       editId = id;
       form = { ...form, ...data };
       showModal = true;
     };
-
     const openNew = () => {
       form = { ...initialForm };
       editId = null;
@@ -275,14 +246,17 @@ describe("useEntityForm", () => {
     expect(showModal).toBe(true);
   });
 
-  it("preserves form state independently for multiple entities", () => {
-    let form1: TestEntity = { ...initialForm };
-    let form2: TestEntity = { ...initialForm };
-
-    form1.nombre = "Entity 1";
-    form2.nombre = "Entity 2";
+  it("preserves form state independently", () => {
+    const form1: TestEntity = { ...initialForm, nombre: "Entity 1" };
+    const form2: TestEntity = { ...initialForm, nombre: "Entity 2" };
 
     expect(form1.nombre).toBe("Entity 1");
     expect(form2.nombre).toBe("Entity 2");
+  });
+
+  it("tipos UseEntityFormReturn y useEntityForm exportables", () => {
+    expect(typeof useEntityForm).toBe("function");
+    const shape: Partial<UseEntityFormReturn<{ x: string }>> = {};
+    expect(shape).toBeDefined();
   });
 });

@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { uploadAndInsert, buildPath, deleteRowAndBlob, extractBlobPath } from "@/lib/storage";
 import { useDropZone } from "@/lib/use-drop-zone";
 import { FolderOpen, Upload, FolderUp, Loader2, File as FileIcon, Eye, Trash2, RefreshCw, X, Check, Inbox } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 // React 19 does not include webkitdirectory in InputHTMLAttributes — augment globally
 declare module 'react' {
@@ -18,15 +19,15 @@ declare module 'react' {
  * <EntityFolder/>
  *
  * Componente reusable para administrar el expediente documental de cualquier entidad
- * (empleado, proveedor, activo, vehÃÂ­culo, obra, empresa, cliente, plantilla).
+ * (empleado, proveedor, activo, vehículo, obra, empresa, cliente, plantilla).
  *
  * Persiste en la tabla `entity_documents` (ver SQL en
  * D:\aria27\ARIA27v2\sql\entity_documents.sql) y guarda los blobs en el bucket
- * 'expedientes' bajo la convenciÃÂ³n `entity_documents/{entity_type}/{entity_id}/...`.
+ * 'expedientes' bajo la convención `entity_documents/{entity_type}/{entity_id}/...`.
  *
  * Operaciones soportadas:
  *  - Listar archivos del expediente
- *  - Subir archivo(s) nuevo(s) (upload + insert atÃÂ³mico vÃÂ­a storage helper)
+ *  - Subir archivo(s) nuevo(s) (upload + insert atómico vía storage helper)
  *  - Subir carpeta completa con subcarpetas (webkitdirectory)
  *  - Reemplazar (sube uno nuevo y borra el viejo)
  *  - Eliminar (con respaldo en deleted_records y borrado del blob)
@@ -42,7 +43,7 @@ export interface EntityFolderProps {
   accept?: string;
   /** title visible. Default: "Expediente documental" */
   title?: string;
-  /** className opcional para el contenedor raÃÂ­z */
+  /** className opcional para el contenedor raíz */
   className?: string;
 }
 
@@ -75,10 +76,10 @@ export const ENTITY_DOC_CATEGORIES_FALLBACK = [
   "INE",
   "Comprobante domicilio",
   "Contrato",
-  "OpiniÃÂ³n 32D",
+  "Opinión 32D",
   "Constancia fiscal",
   "Factura",
-  "PÃÂ³liza",
+  "Póliza",
   "Foto",
   "Otro",
 ] as const;
@@ -107,6 +108,8 @@ export default function EntityFolder({
   const [filterCat, setFilterCat] = useState<string>("");
   const [categorias, setCategorias] = useState<string[]>([...ENTITY_DOC_CATEGORIES_FALLBACK]);
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
+  // CV-07 18-Abr-2026: reemplaza confirm() nativo por ConfirmModal canónico
+  const [deleteTarget, setDeleteTarget] = useState<DocRow | null>(null);
 
   /** Process files received from drag & drop */
   const processDroppedFiles = useCallback(async (allFiles: File[]) => {
@@ -190,7 +193,7 @@ export default function EntityFolder({
       .eq("entity_id", entityId)
       .order("created_at", { ascending: false });
     if (error) {
-      // Si la tabla no existe todavÃÂ­a, mostrar mensaje claro
+      // Si la tabla no existe todavía, mostrar mensaje claro
       if ((error as {message?: string})?.message?.includes("relation") || (error as {code?: string})?.code === "42P01") {
         flash("err", "Falta crear tabla entity_documents. Ver sql/entity_documents.sql");
         setDocs([]);
@@ -253,7 +256,7 @@ export default function EntityFolder({
     let fail = 0;
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i];
-      // Extract subfolder from webkitRelativePath: "folder/sub/file.pdf" Ã¢ÂÂ "folder/sub"
+      // Extract subfolder from webkitRelativePath: "folder/sub/file.pdf" → "folder/sub"
       const relPath = file.webkitRelativePath;
       let subfolderPrefix = "";
       if (relPath) {
@@ -293,8 +296,15 @@ export default function EntityFolder({
     if (folderRef.current) folderRef.current.value = "";
   };
 
-  const eliminar = async (d: DocRow) => {
-    if (!confirm(`ÃÂ¿Eliminar "${d.nombre}" del expediente? Esta acciÃÂ³n registra respaldo en deleted_records.`)) return;
+  // CV-07 18-Abr-2026: abre ConfirmModal en lugar de confirm() nativo
+  const eliminar = (d: DocRow) => {
+    setDeleteTarget(d);
+  };
+
+  const confirmEliminar = async () => {
+    if (!deleteTarget) return;
+    const d = deleteTarget;
+    setDeleteTarget(null);
     setBusy("delete-" + d.id);
     try {
       await deleteRowAndBlob({
@@ -368,6 +378,15 @@ export default function EntityFolder({
       className={`rounded-xl bg-white/[0.03] border border-white/[0.06] ${className} relative ${dragging ? "ring-2 ring-emerald-400/60 border-emerald-400/40" : ""}`}
       {...dropHandlers}
     >
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Eliminar documento"
+        message={deleteTarget ? `¿Eliminar "${deleteTarget.nombre}" del expediente? Esta acción registra respaldo en deleted_records.` : ""}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={confirmEliminar}
+        onCancel={() => setDeleteTarget(null)}
+      />
       {/* Drag overlay */}
       {dragging && (
         <div className="absolute inset-0 z-30 bg-emerald-500/10  rounded-xl flex flex-col items-center justify-center pointer-events-none">
@@ -425,7 +444,7 @@ export default function EntityFolder({
           <div>
             <h3 className="text-sm font-semibold text-white">{title}</h3>
             <p className="text-xs text-[#4a6080]">
-              {entityType}{entityName ? ` ÃÂ· ${entityName}` : ""} ÃÂ· {docs.length} archivo{docs.length !== 1 ? "s" : ""}
+              {entityType}{entityName ? ` · ${entityName}` : ""} · {docs.length} archivo{docs.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -433,7 +452,7 @@ export default function EntityFolder({
           <select
             value={pendingCat}
             onChange={e => setPendingCat(e.target.value as EntityDocCategory)}
-            title="CategorÃÂ­a del prÃÂ³ximo archivo a subir"
+            title="Categoría del próximo archivo a subir"
             className="px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-xs"
           >
             {categorias.map(c => <option key={c} value={c}>{c}</option>)}
@@ -508,7 +527,7 @@ export default function EntityFolder({
           onChange={e => setFilterCat(e.target.value)}
           className="px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-[11px]"
         >
-          <option value="">Todas las categorÃÂ­as</option>
+          <option value="">Todas las categorías</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
@@ -530,8 +549,8 @@ export default function EntityFolder({
                   </div>
                   <p className="text-[11px] text-[#4a6080]">
                     {new Date(d.created_at).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
-                    {d.size_bytes ? ` ÃÂ· ${fmtSize(d.size_bytes)}` : ""}
-                    {d.uploaded_by ? ` ÃÂ· ${d.uploaded_by}` : ""}
+                    {d.size_bytes ? ` · ${fmtSize(d.size_bytes)}` : ""}
+                    {d.uploaded_by ? ` · ${d.uploaded_by}` : ""}
                   </p>
                 </div>
                 <a
@@ -569,8 +588,8 @@ export default function EntityFolder({
 }
 
 /**
- * <EntityFolderDrawer/> Ã¢ÂÂ wrapper que abre EntityFolder dentro de un drawer modal.
- * ÃÂtil para integrarlo desde cualquier listado sin alterar la pÃÂ¡gina entera.
+ * <EntityFolderDrawer/> — wrapper que abre EntityFolder dentro de un drawer modal.
+ * Útil para integrarlo desde cualquier listado sin alterar la página entera.
  */
 export function EntityFolderDrawer(props: EntityFolderProps & { open: boolean; onClose: () => void }) {
   const { open, onClose, ...rest } = props;
@@ -579,7 +598,7 @@ export function EntityFolderDrawer(props: EntityFolderProps & { open: boolean; o
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" onClick={onClose}>
       <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
-          <h2 className="text-lg font-bold text-white">Expediente Ã¢ÂÂ {rest.entityName || rest.entityId}</h2>
+          <h2 className="text-lg font-bold text-white">Expediente — {rest.entityName || rest.entityId}</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-white/[0.06] rounded text-[#7f93b0]">
             <X className="w-5 h-5" />
           </button>

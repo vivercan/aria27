@@ -5,6 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { Calculator, CheckCircle, Loader2, ChevronLeft, ChevronRight, Calendar, Search, Download, RefreshCw, Info } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Empleado {
   id: string;
@@ -53,7 +56,7 @@ function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
 }
 
 const fmtIso = (d: Date) => d.toISOString().split("T")[0];
-const fmtMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+// CV 18-Abr: fmtMoney importado de @/lib/formatters (canon). Local eliminado.
 const fmtFecha = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
 export default function PreNominaPage() {
@@ -62,7 +65,13 @@ export default function PreNominaPage() {
   const [loading, setLoading] = useState(true);
   const [calculando, setCalculando] = useState(false);
   const [generando, setGenerando] = useState(false);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error" | "info"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
+  // EX-3 18-Abr-2026: wrapper retrocompatible setMensaje
+  const setMensaje = (v: { tipo: "success" | "error" | "info"; texto: string } | null) => {
+    if (v === null) return; // el hook auto-limpia tras timeout
+    _flash(v.tipo === "success" ? "ok" : "err", v.texto);
+  };
   const [refDate, setRefDate] = useState<Date>(new Date());
   const [filtro, setFiltro] = useState("");
   const [modoNomina, setModoNomina] = useState<string>("ONBOARDING");
@@ -283,16 +292,8 @@ export default function PreNominaPage() {
         </div>
       </div>
 
-      {/* Mensaje */}
-      {mensaje && (
-        <div className={`p-4 rounded-xl border flex items-start gap-3 ${
-          mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" :
-          mensaje.tipo === "error" ? "bg-red-500/10 border-red-500/30 text-red-300" :
-          "bg-aria-primary/10 border-aria-primary/30 text-aria-accent"}`}>
-          <Info className="w-4 h-4 mt-0.5" />
-          <span>{mensaje.texto}</span>
-        </div>
-      )}
+      {/* EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={mensaje} />
 
       {/* Filtro */}
       <div className="flex items-center gap-3">

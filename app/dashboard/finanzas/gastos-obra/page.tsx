@@ -7,8 +7,9 @@ import { DollarSign, Search, Download, Calendar, Building2, Filter, X, Loader2, 
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Gasto {
   id: string;
@@ -97,7 +98,7 @@ export default function GastosObraPage() {
 
   const totalFiltrado = gastosFiltrados.reduce((s, g) => s + (g.monto || 0), 0);
   const limpiarFiltros = () => setFiltros({ buscar: "", obra: "", semana: "", fechaInicio: "", fechaFin: "" });
-  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatMoney = fmtMoney;
 
   const resumenObras = Object.entries(gastosFiltrados.reduce((acc, g) => {
     const obra = g.obra || "Sin asignar";

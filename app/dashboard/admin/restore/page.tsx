@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   DatabaseBackup,
   RefreshCw,
-  ChevronLeft,
   CheckCircle2,
   XCircle,
   AlertTriangle,
@@ -13,6 +11,7 @@ import {
   HardDrive,
   Server,
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const ALLOWED_EMAILS = [
   "juanviverosv@gmail.com",
@@ -41,7 +40,6 @@ interface RestoreResult {
 }
 
 export default function RestorePage() {
-  const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
 
@@ -122,12 +120,8 @@ export default function RestorePage() {
         <XCircle className="w-16 h-16 text-red-500" />
         <h2 className="text-xl font-semibold text-red-400">Acceso Denegado</h2>
         <p className="text-gray-400 text-sm">Esta sección es exclusiva del administrador principal.</p>
-        <button
-          onClick={() => router.back()}
-          className="mt-2 flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" /> Volver
-        </button>
+        {/* EX-6 18-Abr-2026: AriaBackButton canónico */}
+        <div className="mt-2"><AriaBackButton /></div>
       </div>
     );
   }
@@ -136,20 +130,15 @@ export default function RestorePage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      {/* Header */}
+      {/* Header — EX-6 18-Abr-2026: AriaBackButton canónico */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="p-2 rounded-lg hover:bg-white/[0.06] transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-400" />
-        </button>
+        <AriaBackButton />
         <div className="flex items-center gap-3">
           <div className="p-2 bg-red-500/20 rounded-lg">
             <DatabaseBackup className="w-6 h-6 text-red-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Restaurar Sistema</h1>
+            <h1 className="text-2xl font-bold text-white">Restaurar Sistema</h1>
             <p className="text-xs text-gray-400">Punto de restauración — Solo administrador principal</p>
           </div>
         </div>
@@ -183,7 +172,7 @@ export default function RestorePage() {
               <select
                 value={selectedDate}
                 onChange={(e) => { setSelectedDate(e.target.value); setConfirmed(false); setResult(null); }}
-                className="w-full bg-white/[0.06] border border-white/[0.12] border border-white/[0.12] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-aria-primary"
+                className="w-full bg-white/[0.06] border border-white/[0.12] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-aria-primary"
               >
                 {availableDates.length === 0 ? (
                   <option value="">Sin snapshots disponibles</option>

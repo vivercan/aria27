@@ -5,6 +5,8 @@ import Link from "next/link";
 import { AlertTriangle, Clock, Check, Plus, RefreshCw, Calendar, Users, CheckCircle2, Loader2 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Incompleta {
   id?: string;
@@ -22,7 +24,13 @@ export default function IncompletasPage() {
   const [sinRegistro, setSinRegistro] = useState<Incompleta[]>([]);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState<string | null>(null);
-  const [mensaje, setMensaje] = useState<{tipo: "success" | "error"; texto: string} | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
+  // EX-3 18-Abr-2026: wrapper retrocompatible setMensaje
+  const setMensaje = (v: { tipo: "success" | "error" | "info"; texto: string } | null) => {
+    if (v === null) return; // el hook auto-limpia tras timeout
+    _flash(v.tipo === "success" ? "ok" : "err", v.texto);
+  };
   const [periodo, setPeriodo] = useState<{inicio: string; fin: string} | null>(null);
   const [confirmState, setConfirmState] = useState<{open: boolean; msg: string; onOk: () => void}>({open: false, msg: "", onOk: () => {}});
   const closeConfirm = () => setConfirmState(s => ({...s, open: false}));
@@ -189,11 +197,7 @@ export default function IncompletasPage() {
       </div>
 
       {/* Mensaje */}
-      {mensaje && (
-        <div className={`p-4 rounded-xl border ${mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       {/* Resumen */}
       <div className="grid grid-cols-3 gap-4">

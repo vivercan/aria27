@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface CentroDeTrabajo {
   id: string;
@@ -148,9 +149,9 @@ export default function CosteoPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Presupuesto Total", value: `$${totalPresupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Costo Real", value: `$${totalReal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
-          { label: "Diferencia", value: `$${totalDiferencia.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
+          { label: "Presupuesto Total", value: fmtMoney(totalPresupuesto), icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
+          { label: "Costo Real", value: fmtMoney(totalReal), icon: DollarSign, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Diferencia", value: fmtMoney(totalDiferencia), icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
           { label: "Obras", value: obras.length, icon: HardHat, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -191,14 +192,14 @@ export default function CosteoPage() {
               ) : filtered.map(o => (
                 <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${o.porcentaje > 100 ? "bg-red-500/[0.03]" : ""}`}>
                   <td className="p-3 text-white font-medium">{o.obra}</td>
-                  <td className="p-3 text-right text-[#c9d8ed]">${o.presupuesto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-aria-accent">${o.materiales.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-violet-400">${o.mano_obra.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-aria-accent">${o.subcontratos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-[#7f93b0]">${o.indirectos.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-white font-medium">${o.total_real.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-[#c9d8ed]">{fmtMoney(o.presupuesto)}</td>
+                  <td className="p-3 text-right text-aria-accent">{fmtMoney(o.materiales)}</td>
+                  <td className="p-3 text-right text-violet-400">{fmtMoney(o.mano_obra)}</td>
+                  <td className="p-3 text-right text-aria-accent">{fmtMoney(o.subcontratos)}</td>
+                  <td className="p-3 text-right text-[#7f93b0]">{fmtMoney(o.indirectos)}</td>
+                  <td className="p-3 text-right text-white font-medium">{fmtMoney(o.total_real)}</td>
                   <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                    {o.diferencia >= 0 ? "+" : "-"}${Math.abs(o.diferencia).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                    {o.diferencia >= 0 ? "+" : "-"}{fmtMoney(Math.abs(o.diferencia))}
                   </td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">

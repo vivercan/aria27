@@ -4,8 +4,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmt = (n: number) => fmtMoney(n, { noDecimals: true });
 
 interface CobroRow {
   cliente_nombre: string | null;

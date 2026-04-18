@@ -1,45 +1,65 @@
-import { useState, useCallback } from 'react';
-
 /**
- * Flash message type definition
+ * useFlashMessage — Hook canónico de flash messages para ARIA27.
+ * PL34 17-Abr-2026: consolidación. Antes existían dos hooks con el mismo nombre
+ * y APIs distintas ("success"/"error" en src/hooks vs "ok"/"err" en src/lib).
+ * La API "ok"/"err" era la dominante (48 archivos vs 4), por lo que queda canónica.
+ *
+ * Uso:
+ *   import { useFlashMessage } from "@/hooks/useFlashMessage";
+ *   const { msg, flash, clear } = useFlashMessage();
+ *   flash("ok", "Guardado correctamente");
+ *   flash("err", "Error: " + e.message);
+ *
+ *   {msg && <FlashBanner msg={msg} />}
  */
-export type FlashMessageType = {
-  tipo: 'success' | 'error';
+"use client";
+import { useState, useCallback, useRef, useEffect } from "react";
+
+export type FlashTipo = "ok" | "err";
+
+export interface FlashMsg {
+  tipo: FlashTipo;
   texto: string;
-};
-
-/**
- * Hook return type for useFlashMessage
- */
-export type UseFlashMessageReturn = {
-  mensaje: FlashMessageType | null;
-  msg: (tipo: 'success' | 'error', texto: string) => void;
-  clearMsg: () => void;
-};
-
-/**
- * useFlashMessage Hook
- *
- * A simple flash message hook used across the ARIA27 ERP application.
- * Displays temporary success/error messages that auto-dismiss after 3 seconds.
- *
- * @returns {UseFlashMessageReturn} Object containing:
- *   - mensaje: Current message state (null when no message)
- *   - msg: Function to set and display a message
- *   - clearMsg: Function to immediately clear the message
- */
-export function useFlashMessage(): UseFlashMessageReturn {
-  const [mensaje, setMensaje] = useState<FlashMessageType | null>(null);
-
-  const msg = useCallback((tipo: 'success' | 'error', texto: string) => {
-    setMensaje({ tipo, texto });
-    const timer = setTimeout(() => setMensaje(null), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const clearMsg = useCallback(() => {
-    setMensaje(null);
-  }, []);
-
-  return { mensaje, msg, clearMsg };
 }
+
+export interface UseFlashMessageReturn {
+  msg: FlashMsg | null;
+  flash: (tipo: FlashTipo, texto: string) => void;
+  clear: () => void;
+}
+
+export function useFlashMessage(timeout = 3000): UseFlashMessageReturn {
+  const [msg, setMsg] = useState<FlashMsg | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clear = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    setMsg(null);
+  }, []);
+
+  const flash = useCallback(
+    (tipo: FlashTipo, texto: string) => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setMsg({ tipo, texto });
+      timerRef.current = setTimeout(() => {
+        setMsg(null);
+        timerRef.current = null;
+      }, timeout);
+    },
+    [timeout]
+  );
+
+  // Cleanup al desmontar
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  return { msg, flash, clear };
+}
+
+export default useFlashMessage;

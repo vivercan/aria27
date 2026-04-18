@@ -15,8 +15,10 @@ type ModuleItem = {
   hero?: boolean;
 };
 
-const AMBER = "#FFD074";
-const ROSE  = "#FF7D74";
+// PL40 17-Abr-2026: tokens arcade (#FFD074, #FF7D74) reemplazados por paleta
+// canónica ARIA27 UI Polish 16-Abr. AMBER → cyan, ROSE → soft-blue.
+const AMBER = "#67E8F9";
+const ROSE  = "#94B4D8";
 
 const grupos: { label: string; modulos: ModuleItem[] }[] = [
   {

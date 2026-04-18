@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import EmptyState from "@/components/ui/EmptyState";
 import AriaBackButton from "@/components/AriaBackButton";
 
 type Req = {
@@ -232,17 +233,17 @@ export default function ComprasPickingPage() {
         <div className="flex items-center gap-3 mb-4">
           <AriaBackButton href="/dashboard/requisiciones" />
           <div>
-            <h1 className="text-xl font-bold text-white">Autorizar Compras</h1>
+            <h1 className="text-2xl font-bold text-white">Autorizar Compras</h1>
             <p className="text-[#7f93b0] text-sm">{reqs.length} requisiciones pendientes</p>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-3">
           {reqs.length === 0 ? (
-            <div className="text-center py-20">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3 opacity-50" />
-              <p className="text-[#7f93b0]">No hay comparativas pendientes</p>
-            </div>
+            <EmptyState
+              icon={<CheckCircle2 className="w-6 h-6 text-emerald-400" />}
+              title="No hay comparativas pendientes"
+            />
           ) : reqs.map(req => (
             <button key={req.id} onClick={() => selectReq(req)}
               className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all text-left group">

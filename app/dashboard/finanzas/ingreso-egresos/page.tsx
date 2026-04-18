@@ -7,6 +7,7 @@ import {
   DollarSign, Filter, Calendar
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Gasto {
   id: string;
@@ -62,7 +63,7 @@ export default function IngresoEgresosPage() {
   const totalEgresos = gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
   const balance = totalIngresos - totalEgresos;
 
-  const fmt = (n: number) => `$${Math.abs(n).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const fmt = (n: number) => fmtMoney(Math.abs(n));
 
   const mesLabel = () => {
     const [y, m] = periodo.split("-");
@@ -77,7 +78,7 @@ export default function IngresoEgresosPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/finanzas" />
           <div>
-            <h1 className="text-xl font-bold text-white">Ingreso - Egresos</h1>
+            <h1 className="text-2xl font-bold text-white">Ingreso - Egresos</h1>
             <p className="text-xs text-[#7f93b0] capitalize">{mesLabel()}</p>
           </div>
         </div>

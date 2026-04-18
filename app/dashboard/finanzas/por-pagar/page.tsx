@@ -6,7 +6,8 @@ import { registrarPagoOC } from "@/lib/finanzas-payments";
 import { DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { fmtMoney } from "@/lib/formatters";
 
 interface CuentaPorPagar {
   id: string;
@@ -192,9 +193,9 @@ export default function PorPagarPage() {
                     <td className="p-3 text-white font-mono text-xs">{c.folio}</td>
                     <td className="p-3 text-white">{c.supplier_name}</td>
                     <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
-                    <td className="p-3 text-right text-[#c9d8ed]">${(c.total || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                    <td className="p-3 text-right text-emerald-400">${(c.monto_pagado || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                    <td className="p-3 text-right text-white font-medium">${c.saldo.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 text-right text-[#c9d8ed]">{fmtMoney(c.total)}</td>
+                    <td className="p-3 text-right text-emerald-400">{fmtMoney(c.monto_pagado)}</td>
+                    <td className="p-3 text-right text-white font-medium">{fmtMoney(c.saldo)}</td>
                     <td className="p-3 text-center text-xs text-[#7f93b0]">
                       {new Date(c.fecha_vencimiento).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
                     </td>

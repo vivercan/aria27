@@ -23,9 +23,11 @@ type ModuleItem = {
   hero?: boolean;
 };
 
+// PL40 17-Abr-2026: paleta canónica ARIA27 UI Polish.
+// Arcade ROSE #FF7D74 reemplazado por soft-blue #94B4D8 (consistente con 03_VISUAL).
 const BLUE    = "#7BB6FF";
 const CYAN    = "#46D4FF";
-const ROSE    = "#FF7D74";
+const ROSE    = "#94B4D8";
 const EMERALD = "#3AD8B1";
 
 const grupos: { label: string; modulos: ModuleItem[] }[] = [

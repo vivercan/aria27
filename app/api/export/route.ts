@@ -4,6 +4,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { fmtMoney } from "@/lib/formatters";
 const log = logger("EXPORT");
 
 const supabase = getSupabaseAdmin();
@@ -239,7 +240,7 @@ export async function POST(req: NextRequest) {
 
       sheetDetalle.mergeCells("A2:F2");
       const totalFiltrado = filteredData.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
-      sheetDetalle.getCell("A2").value = `${filteredData.length} registros | Total: $${totalFiltrado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+      sheetDetalle.getCell("A2").value = `${filteredData.length} registros | Total: ${fmtMoney(totalFiltrado)}`;
       sheetDetalle.getCell("A2").alignment = { horizontal: "center" };
 
       const headersDetalle = ["Sem", "Nombre", "Puesto", "Sal.Mensual", "Sal.Semanal", "Sueldo Total"];
@@ -350,7 +351,7 @@ export async function POST(req: NextRequest) {
         const totalSem = datosSem.reduce((s, r) => s + (Number(r.sueldo_total) || 0), 0);
         
         sheetSem.mergeCells("A1:D1");
-        sheetSem.getCell("A1").value = `SEMANA ${sem} - ${datosSem.length} empleados - Total: $${totalSem.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+        sheetSem.getCell("A1").value = `SEMANA ${sem} - ${datosSem.length} empleados - Total: ${fmtMoney(totalSem)}`;
         sheetSem.getCell("A1").font = { size: 14, bold: true, color: { argb: "FFFFFF" } };
         sheetSem.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "EC4899" } };
         sheetSem.getCell("A1").alignment = { horizontal: "center", vertical: "middle" };
@@ -411,7 +412,7 @@ export async function POST(req: NextRequest) {
         
         // Info del empleado
         sheetEmpInd.mergeCells("A2:E2");
-        sheetEmpInd.getCell("A2").value = `${puesto} | ${datosEmp.length} semanas trabajadas | Total acumulado: ${totalEmp.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+        sheetEmpInd.getCell("A2").value = `${puesto} | ${datosEmp.length} semanas trabajadas | Total acumulado: ${fmtMoney(totalEmp)}`;
         sheetEmpInd.getCell("A2").font = { italic: true };
         sheetEmpInd.getCell("A2").alignment = { horizontal: "center" };
         

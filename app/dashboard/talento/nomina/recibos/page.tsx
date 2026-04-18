@@ -9,6 +9,9 @@ import {
   CreditCard, Banknote, Lock, Unlock, Loader2, ChevronLeft, ChevronRight, Calendar, Search
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface PersonalBankInfo {
   id: string;
@@ -65,7 +68,7 @@ function getWeekRange(date: Date): { inicio: Date; fin: Date; semana: number } {
 }
 
 const fmtIso = (d: Date) => d.toISOString().split("T")[0];
-const fmtMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+// CV 18-Abr: fmtMoney importado de @/lib/formatters (canon). Local eliminado.
 const fmtFecha = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
 const fmtFechaCorta = (s: string) => new Date(s + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" });
 
@@ -81,7 +84,13 @@ export default function RecibosNominaPage() {
   const [nominaStatus, setNominaStatus] = useState<"GENERADA" | "CONFIRMADA">("GENERADA");
   const [filtro, setFiltro] = useState("");
   const [exportando, setExportando] = useState(false);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
+  // EX-3 18-Abr-2026: wrapper retrocompatible setMensaje
+  const setMensaje = (v: { tipo: "success" | "error" | "info"; texto: string } | null) => {
+    if (v === null) return; // el hook auto-limpia tras timeout
+    _flash(v.tipo === "success" ? "ok" : "err", v.texto);
+  };
   const [confirmState, setConfirmState] = useState<{open: boolean; msg: string; title: string; onOk: () => void; variant?: "warning"|"danger"}>({open: false, msg: "", title: "", onOk: () => {}, variant: "warning"});
   const closeConfirm = () => setConfirmState(s => ({...s, open: false}));
 
@@ -483,9 +492,7 @@ export default function RecibosNominaPage() {
           </div>
         </div>
 
-        {mensaje && (
-          <div className={`p-3 rounded-xl border text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>{mensaje.texto}</div>
-        )}
+        <FlashBanner msg={mensaje} />
 
         {nominas.length > 0 && (
           <>

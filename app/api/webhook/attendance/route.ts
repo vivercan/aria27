@@ -14,7 +14,10 @@ const db = getSupabaseAdmin();
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const PHONE_ID = process.env.WHATSAPP_PHONE_ID;
-const VERIFY_TOKEN = "aria27_webhook_token";
+// PL25: verify token desde env — permite rotación sin redeploy.
+// Fallback al literal histórico sólo si la env var no está configurada todavía
+// (evita romper producción durante rollout). Quitar fallback tras confirmar env var en Vercel.
+const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_ATTENDANCE || "aria27_webhook_token";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_PHONE || "5218112392266";
 

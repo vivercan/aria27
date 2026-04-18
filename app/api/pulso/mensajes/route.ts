@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // AUTH: Verificar que el sender_email es un usuario real del sistema
     if (!(await verifyUser(sender_email))) {
       return NextResponse.json(
-        { error: "No autorizado â sender_email no es un usuario registrado" },
+        { error: "No autorizado — sender_email no es un usuario registrado" },
         { status: 403 }
       );
     }

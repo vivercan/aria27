@@ -14,7 +14,7 @@ import {
   Banknote, Receipt, Truck
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 type ReqItem = {
@@ -304,7 +304,7 @@ function CapturarContent() {
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones/tramite" />
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Capturar Cotizaciones</h1>
+          <h1 className="text-2xl font-bold text-white">Capturar Cotizaciones</h1>
           <p className="text-[#7f93b0] text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
         </div>
         <div className="text-right">

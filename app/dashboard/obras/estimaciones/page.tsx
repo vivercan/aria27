@@ -6,7 +6,7 @@ import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { Plus, Search, DollarSign, TrendingUp, CheckCircle2, Clock, Printer, AlertTriangle, Loader2, X } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Estimacion {
   id: string;

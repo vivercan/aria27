@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useCallback } from "react";
 
-/* ââ FileSystem API types (non-standard, drag & drop folder support) ââ */
+/* ── FileSystem API types (non-standard, drag & drop folder support) ── */
 interface FSEntry {
   isFile: boolean;
   isDirectory: boolean;
@@ -21,23 +21,23 @@ interface FSDirReader {
   ): void;
 }
 
-/* ââ Progress state ââ */
+/* ── Progress state ── */
 export interface DropProgress {
   phase: "scanning" | "uploading";
   current: number;
   total: number;
 }
 
-/* ââ Constantes ââ */
-const MAX_TOTAL_BYTES = 500 * 1024 * 1024; // 500 MB mÃ¡ximo por drop
+/* ── Constantes ── */
+const MAX_TOTAL_BYTES = 500 * 1024 * 1024; // 500 MB máximo por drop
 const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB por archivo individual
 
-/* ââ Helpers ââ */
+/* ── Helpers ── */
 
 /**
  * Recursively read all files from a dropped FileSystemEntry tree.
- * v2: usa recursiÃ³n SECUENCIAL en vez de Promise.all para no crear
- * miles de promesas simultÃ¡neas que revientan el event loop.
+ * v2: usa recursión SECUENCIAL en vez de Promise.all para no crear
+ * miles de promesas simultáneas que revientan el event loop.
  */
 async function readEntryRecursive(entry: FSEntry): Promise<File[]> {
   if (entry.isFile) {
@@ -88,9 +88,9 @@ async function readEntryRecursive(entry: FSEntry): Promise<File[]> {
 }
 
 /**
- * useDropZone â hook reutilizable para drag & drop de archivos y carpetas.
+ * useDropZone — hook reutilizable para drag & drop de archivos y carpetas.
  *
- * v2: RecursiÃ³n secuencial + validaciÃ³n de tamaÃ±o + indicador de progreso.
+ * v2: Recursión secuencial + validación de tamaño + indicador de progreso.
  * Soporta carpetas pesadas (365MB+) sin crashear el navegador.
  *
  * @param onFilesDropped callback que recibe File[] con webkitRelativePath seteado
@@ -155,7 +155,7 @@ export function useDropZone(
         for (const top of topEntries) {
           const files = await readEntryRecursive(top);
           for (const file of files) {
-            // Validar tamaÃ±o individual
+            // Validar tamaño individual
             if (file.size > MAX_FILE_BYTES) continue;
             // Validar acumulado
             if (totalBytes + file.size > MAX_TOTAL_BYTES) continue;

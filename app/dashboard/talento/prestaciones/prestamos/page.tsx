@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, DollarSign, Calendar, User, X, Loader2, Wallet, TrendingDown } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Prestamo {
   id: string;
@@ -88,7 +89,7 @@ export default function PrestamosPage() {
     cargarDatos();
   };
 
-  const formatMoney = (n: number) => `$${n.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatMoney = (n: number) => `${fmtMoney(n)}`;
 
   return (
     <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">

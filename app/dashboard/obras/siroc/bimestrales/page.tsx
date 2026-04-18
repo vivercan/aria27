@@ -2,12 +2,13 @@
 import { clientLogger } from "@/lib/client-logger";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Plus, Save, Loader2, Calendar, Trash2, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Bimestre {
   id: string;
@@ -143,7 +144,7 @@ export default function SirocBimestralesPage() {
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras/siroc/registros" />
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Calendar className="w-8 h-8 text-amber-400" />SIROC · Reportes Bimestrales</h1>
           <p className="text-[#7f93b0] mt-1">Avance financiero bimestral · plazo 17 días naturales de ene/mar/may/jul/sep/nov.</p>
         </div>
         <button onClick={() => { setForm(EMPTY); setShowForm(true); }}
@@ -197,8 +198,8 @@ export default function SirocBimestralesPage() {
                     <td className="p-3 text-[#c9d8ed] font-mono">{b.numero_siroc}</td>
                     <td className="p-3 text-[#c9d8ed]">{b.anio}</td>
                     <td className="p-3 text-[#c9d8ed]">{BIMESTRES.find(x => x.code === b.bimestre)?.label || b.bimestre}</td>
-                    <td className="p-3 text-right text-white">${(Number(b.monto_ejercido_periodo) || 0).toLocaleString("es-MX")}</td>
-                    <td className="p-3 text-right text-aria-accent">${(Number(b.monto_ejercido_acumulado) || 0).toLocaleString("es-MX")}</td>
+                    <td className="p-3 text-right text-white">{fmtMoney(Number(b.monto_ejercido_periodo), { noDecimals: true })}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmtMoney(Number(b.monto_ejercido_acumulado), { noDecimals: true })}</td>
                     <td className="p-3 text-center text-[#c9d8ed]">{b.trabajadores_promedio}</td>
                     <td className="p-3 text-[#c9d8ed]">{b.fecha_reporte ? new Date(b.fecha_reporte).toLocaleDateString("es-MX") : "—"}</td>
                     <td className={`p-3 ${vencido ? "text-rose-400 font-bold" : "text-[#c9d8ed]"}`}>{b.plazo_limite ? new Date(b.plazo_limite).toLocaleDateString("es-MX") : "—"}</td>

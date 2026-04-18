@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { FileText, Search, Download, User, Edit2, Save, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Empleado {

@@ -51,113 +51,41 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse(rl);
     }
 
-    log.info("delete-start", { user: userData.name, email: userEmail, role: userData.role, count: requisitionIds.length });
+    log.info("delete-start", { user: userData.name, role: userData.role, count: requisitionIds.length });
 
-    // ── Backup + Delete por cada requisición ───────────────
+    // ── PL06 17-Abr-2026: delete atómico vía RPC delete_requisition_cascade
+    //    Transacción única: lock + backup + cascade delete. Si algo falla,
+    //    ROLLBACK automático y el registro queda como estaba.
+    //    Requiere migración sql/pl06-pl07-atomic-rpcs.sql aplicada en Supabase.
     let deletedCount = 0;
     const errors: string[] = [];
 
     for (const reqId of requisitionIds) {
       try {
-        // 1. Obtener datos completos de la requisición
-        const { data: reqData } = await supabase
-          .from("requisitions")
-          .select("*")
-          .eq("id", reqId)
-          .single();
-
-        if (!reqData) {
-          errors.push(`Requisición ${reqId} no encontrada`);
-          continue;
-        }
-
-        // 2. Obtener items relacionados
-        const { data: itemsData } = await supabase
-          .from("requisition_items")
-          .select("*")
-          .eq("requisition_id", reqId);
-
-        // 3. Obtener cotizaciones de items
-        const itemIds = (itemsData || []).map((i: { id: string }) => i.id);
-        let quotesData: unknown[] = [];
-        if (itemIds.length > 0) {
-          const { data: qData } = await supabase
-            .from("requisition_item_quotes")
-            .select("*")
-            .in("requisition_item_id", itemIds);
-          quotesData = qData || [];
-        }
-
-        // 4. Obtener OCs relacionadas
-        const { data: posData } = await supabase
-          .from("purchase_orders")
-          .select("*")
-          .eq("requisition_id", reqId);
-
-        // 5. Obtener entregas relacionadas
-        const { data: entregasData } = await supabase
-          .from("entregas")
-          .select("*")
-          .eq("requisition_id", reqId);
-
-        // 6. Guardar backup completo en deleted_records
-        const { error: backupError } = await supabase.from("deleted_records").insert({
-          source_table: "requisitions",
-          source_id: reqId,
-          data: reqData,
-          related_data: {
-            items: itemsData || [],
-            item_quotes: quotesData,
-            purchase_orders: posData || [],
-            entregas: entregasData || [],
-          },
-          deleted_by: userEmail,
-          restore_notes: `Folio: ${reqData.folio || "N/A"} | Obra: ${reqData.cost_center_name || "N/A"} | Solicitante: ${reqData.created_by || "N/A"} | Status: ${reqData.status || "N/A"}`,
+        const { data: result, error: rpcError } = await supabase.rpc("delete_requisition_cascade", {
+          p_req_id: reqId,
+          p_deleted_by: userEmail,
         });
 
-        if (backupError) {
-          log.error("backup-fail", { reqId, error: backupError?.message });
-          errors.push(`Error al respaldar ${reqData.folio || reqId}`);
+        if (rpcError) {
+          log.error("rpc-fail", { reqId, error: rpcError.message });
+          errors.push(`Error RPC en ${reqId}: ${rpcError.message}`);
           continue;
         }
 
-        // 7. Eliminar en orden: nietos → hijos → padre
-        // 7a. Eliminar entregas
-        if (entregasData && entregasData.length > 0) {
-          const { error: delEntregas } = await supabase.from("entregas").delete().eq("requisition_id", reqId);
-          if (delEntregas) { log.error("delete-entregas-fail", { reqId, error: delEntregas.message }); errors.push(`Error eliminando entregas de ${reqData.folio || reqId}`); continue; }
-        }
-
-        // 7b. Eliminar cotizaciones de items
-        if (itemIds.length > 0) {
-          const { error: delQuotes } = await supabase.from("requisition_item_quotes").delete().in("requisition_item_id", itemIds);
-          if (delQuotes) { log.error("delete-quotes-fail", { reqId, error: delQuotes.message }); errors.push(`Error eliminando cotizaciones de ${reqData.folio || reqId}`); continue; }
-        }
-
-        // 7c. Eliminar OCs
-        if (posData && posData.length > 0) {
-          const { error: delPOs } = await supabase.from("purchase_orders").delete().eq("requisition_id", reqId);
-          if (delPOs) { log.error("delete-pos-fail", { reqId, error: delPOs.message }); errors.push(`Error eliminando OCs de ${reqData.folio || reqId}`); continue; }
-        }
-
-        // 7d. Eliminar items
-        const { error: delItems } = await supabase.from("requisition_items").delete().eq("requisition_id", reqId);
-        if (delItems) { log.error("delete-items-fail", { reqId, error: delItems.message }); errors.push(`Error eliminando items de ${reqData.folio || reqId}`); continue; }
-
-        // 7e. Eliminar requisición
-        const { error: deleteError } = await supabase
-          .from("requisitions")
-          .delete()
-          .eq("id", reqId);
-
-        if (deleteError) {
-          log.error("delete-fail", { reqId, error: deleteError?.message });
-          errors.push(`Error al eliminar ${reqData.folio || reqId}`);
+        const r = result as { ok?: boolean; folio?: string; error?: string; code?: string } | null;
+        if (!r || r.ok !== true) {
+          if (r?.error === "not_found") {
+            errors.push(`Requisición ${reqId} no encontrada`);
+          } else {
+            log.error("rpc-rollback", { reqId, error: r?.error, code: r?.code });
+            errors.push(`Error al eliminar ${reqId}: ${r?.error || "desconocido"}`);
+          }
           continue;
         }
 
         deletedCount++;
-        log.info("deleted", { folio: reqData.folio, reqId });
+        log.info("deleted", { folio: r.folio, reqId });
       } catch (err: unknown) {
         log.error("unexpected", { reqId, error: String(err) });
         errors.push(`Error inesperado en ${reqId}`);

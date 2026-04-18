@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Building2 , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Contrato {
   id: string;

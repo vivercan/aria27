@@ -11,7 +11,9 @@ const log = logger("WEBHOOK-OC-FOTO");
 const db = getSupabaseAdmin();
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const VERIFY_TOKEN = "aria27_oc_foto_verify";
+// PL25: verify token desde env — permite rotación sin redeploy.
+// Fallback al literal histórico sólo si la env var no está configurada todavía.
+const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_OC_FOTO || "aria27_oc_foto_verify";
 
 async function sendWhatsApp(phone: string, message: string) {
   await sendWhatsAppText(phone, message, { origen: "webhook-oc-foto", enviadoPor: "system" });

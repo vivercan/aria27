@@ -92,11 +92,11 @@ function generarHTMLOC(data: OCPrintData): string {
       <div class="info-row"><span class="info-label">Obra:</span><span class="info-value">${data.obraNombre}</span></div>
       <div class="info-row"><span class="info-label">Forma de Pago:</span><span class="info-value">${data.formaPago || "Transferencia"}</span></div>
       <div class="info-row"><span class="info-label">Condiciones:</span><span class="info-value">${data.diasCredito > 0 ? data.diasCredito + " dias credito" : "Contado"}</span></div>
-      ${data.requisicionFolio ? `<div class="info-row"><span class="info-label">Requisicion:</span><span class="info-value">${data.requisicionFolio}</span></div>` : ""}
+      ${data.requisicionFolio ? `<div class="info-row"><span class="info-label">Requisición:</span><span class="info-value">${data.requisicionFolio}</span></div>` : ""}
     </div>
   </div>
   <table>
-    <thead><tr><th style="width:40px">#</th><th>Descripcion</th><th style="width:70px;text-align:center">Cantidad</th><th style="width:60px;text-align:center">Unidad</th><th style="width:100px;text-align:right">P. Unitario</th><th style="width:100px;text-align:right">Importe</th></tr></thead>
+    <thead><tr><th style="width:40px">#</th><th>Descripción</th><th style="width:70px;text-align:center">Cantidad</th><th style="width:60px;text-align:center">Unidad</th><th style="width:100px;text-align:right">P. Unitario</th><th style="width:100px;text-align:right">Importe</th></tr></thead>
     <tbody>${materialesRows}</tbody>
   </table>
   <table class="totals">
@@ -106,9 +106,9 @@ function generarHTMLOC(data: OCPrintData): string {
   </table>
   <div class="notes"><strong>NOTAS IMPORTANTES:</strong><br>- Favor de enviar factura a: administracion@gcuavante.com<br>- Entregar en obra: ${data.obraNombre}<br>- Incluir copia de esta orden con el material</div>
   <div class="footer">
-    <div class="firma"><div class="firma-line">Elaboro</div><div style="font-size:9px;color:#666">Depto. Compras</div></div>
-    <div class="firma"><div class="firma-line">Autorizo</div><div style="font-size:9px;color:#666">Direccion General</div></div>
-    <div class="firma"><div class="firma-line">Recibio Proveedor</div><div style="font-size:9px;color:#666">Nombre y Firma</div></div>
+    <div class="firma"><div class="firma-line">Elaboró</div><div style="font-size:9px;color:#666">Depto. Compras</div></div>
+    <div class="firma"><div class="firma-line">Autorizó</div><div style="font-size:9px;color:#666">Dirección General</div></div>
+    <div class="firma"><div class="firma-line">Recibió Proveedor</div><div style="font-size:9px;color:#666">Nombre y Firma</div></div>
   </div>
 </body>
 </html>`;

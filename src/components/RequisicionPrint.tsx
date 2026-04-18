@@ -185,7 +185,7 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
         <div class="field-row-right"><span class="field-label-right">PROVEEDOR:</span><span class="field-value-right">${proveedor?.nombre || ''}</span></div>
         <div class="field-row-right"><span class="field-label-right">NOMBRE DE CUENTA:</span><span class="field-value-right">${proveedor?.nombre_cuenta || proveedor?.nombre || ''}</span></div>
         <div class="field-row-right"><span class="field-label-right">BANCO:</span><span class="field-value-right">${proveedor?.banco || ''}</span></div>
-        <div class="field-row-right"><span class="field-label-right">NUMERO DE CUENTA:</span><span class="field-value-right">${proveedor?.numero_cuenta || ''}</span></div>
+        <div class="field-row-right"><span class="field-label-right">NÚMERO DE CUENTA:</span><span class="field-value-right">${proveedor?.numero_cuenta || ''}</span></div>
         <div class="field-row-right"><span class="field-label-right">CLABE INTERBANCARIA:</span><span class="field-value-right">${proveedor?.clabe || ''}</span></div>
         <div class="field-row-right"><span class="field-label-right">TIPO DE PAGO:</span><span class="field-value-right">${tipo_pago || 'ANTICIPADO'}</span></div>
         <div class="field-row-right"><span class="field-label-right">STATUS:</span><span class="field-value-right">${status || '0'}</span></div>

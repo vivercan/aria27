@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { BookOpen, Loader2, CheckCircle2, Clock, MessageSquare, Plus, Trash2, X, Save } from "lucide-react";
 import Link from "next/link";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Recordatorio {

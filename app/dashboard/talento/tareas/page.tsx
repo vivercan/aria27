@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Tarea {
@@ -220,7 +220,7 @@ export default function TareasTalentoPage() {
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/talento" />
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <ClipboardList className="w-8 h-8 text-fuchsia-400" />
             Tareas Asignadas
           </h1>

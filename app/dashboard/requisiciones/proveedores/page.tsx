@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface Supplier {

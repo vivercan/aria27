@@ -33,11 +33,16 @@ describe("verifyWebhookSignature", () => {
     expect(verifyWebhookSignature("body", null)).toBe(false);
   });
 
-  it("acepta en grace mode cuando META_APP_SECRET no está configurado", () => {
+  it("fail-closed: rechaza cuando META_APP_SECRET no está configurado (PL05)", () => {
+    // Decisión 17-Abr-2026: seguridad > conveniencia.
+    // Si el secret falta, no podemos validar firmas → rechazamos.
+    // El handler puede usar verifyWebhookUrlToken(?token=...) como fallback autenticado.
     delete process.env.META_APP_SECRET;
-    const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    expect(verifyWebhookSignature("body", null)).toBe(true);
-    expect(spy).toHaveBeenCalledTimes(1);
+    // El logger usa console.error internamente; lo silenciamos para que no contamine salida.
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(verifyWebhookSignature("body", "sha256=anything")).toBe(false);
+    expect(verifyWebhookSignature("body", null)).toBe(false);
+    spy.mockRestore();
   });
 
   it("funciona con Buffer como rawBody", () => {

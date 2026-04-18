@@ -9,7 +9,8 @@ import { supabase } from "@/lib/supabase";
 import { Plus, Search, Truck, Wrench, Package, Edit2, Trash2, Users, Settings, Calendar, AlertTriangle, Check, Loader2, FolderOpen } from "lucide-react";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
-import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import PageHeader from "@/components/ui/PageHeader";
 
 interface Activo {
   id: string;
@@ -61,7 +62,7 @@ export default function ActivosCatalogoPage() {
   const log = clientLogger("CATALOGO");
   const [tab, setTab] = useState<"inventario" | "asignaciones" | "mantenimiento">("inventario");
   const { userEmail, canDelete } = useDeletePermission();
-  const { mensaje, msg } = useFlashMessage();
+  const { msg, flash } = useFlashMessage();
   const [deleteModal, setDeleteModal] = useState<{open:boolean;id:string;name:string}>
     ({open:false,id:"",name:""});
   const [activos, setActivos] = useState<Activo[]>([]);
@@ -223,9 +224,9 @@ export default function ActivosCatalogoPage() {
       .eq("id", formAsignacion.activo_id)
       .eq("estado", "DISPONIBLE")
       .select("id");
-    if (lockErr) { msg("error", "Error al reservar activo: " + lockErr.message); return; }
+    if (lockErr) { flash("err", "Error al reservar activo: " + lockErr.message); return; }
     if (!lockRows || lockRows.length === 0) {
-      msg("error", "Este activo ya no está DISPONIBLE. Recarga.");
+      flash("err", "Este activo ya no está DISPONIBLE. Recarga.");
       cargarDatos();
       return;
     }
@@ -234,7 +235,7 @@ export default function ActivosCatalogoPage() {
     if (insertError) {
       // Rollback: liberar activo
       await supabase.from("activos").update({ estado: "DISPONIBLE" }).eq("id", formAsignacion.activo_id).eq("estado", "EN_USO");
-      msg("error", "Error al crear asignación: " + insertError.message);
+      flash("err", "Error al crear asignación: " + insertError.message);
       return;
     }
 
@@ -330,16 +331,13 @@ export default function ActivosCatalogoPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/activos" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Gestión de Activos</h1>
-            <p className="text-[#7f93b0] text-sm">{activos.length} activos • {asignaciones.length} asignados • {proximosMantenimientos.length} mantenimientos próximos</p>
-          </div>
-        </div>
-      </div>
+      {/* EX-4 18-Abr-2026: PageHeader canónico */}
+      <PageHeader
+        title="Gestión de Activos"
+        subtitle={`${activos.length} activos · ${asignaciones.length} asignados · ${proximosMantenimientos.length} mantenimientos próximos`}
+        backHref="/dashboard/activos"
+        sticky={false}
+      />
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-white/[0.08] pb-2">
@@ -355,11 +353,8 @@ export default function ActivosCatalogoPage() {
         ))}
       </div>
 
-      {mensaje && (
-        <div className={`px-4 py-2 rounded-lg text-sm ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      {/* EX-4 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} />
 
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
         <>

@@ -362,14 +362,14 @@ export default function FiniquitosPage() {
   // ==================== VISTA: LIST ====================
   if (view === "list") {
     return (
-      <div className="min-h-screen bg-[#040810] text-white p-6">
+      <div className="h-full overflow-auto bg-[#040810] text-white p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
               <AriaBackButton href="/dashboard/talento" />
               <div>
-                <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-8 h-8" />
                   Finiquitos y Bajas
                 </h1>
@@ -515,7 +515,7 @@ export default function FiniquitosPage() {
   // ==================== VISTA: FORM (Multi-step) ====================
   if (view === "form") {
     return (
-      <div className="min-h-screen bg-[#040810] text-white p-6">
+      <div className="h-full overflow-auto bg-[#040810] text-white p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">
@@ -967,7 +967,7 @@ export default function FiniquitosPage() {
   // ==================== VISTA: DETAIL ====================
   if (view === "detail" && currentFiniquito) {
     return (
-      <div className="min-h-screen bg-[#040810] text-white p-6">
+      <div className="h-full overflow-auto bg-[#040810] text-white p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">

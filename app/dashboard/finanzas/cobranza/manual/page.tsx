@@ -6,7 +6,8 @@ import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangl
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -217,9 +218,9 @@ export default function CobranzaManualPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Monto Total", value: `$${totMonto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Cobrado", value: `$${totCobrado.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-          { label: "Saldo Pendiente", value: `$${totSaldo.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
+          { label: "Monto Total", value: fmtMoney(totMonto), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
+          { label: "Cobrado", value: fmtMoney(totCobrado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Saldo Pendiente", value: fmtMoney(totSaldo), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Registros", value: cobros.length, icon: AlertTriangle, color: "text-violet-400", bg: "bg-violet-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -271,8 +272,8 @@ export default function CobranzaManualPage() {
                   <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white font-medium">{c.cliente_nombre}</td>
                   <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
-                  <td className="p-3 text-right text-white">${Number(c.monto || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3 text-right text-amber-400">${Number(c.saldo || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-3 text-right text-white">{fmtMoney(Number(c.monto))}</td>
+                  <td className="p-3 text-right text-amber-400">{fmtMoney(Number(c.saldo))}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                       c.estatus === "PAGADO" ? "bg-emerald-500/20 text-emerald-400" :
@@ -352,7 +353,7 @@ export default function CobranzaManualPage() {
                 <input type="number"  step="0.01" min={0} max={form.monto} value={form.saldo}
                   onChange={e => setForm({ ...form, saldo: parseFloat(e.target.value) || 0 })}
                   className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
-                <p className="text-[11px] text-[#4a6080] mt-1">Cobrado: ${(form.monto - form.saldo).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</p>
+                <p className="text-[11px] text-[#4a6080] mt-1">Cobrado: {fmtMoney(form.monto - form.saldo)}</p>
               </div>
 
               <div>

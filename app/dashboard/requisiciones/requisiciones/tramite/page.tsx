@@ -9,7 +9,7 @@ import {
   ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, ArrowLeft, Sparkles, ExternalLink
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 type Requisition = {
@@ -368,7 +368,7 @@ Responde SOLO con JSON así:
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
-            <h1 className="text-xl font-bold text-white">Compras - Cotizar</h1>
+            <h1 className="text-2xl font-bold text-white">Compras - Cotizar</h1>
             <p className="text-[#4a6080] text-sm">{requisiciones.length} pendientes</p>
           </div>
         </div>

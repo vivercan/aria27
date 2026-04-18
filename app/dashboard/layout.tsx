@@ -104,6 +104,38 @@ const searchableItems = [
   { name: "Roles Permisos", icon: ChevronRight, href: "/dashboard/admin/roles" },
   { name: "WhatsApp Log", icon: ChevronRight, href: "/dashboard/whatsapp/log" },
   { name: "Importar CSV", icon: ChevronRight, href: "/dashboard/import" },
+  // PL48 17-Abr-2026: rutas huérfanas indexadas (antes no buscables desde sidebar).
+  // Plantillas sub-tipos
+  { name: "Biblioteca Plantillas", icon: ChevronRight, href: "/dashboard/plantillas/biblioteca" },
+  { name: "Plantillas Documentos", icon: ChevronRight, href: "/dashboard/plantillas/documentos" },
+  { name: "Plantillas Órdenes", icon: ChevronRight, href: "/dashboard/plantillas/ordenes" },
+  { name: "Plantillas Propuestas", icon: ChevronRight, href: "/dashboard/plantillas/propuestas" },
+  // Talento sub-vistas
+  { name: "Finiquitos", icon: ChevronRight, href: "/dashboard/talento/finiquitos" },
+  { name: "Checadas Incompletas", icon: ChevronRight, href: "/dashboard/talento/checadas/incompletas" },
+  { name: "Pre-nómina Semanal", icon: ChevronRight, href: "/dashboard/talento/nomina/pre-nomina" },
+  { name: "Recibos de Nómina", icon: ChevronRight, href: "/dashboard/talento/nomina/recibos" },
+  { name: "Nómina Manual", icon: ChevronRight, href: "/dashboard/talento/nomina/manual" },
+  { name: "Histórico de Nómina", icon: ChevronRight, href: "/dashboard/talento/nomina/historico" },
+  { name: "Aguinaldo", icon: ChevronRight, href: "/dashboard/talento/prestaciones/aguinaldo" },
+  { name: "Incapacidades", icon: ChevronRight, href: "/dashboard/talento/prestaciones/incapacidades" },
+  { name: "Préstamos", icon: ChevronRight, href: "/dashboard/talento/prestaciones/prestamos" },
+  { name: "Vacaciones", icon: ChevronRight, href: "/dashboard/talento/prestaciones/vacaciones" },
+  // Obras sub-vistas
+  { name: "Bitácora Diaria", icon: ChevronRight, href: "/dashboard/obras/bitacora" },
+  { name: "Estimaciones", icon: ChevronRight, href: "/dashboard/obras/estimaciones" },
+  { name: "Reporte Ejecutivo Obra", icon: ChevronRight, href: "/dashboard/obras/reporte" },
+  { name: "Kardex Movimientos", icon: ChevronRight, href: "/dashboard/obras/inventario/kardex" },
+  { name: "SIROC Bimestrales", icon: ChevronRight, href: "/dashboard/obras/siroc/bimestrales" },
+  // Finanzas sub-vistas
+  { name: "Movimientos Bancarios", icon: ChevronRight, href: "/dashboard/finanzas/bancos/movimientos" },
+  { name: "Cobros Manuales", icon: ChevronRight, href: "/dashboard/finanzas/cobranza/manual" },
+  // Configuración sub-vistas
+  { name: "Centros de Trabajo", icon: ChevronRight, href: "/dashboard/configuracion/maestros/centros" },
+  { name: "Maestros Nómina", icon: ChevronRight, href: "/dashboard/configuracion/maestros/nomina" },
+  // Admin y Comunicación
+  { name: "Restaurar Sistema", icon: ChevronRight, href: "/dashboard/admin/restore" },
+  { name: "Hub Comunicación", icon: ChevronRight, href: "/dashboard/comunicacion" },
 ];
 
 function ThemeToggle() {

@@ -29,7 +29,7 @@ export default function CarpetasModuloPage({ params }: { params: Promise<{ modul
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href={cfg.back} />
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">{cfg.titulo}</h1>
+          <h1 className="text-2xl font-bold text-white">{cfg.titulo}</h1>
           <p className="text-xs text-[#7f93b0]">{cfg.desc}</p>
         </div>
       </div>

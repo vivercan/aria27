@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
-import { useFlashMessage } from "@/lib/use-flash-message";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 
 interface User {
@@ -114,7 +114,7 @@ export default function UsuariosPage() {
   };
 
   const confirmDelete = async () => {
-    if (deleteConfirmText !== "delete" || !deletingUser) return;
+    if (deleteConfirmText !== "Eliminar" || !deletingUser) return;
     await backupAndDelete({ table: "Users", id: deletingUser.id, userEmail });
     // await supabase.from("Users").delete().eq("id", deletingUser.id);
     closeDeleteModal();
@@ -192,13 +192,13 @@ export default function UsuariosPage() {
               <p className="text-[#7f93b0] text-sm">{deletingUser.email}</p>
             </div>
             <p className="text-sm text-[#c9d8ed] mb-3">
-              Para confirmar, escribe <span className="text-red-400 font-mono font-bold">delete</span> en minúsculas:
+              Para confirmar, escribe <span className="text-red-400 font-mono font-bold">Eliminar</span>:
             </p>
             <input
               type="text"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder="Escribe delete para confirmar"
+              placeholder="Eliminar"
               className="w-full px-4 py-2 bg-[#0a1628] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
               autoFocus
             />
@@ -208,8 +208,8 @@ export default function UsuariosPage() {
               </button>
               <button
                 onClick={confirmDelete}
-                disabled={deleteConfirmText !== "delete"}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${deleteConfirmText === "delete" ? "bg-red-500 text-white hover:bg-red-600" : "bg-[#0f2448] text-[#4a6080] cursor-not-allowed"}`}
+                disabled={deleteConfirmText !== "Eliminar"}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${deleteConfirmText === "Eliminar" ? "bg-red-500 text-white hover:bg-red-600" : "bg-[#0f2448] text-[#4a6080] cursor-not-allowed"}`}
               >
                 Eliminar
               </button>

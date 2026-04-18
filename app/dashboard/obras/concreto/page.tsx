@@ -47,8 +47,8 @@ interface ObraResumen {
   pct_cumplimiento: number;
 }
 
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const log = clientLogger("CONCRETO");
+import { fmtMoney as fmt } from "@/lib/formatters";
+const log = clientLogger("CONCRETO");
 const fmtNum = (n: number) => (n || 0).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 export default function ConcretoPage() {

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 /* ────────── types ────────── */
 interface Linea {
@@ -36,8 +38,9 @@ const FORM_INIT = {
   monto_pagado: "0", fecha_pago: "",
 };
 
-const fmt = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
-const fmtDate = (d: string | null) => { if (!d) return "—"; try { return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }); } catch { return d; } };
+import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
+const fmt = fmtMoney;
+const fmtDate = fmtDateCanon;
 const diasPara = (d: string | null) => { if (!d) return null; const diff = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); return diff; };
 
 /* ────────── component ────────── */
@@ -59,8 +62,8 @@ export default function SUAFinanzasPage() {
   const [pagoForm, setPagoForm] = useState({ monto: "", fecha: new Date().toISOString().slice(0, 10), banco: "", referencia: "" });
 
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
-  const flash = (tipo: "ok" | "err", texto: string) => { setMsg({ tipo, texto }); setTimeout(() => setMsg(null), 3200); };
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash } = useFlashMessage(3200);
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   /* ── load ── */
@@ -213,12 +216,8 @@ export default function SUAFinanzasPage() {
         </div>
       </div>
 
-      {/* Flash */}
-      {msg && (
-        <div className={`mx-6 px-4 py-2 rounded-lg text-sm flex-none ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
+      {/* Flash — EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} className="mx-6 flex-none" />
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">

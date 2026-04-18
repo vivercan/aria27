@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 /**
  * CATÁLOGO MAESTRO DE OBRAS
@@ -52,7 +54,8 @@ export default function CatalogoObrasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ tipo: "ok" | "err"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
+  const { msg, flash } = useFlashMessage(2500);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => { cargar(); }, []);
@@ -67,10 +70,6 @@ export default function CatalogoObrasPage() {
     setLoading(false);
   };
 
-  const flash = (tipo: "ok" | "err", texto: string) => {
-    setMsg({ tipo, texto });
-    setTimeout(() => setMsg(null), 2500);
-  };
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
   const resetForm = () => { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(false); setFormErrors({}); };
@@ -234,11 +233,8 @@ export default function CatalogoObrasPage() {
         </div>
       </div>
 
-      {msg && (
-        <div className={`mx-6 mt-3 px-4 py-2 rounded-lg text-sm ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {msg.texto}
-        </div>
-      )}
+      {/* EX-3 18-Abr-2026: FlashBanner canónico */}
+      <FlashBanner msg={msg} className="mx-6 mt-3" />
 
       {showForm && (
         <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">

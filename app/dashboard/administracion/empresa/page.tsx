@@ -7,6 +7,8 @@ import {
   Edit2, Save, X, Briefcase, FolderOpen
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import FlashBanner from "@/components/FlashBanner";
+import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Empresa {
   id: string;
@@ -35,7 +37,8 @@ export default function EmpresaPage() {
   const [editEmpresa, setEditEmpresa] = useState<Empresa | null>(null);
   const [form, setForm] = useState<any>({});
   const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
+  // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
+  const { msg: mensaje, flash: _flash } = useFlashMessage(3000);
 
   useEffect(() => { cargar(); }, []);
 
@@ -49,10 +52,7 @@ export default function EmpresaPage() {
     setLoading(false);
   };
 
-  const msg = (tipo: "success" | "error", texto: string) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje(null), 3000);
-  };
+  const msg = (tipo: "success" | "error" | "info", texto: string) => _flash(tipo === "success" ? "ok" : "err", texto);
 
   const iniciarEdicion = (e: Empresa) => {
     setEditEmpresa(e);
@@ -97,16 +97,12 @@ export default function EmpresaPage() {
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href="/dashboard/administracion" />
         <div>
-          <h1 className="text-xl font-bold text-white">Datos de Empresa</h1>
+          <h1 className="text-2xl font-bold text-white">Datos de Empresa</h1>
           <p className="text-xs text-[#7f93b0]">Información de GCU Avante y centros de costo</p>
         </div>
       </div>
 
-      {mensaje && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${mensaje.tipo === "success" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-          {mensaje.texto}
-        </div>
-      )}
+      <FlashBanner msg={mensaje} />
 
       <div className="flex-1 overflow-y-auto space-y-4">
         {loading ? (

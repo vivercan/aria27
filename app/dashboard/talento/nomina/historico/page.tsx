@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { History, Search, Filter, Download, Users, DollarSign, Calendar, ChevronDown, X, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface NominaRegistro {
   id: string;
@@ -128,7 +129,7 @@ export default function HistoricoNominaPage() {
     registros: registrosFiltrados.length
   };
 
-  const formatMoney = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
+  const formatMoney = (n: number) => `${fmtMoney((n || 0))}`;
   const formatDateShort = (d: string) => d ? new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "";
   const limpiarFiltros = () => { setFiltroSemana(""); setFiltroEmpleado(""); setBusqueda(""); setFiltroAnio(""); };
 

@@ -8,6 +8,7 @@ import {
   FileText, ShoppingCart, Activity, RefreshCw,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { fmtMoney } from "@/lib/formatters";
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
@@ -17,9 +18,10 @@ interface Nom { obra: string | null; sueldo_neto: number; status: string; semana
 interface Part { obra_nombre: string; importe: number; }
 interface Av { obra_nombre: string; semana_iso: string; pct_fisico: number; }
 
-const fmt = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  const log = clientLogger("CEO");
-const fmt2 = (n: number) => `$${(n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// CV-04 18-Abr-2026: migrado a @/lib/formatters. Antes había 2 copias locales (fmt, fmt2).
+const fmt = (n: number) => fmtMoney(n, { noDecimals: true });
+const fmt2 = (n: number) => fmtMoney(n);
+const log = clientLogger("CEO");
 
 function isThisMonth(iso: string): boolean {
   if (!iso) return false;

@@ -17,7 +17,7 @@ export default function DocumentacionPage() {
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href="/dashboard/administracion" />
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">Documentación Legal</h1>
+          <h1 className="text-2xl font-bold text-white">Documentación Legal</h1>
           <p className="text-xs text-[#7f93b0]">Carpetas jerárquicas (Avante / Denivel / Terracret o las que necesites)</p>
         </div>
       </div>

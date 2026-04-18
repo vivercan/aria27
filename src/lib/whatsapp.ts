@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { logger } from "@/lib/logger";
 
 const log = logger("WHATSAPP");
@@ -13,23 +13,40 @@ interface WhatsAppComponent {
 
 // ============================================
 // HMAC SIGNATURE VERIFICATION (Meta Webhooks)
+// Fail-closed: si falta META_APP_SECRET o la firma no coincide, retorna false.
+// El handler puede usar verifyWebhookUrlToken() como fallback autenticado vía ?token=.
 // ============================================
 export function verifyWebhookSignature(rawBody: string | Buffer, signature: string | null): boolean {
   const secret = process.env.META_APP_SECRET;
   if (!secret) {
-    // Grace mode: si no hay META_APP_SECRET configurado, aceptar (pero loguear warning)
-    console.warn("[WhatsApp] [WARN] META_APP_SECRET no configurado — webhook HMAC en grace mode");
-    return true;
+    // FAIL-CLOSED: sin secret no se puede verificar. Loguea ERROR (no warning) y rechaza.
+    // El handler caerá a verifyWebhookUrlToken() si está configurado.
+    log.error("META_APP_SECRET ausente — HMAC no verificable (fail-closed)");
+    return false;
   }
   if (!signature) {
-    // Firma ausente — puede ser proxy que strip headers; el handler intentará URL token
+    // Firma ausente — puede ser proxy que strip headers; el handler intentará URL token.
     return false;
   }
   const expectedSig = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex");
-  const matches = signature === expectedSig;
+  // Comparación timing-safe (evita timing-attack leak del secret)
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expBuf.length) {
+    log.warn("HMAC longitud inválida", { receivedLen: sigBuf.length, expectedLen: expBuf.length });
+    return false;
+  }
+  let matches = false;
+  try {
+    matches = timingSafeEqual(sigBuf, expBuf);
+  } catch {
+    matches = false;
+  }
   if (!matches) {
-    console.warn("[WhatsApp] [WARN] HMAC no coincide",
-      { received: signature.slice(0, 20) + "...", expected: expectedSig.slice(0, 20) + "..." });
+    log.warn("HMAC no coincide", {
+      received: signature.slice(0, 20) + "...",
+      expected: expectedSig.slice(0, 20) + "...",
+    });
   }
   return matches;
 }
@@ -45,7 +62,7 @@ export function verifyWebhookUrlToken(urlToken: string | null): boolean {
   // Comparación en tiempo constante para evitar timing attacks
   const a = Buffer.from(urlToken.padEnd(64));
   const b = Buffer.from(expected.padEnd(64));
-  return a.length === b.length && require("crypto").timingSafeEqual(a, b);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 // ============================================

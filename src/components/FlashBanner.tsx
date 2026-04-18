@@ -1,5 +1,5 @@
 "use client";
-import type { FlashMsg } from "@/lib/use-flash-message";
+import type { FlashMsg } from "@/hooks/useFlashMessage";
 
 /**
  * Componente estandarizado para mostrar flash messages.
