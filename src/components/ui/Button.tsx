@@ -47,9 +47,11 @@ const VARIANT: Record<ButtonVariant, string> = {
     "focus-visible:ring-white/20",
 };
 
+// 19-Abr-2026 mobile-f2: min-h-[44px] sub-md garantiza touch target accesible
+// (WCAG 2.5.5 Target Size). md:min-h-0 revierte al tamaño natural en desktop.
 const SIZE: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs rounded-lg",
-  md: "px-4 py-2 text-sm rounded-xl",
+  sm: "px-3 py-1.5 text-xs rounded-lg min-h-[44px] md:min-h-0",
+  md: "px-4 py-2 text-sm rounded-xl min-h-[44px] md:min-h-0",
   lg: "px-5 py-2.5 text-base rounded-xl",
 };
 

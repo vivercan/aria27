@@ -35,6 +35,11 @@ export interface ModalProps {
   maxWidth?: string;
   /** className adicional para el contenedor del modal. */
   className?: string;
+  /**
+   * 19-Abr-2026 mobile-f2: renderizar como bottom-sheet en móvil (sub-md).
+   * Desktop (md:+) sigue centrado como modal estándar. Default false (opt-in).
+   */
+  sheetOnMobile?: boolean;
 }
 
 export default function Modal({
@@ -47,6 +52,7 @@ export default function Modal({
   dismissOnEsc = true,
   maxWidth = "max-w-lg",
   className = "",
+  sheetOnMobile = false,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -84,9 +90,28 @@ export default function Modal({
 
   const labelledById = title ? "aria-modal-title" : undefined;
 
+  // 19-Abr-2026 mobile-f2: sheetOnMobile → bottom-sheet sub-md, modal centrado md:+
+  const containerCls = sheetOnMobile
+    ? "fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm"
+    : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm";
+  const panelCls = sheetOnMobile
+    ? [
+        "relative w-full bg-[#0a1628] border-t border-white/[0.08] md:border",
+        "shadow-2xl overflow-hidden flex flex-col max-h-[85vh] md:max-h-[90vh]",
+        "rounded-t-2xl md:rounded-2xl",
+        "md:" + maxWidth,
+        className,
+      ].join(" ")
+    : [
+        "relative w-full rounded-2xl bg-[#0a1628] border border-white/[0.08]",
+        "shadow-2xl overflow-hidden flex flex-col max-h-[90vh]",
+        maxWidth,
+        className,
+      ].join(" ");
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className={containerCls}
       onClick={dismissOnOutside ? onClose : undefined}
       role="presentation"
     >
@@ -95,12 +120,7 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledById}
-        className={[
-          "relative w-full rounded-2xl bg-[#0a1628] border border-white/[0.08]",
-          "shadow-2xl overflow-hidden flex flex-col max-h-[90vh]",
-          maxWidth,
-          className,
-        ].join(" ")}
+        className={panelCls}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
