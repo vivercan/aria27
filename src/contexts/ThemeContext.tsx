@@ -28,7 +28,7 @@ interface ThemeContextType {
   colors: ThemeColors;
 }
 
-// COLOR ORIGINAL DE ARIA27
+// 18-Abr-2026 PM: paleta "solid corporate dark" — eliminado cyan/azul neón fosforescente
 const originalDarkColors: ThemeColors = {
   bg: "#0a1628",
   bgGradient: "from-[#070e1c] via-[#0a1628] to-[#0f2244]",
@@ -37,11 +37,11 @@ const originalDarkColors: ThemeColors = {
   cardBorder: "rgba(255,255,255,0.07)",
   text: "#ffffff",
   textMuted: "#7f93b0",
-  accent: "#22d3ee",
-  accentBg: "rgba(34,211,238,0.08)",
-  primary: "#2563eb",
-  primaryHover: "#1d4ed8",
-  primaryLight: "rgba(37,99,235,0.2)",
+  accent: "#8ba6c1",
+  accentBg: "rgba(139,166,193,0.08)",
+  primary: "#334155",
+  primaryHover: "#1e293b",
+  primaryLight: "rgba(51,65,85,0.30)",
 };
 
 const ThemeContext = createContext<ThemeContextType>({

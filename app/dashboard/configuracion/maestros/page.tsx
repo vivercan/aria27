@@ -9,7 +9,7 @@ const items = [
     description: "Obras, oficinas y ubicaciones GPS",
     href: "/dashboard/configuracion/maestros/centros",
     icon: Building2,
-    iconColor: "#3b82f6",
+    iconColor: "#64748b",
   },
   {
     title: "Configuración Nómina",

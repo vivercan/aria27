@@ -25,7 +25,7 @@ const subModules = [
     href: "/dashboard/carpetas/talento-general",
     icon: Users,
     iconBg: "rgba(37,99,235,0.15)",
-    iconColor: "#3b82f6",
+    iconColor: "#64748b",
   },
   {
     title: "Finanzas",
@@ -57,7 +57,7 @@ const subModules = [
     href: "/dashboard/carpetas/activos-general",
     icon: Truck,
     iconBg: "rgba(6,182,212,0.13)",
-    iconColor: "#22d3ee",
+    iconColor: "#8ba6c1",
   },
   {
     title: "Requisiciones",

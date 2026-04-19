@@ -33,7 +33,7 @@ const subModules = [
     href: "/dashboard/obras/reporte",
     icon: FileText,
     iconBg: "rgba(37,99,235,0.15)",
-    iconColor: "#3b82f6",
+    iconColor: "#64748b",
   },
 ];
 

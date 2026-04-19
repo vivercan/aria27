@@ -283,7 +283,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarBorder = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)";
   const headerBg = isDark ? "rgba(5,13,28,0.97)" : "rgba(255,255,255,0.94)";
   const navMuted = isDark ? "rgba(255,255,255,0.52)" : "#3d5470";
-  const navActive = isDark ? "#a5c8ff" : "#2563eb";
+  /* 18-Abr-2026 PM: nav active — de azul eléctrico a azul gris sólido */
+  const navActive = isDark ? "#c9d8ed" : "#334155";
 
   /* Current top-level module name for header breadcrumb */
   const currentModule = menuItems.find(
@@ -315,40 +316,31 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           style={{
             height: "52px",
             borderBottom: `1px solid ${sidebarBorder}`,
+            /* 18-Abr-2026 PM: gradient azul eléctrico → slate corporate sutil */
             background: isDark
-              ? "linear-gradient(180deg, rgba(37,99,235,0.10) 0%, transparent 100%)"
+              ? "linear-gradient(180deg, rgba(51,65,85,0.18) 0%, transparent 100%)"
               : "transparent",
           }}
         >
           <Link href="/dashboard" className="block" style={{ textDecoration: "none" }}>
             <div className="flex items-baseline gap-0.5">
+              {/* 18-Abr-2026 PM: logo ARIA — eliminado glow neón cyan, paleta sólida corporate */}
               <span style={{
                 fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em",
-                color: "#22D3FF",
+                color: "#8ba6c1",
                 textShadow: [
-                  "0 -1px 0 rgba(210,248,255,0.95)",   /* filo superior — luz directa cruda */
-                  "0 -2px 0 rgba(255,255,255,0.25)",   /* segundo rim */
-                  "0  1px 0 rgba(0,12,38,1.00)",       /* pared inferior dura */
-                  "0  2px 0 rgba(0,6,20,0.85)",        /* segunda pared */
-                  "0  0  4px rgba(34,211,255,1.00)",   /* glow interno saturado */
-                  "0  0 18px rgba(34,211,255,0.80)",   /* aura exterior vibrante */
-                  "0  0 40px rgba(34,211,255,0.35)",   /* corona lejana */
+                  "0 -1px 0 rgba(210,220,240,0.30)",   /* filo superior suave */
+                  "0  1px 0 rgba(0,8,25,0.90)",        /* pared inferior sólida */
                 ].join(", "),
               }}>
                 ARIA
               </span>
+              {/* 18-Abr-2026 PM: "27" — glow blanco eliminado, sombra sólida */}
               <span style={{
                 fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em",
                 color: isDark ? "#FFFFFF" : "#1e293b",
                 textShadow: isDark
-                  ? [
-                      "0 -1px 0 rgba(255,255,255,0.95)",
-                      "0 -2px 0 rgba(255,255,255,0.20)",
-                      "0  1px 0 rgba(0,0,0,1.00)",
-                      "0  2px 0 rgba(0,0,0,0.80)",
-                      "0  0  3px rgba(255,255,255,0.50)",
-                      "0  0 12px rgba(255,255,255,0.20)",
-                    ].join(", ")
+                  ? "0 1px 0 rgba(0,0,0,0.95), 0 -1px 0 rgba(255,255,255,0.25)"
                   : "0 1px 0 rgba(255,255,255,0.90), 0 -1px 0 rgba(0,0,0,0.20), 0 2px 4px rgba(0,0,0,0.18)",
               }}>
                 27
@@ -390,10 +382,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 fontSize: "13px",
                 fontWeight: isItemActive ? 600 : 400,
                 color: isItemActive ? navActive : navMuted,
+                /* 18-Abr-2026 PM: nav active bg azul eléctrico → slate corporate */
                 backgroundColor: isItemActive
-                  ? (isDark ? "rgba(59,130,246,0.18)" : "rgba(37,99,235,0.10)")
+                  ? (isDark ? "rgba(51,65,85,0.45)" : "rgba(51,65,85,0.12)")
                   : "transparent",
-                boxShadow: isItemActive ? "inset 3px 0 0 #3b82f6" : "none",
+                boxShadow: isItemActive ? "inset 3px 0 0 #64748b" : "none",
                 transition: "all 0.15s ease",
                 textDecoration: "none",
                 cursor: "pointer",
@@ -537,7 +530,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   className="flex items-center gap-3 px-4 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
                   style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
                 >
-                  <item.icon style={{ width: "13px", height: "13px", color: "#3b82f6" }} />
+                  <item.icon style={{ width: "13px", height: "13px", color: "#8ba6c1" }} />
                   <span>{item.name}</span>
                 </Link>
               ))}

@@ -28,7 +28,7 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   const content = (
     <>
-      <Loader2 className="animate-spin text-[#22d3ee]" style={{ width: size, height: size }} aria-hidden="true" />
+      <Loader2 className="animate-spin text-aria-accent" style={{ width: size, height: size }} aria-hidden="true" />
       {label && <span className="text-sm text-[#7f93b0]">{label}</span>}
     </>
   );

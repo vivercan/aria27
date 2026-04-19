@@ -15,11 +15,12 @@
   --aria-muted: #7f93b0;
   --aria-muted-2: #4a6080;
   --aria-text-secondary: #c9d8ed;
-  --aria-accent: #22d3ee;
-  --aria-accent-bg: rgba(34,211,238,0.08);
-  --aria-primary: #2563eb;
-  --aria-primary-hover: #1d4ed8;
-  --aria-primary-light: rgba(37,99,235,0.15);
+  /* 18-Abr-2026 PM: paleta solid corporate dark — eliminado neón/cyan fosforescente */
+  --aria-accent: #8ba6c1;
+  --aria-accent-bg: rgba(139,166,193,0.08);
+  --aria-primary: #334155;
+  --aria-primary-hover: #1e293b;
+  --aria-primary-light: rgba(51,65,85,0.30);
   /* Layers de fondo */
   --aria-layer-0: #040810;
   --aria-layer-1: #070e1c;
@@ -170,9 +171,9 @@
   /* ── BOTONES ── */
   .aria-btn-primary {
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-150;
-    background-color: #2563eb;
+    background-color: #334155; /* slate-700 sólido corporate */
   }
-  .aria-btn-primary:hover { background-color: #1d4ed8; }
+  .aria-btn-primary:hover { background-color: #1e293b; /* slate-800 */ }
   .aria-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .aria-btn-secondary {
@@ -220,9 +221,9 @@
     border: 1px solid rgba(255,255,255,0.07);
   }
   .aria-input:focus {
-    border-color: #22d3ee;
+    border-color: var(--aria-accent);
     background-color: rgba(255,255,255,0.06);
-    box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
+    /* 18-Abr-2026 PM: glow eliminado para acabado sólido corporate */
   }
   .aria-input::placeholder { color: #4a6080; }
   .aria-input:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -247,9 +248,9 @@
     border: 1px solid rgba(248,113,113,0.18);
   }
   .aria-badge-info {
-    background-color: rgba(34,211,238,0.08);
-    color: #22d3ee;
-    border: 1px solid rgba(34,211,238,0.15);
+    background-color: var(--aria-accent-bg);
+    color: var(--aria-accent);
+    border: 1px solid rgba(139,166,193,0.18);
   }
   .aria-badge-neutral {
     background-color: rgba(255,255,255,0.05);
