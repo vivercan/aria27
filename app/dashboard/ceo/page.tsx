@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import { ResponsiveTable, type ResponsiveTableColumn } from "@/components/ui";
 
 interface Cot { id: string; folio: string | null; cliente_nombre: string; total: number; estatus: string; fecha: string; vigencia_dias: number; }
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
@@ -266,36 +267,33 @@ export default function CeoDashboardPage() {
           <Building2 className="w-5 h-5 text-aria-accent" />
           <h2 className="text-base font-bold text-white">Top 5 obras por margen real</h2>
         </div>
-        {topMargen.length === 0 ? (
-          <p className="p-8 text-center text-[#4a6080] text-sm">Sin obras con datos.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.08] bg-[#0a1628]/40">
-                <th className="text-left p-3 text-[#7f93b0] text-xs">Obra</th>
-                <th className="text-right p-3 text-[#7f93b0] text-xs">Presupuesto</th>
-                <th className="text-right p-3 text-[#7f93b0] text-xs">Gasto Total</th>
-                <th className="text-right p-3 text-[#7f93b0] text-xs">Cobrado</th>
-                <th className="text-right p-3 text-[#7f93b0] text-xs">Margen Real</th>
-                <th className="text-center p-3 text-[#7f93b0] text-xs">Av Fin</th>
-                <th className="text-center p-3 text-[#7f93b0] text-xs">Av Fís</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topMargen.map(o => (
-                <tr key={o.nombre} className="border-b border-white/[0.05]">
-                  <td className="p-3 text-white font-medium">{o.nombre}</td>
-                  <td className="p-3 text-right text-aria-accent">{fmt2(o.presupuesto)}</td>
-                  <td className="p-3 text-right text-orange-300">{fmt2(o.gastoTotal)}</td>
-                  <td className="p-3 text-right text-emerald-300">{fmt2(o.cobrado)}</td>
-                  <td className={`p-3 text-right font-bold ${o.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt2(o.margen)}</td>
-                  <td className="p-3 text-center text-[#c9d8ed] text-xs">{o.avFin.toFixed(1)}%</td>
-                  <td className="p-3 text-center text-emerald-300 text-xs">{o.pctFis !== null ? o.pctFis.toFixed(1) + "%" : "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        {/* 19-Abr-2026 mobile-sweep: migrado a ResponsiveTable. Desktop id\u00e9ntico (tabla HTML);
+            sub-md cards con columnas primary (obra + margen) + Ver detalle en Modal. */}
+        <ResponsiveTable
+          columns={[
+            { key: "nombre", label: "Obra", primary: true },
+            { key: "presupuesto", label: "Presupuesto", align: "right" },
+            { key: "gastoTotal", label: "Gasto Total", align: "right" },
+            { key: "cobrado", label: "Cobrado", align: "right" },
+            { key: "margen", label: "Margen Real", align: "right", primary: true },
+            { key: "avFin", label: "Av Fin", align: "center" },
+            { key: "pctFis", label: "Av Fís", align: "center" },
+          ] as ResponsiveTableColumn<typeof topMargen[number]>[]}
+          rows={topMargen}
+          rowKey={(o) => o.nombre}
+          emptyText="Sin obras con datos."
+          detailTitle="Detalle obra"
+          render={(o, c) => {
+            if (c.key === "nombre") return <span className="text-white font-medium">{o.nombre}</span>;
+            if (c.key === "presupuesto") return <span className="text-aria-accent">{fmt2(o.presupuesto)}</span>;
+            if (c.key === "gastoTotal") return <span className="text-orange-300">{fmt2(o.gastoTotal)}</span>;
+            if (c.key === "cobrado") return <span className="text-emerald-300">{fmt2(o.cobrado)}</span>;
+            if (c.key === "margen") return <span className={`font-bold ${o.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt2(o.margen)}</span>;
+            if (c.key === "avFin") return <span className="text-[#c9d8ed] text-xs">{o.avFin.toFixed(1)}%</span>;
+            if (c.key === "pctFis") return <span className="text-emerald-300 text-xs">{o.pctFis !== null ? o.pctFis.toFixed(1) + "%" : "—"}</span>;
+            return null;
+          }}
+        />
       </div>
 
       <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 text-xs text-[#7f93b0]">
