@@ -42,16 +42,18 @@ export default function PageHeader({
         className,
       ].join(" ")}
     >
-      <div className="flex items-center gap-4">
+      {/* 19-Abr-2026 mobile-f2: flex-wrap sub-md + tipografía escalable.
+          Desktop (md:+) preserva layout horizontal original. */}
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-3 md:gap-4">
         {backHref !== undefined && <AriaBackButton href={backHref} />}
         {icon && <div className="flex-shrink-0">{icon}</div>}
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-white truncate">{title}</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white truncate">{title}</h1>
           {subtitle && (
             <p className="text-sm text-[#7f93b0] mt-0.5 truncate">{subtitle}</p>
           )}
         </div>
-        {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
+        {actions && <div className="flex flex-wrap md:flex-nowrap items-center gap-2 flex-shrink-0">{actions}</div>}
       </div>
     </header>
   );
