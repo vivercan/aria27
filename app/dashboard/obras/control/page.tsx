@@ -217,7 +217,7 @@ export default function ControlObrasPage() {
         </div>
         <div className="p-4 rounded-xl bg-aria-primary-light border border-aria-primary/20">
           <p className="text-[#7f93b0] text-xs">Gasto Nómina</p>
-          <p className="text-lg font-bold text-violet-300">{fmt(totales.gastoNomina)}</p>
+          <p className="text-lg font-bold text-aria-accent">{fmt(totales.gastoNomina)}</p>
         </div>
         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
           <p className="text-[#7f93b0] text-xs">Gasto Total</p>
@@ -296,7 +296,7 @@ export default function ControlObrasPage() {
                     </td>
                     <td className="p-3 text-right text-aria-accent">{fmt(f.presupuesto)}</td>
                     <td className="p-3 text-right text-orange-300">{fmt(f.gastoOC)}</td>
-                    <td className="p-3 text-right text-violet-300">{fmt(f.gastoNomina)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmt(f.gastoNomina)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmt(f.gastoTotal)}</td>
                     <td className="p-3 text-right text-emerald-300">{fmt(f.cobrado)}</td>
                     <td className={`p-3 text-right font-medium ${f.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(f.margen)}</td>

@@ -173,8 +173,8 @@ export default function EntregasPage() {
           <p className="text-emerald-400 font-bold text-lg">{stats.conOC}</p>
           <p className="text-[#4a6080] text-[9px]">Con OC</p>
         </div>
-        <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-center">
-          <p className="text-violet-400 font-bold text-lg">{stats.conFoto}</p>
+        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/30 text-center">
+          <p className="text-aria-accent font-bold text-lg">{stats.conFoto}</p>
           <p className="text-[#4a6080] text-[9px]">Con Foto</p>
         </div>
         <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
@@ -213,7 +213,7 @@ export default function EntregasPage() {
                       </span>
                     )}
                     {e.foto_url && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-500/20 text-violet-400 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aria-primary-light text-aria-accent flex items-center gap-1">
                         <Image className="w-3 h-3" />Foto
                       </span>
                     )}
@@ -335,7 +335,7 @@ export default function EntregasPage() {
             {showDetalle.foto_url && (
               <div className="mb-4">
                 <p className="text-[#7f93b0] text-sm mb-2 flex items-center gap-2"><Image className="w-4 h-4" />Evidencia fotográfica:</p>
-                <a href={showDetalle.foto_url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 transition-colors">
+                <a href={showDetalle.foto_url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-light transition-colors">
                   📷 Ver foto de evidencia
                 </a>
               </div>

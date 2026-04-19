@@ -36,7 +36,7 @@ const STATUS_COLORS: Record<string, string> = {
   GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   PERDIDA: "bg-red-500/20 text-red-300 border-red-500/30",
   CANCELADA: "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/30",
-  DESIERTA: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  DESIERTA: "bg-aria-primary-light text-aria-accent border-aria-primary/30",
 };
 
 const EMPTY_FORM = {

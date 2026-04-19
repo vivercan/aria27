@@ -217,7 +217,7 @@ export default function ProveedoresPage() {
                     </td>
                     <td className="pr-2">
                       <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={()=>setExpedienteSup(s)} title="Expediente" className="p-1 hover:bg-violet-500/20 rounded text-violet-400/70 hover:text-violet-400"><FolderOpen className="w-3 h-3"/></button>
+                        <button onClick={()=>setExpedienteSup(s)} title="Expediente" className="p-1 hover:bg-aria-primary-light rounded text-aria-accent/70 hover:text-aria-accent"><FolderOpen className="w-3 h-3"/></button>
                         <button onClick={()=>openEdit(s)} className="p-1 hover:bg-white/[0.06] rounded text-[#7f93b0] hover:text-white"><Edit2 className="w-3 h-3"/></button>
                         {canDelete && (<button onClick={()=>handleDelete(s.id,s.name)} className="p-1 hover:bg-red-500/20 rounded text-[#4a6080] hover:text-red-400"><Trash2 className="w-3 h-3"/></button>)}
                       </div>

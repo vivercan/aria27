@@ -259,7 +259,7 @@ export default function VehiculosPage() {
                 </td>
                 <td className="p-3 text-center">
                   <div className="flex items-center justify-center gap-1">
-                    <button onClick={() => setExpedienteVeh(v)} title="Expediente" className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setExpedienteVeh(v)} title="Expediente" className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><FolderOpen className="w-3.5 h-3.5" /></button>
                     <button onClick={() => editar(v)} className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><Edit2 className="w-3.5 h-3.5" /></button>
                     {canDelete && (
                       <button onClick={() => setDeleteModal({ open: true, id: v.id, name: v.nombre })} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-3.5 h-3.5" /></button>

@@ -115,7 +115,7 @@ export default function ProspeccionPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
           <AriaBackButton href="/dashboard/requisiciones" />
-          <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-violet-400"/>Prospección de Proveedores</h1>
+          <h1 className="text-lg font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-aria-accent"/>Prospección de Proveedores</h1>
         </div>
         <p className="text-xs text-[#7f93b0] mb-2 ml-7">Busca proveedores por producto o categoría. ARIA busca en tu base de datos y en la web con IA.</p>
 
@@ -125,10 +125,10 @@ export default function ProspeccionPage() {
             <input type="text" placeholder='Ej: "acero corrugado", "diesel", "concreto premezclado"...'
               value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}
               onKeyDown={e=>e.key==="Enter"&&handleSearch()}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-violet-500/50 outline-none"/>
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/30 outline-none"/>
           </div>
           <button onClick={handleSearch} disabled={searching||!searchTerm.trim()}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 disabled:opacity-40 font-medium">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-aria-primary-light text-aria-accent rounded-lg hover:bg-aria-primary-hover/30 disabled:opacity-40 font-medium">
             {searching?<Loader2 className="w-3.5 h-3.5 animate-spin"/>:<Search className="w-3.5 h-3.5"/>}
             {searching?"Buscando...":"Buscar"}
           </button>
@@ -139,7 +139,7 @@ export default function ProspeccionPage() {
       <div className="flex-1 overflow-auto min-h-0 px-4 py-3">
         {!searchDone && !searching && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4"><Search className="w-8 h-8 text-violet-400"/></div>
+            <div className="w-16 h-16 rounded-2xl bg-aria-primary/10 flex items-center justify-center mb-4"><Search className="w-8 h-8 text-aria-accent"/></div>
             <h2 className="text-white font-semibold mb-1">Busca nuevos proveedores</h2>
             <p className="text-[#7f93b0] text-sm max-w-md">Escribe el producto o categoría que necesitas y ARIA buscará proveedores en tu base de datos y en la web.</p>
           </div>
@@ -161,9 +161,9 @@ export default function ProspeccionPage() {
           <div className="space-y-4">
             {/* Análisis IA */}
             {analisis && (
-              <div className="p-3 bg-violet-500/[0.06] border border-violet-500/15 rounded-lg">
+              <div className="p-3 bg-aria-primary/10 border border-aria-primary/30 rounded-lg">
                 <p className="text-xs text-[#c9d8ed]">{analisis}</p>
-                {recomendacion && <p className="text-xs text-violet-400 mt-1.5 font-medium">{recomendacion}</p>}
+                {recomendacion && <p className="text-xs text-aria-accent mt-1.5 font-medium">{recomendacion}</p>}
               </div>
             )}
 
@@ -188,7 +188,7 @@ export default function ProspeccionPage() {
             {/* Web Results */}
             {webResults.length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Globe className="w-3.5 h-3.5 text-violet-400"/>Encontrados en la web ({webResults.length})</h3>
+                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Globe className="w-3.5 h-3.5 text-aria-accent"/>Encontrados en la web ({webResults.length})</h3>
                 <table className="w-full">
                   <thead>
                     <tr className="text-[10px] text-[#4a6080] font-semibold uppercase border-b border-white/[0.06]">
@@ -204,7 +204,7 @@ export default function ProspeccionPage() {
                       <tr key={idx} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-colors">
                         <td className="pl-2 pr-2 py-1.5">
                           <p className="text-white font-medium">{r.nombre}</p>
-                          {r.sitio_web&&<a href={r.sitio_web.startsWith("http")?r.sitio_web:`https://${r.sitio_web}`} target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 flex items-center gap-0.5 text-[10px]"><ExternalLink className="w-2.5 h-2.5"/>Web</a>}
+                          {r.sitio_web&&<a href={r.sitio_web.startsWith("http")?r.sitio_web:`https://${r.sitio_web}`} target="_blank" rel="noopener noreferrer" className="text-aria-accent hover:text-aria-accent flex items-center gap-0.5 text-[10px]"><ExternalLink className="w-2.5 h-2.5"/>Web</a>}
                         </td>
                         <td className="text-[#7f93b0]">{r.telefono||"—"}</td>
                         <td className="text-[#4a6080] text-[10px] max-w-[180px]">{r.direccion||"—"}</td>

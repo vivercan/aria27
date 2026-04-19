@@ -184,9 +184,9 @@ export default function RequisicionesPage() {
               <span className="text-[#7f93b0] text-xs">Proveedores</span>
               <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
               <span className="text-[#7f93b0] text-xs">Solicitantes</span>
-              <p className="text-xl font-bold text-purple-400 mt-1">{[...new Set(registrosFiltrados.map(r => r.solicitante))].length}</p>
+              <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.solicitante))].length}</p>
             </div>
           </div>
 

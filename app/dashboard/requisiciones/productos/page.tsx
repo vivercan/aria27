@@ -230,7 +230,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${totalCount.toLocaleString()} productos`}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <button onClick={()=>setShowUploadModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30" title="Subir catálogo de proveedor"><Upload className="w-3 h-3"/>Importar</button>
+            <button onClick={()=>setShowUploadModal(true)} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-aria-primary-light text-aria-accent rounded-lg hover:bg-aria-primary-hover/30" title="Subir catálogo de proveedor"><Upload className="w-3 h-3"/>Importar</button>
             <div className="relative">
               <button onClick={()=>setShowExportMenu(!showExportMenu)} disabled={exporting}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-white/[0.05] border border-white/[0.08] text-[#c9d8ed] rounded-lg hover:bg-white/[0.1] disabled:opacity-50">
@@ -430,12 +430,12 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                     <div>
                       <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Archivo (imagen/PDF)</label>
                       <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={e=>setUploadFile(e.target.files?.[0]||null)}
-                        className="w-full text-xs text-[#7f93b0] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:bg-violet-500/20 file:text-violet-400 hover:file:bg-violet-500/30"/>
+                        className="w-full text-xs text-[#7f93b0] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:bg-aria-primary-light file:text-aria-accent hover:file:bg-aria-primary-hover/30"/>
                     </div>
                   </div>
                   {uploadFile&&(
                     <div className="p-2 bg-white/[0.03] rounded-lg border border-white/[0.06] flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-violet-400"/>
+                      <Upload className="w-4 h-4 text-aria-accent"/>
                       <span className="text-xs text-white flex-1">{uploadFile.name}</span>
                       <span className="text-[10px] text-[#4a6080]">{(uploadFile.size/1024).toFixed(0)} KB</span>
                     </div>
@@ -471,7 +471,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">
               {parsedProducts.length===0?(
                 <button onClick={handleUploadParse} disabled={parsing||!uploadFile||!uploadSuppId}
-                  className="px-3 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
+                  className="px-3 py-1.5 text-xs bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
                   {parsing?<><Loader2 className="w-3 h-3 animate-spin"/>Analizando...</>:<><Upload className="w-3 h-3"/>Analizar</>}
                 </button>
               ):(

@@ -223,13 +223,13 @@ export default function BibliotecaPlantillasPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Library className="w-6 h-6 text-violet-400" /> Biblioteca de Plantillas
+              <Library className="w-6 h-6 text-aria-accent" /> Biblioteca de Plantillas
             </h1>
             <p className="text-xs text-[#7f93b0]">Plantillas y formatos base reutilizables · independiente del expediente por entidad</p>
           </div>
           <button
             onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
-            className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-xl text-sm font-medium hover:bg-violet-500/30 flex items-center gap-2"
+            className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
           >
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? "Cancelar" : "Nueva plantilla"}
@@ -243,7 +243,7 @@ export default function BibliotecaPlantillasPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar nombre, descripción o categoría…"
-              className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-violet-500/50 focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/30 focus:outline-none"
             />
           </div>
           <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
@@ -291,7 +291,7 @@ export default function BibliotecaPlantillasPage() {
                   type="file"
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt"
                   onChange={e => setFile(e.target.files?.[0] || null)}
-                  className="text-xs text-[#7f93b0] file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-violet-500/20 file:text-violet-400 file:text-xs"
+                  className="text-xs text-[#7f93b0] file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-aria-primary-light file:text-aria-accent file:text-xs"
                 />
                 {file && <span className="text-xs text-emerald-400">{file.name}</span>}
               </div>
@@ -302,7 +302,7 @@ export default function BibliotecaPlantillasPage() {
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50">
+            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editId ? "Guardar cambios" : "Crear plantilla"}
             </button>
@@ -326,7 +326,7 @@ export default function BibliotecaPlantillasPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-400 mx-auto" /></td></tr>
+                <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtradas.length === 0 ? (
                 <tr><td colSpan={6} className="p-8 text-center text-[#4a6080]">Sin plantillas. Crea la primera con "Nueva plantilla".</td></tr>
               ) : filtradas.map(p => (
@@ -336,7 +336,7 @@ export default function BibliotecaPlantillasPage() {
                     {p.descripcion && <p className="text-xs text-[#4a6080] truncate max-w-md">{p.descripcion}</p>}
                   </td>
                   <td className="p-3">
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-violet-500/20 text-violet-300">{p.categoria}</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-aria-primary-light text-aria-accent">{p.categoria}</span>
                   </td>
                   <td className="p-3 text-xs text-[#7f93b0]">
                     {p.archivo_nombre && <p className="text-aria-accent/80 flex items-center gap-1"><FileText className="w-3 h-3" /> {p.archivo_nombre}</p>}

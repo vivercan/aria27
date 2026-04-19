@@ -319,11 +319,11 @@ export default function PreNominaPage() {
             <p className="text-[#7f93b0] text-xs mb-1">Neto a Pagar</p>
             <p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
             <p className="text-[#7f93b0] text-xs mb-1">Transferencia</p>
-            <p className="text-xl font-bold text-purple-400">{fmtMoney(totales.tarjeta)}</p>
+            <p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
             <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
             <p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p>
           </div>
@@ -370,7 +370,7 @@ export default function PreNominaPage() {
                     <td className="p-3 text-right text-aria-accent">{fmtMoney(d.pago_horas_extra)}</td>
                     <td className="p-3 text-right text-red-400">{d.prestamo_descuento ? fmtMoney(d.prestamo_descuento) : "—"}</td>
                     <td className="p-3 text-right text-emerald-400 font-bold">{fmtMoney(d.sueldo_neto)}</td>
-                    <td className="p-3 text-right text-purple-400">{fmtMoney(d.pago_tarjeta)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmtMoney(d.pago_tarjeta)}</td>
                     <td className="p-3 text-right text-amber-400">{fmtMoney(d.pago_efectivo)}</td>
                   </tr>
                 ))

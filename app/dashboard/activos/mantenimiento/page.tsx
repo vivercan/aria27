@@ -46,7 +46,7 @@ const PRIO_COLORS: Record<string, string> = {
 const EST_COLORS: Record<string, string> = {
   ABIERTA: "bg-aria-primary-light text-aria-accent", EN_PROCESO: "bg-amber-500/20 text-amber-400",
   COMPLETADA: "bg-emerald-500/20 text-emerald-400", CANCELADA: "bg-slate-500/20 text-[#7f93b0]",
-  ESPERANDO_REFACCIONES: "bg-purple-500/20 text-purple-400",
+  ESPERANDO_REFACCIONES: "bg-aria-primary-light text-aria-accent",
 };
 const TIPO_COLORS: Record<string, string> = {
   PREVENTIVO: "bg-emerald-500/20 text-emerald-400", CORRECTIVO: "bg-red-500/20 text-red-400",

@@ -385,10 +385,10 @@ export default function RecibosNominaPage() {
             </div>
           </div>
 
-          <div className="mt-8 p-6 bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl text-white">
+          <div className="mt-8 p-6 bg-gradient-to-r from-aria-primary to-aria-primary rounded-xl text-white">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-violet-200 text-sm uppercase tracking-wide">Sueldo Neto a Pagar</p>
+                <p className="text-[#c9d8ed] text-sm uppercase tracking-wide">Sueldo Neto a Pagar</p>
                 <p className="text-4xl font-bold mt-1">{fmtMoney(nomina.sueldo_neto)}</p>
               </div>
               <DollarSign className="w-16 h-16 text-white/20" />
@@ -398,14 +398,14 @@ export default function RecibosNominaPage() {
           <div className="mt-6 grid grid-cols-2 gap-4">
             <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
               <div className="flex items-center gap-2 mb-2">
-                <CreditCard className="w-5 h-5 text-purple-600" />
-                <span className="text-sm text-purple-800 font-medium">Transferencia Bancaria</span>
+                <CreditCard className="w-5 h-5 text-aria-primary" />
+                <span className="text-sm text-aria-primary font-medium">Transferencia Bancaria</span>
               </div>
-              <p className="text-2xl font-bold text-purple-700">{fmtMoney(nomina.pago_tarjeta)}</p>
+              <p className="text-2xl font-bold text-aria-primary">{fmtMoney(nomina.pago_tarjeta)}</p>
               {nomina.banco && (
                 <div className="mt-3 pt-3 border-t border-purple-200 text-sm">
-                  <p className="text-purple-600">Banco: <span className="font-medium text-purple-800">{nomina.banco}</span></p>
-                  {nomina.clabe && <p className="text-purple-600">CLABE: <span className="font-mono font-medium text-purple-800">{nomina.clabe}</span></p>}
+                  <p className="text-aria-primary">Banco: <span className="font-medium text-aria-primary">{nomina.banco}</span></p>
+                  {nomina.clabe && <p className="text-aria-primary">CLABE: <span className="font-mono font-medium text-aria-primary">{nomina.clabe}</span></p>}
                 </div>
               )}
             </div>
@@ -456,8 +456,8 @@ export default function RecibosNominaPage() {
         <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <AriaBackButton href="/dashboard/talento/nomina" />
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
-              <FileText className="w-7 h-7 text-violet-400" />
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-primary/20 to-aria-primary/20 border border-aria-primary/30">
+              <FileText className="w-7 h-7 text-aria-accent" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Recibos de Nómina</h1>
@@ -499,7 +499,7 @@ export default function RecibosNominaPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p></div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-purple-400">{fmtMoney(totales.tarjeta)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Efectivo</p><p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p></div>
             </div>
             <div className="flex items-center gap-3">

@@ -92,7 +92,7 @@ export default function IncidenciasPage() {
       case "FALTA": return { color: "bg-red-500/20 text-red-400", icon: "\u2715" };
       case "RETARDO": return { color: "bg-amber-500/20 text-amber-400", icon: "\u23F0" };
       case "PERMISO": return { color: "bg-aria-primary-light text-aria-accent", icon: "\uD83D\uDCCB" };
-      case "INCAPACIDAD": return { color: "bg-violet-500/20 text-violet-400", icon: "\uD83C\uDFE5" };
+      case "INCAPACIDAD": return { color: "bg-aria-primary-light text-aria-accent", icon: "\uD83C\uDFE5" };
       default: return { color: "bg-slate-500/20 text-[#7f93b0]", icon: "?" };
     }
   };
@@ -117,7 +117,7 @@ export default function IncidenciasPage() {
           { label: "Faltas", value: faltas, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Retardos", value: retardos, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Permisos", value: permisos, icon: Calendar, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Total", value: incidencias.length, icon: AlertCircle, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "Total", value: incidencias.length, icon: AlertCircle, color: "text-aria-accent", bg: "bg-aria-primary/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>

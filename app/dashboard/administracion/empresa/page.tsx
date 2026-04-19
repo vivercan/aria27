@@ -122,15 +122,15 @@ export default function EmpresaPage() {
               <div key={emp.id} className="p-5 rounded-xl bg-[#0c1d38]/50 border border-white/[0.05]">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500/10">
-                      <Building2 className="w-6 h-6 text-purple-400" />
+                    <div className="p-2 rounded-lg bg-aria-primary/10">
+                      <Building2 className="w-6 h-6 text-aria-accent" />
                     </div>
                     <h2 className="text-lg font-semibold text-white">{emp.nombre || "Sin nombre"}</h2>
                   </div>
                   <div className="flex items-center gap-2">
                     <Link
                       href="/dashboard/administracion/documentacion"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30 text-xs"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 text-xs"
                       title="Documentos legales corporativos (acta, REPSE, CSF, etc.)"
                     >
                       <FolderOpen className="w-3.5 h-3.5" /> Documentación legal
@@ -252,7 +252,7 @@ export default function EmpresaPage() {
             </div>
             <div className="flex items-center justify-end gap-3 p-4 border-t border-white/[0.08]">
               <button onClick={() => setEditEmpresa(null)} className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">Cancelar</button>
-              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm disabled:opacity-50">
+              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 text-sm disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Guardar
               </button>

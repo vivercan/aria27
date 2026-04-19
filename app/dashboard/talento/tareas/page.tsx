@@ -221,14 +221,14 @@ export default function TareasTalentoPage() {
         <AriaBackButton href="/dashboard/talento" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <ClipboardList className="w-8 h-8 text-fuchsia-400" />
+            <ClipboardList className="w-8 h-8 text-aria-accent" />
             Tareas Asignadas
           </h1>
           <p className="text-[#7f93b0] mt-1">Asignación, seguimiento y avance de tareas por colaborador.</p>
         </div>
         <button
           onClick={() => { setEditando(null); setForm(EMPTY_FORM); setShowForm(true); }}
-          className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg flex items-center gap-2 font-medium"
+          className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2 font-medium"
         >
           <Plus className="w-5 h-5" /> Nueva tarea
         </button>
@@ -265,13 +265,13 @@ export default function TareasTalentoPage() {
             placeholder="Buscar por título, colaborador u obra..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-fuchsia-500"
+            className="w-full pl-10 pr-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
           />
         </div>
         <select
           value={filtroEstatus}
           onChange={e => setFiltroEstatus(e.target.value)}
-          className="px-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500"
+          className="px-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary"
         >
           <option value="TODAS">Todas</option>
           {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
@@ -279,7 +279,7 @@ export default function TareasTalentoPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-fuchsia-400" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>
       ) : filtradas.length === 0 ? (
         <div className="text-center py-12 text-[#7f93b0]">No hay tareas registradas.</div>
       ) : (
@@ -318,7 +318,7 @@ export default function TareasTalentoPage() {
                   </div>
                   <div className="w-full bg-white/[0.05] rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-2 rounded-full transition-all"
+                      className="bg-gradient-to-r from-emerald-500 to-aria-primary h-2 rounded-full transition-all"
                       style={{ width: `${t.avance}%` }}
                     />
                   </div>
@@ -373,20 +373,20 @@ export default function TareasTalentoPage() {
               <div>
                 <label className="text-sm text-[#7f93b0] mb-1 block">Título *</label>
                 <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
-                  className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.titulo ? "border-red-500/50" : "border-white/[0.08]"}`} />
+                  className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.titulo ? "border-red-500/50" : "border-white/[0.08]"}`} />
                 {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </div>
               <div>
                 <label className="text-sm text-[#7f93b0] mb-1 block">Descripción</label>
                 <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                  className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Asignado a *</label>
                   <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
-                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.asignado_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
+                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.asignado_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
                     <option value="">Seleccionar...</option>
                     {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                   </select>
@@ -395,20 +395,20 @@ export default function TareasTalentoPage() {
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Obra (opcional)</label>
                   <input type="text" value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500" />
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Fecha compromiso *</label>
                   <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
-                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-fuchsia-500 ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-white/[0.08]"}`} />
+                    className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-white/[0.08]"}`} />
                   {formErrors.fecha_compromiso && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_compromiso}</p>}
                 </div>
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Prioridad</label>
                   <select value={form.prioridad} onChange={e => setForm({ ...form, prioridad: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary">
                     {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
@@ -423,7 +423,7 @@ export default function TareasTalentoPage() {
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Estatus</label>
                   <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-fuchsia-500">
+                    className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary">
                     {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
                   </select>
                 </div>
@@ -433,7 +433,7 @@ export default function TareasTalentoPage() {
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }}
                 className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>
               <button onClick={guardar} disabled={guardando}
-                className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
+                className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Guardar
               </button>

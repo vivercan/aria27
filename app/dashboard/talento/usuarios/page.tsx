@@ -158,7 +158,7 @@ export default function UsuariosPage() {
 
   const getRoleColor = (role: string) => {
     switch(role) {
-      case "admin": return "bg-purple-500/20 text-purple-400";
+      case "admin": return "bg-aria-primary-light text-aria-accent";
       case "validador": return "bg-aria-primary-light text-aria-accent";
       case "compras": return "bg-emerald-500/20 text-emerald-400";
       case "operador": return "bg-orange-500/20 text-orange-400";
@@ -223,7 +223,7 @@ export default function UsuariosPage() {
         <AriaBackButton href="/dashboard/talento" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Users className="w-7 h-7 text-purple-400" />
+            <Users className="w-7 h-7 text-aria-accent" />
             Usuarios del Sistema
           </h1>
           <p className="text-[#7f93b0] mt-1">{users.length} usuarios registrados</p>
@@ -329,7 +329,7 @@ export default function UsuariosPage() {
                         <td colSpan={7} className="px-4 py-4 bg-[#0a1628]/50">
                           <div className="space-y-3">
                             <div className="flex items-center gap-2 text-sm font-medium text-white">
-                              <Shield className="w-4 h-4 text-purple-400" />
+                              <Shield className="w-4 h-4 text-aria-accent" />
                               Permisos por Módulo
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">

@@ -20,8 +20,8 @@ const emailTemplates = [
     trigger: "Al solicitar cotización a proveedores",
     recipients: "Proveedores seleccionados",
     icon: ShoppingCart,
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
+    color: "text-aria-accent",
+    bg: "bg-aria-primary/10",
     description: "Envía solicitud formal de cotización a los proveedores seleccionados con detalle de productos requeridos.",
   },
   {

@@ -336,8 +336,8 @@ export default function PersonalPage() {
                   <td className="p-3 text-[#7f93b0] text-sm">{e.position}</td>
                   <td className="p-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      getEmpresaNombre(e.empresa_id).includes("Avante") ? "bg-yellow-500/20 text-yellow-400" :
-                      getEmpresaNombre(e.empresa_id).includes("Denivel") ? "bg-purple-500/20 text-purple-400" :
+                      getEmpresaNombre(e.empresa_id).includes("Avante") ? "bg-amber-500/20 text-amber-400" :
+                      getEmpresaNombre(e.empresa_id).includes("Denivel") ? "bg-aria-primary-light text-aria-accent" :
                       getEmpresaNombre(e.empresa_id).includes("Terracret") ? "bg-aria-accent-bg text-aria-accent" :
                       "bg-slate-500/20 text-[#7f93b0]"
                     }`}>{getEmpresaNombre(e.empresa_id)}</span>
@@ -358,7 +358,7 @@ export default function PersonalPage() {
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button onClick={() => setExpedienteEmp(e)} title="Expediente documental"
-                        className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400 hover:bg-violet-500/30">
+                        className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30">
                         <FolderOpen className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => abrirEdicion(e)} title="Editar"

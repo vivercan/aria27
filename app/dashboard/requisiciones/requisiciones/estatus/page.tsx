@@ -257,7 +257,7 @@ export default function RequisicionesStatusPage() {
     if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-aria-primary-light text-aria-accent";
     if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
-    if (status?.includes("COTIZA")) return "bg-purple-500/20 text-purple-400";
+    if (status?.includes("COTIZA")) return "bg-aria-primary-light text-aria-accent";
     return "bg-slate-500/20 text-[#7f93b0]";
   };
 

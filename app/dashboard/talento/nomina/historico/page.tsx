@@ -141,8 +141,8 @@ export default function HistoricoNominaPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/talento/nomina" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20">
-            <History className="w-7 h-7 text-violet-400" />
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-primary/20 to-aria-primary/20 border border-aria-primary/30">
+            <History className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Histórico de Nóminas</h1>
@@ -153,7 +153,7 @@ export default function HistoricoNominaPage() {
           <button onClick={exportarCSV} disabled={registrosFiltrados.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40 transition-all">
             <Download className="w-4 h-4" /> CSV
           </button>
-          <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-violet-500/20 border-violet-500/30 text-violet-300" : "bg-white/[0.04] border-white/[0.08] text-[#c9d8ed]"}`}>
+          <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-aria-primary-light border-aria-primary/30 text-aria-accent" : "bg-white/[0.04] border-white/[0.08] text-[#c9d8ed]"}`}>
             {vistaAcumulado ? "Ver por Semana" : "Ver Acumulado"}
           </button>
         </div>
@@ -200,15 +200,15 @@ export default function HistoricoNominaPage() {
           <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
           <p className="text-xl font-bold text-red-400">{formatMoney(totales.deducciones)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
           <p className="text-[#7f93b0] text-xs mb-1">Neto Pagado</p>
-          <p className="text-xl font-bold text-violet-400">{formatMoney(totales.neto)}</p>
+          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.neto)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
           <p className="text-[#7f93b0] text-xs mb-1">Tarjeta</p>
-          <p className="text-xl font-bold text-purple-400">{formatMoney(totales.tarjeta)}</p>
+          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.tarjeta)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
           <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
           <p className="text-xl font-bold text-amber-400">{formatMoney(totales.efectivo)}</p>
         </div>
@@ -243,7 +243,7 @@ export default function HistoricoNominaPage() {
                     <td className="p-4 text-right text-white">{formatMoney(e.totalBruto)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(e.totalDeducciones)}</td>
                     <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(e.totalNeto)}</td>
-                    <td className="p-4 text-right text-purple-400">{formatMoney(e.totalTarjeta)}</td>
+                    <td className="p-4 text-right text-aria-accent">{formatMoney(e.totalTarjeta)}</td>
                     <td className="p-4 text-right text-amber-400">{formatMoney(e.totalEfectivo)}</td>
                   </tr>
                 ))
@@ -258,7 +258,7 @@ export default function HistoricoNominaPage() {
                     <td className="p-4 text-right text-white">{formatMoney(r.total_percepciones)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(r.total_deducciones)}</td>
                     <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(r.sueldo_neto)}</td>
-                    <td className="p-4 text-right text-purple-400">{formatMoney(r.pago_tarjeta)}</td>
+                    <td className="p-4 text-right text-aria-accent">{formatMoney(r.pago_tarjeta)}</td>
                     <td className="p-4 text-right text-amber-400">{formatMoney(r.pago_efectivo)}</td>
                   </tr>
                 ))

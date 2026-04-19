@@ -46,7 +46,7 @@ const CARPETAS_SISTEMA: { key: Carpeta; label: string; icon: React.ElementType }
 const CATEGORIES: Category[] = [
   { label: "Trabajo",  color: "#E53935" },
   { label: "Personal", color: "#1E88E5" },
-  { label: "Urgente",  color: "#FB8C00" },
+  { label: "Urgente",  color: "#D97706" },
   { label: "Factura",  color: "#43A047" },
   { label: "Proyecto", color: "#8E24AA" },
 ];

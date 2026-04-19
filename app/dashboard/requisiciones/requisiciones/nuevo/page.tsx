@@ -515,7 +515,7 @@ export default function NewRequisitionPage() {
             <div className={`mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${
               formMode === "catalogo" ? "bg-aria-primary/10 text-aria-accent" :
               formMode === "combustible" ? "bg-amber-500/10 text-amber-300" :
-              "bg-violet-500/10 text-violet-300"
+              "bg-aria-primary/10 text-aria-accent"
             }`}>
               {formMode === "catalogo" && <><Search className="w-3 h-3" /> Buscar en catálogo de productos</>}
               {formMode === "combustible" && <><Fuel className="w-3 h-3" /> Captura de combustible/litros</>}
@@ -591,12 +591,12 @@ export default function NewRequisitionPage() {
           {formMode === "libre" && (
             <>
               <h2 className="mb-3 text-lg font-semibold flex items-center gap-2">
-                {subcategoria === "DESTAJOS" && <><Hammer className="w-5 h-5 text-violet-400" /> 2. PARTIDAS DE DESTAJO</>}
-                {subcategoria === "MANO DE OBRA" && <><Users2 className="w-5 h-5 text-violet-400" /> 2. PERSONAL / JORNADAS</>}
-                {subcategoria === "PERSONAL EXTERNO" && <><Users2 className="w-5 h-5 text-violet-400" /> 2. PERSONAL EXTERNO</>}
-                {!["DESTAJOS","MANO DE OBRA","PERSONAL EXTERNO"].includes(subcategoria) && <><Receipt className="w-5 h-5 text-violet-400" /> 2. CONCEPTOS</>}
+                {subcategoria === "DESTAJOS" && <><Hammer className="w-5 h-5 text-aria-accent" /> 2. PARTIDAS DE DESTAJO</>}
+                {subcategoria === "MANO DE OBRA" && <><Users2 className="w-5 h-5 text-aria-accent" /> 2. PERSONAL / JORNADAS</>}
+                {subcategoria === "PERSONAL EXTERNO" && <><Users2 className="w-5 h-5 text-aria-accent" /> 2. PERSONAL EXTERNO</>}
+                {!["DESTAJOS","MANO DE OBRA","PERSONAL EXTERNO"].includes(subcategoria) && <><Receipt className="w-5 h-5 text-aria-accent" /> 2. CONCEPTOS</>}
               </h2>
-              <button onClick={addFreeRow} className="mb-3 flex items-center gap-2 rounded-xl bg-violet-500/20 px-4 py-2 text-sm text-violet-300 hover:bg-violet-500/30 transition">
+              <button onClick={addFreeRow} className="mb-3 flex items-center gap-2 rounded-xl bg-aria-primary-light px-4 py-2 text-sm text-aria-accent hover:bg-aria-primary-hover/30 transition">
                 <Plus className="w-4 h-4" /> Agregar partida
               </button>
               <div className="max-h-52 overflow-auto space-y-2">

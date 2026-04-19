@@ -116,7 +116,7 @@ export default function OrdenesPage() {
     pendiente: "bg-amber-500/20 text-amber-300",
     aprobada: "bg-emerald-500/20 text-emerald-300",
     enviada: "bg-aria-primary-light text-aria-accent",
-    completada: "bg-violet-500/20 text-violet-300",
+    completada: "bg-aria-primary-light text-aria-accent",
   };
   const confirmDelete = async () => {
     try {
@@ -204,7 +204,7 @@ export default function OrdenesPage() {
 
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-purple-500/10 mb-2"><ClipboardList className="w-4 h-4 text-purple-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><ClipboardList className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.length}</p>
           <p className="text-xs text-[#7f93b0]">Total Órdenes</p>
         </div>

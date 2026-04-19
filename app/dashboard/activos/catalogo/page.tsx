@@ -416,7 +416,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3 text-[#7f93b0] text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
-                              <button onClick={() => setExpedienteActivo(activo)} title="Expediente" className="p-1.5 rounded bg-violet-500/20 text-violet-400 hover:bg-violet-500/30"><FolderOpen className="w-4 h-4" /></button>
+                              <button onClick={() => setExpedienteActivo(activo)} title="Expediente" className="p-1.5 rounded bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><FolderOpen className="w-4 h-4" /></button>
                               <button onClick={() => abrirEditarActivo(activo)} className="p-1.5 rounded bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30"><Edit2 className="w-4 h-4" /></button>
                               {canDelete && (<button onClick={() => eliminarActivo(activo.id)} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>)}
                             </div>
@@ -496,7 +496,7 @@ export default function ActivosCatalogoPage() {
               )}
 
               <div className="flex justify-end">
-                <button onClick={() => setShowModalMantenimiento(true)} className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium">
+                <button onClick={() => setShowModalMantenimiento(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">
                   <Plus className="w-4 h-4" /> Registrar Servicio
                 </button>
               </div>
@@ -604,7 +604,7 @@ export default function ActivosCatalogoPage() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModalMantenimiento(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarMantenimiento} className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium">Registrar</button>
+              <button onClick={guardarMantenimiento} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">Registrar</button>
             </div>
           </div>
         </div>

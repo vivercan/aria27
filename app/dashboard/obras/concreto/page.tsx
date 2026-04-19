@@ -207,14 +207,14 @@ export default function ConcretoPage() {
         </div>
 
         {/* Cilindros probados */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:border-purple-500/40 transition-all">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/10 border border-aria-primary/30 hover:border-aria-primary/30 transition-all">
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-[#7f93b0] text-sm mb-1">Cilindros Probados</p>
               <p className="text-3xl font-bold text-white">{kpis.totalCilindros}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-purple-500/20">
-              <FlaskConical className="w-5 h-5 text-purple-400" />
+            <div className="p-2.5 rounded-xl bg-aria-primary-light">
+              <FlaskConical className="w-5 h-5 text-aria-accent" />
             </div>
           </div>
           <p className="text-xs text-[#4a6080]">{kpis.cilindrosCumplen} cumplen especificación</p>
@@ -296,7 +296,7 @@ export default function ConcretoPage() {
                       <td className="p-4 text-right text-aria-accent">{fmtNum(resumen.m3_total)}</td>
                       <td className="p-4 text-right text-emerald-300">{fmt(resumen.costo_total)}</td>
                       <td className="p-4 text-center text-[#c9d8ed]">{resumen.resistencia_promedio.toFixed(0)} kg/cm²</td>
-                      <td className="p-4 text-center text-purple-300">{resumen.cilindros_total}</td>
+                      <td className="p-4 text-center text-aria-accent">{resumen.cilindros_total}</td>
                       <td className="p-4 text-center">
                         <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-semibold ${resumen.pct_cumplimiento >= 90 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"}`}>
                           {resumen.pct_cumplimiento.toFixed(1)}%
@@ -345,7 +345,7 @@ export default function ConcretoPage() {
                         <td className="p-4 text-right text-emerald-300">{fmt(rem.costo_total)}</td>
                         <td className="p-4 text-center">
                           {cilindrosDeLaRemision > 0 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-300 text-xs font-semibold">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-aria-primary-light text-aria-accent text-xs font-semibold">
                               {cilindrosDeLaRemision}
                             </span>
                           ) : (

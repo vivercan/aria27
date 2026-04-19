@@ -74,7 +74,7 @@ export default function MatrizSalarialPage() {
           <p className="text-xs text-[#7f93b0]">Nómina Diaria Total</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-          <Building2 className="w-5 h-5 text-violet-400 mb-2" />
+          <Building2 className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold text-white">{Object.keys(groups).length}</p>
           <p className="text-xs text-[#7f93b0]">Grupos</p>
         </div>

@@ -463,7 +463,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         height: "22px",
                         padding: "0 6px",
                         borderRadius: "9999px",
-                        background: "linear-gradient(160deg,#FF6B6B 0%,#DD0E0E 50%,#A80000 100%)",
+                        background: "linear-gradient(160deg,#8E2929 0%,#5F1A1A 50%,#2E0C0C 100%)",
                         color: "#fff",
                         fontSize: "12px",
                         fontWeight: 800,
