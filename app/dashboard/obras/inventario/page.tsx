@@ -743,7 +743,7 @@ export default function InventarioObraPage() {
             onClick={exportarPDF}
             disabled={exportandoPDF || inventario.length === 0}
             title="Descargar reporte listo para imprimir"
-            className="flex items-center gap-2 px-3 py-2 bg-blue-700/30 hover:bg-blue-700/60 border border-blue-600/40 rounded-lg text-blue-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 border border-aria-primary/40 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {exportandoPDF ? (
               <Loader2 className="w-4 h-4 animate-spin" />

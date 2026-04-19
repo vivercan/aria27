@@ -530,9 +530,9 @@ export default function MisDocumentosPage() {
             </button>
             <button
               onClick={() => selectFolder("publica")}
-              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-cyan-500/50 hover:bg-[#0c1d38] transition-all duration-200"
+              className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-aria-primary/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
-              <Globe className="w-20 h-20 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <Globe className="w-20 h-20 text-aria-accent group-hover:scale-110 transition-transform" />
               <span className="text-lg font-semibold text-white">Pública</span>
               <span className="text-xs text-[#7f93b0]">Visible para todos</span>
             </button>

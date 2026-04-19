@@ -267,14 +267,14 @@ interface PrintButtonsProps extends RequisicionPrintProps {
 
 export default function RequisicionPrintButtons({ loading, ...props }: PrintButtonsProps) {
   if (loading) {
-    return <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />;
+    return <Loader2 className="w-4 h-4 animate-spin text-aria-accent" />;
   }
 
   return (
     <div className="flex items-center gap-1">
       <button
         onClick={() => handlePrint(props)}
-        className="p-2 rounded-lg bg-white/[0.04] hover:bg-cyan-500/20 text-[#7f93b0] hover:text-cyan-400 transition-all"
+        className="p-2 rounded-lg bg-white/[0.04] hover:bg-aria-primary-light text-[#7f93b0] hover:text-aria-accent transition-all"
         title="Imprimir"
       >
         <Printer className="w-4 h-4" />
