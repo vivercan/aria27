@@ -189,7 +189,7 @@ function ReporteContent() {
 
         {/* KPIs principales */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "20px" }}>
-          <KPI label="Presupuesto" value={fmt(datos.presupuesto)} color="#0891b2" />
+          <KPI label="Presupuesto" value={fmt(datos.presupuesto)} color="#8ba6c1" />
           <KPI label="Gasto OC" value={fmt(datos.gastoOC)} color="#ea580c" />
           <KPI label="Gasto Nómina" value={fmt(datos.gastoNomina)} color="#7c3aed" />
           <KPI label="Gasto Total" value={fmt(datos.gastoTotal)} color="#dc2626" />

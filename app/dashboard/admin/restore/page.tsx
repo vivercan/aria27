@@ -260,7 +260,7 @@ export default function RestorePage() {
               { label: "Tablas OK", value: result.tables.ok, color: "text-green-400" },
               { label: "Saltadas", value: result.tables.skip, color: "text-gray-400" },
               { label: "Errores", value: result.tables.error, color: "text-red-400" },
-              { label: "Registros", value: result.tables.totalRows.toLocaleString(), color: "text-blue-400" },
+              { label: "Registros", value: result.tables.totalRows.toLocaleString(), color: "text-aria-accent" },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/[0.04] rounded-lg p-3 text-center">
                 <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
