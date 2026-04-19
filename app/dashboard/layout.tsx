@@ -240,6 +240,28 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [pathname, router]);
 
+  /* ── Mobile drawer hardening 18-Abr-2026: ESC + body scroll lock ──
+     Solo actúa cuando mobileOpen=true. Desktop no se entera. */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [mobileOpen]);
+
+  /* ── Cerrar drawer móvil automáticamente al cambiar de ruta ──
+     Cubre navegaciones vía Link sin onClick (ej. breadcrumbs internos, push programático). */
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     if (!userEmail) return;
     const actualizarPresencia = async () => {
@@ -304,6 +326,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
       {/* ─── Sidebar ─── */}
       <aside
+        aria-label="Menú principal"
         className={`fixed left-0 top-0 h-full w-[220px] flex flex-col z-40 transition-transform duration-200 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         style={{
           backgroundColor: sidebarBg,
