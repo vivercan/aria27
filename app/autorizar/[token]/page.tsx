@@ -152,7 +152,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                         <tr key={i} className="row" style={{borderBottom:"1px solid #1e293b",background:isBest?"#0c1425":"transparent",transition:"background 0.15s"}}>
                           <td style={{padding:"12px 16px"}}>
                             <div style={{display:"flex",alignItems:"center",gap:10}}>
-                              <div style={{width:32,height:32,borderRadius:8,background:isBest?"#334155":"#1e293b",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:isBest?"#e2e8f0":"#475569",flexShrink:0}}>{q.supplier?.charAt(0) || "#"}</div>
+                              <div style={{width:32,height:32,borderRadius:8,background:isBest?"#4e6b87":"#3d556c",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:isBest?"#e2e8f0":"#7a95ae",flexShrink:0}}>{q.supplier?.charAt(0) || "#"}</div>
                               <div>
                                 <p style={{color:"#e2e8f0",fontSize:13,fontWeight:600,margin:0}}>{q.supplier}</p>
                                 {q.factura && <p style={{color:"#475569",fontSize:9,margin:"1px 0 0"}}>Factura</p>}
@@ -165,7 +165,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                           <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.entrega || q.delivery || "-"}</td>
                           <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.forma_pago || q.payment || "-"}</td>
                           <td style={{padding:"12px 16px",textAlign:"center",color:"#64748b",fontSize:12}}>{q.credito || q.credit || "-"}</td>
-                          <td style={{padding:"12px 16px",textAlign:"center"}}>{isBest && (<span style={{background:"#334155",color:"#94a3b8",padding:"2px 8px",borderRadius:3,fontSize:9,fontWeight:600,letterSpacing:1}}>MEJOR</span>)}</td>
+                          <td style={{padding:"12px 16px",textAlign:"center"}}>{isBest && (<span style={{background:"#4e6b87",color:"#c9d8ed",padding:"2px 8px",borderRadius:3,fontSize:9,fontWeight:600,letterSpacing:1}}>MEJOR</span>)}</td>
                         </tr>
                       );
                     })}
@@ -185,7 +185,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
 
             {/* BUTTONS */}
             <div className="fi d4" style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
-              <a href={`/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`} className="btn ba" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"14px 44px",background:"#334155",color:"#e2e8f0",textDecoration:"none",borderRadius:8,fontWeight:600,fontSize:14,letterSpacing:0.3,minWidth:180,border:"1px solid #475569"}}>
+              <a href={`/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`} className="btn ba" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"14px 44px",background:"#4e6b87",color:"#ffffff",textDecoration:"none",borderRadius:8,fontWeight:600,fontSize:14,letterSpacing:0.3,minWidth:180,border:"1px solid #3d556c"}}>
                 AUTORIZAR
               </a>
               <a href={`/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`} className="btn br" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"14px 44px",background:"transparent",color:"#ef4444",textDecoration:"none",borderRadius:8,fontWeight:600,fontSize:14,letterSpacing:0.3,minWidth:180,border:"1px solid #1e293b"}}>

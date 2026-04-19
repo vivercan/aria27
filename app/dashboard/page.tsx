@@ -150,7 +150,7 @@ export default function DashboardPage() {
       title: "Productos",
       value: stats.productosEnCatalogo.toLocaleString(),
       icon: Package,
-      color: "from-aria-accent to-teal-500",
+      color: "from-aria-primary to-aria-accent",
       bgColor: "bg-aria-accent-bg",
       textColor: "text-aria-accent",
     },

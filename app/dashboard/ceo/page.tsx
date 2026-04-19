@@ -309,7 +309,7 @@ function KpiCard({ icon, label, value, sub, color }: { icon: React.ReactNode; la
   const map: Record<string, string> = {
     blue: "bg-aria-primary/10 border-aria-primary/20 text-aria-accent",
     emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
-    teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
+    teal: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
     amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
     orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
     rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
