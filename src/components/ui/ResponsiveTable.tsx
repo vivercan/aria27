@@ -207,6 +207,7 @@ export default function ResponsiveTable<T>({
         open={detailRow !== null}
         onClose={() => setDetailRow(null)}
         title={detailTitle}
+        sheetOnMobile
       >
         {detailRow !== null && (
           <dl className="flex flex-col gap-3">
