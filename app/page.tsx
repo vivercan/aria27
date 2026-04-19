@@ -152,10 +152,10 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 18-Abr-2026 PM: login background — eliminado azul eléctrico #0066FF, paleta slate corporate */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #020617 0%, #020617 40%, #0a1628 70%, #1e293b 100%)' }} />
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(51,65,85,0.45) 0%, rgba(30,41,59,0.25) 30%, transparent 60%)' }} />
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(51,65,85,0.35) 0%, transparent 40%)' }} />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(51,65,85,0.30) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #020617 0%, #020617 40%, #0a1628 70%, #2e4a6b 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(78,107,135,0.42) 0%, rgba(61,85,108,0.22) 30%, transparent 60%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(78,107,135,0.35) 0%, transparent 40%)' }} />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(78,107,135,0.30) 0%, transparent 60%)', filter: 'blur(60px)' }} />
 
       <div className="absolute top-6 right-8 z-20">
         <p className="text-[10px] text-[#4a6080] tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
@@ -165,7 +165,7 @@ export default function LoginPage() {
         <div className="relative flex-shrink-0">
           <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'rgba(15,23,42,0.65)', border: '1px solid rgba(148,163,184,0.18)', boxShadow: '0 30px 80px rgba(15,23,42,0.9)', width: '300px' }}>
             {/* 18-Abr-2026 PM: barra decorativa — slate sólido sin azul brillante */}
-            <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #334155 0%, #64748b 50%, #334155 100%)' }} />
+            <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #4e6b87 0%, #7a95ae 50%, #4e6b87 100%)' }} />
             
             <div style={{ padding: '22px 18px 18px 18px' }}>
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -213,7 +213,7 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full text-white font-semibold rounded-xl uppercase tracking-wider disabled:opacity-70"
                   /* 18-Abr-2026 PM: botón login — glow eléctrico eliminado, slate sólido */
-                  style={{ height: '36px', fontSize: '13px', background: 'linear-gradient(135deg, #334155 0%, #475569 50%, #334155 100%)', boxShadow: '0 10px 30px rgba(15,23,42,0.50)' }}
+                  style={{ height: '36px', fontSize: '13px', background: 'linear-gradient(135deg, #4e6b87 0%, #5a7a99 50%, #4e6b87 100%)', boxShadow: '0 10px 30px rgba(15,23,42,0.50)' }}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">

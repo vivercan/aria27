@@ -28,7 +28,7 @@ interface ThemeContextType {
   colors: ThemeColors;
 }
 
-// 18-Abr-2026 PM: paleta "solid corporate dark" — eliminado cyan/azul neón fosforescente
+// 18-Abr-2026 PM v2: paleta "Steel Corporate" — azul acero profundo + accent aclarado WCAG AA
 const originalDarkColors: ThemeColors = {
   bg: "#0a1628",
   bgGradient: "from-[#070e1c] via-[#0a1628] to-[#0f2244]",
@@ -37,11 +37,11 @@ const originalDarkColors: ThemeColors = {
   cardBorder: "rgba(255,255,255,0.07)",
   text: "#ffffff",
   textMuted: "#7f93b0",
-  accent: "#8ba6c1",
-  accentBg: "rgba(139,166,193,0.08)",
-  primary: "#334155",
-  primaryHover: "#1e293b",
-  primaryLight: "rgba(51,65,85,0.30)",
+  accent: "#7a95ae",
+  accentBg: "rgba(122,149,174,0.10)",
+  primary: "#4e6b87",
+  primaryHover: "#3d556c",
+  primaryLight: "rgba(78,107,135,0.30)",
 };
 
 const ThemeContext = createContext<ThemeContextType>({

@@ -102,7 +102,7 @@ function Content() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "20px" }}>
-          <KPI label="OCs Total" value={fmt(totOC)} color="#8ba6c1" />
+          <KPI label="OCs Total" value={fmt(totOC)} color="#7a95ae" />
           <KPI label="Pagado" value={fmt(totPagado)} color="#059669" />
           <KPI label="Pendiente" value={fmt(totPendiente)} color="#dc2626" />
         </div>

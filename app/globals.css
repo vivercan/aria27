@@ -15,12 +15,14 @@
   --aria-muted: #7f93b0;
   --aria-muted-2: #4a6080;
   --aria-text-secondary: #c9d8ed;
-  /* 18-Abr-2026 PM: paleta solid corporate dark — eliminado neón/cyan fosforescente */
-  --aria-accent: #8ba6c1;
-  --aria-accent-bg: rgba(139,166,193,0.08);
-  --aria-primary: #334155;
-  --aria-primary-hover: #1e293b;
-  --aria-primary-light: rgba(51,65,85,0.30);
+  /* 18-Abr-2026 PM: paleta "Steel Corporate" — azul acero profundo + accent aclarado
+     Split para cumplir WCAG AA: accent 7a95ae legible sobre dark (6.4:1),
+     primary 4e6b87 fondo de botón con texto blanco (5.6:1) */
+  --aria-accent: #7a95ae;
+  --aria-accent-bg: rgba(122,149,174,0.10);
+  --aria-primary: #4e6b87;
+  --aria-primary-hover: #3d556c;
+  --aria-primary-light: rgba(78,107,135,0.30);
   /* Layers de fondo */
   --aria-layer-0: #040810;
   --aria-layer-1: #070e1c;
@@ -171,9 +173,9 @@
   /* ── BOTONES ── */
   .aria-btn-primary {
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-150;
-    background-color: #334155; /* slate-700 sólido corporate */
+    background-color: #4e6b87; /* Steel Blue profundo */
   }
-  .aria-btn-primary:hover { background-color: #1e293b; /* slate-800 */ }
+  .aria-btn-primary:hover { background-color: #3d556c; /* Steel Blue hover */ }
   .aria-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .aria-btn-secondary {

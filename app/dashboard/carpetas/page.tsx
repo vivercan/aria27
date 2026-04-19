@@ -57,7 +57,7 @@ const subModules = [
     href: "/dashboard/carpetas/activos-general",
     icon: Truck,
     iconBg: "rgba(6,182,212,0.13)",
-    iconColor: "#8ba6c1",
+    iconColor: "#7a95ae",
   },
   {
     title: "Requisiciones",
