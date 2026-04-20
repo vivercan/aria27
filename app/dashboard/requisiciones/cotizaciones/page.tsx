@@ -255,7 +255,7 @@ export default function CotizacionesIAPage() {
           ) : resultado ? (
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               {/* Análisis */}
-              <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
                 <h3 className="text-amber-400 font-medium mb-2 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" /> Análisis IA
                 </h3>
@@ -265,7 +265,7 @@ export default function CotizacionesIAPage() {
 
               {/* Recomendación */}
               {resultado.recomendacion && (
-                <div className="p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
+                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
                   <p className="text-emerald-400 text-sm">💡 {resultado.recomendacion}</p>
                 </div>
               )}
@@ -279,7 +279,7 @@ export default function CotizacionesIAPage() {
                   </h3>
                   <div className="space-y-2">
                     {resultado.proveedores_internos.map((p, i) => (
-                      <div key={i} className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium">{p.nombre}</span>
                           <span className={`px-2 py-0.5 rounded text-xs ${
