@@ -20,8 +20,9 @@ type ModuleItem = {
   hero?: boolean;
 };
 
-const GREEN = "#3AD8B1";
-const GOLD  = "#67E8F9";
+// Paleta alineada a hubs Obras/Talento/Plantillas — pastel navy (sin cyan brillante ni verde neón).
+const GREEN = "#7BB6FF"; // antes #3AD8B1 (emerald neon) → BLUE pastel (matching Obras Operación)
+const GOLD  = "#94B4D8"; // antes #67E8F9 (cyan-300 saturado) → SOFT-BLUE pastel (matching Obras Legal)
 
 const grupos: { label: string; modulos: ModuleItem[] }[] = [
   {

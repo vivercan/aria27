@@ -293,7 +293,7 @@ export default function GastosObraPage() {
           <AriaBackButton href="/dashboard/finanzas" />
           {/* 19-Abr-2026: fondo neutral canon Steel Corporate. Color semántico preserved en el icono. */}
           <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
-            <DollarSign className="w-7 h-7 text-emerald-400" />
+            <DollarSign className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Gastos de Obra</h1>
@@ -305,7 +305,7 @@ export default function GastosObraPage() {
             <Plus className="w-4 h-4" />
             Nuevo Gasto
           </button>
-          <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-emerald-300 hover:bg-emerald-500/10 transition-all disabled:opacity-50">
+          <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-aria-accent hover:bg-aria-primary/10 transition-all disabled:opacity-50">
             {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
             {exportando ? "Generando..." : "Exportar Excel"}
           </button>
@@ -316,10 +316,10 @@ export default function GastosObraPage() {
         {/* 19-Abr-2026: KPI cards canon — bg neutral, icon accent preservado por semántica ($/dinero = emerald). */}
         <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-emerald-500/10"><DollarSign className="w-5 h-5 text-emerald-400" /></div>
+            <div className="p-2 rounded-xl bg-aria-primary-light"><DollarSign className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Total Filtrado</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-300">{formatMoney(totalFiltrado)}</p>
+          <p className="text-2xl font-bold text-aria-accent">{formatMoney(totalFiltrado)}</p>
         </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 ">
           <div className="flex items-center gap-3 mb-3">
@@ -349,20 +349,20 @@ export default function GastosObraPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
-            <input type="text" placeholder="Buscar descripción, solicitante, proveedor..." value={filtros.buscar} onChange={e => setFiltros({ ...filtros, buscar: e.target.value })} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-emerald-500/50 focus:outline-none transition-all" />
+            <input type="text" placeholder="Buscar descripción, solicitante, proveedor..." value={filtros.buscar} onChange={e => setFiltros({ ...filtros, buscar: e.target.value })} className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#4a6080] focus:border-aria-primary/50 focus:outline-none transition-all" />
           </div>
-          <select value={filtros.obra} onChange={e => setFiltros({ ...filtros, obra: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+          <select value={filtros.obra} onChange={e => setFiltros({ ...filtros, obra: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none">
             <option value="">🏗️ Todas las obras</option>
             {obras.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
-          <select value={filtros.semana} onChange={e => setFiltros({ ...filtros, semana: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+          <select value={filtros.semana} onChange={e => setFiltros({ ...filtros, semana: e.target.value })} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none">
             <option value="">📅 Todas las semanas</option>
             {semanas.map(s => <option key={s} value={s}>Semana {s}</option>)}
           </select>
           <div className="flex items-center gap-2">
-            <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
+            <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none" />
             <span className="text-[#4a6080]">→</span>
-            <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({ ...filtros, fechaFin: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-emerald-500/50 focus:outline-none" />
+            <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({ ...filtros, fechaFin: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none" />
           </div>
           <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all" title="Limpiar filtros">
             <X className="w-4 h-4" />
@@ -373,7 +373,7 @@ export default function GastosObraPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-emerald-400" />Detalle de Gastos
+            <DollarSign className="w-5 h-5 text-aria-accent" />Detalle de Gastos
           </h2>
           <div className="max-h-[450px] overflow-y-auto rounded-xl">
             <table className="w-full text-sm">
@@ -397,7 +397,7 @@ export default function GastosObraPage() {
                     <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
                     <td className="px-4 py-3 text-[#7f93b0] truncate max-w-[120px]">{g.proveedor || "—"}</td>
-                    <td className="px-4 py-3 text-right"><span className="font-semibold text-emerald-400">{formatMoney(g.monto)}</span></td>
+                    <td className="px-4 py-3 text-right"><span className="font-semibold text-aria-accent">{formatMoney(g.monto)}</span></td>
                     <td className="px-4 py-3 text-center">{g.imagen_url ? <Paperclip className="w-4 h-4 text-[#7f93b0] mx-auto" /> : <span className="text-[#4a6080]">—</span>}</td>
                   </tr>
                 ))}
@@ -409,17 +409,17 @@ export default function GastosObraPage() {
 
         <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />Top Obras
+            <TrendingUp className="w-5 h-5 text-aria-accent" />Top Obras
           </h2>
           <div className="space-y-3">
             {resumenObras.map((o, i) => (
               <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-white/[0.08] transition-all cursor-pointer" onClick={() => setFiltros({ ...filtros, obra: o.nombre })}>
                 <div className="flex justify-between items-start mb-2">
                   <p className="text-sm font-medium text-white truncate flex-1">{o.nombre}</p>
-                  <span className="text-emerald-400 font-bold">{formatMoney(o.total)}</span>
+                  <span className="text-aria-accent font-bold">{formatMoney(o.total)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-r from-aria-primary to-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
                 </div>
               </div>
             ))}
@@ -457,7 +457,7 @@ export default function GastosObraPage() {
                   value={formData.fecha}
                   onChange={e => setFormData({ ...formData, fecha: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 />
                 {formErrors.fecha && <p className="text-red-400 text-xs mt-1">{formErrors.fecha}</p>}
               </div>
@@ -469,7 +469,7 @@ export default function GastosObraPage() {
                   value={formData.obra}
                   onChange={e => setFormData({ ...formData, obra: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 >
                   <option value="">-- Seleccionar obra --</option>
                   {obrasData.map(o => <option key={o.nombre} value={o.nombre}>{o.nombre}</option>)}
@@ -486,7 +486,7 @@ export default function GastosObraPage() {
                   onChange={e => setFormData({ ...formData, solicitante: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="Nombre del solicitante"
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 />
               </div>
 
@@ -499,7 +499,7 @@ export default function GastosObraPage() {
                   onChange={e => setFormData({ ...formData, proveedor: e.target.value })}
                   disabled={drawerMode === "view"}
                   placeholder="Nombre del proveedor"
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 />
               </div>
 
@@ -512,7 +512,7 @@ export default function GastosObraPage() {
                   disabled={drawerMode === "view"}
                   placeholder="Descripción detallada del gasto"
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none resize-none"
                 />
                 {formErrors.descripcion && <p className="text-red-400 text-xs mt-1">{formErrors.descripcion}</p>}
               </div>
@@ -527,7 +527,7 @@ export default function GastosObraPage() {
                   disabled={drawerMode === "view"}
                   placeholder="0.00"
                   step="0.01"
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder-[#4a6080] disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 />
                 {formErrors.monto && <p className="text-red-400 text-xs mt-1">{formErrors.monto}</p>}
               </div>
@@ -539,7 +539,7 @@ export default function GastosObraPage() {
                   value={formData.estatus}
                   onChange={e => setFormData({ ...formData, estatus: e.target.value })}
                   disabled={drawerMode === "view"}
-                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
                 >
                   {ESTATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -571,7 +571,7 @@ export default function GastosObraPage() {
                     type="file"
                     accept="image/*,.pdf"
                     onChange={e => setFormData({ ...formData, comprobante: e.target.files?.[0] || null })}
-                    className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-emerald-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
+                    className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-aria-primary/20 file:text-aria-accent hover:file:bg-aria-primary/30"
                   />
                 )}
 
@@ -602,7 +602,7 @@ export default function GastosObraPage() {
                   <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
-                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {submitting || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                     {submitting || uploadingFile ? "Guardando..." : "Crear"}
                   </button>
@@ -614,7 +614,7 @@ export default function GastosObraPage() {
                   <button onClick={() => setDrawerMode("view")} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
-                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {submitting || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit2 className="w-4 h-4" />}
                     {submitting || uploadingFile ? "Guardando..." : "Actualizar"}
                   </button>
