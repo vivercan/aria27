@@ -202,7 +202,7 @@ export default function CeoDashboardPage() {
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
+          <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
             <Activity className="w-7 h-7 text-amber-400" />
           </div>
           <div>
@@ -227,7 +227,7 @@ export default function CeoDashboardPage() {
 
       {/* Alertas */}
       {(obrasRebasadas.length > 0 || obrasDeltaNeg.length > 0 || kpis.cotsVencidas.length > 0 || ocGrandesPend.length > 0) && (
-        <div className="rounded-2xl bg-rose-500/5 border border-rose-500/20 p-5">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-5 h-5 text-rose-400" />
             <h2 className="text-lg font-bold text-rose-200">Alertas operativas</h2>
