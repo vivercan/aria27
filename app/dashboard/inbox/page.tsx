@@ -110,7 +110,7 @@ function insertAtCursor(el: HTMLTextAreaElement|null, text: string, setter: (v:s
 
 const CACHE_KEY      = (f: string) => `aria27_inbox_${f}`;
 const DRAFT_KEY      = "aria27_drafts";
-const AUTO_MS        = 1 * 60 * 1000;
+const AUTO_MS        = 30 * 1000; // Poll cada 30s (antes 60s) para detección rápida de correos nuevos
 
 /* ══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL

@@ -218,6 +218,62 @@ export default function DashboardPage() {
     return "Buenas noches";
   };
 
+  // Panel contextual por rol — muestra atajos y foco relevante al usuario actual
+  const roleNorm = (userRole || "").toLowerCase();
+  const isAdmin = roleNorm === "admin" || roleNorm === "administrador" || roleNorm === "direccion";
+  const isRH = roleNorm === "rh";
+  const isCompras = roleNorm === "compras" || roleNorm === "almacen";
+  const isResidente = roleNorm === "residente" || roleNorm === "operador";
+
+  interface RolePanel { title: string; subtitle: string; links: { label: string; href: string; icon: typeof FileText; color: string; }[] }
+  let rolePanel: RolePanel | null = null;
+
+  if (isAdmin) {
+    rolePanel = {
+      title: "Vista ejecutiva",
+      subtitle: "Controles y dashboards globales del ERP",
+      links: [
+        { label: "Dashboard CEO", href: "/dashboard/ceo", icon: TrendingUp, color: "text-amber-300" },
+        { label: "Centro Control Obras", href: "/dashboard/obras/control", icon: Activity, color: "text-aria-accent" },
+        { label: "Roles y permisos", href: "/dashboard/admin/roles", icon: Users, color: "text-emerald-300" },
+        { label: "Auditoría", href: "/dashboard/admin/auditoria", icon: Clock, color: "text-rose-300" },
+      ],
+    };
+  } else if (isRH) {
+    rolePanel = {
+      title: "Tu agenda de Talento",
+      subtitle: "Personal, checadas e incidencias del día",
+      links: [
+        { label: "Personal activo", href: "/dashboard/talento/personal", icon: Users, color: "text-aria-accent" },
+        { label: "Checadas del día", href: "/dashboard/talento/checadas", icon: Clock, color: "text-emerald-300" },
+        { label: "Incidencias abiertas", href: "/dashboard/talento/incidencias", icon: AlertCircle, color: "text-amber-300" },
+        { label: "Nómina", href: "/dashboard/talento/nomina", icon: DollarSign, color: "text-aria-accent" },
+      ],
+    };
+  } else if (isCompras) {
+    rolePanel = {
+      title: "Cola de compras",
+      subtitle: "Requisiciones pendientes y órdenes de compra",
+      links: [
+        { label: "Requisiciones pendientes", href: "/dashboard/requisiciones/requisiciones/tramite", icon: FileText, color: "text-amber-300" },
+        { label: "Órdenes de compra", href: "/dashboard/requisiciones/requisiciones/ordenes", icon: Package, color: "text-aria-accent" },
+        { label: "Proveedores", href: "/dashboard/requisiciones/proveedores", icon: Truck, color: "text-emerald-300" },
+        { label: "Productos", href: "/dashboard/requisiciones/productos", icon: Package, color: "text-[#c9d8ed]" },
+      ],
+    };
+  } else if (isResidente) {
+    rolePanel = {
+      title: "Tu obra hoy",
+      subtitle: "Avance, bitácora y checadas del frente",
+      links: [
+        { label: "Centro Control", href: "/dashboard/obras/control", icon: Activity, color: "text-aria-accent" },
+        { label: "Avance físico", href: "/dashboard/obras/avance", icon: TrendingUp, color: "text-emerald-300" },
+        { label: "Bitácora", href: "/dashboard/obras/bitacora", icon: FileText, color: "text-amber-300" },
+        { label: "Mis checadas", href: "/dashboard/talento/checadas", icon: Clock, color: "text-[#c9d8ed]" },
+      ],
+    };
+  }
+
   return (
     <div className="space-y-8">
       {/* HEADER */}
@@ -226,17 +282,39 @@ export default function DashboardPage() {
           {getGreeting()}{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
         <p className="text-[#7f93b0]">
-          Aquí tienes un resumen de la actividad de hoy en ARIA
+          {rolePanel ? rolePanel.subtitle : "Aquí tienes un resumen de la actividad de hoy en ARIA"}
         </p>
-        <Link
-          href="/dashboard/ceo"
-          className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-amber-200 hover:from-amber-500/30 hover:to-orange-500/30 transition w-fit"
-        >
-          <Activity className="w-4 h-4" />
-          <span className="text-sm font-medium">Abrir Dashboard CEO — vista ejecutiva consolidada</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        {!rolePanel && (
+          <Link
+            href="/dashboard/ceo"
+            className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-amber-200 hover:from-amber-500/30 hover:to-orange-500/30 transition w-fit"
+          >
+            <Activity className="w-4 h-4" />
+            <span className="text-sm font-medium">Abrir Dashboard CEO — vista ejecutiva consolidada</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
       </div>
+
+      {/* PANEL POR ROL — atajos personalizados */}
+      {rolePanel && (
+        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
+          <h2 className="text-lg font-semibold text-white mb-4">{rolePanel.title}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {rolePanel.links.map((l, i) => (
+              <Link
+                key={i}
+                href={l.href}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] transition-all group"
+              >
+                <l.icon className={`w-5 h-5 ${l.color} flex-shrink-0`} strokeWidth={1.75} />
+                <span className="text-sm text-white font-medium flex-1">{l.label}</span>
+                <ArrowRight className="w-4 h-4 text-[#7f93b0] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
