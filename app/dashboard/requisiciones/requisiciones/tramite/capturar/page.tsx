@@ -580,7 +580,7 @@ function CapturarContent() {
 
       {/* ENVIAR COMPARATIVA */}
       {quotes.length >= 5 && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
             <p className="text-[#7f93b0] text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
