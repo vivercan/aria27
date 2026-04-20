@@ -119,7 +119,7 @@ export default function RequisicionesPage() {
   return (
     <div className="px-5 pt-4 pb-6 min-h-full overflow-y-auto" style={{ background: HUB_BG }}>
       {fetchError && (
-        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm">
           <X className="w-4 h-4 shrink-0" />{fetchError}
         </div>
       )}
@@ -168,7 +168,7 @@ export default function RequisicionesPage() {
         <div className="space-y-5">
           {/* Stats */}
           <div className="grid grid-cols-5 gap-4">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
               <span className="text-[#7f93b0] text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
             </div>
@@ -218,7 +218,7 @@ export default function RequisicionesPage() {
                 <span className="text-[#4a6080]">→</span>
                 <input type="date" value={filtros.fechaFin} onChange={e => setFiltros({...filtros, fechaFin: e.target.value})} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white" />
               </div>
-              <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20" title="Limpiar">
+              <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 hover:bg-red-500/20" title="Limpiar">
                 <X className="w-4 h-4" />
               </button>
               <button onClick={exportarExcel} disabled={exportando} className="btn-sku flex items-center gap-2 px-4 py-2.5 rounded-xl disabled:opacity-50" style={{background:"rgba(16,185,129,0.10)",color:"#34d399",border:"1px solid rgba(16,185,129,0.25)"}}>
