@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search, X, Loader2, History, FileSpreadsheet, TrendingUp, ChevronRight } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import { ResponsiveTable } from "@/components/ui";
 
 interface ReqHist {
   id: string;
@@ -237,32 +238,29 @@ export default function RequisicionesPage() {
               </h2>
               {loading ? <div className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></div> : (
                 <div className="max-h-[400px] overflow-y-auto rounded-xl">
-                  <table className="w-full text-sm">
-                    <thead className="sticky top-0 z-10">
-                      <tr className="bg-[#0c1d38]/90 ">
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase rounded-tl-lg">#</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Fecha</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Solicitante</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Obra</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase">Descripción</th>
-                        <th className="px-3 py-3 text-right text-xs font-medium text-[#7f93b0] uppercase">Monto</th>
-                        <th className="px-3 py-3 text-left text-xs font-medium text-[#7f93b0] uppercase rounded-tr-lg">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {registrosFiltrados.slice(0, 150).map((r, idx) => (
-                        <tr key={r.id} className={`${idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-white/[0.03]'} hover:bg-white/[0.06] transition-colors`}>
-                          <td className="px-3 py-2.5 text-aria-accent font-mono text-xs">{r.folio_excel}</td>
-                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{r.fecha || "—"}</td>
-                          <td className="px-3 py-2.5 text-[#c9d8ed] text-xs truncate max-w-[100px]">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</td>
-                          <td className="px-3 py-2.5"><span className="px-2 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs truncate block max-w-[100px]">{r.obra?.substring(0,18) || "—"}</span></td>
-                          <td className="px-3 py-2.5 text-white text-xs truncate max-w-[180px]">{r.descripcion || "—"}</td>
-                          <td className="px-3 py-2.5 text-right"><span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span></td>
-                          <td className="px-3 py-2.5"><span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <ResponsiveTable
+                    columns={[
+                      { key: "folio_excel", label: "#", primary: true },
+                      { key: "fecha", label: "Fecha", primary: true },
+                      { key: "solicitante", label: "Solicitante" },
+                      { key: "obra", label: "Obra", primary: true },
+                      { key: "descripcion", label: "Descripción" },
+                      { key: "monto", label: "Monto", align: "right", primary: true },
+                      { key: "status", label: "Status", primary: true },
+                    ]}
+                    rows={registrosFiltrados.slice(0, 150)}
+                    rowKey={(r) => r.id}
+                    render={(r, c) => {
+                      if (c.key === "folio_excel") return <span className="text-aria-accent font-mono text-xs">{r.folio_excel}</span>;
+                      if (c.key === "fecha") return <span className="text-[#c9d8ed] text-xs">{r.fecha || "—"}</span>;
+                      if (c.key === "solicitante") return <span className="text-[#c9d8ed] text-xs">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</span>;
+                      if (c.key === "obra") return <span className="px-2 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs">{r.obra?.substring(0,18) || "—"}</span>;
+                      if (c.key === "descripcion") return <span className="text-white text-xs">{r.descripcion || "—"}</span>;
+                      if (c.key === "monto") return <span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span>;
+                      if (c.key === "status") return <span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span>;
+                      return null;
+                    }}
+                  />
                 </div>
               )}
               {registrosFiltrados.length > 150 && <p className="text-center text-[#4a6080] text-xs mt-4 py-2 bg-white/[0.04] rounded-lg">Mostrando 150 de {registrosFiltrados.length}</p>}
