@@ -230,7 +230,7 @@ export default function DashboardPage() {
         </p>
         <Link
           href="/dashboard/ceo"
-          className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-200 hover:from-amber-500/30 hover:to-orange-500/30 transition w-fit"
+          className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-amber-200 hover:from-amber-500/30 hover:to-orange-500/30 transition w-fit"
         >
           <Activity className="w-4 h-4" />
           <span className="text-sm font-medium">Abrir Dashboard CEO — vista ejecutiva consolidada</span>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
       </div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         {statCards.map((stat, index) => (
           <div
             key={index}
@@ -270,7 +270,7 @@ export default function DashboardPage() {
           <Activity className="w-5 h-5 text-aria-accent" />
           Acciones Rápidas
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
             <Link
               key={index}
