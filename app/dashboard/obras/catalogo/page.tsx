@@ -187,7 +187,7 @@ export default function CatalogoObrasPage() {
             <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Vista Pipeline</Link>
             <button
               onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
-              className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
+              className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
             >
               {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {showForm ? "Cancelar" : "Nueva Obra"}
@@ -278,7 +278,7 @@ export default function CatalogoObrasPage() {
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50">
+            <button onClick={guardar} disabled={saving} className="px-5 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editId ? "Guardar cambios" : "Crear obra"}
             </button>

@@ -102,7 +102,7 @@ export default function PrestamosPage() {
           <h1 className="text-2xl font-bold text-white">Control de Préstamos</h1>
           <p className="text-[#7f93b0]">Gestiona préstamos y descuentos semanales</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2">
+        <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Préstamo
         </button>
       </div>
@@ -196,7 +196,7 @@ export default function PrestamosPage() {
                 {formErrors.semanas && <p className="text-red-400 text-xs mt-1">{formErrors.semanas}</p>}
               </div>
               <input type="text" placeholder="Motivo" value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} className="w-full p-3 bg-white/[0.06] border border-white/[0.12] rounded-lg text-white" />
-              <button onClick={crearPrestamo} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg font-medium">Crear Préstamo</button>
+              <button onClick={crearPrestamo} className="w-full py-3 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] font-medium">Crear Préstamo</button>
             </div>
           </div>
         </div>

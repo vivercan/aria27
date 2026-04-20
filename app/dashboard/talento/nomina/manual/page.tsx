@@ -388,7 +388,7 @@ export default function NominaManualPage() {
               <h3 className="text-white font-medium">Asistencias de la Semana</h3>
               <div className="flex gap-2">
                 {hayEdiciones && (
-                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary to-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50">
+                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50">
                     {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Guardar
                   </button>

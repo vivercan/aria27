@@ -301,7 +301,7 @@ export default function GastosObraPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-aria-primary/30 border border-aria-primary/60 text-white font-medium hover:bg-aria-primary/50 transition-all">
+          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white font-medium hover:bg-[#2A4A8E] shadow-[0_2px_8px_rgba(0,0,0,0.25)] transition-all">
             <Plus className="w-4 h-4" />
             Nuevo Gasto
           </button>
@@ -419,7 +419,7 @@ export default function GastosObraPage() {
                   <span className="text-aria-accent font-bold">{formatMoney(o.total)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-aria-primary to-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
+                  <div className="h-full rounded-full bg-aria-accent transition-all" style={{ width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%` }} />
                 </div>
               </div>
             ))}
@@ -602,7 +602,7 @@ export default function GastosObraPage() {
                   <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
-                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white font-medium hover:bg-[#2A4A8E] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {submitting || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                     {submitting || uploadingFile ? "Guardando..." : "Crear"}
                   </button>
@@ -614,7 +614,7 @@ export default function GastosObraPage() {
                   <button onClick={() => setDrawerMode("view")} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cancelar
                   </button>
-                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:bg-aria-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={handleSubmit} disabled={submitting || uploadingFile} className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white font-medium hover:bg-[#2A4A8E] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {submitting || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit2 className="w-4 h-4" />}
                     {submitting || uploadingFile ? "Guardando..." : "Actualizar"}
                   </button>

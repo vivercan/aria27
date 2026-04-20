@@ -123,7 +123,7 @@ export default function PropuestasPage() {
           <h1 className="text-2xl font-bold text-white">Propuestas de Licitación</h1>
           <p className="text-[#7f93b0] text-sm">Paquetes de propuestas y licitaciones</p>
         </div>
-        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
+        <button onClick={() => { setForm({ ...EMPTY }); setEditId(null); setShowForm(true); }} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nueva Propuesta
         </button>
       </div>
@@ -170,7 +170,7 @@ export default function PropuestasPage() {
                 <label className="text-xs text-[#7f93b0] mb-1 block">Fecha de Entrega</label>
                 <input type="date" value={form.fecha_entrega} onChange={e => setForm({ ...form, fecha_entrega: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
               </div>
-              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+              <button onClick={guardar} disabled={guardando} className="mt-2 w-full py-2.5 bg-[#1E3E7A] hover:bg-[#2A4A8E] disabled:opacity-50 text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm font-medium flex items-center justify-center gap-2 transition-colors">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {guardando ? "Guardando..." : editId ? "Actualizar Propuesta" : "Crear Propuesta"}
               </button>

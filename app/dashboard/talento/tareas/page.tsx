@@ -228,7 +228,7 @@ export default function TareasTalentoPage() {
         </div>
         <button
           onClick={() => { setEditando(null); setForm(EMPTY_FORM); setShowForm(true); }}
-          className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2 font-medium"
+          className="px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] flex items-center gap-2 font-medium"
         >
           <Plus className="w-5 h-5" /> Nueva tarea
         </button>
@@ -433,7 +433,7 @@ export default function TareasTalentoPage() {
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }}
                 className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>
               <button onClick={guardar} disabled={guardando}
-                className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
+                className="px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] flex items-center gap-2 disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Guardar
               </button>

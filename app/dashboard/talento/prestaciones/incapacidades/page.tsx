@@ -71,7 +71,7 @@ export default function IncapacidadesPage() {
             <h1 className="text-2xl font-bold text-white">Incapacidades</h1>
             <p className="text-[#7f93b0] text-sm mt-1">Registro y seguimiento de incapacidades IMSS</p>
           </div>
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">
+          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm font-medium">
             <Plus className="w-4 h-4" /> Registrar
           </button>
         </div>
@@ -144,7 +144,7 @@ export default function IncapacidadesPage() {
               </div>
               <div><label className="text-sm text-[#7f93b0]">Folio IMSS</label><input type="text" value={form.folio_imss} onChange={e => setForm({...form, folio_imss: e.target.value})} className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Número de folio" /></div>
               <div><label className="text-sm text-[#7f93b0]">Notas</label><input type="text" value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" placeholder="Observaciones" /></div>
-              <button onClick={handleSubmit} disabled={!form.employee_id || !form.fecha_inicio} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#162040] text-white rounded-lg font-medium">Guardar</button>
+              <button onClick={handleSubmit} disabled={!form.employee_id || !form.fecha_inicio} className="w-full py-3 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] font-medium">Guardar</button>
             </div>
           </div>
         </div>

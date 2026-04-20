@@ -475,7 +475,7 @@ export default function RecibosNominaPage() {
               {nominaStatus === "CONFIRMADA" ? "CONFIRMADA" : "PRE-NÓMINA"}
             </div>
 
-            <button onClick={() => nominaStatus === "CONFIRMADA" ? setShowConfirmModal(true) : confirmarNomina()} disabled={nominas.length === 0 || confirmando} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50 ${nominaStatus === "CONFIRMADA" ? "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300" : "bg-gradient-to-r from-aria-primary to-aria-accent text-white hover:from-emerald-600 hover:to-emerald-600"}`}>
+            <button onClick={() => nominaStatus === "CONFIRMADA" ? setShowConfirmModal(true) : confirmarNomina()} disabled={nominas.length === 0 || confirmando} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50 ${nominaStatus === "CONFIRMADA" ? "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300" : "bg-aria-accent text-white hover:from-emerald-600 hover:to-emerald-600"}`}>
               {confirmando ? <Loader2 className="w-4 h-4 animate-spin" /> : nominaStatus === "CONFIRMADA" ? <Unlock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
               {nominaStatus === "CONFIRMADA" ? "Desbloquear" : "Confirmar Nómina"}
             </button>

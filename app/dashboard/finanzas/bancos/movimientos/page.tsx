@@ -228,7 +228,7 @@ export default function MovimientosBancariosPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={crearMovimiento} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm">Guardar</button>
+            <button onClick={crearMovimiento} className="px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-white/[0.04] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>

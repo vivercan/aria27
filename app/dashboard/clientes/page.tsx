@@ -176,7 +176,7 @@ export default function ClientesPage() {
           <div className="flex gap-2">
             <a
               href="/dashboard/clientes/cotizaciones"
-              className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 flex items-center gap-2"
+              className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
             >
               Cotizaciones
             </a>
