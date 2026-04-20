@@ -546,7 +546,7 @@ export default function ActivosCatalogoPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">{editando ? "Editar Activo" : "Nuevo Activo"}</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><label className="block text-sm text-[#7f93b0] mb-1">Código *</label><input type="text" value={formActivo.codigo} onChange={e => setFormActivo({...formActivo, codigo: e.target.value.toUpperCase()})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
               <div><label className="block text-sm text-[#7f93b0] mb-1">Tipo</label><select value={formActivo.tipo} onChange={e => setFormActivo({...formActivo, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="VEHICULO">Vehículo</option><option value="MAQUINARIA">Maquinaria</option><option value="HERRAMIENTA">Herramienta</option><option value="EQUIPO">Equipo</option></select></div>
               <div className="col-span-2"><label className="block text-sm text-[#7f93b0] mb-1">Nombre *</label><input type="text" value={formActivo.nombre} onChange={e => setFormActivo({...formActivo, nombre: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>
@@ -592,7 +592,7 @@ export default function ActivosCatalogoPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold text-white mb-4">Registrar Mantenimiento</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="col-span-2"><label className="block text-sm text-[#7f93b0] mb-1">Activo *</label><select value={formMantenimiento.activo_id} onChange={e => setFormMantenimiento({...formMantenimiento, activo_id: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="">Seleccionar...</option>{activos.map(a => <option key={a.id} value={a.id}>{a.codigo} - {a.nombre}</option>)}</select></div>
               <div><label className="block text-sm text-[#7f93b0] mb-1">Tipo</label><select value={formMantenimiento.tipo} onChange={e => setFormMantenimiento({...formMantenimiento, tipo: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white"><option value="PREVENTIVO">Preventivo</option><option value="CORRECTIVO">Correctivo</option><option value="REVISION">Revisión</option></select></div>
               <div><label className="block text-sm text-[#7f93b0] mb-1">Fecha</label><input type="date" value={formMantenimiento.fecha} onChange={e => setFormMantenimiento({...formMantenimiento, fecha: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" /></div>

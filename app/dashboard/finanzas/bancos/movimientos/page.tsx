@@ -171,7 +171,7 @@ export default function MovimientosBancariosPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Movimientos</p>
           <p className="text-2xl font-bold text-white">{movsFiltrados.length}</p>
@@ -193,7 +193,7 @@ export default function MovimientosBancariosPage() {
       {showForm && (
         <div className="p-6 bg-white/[0.04] rounded-xl border border-white/[0.08] space-y-4">
           <h3 className="text-lg font-semibold text-white">Alta de movimiento</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-xs text-[#7f93b0]">Cuenta *</label>
               <select value={form.cuenta_id} onChange={e => setForm({ ...form, cuenta_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
