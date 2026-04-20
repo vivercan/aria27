@@ -169,7 +169,7 @@ export default function EntregasPage() {
           <p className="text-aria-accent font-bold text-lg">{stats.total}</p>
           <p className="text-[#4a6080] text-[9px]">Total</p>
         </div>
-        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
           <p className="text-emerald-400 font-bold text-lg">{stats.conOC}</p>
           <p className="text-[#4a6080] text-[9px]">Con OC</p>
         </div>
@@ -177,7 +177,7 @@ export default function EntregasPage() {
           <p className="text-aria-accent font-bold text-lg">{stats.conFoto}</p>
           <p className="text-[#4a6080] text-[9px]">Con Foto</p>
         </div>
-        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
           <p className="text-amber-400 font-bold text-lg">{stats.hoy}</p>
           <p className="text-[#4a6080] text-[9px]">Hoy</p>
         </div>
