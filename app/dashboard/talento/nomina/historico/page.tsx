@@ -194,7 +194,7 @@ export default function HistoricoNominaPage() {
         </div>
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
-          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.bruto)}</p>
+          <p className="text-xl font-bold text-white">{formatMoney(totales.bruto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] border-red-500/20">
           <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
@@ -202,11 +202,11 @@ export default function HistoricoNominaPage() {
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
           <p className="text-[#7f93b0] text-xs mb-1">Neto Pagado</p>
-          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.neto)}</p>
+          <p className="text-xl font-bold text-white">{formatMoney(totales.neto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
           <p className="text-[#7f93b0] text-xs mb-1">Tarjeta</p>
-          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.tarjeta)}</p>
+          <p className="text-xl font-bold text-white">{formatMoney(totales.tarjeta)}</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>

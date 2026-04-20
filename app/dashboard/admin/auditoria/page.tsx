@@ -181,7 +181,7 @@ export default function AuditoriaPage() {
               <p className="text-xs text-white/50">Historial perpetuo de cambios · {audit.length} eventos · {deleted.length} registros borrados</p>
             </div>
           </div>
-          <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-sm">
+          <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-sm text-white">
             <RefreshCw className="w-4 h-4" /> Refrescar
           </button>
         </div>

@@ -471,7 +471,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
             <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">
               {parsedProducts.length===0?(
                 <button onClick={handleUploadParse} disabled={parsing||!uploadFile||!uploadSuppId}
-                  className="px-3 py-1.5 text-xs bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
+                  className="px-3 py-1.5 text-xs rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] disabled:bg-[#0f2448] text-white flex items-center gap-1.5">
                   {parsing?<><Loader2 className="w-3 h-3 animate-spin"/>Analizando...</>:<><Upload className="w-3 h-3"/>Analizar</>}
                 </button>
               ):(

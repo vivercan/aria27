@@ -538,7 +538,7 @@ export default function FacturacionPage() {
               <button
                 onClick={handleUploadFiles}
                 disabled={!facturaFiles.xml && !facturaFiles.pdf || uploading}
-                className="flex-1 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#162040] disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] disabled:bg-[#162040] disabled:cursor-not-allowed text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {uploading ? "Subiendo..." : "Subir"}

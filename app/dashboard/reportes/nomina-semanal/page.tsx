@@ -82,7 +82,7 @@ function Content() {
         <div className="flex items-center gap-2">
           <input type="number"  defaultValue={semana} min={1} max={53} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("semana", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08] w-16" />
           <input type="number"  defaultValue={anio} min={2024} max={2030} onBlur={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08] w-20" />
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>
 

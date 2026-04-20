@@ -205,7 +205,7 @@ export default function ControlObrasPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">
           <p className="text-[#7f93b0] text-xs">Obras</p>
-          <p className="text-xl font-bold text-aria-accent">{totales.obras}</p>
+          <p className="text-xl font-bold text-white">{totales.obras}</p>
         </div>
         <div className="p-4 rounded-xl bg-aria-accent-bg border border-aria-accent/20">
           <p className="text-[#7f93b0] text-xs">Presupuesto</p>

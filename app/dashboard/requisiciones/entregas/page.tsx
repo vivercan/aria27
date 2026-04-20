@@ -158,7 +158,7 @@ export default function EntregasPage() {
             <p className="text-[#7f93b0] text-sm">{entregas.length} entregas registradas</p>
           </div>
         </div>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">
+        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white font-medium">
           <Plus className="w-4 h-4" /> Nueva Entrega
         </button>
       </div>
@@ -301,7 +301,7 @@ export default function EntregasPage() {
             </div>
             <div className="flex justify-end gap-3">
               <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarEntrega} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium"><Check className="w-4 h-4 inline mr-2" />Guardar</button>
+              <button onClick={guardarEntrega} className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white font-medium"><Check className="w-4 h-4 inline mr-2" />Guardar</button>
             </div>
           </div>
         </div>

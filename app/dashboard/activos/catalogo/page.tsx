@@ -436,7 +436,7 @@ export default function ActivosCatalogoPage() {
               <div className="flex justify-between items-center">
                 <p className="text-[#7f93b0]">{activosDisponibles.length} activos disponibles para asignar</p>
                 <button onClick={() => setShowModalAsignacion(true)} disabled={activosDisponibles.length === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:bg-[#162040] rounded-lg text-white font-medium">
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] disabled:bg-[#162040] text-white font-medium">
                   <Plus className="w-4 h-4" /> Nueva Asignación
                 </button>
               </div>
@@ -496,7 +496,7 @@ export default function ActivosCatalogoPage() {
               )}
 
               <div className="flex justify-end">
-                <button onClick={() => setShowModalMantenimiento(true)} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">
+                <button onClick={() => setShowModalMantenimiento(true)} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white font-medium">
                   <Plus className="w-4 h-4" /> Registrar Servicio
                 </button>
               </div>
@@ -581,7 +581,7 @@ export default function ActivosCatalogoPage() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModalAsignacion(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarAsignacion} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">Asignar</button>
+              <button onClick={guardarAsignacion} className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white font-medium">Asignar</button>
             </div>
           </div>
         </div>
@@ -604,7 +604,7 @@ export default function ActivosCatalogoPage() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModalMantenimiento(false)} className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg text-white">Cancelar</button>
-              <button onClick={guardarMantenimiento} className="px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover rounded-lg text-white font-medium">Registrar</button>
+              <button onClick={guardarMantenimiento} className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white font-medium">Registrar</button>
             </div>
           </div>
         </div>
