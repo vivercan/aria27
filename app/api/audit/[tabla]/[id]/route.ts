@@ -34,12 +34,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ tabl
     }
 
     const sb = getSupabaseAdmin();
+    // Schema audit_log: id, table_name, op, row_pk, actor, changed_at, before, after
     const { data, error } = await sb
       .from("audit_log")
-      .select("id, at, who, op, tabla, row_pk, before, after")
-      .eq("tabla", tabla)
+      .select("id, changed_at, actor, op, table_name, row_pk, before, after")
+      .eq("table_name", tabla)
       .eq("row_pk", id)
-      .order("at", { ascending: false })
+      .order("changed_at", { ascending: false })
       .limit(100);
 
     if (error) {

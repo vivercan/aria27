@@ -5,12 +5,12 @@ import Modal from "@/components/ui/Modal";
 import { fmtDateTime } from "@/lib/formatters";
 
 interface AuditEntry {
-  id: string;
-  at: string;
-  who: string | null;
+  id: number;
+  changed_at: string;
+  actor: string | null;
   op: "INSERT" | "UPDATE" | "DELETE";
-  tabla: string;
-  row_pk: string;
+  table_name: string;
+  row_pk: string | null;
   before: Record<string, unknown> | null;
   after: Record<string, unknown> | null;
 }
@@ -101,12 +101,12 @@ export default function HistorialButton({ tabla, id, label = "Historial", size =
                   }`}>
                     {e.op === "INSERT" ? "Creado" : e.op === "UPDATE" ? "Modificado" : "Eliminado"}
                   </span>
-                  <span className="text-xs text-[#7f93b0]">{fmtDateTime(e.at)}</span>
+                  <span className="text-xs text-[#7f93b0]">{fmtDateTime(e.changed_at)}</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-[#c9d8ed] mb-2">
                   <User className="w-3 h-3" />
-                  {e.who || "Sistema"}
+                  {e.actor || "Sistema"}
                 </div>
 
                 {e.op === "UPDATE" && e.before && e.after && (
