@@ -269,7 +269,7 @@ export default function PersonalPage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {fetchError && (
-        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex-shrink-0">
+        <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm flex-shrink-0">
           <X className="w-4 h-4 shrink-0" />
           {fetchError}
         </div>
@@ -473,7 +473,7 @@ export default function PersonalPage() {
                   <Field label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
                   <Field label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
                   <Field label={"NSS (11 d\u00edgitos)"} field="nss" placeholder="00000000000" />
-                  <div className="col-span-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <div className="col-span-2 p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
                     <p className="text-amber-400 text-xs">
                       {"Estos datos son requeridos por el IMSS y SAT. El NSS es obligatorio para el alta ante el Seguro Social."}
                     </p>
