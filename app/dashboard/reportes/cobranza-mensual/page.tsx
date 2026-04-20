@@ -82,7 +82,7 @@ function Content() {
           <select value={anio} onChange={e => { const u = new URL(window.location.href); u.searchParams.set("anio", e.target.value); window.location.href = u.toString(); }} className="px-2 py-1 rounded bg-[#0c1d38] text-white text-xs border border-white/[0.08]">
             {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
           </select>
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
         </div>
       </div>
 

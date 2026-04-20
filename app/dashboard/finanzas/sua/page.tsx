@@ -439,7 +439,7 @@ export default function SUAFinanzasPage() {
             </div>
             <div className="flex justify-end gap-2 p-5 border-t border-white/[0.06]">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white">Cancelar</button>
-              <button onClick={guardar} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-aria-primary hover:bg-aria-primary-hover disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+              <button onClick={guardar} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] disabled:opacity-50 text-white text-sm font-medium transition-colors">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editId ? "Actualizar" : "Registrar"}
               </button>
@@ -462,7 +462,7 @@ export default function SUAFinanzasPage() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-[#7f93b0] mb-1 block">Monto a pagar *</label>
-                <input type="number" step="0.01" min="0.01" required value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500/40" />
+                <input type="number" step="0.01" min="0.01" required value={pagoForm.monto} onChange={e => setPagoForm({ ...pagoForm, monto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-aria-primary/50" />
               </div>
               <div>
                 <label className="text-xs text-[#7f93b0] mb-1 block">Fecha de pago *</label>

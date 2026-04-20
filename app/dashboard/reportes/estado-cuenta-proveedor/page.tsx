@@ -87,7 +87,7 @@ function Content() {
           <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-4 h-4 text-white" /></Link>
           <div className="text-white text-sm">Estado de cuenta · <b>{proveedor}</b></div>
         </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>
       </div>
 
       <div className="report-page mx-auto bg-white text-slate-900" style={{ maxWidth: "850px", padding: "32px", fontFamily: "Arial, sans-serif" }}>

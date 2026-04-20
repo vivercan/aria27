@@ -90,7 +90,7 @@ export default function WhatsAppLogPage() {
       </div>
 
       {/* Test send */}
-      <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-3">
+      <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-3">
         <h2 className="text-white font-semibold flex items-center gap-2"><Send className="w-4 h-4" /> Enviar prueba</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <select value={tplTest} onChange={(e) => setTplTest(e.target.value)} className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm">

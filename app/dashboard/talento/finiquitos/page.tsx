@@ -423,7 +423,7 @@ export default function FiniquitosPage() {
                   resetForm();
                   setView("form");
                 }}
-                className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white transition-colors flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Nuevo Finiquito
@@ -621,7 +621,7 @@ export default function FiniquitosPage() {
                     }
                     setStep(2);
                   }}
-                  className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
+                  className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white transition-colors"
                 >
                   Siguiente
                 </button>
@@ -693,7 +693,7 @@ export default function FiniquitosPage() {
                     }
                     setStep(3);
                   }}
-                  className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
+                  className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white transition-colors"
                 >
                   Siguiente
                 </button>
@@ -1175,7 +1175,7 @@ export default function FiniquitosPage() {
             {currentFiniquito.status === "CALCULADO" && (
               <button
                 onClick={() => actualizarEstatus(currentFiniquito.id, "APROBADO")}
-                className="px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover transition-colors"
+                className="px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white transition-colors"
               >
                 Aprobar
               </button>

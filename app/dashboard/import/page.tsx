@@ -217,7 +217,7 @@ export default function ImportCSV() {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover cursor-pointer text-white text-sm">
+            <label className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] cursor-pointer text-white text-sm">
               <Upload className="w-4 h-4" /> Cargar CSV
               <input type="file" accept=".csv,text/csv" onChange={handleFile} className="hidden" />
             </label>

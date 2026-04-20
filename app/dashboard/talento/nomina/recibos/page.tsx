@@ -498,8 +498,8 @@ export default function RecibosNominaPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.neto)}</p></div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-white">{fmtMoney(totales.neto)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-white">{fmtMoney(totales.tarjeta)}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Efectivo</p><p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p></div>
             </div>
             <div className="flex items-center gap-3">

@@ -321,7 +321,7 @@ export default function DashboardPage() {
         {statCards.map((stat, index) => (
           <div
             key={index}
-            className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+            className="group relative p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 hover:border-[#5A7EBA]/60 shadow-[0_4px_16px_rgba(0,0,0,0.3)] transition-all duration-300"
           >
             <div className={`inline-flex p-2.5 rounded-xl ${stat.bgColor} mb-3`}>
               <stat.icon className={`w-5 h-5 ${stat.textColor}`} strokeWidth={1.75} />
@@ -353,7 +353,7 @@ export default function DashboardPage() {
             <Link
               key={index}
               href={action.href}
-              className="group relative p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300 overflow-hidden"
+              className="group relative p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 hover:border-[#5A7EBA]/60 shadow-[0_4px_16px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden"
             >
               {/* Background gradient */}
               <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${action.color} opacity-[0.08] blur-2xl group-hover:opacity-[0.15] transition-opacity duration-300`} />

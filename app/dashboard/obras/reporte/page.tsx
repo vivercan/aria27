@@ -165,7 +165,7 @@ function ReporteContent() {
           <AriaBackButton href="/dashboard/obras" />
           <div className="text-white text-sm">Reporte ejecutivo · <b>{obra}</b></div>
         </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary hover:bg-aria-primary-hover text-white text-sm">
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white text-sm">
           <Printer className="w-4 h-4" /> Imprimir / Guardar PDF
         </button>
       </div>
