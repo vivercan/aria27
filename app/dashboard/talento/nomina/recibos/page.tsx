@@ -480,7 +480,7 @@ export default function RecibosNominaPage() {
               {nominaStatus === "CONFIRMADA" ? "Desbloquear" : "Confirmar Nómina"}
             </button>
 
-            <button onClick={exportarExcel} disabled={nominas.length === 0 || exportando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 disabled:opacity-50">
+            <button onClick={exportarExcel} disabled={nominas.length === 0 || exportando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 disabled:opacity-50">
               {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               Excel
             </button>
