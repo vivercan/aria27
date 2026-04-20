@@ -196,7 +196,7 @@ export default function ControlObrasPage() {
             <p className="text-[#7f93b0] text-sm">Presupuesto vs Gasto Real (OC + Nómina) por obra</p>
           </div>
         </div>
-        <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40">
+        <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40">
           <Download className="w-4 h-4" /> CSV
         </button>
       </div>
@@ -211,7 +211,7 @@ export default function ControlObrasPage() {
           <p className="text-[#7f93b0] text-xs">Presupuesto</p>
           <p className="text-lg font-bold text-aria-accent">{fmt(totales.presupuesto)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs">Gasto OC</p>
           <p className="text-lg font-bold text-orange-300">{fmt(totales.gastoOC)}</p>
         </div>
@@ -219,7 +219,7 @@ export default function ControlObrasPage() {
           <p className="text-[#7f93b0] text-xs">Gasto Nómina</p>
           <p className="text-lg font-bold text-aria-accent">{fmt(totales.gastoNomina)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs">Gasto Total</p>
           <p className="text-lg font-bold text-red-300">{fmt(totales.gastoTotal)}</p>
         </div>
