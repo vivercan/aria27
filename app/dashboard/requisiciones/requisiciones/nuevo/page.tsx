@@ -381,7 +381,7 @@ export default function NewRequisitionPage() {
         {/* SECCION 1: CONFIGURACION */}
         <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Obra / Centro</label>
               <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={selectedCostCenterId??""} onChange={e => setSelectedCostCenterId(e.target.value||null)}>
@@ -408,7 +408,7 @@ export default function NewRequisitionPage() {
               </select>
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-4">
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Prioridad</label>
               <select
@@ -443,7 +443,7 @@ export default function NewRequisitionPage() {
           </div>
 
           {/* ── DATOS DE PAGO E IVA ─────────────────────────────────── */}
-          <div className="mt-3 grid grid-cols-3 gap-3">
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Forma de pago</label>
               <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
