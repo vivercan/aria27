@@ -243,7 +243,7 @@ export default function OpinionesPage() {
       )}
 
       {/* Info */}
-      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-3">
+      <div className="p-4 bg-white/[0.02] border border-white/[0.08] rounded-xl flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
         <div>
           <p className="text-sm text-amber-300 font-medium">Vigencias estimadas</p>

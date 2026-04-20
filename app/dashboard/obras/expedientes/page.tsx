@@ -953,7 +953,7 @@ export default function ExpedientesPage() {
         </div>
 
         {showNuevaSubcarpeta && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 max-w-2xl">
+          <div className="p-4 bg-white/[0.02] border border-white/[0.08] rounded-xl flex items-center gap-3 max-w-2xl">
             <div className="flex-1">
               <input
                 autoFocus
@@ -976,7 +976,7 @@ export default function ExpedientesPage() {
             <h2 className="text-xs uppercase text-amber-400 font-semibold mb-3 tracking-wider">Subcarpetas</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {subcarpetas.map((sub) => (
-                <div key={sub.id} className="p-4 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative">
+                <div key={sub.id} className="p-4 bg-white/[0.02] border border-white/[0.08] hover:border-amber-500/50 rounded-xl transition-all group relative">
                   <button onClick={() => abrirSubcarpeta(sub)} className="w-full text-left pr-16">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-amber-500/20 rounded-lg group-hover:bg-amber-500/30 transition-colors shrink-0">
@@ -1148,7 +1148,7 @@ export default function ExpedientesPage() {
         </div>
 
         {showNuevaCarpetaAnio && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 max-w-2xl">
+          <div className="p-4 bg-white/[0.02] border border-white/[0.08] rounded-xl flex items-center gap-3 max-w-2xl">
             <input
               autoFocus
               value={nuevaCarpetaAnioNombre}
@@ -1170,7 +1170,7 @@ export default function ExpedientesPage() {
               {carpetasAnio.map((carpeta) => (
                 <div
                   key={carpeta.id}
-                  className="p-5 bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all group relative"
+                  className="p-5 bg-white/[0.02] border border-white/[0.08] hover:border-amber-500/50 rounded-xl transition-all group relative"
                 >
                   <button
                     onClick={() => setCarpetaAnioSeleccionada(carpeta)}

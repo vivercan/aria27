@@ -481,7 +481,7 @@ export default function ActivosCatalogoPage() {
           {tab === "mantenimiento" && (
             <>
               {proximosMantenimientos.length > 0 && (
-                <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                <div className="p-4 bg-white/[0.02] border border-white/[0.08] rounded-xl">
                   <div className="flex items-center gap-2 text-amber-400 font-medium mb-2">
                     <AlertTriangle className="w-5 h-5" /> Mantenimientos próximos (30 días)
                   </div>
