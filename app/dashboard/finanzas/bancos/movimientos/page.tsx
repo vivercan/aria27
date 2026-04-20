@@ -178,7 +178,7 @@ export default function MovimientosBancariosPage() {
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Abonos</p>
-          <p className="text-2xl font-bold text-aria-accent">${totalAbonos.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-white">${totalAbonos.toLocaleString()}</p>
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Cargos</p>

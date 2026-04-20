@@ -289,7 +289,7 @@ export default function ConcretoRemisionesPage() {
                     <div className="text-xs text-[#7f93b0] mt-1">{r.resistencia_fc} · rev. {r.revenimiento}cm · temp. {r.temperatura}°C</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-aria-accent">{r.m3} m³</div>
+                    <div className="text-2xl font-bold text-white">{r.m3} m³</div>
                     <div className="text-sm text-aria-accent">{fmtMoney(Number(r.costo_total), { noDecimals: true })}</div>
                   </div>
                 </div>

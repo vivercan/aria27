@@ -928,7 +928,7 @@ export default function FiniquitosPage() {
               <div className="bg-[#0a1628] p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold">NETO A PAGAR</h3>
-                  <div className="text-3xl font-bold text-aria-accent">
+                  <div className="text-3xl font-bold text-white">
                     {formatMoney(calculo.neto_a_pagar)}
                   </div>
                 </div>
@@ -1139,7 +1139,7 @@ export default function FiniquitosPage() {
           <div className="bg-[#0a1628] p-6 rounded-lg border border-emerald-700 bg-gradient-to-r from-slate-900 to-emerald-950">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold">NETO A PAGAR</h3>
-              <div className="text-3xl font-bold text-aria-accent">
+              <div className="text-3xl font-bold text-white">
                 {formatMoney(currentFiniquito.neto_a_pagar)}
               </div>
             </div>

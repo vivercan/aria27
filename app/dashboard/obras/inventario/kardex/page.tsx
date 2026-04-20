@@ -74,7 +74,7 @@ function KardexContent() {
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Entradas (suma)</p>
-          <p className="text-2xl font-bold text-aria-accent">+{totalEntradas.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-white">+{totalEntradas.toLocaleString()}</p>
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Salidas (suma)</p>

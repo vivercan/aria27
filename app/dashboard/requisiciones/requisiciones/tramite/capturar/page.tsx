@@ -308,7 +308,7 @@ function CapturarContent() {
           <p className="text-[#7f93b0] text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-aria-accent">{quotes.length}</p>
+          <p className="text-2xl font-bold text-white">{quotes.length}</p>
           <p className="text-[#4a6080] text-xs">cotizaciones</p>
         </div>
       </div>

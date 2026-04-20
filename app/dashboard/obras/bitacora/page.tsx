@@ -137,7 +137,7 @@ function BitacoraContent() {
           </div>
           <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <p className="text-sm text-[#7f93b0]">Personal promedio</p>
-            <p className="text-2xl font-bold text-aria-accent">{personalProm}</p>
+            <p className="text-2xl font-bold text-white">{personalProm}</p>
           </div>
           <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <p className="text-sm text-[#7f93b0]">Días con incidentes</p>

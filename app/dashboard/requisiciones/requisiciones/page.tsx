@@ -176,19 +176,19 @@ export default function RequisicionesPage() {
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
               <span className="text-[#7f93b0] text-xs">Registros</span>
-              <p className="text-xl font-bold text-aria-accent mt-1">{registrosFiltrados.length}</p>
+              <p className="text-xl font-bold text-white mt-1">{registrosFiltrados.length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/20">
               <span className="text-[#7f93b0] text-xs">Obras</span>
-              <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
+              <p className="text-xl font-bold text-white mt-1">{[...new Set(registrosFiltrados.map(r => r.obra))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-accent/10 to-aria-primary/5 border border-aria-accent/20">
               <span className="text-[#7f93b0] text-xs">Proveedores</span>
-              <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
+              <p className="text-xl font-bold text-white mt-1">{[...new Set(registrosFiltrados.map(r => r.proveedor).filter(Boolean))].length}</p>
             </div>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
               <span className="text-[#7f93b0] text-xs">Solicitantes</span>
-              <p className="text-xl font-bold text-aria-accent mt-1">{[...new Set(registrosFiltrados.map(r => r.solicitante))].length}</p>
+              <p className="text-xl font-bold text-white mt-1">{[...new Set(registrosFiltrados.map(r => r.solicitante))].length}</p>
             </div>
           </div>
 

@@ -301,7 +301,7 @@ export default function GastosObraPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-aria-primary/20 to-aria-primary/20 border border-aria-primary/30 text-aria-accent hover:from-aria-primary/30 hover:to-aria-primary/30 transition-all">
+          <button onClick={openNewGasto} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-aria-primary/30 border border-aria-primary/60 text-white font-medium hover:bg-aria-primary/50 transition-all">
             <Plus className="w-4 h-4" />
             Nuevo Gasto
           </button>
@@ -319,14 +319,14 @@ export default function GastosObraPage() {
             <div className="p-2 rounded-xl bg-aria-primary-light"><DollarSign className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Total Filtrado</span>
           </div>
-          <p className="text-2xl font-bold text-aria-accent">{formatMoney(totalFiltrado)}</p>
+          <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
         </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-aria-primary-light"><Filter className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Registros</span>
           </div>
-          <p className="text-2xl font-bold text-aria-accent">{gastosFiltrados.length}</p>
+          <p className="text-2xl font-bold text-white">{gastosFiltrados.length}</p>
         </div>
         {/* Fix arcade 18-Abr-2026 PM: amber/orange/purple → canon aria-primary / slate */}
         <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/20 ">
@@ -334,7 +334,7 @@ export default function GastosObraPage() {
             <div className="p-2 rounded-xl bg-aria-primary-light"><Building2 className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Obras</span>
           </div>
-          <p className="text-2xl font-bold text-aria-accent">{[...new Set(gastosFiltrados.map(g => g.obra))].length}</p>
+          <p className="text-2xl font-bold text-white">{[...new Set(gastosFiltrados.map(g => g.obra))].length}</p>
         </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.02] border border-white/[0.08] ">
           <div className="flex items-center gap-3 mb-3">
