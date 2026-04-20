@@ -125,7 +125,7 @@ export default function DocumentosPage() {
                 <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Nombre del documento" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Tipo</label>
                   <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
@@ -161,7 +161,7 @@ export default function DocumentosPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><FileText className="w-4 h-4 text-emerald-400" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : documentos.length}</p>

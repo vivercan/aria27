@@ -139,7 +139,7 @@ export default function ChecadasPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
           <div className="p-4 bg-white/[0.04] rounded-xl">
             <p className="text-2xl font-bold text-white">{stats.total}</p>
             <p className="text-sm text-[#7f93b0]">Total registros</p>
@@ -231,7 +231,7 @@ export default function ChecadasPage() {
                   {empleadosList.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
                 </select>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs text-[#7f93b0]">Fecha</label>
                   <input type="date" value={formManual.fecha} onChange={e => setFormManual({...formManual, fecha: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" />

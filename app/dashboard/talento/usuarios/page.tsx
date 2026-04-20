@@ -332,7 +332,7 @@ export default function UsuariosPage() {
                               <Shield className="w-4 h-4 text-aria-accent" />
                               Permisos por Módulo
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
                               {MODULOS.map(mod => {
                                 const currentSubs = editPermissions[mod.id] || [];
                                 const allSelected = currentSubs.length === mod.subs.length;

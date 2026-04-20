@@ -176,7 +176,7 @@ export default function LicitacionesPage() {
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {[
           { label: "Total", value: stats.total, icon: FileText, color: "blue" },
           { label: "En Proceso", value: stats.enProceso, icon: Clock, color: "amber" },
@@ -240,7 +240,7 @@ export default function LicitacionesPage() {
               <h2 className="text-lg font-semibold">{editId ? "Editar" : "Nueva"} Licitación</h2>
               <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-white/[0.06]"><X className="w-5 h-5" /></button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-white/60">Obra *</label>
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.obra_nombre} onChange={e => setForm({...form, obra_nombre: e.target.value})} />

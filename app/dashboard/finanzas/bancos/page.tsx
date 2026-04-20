@@ -147,7 +147,7 @@ export default function BancosPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Activas", value: cuentas.filter(c => c.activa !== false).length, icon: CreditCard, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Inactivas", value: cuentas.filter(c => c.activa === false).length, icon: Power, color: "text-amber-400", bg: "bg-amber-500/10" },

@@ -312,7 +312,7 @@ export default function GastosObraPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* 19-Abr-2026: KPI cards canon — bg neutral, icon accent preservado por semántica ($/dinero = emerald). */}
         <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <div className="flex items-center gap-3 mb-3">
@@ -370,7 +370,7 @@ export default function GastosObraPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-emerald-400" />Detalle de Gastos

@@ -176,7 +176,7 @@ export default function CentrosPage() {
                 <input type="text" value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})}
                   className="w-full mt-1 p-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0]">Latitud</label>
                   <input type="text" value={form.latitud} onChange={e => setForm({...form, latitud: e.target.value})}

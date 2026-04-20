@@ -62,7 +62,7 @@ export default function MatrizSalarialPage() {
         </div>
       </div>
 
-      <div className="flex-shrink-0 grid grid-cols-3 gap-4 mb-6">
+      <div className="flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
           <Users className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold text-white">{empleados.length}</p>

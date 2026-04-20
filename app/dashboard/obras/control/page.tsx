@@ -202,7 +202,7 @@ export default function ControlObrasPage() {
       </div>
 
       {/* Totales */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">
           <p className="text-[#7f93b0] text-xs">Obras</p>
           <p className="text-xl font-bold text-aria-accent">{totales.obras}</p>
@@ -361,7 +361,7 @@ export default function ControlObrasPage() {
                     <tr key={f.nombre + "_d"} className="bg-[#0a1628]/40 border-b border-white/[0.05]">
                       <td colSpan={13} className="p-4">
                         <p className="text-[#7f93b0] text-xs uppercase mb-2">Presupuesto por categoría</p>
-                        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
                           {CATS.map(c => (
                             <div key={c} className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.05]">
                               <p className="text-[10px] text-[#4a6080]">{c.replace("_", " ")}</p>

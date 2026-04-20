@@ -332,7 +332,7 @@ export default function EstimacionesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           {
             label: "Este Periodo",
@@ -502,7 +502,7 @@ export default function EstimacionesPage() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
                       <div>
                         <label className="text-xs text-[#7f93b0] mb-1 block">Unidad</label>
                         <select
@@ -709,7 +709,7 @@ export default function EstimacionesPage() {
 
             <div className="p-6 space-y-6">
               {/* Header Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-[#7f93b0] uppercase">Obra</p>
                   <p className="text-white font-medium">{getObraNombre(selectedEstimacion.obra_id)}</p>

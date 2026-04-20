@@ -90,7 +90,7 @@ export default function PresupuestosPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Presupuesto", value: `$${totalPresupuesto.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Partidas", value: filtered.length, icon: Layers, color: "text-aria-accent", bg: "bg-aria-primary-light" },
@@ -107,7 +107,7 @@ export default function PresupuestosPage() {
 
       {/* Desglose por categoría */}
       {porCategoria.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {porCategoria.map((cat, i) => (
             <div key={i} className="p-3 bg-white/[0.02] border border-white/[0.05] rounded-lg">
               <p className="text-xs text-[#7f93b0] uppercase">{cat.categoria}</p>

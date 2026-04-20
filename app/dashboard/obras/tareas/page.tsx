@@ -254,7 +254,7 @@ export default function TareasPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
           <p className="text-amber-400 text-2xl font-bold">{pendientes}</p>
           <p className="text-amber-400/70 text-xs">Pendientes</p>
@@ -426,7 +426,7 @@ export default function TareasPage() {
                 {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Field label="Responsable">
                   <input
                     type="text"
@@ -446,7 +446,7 @@ export default function TareasPage() {
                 </Field>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Field label="Prioridad">
                   <select
                     value={form.prioridad}

@@ -196,7 +196,7 @@ export default function SIROCPage() {
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover"><Plus className="w-4 h-4" /> Nuevo Registro</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalRegistros}</p><p className="text-aria-accent/70 text-xs">Total Registros</p></div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{registrados}</p><p className="text-emerald-400/70 text-xs">Registrados</p></div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3"><p className="text-amber-400 text-2xl font-bold">{pendientes}</p><p className="text-amber-400/70 text-xs">Pendientes</p></div>
@@ -250,15 +250,15 @@ export default function SIROCPage() {
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-[#7f93b0] mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>{formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}</div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Número Registro *</label><input type="text" value={form.numero_registro} onChange={e => setForm({ ...form, numero_registro: e.target.value })} placeholder="REG-2026-001" className={inputClass} />{formErrors.numero_registro && <p className="text-red-400 text-xs mt-1">{formErrors.numero_registro}</p>}</div>
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Fecha Registro</label><input type="date" value={form.fecha_registro} onChange={e => setForm({ ...form, fecha_registro: e.target.value })} className={inputClass} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Bimestre</label><select value={form.bimestre} onChange={e => setForm({ ...form, bimestre: e.target.value })} className={inputClass}>{BIMESTRE_OPTIONS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}</select></div>
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Clasificación Riesgo</label><input type="text" value={form.clasificacion_riesgo} onChange={e => setForm({ ...form, clasificacion_riesgo: e.target.value })} placeholder="I, II, III, IV, V" className={inputClass} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Trabajadores</label><input type="number" min="0" value={form.num_trabajadores} onChange={e => setForm({ ...form, num_trabajadores: e.target.value })} placeholder="0" className={inputClass} />{formErrors.num_trabajadores && <p className="text-red-400 text-xs mt-1">{formErrors.num_trabajadores}</p>}</div>
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Incidencias</label><input type="number" min="0" value={form.incidencias} onChange={e => setForm({ ...form, incidencias: e.target.value })} placeholder="0" className={inputClass} />{formErrors.incidencias && <p className="text-red-400 text-xs mt-1">{formErrors.incidencias}</p>}</div>
               </div>

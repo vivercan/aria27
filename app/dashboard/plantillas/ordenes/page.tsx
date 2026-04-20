@@ -155,7 +155,7 @@ export default function OrdenesPage() {
                 <input value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="Descripción de la orden" />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">No. Orden</label>
                   <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder={editId ? "" : nextNumero()} />
@@ -168,7 +168,7 @@ export default function OrdenesPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Obra</label>
                   <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
@@ -181,7 +181,7 @@ export default function OrdenesPage() {
                   <input type="number" min="0" value={form.monto} onChange={e => setForm({ ...form, monto: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none" placeholder="0.00" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Estado</label>
                   <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none">
@@ -202,7 +202,7 @@ export default function OrdenesPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><ClipboardList className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.length}</p>

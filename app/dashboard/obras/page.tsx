@@ -119,7 +119,7 @@ export default function ObrasPage() {
         {filas.map((fila, fi) => (
           <div
             key={fi}
-            className="flex-1 grid grid-cols-2 min-h-0"
+            className="flex-1 grid grid-cols-1 md:grid-cols-2 min-h-0"
             style={{ gap: "20px" }}
           >
             {fila.map((grupo) => (
@@ -151,7 +151,7 @@ export default function ObrasPage() {
 
                 {/* 2×2 card grid */}
                 <div
-                  className="grid grid-cols-2"
+                  className="grid grid-cols-1 md:grid-cols-2"
                   style={{ gap: "10px" }}
                 >
                   {grupo.modulos.map((mod, idx) => (

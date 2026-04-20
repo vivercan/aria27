@@ -134,7 +134,7 @@ export default function IncapacidadesPage() {
                   <option value="maternidad">Maternidad</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0]">Fecha Inicio</label>
                   <input type="date" value={form.fecha_inicio} onChange={e => setForm({...form, fecha_inicio: e.target.value})} className={`w-full mt-1 p-2 bg-white/[0.04] border rounded-lg text-white ${formErrors.fecha_inicio ? "border-red-500/50" : "border-white/[0.08]"}`} />

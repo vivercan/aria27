@@ -111,7 +111,7 @@ export default function ContratosPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Contratado", value: `$${totalContratado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Contratos", value: contratos.length, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary-light" },

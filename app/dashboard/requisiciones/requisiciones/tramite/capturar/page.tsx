@@ -461,7 +461,7 @@ function CapturarContent() {
           </div>
 
           {/* Dias credito y entrega */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {tipoCredito === "CREDITO" && (
               <div>
                 <label className="text-[#7f93b0] text-xs block mb-1">Días de crédito</label>
@@ -558,7 +558,7 @@ function CapturarContent() {
                 <Receipt className="w-3 h-3" /> {emiteFactura ? `Factura (IVA ${taxRate}%)` : "Nota (sin IVA)"}
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/[0.08]">
+            <div className="grid grid-cols-1 md:grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/[0.08]">
               <div><div className="text-[#4a6080] text-[10px]">SUBTOTAL</div><div className="text-white font-medium">${formSubtotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
               <div><div className="text-[#4a6080] text-[10px]">IVA {emiteFactura ? taxRate : 0}%</div><div className="text-white font-medium">${(emiteFactura ? formIva() : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
               <div><div className="text-[#4a6080] text-[10px]">TOTAL</div><div className="text-emerald-400 font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>

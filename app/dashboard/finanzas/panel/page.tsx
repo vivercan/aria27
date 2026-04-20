@@ -107,7 +107,7 @@ export default function PanelFinanzas() {
 
       {loading ? <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
       <div className="flex-1 overflow-y-auto space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           <KPI label="Cobrado 30d" value={fmt(kpis.cobrado30)} color="emerald" />
           <KPI label="Por cobrar" value={fmt(kpis.porCobrar)} color="amber" />
           <KPI label="Vencido >30d" value={fmt(kpis.vencido30)} color="red" />

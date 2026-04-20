@@ -147,7 +147,7 @@ export default function CobranzaPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Estimado", value: `$${totalEstimado.toLocaleString()}`, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },

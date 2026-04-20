@@ -188,7 +188,7 @@ export default function OrdenesCompraPage() {
         </div>
         {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Requisición</p>
                 <p className="text-white font-semibold text-sm">{poReq?.folio || "-"}</p>
@@ -254,7 +254,7 @@ export default function OrdenesCompraPage() {
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
         <div className="flex-1"><h1 className="text-2xl font-bold text-white">Órdenes de Compra</h1><p className="text-[#7f93b0] text-sm">{orders.length} órdenes generadas</p></div>
       </div>
-      <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
         <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
         <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>

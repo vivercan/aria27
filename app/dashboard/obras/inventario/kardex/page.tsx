@@ -67,7 +67,7 @@ function KardexContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Movimientos</p>
           <p className="text-2xl font-bold text-white">{movs.length}</p>

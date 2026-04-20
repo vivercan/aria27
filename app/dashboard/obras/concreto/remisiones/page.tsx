@@ -248,7 +248,7 @@ export default function ConcretoRemisionesPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
           { l: "Remisiones", v: stats.totalRem, c: "text-white" },
           { l: "m³ totales", v: fmtNumber(stats.totalM3), c: "text-aria-accent" },
@@ -328,7 +328,7 @@ export default function ConcretoRemisionesPage() {
               <button onClick={() => { setShowFormRem(false); setEditando(null); setFormRem(EMPTY_REM); }} className="p-1 rounded hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Obra *</label><select value={formRem.obra} onChange={e => setFormRem({ ...formRem, obra: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent"><option value="">Seleccionar...</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>{formRemErrors.obra && <p className="text-red-400 text-xs mt-1">{formRemErrors.obra}</p>}</div>
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Número remisión *</label><input type="text" value={formRem.numero_remision} onChange={e => setFormRem({ ...formRem, numero_remision: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white font-mono focus:outline-none focus:border-aria-accent" />{formRemErrors.numero_remision && <p className="text-red-400 text-xs mt-1">{formRemErrors.numero_remision}</p>}</div>
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Proveedor</label><input type="text" value={formRem.proveedor} onChange={e => setFormRem({ ...formRem, proveedor: e.target.value })} placeholder="CEMEX, HOLCIM..." className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent" /></div>
@@ -362,7 +362,7 @@ export default function ConcretoRemisionesPage() {
               <button onClick={() => { setShowFormCil(false); setRemActiva(null); setFormCil(EMPTY_CIL); }} className="p-1 rounded hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">N° cilindro *</label><input type="text" value={formCil.numero_cilindro} onChange={e => setFormCil({ ...formCil, numero_cilindro: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white font-mono focus:outline-none focus:border-aria-accent" />{formCilErrors.numero_cilindro && <p className="text-red-400 text-xs mt-1">{formCilErrors.numero_cilindro}</p>}</div>
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Edad (días)</label><select value={formCil.dias_edad} onChange={e => setFormCil({ ...formCil, dias_edad: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent">{[3, 7, 14, 28, 56].map(d => <option key={d} value={d}>{d} días</option>)}</select></div>
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Fecha prueba *</label><input type="date" value={formCil.fecha_prueba} onChange={e => setFormCil({ ...formCil, fecha_prueba: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-accent" />{formCilErrors.fecha_prueba && <p className="text-red-400 text-xs mt-1">{formCilErrors.fecha_prueba}</p>}</div>

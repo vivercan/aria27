@@ -306,7 +306,7 @@ export default function PreNominaPage() {
 
       {/* Totales */}
       {detalles.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
             <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
             <p className="text-xl font-bold text-white">{fmtMoney(totales.bruto)}</p>

@@ -297,7 +297,7 @@ export default function MantenimientoPage() {
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           {[
             { label: "OTs Abiertas", value: stats.abiertas, icon: ClipboardList, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Completadas", value: stats.completadas, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -435,7 +435,7 @@ export default function MantenimientoPage() {
 
             {/* ══════ Programas Tab ══════ */}
             {tab === "Programas" && (
-              <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredProgs.length === 0 ? (
                   <div className="col-span-full text-center py-16 text-[#4a6080]">
                     <Settings className="w-10 h-10 mx-auto mb-3 opacity-30" />

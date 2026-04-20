@@ -299,7 +299,7 @@ export default function RecibosNominaPage() {
         </div>
 
         <div className="p-6 border-b border-gray-200 bg-gray-50">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <User className="w-5 h-5 text-[#4a6080]" />
@@ -316,7 +316,7 @@ export default function RecibosNominaPage() {
               <p className="text-lg font-semibold text-gray-900">{nomina.obra || "Sin asignar"}</p>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-3 gap-4">
+          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-gray-500 uppercase">Período</p>
               <p className="font-medium">{fmtFecha(nomina.fecha_inicio)} – {fmtFecha(nomina.fecha_fin)}</p>
@@ -333,7 +333,7 @@ export default function RecibosNominaPage() {
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
@@ -395,7 +395,7 @@ export default function RecibosNominaPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
               <div className="flex items-center gap-2 mb-2">
                 <CreditCard className="w-5 h-5 text-aria-primary" />
@@ -418,7 +418,7 @@ export default function RecibosNominaPage() {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-200 grid grid-cols-2 gap-8">
+          <div className="mt-8 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="text-center">
               <div className="border-b-2 border-gray-400 pb-8 mb-2"></div>
               <p className="text-sm text-gray-600">Firma del Empleado</p>
@@ -496,7 +496,7 @@ export default function RecibosNominaPage() {
 
         {nominas.length > 0 && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p></div>

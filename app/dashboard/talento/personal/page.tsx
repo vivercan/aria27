@@ -426,7 +426,7 @@ export default function PersonalPage() {
             {/* Form content */}
             <div className="p-4 overflow-y-auto max-h-[55vh]">
               {tab === "general" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Nombre completo *" field="full_name" />
                   <Field label="Puesto" field="position" />
                   <Field label="Centro de Trabajo / Obra" field="project_site"
@@ -440,7 +440,7 @@ export default function PersonalPage() {
                 </div>
               )}
               {tab === "laboral" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Salario diario" field="salario_diario" type="number" min="0" />
                   <Field label="Salario semanal" field="salario_semanal" type="number" min="0" />
                   <Field label="Salario mensual" field="salary_monthly" type="number" min="0" />
@@ -457,7 +457,7 @@ export default function PersonalPage() {
                 </div>
               )}
               {tab === "bancario" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
                   <Field label={"CLABE (18 d\u00edgitos)"} field="clabe" placeholder="012345678901234567" />
                   <Field label={"N\u00famero de cuenta"} field="numero_cuenta" />
@@ -469,7 +469,7 @@ export default function PersonalPage() {
                 </div>
               )}
               {tab === "fiscal" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
                   <Field label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
                   <Field label={"NSS (11 d\u00edgitos)"} field="nss" placeholder="00000000000" />

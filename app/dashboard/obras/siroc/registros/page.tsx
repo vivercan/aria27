@@ -184,7 +184,7 @@ export default function SirocRegistrosPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
           { l: "Total", v: stats.total, c: "text-white" },
           { l: "En curso", v: stats.enCurso, c: "text-emerald-300" },
@@ -259,7 +259,7 @@ export default function SirocRegistrosPage() {
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY); }} className="p-1 rounded hover:bg-white/[0.06]"><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Obra *</label>
                   <select value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-red-500">

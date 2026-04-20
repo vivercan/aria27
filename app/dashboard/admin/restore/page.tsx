@@ -255,7 +255,7 @@ export default function RestorePage() {
             <h2 className="text-sm font-semibold text-white">Restauración completada — {result.date}</h2>
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             {[
               { label: "Tablas OK", value: result.tables.ok, color: "text-green-400" },
               { label: "Saltadas", value: result.tables.skip, color: "text-gray-400" },
@@ -293,7 +293,7 @@ export default function RestorePage() {
               <HardDrive className="w-3.5 h-3.5" />
               Ver todas las tablas restauradas ({result.tables.ok})
             </summary>
-            <div className="mt-3 grid grid-cols-2 gap-1.5 max-h-60 overflow-y-auto">
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-1.5 max-h-60 overflow-y-auto">
               {result.tables.detalle
                 .filter((r) => r.status === "ok")
                 .map((r) => (

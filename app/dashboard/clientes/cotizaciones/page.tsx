@@ -445,7 +445,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Vigente", value: fmtMoney(totTotal), icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Aprobadas", value: fmtMoney(totAprobado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },

@@ -377,7 +377,7 @@ export default function CotizacionesIAPage() {
                 <label className="text-xs text-[#7f93b0]">Proveedor *</label>
                 <input type="text" value={quoteForm.supplier_name} onChange={e => setQuoteForm({...quoteForm, supplier_name: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" placeholder="Nombre del proveedor" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-[#7f93b0]">Total *</label>
                   <input type="number" min="0" value={quoteForm.total} onChange={e => setQuoteForm({...quoteForm, total: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]" placeholder="0.00" />

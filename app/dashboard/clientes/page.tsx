@@ -190,7 +190,7 @@ export default function ClientesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
           {[
             { label: "Total", value: stats.total, color: "text-white" },
             { label: "Activos", value: stats.activos, color: "text-emerald-400" },

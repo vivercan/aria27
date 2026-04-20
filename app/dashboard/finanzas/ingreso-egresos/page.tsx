@@ -94,7 +94,7 @@ export default function IngresoEgresosPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-emerald-400" />
