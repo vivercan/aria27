@@ -313,7 +313,7 @@ export default function NominaManualPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/talento/nomina" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
+          <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
             <Edit3 className="w-7 h-7 text-amber-400" />
           </div>
           <div>
@@ -368,7 +368,7 @@ export default function NominaManualPage() {
               <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-[#7f93b0] text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
               <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-emerald-400" /><span className="text-[#7f93b0] text-xs">Días Trabajados</span></div>
               <p className="text-2xl font-bold text-emerald-400">{calculo.dias}</p>
             </div>
@@ -376,7 +376,7 @@ export default function NominaManualPage() {
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Salario Base</span></div>
               <p className="text-2xl font-bold text-aria-accent">{formatMoney(calculo.salarioBase)}</p>
             </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Neto Estimado</span></div>
               <p className="text-2xl font-bold text-emerald-400">{formatMoney(calculo.neto)}</p>
             </div>
