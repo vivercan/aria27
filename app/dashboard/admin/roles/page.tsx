@@ -169,8 +169,12 @@ export default function RolesAdminPage() {
               <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Usuario</th>
               <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Rol</th>
               {MODULES.map(m => (
-                <th key={m.key} className="text-center p-2 text-[#7f93b0] font-medium text-[10px]" title={m.label}>
-                  {m.label.slice(0, 6)}
+                <th key={m.key} className="p-2 text-[#c9d8ed] font-semibold text-[11px] h-28 align-bottom" title={m.label}>
+                  <div className="flex items-end justify-center">
+                    <span className="inline-block whitespace-nowrap origin-bottom-left" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", padding: "4px 0" }}>
+                      {m.label}
+                    </span>
+                  </div>
                 </th>
               ))}
               <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
