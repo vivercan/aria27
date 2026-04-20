@@ -44,7 +44,7 @@ export default function EstadoActivosPage() {
 
   const getIcon = (estado: string): React.ReactNode => {
     switch(estado?.toLowerCase()) {
-      case "bueno": case "activo": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+      case "bueno": case "activo": return <CheckCircle2 className="w-4 h-4 text-aria-accent" />;
       case "mantenimiento": case "reparacion": return <Wrench className="w-4 h-4 text-amber-400" />;
       case "baja": case "dañado": return <XCircle className="w-4 h-4 text-red-400" />;
       default: return <AlertTriangle className="w-4 h-4 text-[#7f93b0]" />;

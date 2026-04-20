@@ -69,7 +69,7 @@ export default function MatrizSalarialPage() {
           <p className="text-xs text-[#7f93b0]">Empleados Activos</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-          <DollarSign className="w-5 h-5 text-emerald-400 mb-2" />
+          <DollarSign className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold text-white">{fmtMoney(totalNomina)}</p>
           <p className="text-xs text-[#7f93b0]">Nómina Diaria Total</p>
         </div>
@@ -105,7 +105,7 @@ export default function MatrizSalarialPage() {
                       <td className="px-4 py-2 text-aria-accent font-mono text-xs">{e.employee_number}</td>
                       <td className="px-4 py-2 text-white">{e.full_name}</td>
                       <td className="px-4 py-2 text-[#c9d8ed]">{e.position || "-"}</td>
-                      <td className="px-4 py-2 text-right text-emerald-400 font-mono">{fmtMoney((e.salario_diario || 0))}</td>
+                      <td className="px-4 py-2 text-right text-aria-accent font-mono">{fmtMoney((e.salario_diario || 0))}</td>
                       <td className="px-4 py-2 text-right text-[#c9d8ed] font-mono">{fmtMoney((e.salario_imss || 0))}</td>
                       <td className="px-4 py-2 text-right text-white font-mono">{fmtMoney(((e.salario_diario || 0) * 30))}</td>
                     </tr>

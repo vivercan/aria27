@@ -169,7 +169,7 @@ export default function ClientesPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Users className="w-6 h-6 text-emerald-400" /> Clientes
+              <Users className="w-6 h-6 text-aria-accent" /> Clientes
             </h1>
             <p className="text-xs text-[#7f93b0]">CRUD + baja lógica + expediente documental reusable</p>
           </div>
@@ -182,7 +182,7 @@ export default function ClientesPage() {
             </a>
             <button
               onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
-              className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-xl text-sm font-medium hover:bg-emerald-500/30 flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-500/20 text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary/30 flex items-center gap-2"
             >
               {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {showForm ? "Cancelar" : "Nuevo cliente"}
@@ -193,7 +193,7 @@ export default function ClientesPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
           {[
             { label: "Total", value: stats.total, color: "text-white" },
-            { label: "Activos", value: stats.activos, color: "text-emerald-400" },
+            { label: "Activos", value: stats.activos, color: "text-aria-accent" },
             { label: "Inactivos", value: stats.inactivos, color: "text-[#7f93b0]" },
           ].map(s => (
             <div key={s.label} className="p-3 bg-white/[0.04] rounded-lg">
@@ -210,7 +210,7 @@ export default function ClientesPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar nombre, RFC, contacto o email…"
-              className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:border-aria-primary/50 focus:outline-none"
             />
           </div>
           <select
@@ -296,7 +296,7 @@ export default function ClientesPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-400 mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtrados.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-[#4a6080]">Sin clientes para los filtros actuales.</td></tr>
               ) : filtrados.map(c => (
@@ -314,7 +314,7 @@ export default function ClientesPage() {
                   </td>
                   <td className="p-3 text-right text-amber-400">{c.dias_credito > 0 ? `${c.dias_credito} d` : "—"}</td>
                   <td className="p-3 text-center">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${c.estatus === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${c.estatus === "ACTIVO" ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                       {c.estatus}
                     </span>
                   </td>

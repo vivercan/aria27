@@ -253,7 +253,7 @@ export default function RequisicionesStatusPage() {
   }
 
   const getStatusColor = (status: string) => {
-    if (status?.includes("FINALIZADA")) return "bg-emerald-500/20 text-emerald-400";
+    if (status?.includes("FINALIZADA")) return "bg-emerald-500/20 text-aria-accent";
     if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-aria-primary-light text-aria-accent";
     if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
@@ -358,7 +358,7 @@ export default function RequisicionesStatusPage() {
                     <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
                     <td className="p-3 text-[#c9d8ed] text-sm">{req.created_by}</td>
                     <td className="p-3 text-[#c9d8ed] text-sm">{formatDate(req.required_date)}</td>
-                    <td className="p-3 text-emerald-400 text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
+                    <td className="p-3 text-aria-accent text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>
                         {req.status}
@@ -383,7 +383,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePDFClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-[#7f93b0] hover:text-emerald-400 transition-all disabled:opacity-50"
+                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-[#7f93b0] hover:text-aria-accent transition-all disabled:opacity-50"
                           title="Descargar PDF"
                         >
                           <FileDown className="w-4 h-4" />
@@ -427,7 +427,7 @@ export default function RequisicionesStatusPage() {
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Total</p><p className="text-sm text-emerald-400 font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Total</p><p className="text-sm text-aria-accent font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
               </div>
               {detailReq.instructions && (
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Instrucciones</p><p className="text-sm text-[#c9d8ed]">{detailReq.instructions}</p></div>
@@ -447,7 +447,7 @@ export default function RequisicionesStatusPage() {
                             <td className="p-2.5 text-[#7f93b0]">{item.unit}</td>
                             <td className="p-2.5 text-center text-white">{item.quantity}</td>
                             <td className="p-2.5 text-right text-[#7f93b0]">{formatCurrency(item.precio_unitario)}</td>
-                            <td className="p-2.5 text-right text-emerald-400 font-medium">{formatCurrency(item.precio_total)}</td>
+                            <td className="p-2.5 text-right text-aria-accent font-medium">{formatCurrency(item.precio_total)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -458,7 +458,7 @@ export default function RequisicionesStatusPage() {
             </div>
             <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
               <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
-              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-sm text-[#c9d8ed] hover:text-emerald-400 transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
+              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
         </div>

@@ -50,7 +50,7 @@ export default function AguinaldoPage() {
           <div className="flex items-center gap-3">
             <div className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg">
               <span className="text-xs text-[#7f93b0]">Total:</span>
-              <span className="text-emerald-400 font-bold ml-2">{fmtMoney(totalAguinaldo)}</span>
+              <span className="text-aria-accent font-bold ml-2">{fmtMoney(totalAguinaldo)}</span>
             </div>
             <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
               <option value={2026}>2026</option>
@@ -87,7 +87,7 @@ export default function AguinaldoPage() {
                   <td className="px-4 py-3 text-right font-mono text-[#c9d8ed]">${(e.salario_diario || 0).toFixed(2)}</td>
                   <td className="px-4 py-3 text-right font-mono text-white">{calc.dias}</td>
                   <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs ${calc.proporcional ? "bg-amber-500/20 text-amber-400" : "bg-aria-primary-light text-aria-accent"}`}>{calc.proporcional ? "Proporcional" : "Completo"}</span></td>
-                  <td className="px-4 py-3 text-right font-mono text-emerald-400 font-bold">{fmtMoney(calc.monto)}</td>
+                  <td className="px-4 py-3 text-right font-mono text-aria-accent font-bold">{fmtMoney(calc.monto)}</td>
                 </tr>
               );
             })}

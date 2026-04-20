@@ -133,7 +133,7 @@ export default function CosteoPage() {
   const getStatusColor = (porcentaje: number) => {
     if (porcentaje > 100) return "text-red-400";
     if (porcentaje > 85) return "text-amber-400";
-    return "text-emerald-400";
+    return "text-aria-accent";
   };
 
   return (
@@ -151,7 +151,7 @@ export default function CosteoPage() {
         {[
           { label: "Presupuesto Total", value: fmtMoney(totalPresupuesto), icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Costo Real", value: fmtMoney(totalReal), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary-light" },
-          { label: "Diferencia", value: fmtMoney(totalDiferencia), icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-emerald-400" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
+          { label: "Diferencia", value: fmtMoney(totalDiferencia), icon: totalDiferencia >= 0 ? TrendingUp : TrendingDown, color: totalDiferencia >= 0 ? "text-aria-accent" : "text-red-400", bg: totalDiferencia >= 0 ? "bg-emerald-500/10" : "bg-red-500/10" },
           { label: "Obras", value: obras.length, icon: HardHat, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -198,7 +198,7 @@ export default function CosteoPage() {
                   <td className="p-3 text-right text-aria-accent">{fmtMoney(o.subcontratos)}</td>
                   <td className="p-3 text-right text-[#7f93b0]">{fmtMoney(o.indirectos)}</td>
                   <td className="p-3 text-right text-white font-medium">{fmtMoney(o.total_real)}</td>
-                  <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  <td className={`p-3 text-right font-medium ${o.diferencia >= 0 ? "text-aria-accent" : "text-red-400"}`}>
                     {o.diferencia >= 0 ? "+" : "-"}{fmtMoney(Math.abs(o.diferencia))}
                   </td>
                   <td className="p-3 text-center">

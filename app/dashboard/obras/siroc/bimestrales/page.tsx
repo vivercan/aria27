@@ -156,7 +156,7 @@ export default function SirocBimestralesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { l: "Total", v: stats.total, c: "text-white" },
-          { l: "Presentados", v: stats.presentados, c: "text-emerald-300" },
+          { l: "Presentados", v: stats.presentados, c: "text-aria-accent" },
           { l: "Pendientes", v: stats.pendientes, c: "text-amber-300" },
           { l: "Vencidos", v: stats.vencidos, c: "text-rose-300" },
         ].map((k, i) => (
@@ -205,7 +205,7 @@ export default function SirocBimestralesPage() {
                     <td className={`p-3 ${vencido ? "text-rose-400 font-bold" : "text-[#c9d8ed]"}`}>{b.plazo_limite ? new Date(b.plazo_limite).toLocaleDateString("es-MX") : "—"}</td>
                     <td className="p-3 text-center">
                       {b.estatus === "PRESENTADO" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"><CheckCircle2 className="w-3 h-3" />Presentado</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-emerald-500/20 text-aria-accent border border-emerald-500/40"><CheckCircle2 className="w-3 h-3" />Presentado</span>
                       ) : vencido ? (
                         <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40"><AlertTriangle className="w-3 h-3" />Vencido</span>
                       ) : (

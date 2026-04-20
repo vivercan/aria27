@@ -293,7 +293,7 @@ export default function BibliotecaPlantillasPage() {
                   onChange={e => setFile(e.target.files?.[0] || null)}
                   className="text-xs text-[#7f93b0] file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-aria-primary-light file:text-aria-accent file:text-xs"
                 />
-                {file && <span className="text-xs text-emerald-400">{file.name}</span>}
+                {file && <span className="text-xs text-aria-accent">{file.name}</span>}
               </div>
             </div>
             <div className="md:col-span-3">
@@ -347,7 +347,7 @@ export default function BibliotecaPlantillasPage() {
                     {p.updated_at ? new Date(p.updated_at).toLocaleDateString("es-MX") : "—"}
                   </td>
                   <td className="p-3 text-center">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${p.activo ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${p.activo ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                       {p.activo ? "ACTIVA" : "INACTIVA"}
                     </span>
                   </td>

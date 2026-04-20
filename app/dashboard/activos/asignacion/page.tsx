@@ -220,7 +220,7 @@ export default function AsignacionPage() {
                   <td className="p-3 text-white">{a.empleado?.full_name || "—"}</td>
                   <td className="p-3 text-[#c9d8ed]">{a.activo?.nombre || a.activo?.name || "—"}</td>
                   <td className="p-3 text-[#7f93b0]">{a.fecha_asignacion}</td>
-                  <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${a.estado === "asignado" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{a.estado}</span></td>
+                  <td className="p-3"><span className={`px-2 py-0.5 rounded text-xs ${a.estado === "asignado" ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>{a.estado}</span></td>
                   <td className="p-3 text-[#7f93b0] max-w-xs truncate">{a.notas || "—"}</td>
                   <td className="p-3 text-center">
                     {a.estado === "asignado" && (

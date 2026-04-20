@@ -86,7 +86,7 @@ export default function ContratosPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "VIGENTE": return "bg-emerald-500/20 text-emerald-400";
+      case "VIGENTE": return "bg-emerald-500/20 text-aria-accent";
       case "TERMINADO": return "bg-aria-primary-light text-aria-accent";
       case "CANCELADO": return "bg-red-500/20 text-red-400";
       case "EN_FINIQUITO": return "bg-amber-500/20 text-amber-400";
@@ -115,7 +115,7 @@ export default function ContratosPage() {
         {[
           { label: "Total Contratado", value: `$${totalContratado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Contratos", value: contratos.length, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary-light" },
-          { label: "Vigentes", value: vigentes, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Vigentes", value: vigentes, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Terminados", value: terminados, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -155,7 +155,7 @@ export default function ContratosPage() {
           </div>
           {form.monto_contrato > 0 && (
             <div className="p-3 bg-white/[0.04] rounded-lg text-sm flex gap-6">
-              <span><span className="text-[#7f93b0]">Anticipo: </span><span className="text-emerald-400 font-medium">${(form.monto_contrato * form.anticipo_porcentaje / 100).toLocaleString()}</span></span>
+              <span><span className="text-[#7f93b0]">Anticipo: </span><span className="text-aria-accent font-medium">${(form.monto_contrato * form.anticipo_porcentaje / 100).toLocaleString()}</span></span>
               <span><span className="text-[#7f93b0]">Retención: </span><span className="text-amber-400 font-medium">${(form.monto_contrato * form.retencion_porcentaje / 100).toLocaleString()}</span></span>
             </div>
           )}
@@ -209,7 +209,7 @@ export default function ContratosPage() {
                   <td className="p-3 text-[#c9d8ed]">{c.cliente}</td>
                   <td className="p-3 text-center"><span className="text-xs text-[#7f93b0]">{(c.tipo || "").replace("_", " ")}</span></td>
                   <td className="p-3 text-right text-white font-medium">${(c.monto_contrato || 0).toLocaleString()}</td>
-                  <td className="p-3 text-right text-emerald-400">${(c.anticipo_monto || 0).toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent">${(c.anticipo_monto || 0).toLocaleString()}</td>
                   <td className="p-3 text-center text-[#c9d8ed]">{c.plazo_dias ? `${c.plazo_dias}d` : "-"}</td>
                   <td className="p-3 text-center"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(c.status)}`}>{c.status}</span></td>
                 </tr>

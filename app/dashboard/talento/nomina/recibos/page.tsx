@@ -292,7 +292,7 @@ export default function RecibosNominaPage() {
               <div className="bg-white/[0.06] px-4 py-2 rounded-lg">
                 <p className="text-xs text-[#c9d8ed]">RECIBO DE NÓMINA</p>
                 <p className="text-lg font-bold">Semana {nomina.semana}/{nomina.anio}</p>
-                {nomina.status === "CONFIRMADA" && <p className="text-[10px] text-emerald-300 mt-1">CONFIRMADA</p>}
+                {nomina.status === "CONFIRMADA" && <p className="text-[10px] text-aria-accent mt-1">CONFIRMADA</p>}
               </div>
             </div>
           </div>
@@ -470,17 +470,17 @@ export default function RecibosNominaPage() {
             <button onClick={semanaHoy} className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] text-sm flex items-center gap-2"><Calendar className="w-4 h-4" />Hoy</button>
             <button onClick={semanaSig} title="Semana siguiente" className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08]"><ChevronRight className="w-4 h-4 text-[#c9d8ed]" /></button>
 
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-aria-accent" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
               {nominaStatus === "CONFIRMADA" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
               {nominaStatus === "CONFIRMADA" ? "CONFIRMADA" : "PRE-NÓMINA"}
             </div>
 
-            <button onClick={() => nominaStatus === "CONFIRMADA" ? setShowConfirmModal(true) : confirmarNomina()} disabled={nominas.length === 0 || confirmando} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50 ${nominaStatus === "CONFIRMADA" ? "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300" : "bg-gradient-to-r from-emerald-500 to-emerald-500 text-white hover:from-emerald-600 hover:to-emerald-600"}`}>
+            <button onClick={() => nominaStatus === "CONFIRMADA" ? setShowConfirmModal(true) : confirmarNomina()} disabled={nominas.length === 0 || confirmando} className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50 ${nominaStatus === "CONFIRMADA" ? "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300" : "bg-gradient-to-r from-aria-primary to-aria-accent text-white hover:from-emerald-600 hover:to-emerald-600"}`}>
               {confirmando ? <Loader2 className="w-4 h-4 animate-spin" /> : nominaStatus === "CONFIRMADA" ? <Unlock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
               {nominaStatus === "CONFIRMADA" ? "Desbloquear" : "Confirmar Nómina"}
             </button>
 
-            <button onClick={exportarExcel} disabled={nominas.length === 0 || exportando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 disabled:opacity-50">
+            <button onClick={exportarExcel} disabled={nominas.length === 0 || exportando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-aria-accent hover:from-emerald-500/30 hover:to-green-500/30 disabled:opacity-50">
               {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               Excel
             </button>
@@ -498,7 +498,7 @@ export default function RecibosNominaPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Recibos</p><p className="text-xl font-bold text-white">{filtradas.length}</p></div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p></div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Neto total</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.neto)}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Transferencia</p><p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p></div>
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]"><p className="text-xs text-[#7f93b0]">Efectivo</p><p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p></div>
             </div>

@@ -13,7 +13,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 const OPINIONES = [
-  { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+  { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", color: "text-aria-accent", bg: "bg-emerald-500/10" },
   { key: "infonavit", label: "Infonavit", desc: "Opinión de cumplimiento de aportaciones patronales.", color: "text-aria-accent", bg: "bg-aria-primary/10" },
   { key: "sat", label: "SAT (32-D)", desc: "Opinión de cumplimiento de obligaciones fiscales.", color: "text-amber-400", bg: "bg-amber-500/10" },
   { key: "sar", label: "SAR", desc: "Opinión de cumplimiento del Sistema de Ahorro para el Retiro.", color: "text-aria-accent", bg: "bg-aria-primary/10" },
@@ -143,7 +143,7 @@ export default function OpinionesPage() {
       if (vig < today) return { label: "Vencida", color: "text-red-400", icon: AlertTriangle };
       const diff = Math.ceil((vig.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       if (diff <= 15) return { label: `Vence en ${diff}d`, color: "text-amber-400", icon: Clock };
-      return { label: "Vigente", color: "text-emerald-400", icon: CheckCircle2 };
+      return { label: "Vigente", color: "text-aria-accent", icon: CheckCircle2 };
     }
     return { label: "Subido", color: "text-aria-accent", icon: FileText };
   }

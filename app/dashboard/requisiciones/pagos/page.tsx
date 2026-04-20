@@ -133,7 +133,7 @@ export default function PagosPage() {
 
   const getStatusBadge = (oc: PurchaseOrder) => {
     const pagado = oc.monto_pagado || oc.pagado || 0;
-    if (pagado >= oc.total && oc.total > 0) return { label: "PAGADA", color: "bg-emerald-500/20 text-emerald-400" };
+    if (pagado >= oc.total && oc.total > 0) return { label: "PAGADA", color: "bg-emerald-500/20 text-aria-accent" };
     if (pagado > 0) return { label: "PARCIAL", color: "bg-amber-500/20 text-amber-400" };
     return { label: "PENDIENTE", color: "bg-red-500/20 text-red-400" };
   };
@@ -152,7 +152,7 @@ export default function PagosPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total OCs", value: `$${stats.total.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Pagado", value: `$${stats.pagado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Pagado", value: `$${stats.pagado.toLocaleString()}`, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Pendiente", value: `$${stats.pendiente.toLocaleString()}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Órdenes", value: stats.ordenes, icon: Hash, color: "text-aria-accent", bg: "bg-aria-primary/10" },
         ].map((s, i) => (
@@ -210,7 +210,7 @@ export default function PagosPage() {
                     <td className="p-3 text-white">{oc.supplier_name}</td>
                     <td className="p-3 text-[#c9d8ed]">{oc.obra_nombre}</td>
                     <td className="p-3 text-right text-white font-medium">${(oc.total || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-emerald-400">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
+                    <td className="p-3 text-right text-aria-accent">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-amber-400 font-medium">${((oc.total || 0) - (oc.monto_pagado || oc.pagado || 0)).toLocaleString()}</td>
                     <td className="p-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>{badge.label}</span></td>
                     <td className="p-3 text-center">

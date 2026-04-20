@@ -294,19 +294,19 @@ export default function FotosPage() {
       {/* Drag & drop overlay */}
       {dragging && (
         <div className="absolute inset-0 z-30 bg-emerald-500/10  flex flex-col items-center justify-center pointer-events-none">
-          <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">Suelta fotos o carpetas aqu\u00ed</p>
+          <Inbox className="w-12 h-12 text-aria-accent mb-2" />
+          <p className="text-aria-accent text-sm font-medium">Suelta fotos o carpetas aqu\u00ed</p>
         </div>
       )}
       {/* Scanning/uploading progress overlay */}
       {dropProgress && (
         <div className="absolute inset-0 z-30 bg-[#0a1628]/80  flex flex-col items-center justify-center pointer-events-none">
-          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">
+          <Loader2 className="w-10 h-10 text-aria-accent animate-spin mb-2" />
+          <p className="text-aria-accent text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo fotos\u2026"}
           </p>
           {dropProgress.total > 0 && (
-            <p className="text-emerald-400/60 text-xs mt-1">
+            <p className="text-aria-accent/60 text-xs mt-1">
               {dropProgress.current} / {dropProgress.total} archivos
             </p>
           )}

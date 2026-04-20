@@ -259,9 +259,9 @@ export default function TareasPage() {
           <p className="text-amber-400 text-2xl font-bold">{pendientes}</p>
           <p className="text-amber-400/70 text-xs">Pendientes</p>
         </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-emerald-400 text-2xl font-bold">{completadas}</p>
-          <p className="text-emerald-400/70 text-xs">Completadas</p>
+        <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3">
+          <p className="text-aria-accent text-2xl font-bold">{completadas}</p>
+          <p className="text-aria-accent/70 text-xs">Completadas</p>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
           <p className="text-red-400 text-2xl font-bold">{vencidas}</p>
@@ -342,9 +342,9 @@ export default function TareasPage() {
                   <td className="p-3 text-center">
                     <button onClick={() => toggleStatus(t)} className="transition-colors">
                       {t.status === "completada" ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        <CheckCircle2 className="w-5 h-5 text-aria-accent" />
                       ) : (
-                        <Circle className="w-5 h-5 text-[#4a6080] hover:text-emerald-400" />
+                        <Circle className="w-5 h-5 text-[#4a6080] hover:text-aria-accent" />
                       )}
                     </button>
                   </td>

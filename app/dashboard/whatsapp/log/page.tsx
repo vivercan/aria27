@@ -84,7 +84,7 @@ export default function WhatsAppLogPage() {
       <div className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08]">
         <AriaBackButton href="/dashboard" />
         <h1 className="mt-2 text-2xl font-bold text-white flex items-center gap-2">
-          <MessageCircle className="w-6 h-6 text-emerald-400" /> WhatsApp Log — JJCRM27
+          <MessageCircle className="w-6 h-6 text-aria-accent" /> WhatsApp Log — JJCRM27
         </h1>
         <p className="text-sm text-[#7f93b0]">Auditoría de envíos vía WABA 842930185269415 / Phone 963627606824867</p>
       </div>
@@ -147,7 +147,7 @@ export default function WhatsAppLogPage() {
                   <td className="px-3 py-2 font-mono text-xs">{r.phone}</td>
                   <td className="px-3 py-2">
                     {r.success
-                      ? <span className="inline-flex items-center gap-1 text-emerald-400"><CheckCircle2 className="w-4 h-4" />OK</span>
+                      ? <span className="inline-flex items-center gap-1 text-aria-accent"><CheckCircle2 className="w-4 h-4" />OK</span>
                       : <span className="inline-flex items-center gap-1 text-rose-400"><XCircle className="w-4 h-4" />ERR</span>}
                   </td>
                   <td className="px-3 py-2 text-xs">{r.origen || "—"}</td>

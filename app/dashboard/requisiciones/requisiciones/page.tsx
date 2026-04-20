@@ -94,7 +94,7 @@ export default function RequisicionesPage() {
   };
 
   const statusColor = (s: string) => {
-    if (s?.includes("TERMINADO")) return "bg-emerald-500/20 text-emerald-400";
+    if (s?.includes("TERMINADO")) return "bg-emerald-500/20 text-aria-accent";
     if (s?.includes("FALTANTE")) return "bg-amber-500/20 text-amber-400";
     if (s?.includes("COTIZACION")) return "bg-aria-primary-light text-aria-accent";
     if (s?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
@@ -258,7 +258,7 @@ export default function RequisicionesPage() {
                       if (c.key === "solicitante") return <span className="text-[#c9d8ed] text-xs">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</span>;
                       if (c.key === "obra") return <span className="px-2 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs">{r.obra?.substring(0,18) || "—"}</span>;
                       if (c.key === "descripcion") return <span className="text-white text-xs">{r.descripcion || "—"}</span>;
-                      if (c.key === "monto") return <span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span>;
+                      if (c.key === "monto") return <span className="font-semibold text-aria-accent text-xs">{formatMoney(r.monto)}</span>;
                       if (c.key === "status") return <span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span>;
                       if (c.key === "historial") return <HistorialButton tabla="requisitions" id={r.id} label="Ver" size="sm" />;
                       return null;
@@ -272,14 +272,14 @@ export default function RequisicionesPage() {
             {/* Resumen */}
             <div className="p-5 rounded-2xl" style={{background:PANEL_BG,border:`1px solid ${PANEL_BD}`}}>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-400" />Top Obras
+                <TrendingUp className="w-5 h-5 text-aria-accent" />Top Obras
               </h2>
               <div className="space-y-3">
                 {resumenObras.map((o, i) => (
                   <div key={i} className="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-aria-primary/30 transition-all cursor-pointer" onClick={() => setFiltros({...filtros, obra: o.nombre})}>
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-sm font-medium text-white truncate flex-1">{o.nombre}</p>
-                      <span className="text-emerald-400 font-bold text-sm">{formatMoney(o.total)}</span>
+                      <span className="text-aria-accent font-bold text-sm">{formatMoney(o.total)}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                       <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-aria-accent transition-all" style={{width: `${Math.min((o.total / (resumenObras[0]?.total || 1)) * 100, 100)}%`}}/>

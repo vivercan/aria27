@@ -97,7 +97,7 @@ export default function NominaConfigPage() {
         <AriaBackButton href="/dashboard/configuracion/maestros" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <DollarSign className="text-emerald-400" />
+          <DollarSign className="text-aria-accent" />
           {"Configuraci\u00f3n de N\u00f3mina"}
         </h1>
         <p className="text-[#7f93b0] text-sm">{"Par\u00e1metros para c\u00e1lculo de n\u00f3mina y asistencias"}</p>

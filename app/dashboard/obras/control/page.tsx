@@ -45,7 +45,7 @@ function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
 }
 
 const semColor: Record<ObraRow["semaforo"], string> = {
-  VERDE: "bg-emerald-500/20 border-emerald-500/30 text-emerald-300",
+  VERDE: "bg-emerald-500/20 border-emerald-500/30 text-aria-accent",
   AMARILLO: "bg-amber-500/20 border-amber-500/30 text-amber-300",
   ROJO: "bg-red-500/20 border-red-500/30 text-red-300",
   REBASADO: "bg-rose-600/30 border-rose-600/50 text-rose-200",
@@ -196,7 +196,7 @@ export default function ControlObrasPage() {
             <p className="text-[#7f93b0] text-sm">Presupuesto vs Gasto Real (OC + Nómina) por obra</p>
           </div>
         </div>
-        <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40">
+        <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-aria-accent hover:bg-emerald-500/20 disabled:opacity-40">
           <Download className="w-4 h-4" /> CSV
         </button>
       </div>
@@ -225,15 +225,15 @@ export default function ControlObrasPage() {
         </div>
         <div className={`p-4 rounded-xl border ${totales.saldo >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
           <p className="text-[#7f93b0] text-xs">Saldo Ppto</p>
-          <p className={`text-lg font-bold ${totales.saldo >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.saldo)}</p>
+          <p className={`text-lg font-bold ${totales.saldo >= 0 ? "text-aria-accent" : "text-rose-300"}`}>{fmt(totales.saldo)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs">Cobrado</p>
-          <p className="text-lg font-bold text-emerald-300">{fmt(totales.cobrado)}</p>
+          <p className="text-lg font-bold text-aria-accent">{fmt(totales.cobrado)}</p>
         </div>
         <div className={`p-4 rounded-xl border ${totales.margen >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"}`}>
           <p className="text-[#7f93b0] text-xs">Margen Real</p>
-          <p className={`text-lg font-bold ${totales.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(totales.margen)}</p>
+          <p className={`text-lg font-bold ${totales.margen >= 0 ? "text-aria-accent" : "text-rose-300"}`}>{fmt(totales.margen)}</p>
         </div>
       </div>
 
@@ -298,9 +298,9 @@ export default function ControlObrasPage() {
                     <td className="p-3 text-right text-orange-300">{fmt(f.gastoOC)}</td>
                     <td className="p-3 text-right text-aria-accent">{fmt(f.gastoNomina)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmt(f.gastoTotal)}</td>
-                    <td className="p-3 text-right text-emerald-300">{fmt(f.cobrado)}</td>
-                    <td className={`p-3 text-right font-medium ${f.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(f.margen)}</td>
-                    <td className={`p-3 text-right font-medium ${f.saldo >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt(f.saldo)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmt(f.cobrado)}</td>
+                    <td className={`p-3 text-right font-medium ${f.margen >= 0 ? "text-aria-accent" : "text-rose-300"}`}>{fmt(f.margen)}</td>
+                    <td className={`p-3 text-right font-medium ${f.saldo >= 0 ? "text-aria-accent" : "text-rose-300"}`}>{fmt(f.saldo)}</td>
                     <td className="p-3 text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-white text-xs font-medium">{f.avance.toFixed(1)}%</span>
@@ -312,14 +312,14 @@ export default function ControlObrasPage() {
                     <td className="p-3 text-center">
                       {f.pctFisico !== null ? (
                         <div className="flex flex-col items-center">
-                          <span className="text-emerald-300 text-xs font-medium">{f.pctFisico.toFixed(1)}%</span>
+                          <span className="text-aria-accent text-xs font-medium">{f.pctFisico.toFixed(1)}%</span>
                           <span className="text-[9px] text-[#4a6080]">{f.semanaFisico}</span>
                         </div>
                       ) : <span className="text-[#4a6080] text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       {f.deltaFisFin !== null ? (
-                        <span className={`text-xs font-medium ${f.deltaFisFin >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
+                        <span className={`text-xs font-medium ${f.deltaFisFin >= 0 ? "text-aria-accent" : "text-rose-300"}`}>
                           {f.deltaFisFin >= 0 ? "+" : ""}{f.deltaFisFin.toFixed(1)}%
                         </span>
                       ) : <span className="text-[#4a6080] text-xs">—</span>}
@@ -351,7 +351,7 @@ export default function ControlObrasPage() {
                               URL.revokeObjectURL(url);
                             });
                         }}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-[10px] ml-1"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-aria-accent hover:bg-emerald-500/20 text-[10px] ml-1"
                       >
                         Excel
                       </a>

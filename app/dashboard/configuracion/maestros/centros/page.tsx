@@ -127,7 +127,7 @@ export default function CentrosPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.latitud ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
-                      <MapPin className={`w-6 h-6 ${c.latitud ? "text-emerald-400" : "text-amber-400"}`} />
+                      <MapPin className={`w-6 h-6 ${c.latitud ? "text-aria-accent" : "text-amber-400"}`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">

@@ -282,7 +282,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                   <td className="text-white group-hover:text-aria-accent transition-colors pr-2">{p.name}</td>
                   <td>{p.category&&<span className="text-[10px] px-1.5 py-0.5 bg-white/[0.06] rounded text-[#7f93b0]">{p.category}</span>}</td>
                   <td className="text-[#7f93b0]">{p.unit}</td>
-                  <td>{supps.length>0?(<div className="flex gap-1 items-center">{supps.slice(0,2).map(s=>(<span key={s.id} className="text-[10px] px-1 py-0.5 bg-emerald-500/10 text-emerald-400 rounded truncate max-w-[100px]" title={s.name}>{s.name.length>14?s.name.substring(0,14)+"…":s.name}</span>))}{supps.length>2&&<span className="text-[10px] text-[#4a6080]">+{supps.length-2}</span>}</div>):<span className="text-[10px] text-[#4a6080]">—</span>}</td>
+                  <td>{supps.length>0?(<div className="flex gap-1 items-center">{supps.slice(0,2).map(s=>(<span key={s.id} className="text-[10px] px-1 py-0.5 bg-emerald-500/10 text-aria-accent rounded truncate max-w-[100px]" title={s.name}>{s.name.length>14?s.name.substring(0,14)+"…":s.name}</span>))}{supps.length>2&&<span className="text-[10px] text-[#4a6080]">+{supps.length-2}</span>}</div>):<span className="text-[10px] text-[#4a6080]">—</span>}</td>
                   <td className="pr-2"><ChevronRight className="w-3 h-3 text-[#4a6080] group-hover:text-[#7f93b0]"/></td>
                 </tr>
               );})}
@@ -324,18 +324,18 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               </div>
             </div>
             <div className="p-4">
-              <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-emerald-400"/>Proveedores<span className="ml-auto text-[10px] text-[#4a6080]">{loadingDetail?"...":productSuppliers.length}</span></h3>
+              <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Truck className="w-3.5 h-3.5 text-aria-accent"/>Proveedores<span className="ml-auto text-[10px] text-[#4a6080]">{loadingDetail?"...":productSuppliers.length}</span></h3>
               {loadingDetail?(<div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-aria-accent"/></div>
               ):productSuppliers.length===0?(<div className="text-center py-4 bg-white/[0.02] rounded-lg border border-white/[0.04]"><Truck className="w-6 h-6 text-[#4a6080] mx-auto mb-1"/><p className="text-[#4a6080] text-xs">Sin proveedores</p></div>
               ):(<div className="space-y-1.5">{productSuppliers.map((ps:any,idx:number)=>(<div key={idx} className={`p-2.5 rounded-lg border ${ps.es_proveedor_preferido?"bg-emerald-500/[0.06] border-emerald-500/20":"bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04]"}`}>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3.5 h-3.5 text-emerald-400"/></div>
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3.5 h-3.5 text-aria-accent"/></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-xs flex items-center gap-1">{ps.suppliers?.name||"—"}{ps.es_proveedor_preferido&&<span className="text-[8px] px-1 bg-emerald-500/20 text-emerald-400 rounded font-bold">PREF</span>}</p>
+                    <p className="text-white font-medium text-xs flex items-center gap-1">{ps.suppliers?.name||"—"}{ps.es_proveedor_preferido&&<span className="text-[8px] px-1 bg-emerald-500/20 text-aria-accent rounded font-bold">PREF</span>}</p>
                     <p className="text-[10px] text-[#4a6080]">{[ps.suppliers?.ciudad,ps.suppliers?.estado].filter(Boolean).join(", ")||"—"}{ps.suppliers?.phone&&` · ${ps.suppliers.phone}`}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    {ps.precio_referencia&&<p className="text-xs text-emerald-400 font-medium">${ps.precio_referencia.toLocaleString("es-MX",{minimumFractionDigits:2})}</p>}
+                    {ps.precio_referencia&&<p className="text-xs text-aria-accent font-medium">${ps.precio_referencia.toLocaleString("es-MX",{minimumFractionDigits:2})}</p>}
                     {ps.tiempo_entrega_dias&&<p className="text-[10px] text-[#4a6080]">{ps.tiempo_entrega_dias}d</p>}
                   </div>
                 </div>
@@ -445,8 +445,8 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               ):(
                 <>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-white flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-400"/>{parsedProducts.length} productos encontrados</h3>
-                    {savedCount>0&&<span className="text-[10px] text-emerald-400">{savedCount} guardados</span>}
+                    <h3 className="text-xs font-semibold text-white flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-aria-accent"/>{parsedProducts.length} productos encontrados</h3>
+                    {savedCount>0&&<span className="text-[10px] text-aria-accent">{savedCount} guardados</span>}
                   </div>
                   <table className="w-full">
                     <thead><tr className="text-[10px] text-[#4a6080] font-semibold uppercase border-b border-white/[0.06]">
@@ -459,7 +459,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                           <td className="text-white">{p.name}</td>
                           <td className="text-[#7f93b0]">{p.unit||"PIEZA"}</td>
                           <td className="text-[#7f93b0]">{p.category||"—"}</td>
-                          <td className="text-right pr-2 text-emerald-400">{p.price?`$${Number(p.price).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
+                          <td className="text-right pr-2 text-aria-accent">{p.price?`$${Number(p.price).toLocaleString("es-MX",{minimumFractionDigits:2})}`:"—"}</td>
                         </tr>
                       ))}
                     </tbody>

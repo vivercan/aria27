@@ -120,7 +120,7 @@ export default function PrestamosPage() {
           <p className="text-xs text-[#7f93b0]">Total Pendiente</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><TrendingDown className="w-4 h-4 text-emerald-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><TrendingDown className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.descuento_semanal, 0))}</p>
           <p className="text-xs text-[#7f93b0]">Descuento Semanal Total</p>
         </div>
@@ -156,7 +156,7 @@ export default function PrestamosPage() {
                   <td className="p-3 text-right text-aria-accent">{formatMoney(p.descuento_semanal)}</td>
                   <td className="p-3 text-[#c9d8ed] text-sm">{p.motivo}</td>
                   <td className="p-3 text-center">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status?.toUpperCase() === "ACTIVO" ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                       {p.status?.toUpperCase()}
                     </span>
                   </td>

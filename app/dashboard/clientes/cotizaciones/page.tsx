@@ -448,7 +448,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Vigente", value: fmtMoney(totTotal), icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Aprobadas", value: fmtMoney(totAprobado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Aprobadas", value: fmtMoney(totAprobado), icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Enviadas", value: fmtMoney(totEnviado), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Registros", value: cots.length, icon: AlertTriangle, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
@@ -604,7 +604,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                           className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
                         <td className="p-1"><input type="number" required step="0.01" min="0" value={it.precio_unitario} onChange={e => actualizarItem(idx, { precio_unitario: parseFloat(e.target.value) || 0 })}
                           className="w-full px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-white text-xs text-right" /></td>
-                        <td className="p-1 text-right text-emerald-400 font-medium">{fmtMoney(it.importe)}</td>
+                        <td className="p-1 text-right text-aria-accent font-medium">{fmtMoney(it.importe)}</td>
                         <td className="p-1 text-center">
                           {items.length > 1 && (
                             <button onClick={() => quitarItem(idx)} className="p-1 text-red-400 hover:bg-red-500/20 rounded">
@@ -650,7 +650,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
             <div className="flex justify-end gap-6 mb-4 text-sm">
               <div className="text-[#7f93b0]">Subtotal: <span className="text-white font-medium">{fmtMoney(subtotal)}</span></div>
               <div className="text-[#7f93b0]">IVA ({form.iva_pct}%): <span className="text-white font-medium">{fmtMoney(iva)}</span></div>
-              <div className="text-[#c9d8ed] text-base">Total: <span className="text-emerald-400 font-bold">{fmtMoney(total)}</span></div>
+              <div className="text-[#c9d8ed] text-base">Total: <span className="text-aria-accent font-bold">{fmtMoney(total)}</span></div>
             </div>
 
             <div className="flex gap-3">

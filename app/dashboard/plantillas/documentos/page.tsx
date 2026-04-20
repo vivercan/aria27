@@ -163,7 +163,7 @@ export default function DocumentosPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><FileText className="w-4 h-4 text-emerald-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><FileText className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : documentos.length}</p>
           <p className="text-xs text-[#7f93b0]">Total Documentos</p>
         </div>
@@ -207,7 +207,7 @@ export default function DocumentosPage() {
               ) : filtered.map(d => (
                 <tr key={d.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{d.nombre}</td>
-                  <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-300">{d.tipo || "General"}</span></td>
+                  <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-aria-accent">{d.tipo || "General"}</span></td>
                   <td className="p-3 text-[#7f93b0]">{d.obra_nombre || "—"}</td>
                   <td className="p-3 text-[#7f93b0] text-xs">{d.created_at ? new Date(d.created_at).toLocaleDateString("es-MX") : "—"}</td>
                   <td className="p-3 text-center">

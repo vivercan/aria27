@@ -41,7 +41,7 @@ interface ObraForm {
 }
 
 const STATUS_OPTIONS = [
-  { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-aria-accent" },
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
   { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
   { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-[#7f93b0]" },
@@ -340,7 +340,7 @@ export default function PipelinePage() {
                     <label className="block text-xs text-[#7f93b0] mb-1">Ampliaciones</label>
                     <input type="number" min="0" value={form.presupuesto_ampliaciones || ""} onChange={e => setForm({ ...form, presupuesto_ampliaciones: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" />
                     {(parseFloat(String(form.presupuesto_contratado))||0) + (parseFloat(String(form.presupuesto_ampliaciones))||0) > 0 && (
-                      <div className="text-[10px] text-emerald-400 mt-1">Total: ${((parseFloat(String(form.presupuesto_contratado))||0) + (parseFloat(String(form.presupuesto_ampliaciones))||0)).toLocaleString()}</div>
+                      <div className="text-[10px] text-aria-accent mt-1">Total: ${((parseFloat(String(form.presupuesto_contratado))||0) + (parseFloat(String(form.presupuesto_ampliaciones))||0)).toLocaleString()}</div>
                     )}
                   </div>
                   <div>
@@ -380,8 +380,8 @@ export default function PipelinePage() {
               {modo === "excel" && (
                 <div className="space-y-3">
                   <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
-                    <p className="text-emerald-400 text-xs">Sube un archivo .xlsx con columnas: NOMBRE, UBICACION, CLIENTE, PRESUPUESTO, DESCRIPCION</p>
-                    <p className="text-emerald-400/60 text-xs mt-1">Los nombres de columna pueden ser en mayúsculas o minúsculas.</p>
+                    <p className="text-aria-accent text-xs">Sube un archivo .xlsx con columnas: NOMBRE, UBICACION, CLIENTE, PRESUPUESTO, DESCRIPCION</p>
+                    <p className="text-aria-accent/60 text-xs mt-1">Los nombres de columna pueden ser en mayúsculas o minúsculas.</p>
                   </div>
                   <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} className="w-full text-sm text-[#7f93b0] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-aria-primary file:text-white file:text-sm hover:file:bg-aria-primary-hover file:cursor-pointer" />
                   {excelData.length > 0 && (

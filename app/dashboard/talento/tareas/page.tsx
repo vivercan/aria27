@@ -49,7 +49,7 @@ function colorEstatus(e: string) {
   switch (e) {
     case "PENDIENTE": return "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/40";
     case "EN_PROGRESO": return "bg-aria-primary-light text-aria-accent border-aria-primary/40";
-    case "COMPLETADA": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+    case "COMPLETADA": return "bg-emerald-500/20 text-aria-accent border-emerald-500/40";
     case "CANCELADA": return "bg-rose-500/20 text-rose-300 border-rose-500/40";
     default: return "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/40";
   }
@@ -249,7 +249,7 @@ export default function TareasTalentoPage() {
         </div>
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">Completadas</div>
-          <div className="text-2xl font-bold text-emerald-300">{stats.completadas}</div>
+          <div className="text-2xl font-bold text-aria-accent">{stats.completadas}</div>
         </div>
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">Vencidas</div>

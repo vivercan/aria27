@@ -219,7 +219,7 @@ export default function IncompletasPage() {
         <div className="text-center py-12 text-[#7f93b0]">Cargando...</div>
       ) : totalPendientes === 0 ? (
         <div className="text-center py-16 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
-          <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
+          <CheckCircle2 className="w-16 h-16 text-aria-accent mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">¡Todo en orden!</h3>
           <p className="text-[#7f93b0] mb-6">No hay asistencias pendientes de completar</p>
           <Link href="/dashboard/talento/checadas" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-aria-primary text-white hover:bg-aria-primary transition-colors">
@@ -251,7 +251,7 @@ export default function IncompletasPage() {
                     <button 
                       onClick={() => crearAsistencia(item)} 
                       disabled={procesando === `${item.employee_id}-${item.fecha}`}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-sm transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-aria-primary/30 text-aria-accent text-sm transition-colors disabled:opacity-50"
                     >
                       {procesando === `${item.employee_id}-${item.fecha}` ? "..." : "Crear 08-18"}
                     </button>
@@ -284,7 +284,7 @@ export default function IncompletasPage() {
                     <button 
                       onClick={() => completarSalida(item)} 
                       disabled={procesando === item.id}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-sm transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-aria-primary/30 text-aria-accent text-sm transition-colors disabled:opacity-50"
                     >
                       {procesando === item.id ? "..." : "Salida 18:00"}
                     </button>

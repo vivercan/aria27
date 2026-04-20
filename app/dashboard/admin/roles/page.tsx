@@ -142,7 +142,7 @@ export default function RolesAdminPage() {
           <AriaBackButton href="/dashboard" />
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" /> Roles y Permisos
+              <ShieldCheck className="w-5 h-5 text-aria-accent" /> Roles y Permisos
             </h1>
             <p className="text-xs text-[#7f93b0]">{users.length} usuarios · marca los modulos que cada uno puede ver</p>
           </div>

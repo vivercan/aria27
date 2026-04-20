@@ -100,7 +100,7 @@ export default function PanelFinanzas() {
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href="/dashboard/finanzas" />
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Wallet className="w-6 h-6 text-emerald-400" /> Panel Finanzas</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Wallet className="w-6 h-6 text-aria-accent" /> Panel Finanzas</h1>
           <p className="text-sm text-[#7f93b0]">Vista director financiero · cobranza, cuentas por pagar y saldos</p>
         </div>
       </div>

@@ -345,12 +345,12 @@ export default function PersonalPage() {
                   <td className="p-3 text-[#7f93b0] text-sm">{e.whatsapp || "\u2014"}</td>
                   <td className="p-3 text-center text-sm">
                     {e.fecha_ingreso
-                      ? <span className="text-emerald-400">{e.fecha_ingreso}</span>
+                      ? <span className="text-aria-accent">{e.fecha_ingreso}</span>
                       : <span className="text-red-400/60">{"\u2014"}</span>}
                   </td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      campos >= 5 ? "bg-emerald-500/20 text-emerald-400" :
+                      campos >= 5 ? "bg-emerald-500/20 text-aria-accent" :
                       campos >= 2 ? "bg-amber-500/20 text-amber-400" :
                       "bg-red-500/20 text-red-400"
                     }`}>{campos}/7</span>
@@ -393,7 +393,7 @@ export default function PersonalPage() {
             <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <div className="flex items-center gap-3">
                 {editando === "nuevo"
-                  ? <UserPlus className="w-5 h-5 text-emerald-400" />
+                  ? <UserPlus className="w-5 h-5 text-aria-accent" />
                   : <Edit2 className="w-5 h-5 text-aria-accent" />}
                 <h2 className="text-lg font-bold text-white">
                   {editando === "nuevo" ? "Nuevo Empleado" : "Editar Empleado"}

@@ -150,7 +150,7 @@ export default function HistoricoNominaPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={exportarCSV} disabled={registrosFiltrados.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40 transition-all">
+          <button onClick={exportarCSV} disabled={registrosFiltrados.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-aria-accent hover:bg-emerald-500/20 disabled:opacity-40 transition-all">
             <Download className="w-4 h-4" /> CSV
           </button>
           <button onClick={() => setVistaAcumulado(!vistaAcumulado)} className={`px-4 py-2 rounded-xl border transition-all ${vistaAcumulado ? "bg-aria-primary-light border-aria-primary/30 text-aria-accent" : "bg-white/[0.04] border-white/[0.08] text-[#c9d8ed]"}`}>
@@ -194,7 +194,7 @@ export default function HistoricoNominaPage() {
         </div>
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
-          <p className="text-xl font-bold text-emerald-400">{formatMoney(totales.bruto)}</p>
+          <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.bruto)}</p>
         </div>
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] border-red-500/20">
           <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
@@ -242,7 +242,7 @@ export default function HistoricoNominaPage() {
                     <td className="p-4 text-center text-aria-accent font-bold">{e.semanas}</td>
                     <td className="p-4 text-right text-white">{formatMoney(e.totalBruto)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(e.totalDeducciones)}</td>
-                    <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(e.totalNeto)}</td>
+                    <td className="p-4 text-right text-aria-accent font-bold">{formatMoney(e.totalNeto)}</td>
                     <td className="p-4 text-right text-aria-accent">{formatMoney(e.totalTarjeta)}</td>
                     <td className="p-4 text-right text-amber-400">{formatMoney(e.totalEfectivo)}</td>
                   </tr>
@@ -254,10 +254,10 @@ export default function HistoricoNominaPage() {
                     <td className="p-4 text-[#7f93b0] text-xs whitespace-nowrap">{formatDateShort(r.fecha_inicio)} – {formatDateShort(r.fecha_fin)}</td>
                     <td className="p-4 text-white font-medium">{r.nombre}</td>
                     <td className="p-4"><span className="px-2 py-1 rounded-lg bg-white/[0.05] text-[#c9d8ed] text-xs">{r.puesto}</span></td>
-                    <td className="p-4 text-center text-emerald-400 font-bold">{r.dias_trabajados}</td>
+                    <td className="p-4 text-center text-aria-accent font-bold">{r.dias_trabajados}</td>
                     <td className="p-4 text-right text-white">{formatMoney(r.total_percepciones)}</td>
                     <td className="p-4 text-right text-red-400">{formatMoney(r.total_deducciones)}</td>
-                    <td className="p-4 text-right text-emerald-400 font-bold">{formatMoney(r.sueldo_neto)}</td>
+                    <td className="p-4 text-right text-aria-accent font-bold">{formatMoney(r.sueldo_neto)}</td>
                     <td className="p-4 text-right text-aria-accent">{formatMoney(r.pago_tarjeta)}</td>
                     <td className="p-4 text-right text-amber-400">{formatMoney(r.pago_efectivo)}</td>
                   </tr>

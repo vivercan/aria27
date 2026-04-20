@@ -134,11 +134,11 @@ export default function LegalesPage() {
                 <td className="px-4 py-3 text-[#c9d8ed]">{e.empresa || "-"}</td>
                 <td className="px-4 py-3 text-[#c9d8ed]">{e.tipo_contrato || "Indefinido"}</td>
                 <td className="px-4 py-3 text-[#c9d8ed]">{e.fecha_ingreso ? new Date(e.fecha_ingreso).toLocaleDateString("es-MX") : "-"}</td>
-                <td className="px-4 py-3 font-mono text-xs">{e.rfc ? <span className="text-emerald-400">{e.rfc}</span> : <span className="text-red-400">Falta</span>}</td>
-                <td className="px-4 py-3 font-mono text-xs">{e.curp ? <span className="text-emerald-400">Sí</span> : <span className="text-red-400">Falta</span>}</td>
-                <td className="px-4 py-3 font-mono text-xs">{e.nss ? <span className="text-emerald-400">{e.nss}</span> : <span className="text-red-400">Falta</span>}</td>
+                <td className="px-4 py-3 font-mono text-xs">{e.rfc ? <span className="text-aria-accent">{e.rfc}</span> : <span className="text-red-400">Falta</span>}</td>
+                <td className="px-4 py-3 font-mono text-xs">{e.curp ? <span className="text-aria-accent">Sí</span> : <span className="text-red-400">Falta</span>}</td>
+                <td className="px-4 py-3 font-mono text-xs">{e.nss ? <span className="text-aria-accent">{e.nss}</span> : <span className="text-red-400">Falta</span>}</td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${getDocsStatus(e) >= 3 ? "bg-emerald-500/20 text-emerald-400" : getDocsStatus(e) >= 1 ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${getDocsStatus(e) >= 3 ? "bg-emerald-500/20 text-aria-accent" : getDocsStatus(e) >= 1 ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
                     {getDocsStatus(e)}/4
                   </span>
                 </td>
@@ -151,7 +151,7 @@ export default function LegalesPage() {
                           </div>
                         )}
                         <div className="flex items-center gap-1 justify-center">
-                          <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
+                          <button onClick={handleSaveLegal} disabled={saving} className="px-2 py-1 bg-emerald-500/20 text-aria-accent rounded text-xs hover:bg-aria-primary/30">
                             {saving ? "..." : "Guardar"}
                           </button>
                           <button onClick={() => { setEditingId(null); setFormErrors({}); }} className="px-2 py-1 bg-slate-500/20 text-[#7f93b0] rounded text-xs hover:bg-slate-500/30">

@@ -170,7 +170,7 @@ export default function EntregasPage() {
           <p className="text-[#4a6080] text-[9px]">Total</p>
         </div>
         <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center">
-          <p className="text-emerald-400 font-bold text-lg">{stats.conOC}</p>
+          <p className="text-aria-accent font-bold text-lg">{stats.conOC}</p>
           <p className="text-[#4a6080] text-[9px]">Con OC</p>
         </div>
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/30 text-center">

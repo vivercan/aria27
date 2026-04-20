@@ -178,7 +178,7 @@ export default function MovimientosBancariosPage() {
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Abonos</p>
-          <p className="text-2xl font-bold text-emerald-400">${totalAbonos.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-aria-accent">${totalAbonos.toLocaleString()}</p>
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Cargos</p>
@@ -269,14 +269,14 @@ export default function MovimientosBancariosPage() {
                   <td className="px-3 py-2 text-[#c9d8ed] text-xs">{m.banco} <br /><span className="text-[#4a6080] font-mono">{m.cuenta}</span></td>
                   <td className="px-3 py-2 text-center">
                     {m.tipo_movimiento === "ABONO"
-                      ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs"><ArrowDown className="w-3 h-3" />ABONO</span>
+                      ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-aria-accent rounded text-xs"><ArrowDown className="w-3 h-3" />ABONO</span>
                       : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-xs"><ArrowUp className="w-3 h-3" />CARGO</span>}
                   </td>
-                  <td className={`px-3 py-2 text-right font-medium ${m.tipo_movimiento === "ABONO" ? "text-emerald-400" : "text-red-400"}`}>${Number(m.monto || 0).toLocaleString()}</td>
+                  <td className={`px-3 py-2 text-right font-medium ${m.tipo_movimiento === "ABONO" ? "text-aria-accent" : "text-red-400"}`}>${Number(m.monto || 0).toLocaleString()}</td>
                   <td className="px-3 py-2 text-[#c9d8ed] text-xs">{m.concepto || "-"}<br /><span className="text-[#4a6080]">{m.notas}</span></td>
                   <td className="px-3 py-2 text-center">
                     {status === "MATCHED"
-                      ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs"><CheckCircle2 className="w-3 h-3" />OK</span>
+                      ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-aria-accent rounded text-xs"><CheckCircle2 className="w-3 h-3" />OK</span>
                       : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-xs"><AlertCircle className="w-3 h-3" />PEND</span>}
                   </td>
                   <td className="px-3 py-2 text-center">
@@ -314,7 +314,7 @@ export default function MovimientosBancariosPage() {
                           <p className="text-white font-medium">{c.folio || c.id.slice(0,8)} · {c.cliente_nombre}</p>
                           <p className="text-xs text-[#7f93b0]">{c.obra_nombre} · {c.fecha} · {c.estatus}</p>
                         </div>
-                        <p className="text-emerald-400 font-bold">${Number(c.monto || 0).toLocaleString()}</p>
+                        <p className="text-aria-accent font-bold">${Number(c.monto || 0).toLocaleString()}</p>
                       </div>
                     </button>
                   ))}

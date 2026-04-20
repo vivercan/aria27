@@ -332,7 +332,7 @@ function CapturarContent() {
       {quotes.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-white font-medium text-sm flex items-center gap-2">
-            <FileText className="w-4 h-4 text-emerald-400" /> Cotizaciones recibidas
+            <FileText className="w-4 h-4 text-aria-accent" /> Cotizaciones recibidas
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {quotes.map(q => (
@@ -340,13 +340,13 @@ function CapturarContent() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="text-white font-semibold text-sm">{q.supplier_name}</p>
-                    {q.total === bestPrice && <span className="text-emerald-400 text-[10px] font-medium">MEJOR PRECIO</span>}
+                    {q.total === bestPrice && <span className="text-aria-accent text-[10px] font-medium">MEJOR PRECIO</span>}
                   </div>
                   {canDelete && (<button onClick={() => eliminarCotizacion(q.id, q.supplier_name)} className="p-1 rounded hover:bg-red-500/20">
                     <Trash2 className="w-3.5 h-3.5 text-[#4a6080] hover:text-red-400" />
                   </button>)}
                 </div>
-                <p className={`text-xl font-bold ${q.total === bestPrice ? "text-emerald-400" : "text-white"}`}>
+                <p className={`text-xl font-bold ${q.total === bestPrice ? "text-aria-accent" : "text-white"}`}>
                   ${q.total.toLocaleString()} <span className="text-[10px] text-[#7f93b0] font-normal">{(q.tax_rate ?? 0) > 0 ? "c/IVA" : "s/IVA"}</span>
                 </p>
                 {(q.subtotal ?? null) !== null && (
@@ -369,7 +369,7 @@ function CapturarContent() {
                   <span className="text-[#7f93b0] flex items-center gap-1">
                     <Banknote className="w-3 h-3" /> {pagoLabel(q.forma_pago)}
                   </span>
-                  <span className={`flex items-center gap-1 ${q.emite_factura ? "text-emerald-400" : "text-amber-400"}`}>
+                  <span className={`flex items-center gap-1 ${q.emite_factura ? "text-aria-accent" : "text-amber-400"}`}>
                     <Receipt className="w-3 h-3" /> {q.emite_factura ? "Factura" : "Nota"}
                   </span>
                 </div>
@@ -449,7 +449,7 @@ function CapturarContent() {
               <label className="text-[#7f93b0] text-xs block mb-1">Documento</label>
               <div className="flex gap-1">
                 <button type="button" onClick={() => setEmiteFactura(true)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${emiteFactura ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${emiteFactura ? "bg-emerald-500/20 text-aria-accent border border-emerald-500/40" : "bg-black/30 text-[#7f93b0] border border-white/[0.08]"}`}>
                   Factura
                 </button>
                 <button type="button" onClick={() => setEmiteFactura(false)}
@@ -531,7 +531,7 @@ function CapturarContent() {
                           onChange={(e) => setUnitWithTax(item.id, parseFloat(e.target.value) || 0)}
                           className="w-full px-2 py-1 rounded bg-black/50 border border-white/[0.08] text-white text-xs text-right focus:border-aria-accent outline-none" />
                       </td>
-                      <td className="p-2 text-right text-emerald-400 text-xs font-medium">
+                      <td className="p-2 text-right text-aria-accent text-xs font-medium">
                         {itemPrices[item.id] ? `$${(itemPrices[item.id] * item.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : ""}
                       </td>
                     </tr>
@@ -554,21 +554,21 @@ function CapturarContent() {
               <span className="flex items-center gap-1"><Banknote className="w-3 h-3" /> {formaPago === "TRANSFERENCIA" ? "Transferencia" : formaPago === "EFECTIVO" ? "Efectivo" : "Cheque"}</span>
               <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> {tipoCredito === "CONTADO" ? "Contado" : `${diasCredito}d crédito`}</span>
               <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> {diasEntrega}d entrega</span>
-              <span className={`flex items-center gap-1 ${emiteFactura ? "text-emerald-400" : "text-amber-400"}`}>
+              <span className={`flex items-center gap-1 ${emiteFactura ? "text-aria-accent" : "text-amber-400"}`}>
                 <Receipt className="w-3 h-3" /> {emiteFactura ? `Factura (IVA ${taxRate}%)` : "Nota (sin IVA)"}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2 border-t border-white/[0.08]">
               <div><div className="text-[#4a6080] text-[10px]">SUBTOTAL</div><div className="text-white font-medium">${formSubtotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
               <div><div className="text-[#4a6080] text-[10px]">IVA {emiteFactura ? taxRate : 0}%</div><div className="text-white font-medium">${(emiteFactura ? formIva() : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-              <div><div className="text-[#4a6080] text-[10px]">TOTAL</div><div className="text-emerald-400 font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+              <div><div className="text-[#4a6080] text-[10px]">TOTAL</div><div className="text-aria-accent font-bold">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
               <div><div className="text-[#4a6080] text-[10px]">ANTICIPO {advancePct}%</div><div className="text-amber-300 font-medium">${(((emiteFactura ? formTotal() : formSubtotal()) * advancePct) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
             </div>
           </div>
 
           {/* Footer formulario */}
           <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">
-            <span className="text-emerald-400 font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span className="text-aria-accent font-bold text-lg">${(emiteFactura ? formTotal() : formSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             <button onClick={guardarCotizacion} disabled={saving || !supplierName.trim() || formSubtotal() <= 0}
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-aria-accent to-aria-primary text-white font-medium flex items-center gap-2 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

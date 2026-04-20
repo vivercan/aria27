@@ -172,7 +172,7 @@ export default function UsuariosPage() {
     switch(role) {
       case "admin": return "bg-aria-primary-light text-aria-accent";
       case "validador": return "bg-aria-primary-light text-aria-accent";
-      case "compras": return "bg-emerald-500/20 text-emerald-400";
+      case "compras": return "bg-emerald-500/20 text-aria-accent";
       case "operador": return "bg-orange-500/20 text-orange-400";
       default: return "bg-slate-500/20 text-[#7f93b0]";
     }
@@ -310,14 +310,14 @@ export default function UsuariosPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                        <span className={`px-2 py-1 rounded text-xs ${u.active ? "bg-emerald-500/20 text-aria-accent" : "bg-red-500/20 text-red-400"}`}>
                           {u.active ? "Activo" : "Inactivo"}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {editingId === u.id ? (
                           <div className="flex justify-center gap-2">
-                            <button onClick={() => saveUser(u.id)} className="p-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" title="Guardar">
+                            <button onClick={() => saveUser(u.id)} className="p-1.5 rounded bg-emerald-500/20 text-aria-accent hover:bg-aria-primary/30" title="Guardar">
                               <Save className="w-4 h-4" />
                             </button>
                             <button onClick={cancelEdit} className="p-1.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30" title="Cancelar">

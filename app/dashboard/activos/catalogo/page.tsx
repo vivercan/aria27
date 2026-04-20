@@ -399,10 +399,10 @@ export default function ActivosCatalogoPage() {
                     <tbody className="divide-y divide-white/5">
                       {activosFiltrados.map(activo => (
                         <tr key={activo.id} className="hover:bg-white/[0.04]">
-                          <td className="px-4 py-3 text-emerald-400 font-mono text-sm">{activo.codigo}</td>
+                          <td className="px-4 py-3 text-aria-accent font-mono text-sm">{activo.codigo}</td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">{getIcono(activo.tipo)}</div>
+                              <div className="p-2 rounded-lg bg-emerald-500/20 text-aria-accent">{getIcono(activo.tipo)}</div>
                               <span className="text-white font-medium">{activo.nombre}</span>
                             </div>
                           </td>
@@ -523,13 +523,13 @@ export default function ActivosCatalogoPage() {
                           <div className="text-[#7f93b0] text-sm">{mant.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${mant.tipo === "PREVENTIVO" ? "bg-emerald-500/20 text-aria-accent" : "bg-red-500/20 text-red-400"}`}>
                             {mant.tipo}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-[#7f93b0] text-sm">{mant.fecha}</td>
                         <td className="px-4 py-3 text-[#c9d8ed] text-sm">{mant.descripcion}</td>
-                        <td className="px-4 py-3 text-emerald-400">${mant.costo?.toLocaleString() || 0}</td>
+                        <td className="px-4 py-3 text-aria-accent">${mant.costo?.toLocaleString() || 0}</td>
                         <td className="px-4 py-3 text-[#7f93b0] text-sm">{mant.proximo_servicio || "-"}</td>
                       </tr>
                     ))}

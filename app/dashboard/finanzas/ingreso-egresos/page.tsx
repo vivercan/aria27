@@ -95,13 +95,13 @@ export default function IngresoEgresosPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+        <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs text-emerald-400/70">Ingresos</span>
+            <TrendingUp className="w-4 h-4 text-aria-accent" />
+            <span className="text-xs text-aria-accent/70">Ingresos</span>
           </div>
-          <p className="text-emerald-400 text-xl font-bold">{fmt(totalIngresos)}</p>
-          <p className="text-emerald-400/50 text-xs mt-1">{facturas.length} facturas</p>
+          <p className="text-aria-accent text-xl font-bold">{fmt(totalIngresos)}</p>
+          <p className="text-aria-accent/50 text-xs mt-1">{facturas.length} facturas</p>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -192,7 +192,7 @@ export default function IngresoEgresosPage() {
                     .map(([cliente, total]) => (
                       <div key={cliente} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
                         <span className="text-sm text-white">{cliente}</span>
-                        <span className="text-sm text-emerald-400 font-medium">{fmt(total)}</span>
+                        <span className="text-sm text-aria-accent font-medium">{fmt(total)}</span>
                       </div>
                     ))}
                 </div>
@@ -220,7 +220,7 @@ export default function IngresoEgresosPage() {
                   <td className="p-3 text-[#c9d8ed] text-sm">{f.cliente || "—"}</td>
                   <td className="p-3 text-[#7f93b0] text-sm">{f.concepto || "—"}</td>
                   <td className="p-3 text-[#7f93b0] text-sm">{f.obra_nombre || "—"}</td>
-                  <td className="p-3 text-right text-emerald-400 text-sm font-medium">{fmt(f.total)}</td>
+                  <td className="p-3 text-right text-aria-accent text-sm font-medium">{fmt(f.total)}</td>
                   <td className="p-3 text-center text-[#7f93b0] text-xs">
                     {f.fecha_emision ? new Date(f.fecha_emision + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}
                   </td>
@@ -254,7 +254,7 @@ export default function IngresoEgresosPage() {
                   <td className="p-3 text-right text-red-400 text-sm font-medium">{fmt(g.monto)}</td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      g.estatus === "pagado" ? "bg-emerald-500/20 text-emerald-400" :
+                      g.estatus === "pagado" ? "bg-emerald-500/20 text-aria-accent" :
                       g.estatus === "pendiente" ? "bg-amber-500/20 text-amber-400" :
                       "bg-slate-500/20 text-[#7f93b0]"
                     }`}>
