@@ -221,7 +221,7 @@ function BitacoraContent() {
               {e.maquinaria && <div><p className="text-[#7f93b0] text-xs uppercase">Maquinaria</p><p className="text-[#c9d8ed]">{e.maquinaria}</p></div>}
               {e.observaciones && <div><p className="text-[#7f93b0] text-xs uppercase">Observaciones</p><p className="text-[#c9d8ed]">{e.observaciones}</p></div>}
               {e.incidentes && (
-                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <div className="p-3 bg-white/[0.02] border border-white/[0.08] rounded-lg">
                   <p className="text-red-300 text-xs uppercase flex items-center gap-1"><AlertTriangle className="w-3 h-3" />Incidentes</p>
                   <p className="text-red-200">{e.incidentes}</p>
                 </div>
