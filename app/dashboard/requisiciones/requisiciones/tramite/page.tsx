@@ -724,7 +724,7 @@ Responde SOLO con JSON así:
           })()}
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
             <span className={`text-xs ${allItemsHaveMinQuotes() ? "text-emerald-400" : "text-amber-400"}`}>
               {allItemsHaveMinQuotes()
                 ? `Minimo 3 cotizaciones por material (${totalQuotesCount()}/5)`
