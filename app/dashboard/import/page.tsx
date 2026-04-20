@@ -242,7 +242,7 @@ export default function ImportCSV() {
 
         {dryRun && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
+            <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] p-4">
               <div className="flex items-center gap-2 mb-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /><h3 className="text-white font-semibold">{dryRun.valid.length} válidos</h3></div>
               <div className="max-h-60 overflow-y-auto text-xs text-[#c9d8ed] space-y-1">
                 {dryRun.valid.slice(0, 20).map((v, i) => (
@@ -252,7 +252,7 @@ export default function ImportCSV() {
               </div>
             </div>
 
-            <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4">
+            <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] p-4">
               <div className="flex items-center gap-2 mb-2"><AlertTriangle className="w-5 h-5 text-red-400" /><h3 className="text-white font-semibold">{dryRun.invalid.length} con error</h3></div>
               <div className="max-h-60 overflow-y-auto text-xs text-[#c9d8ed] space-y-1">
                 {dryRun.invalid.map((e, i) => (
