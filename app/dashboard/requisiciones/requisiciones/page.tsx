@@ -7,6 +7,7 @@ import { FilePlus, ListChecks, ShieldCheck, ShoppingCart, ClipboardList, Search,
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
 import { ResponsiveTable } from "@/components/ui";
+import HistorialButton from "@/components/HistorialButton";
 
 interface ReqHist {
   id: string;
@@ -247,6 +248,7 @@ export default function RequisicionesPage() {
                       { key: "descripcion", label: "Descripción" },
                       { key: "monto", label: "Monto", align: "right", primary: true },
                       { key: "status", label: "Status", primary: true },
+                      { key: "historial", label: "Historial" },
                     ]}
                     rows={registrosFiltrados.slice(0, 150)}
                     rowKey={(r) => r.id}
@@ -258,6 +260,7 @@ export default function RequisicionesPage() {
                       if (c.key === "descripcion") return <span className="text-white text-xs">{r.descripcion || "—"}</span>;
                       if (c.key === "monto") return <span className="font-semibold text-emerald-400 text-xs">{formatMoney(r.monto)}</span>;
                       if (c.key === "status") return <span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span>;
+                      if (c.key === "historial") return <HistorialButton tabla="requisitions" id={r.id} label="Ver" size="sm" />;
                       return null;
                     }}
                   />
