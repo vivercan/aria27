@@ -29,7 +29,6 @@ async function fetchOnce(creds: { email: string; password: string }, folder: str
       tlsOptions: { rejectUnauthorized: true },
       connTimeout: 15000,
       authTimeout: 15000,
-      keepalive: true,
     });
     const messages: EmailMessage[] = [];
     imap.once("ready", () => {
