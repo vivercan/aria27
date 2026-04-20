@@ -260,7 +260,7 @@ export default function TareasPage() {
           <p className="text-amber-400/70 text-xs">Pendientes</p>
         </div>
         <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3">
-          <p className="text-aria-accent text-2xl font-bold">{completadas}</p>
+          <p className="text-white text-2xl font-bold">{completadas}</p>
           <p className="text-aria-accent/70 text-xs">Completadas</p>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">

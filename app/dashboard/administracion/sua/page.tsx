@@ -170,7 +170,7 @@ export default function SUAPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
-        <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalAportaciones}</p><p className="text-aria-accent/70 text-xs">Total</p></div>
+        <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-white text-2xl font-bold">{totalAportaciones}</p><p className="text-aria-accent/70 text-xs">Total</p></div>
         <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3"><p className="text-aria-accent text-lg font-bold">{formatCurrency(montoPagado).split(".")[0]}</p><p className="text-aria-accent/70 text-xs">Pagado</p></div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3"><p className="text-amber-400 text-lg font-bold">{formatCurrency(montoPendiente).split(".")[0]}</p><p className="text-amber-400/70 text-xs">Pendiente</p></div>
       </div>

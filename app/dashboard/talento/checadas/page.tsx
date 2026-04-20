@@ -145,11 +145,11 @@ export default function ChecadasPage() {
             <p className="text-sm text-[#7f93b0]">Total registros</p>
           </div>
           <div className="p-4 bg-emerald-500/10 rounded-xl">
-            <p className="text-2xl font-bold text-aria-accent">{stats.completas}</p>
+            <p className="text-2xl font-bold text-white">{stats.completas}</p>
             <p className="text-sm text-[#7f93b0]">Completas</p>
           </div>
           <div className="p-4 bg-aria-primary/10 rounded-xl">
-            <p className="text-2xl font-bold text-aria-accent">{stats.enSitio}</p>
+            <p className="text-2xl font-bold text-white">{stats.enSitio}</p>
             <p className="text-sm text-[#7f93b0]">En sitio</p>
           </div>
           <div className="p-4 bg-red-500/10 rounded-xl">

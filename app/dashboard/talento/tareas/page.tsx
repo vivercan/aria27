@@ -245,11 +245,11 @@ export default function TareasTalentoPage() {
         </div>
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">En progreso</div>
-          <div className="text-2xl font-bold text-aria-accent">{stats.enProgreso}</div>
+          <div className="text-2xl font-bold text-white">{stats.enProgreso}</div>
         </div>
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">Completadas</div>
-          <div className="text-2xl font-bold text-aria-accent">{stats.completadas}</div>
+          <div className="text-2xl font-bold text-white">{stats.completadas}</div>
         </div>
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">Vencidas</div>

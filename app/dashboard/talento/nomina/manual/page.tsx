@@ -370,15 +370,15 @@ export default function NominaManualPage() {
             </div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
               <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-aria-accent" /><span className="text-[#7f93b0] text-xs">Días Trabajados</span></div>
-              <p className="text-2xl font-bold text-aria-accent">{calculo.dias}</p>
+              <p className="text-2xl font-bold text-white">{calculo.dias}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Salario Base</span></div>
-              <p className="text-2xl font-bold text-aria-accent">{formatMoney(calculo.salarioBase)}</p>
+              <p className="text-2xl font-bold text-white">{formatMoney(calculo.salarioBase)}</p>
             </div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Neto Estimado</span></div>
-              <p className="text-2xl font-bold text-aria-accent">{formatMoney(calculo.neto)}</p>
+              <p className="text-2xl font-bold text-white">{formatMoney(calculo.neto)}</p>
             </div>
           </div>
 
