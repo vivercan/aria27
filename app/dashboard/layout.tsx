@@ -167,6 +167,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
+  // Búsqueda global: resultados de datos (obras, requisiciones, clientes, etc.)
+  interface GlobalResult { type: string; id: string; title: string; subtitle?: string; url: string; badge?: string; }
+  const [globalResults, setGlobalResults] = useState<GlobalResult[]>([]);
+  const globalSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [inboxUnread, setInboxUnread] = useState(0);
   /* Ref: true mientras el inbox page está montado — suspende el poll */
   const inboxActiveRef = useRef(false);
@@ -524,42 +528,86 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   setSearchResults(searchableItems.filter(item =>
                     item.name.toLowerCase().includes(q.toLowerCase()) && item.href !== "#pulso"
                   ));
+                  // Búsqueda global con debounce 250ms — datos reales (obras, requisiciones, clientes, etc.)
+                  if (globalSearchTimerRef.current) clearTimeout(globalSearchTimerRef.current);
+                  if (q.trim().length >= 2) {
+                    globalSearchTimerRef.current = setTimeout(async () => {
+                      try {
+                        const r = await fetch(`/api/search/global?q=${encodeURIComponent(q.trim())}`);
+                        const j = await r.json();
+                        if (Array.isArray(j.results)) setGlobalResults(j.results as GlobalResult[]);
+                      } catch {}
+                    }, 250);
+                  } else {
+                    setGlobalResults([]);
+                  }
                 } else {
                   setSearchResults([]);
+                  setGlobalResults([]);
                 }
               }}
               onKeyDown={(e) => {
-                if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); }
+                if (e.key === "Escape") { setSearchQuery(""); setSearchResults([]); setGlobalResults([]); }
                 if (e.key === "Enter" && searchResults.length > 0) {
                   router.push(searchResults[0].href);
-                  setSearchQuery(""); setSearchResults([]);
+                  setSearchQuery(""); setSearchResults([]); setGlobalResults([]);
+                } else if (e.key === "Enter" && globalResults.length > 0) {
+                  router.push(globalResults[0].url);
+                  setSearchQuery(""); setSearchResults([]); setGlobalResults([]);
                 }
               }}
             />
             {searchQuery && (
-              <button onClick={() => { setSearchQuery(""); setSearchResults([]); }} style={{ color: navMuted }}>
+              <button onClick={() => { setSearchQuery(""); setSearchResults([]); setGlobalResults([]); }} style={{ color: navMuted }}>
                 <X style={{ width: "12px", height: "12px" }} />
               </button>
             )}
           </div>
-          {/* dropdown abre hacia ARRIBA */}
-          {searchResults.length > 0 && (
+          {/* dropdown abre hacia ARRIBA — muestra secciones: Pantallas + Datos */}
+          {(searchResults.length > 0 || globalResults.length > 0) && (
             <div
-              className="absolute bottom-full left-3 right-3 mb-1 rounded-xl border shadow-2xl z-50 overflow-hidden py-1"
+              className="absolute bottom-full left-3 right-3 mb-1 rounded-xl border shadow-2xl z-50 overflow-hidden py-1 max-h-[60vh] overflow-y-auto"
               style={{ backgroundColor: isDark ? "#070f1e" : "#ffffff", borderColor: sidebarBorder }}
             >
-              {searchResults.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => { setSearchQuery(""); setSearchResults([]); }}
-                  className="flex items-center gap-3 px-4 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
-                  style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
-                >
-                  <item.icon style={{ width: "13px", height: "13px", color: "#7a95ae" }} />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
+              {searchResults.length > 0 && (
+                <>
+                  <div className="px-4 py-1 text-[10px] uppercase tracking-wider text-[#7f93b0] font-semibold">Pantallas</div>
+                  {searchResults.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => { setSearchQuery(""); setSearchResults([]); setGlobalResults([]); }}
+                      className="flex items-center gap-3 px-4 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
+                      style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
+                    >
+                      <item.icon style={{ width: "13px", height: "13px", color: "#7a95ae" }} />
+                      <span>{item.name}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
+              {globalResults.length > 0 && (
+                <>
+                  <div className="px-4 py-1 mt-1 text-[10px] uppercase tracking-wider text-[#7f93b0] font-semibold border-t border-white/[0.06]">Datos</div>
+                  {globalResults.map((item) => (
+                    <Link
+                      key={`${item.type}-${item.id}`}
+                      href={item.url}
+                      onClick={() => { setSearchQuery(""); setSearchResults([]); setGlobalResults([]); }}
+                      className="flex items-start gap-3 px-4 py-2 text-[12px] transition-colors hover:bg-white/[0.04]"
+                      style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#1e293b" }}
+                    >
+                      <span className="flex-shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/[0.06] text-[#7a95ae] uppercase tracking-wider">
+                        {item.badge}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate font-medium">{item.title}</div>
+                        {item.subtitle && <div className="truncate text-[10px] text-[#7f93b0]">{item.subtitle}</div>}
+                      </div>
+                    </Link>
+                  ))}
+                </>
+              )}
             </div>
           )}
         </div>
