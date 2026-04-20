@@ -347,12 +347,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         >
           <Link href="/dashboard" className="block" style={{ textDecoration: "none" }}>
             <div className="flex items-baseline gap-0.5">
-              {/* 18-Abr-2026 PM: logo ARIA — eliminado glow neón cyan, paleta sólida corporate */}
+              {/* 19-Abr-2026: logo ARIA — azul sólido #2563EB como EXCEPCIÓN de branding.
+                  El resto del sistema mantiene Steel Corporate (#7A95AE / #4E6B87); este
+                  callsite del logo es identidad de marca y se destaca intencionalmente.
+                  NO replicar #2563EB en otros callsites. */}
               <span style={{
                 fontSize: "22px", fontWeight: 900, letterSpacing: "-0.04em",
-                color: "#7a95ae",
+                color: "#2563EB",
                 textShadow: [
-                  "0 -1px 0 rgba(210,220,240,0.30)",   /* filo superior suave */
+                  "0 -1px 0 rgba(180,205,255,0.35)",   /* filo superior ligero */
                   "0  1px 0 rgba(0,8,25,0.90)",        /* pared inferior sólida */
                 ].join(", "),
               }}>
