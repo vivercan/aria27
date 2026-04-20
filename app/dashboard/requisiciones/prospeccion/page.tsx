@@ -154,7 +154,7 @@ export default function ProspeccionPage() {
         )}
 
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs mb-4">{error}</div>
+          <div className="p-3 bg-white/[0.02] border border-white/[0.08] rounded-lg text-red-400 text-xs mb-4">{error}</div>
         )}
 
         {searchDone && !searching && (
