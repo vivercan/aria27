@@ -75,17 +75,17 @@ export default function AlertasPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <Bell className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length}</p>
           <p className="text-xs text-[#7f93b0]">Total alertas</p>
         </div>
-        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <AlertTriangle className="w-5 h-5 text-amber-400 mb-2" />
           <p className="text-2xl font-bold">{pendientes}</p>
           <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
-        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <CheckCircle2 className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length - pendientes}</p>
           <p className="text-xs text-[#7f93b0]">Notificadas</p>

@@ -183,7 +183,7 @@ export default function LicitacionesPage() {
           { label: "Ganadas", value: stats.ganadas, icon: CheckCircle2, color: "emerald" },
           { label: "Perdidas", value: stats.perdidas, icon: AlertTriangle, color: "red" },
         ].map((s, i) => (
-          <div key={i} className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+          <div key={i} className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
             <s.icon className={`w-5 h-5 text-${s.color}-400 mb-2`} />
             <p className="text-2xl font-bold">{s.value}</p>
             <p className="text-xs text-[#7f93b0]">{s.label}</p>

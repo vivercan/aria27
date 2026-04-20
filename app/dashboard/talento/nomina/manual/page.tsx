@@ -334,7 +334,7 @@ export default function NominaManualPage() {
       </div>
 
       {/* Selector de empleado */}
-      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-3">
+      <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-3">
         <div className="flex gap-3">
           <input
             type="text"

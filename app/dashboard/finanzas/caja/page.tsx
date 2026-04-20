@@ -361,7 +361,7 @@ export default function CajaChicaPage() {
             {tab === "Fondos" && (
               <>
                 {showFondoForm && (
-                  <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
+                  <div className="mb-4 p-5 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">{editFondoId ? "Editar Fondo" : "Nuevo Fondo de Caja Chica"}</h3>
                       <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>
@@ -415,7 +415,7 @@ export default function CajaChicaPage() {
                       const pct = f.monto_autorizado > 0 ? Math.round(((Number(f.monto_autorizado) - Number(f.saldo_actual)) / Number(f.monto_autorizado)) * 100) : 0;
                       const barColor = pct > 80 ? "bg-red-500" : pct > 50 ? "bg-amber-500" : "bg-emerald-500";
                       return (
-                        <div key={f.id} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:border-amber-500/20 transition-colors">
+                        <div key={f.id} className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-amber-500/20 transition-colors">
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <h3 className="text-sm font-semibold text-white">{f.nombre}</h3>
@@ -460,7 +460,7 @@ export default function CajaChicaPage() {
             {tab === "Movimientos" && (
               <>
                 {showMovForm && (
-                  <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
+                  <div className="mb-4 p-5 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">Registrar Movimiento</h3>
                       <button onClick={() => setShowMovForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>
@@ -575,7 +575,7 @@ export default function CajaChicaPage() {
             {tab === "Cortes" && (
               <>
                 {showCorteForm && (
-                  <div className="mb-4 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
+                  <div className="mb-4 p-5 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">Generar Corte de Caja</h3>
                       <button onClick={() => setShowCorteForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-4 h-4" /></button>

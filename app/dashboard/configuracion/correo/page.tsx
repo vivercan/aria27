@@ -104,7 +104,7 @@ export default function CorreoPage() {
 
       {/* Configuración actual */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="flex items-center gap-2 mb-2">
             <Settings className="w-4 h-4 text-[#7f93b0]" />
             <span className="text-xs text-[#7f93b0]">Servicio</span>
@@ -112,7 +112,7 @@ export default function CorreoPage() {
           <p className="text-white font-medium">Resend v6</p>
           <p className="text-xs text-[#4a6080] mt-1">API transaccional</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="flex items-center gap-2 mb-2">
             <Mail className="w-4 h-4 text-[#7f93b0]" />
             <span className="text-xs text-[#7f93b0]">Remitente</span>
@@ -120,7 +120,7 @@ export default function CorreoPage() {
           <p className="text-white font-medium">noreply@mail.jjcrm27.com</p>
           <p className="text-xs text-[#4a6080] mt-1">ARIA27 &lt;noreply@mail.jjcrm27.com&gt;</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="flex items-center gap-2 mb-2">
             <Send className="w-4 h-4 text-[#7f93b0]" />
             <span className="text-xs text-[#7f93b0]">Dominio</span>
@@ -131,7 +131,7 @@ export default function CorreoPage() {
       </div>
 
       {/* Test email */}
-      <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl flex items-center justify-between">
+      <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] flex items-center justify-between">
         <div className="flex items-center gap-3">
           <TestTube className="w-5 h-5 text-aria-accent" />
           <div>
@@ -162,7 +162,7 @@ export default function CorreoPage() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {emailTemplates.map((t) => (
-            <div key={t.id} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:border-white/[0.12] transition-colors">
+            <div key={t.id} className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-white/[0.12] transition-colors">
               <div className="flex items-start gap-3">
                 <div className={`p-2 rounded-lg ${t.bg} flex-shrink-0`}>
                   <t.icon className={`w-5 h-5 ${t.color}`} />
@@ -188,7 +188,7 @@ export default function CorreoPage() {
       </div>
 
       {/* Nota sobre Zoho */}
-      <div className="p-4 bg-white/[0.02] border border-white/[0.08] rounded-xl flex items-start gap-3">
+      <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
         <div>
           <p className="text-sm text-amber-300 font-medium">Nota sobre correo corporativo</p>

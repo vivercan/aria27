@@ -203,17 +203,17 @@ export default function OrdenesPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><ClipboardList className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.length}</p>
           <p className="text-xs text-[#7f93b0]">Total Órdenes</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Package className="w-4 h-4 text-amber-400" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.filter(o => o.estado === "pendiente").length}</p>
           <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><CheckCircle className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.filter(o => o.estado === "completada" || o.estado === "aprobada").length}</p>
           <p className="text-xs text-[#7f93b0]">Completadas</p>
