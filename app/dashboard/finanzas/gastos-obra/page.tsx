@@ -10,6 +10,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Gasto {
   id: string;
@@ -394,7 +395,7 @@ export default function GastosObraPage() {
                     <td className="px-4 py-3 text-[#c9d8ed] whitespace-nowrap">{g.fecha || "—"}</td>
                     {/* Fix arcade 18-Abr-2026 PM: badges purple/amber → slate neutral + aria-primary */}
                     <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-white/[0.06] text-[#c9d8ed] text-xs font-medium">{g.semana || "—"}</span></td>
-                    <td className="px-4 py-3"><span className="px-2.5 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs font-medium truncate max-w-[120px] block">{g.obra || "—"}</span></td>
+                    <td className="px-4 py-3"><span className={`px-2.5 py-1 rounded-lg text-xs font-medium truncate max-w-[120px] block ${getEntityColor(g.obra)}`}>{g.obra || "—"}</span></td>
                     <td className="px-4 py-3 text-white truncate max-w-[200px]">{g.descripcion || "—"}</td>
                     <td className="px-4 py-3 text-[#7f93b0] truncate max-w-[120px]">{g.proveedor || "—"}</td>
                     <td className="px-4 py-3 text-right"><span className="font-semibold text-aria-accent">{formatMoney(g.monto)}</span></td>
