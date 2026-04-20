@@ -20,14 +20,26 @@ interface User {
   permissions?: Record<string, string[]>;
 }
 
+// MODULOS + submódulos — sincronizado 20-Abr-2026 con rutas reales de /dashboard/**
+// Regla: si existe carpeta en app/dashboard/{modulo}/{sub}/ debe estar aquí.
 const MODULOS = [
-  { id: "obras", nombre: "Obras", subs: ["pipeline", "licitaciones", "presupuestos", "expedientes", "contratos", "siroc"] },
-  { id: "talento", nombre: "Talento", subs: ["personal", "checadas", "nomina", "incidencias", "legales", "matriz", "prestaciones"] },
-  { id: "requisiciones", nombre: "Requisiciones", subs: ["productos", "proveedores", "nueva", "estatus", "tramite", "autorizar", "ordenes", "compras"] },
-  { id: "finanzas", nombre: "Finanzas", subs: ["gastos-obra", "costeo", "facturacion", "caja", "bancos", "por-pagar", "cobranza"] },
-  { id: "activos", nombre: "Activos", subs: ["catalogo", "asignacion", "mantenimiento", "estado"] },
+  { id: "obras", nombre: "Obras", subs: ["pipeline", "licitaciones", "presupuestos", "estimaciones", "contratos", "expedientes", "inventario", "control", "avance", "bitacora", "fotos", "planos", "catalogo", "concreto", "siroc", "tareas", "reporte"] },
+  { id: "talento", nombre: "Talento", subs: ["personal", "checadas", "nomina", "incidencias", "legales", "matriz", "prestaciones", "finiquitos", "documentos", "tareas", "usuarios"] },
+  { id: "requisiciones", nombre: "Requisiciones", subs: ["requisiciones", "productos", "proveedores", "cotizaciones", "pagos", "entregas", "compras", "prospeccion"] },
+  { id: "finanzas", nombre: "Finanzas", subs: ["gastos-obra", "costeo", "facturacion", "caja", "bancos", "por-pagar", "cobranza", "ingreso-egresos", "panel", "sua"] },
+  { id: "activos", nombre: "Activos", subs: ["catalogo", "vehiculos", "asignacion", "mantenimiento", "estado"] },
+  { id: "clientes", nombre: "Clientes", subs: ["cotizaciones"] },
+  { id: "administracion", nombre: "Administración", subs: ["empresa", "polizas", "siroc", "sua", "documentacion", "opiniones", "carpetas"] },
   { id: "plantillas", nombre: "Plantillas", subs: ["biblioteca", "documentos", "propuestas", "ordenes"] },
-  { id: "configuracion", nombre: "Configuración", subs: ["maestros", "accesos", "alertas", "correo", "integraciones"] },
+  { id: "reportes", nombre: "Reportes", subs: ["cobranza-mensual", "estado-cuenta-proveedor", "nomina-semanal"] },
+  { id: "ceo", nombre: "CEO (Dashboard ejecutivo)", subs: [] },
+  { id: "inbox", nombre: "Inbox (Correo)", subs: [] },
+  { id: "comunicacion", nombre: "Comunicación", subs: [] },
+  { id: "carpetas", nombre: "Carpetas (documentos globales)", subs: [] },
+  { id: "whatsapp", nombre: "WhatsApp", subs: ["log"] },
+  { id: "import", nombre: "Importar CSV", subs: [] },
+  { id: "configuracion", nombre: "Configuración", subs: ["maestros", "general", "alertas", "recordatorios", "correo"] },
+  { id: "admin", nombre: "Admin (solo sistema)", subs: ["roles", "auditoria", "restore"] },
 ];
 
 export default function UsuariosPage() {

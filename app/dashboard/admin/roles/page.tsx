@@ -5,15 +5,26 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
 
+// MODULES — sincronizado 20-Abr-2026 con rutas reales /dashboard/**
+// Cada módulo top-level del sistema debe estar aquí.
 const MODULES = [
   { key: "obras", label: "Obras" },
   { key: "talento", label: "Talento" },
   { key: "requisiciones", label: "Requisiciones" },
   { key: "finanzas", label: "Finanzas" },
   { key: "activos", label: "Activos" },
-  { key: "plantillas", label: "Plantillas" },
+  { key: "clientes", label: "Clientes" },
   { key: "administracion", label: "Administración" },
+  { key: "plantillas", label: "Plantillas" },
+  { key: "reportes", label: "Reportes" },
+  { key: "ceo", label: "CEO (Dashboard ejecutivo)" },
+  { key: "inbox", label: "Inbox (Correo)" },
+  { key: "comunicacion", label: "Comunicación" },
+  { key: "carpetas", label: "Carpetas (docs globales)" },
+  { key: "whatsapp", label: "WhatsApp" },
+  { key: "import", label: "Importar CSV" },
   { key: "configuracion", label: "Configuración" },
+  { key: "admin", label: "Admin (solo sistema)" },
 ];
 
 const ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
