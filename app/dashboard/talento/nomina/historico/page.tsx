@@ -180,7 +180,7 @@ export default function HistoricoNominaPage() {
           {empleados.map(e => <option key={e} value={e}>{e}</option>)}
         </select>
         {(filtroSemana || filtroEmpleado || busqueda) && (
-          <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20">
+          <button onClick={limpiarFiltros} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 hover:bg-red-500/20">
             <X className="w-4 h-4" />
           </button>
         )}
@@ -192,11 +192,11 @@ export default function HistoricoNominaPage() {
           <p className="text-[#7f93b0] text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
           <p className="text-xl font-bold text-emerald-400">{formatMoney(totales.bruto)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/5 border border-red-500/20">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] border-red-500/20">
           <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
           <p className="text-xl font-bold text-red-400">{formatMoney(totales.deducciones)}</p>
         </div>
@@ -208,7 +208,7 @@ export default function HistoricoNominaPage() {
           <p className="text-[#7f93b0] text-xs mb-1">Tarjeta</p>
           <p className="text-xl font-bold text-aria-accent">{formatMoney(totales.tarjeta)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
           <p className="text-xl font-bold text-amber-400">{formatMoney(totales.efectivo)}</p>
         </div>
