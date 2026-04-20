@@ -109,17 +109,17 @@ export default function PrestamosPage() {
 
       {/* Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><DollarSign className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>
           <p className="text-xs text-[#7f93b0]">Préstamos Activos</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-amber-500/10 mb-2"><Wallet className="w-4 h-4 text-amber-400" /></div>
           <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.monto_pendiente, 0))}</p>
           <p className="text-xs text-[#7f93b0]">Total Pendiente</p>
         </div>
-        <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><TrendingDown className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{formatMoney(prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").reduce((s, p) => s + p.descuento_semanal, 0))}</p>
           <p className="text-xs text-[#7f93b0]">Descuento Semanal Total</p>

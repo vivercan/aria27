@@ -265,7 +265,7 @@ export default function BibliotecaPlantillasPage() {
       <FlashBanner msg={msg} className="mx-6 mt-3" />
 
       {showForm && (
-        <div className="flex-none mx-6 mt-3 p-5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="flex-none mx-6 mt-3 p-5 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <h3 className="text-base font-semibold text-white mb-3">{editId ? "Editar plantilla" : "Nueva plantilla"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-2">

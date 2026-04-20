@@ -171,7 +171,7 @@ export default function RequisicionesPage() {
         <div className="space-y-5">
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
               <span className="text-[#7f93b0] text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
             </div>

@@ -298,7 +298,7 @@ export default function DashboardPage() {
 
       {/* PANEL POR ROL — atajos personalizados */}
       {rolePanel && (
-        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
           <h2 className="text-lg font-semibold text-white mb-4">{rolePanel.title}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {rolePanel.links.map((l, i) => (

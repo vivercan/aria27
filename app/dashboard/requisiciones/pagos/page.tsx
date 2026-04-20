@@ -156,7 +156,7 @@ export default function PagosPage() {
           { label: "Pendiente", value: `$${stats.pendiente.toLocaleString()}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Órdenes", value: stats.ordenes, icon: Hash, color: "text-aria-accent", bg: "bg-aria-primary/10" },
         ].map((s, i) => (
-          <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          <div key={i} className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
             <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
             <p className="text-xs text-[#7f93b0]">{s.label}</p>

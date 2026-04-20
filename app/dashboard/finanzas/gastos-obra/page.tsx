@@ -315,7 +315,7 @@ export default function GastosObraPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* 19-Abr-2026: KPI cards canon — bg neutral, icon accent preservado por semántica ($/dinero = emerald). */}
-        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] ">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-aria-primary-light"><DollarSign className="w-5 h-5 text-aria-accent" /></div>
             <span className="text-[#7f93b0] text-sm">Total Filtrado</span>
@@ -346,7 +346,7 @@ export default function GastosObraPage() {
         </div>
       </div>
 
-      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+      <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] ">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" />
@@ -372,7 +372,7 @@ export default function GastosObraPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-2 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+        <div className="col-span-2 p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-aria-accent" />Detalle de Gastos
           </h2>
@@ -408,7 +408,7 @@ export default function GastosObraPage() {
           {gastosFiltrados.length > 150 && <p className="text-center text-[#4a6080] text-xs mt-4 py-2 bg-white/[0.04] rounded-lg">Mostrando 150 de {gastosFiltrados.length}</p>}
         </div>
 
-        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] ">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-aria-accent" />Top Obras
           </h2>
