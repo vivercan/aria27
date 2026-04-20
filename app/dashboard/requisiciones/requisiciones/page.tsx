@@ -8,6 +8,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
 import { ResponsiveTable } from "@/components/ui";
 import HistorialButton from "@/components/HistorialButton";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface ReqHist {
   id: string;
@@ -256,7 +257,7 @@ export default function RequisicionesPage() {
                       if (c.key === "folio_excel") return <span className="text-aria-accent font-mono text-xs">{r.folio_excel}</span>;
                       if (c.key === "fecha") return <span className="text-[#c9d8ed] text-xs">{r.fecha || "—"}</span>;
                       if (c.key === "solicitante") return <span className="text-[#c9d8ed] text-xs">{r.solicitante?.split(" ").slice(-2).join(" ") || "—"}</span>;
-                      if (c.key === "obra") return <span className="px-2 py-1 rounded-lg bg-aria-primary-light text-aria-accent text-xs">{r.obra?.substring(0,18) || "—"}</span>;
+                      if (c.key === "obra") return <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(r.obra)}`}>{r.obra?.substring(0,18) || "—"}</span>;
                       if (c.key === "descripcion") return <span className="text-white text-xs">{r.descripcion || "—"}</span>;
                       if (c.key === "monto") return <span className="font-semibold text-aria-accent text-xs">{formatMoney(r.monto)}</span>;
                       if (c.key === "status") return <span className={`px-2 py-1 rounded-lg text-xs font-medium ${statusColor(r.status)}`}>{r.status?.substring(0,14) || "—"}</span>;
