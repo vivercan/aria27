@@ -291,7 +291,8 @@ export default function GastosObraPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/finanzas" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
+          {/* 19-Abr-2026: fondo neutral canon Steel Corporate. Color semántico preserved en el icono. */}
+          <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
             <DollarSign className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
@@ -304,7 +305,7 @@ export default function GastosObraPage() {
             <Plus className="w-4 h-4" />
             Nuevo Gasto
           </button>
-          <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:from-emerald-500/30 hover:to-emerald-500/30 transition-all disabled:opacity-50">
+          <button onClick={exportarExcel} disabled={exportando} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-emerald-300 hover:bg-emerald-500/10 transition-all disabled:opacity-50">
             {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
             {exportando ? "Generando..." : "Exportar Excel"}
           </button>
@@ -312,12 +313,13 @@ export default function GastosObraPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 ">
+        {/* 19-Abr-2026: KPI cards canon — bg neutral, icon accent preservado por semántica ($/dinero = emerald). */}
+        <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] ">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-xl bg-emerald-500/20"><DollarSign className="w-5 h-5 text-emerald-400" /></div>
+            <div className="p-2 rounded-xl bg-emerald-500/10"><DollarSign className="w-5 h-5 text-emerald-400" /></div>
             <span className="text-[#7f93b0] text-sm">Total Filtrado</span>
           </div>
-          <p className="text-2xl font-bold text-white">{formatMoney(totalFiltrado)}</p>
+          <p className="text-2xl font-bold text-emerald-300">{formatMoney(totalFiltrado)}</p>
         </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20 ">
           <div className="flex items-center gap-3 mb-3">
