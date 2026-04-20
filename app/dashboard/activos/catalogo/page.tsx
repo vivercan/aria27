@@ -11,6 +11,7 @@ import { EntityFolderDrawer } from "@/components/EntityFolder";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import FlashBanner from "@/components/FlashBanner";
 import PageHeader from "@/components/ui/PageHeader";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Activo {
   id: string;
@@ -412,7 +413,7 @@ export default function ActivosCatalogoPage() {
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${ESTADOS[activo.estado as keyof typeof ESTADOS] || "bg-slate-500"}`}>{activo.estado}</span>
                           </td>
-                          <td className="px-4 py-3 text-[#c9d8ed] text-sm">{asignaciones.find(a => a.activo_id === activo.id && a.activa)?.obra_nombre || "-"}</td>
+                          <td className="px-4 py-3">{(() => { const n = asignaciones.find(a => a.activo_id === activo.id && a.activa)?.obra_nombre; return n ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(n)}`}>{n}</span> : <span className="text-[#7f93b0]">—</span>; })()}</td>
                           <td className="px-4 py-3 text-[#7f93b0] text-sm">{activo.kilometraje ? activo.kilometraje.toLocaleString() : "-"}</td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2">

@@ -8,6 +8,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -500,7 +501,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                   <td className="p-3 text-white font-medium">{c.folio || c.id.slice(0, 8)}</td>
                   <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white">{c.cliente_nombre}</td>
-                  <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
+                  <td className="p-3">{c.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(c.obra_nombre)}`}>{c.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-right text-white">{fmtMoney(Number(c.total))}</td>
                   <td className="p-3 text-center">
                     <select value={c.estatus} onChange={e => cambiarEstatus(c, e.target.value)}

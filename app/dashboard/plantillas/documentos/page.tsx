@@ -9,6 +9,7 @@ import { FileText, Search, Upload, Download, Eye, Loader2, FolderOpen, X, Save, 
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Documento {
   id: string;
@@ -208,7 +209,7 @@ export default function DocumentosPage() {
                 <tr key={d.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">{d.nombre}</td>
                   <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-aria-accent">{d.tipo || "General"}</span></td>
-                  <td className="p-3 text-[#7f93b0]">{d.obra_nombre || "—"}</td>
+                  <td className="p-3">{d.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(d.obra_nombre)}`}>{d.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-[#7f93b0] text-xs">{d.created_at ? new Date(d.created_at).toLocaleDateString("es-MX") : "—"}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-2">
