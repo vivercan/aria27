@@ -216,7 +216,7 @@ export default function CeoDashboardPage() {
       </div>
 
       {/* KPIs principales */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <KpiCard icon={<FileText className="w-5 h-5" />} label="Pipeline vigente" value={fmt(kpis.pipelineMonto)} sub={`${kpis.pipelineCount} cotizaciones`} color="blue" />
         <KpiCard icon={<TrendingUp className="w-5 h-5" />} label="Aprobado" value={fmt(kpis.aprobadoMonto)} sub={`${kpis.aprobadoCount} cotizaciones`} color="emerald" />
         <KpiCard icon={<Wallet className="w-5 h-5" />} label="Cobrado" value={fmt(kpis.cobradoTotal)} sub="histórico" color="teal" />
@@ -248,7 +248,7 @@ export default function CeoDashboardPage() {
           <h2 className="text-base font-bold text-white">Flujo de caja · últimas 12 semanas</h2>
           <span className="ml-auto text-xs text-[#4a6080]">verde=cobros · naranja=gasto OC</span>
         </div>
-        <div className="grid grid-cols-12 gap-2 items-end h-40">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end h-40">
           {flujoCaja.map((f, i) => (
             <div key={i} className="flex flex-col items-center gap-1 h-full">
               <div className="flex-1 w-full flex gap-0.5 items-end">

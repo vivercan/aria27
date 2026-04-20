@@ -143,7 +143,7 @@ export default function EmpresaPage() {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex items-start gap-2">
                     <FileText className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
@@ -221,7 +221,7 @@ export default function EmpresaPage() {
                 <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={inputClass} />
                 {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">RFC</label>
                   <input type="text" value={form.rfc} onChange={e => setForm({ ...form, rfc: e.target.value })} placeholder="XXX000000XX0" className={inputClass} />
@@ -239,7 +239,7 @@ export default function EmpresaPage() {
                 <label className="block text-xs text-[#7f93b0] mb-1">Representante Legal</label>
                 <input type="text" value={form.representante_legal} onChange={e => setForm({ ...form, representante_legal: e.target.value })} className={inputClass} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">Teléfono</label>
                   <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} className={inputClass} />

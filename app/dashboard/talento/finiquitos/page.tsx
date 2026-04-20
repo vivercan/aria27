@@ -808,7 +808,7 @@ export default function FiniquitosPage() {
               {/* Empleado info */}
               <div className="bg-[#0a1628] p-6 rounded-lg border border-white/[0.08]">
                 <h3 className="text-lg font-semibold mb-4">Información General</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <div className="text-[#7f93b0]">Empleado</div>
                     <div className="font-medium">
@@ -1021,7 +1021,7 @@ export default function FiniquitosPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <div className="text-[#7f93b0]">Tipo de Baja</div>
                 <div className="font-medium">{currentFiniquito.tipo.replace(/_/g, " ")}</div>

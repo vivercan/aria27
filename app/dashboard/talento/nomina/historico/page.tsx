@@ -187,7 +187,7 @@ export default function HistoricoNominaPage() {
       </div>
 
       {/* Totales */}
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
         <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
           <p className="text-[#7f93b0] text-xs mb-1">Registros</p>
           <p className="text-xl font-bold text-white">{totales.registros}</p>

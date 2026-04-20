@@ -354,7 +354,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               <button onClick={()=>setShowNewModal(false)} className="p-1.5 hover:bg-white/[0.06] rounded-lg text-[#7f93b0]"><X className="w-4 h-4"/></button>
             </div>
             <div className="p-4 space-y-3">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="text-[11px] text-[#7f93b0] mb-0.5 block">SKU *</label>
                   <input value={newForm.sku} onChange={e=>{const v=e.target.value.toUpperCase();setNewForm(p=>({...p,sku:v}));checkSku(v);}}
@@ -418,7 +418,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
               {parsedProducts.length===0?(
                 <>
                   <p className="text-xs text-[#7f93b0]">Sube una imagen o PDF del catálogo/cotización de un proveedor. La IA extraerá los productos automáticamente.</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Proveedor *</label>
                       <select value={uploadSuppId} onChange={e=>setUploadSuppId(e.target.value)}

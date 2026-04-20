@@ -241,7 +241,7 @@ export default function ProveedoresPage() {
             <div className="overflow-auto p-4 space-y-4 flex-1">
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Identificación</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Nombre comercial *</label>
                     <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Ej: SAACSA"/>
@@ -258,7 +258,7 @@ export default function ProveedoresPage() {
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Contacto</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Nombre"/></div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="(449) 123-4567"/></div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ventas@empresa.com"/></div>
@@ -269,7 +269,7 @@ export default function ProveedoresPage() {
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Comercial</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Forma pago</label>
@@ -283,7 +283,7 @@ export default function ProveedoresPage() {
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Bancario</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="BBVA"/></div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
                 </div>

@@ -146,7 +146,7 @@ export default function RequisicionesPage() {
       </div>
 
       {/* ── ACCESOS RÁPIDOS — HubCard idéntico ── */}
-      <div className="grid grid-cols-5 gap-4 mb-5">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-5">
         {submodules.map((mod, idx) => (
           <Link key={idx} href={mod.href}
             className="group relative flex flex-col justify-start rounded-2xl transition-all duration-200 ease-out"
@@ -167,7 +167,7 @@ export default function RequisicionesPage() {
       {mostrarHistorico && (
         <div className="space-y-5">
           {/* Stats */}
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
               <span className="text-[#7f93b0] text-xs">Total $</span>
               <p className="text-xl font-bold text-white mt-1">{formatMoney(totalFiltrado)}</p>
@@ -229,7 +229,7 @@ export default function RequisicionesPage() {
           </div>
 
           {/* Content */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Tabla */}
             <div className="col-span-2 p-5 rounded-2xl" style={{background:PANEL_BG,border:`1px solid ${PANEL_BD}`}}>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">

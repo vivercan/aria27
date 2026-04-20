@@ -173,7 +173,7 @@ export default function PlanosPage() {
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY_FORM }); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover"><Plus className="w-4 h-4" /> Nuevo Plano</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalPlanos}</p><p className="text-aria-accent/70 text-xs">Total Planos</p></div>
         <div className="bg-aria-accent-bg border border-aria-accent/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{arquitectura}</p><p className="text-aria-accent/70 text-xs">Arquitectura</p></div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaRecepcion}</p><p className="text-emerald-400/70 text-xs">Última Recepción</p></div>
@@ -229,7 +229,7 @@ export default function PlanosPage() {
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               <div><label className="block text-xs text-[#7f93b0] mb-1">Obra *</label><select value={form.obra_id} onChange={e => setForm({ ...form, obra_id: e.target.value })} className={inputClass}><option value="">Seleccionar...</option>{obras.map(o => <option key={o.id} value={String(o.id)}>{o.nombre}</option>)}</select>{formErrors.obra_id && <p className="text-red-400 text-xs mt-1">{formErrors.obra_id}</p>}</div>
               <div><label className="block text-xs text-[#7f93b0] mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Plano Arquitectónico Nivel 3" className={inputClass} />{formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}</div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Disciplina</label><select value={form.disciplina} onChange={e => setForm({ ...form, disciplina: e.target.value })} className={inputClass}>{DISCIPLINA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}</select></div>
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Revisión</label><select value={form.revision} onChange={e => setForm({ ...form, revision: e.target.value })} className={inputClass}>{REVISION_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}</select></div>
               </div>

@@ -74,7 +74,7 @@ export default function AlertasPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <Bell className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length}</p>

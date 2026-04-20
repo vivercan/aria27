@@ -440,7 +440,7 @@ Responde SOLO con JSON así:
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-10 gap-2">
               {relevantSuppliers.map(s => (
                 <div key={s.id} className="p-2 rounded-lg bg-black/30 border border-white/[0.08]">
                   <p className="text-white font-medium text-xs truncate" title={s.name}>{s.name}</p>
@@ -458,7 +458,7 @@ Responde SOLO con JSON así:
                   <span className="text-aria-accent text-[10px]"><Sparkles className="w-3 h-3 inline" /> ARIA ({proveedoresIA.length})</span>
                   <div className="flex-1 h-px bg-aria-accent/30"></div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
                   {proveedoresIA.map((p, i) => (
                     <div key={i} className="p-2 rounded-lg bg-aria-accent-bg border border-aria-accent/30">
                       <p className="text-aria-accent font-medium text-xs truncate">{p.nombre}</p>
@@ -572,7 +572,7 @@ Responde SOLO con JSON así:
                         </select>
                         {isActive && (
                           <>
-                            <div className="grid grid-cols-2 gap-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                               <select value={getColCondition(colIdx, "forma_pago") || "transferencia"}
                                 onChange={(e) => setColumnField(colIdx, "forma_pago", e.target.value)}
                                 className="px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px]">
@@ -591,7 +591,7 @@ Responde SOLO con JSON así:
                                 <option value="90 dias credito">90d credito</option>
                               </select>
                             </div>
-                            <div className="grid grid-cols-2 gap-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                               <select value={getColCondition(colIdx, "entrega") || ""}
                                 onChange={(e) => setColumnField(colIdx, "entrega", e.target.value)}
                                 className="px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-white text-[9px]">

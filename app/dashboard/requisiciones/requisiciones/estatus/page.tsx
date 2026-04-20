@@ -423,7 +423,7 @@ export default function RequisicionesStatusPage() {
               </div>
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>

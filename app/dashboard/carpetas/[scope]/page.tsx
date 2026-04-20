@@ -37,7 +37,7 @@ export default function CarpetasScopePage({ params }: { params: Promise<{ scope:
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
         <div className="col-span-4 lg:col-span-3 min-h-0">
           <FolderTree
             scope={fullScope}

@@ -164,7 +164,7 @@ export default function EntregasPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center">
           <p className="text-aria-accent font-bold text-lg">{stats.total}</p>
           <p className="text-[#4a6080] text-[9px]">Total</p>
@@ -242,7 +242,7 @@ export default function EntregasPage() {
           <div className="bg-aria-bg border border-white/[0.08] rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-white mb-4">Nueva Entrega de Material</h2>
             <div className="text-aria-accent font-mono mb-4">Folio: {folio}</div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-sm text-[#7f93b0] mb-1">Fecha</label>
                 <input type="date" value={form.fecha_entrega} onChange={e => setForm({...form, fecha_entrega: e.target.value})} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white" />
@@ -285,7 +285,7 @@ export default function EntregasPage() {
               </div>
               <div className="space-y-2">
                 {form.materiales.map((m, idx) => (
-                  <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                  <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
                     <input type="text" placeholder="Producto" value={m.producto} onChange={e => actualizarMaterial(idx, "producto", e.target.value)} className="col-span-5 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm" />
                     <input type="number" min="0" placeholder="Pedido" value={m.cantidad_pedida || ""} onChange={e => actualizarMaterial(idx, "cantidad_pedida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm text-center" />
                     <input type="number" min="0" placeholder="Recibido" value={m.cantidad_recibida || ""} onChange={e => actualizarMaterial(idx, "cantidad_recibida", parseInt(e.target.value) || 0)} className="col-span-2 px-2 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded text-white text-sm text-center" />
@@ -341,7 +341,7 @@ export default function EntregasPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div><span className="text-[#7f93b0] text-sm">Fecha:</span><p className="text-white">{showDetalle.fecha_entrega} {showDetalle.hora_entrega}</p></div>
               <div><span className="text-[#7f93b0] text-sm">Estado:</span><p><span className={`px-2 py-0.5 rounded text-xs text-white ${getStatusColor(showDetalle.status)}`}>{showDetalle.status}</span></p></div>
               <div><span className="text-[#7f93b0] text-sm">Proveedor:</span><p className="text-white">{showDetalle.proveedor_nombre}</p></div>

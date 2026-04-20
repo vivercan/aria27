@@ -108,7 +108,7 @@ export default function PrestamosPage() {
       </div>
 
       {/* Resumen */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           <div className="inline-flex p-2 rounded-lg bg-aria-primary/10 mb-2"><DollarSign className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{prestamos.filter(p => p.status?.toUpperCase() === "ACTIVO").length}</p>

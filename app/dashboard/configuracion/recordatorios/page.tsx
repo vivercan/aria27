@@ -93,7 +93,7 @@ export default function RecordatoriosPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
           <BookOpen className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{records.length}</p>
@@ -147,7 +147,7 @@ export default function RecordatoriosPage() {
                 <input className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={form.empleado_nombre} onChange={e => setForm({...form, empleado_nombre: e.target.value})} />
                 {formErrors.empleado_nombre && <p className="text-red-400 text-xs mt-1">{formErrors.empleado_nombre}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs text-white/60">Tipo</label>
                   <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none" value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})}>

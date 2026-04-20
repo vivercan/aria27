@@ -134,7 +134,7 @@ export default function PorPagarPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total por Pagar", value: `$${totalPorPagar.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Vencido", value: `$${totalVencido.toLocaleString()}`, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },

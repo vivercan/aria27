@@ -195,7 +195,7 @@ export default function CatalogoObrasPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4">
           {[
             { label: "Total", value: stats.total, color: "text-white" },
             { label: "Activas", value: stats.activas, color: "text-emerald-400" },

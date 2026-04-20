@@ -153,7 +153,7 @@ export default function SirocBimestralesPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { l: "Total", v: stats.total, c: "text-white" },
           { l: "Presentados", v: stats.presentados, c: "text-emerald-300" },
@@ -240,7 +240,7 @@ export default function SirocBimestralesPage() {
                 </select>
                 {formErrors.siroc_registro_id && <p className="text-red-400 text-xs mt-1">{formErrors.siroc_registro_id}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className="text-sm text-[#7f93b0] mb-1 block">Año *</label><input type="number" min="0" value={form.anio} onChange={e => setForm({ ...form, anio: e.target.value })} className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-amber-500" />{formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}</div>
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Bimestre *</label>

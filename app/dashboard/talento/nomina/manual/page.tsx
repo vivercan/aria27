@@ -363,7 +363,7 @@ export default function NominaManualPage() {
       {empleadoSeleccionado && (
         <>
           {/* Info empleado y cálculo */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-accent/5 border border-aria-primary/20">
               <div className="flex items-center gap-2 mb-1"><User className="w-4 h-4 text-aria-accent" /><span className="text-[#7f93b0] text-xs">Empleado</span></div>
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>

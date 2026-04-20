@@ -112,7 +112,7 @@ export default function IncidenciasPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Faltas", value: faltas, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Retardos", value: retardos, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },

@@ -147,7 +147,7 @@ export default function CosteoPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Presupuesto Total", value: fmtMoney(totalPresupuesto), icon: BarChart3, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Costo Real", value: fmtMoney(totalReal), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary-light" },

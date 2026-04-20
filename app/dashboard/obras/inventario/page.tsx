@@ -764,7 +764,7 @@ export default function InventarioObraPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <div className="flex items-center gap-3">
             <Package className="w-8 h-8 text-aria-accent" />
@@ -1021,7 +1021,7 @@ export default function InventarioObraPage() {
             )}
 
             {/* Unidad + Cantidad */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="block text-sm text-[#c9d8ed] mb-1">Unidad</label>
                 <select

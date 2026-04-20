@@ -318,7 +318,7 @@ export default function PipelinePage() {
             <div className="p-4 overflow-y-auto max-h-[60vh]">
               {/* MANUAL */}
               {modo === "manual" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-[#7f93b0] mb-1">Nombre de la obra</label>
                     <input type="text" value={form.nombre || ""} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: Pinar del Lago" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" autoComplete="off" />

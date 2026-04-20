@@ -297,7 +297,7 @@ export default function CajaChicaPage() {
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           {[
             { label: "Fondos Activos", value: stats.fondosActivos, icon: Wallet, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Saldo Disponible", value: fmt(stats.saldoTotal), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },

@@ -234,7 +234,7 @@ export default function TareasTalentoPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="rounded-xl bg-[#0c1d38]/50 border border-white/[0.05] p-4">
           <div className="text-xs text-[#7f93b0] uppercase">Total</div>
           <div className="text-2xl font-bold text-white">{stats.total}</div>
@@ -382,7 +382,7 @@ export default function TareasTalentoPage() {
                   rows={3}
                   className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Asignado a *</label>
                   <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
@@ -398,7 +398,7 @@ export default function TareasTalentoPage() {
                     className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Fecha compromiso *</label>
                   <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
@@ -413,7 +413,7 @@ export default function TareasTalentoPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Avance ({form.avance}%)</label>
                   <input type="range" min="0" max="100" step="5" value={form.avance}
