@@ -170,15 +170,15 @@ export default function ProspeccionPage() {
             {/* Existentes */}
             {existingMatches.length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Building2 className="w-3.5 h-3.5 text-emerald-400"/>Ya tienes estos proveedores ({existingMatches.length})</h3>
+                <h3 className="text-xs font-semibold text-white flex items-center gap-1.5 mb-2"><Building2 className="w-3.5 h-3.5 text-aria-accent"/>Ya tienes estos proveedores ({existingMatches.length})</h3>
                 <div className="space-y-1">
                   {existingMatches.map(s=>(
                     <div key={s.id} className="flex items-center gap-3 px-3 py-2 bg-emerald-500/[0.05] border border-emerald-500/10 rounded-lg text-xs">
-                      <Building2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"/>
+                      <Building2 className="w-3.5 h-3.5 text-aria-accent flex-shrink-0"/>
                       <span className="text-white font-medium flex-1">{s.name}</span>
                       {getCatDisplay(s.categories).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}
                       {s.phone&&<span className="text-[#7f93b0]">{s.phone}</span>}
-                      <Link href="/dashboard/requisiciones/proveedores" className="text-emerald-400 hover:text-emerald-300 text-[10px]">Ver →</Link>
+                      <Link href="/dashboard/requisiciones/proveedores" className="text-aria-accent hover:text-aria-accent text-[10px]">Ver →</Link>
                     </div>
                   ))}
                 </div>
@@ -211,10 +211,10 @@ export default function ProspeccionPage() {
                         <td className="text-[#4a6080] text-[10px] max-w-[150px]">{r.productos_relacionados||""}</td>
                         <td className="pr-2">
                           {savedIdxs.includes(idx)?(
-                            <span className="flex items-center gap-1 text-[10px] text-emerald-400"><Check className="w-3 h-3"/>Guardado</span>
+                            <span className="flex items-center gap-1 text-[10px] text-aria-accent"><Check className="w-3 h-3"/>Guardado</span>
                           ):(
                             <button onClick={()=>saveAsSupplier(r,idx)} disabled={savingIdx===idx}
-                              className="flex items-center gap-1 px-2 py-1 text-[10px] bg-emerald-500/20 text-emerald-400 rounded hover:bg-emerald-500/30 disabled:opacity-50">
+                              className="flex items-center gap-1 px-2 py-1 text-[10px] bg-emerald-500/20 text-aria-accent rounded hover:bg-aria-primary/30 disabled:opacity-50">
                               {savingIdx===idx?<Loader2 className="w-2.5 h-2.5 animate-spin"/>:<Plus className="w-2.5 h-2.5"/>}Agregar
                             </button>
                           )}

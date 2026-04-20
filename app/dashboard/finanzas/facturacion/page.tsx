@@ -318,7 +318,7 @@ export default function FacturacionPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { label: "Total Facturado", value: `$${totalFacturado.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Pendiente", value: `$${(totalFacturado - totalCobrado).toLocaleString()}`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -360,7 +360,7 @@ export default function FacturacionPage() {
             <div className="p-3 bg-white/[0.04] rounded-lg text-sm">
               <span className="text-[#7f93b0]">Subtotal: </span><span className="text-white">${form.subtotal.toLocaleString()}</span>
               <span className="text-[#7f93b0] mx-2">+ IVA: </span><span className="text-white">${(form.subtotal * 0.16).toLocaleString()}</span>
-              <span className="text-[#7f93b0] mx-2">= Total: </span><span className="text-emerald-400 font-bold">${(form.subtotal * 1.16).toLocaleString()}</span>
+              <span className="text-[#7f93b0] mx-2">= Total: </span><span className="text-aria-accent font-bold">${(form.subtotal * 1.16).toLocaleString()}</span>
             </div>
           )}
           <div className="flex gap-3 pt-2">
@@ -390,7 +390,7 @@ export default function FacturacionPage() {
             <span className="text-xs text-[#7f93b0] py-2">Tipo:</span>
             {["TODOS", "INGRESO", "EGRESO"].map(t => (
               <button key={t} onClick={() => setFilterTipo(t)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterTipo === t ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterTipo === t ? "bg-emerald-500/20 text-aria-accent border border-emerald-500/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
                 {t}
               </button>
             ))}
@@ -430,13 +430,13 @@ export default function FacturacionPage() {
                     <td className="p-3 text-[#c9d8ed] text-sm">{f.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
-                      {files?.xml && <span title="XML"><FileJson className="w-4 h-4 text-emerald-400" /></span>}
+                      {files?.xml && <span title="XML"><FileJson className="w-4 h-4 text-aria-accent" /></span>}
                       {files?.pdf && <span title="PDF"><FileText className="w-4 h-4 text-red-400" /></span>}
                       {!files?.xml && !files?.pdf && <span className="text-[#4a6080] text-xs">—</span>}
                     </td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        f.status === "PAGADA" ? "bg-emerald-500/20 text-emerald-400" :
+                        f.status === "PAGADA" ? "bg-emerald-500/20 text-aria-accent" :
                         f.status === "CANCELADA" ? "bg-red-500/20 text-red-400" :
                         "bg-aria-primary-light text-aria-accent"
                       }`}>{f.status}</span>
@@ -476,7 +476,7 @@ export default function FacturacionPage() {
               {/* XML Upload */}
               <div className="p-4 border border-white/[0.08] rounded-lg hover:bg-white/[0.02] transition-colors">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <FileJson className="w-5 h-5 text-emerald-400" />
+                  <FileJson className="w-5 h-5 text-aria-accent" />
                   <div>
                     <p className="text-sm font-medium text-white">Archivo XML</p>
                     <p className="text-xs text-[#7f93b0]">Comprobante fiscal digital</p>
@@ -492,7 +492,7 @@ export default function FacturacionPage() {
                   />
                 </label>
                 {facturaFiles.xml && (
-                  <div className="mt-2 p-2 bg-emerald-500/10 rounded text-xs text-emerald-300 flex items-center justify-between">
+                  <div className="mt-2 p-2 bg-emerald-500/10 rounded text-xs text-aria-accent flex items-center justify-between">
                     <span>{facturaFiles.xml.name}</span>
                     <button onClick={() => setFacturaFiles(prev => ({ ...prev, xml: null }))} className="hover:text-emerald-200">
                       <X className="w-3 h-3" />

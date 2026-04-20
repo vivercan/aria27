@@ -326,7 +326,7 @@ export default function NominaManualPage() {
           <button onClick={irHoy} className="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06] text-sm">Hoy</button>
           <button onClick={() => shiftWeek(1)} className="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#c9d8ed] hover:bg-white/[0.06]">›</button>
           {nominaStatus && (
-            <span className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
+            <span className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${nominaStatus === "CONFIRMADA" ? "bg-emerald-500/20 border-emerald-500/30 text-aria-accent" : "bg-amber-500/20 border-amber-500/30 text-amber-300"}`}>
               {nominaStatus}
             </span>
           )}
@@ -369,8 +369,8 @@ export default function NominaManualPage() {
               <p className="text-white font-medium truncate">{empleadoActual?.full_name}</p>
             </div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-              <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-emerald-400" /><span className="text-[#7f93b0] text-xs">Días Trabajados</span></div>
-              <p className="text-2xl font-bold text-emerald-400">{calculo.dias}</p>
+              <div className="flex items-center gap-2 mb-1"><Calendar className="w-4 h-4 text-aria-accent" /><span className="text-[#7f93b0] text-xs">Días Trabajados</span></div>
+              <p className="text-2xl font-bold text-aria-accent">{calculo.dias}</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Salario Base</span></div>
@@ -378,7 +378,7 @@ export default function NominaManualPage() {
             </div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
               <div className="flex items-center gap-2 mb-1"><span className="text-[#7f93b0] text-xs">Neto Estimado</span></div>
-              <p className="text-2xl font-bold text-emerald-400">{formatMoney(calculo.neto)}</p>
+              <p className="text-2xl font-bold text-aria-accent">{formatMoney(calculo.neto)}</p>
             </div>
           </div>
 
@@ -388,7 +388,7 @@ export default function NominaManualPage() {
               <h3 className="text-white font-medium">Asistencias de la Semana</h3>
               <div className="flex gap-2">
                 {hayEdiciones && (
-                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50">
+                  <button onClick={guardarCambios} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary to-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 transition-all disabled:opacity-50">
                     {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Guardar
                   </button>
@@ -425,7 +425,7 @@ export default function NominaManualPage() {
                             {asist.editando ? (
                               <input type="time" value={asist.hora_entrada?.substring(0,5) || ""} onChange={e => actualizarAsistencia(asist.id, "hora_entrada", e.target.value)} className="px-2 py-1 rounded bg-white/[0.06] border border-white/[0.12] text-white text-center w-24" />
                             ) : (
-                              <span className="text-emerald-400">{asist.hora_entrada?.substring(0,5)}</span>
+                              <span className="text-aria-accent">{asist.hora_entrada?.substring(0,5)}</span>
                             )}
                           </td>
                           <td className="p-4 text-center">
@@ -469,7 +469,7 @@ export default function NominaManualPage() {
                             <span className="text-red-400 text-sm">❌ Sin registro</span>
                           </td>
                           <td className="p-4 text-center">
-                            <button onClick={() => agregarAsistencia(fecha)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 mx-auto">
+                            <button onClick={() => agregarAsistencia(fecha)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-aria-accent hover:bg-aria-primary/30 mx-auto">
                               <Plus className="w-4 h-4" />
                               Agregar
                             </button>

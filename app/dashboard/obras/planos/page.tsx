@@ -176,7 +176,7 @@ export default function PlanosPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalPlanos}</p><p className="text-aria-accent/70 text-xs">Total Planos</p></div>
         <div className="bg-aria-accent-bg border border-aria-accent/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{arquitectura}</p><p className="text-aria-accent/70 text-xs">Arquitectura</p></div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{ultimaRecepcion}</p><p className="text-emerald-400/70 text-xs">Última Recepción</p></div>
+        <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{ultimaRecepcion}</p><p className="text-aria-accent/70 text-xs">Última Recepción</p></div>
       </div>
 
       <div className="flex items-center gap-3 mb-3 flex-shrink-0">

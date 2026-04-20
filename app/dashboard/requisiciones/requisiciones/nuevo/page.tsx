@@ -415,7 +415,7 @@ export default function NewRequisitionPage() {
                 className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-aria-accent ${
                   prioridad === "CRITICO" ? "border-red-500/60 bg-red-500/10 text-red-300" :
                   prioridad === "URGENTE" ? "border-orange-500/60 bg-orange-500/10 text-orange-300" :
-                  prioridad === "PLANIFICADO" ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-300" :
+                  prioridad === "PLANIFICADO" ? "border-emerald-500/40 bg-emerald-500/5 text-aria-accent" :
                   "border-white/15 bg-black/30 text-white"
                 }`}
                 value={prioridad}
@@ -497,7 +497,7 @@ export default function NewRequisitionPage() {
               </div>
             )}
             {selectedProveedor && (selectedProveedor.bank_name || selectedProveedor.bank_clabe) && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] px-3 py-2 text-xs text-emerald-300 flex flex-wrap gap-3">
+              <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] px-3 py-2 text-xs text-aria-accent flex flex-wrap gap-3">
                 {selectedProveedor.razon_social && <span>Cuenta: {selectedProveedor.razon_social}</span>}
                 {selectedProveedor.bank_name && <span>Banco: {selectedProveedor.bank_name}</span>}
                 {selectedProveedor.bank_clabe && <span>CLABE: {selectedProveedor.bank_clabe}</span>}
@@ -546,7 +546,7 @@ export default function NewRequisitionPage() {
                     <div key={p.id} onClick={() => isSel ? setMaterials(prev=>prev.filter(m=>m.id!==p.id)) : addMaterial(p)}
                       className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/[0.04] border-l-2 border-transparent"}`}>
                       <div className="text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
-                      <div className={`truncate ${isSel ? "text-emerald-300 font-medium" : ""}`}>{p.name}</div>
+                      <div className={`truncate ${isSel ? "text-aria-accent font-medium" : ""}`}>{p.name}</div>
                       <div className="text-white/60 truncate text-right">{p.unit}</div>
                     </div>
                   );
@@ -647,11 +647,11 @@ export default function NewRequisitionPage() {
       <section className="flex-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-emerald-400" />
+            <ShoppingCart className="h-5 w-5 text-aria-accent" />
             <h2 className="text-lg font-semibold">3. PARTIDAS ({getTotalPartidas()})</h2>
           </div>
           {formMode === "libre" && freeRows.length > 0 && (
-            <span className="text-sm text-emerald-400 font-medium">
+            <span className="text-sm text-aria-accent font-medium">
               Total: ${freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0).toLocaleString()}
             </span>
           )}
@@ -689,7 +689,7 @@ export default function NewRequisitionPage() {
                   <div className="truncate font-medium">{r.descripcion || "(sin descripción)"}</div>
                   <div className="text-center">{r.cantidad}</div>
                   <div className="text-white/60">{r.unidad}</div>
-                  <div className="text-right text-emerald-400 font-medium">${(r.monto * r.cantidad).toLocaleString()}</div>
+                  <div className="text-right text-aria-accent font-medium">${(r.monto * r.cantidad).toLocaleString()}</div>
                 </div>
               ))}
             </>

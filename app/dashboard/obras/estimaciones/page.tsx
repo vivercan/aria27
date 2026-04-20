@@ -299,7 +299,7 @@ export default function EstimacionesPage() {
       case "PRESENTADA":
         return "bg-aria-primary-light text-aria-accent";
       case "APROBADA":
-        return "bg-emerald-500/20 text-emerald-400";
+        return "bg-emerald-500/20 text-aria-accent";
       case "COBRADA":
         return "bg-aria-primary-light text-aria-accent";
       case "RECHAZADA":
@@ -345,7 +345,7 @@ export default function EstimacionesPage() {
             label: "Acumulado",
             value: `$${totalAcumulado.toLocaleString()}`,
             icon: TrendingUp,
-            color: "text-emerald-400",
+            color: "text-aria-accent",
             bg: "bg-emerald-500/10",
           },
           {
@@ -472,7 +472,7 @@ export default function EstimacionesPage() {
               <h4 className="text-sm font-medium text-white">Partidas de la Estimación {formErrors.partidas && <span className="text-red-400 text-xs ml-2">({formErrors.partidas})</span>}</h4>
               <button
                 onClick={addPartida}
-                className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium hover:bg-emerald-500/30"
+                className="px-3 py-1 bg-emerald-500/20 text-aria-accent rounded-lg text-xs font-medium hover:bg-aria-primary/30"
               >
                 <Plus className="w-3 h-3 inline mr-1" /> Agregar
               </button>
@@ -667,7 +667,7 @@ export default function EstimacionesPage() {
                       {e.periodo_inicio} → {e.periodo_fin}
                     </td>
                     <td className="p-3 text-right text-white font-medium">${(e.importe_periodo || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right text-emerald-400 font-medium">${(e.importe_acumulado || 0).toLocaleString()}</td>
+                    <td className="p-3 text-right text-aria-accent font-medium">${(e.importe_acumulado || 0).toLocaleString()}</td>
                     <td className="p-3 text-center text-[#c9d8ed]">{(e.pct_avance || 0).toFixed(1)}%</td>
                     <td className="p-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(e.status)}`}>
@@ -785,7 +785,7 @@ export default function EstimacionesPage() {
                 </div>
                 <div className="border-t border-white/[0.08] pt-2 flex justify-between">
                   <span className="text-white font-semibold">Neto a Cobrar:</span>
-                  <span className="text-emerald-400 font-bold text-lg">${(selectedEstimacion.neto_a_cobrar || 0).toLocaleString()}</span>
+                  <span className="text-aria-accent font-bold text-lg">${(selectedEstimacion.neto_a_cobrar || 0).toLocaleString()}</span>
                 </div>
               </div>
 

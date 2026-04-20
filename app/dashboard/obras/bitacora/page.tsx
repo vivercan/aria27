@@ -209,7 +209,7 @@ function BitacoraContent() {
               </div>
               <div className="flex items-center gap-3 text-xs">
                 {e.clima && <span className="inline-flex items-center gap-1 px-2 py-1 bg-aria-primary-light text-aria-accent rounded"><Cloud className="w-3 h-3" />{e.clima}</span>}
-                {e.personal_en_obra !== null && <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded"><Users className="w-3 h-3" />{e.personal_en_obra}</span>}
+                {e.personal_en_obra !== null && <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-aria-accent rounded"><Users className="w-3 h-3" />{e.personal_en_obra}</span>}
                 {e.fotos && e.fotos.length > 0 && <span className="inline-flex items-center gap-1 px-2 py-1 bg-aria-primary-light text-aria-accent rounded"><Camera className="w-3 h-3" />{e.fotos.length}</span>}
               </div>
             </div>

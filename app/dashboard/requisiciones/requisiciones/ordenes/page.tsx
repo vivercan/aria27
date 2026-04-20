@@ -161,8 +161,8 @@ export default function OrdenesCompraPage() {
   const statusConfig: Record<string, { label: string; color: string; bg: string; icon: LucideIcon }> = {
     GENERADA: { label: "Generada", color: "text-aria-accent", bg: "bg-aria-primary-light", icon: FileText },
     EN_TRANSITO: { label: "En Tránsito", color: "text-amber-400", bg: "bg-amber-500/20", icon: Truck },
-    RECIBIDA: { label: "Recibida", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: PackageCheck },
-    PAGADA: { label: "Pagada", color: "text-emerald-400", bg: "bg-emerald-500/20", icon: CheckCircle2 },
+    RECIBIDA: { label: "Recibida", color: "text-aria-accent", bg: "bg-emerald-500/20", icon: PackageCheck },
+    PAGADA: { label: "Pagada", color: "text-aria-accent", bg: "bg-emerald-500/20", icon: CheckCircle2 },
   };
   const getStatus = (s: string) => statusConfig[s] || statusConfig.GENERADA;
 
@@ -196,7 +196,7 @@ export default function OrdenesCompraPage() {
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Total</p>
-                <p className="text-emerald-400 font-bold text-xl">${(selectedPO.total || 0).toLocaleString()}</p>
+                <p className="text-aria-accent font-bold text-xl">${(selectedPO.total || 0).toLocaleString()}</p>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <p className="text-[#4a6080] text-[10px] uppercase tracking-wider mb-1">Forma de Pago</p>
@@ -213,7 +213,7 @@ export default function OrdenesCompraPage() {
                 <div key={item.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0"><p className="text-white text-sm font-medium">{item.product_name}</p><p className="text-[#4a6080] text-xs">{item.quantity} {item.unit}</p></div>
-                    <div className="text-right shrink-0"><p className="text-emerald-400 font-bold text-sm">${((item.selected_price || 0) * item.quantity).toLocaleString()}</p><p className="text-[#4a6080] text-[10px]">${(item.selected_price || 0).toLocaleString()} c/u</p></div>
+                    <div className="text-right shrink-0"><p className="text-aria-accent font-bold text-sm">${((item.selected_price || 0) * item.quantity).toLocaleString()}</p><p className="text-[#4a6080] text-[10px]">${(item.selected_price || 0).toLocaleString()} c/u</p></div>
                   </div>
                 </div>
               ))}
@@ -229,17 +229,17 @@ export default function OrdenesCompraPage() {
               </button>
             )}
             {selectedPO.status === "EN_TRANSITO" && (
-              <button onClick={() => updateStatus("RECIBIDA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-emerald-500/30 transition-colors disabled:opacity-50">
+              <button onClick={() => updateStatus("RECIBIDA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-aria-accent font-semibold text-sm flex items-center justify-center gap-2 hover:bg-aria-primary/30 transition-colors disabled:opacity-50">
                 {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <PackageCheck className="w-4 h-4" />}Marcar Recibida
               </button>
             )}
             {selectedPO.status === "RECIBIDA" && (
-              <button onClick={() => updateStatus("PAGADA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-emerald-500/30 transition-colors disabled:opacity-50">
+              <button onClick={() => updateStatus("PAGADA")} disabled={updatingStatus} className="flex-1 py-3 rounded-xl bg-emerald-500/20 text-aria-accent font-semibold text-sm flex items-center justify-center gap-2 hover:bg-aria-primary/30 transition-colors disabled:opacity-50">
                 {updatingStatus ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}Marcar Pagada
               </button>
             )}
             {selectedPO.status === "PAGADA" && (
-              <div className="flex-1 py-3 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
+              <div className="flex-1 py-3 rounded-xl bg-white/[0.02] border border-white/[0.08] text-aria-accent font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
             )}
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function OrdenesCompraPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
         <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
-        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
+        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-aria-accent font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
         <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-[#4a6080] text-[9px]">Pendiente</p></div>
       </div>
       <div className="flex gap-2 mb-3 shrink-0">
@@ -276,7 +276,7 @@ export default function OrdenesCompraPage() {
           return (<button key={po.id} onClick={() => openDetail(po)} className="w-full p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all text-left group">
             <div className="flex items-center justify-between mb-2"><span className="text-white font-bold">{po.folio}</span><span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${st.bg} ${st.color}`}><StatusIcon className="w-3 h-3" />{st.label}</span></div>
             <p className="text-[#7f93b0] text-sm">{po.supplier_name}</p>
-            <div className="flex items-center justify-between mt-2"><span className="text-emerald-400 font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-[#4a6080] text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-[#4a6080] group-hover:text-aria-accent transition-colors" /></div></div>
+            <div className="flex items-center justify-between mt-2"><span className="text-aria-accent font-bold">${(po.total || 0).toLocaleString()}</span><div className="flex items-center gap-2"><span className="text-[#4a6080] text-xs">{new Date(po.created_at).toLocaleDateString("es-MX")}</span><ChevronRight className="w-4 h-4 text-[#4a6080] group-hover:text-aria-accent transition-colors" /></div></div>
           </button>);
         })}
       </div>

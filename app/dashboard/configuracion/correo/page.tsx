@@ -40,7 +40,7 @@ const emailTemplates = [
     trigger: "Al autorizar o rechazar una OC",
     recipients: "Compras + Solicitante",
     icon: CheckCircle2,
-    color: "text-emerald-400",
+    color: "text-aria-accent",
     bg: "bg-emerald-500/10",
     description: "Notifica aprobación o rechazo de orden de compra. Incluye botones de un clic para autorizar/rechazar.",
   },
@@ -96,9 +96,9 @@ export default function CorreoPage() {
           <h1 className="text-2xl font-bold text-white">Configuración de Correo</h1>
           <p className="text-[#7f93b0] text-sm">Servicio de email transaccional via Resend</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm text-emerald-400 font-medium">Resend Activo</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-white/[0.08]">
+          <CheckCircle2 className="w-4 h-4 text-aria-accent" />
+          <span className="text-sm text-aria-accent font-medium">Resend Activo</span>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function CorreoPage() {
         </div>
         <div className="flex items-center gap-3">
           {testResult && (
-            <span className={`text-xs ${testResult.ok ? "text-emerald-400" : "text-red-400"}`}>{testResult.msg}</span>
+            <span className={`text-xs ${testResult.ok ? "text-aria-accent" : "text-red-400"}`}>{testResult.msg}</span>
           )}
           <button
             onClick={sendTestEmail}

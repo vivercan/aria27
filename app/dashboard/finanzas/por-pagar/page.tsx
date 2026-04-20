@@ -139,7 +139,7 @@ export default function PorPagarPage() {
           { label: "Total por Pagar", value: `$${totalPorPagar.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Vencido", value: `$${totalVencido.toLocaleString()}`, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Cuentas Vencidas", value: vencidas.length, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Vigentes", value: porVencer.length, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Vigentes", value: porVencer.length, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
             <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
@@ -194,7 +194,7 @@ export default function PorPagarPage() {
                     <td className="p-3 text-white">{c.supplier_name}</td>
                     <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
                     <td className="p-3 text-right text-[#c9d8ed]">{fmtMoney(c.total)}</td>
-                    <td className="p-3 text-right text-emerald-400">{fmtMoney(c.monto_pagado)}</td>
+                    <td className="p-3 text-right text-aria-accent">{fmtMoney(c.monto_pagado)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmtMoney(c.saldo)}</td>
                     <td className="p-3 text-center text-xs text-[#7f93b0]">
                       {new Date(c.fecha_vencimiento).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}
@@ -205,7 +205,7 @@ export default function PorPagarPage() {
                       ) : dias <= 7 ? (
                         <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-medium">Vence en {dias}d</span>
                       ) : (
-                        <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full font-medium">Vigente {dias}d</span>
+                        <span className="px-2 py-0.5 bg-emerald-500/20 text-aria-accent text-xs rounded-full font-medium">Vigente {dias}d</span>
                       )}
                     </td>
                     <td className="p-3 text-center">
@@ -213,7 +213,7 @@ export default function PorPagarPage() {
                         <button
                           onClick={() => abrirPagoModal(c.id, c.total, c.monto_pagado)}
                           disabled={pagando === c.id}
-                          className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 disabled:opacity-50"
+                          className="px-3 py-1 bg-emerald-500/20 text-aria-accent rounded text-xs hover:bg-aria-primary/30 disabled:opacity-50"
                         >
                           {pagando === c.id ? "..." : "Pagar"}
                         </button>

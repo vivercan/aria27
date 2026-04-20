@@ -409,7 +409,7 @@ Responde SOLO con JSON así:
         <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
         <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
         <span className="text-[#7f93b0] flex-1">{selectedReq.cost_center_name}</span>
-        <span className="text-emerald-400 font-bold text-lg">${calculateTotal().toLocaleString()}</span>
+        <span className="text-aria-accent font-bold text-lg">${calculateTotal().toLocaleString()}</span>
       </div>
 
       {loadingItems ? (
@@ -478,7 +478,7 @@ Responde SOLO con JSON así:
                 <p className="text-red-400 text-xs">{resultadoSolicitud.error}</p>
               ) : (
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-emerald-400 font-medium">Solicitud enviada</span>
+                  <span className="text-aria-accent font-medium">Solicitud enviada</span>
                   <span className="text-white">Emails: {resultadoSolicitud.emailsSent}</span>
                   <span className="text-white">WhatsApp: {resultadoSolicitud.whatsappSent}</span>
                   <span className="text-[#7f93b0]">de {resultadoSolicitud.totalProveedores} proveedores</span>
@@ -609,7 +609,7 @@ Responde SOLO con JSON así:
                                 <span className="text-white">Factura</span>
                               </label>
                             </div>
-                            {isBest && <div className="text-center"><span className="text-emerald-400 text-[9px] font-bold">MEJOR PRECIO</span></div>}
+                            {isBest && <div className="text-center"><span className="text-aria-accent text-[9px] font-bold">MEJOR PRECIO</span></div>}
                             <label className="flex items-center gap-1 px-1.5 py-1 rounded bg-black/40 border border-white/[0.08] text-[9px] cursor-pointer">
                               <input type="checkbox" checked={columnMeta[colIdx]?.rebaja_iva || false}
                                 onChange={(e) => updateColumnMeta(colIdx, "rebaja_iva", e.target.checked)}
@@ -659,7 +659,7 @@ Responde SOLO con JSON así:
                                   <input type="number" min="0" placeholder="0"
                                     value={price || ""}
                                     onChange={(e) => updateQuote(item.id, colIdx, "price", parseFloat(e.target.value) || 0)}
-                                    className={`w-full px-1.5 py-1 rounded text-xs text-right border ${isCellBest ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold" : "bg-black/30 border-white/[0.08] text-white"}`} />
+                                    className={`w-full px-1.5 py-1 rounded text-xs text-right border ${isCellBest ? "bg-emerald-500/10 border-emerald-500/30 text-aria-accent font-bold" : "bg-black/30 border-white/[0.08] text-white"}`} />
                                 </div>
                               ) : (
                                 <span className="text-slate-700 text-xs w-full text-center">-</span>
@@ -683,7 +683,7 @@ Responde SOLO con JSON así:
                       <div key={colIdx} className={`px-2 py-2 border-r border-white/[0.08] text-center ${isBest ? "bg-emerald-500/10" : "bg-white/[0.03]"}`}>
                         {sup ? (
                           <div>
-                            <span className={`text-sm font-bold ${isBest ? "text-emerald-400" : "text-white"}`}>
+                            <span className={`text-sm font-bold ${isBest ? "text-aria-accent" : "text-white"}`}>
                               ${colTotals[colIdx].toLocaleString()}
                             </span>
                             <p className={`text-[9px] mt-0.5 ${cov.filled === cov.total ? "text-emerald-500" : "text-amber-500"}`}>
@@ -706,11 +706,11 @@ Responde SOLO con JSON así:
                         .sort((a, b) => a.total - b.total)
                         .map((x, rank) => (
                           <div key={x.idx} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${rank === 0 ? "bg-emerald-500/15 border border-emerald-500/30" : "bg-white/[0.04] border border-white/[0.08]"}`}>
-                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-[#7f93b0]"}>
+                            <span className={rank === 0 ? "text-aria-accent font-bold" : "text-[#7f93b0]"}>
                               {rank === 0 ? "1ro" : rank === 1 ? "2do" : rank === 2 ? "3ro" : `${rank+1}to`}
                             </span>
                             <span className="text-white font-medium">{x.sup}</span>
-                            <span className={rank === 0 ? "text-emerald-400 font-bold" : "text-[#c9d8ed]"}>${x.total.toLocaleString()}</span>
+                            <span className={rank === 0 ? "text-aria-accent font-bold" : "text-[#c9d8ed]"}>${x.total.toLocaleString()}</span>
                             <span className={`text-[9px] ${x.cov.filled === x.cov.total ? "text-emerald-500" : "text-amber-500"}`}>
                               {x.cov.filled}/{x.cov.total}
                             </span>
@@ -725,7 +725,7 @@ Responde SOLO con JSON así:
 
           {/* Footer */}
           <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.08]">
-            <span className={`text-xs ${allItemsHaveMinQuotes() ? "text-emerald-400" : "text-amber-400"}`}>
+            <span className={`text-xs ${allItemsHaveMinQuotes() ? "text-aria-accent" : "text-amber-400"}`}>
               {allItemsHaveMinQuotes()
                 ? `Minimo 3 cotizaciones por material (${totalQuotesCount()}/5)`
                 : "Falta: minimo 3 cotizaciones por cada material"}

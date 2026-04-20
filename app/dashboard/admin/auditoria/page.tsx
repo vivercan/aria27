@@ -253,7 +253,7 @@ export default function AuditoriaPage() {
                   <td className="px-3 py-2 font-mono text-xs">{r.table_name}</td>
                   <td className="px-3 py-2">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${
-                      r.op === "INSERT" ? "bg-emerald-500/20 text-emerald-300" :
+                      r.op === "INSERT" ? "bg-emerald-500/20 text-aria-accent" :
                       r.op === "UPDATE" ? "bg-amber-500/20 text-amber-300" :
                       "bg-red-500/20 text-red-300"
                     }`}>
@@ -306,7 +306,7 @@ export default function AuditoriaPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); restaurarDeleted(r); }}
                       disabled={restoring === r.id}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-[10px] hover:bg-emerald-500/30"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/20 text-aria-accent text-[10px] hover:bg-aria-primary/30"
                     >
                       {restoring === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
                       Restaurar

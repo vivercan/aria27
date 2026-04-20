@@ -134,9 +134,9 @@ export default function DashboardPage() {
       title: "Aprobadas",
       value: stats.requisicionesAprobadas,
       icon: CheckCircle2,
-      color: "from-emerald-500 to-emerald-500",
+      color: "from-aria-primary to-aria-accent",
       bgColor: "bg-emerald-500/10",
-      textColor: "text-emerald-400",
+      textColor: "text-aria-accent",
     },
     {
       title: "Empleados Activos",
@@ -186,7 +186,7 @@ export default function DashboardPage() {
       description: "Ver entradas y salidas del día",
       href: "/dashboard/talento/checadas",
       icon: Clock,
-      color: "from-emerald-500 to-emerald-500",
+      color: "from-aria-primary to-aria-accent",
       module: "talento",
     },
     {
@@ -235,7 +235,7 @@ export default function DashboardPage() {
       links: [
         { label: "Dashboard CEO", href: "/dashboard/ceo", icon: TrendingUp, color: "text-amber-300" },
         { label: "Centro Control Obras", href: "/dashboard/obras/control", icon: Activity, color: "text-aria-accent" },
-        { label: "Roles y permisos", href: "/dashboard/admin/roles", icon: Users, color: "text-emerald-300" },
+        { label: "Roles y permisos", href: "/dashboard/admin/roles", icon: Users, color: "text-aria-accent" },
         { label: "Auditoría", href: "/dashboard/admin/auditoria", icon: Clock, color: "text-rose-300" },
       ],
     };
@@ -245,7 +245,7 @@ export default function DashboardPage() {
       subtitle: "Personal, checadas e incidencias del día",
       links: [
         { label: "Personal activo", href: "/dashboard/talento/personal", icon: Users, color: "text-aria-accent" },
-        { label: "Checadas del día", href: "/dashboard/talento/checadas", icon: Clock, color: "text-emerald-300" },
+        { label: "Checadas del día", href: "/dashboard/talento/checadas", icon: Clock, color: "text-aria-accent" },
         { label: "Incidencias abiertas", href: "/dashboard/talento/incidencias", icon: AlertCircle, color: "text-amber-300" },
         { label: "Nómina", href: "/dashboard/talento/nomina", icon: DollarSign, color: "text-aria-accent" },
       ],
@@ -257,7 +257,7 @@ export default function DashboardPage() {
       links: [
         { label: "Requisiciones pendientes", href: "/dashboard/requisiciones/requisiciones/tramite", icon: FileText, color: "text-amber-300" },
         { label: "Órdenes de compra", href: "/dashboard/requisiciones/requisiciones/ordenes", icon: Package, color: "text-aria-accent" },
-        { label: "Proveedores", href: "/dashboard/requisiciones/proveedores", icon: Truck, color: "text-emerald-300" },
+        { label: "Proveedores", href: "/dashboard/requisiciones/proveedores", icon: Truck, color: "text-aria-accent" },
         { label: "Productos", href: "/dashboard/requisiciones/productos", icon: Package, color: "text-[#c9d8ed]" },
       ],
     };
@@ -267,7 +267,7 @@ export default function DashboardPage() {
       subtitle: "Avance, bitácora y checadas del frente",
       links: [
         { label: "Centro Control", href: "/dashboard/obras/control", icon: Activity, color: "text-aria-accent" },
-        { label: "Avance físico", href: "/dashboard/obras/avance", icon: TrendingUp, color: "text-emerald-300" },
+        { label: "Avance físico", href: "/dashboard/obras/avance", icon: TrendingUp, color: "text-aria-accent" },
         { label: "Bitácora", href: "/dashboard/obras/bitacora", icon: FileText, color: "text-amber-300" },
         { label: "Mis checadas", href: "/dashboard/talento/checadas", icon: Clock, color: "text-[#c9d8ed]" },
       ],

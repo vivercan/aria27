@@ -100,7 +100,7 @@ export default function PropuestasPage() {
   const estadoColors: Record<string, string> = {
     borrador: "bg-gray-500/20 text-gray-300",
     enviada: "bg-aria-primary-light text-aria-accent",
-    aprobada: "bg-emerald-500/20 text-emerald-300",
+    aprobada: "bg-emerald-500/20 text-aria-accent",
     rechazada: "bg-red-500/20 text-red-300",
     en_revision: "bg-amber-500/20 text-amber-300",
   };
@@ -186,7 +186,7 @@ export default function PropuestasPage() {
           <p className="text-xs text-[#7f93b0]">Total Propuestas</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><DollarSign className="w-4 h-4 text-emerald-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><DollarSign className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : `$${propuestas.reduce((s, p) => s + (p.monto_estimado || 0), 0).toLocaleString()}`}</p>
           <p className="text-xs text-[#7f93b0]">Monto Total Estimado</p>
         </div>
@@ -229,7 +229,7 @@ export default function PropuestasPage() {
                   <td className="p-3 text-white font-medium">{p.nombre}</td>
                   <td className="p-3 text-[#c9d8ed]">{p.cliente || "—"}</td>
                   <td className="p-3 text-[#7f93b0]">{p.obra || "—"}</td>
-                  <td className="p-3 text-right text-emerald-400 font-medium">${(p.monto_estimado || 0).toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent font-medium">${(p.monto_estimado || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[p.estado] || estadoColors.borrador}`}>
                       {p.estado || "Borrador"}

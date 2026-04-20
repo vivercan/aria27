@@ -46,8 +46,8 @@ interface VehiclePayload {
 }
 
 const ESTADO_OPTIONS = [
-  { value: "bueno", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" },
-  { value: "EN_USO", label: "Operativo", color: "bg-emerald-500/20 text-emerald-400" }, // B7 fix: migración legacy llenó con EN_USO en lugar de "bueno"
+  { value: "bueno", label: "Operativo", color: "bg-emerald-500/20 text-aria-accent" },
+  { value: "EN_USO", label: "Operativo", color: "bg-emerald-500/20 text-aria-accent" }, // B7 fix: migración legacy llenó con EN_USO en lugar de "bueno"
   { value: "mantenimiento", label: "En Mantenimiento", color: "bg-amber-500/20 text-amber-400" },
   { value: "reparacion", label: "En Reparación", color: "bg-orange-500/20 text-orange-400" },
   { value: "baja", label: "Dado de Baja", color: "bg-red-500/20 text-red-400" },
@@ -194,9 +194,9 @@ export default function VehiculosPage() {
           <p className="text-aria-accent text-2xl font-bold">{vehiculos.length}</p>
           <p className="text-aria-accent/70 text-xs">Total</p>
         </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-emerald-400 text-2xl font-bold">{operativos}</p>
-          <p className="text-emerald-400/70 text-xs">Operativos</p>
+        <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3">
+          <p className="text-aria-accent text-2xl font-bold">{operativos}</p>
+          <p className="text-aria-accent/70 text-xs">Operativos</p>
         </div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
           <p className="text-amber-400 text-2xl font-bold">{enMant}</p>
@@ -217,7 +217,7 @@ export default function VehiculosPage() {
       </div>
 
       {msg && (
-        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${msg.tipo === "ok" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+        <div className={`mb-3 px-4 py-2 rounded-lg text-sm flex-shrink-0 ${msg.tipo === "ok" ? "bg-emerald-500/20 text-aria-accent" : "bg-red-500/20 text-red-400"}`}>
           {msg.texto}
         </div>
       )}

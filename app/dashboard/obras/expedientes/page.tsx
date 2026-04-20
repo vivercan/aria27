@@ -747,7 +747,7 @@ export default function ExpedientesPage() {
     switch (prioridad) {
       case "alta": return "text-red-400 bg-red-500/20";
       case "media": return "text-amber-400 bg-amber-500/20";
-      default: return "text-emerald-400 bg-emerald-500/20";
+      default: return "text-aria-accent bg-emerald-500/20";
     }
   };
 
@@ -766,19 +766,19 @@ export default function ExpedientesPage() {
     <div className={`relative ${canDrop && dropActive ? "ring-2 ring-emerald-400/60 rounded-xl" : ""}`} {...(canDrop ? dropHandlers : {})}>
       {canDrop && dropActive && (
         <div className="absolute inset-0 z-30 bg-emerald-500/10  rounded-xl flex flex-col items-center justify-center pointer-events-none">
-          <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
-          <p className="text-emerald-400/60 text-xs mt-1">Se suben autom\u00e1ticamente</p>
+          <Inbox className="w-12 h-12 text-aria-accent mb-2" />
+          <p className="text-aria-accent text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
+          <p className="text-aria-accent/60 text-xs mt-1">Se suben autom\u00e1ticamente</p>
         </div>
       )}
       {canDrop && dropProgress && (
         <div className="absolute inset-0 z-30 bg-[#0a1628]/80  rounded-xl flex flex-col items-center justify-center pointer-events-none">
-          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">
+          <Loader2 className="w-10 h-10 text-aria-accent animate-spin mb-2" />
+          <p className="text-aria-accent text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
           </p>
           {dropProgress.total > 0 && (
-            <p className="text-emerald-400/60 text-xs mt-1">
+            <p className="text-aria-accent/60 text-xs mt-1">
               {dropProgress.current} / {dropProgress.total} archivos
             </p>
           )}
@@ -1259,7 +1259,7 @@ export default function ExpedientesPage() {
                     <Upload className="w-3.5 h-3.5" /> Archivos
                     <input type="file" className="hidden" multiple onChange={handleFileUploadAnio} />
                   </label>
-                  <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-700/20 hover:bg-emerald-700/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium cursor-pointer transition">
+                  <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-700/20 hover:bg-emerald-700/30 border border-emerald-500/30 text-aria-accent text-xs font-medium cursor-pointer transition">
                     <FolderUp className="w-3.5 h-3.5" /> Carpeta
                     <input type="file" className="hidden" webkitdirectory="" directory="" multiple onChange={handleFileUploadAnio} />
                   </label>
@@ -1551,7 +1551,7 @@ export default function ExpedientesPage() {
                     <CheckCircle2 className="w-5 h-5" />
                   </button>
                   <div className="flex-1">
-                    <h3 className={`font-medium ${tarea.status === "completada" ? "text-emerald-300 line-through" : "text-white"}`}>
+                    <h3 className={`font-medium ${tarea.status === "completada" ? "text-aria-accent line-through" : "text-white"}`}>
                       {tarea.titulo}
                     </h3>
                     <div className="flex items-center gap-4 mt-2 text-sm">

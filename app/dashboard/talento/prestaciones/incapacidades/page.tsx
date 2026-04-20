@@ -103,7 +103,7 @@ export default function IncapacidadesPage() {
                 <td className="px-4 py-3 text-[#c9d8ed]">{r.fecha_fin ? new Date(r.fecha_fin).toLocaleDateString("es-MX") : "—"}</td>
                 <td className="px-4 py-3 text-center font-mono text-white">{r.fecha_inicio && r.fecha_fin ? (Math.floor((new Date(r.fecha_fin).getTime() - new Date(r.fecha_inicio).getTime()) / (1000 * 60 * 60 * 24)) + 1) : "—"}</td>
                 <td className="px-4 py-3 text-aria-accent font-mono text-xs">{r.folio || "—"}</td>
-                <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.status === "activa" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>{r.status || "Activa"}</span></td>
+                <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs ${r.status === "activa" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-aria-accent"}`}>{r.status || "Activa"}</span></td>
               </tr>
             ))}
           </tbody>

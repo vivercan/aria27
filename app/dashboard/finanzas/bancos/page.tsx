@@ -151,7 +151,7 @@ export default function BancosPage() {
         {[
           { label: "Activas", value: cuentas.filter(c => c.activa !== false).length, icon: CreditCard, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Inactivas", value: cuentas.filter(c => c.activa === false).length, icon: Power, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Saldo total (vista)", value: `$${totalSaldo.toLocaleString()}`, icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Saldo total (vista)", value: `$${totalSaldo.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Bancos", value: new Set(cuentas.map(c => c.banco)).size, icon: Building2, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -237,7 +237,7 @@ export default function BancosPage() {
               ) : cuentasMostradas.map(c => (
                 <tr key={c.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${c.activa === false ? "opacity-50" : ""}`}>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${c.activa === false ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${c.activa === false ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-aria-accent"}`}>
                       {c.activa === false ? "Inactiva" : "Activa"}
                     </span>
                   </td>
@@ -246,7 +246,7 @@ export default function BancosPage() {
                   <td className="p-3 text-[#7f93b0] font-mono text-xs">{c.clabe}</td>
                   <td className="p-3"><span className="px-2 py-0.5 bg-aria-primary/10 text-aria-accent text-xs rounded-full">{c.empresa}</span></td>
                   <td className="p-3 text-[#c9d8ed]">{c.tipo}</td>
-                  <td className="p-3 text-right text-emerald-400 font-medium">${(c.saldo || 0).toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent font-medium">${(c.saldo || 0).toLocaleString()}</td>
                   <td className="p-3 text-[#4a6080] text-xs">{c.updated_at ? new Date(c.updated_at).toLocaleDateString("es-MX") : (c.created_at ? new Date(c.created_at).toLocaleDateString("es-MX") : "—")}</td>
                   <td className="p-3 text-center">
                     <div className="flex items-center justify-center gap-1">

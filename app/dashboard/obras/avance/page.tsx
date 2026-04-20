@@ -124,8 +124,8 @@ export default function AvanceObrasPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <AriaBackButton href="/dashboard/obras" />
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
-              <TrendingUp className="w-7 h-7 text-emerald-400" />
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-white/[0.08]">
+              <TrendingUp className="w-7 h-7 text-aria-accent" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Avance Físico de Obras</h1>
@@ -178,7 +178,7 @@ export default function AvanceObrasPage() {
                     <td className="p-3 text-center">
                       {ultimo ? (
                         <div className="flex flex-col items-center">
-                          <span className="text-emerald-300 font-medium">{fmt2(ultimo.pct_fisico)}</span>
+                          <span className="text-aria-accent font-medium">{fmt2(ultimo.pct_fisico)}</span>
                           <span className="text-[10px] text-[#4a6080]">{ultimo.semana_iso}</span>
                         </div>
                       ) : <span className="text-[#4a6080]">—</span>}
@@ -192,7 +192,7 @@ export default function AvanceObrasPage() {
                         value={d.pct}
                         onChange={e => setDraftFor(o.nombre, { pct: e.target.value })}
                         placeholder="0.0"
-                        className="w-24 px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-center text-sm focus:outline-none focus:border-emerald-500/50"
+                        className="w-24 px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-center text-sm focus:outline-none focus:border-aria-primary/50"
                       />
                     </td>
                     <td className="p-3">
@@ -201,14 +201,14 @@ export default function AvanceObrasPage() {
                         value={d.obs}
                         onChange={e => setDraftFor(o.nombre, { obs: e.target.value })}
                         placeholder="(opcional)"
-                        className="w-full px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-xs focus:outline-none focus:border-emerald-500/50"
+                        className="w-full px-2 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-xs focus:outline-none focus:border-aria-primary/50"
                       />
                     </td>
                     <td className="p-3 text-center">
                       <button
                         onClick={() => guardar(o.nombre, o.id)}
                         disabled={saving || d.pct === ""}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-40 text-xs font-medium flex items-center gap-1.5 mx-auto"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-aria-accent hover:bg-emerald-500/20 disabled:opacity-40 text-xs font-medium flex items-center gap-1.5 mx-auto"
                       >
                         <Save className="w-3 h-3" />
                         {yaSemana ? "Actualizar" : "Guardar"}

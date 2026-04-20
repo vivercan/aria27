@@ -300,7 +300,7 @@ export default function CajaChicaPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           {[
             { label: "Fondos Activos", value: stats.fondosActivos, icon: Wallet, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-            { label: "Saldo Disponible", value: fmt(stats.saldoTotal), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { label: "Saldo Disponible", value: fmt(stats.saldoTotal), icon: DollarSign, color: "text-aria-accent", bg: "bg-emerald-500/10" },
             { label: "Autorizado Total", value: fmt(stats.autorizadoTotal), icon: FileText, color: "text-[#c9d8ed]", bg: "bg-slate-500/10" },
             { label: "Gastos del Mes", value: fmt(stats.gastosMes), icon: TrendingDown, color: "text-red-400", bg: "bg-red-500/10" },
             { label: "Reposiciones Mes", value: fmt(stats.reposMes), icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
@@ -344,7 +344,7 @@ export default function CajaChicaPage() {
             if (tab === "Fondos") { setFondoForm(FONDO_INIT); setEditFondoId(null); setShowFondoForm(true); }
             else if (tab === "Movimientos") { setMovForm({ ...MOV_INIT, fondo_id: filterFondo !== "TODOS" ? filterFondo : (fondosActivos[0]?.id || "") }); setShowMovForm(true); }
             else { setCorteForm({ fondo_id: filterFondo !== "TODOS" ? filterFondo : (fondosActivos[0]?.id || ""), fecha_inicio: "", fecha_fin: "", periodo: "" }); setShowCorteForm(true); }
-          }} className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+          }} className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/20 hover:bg-aria-primary/30 border border-emerald-500/30 text-aria-accent rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
             <Plus className="w-4 h-4" />
             {tab === "Fondos" ? "Nuevo Fondo" : tab === "Movimientos" ? "Registrar" : "Generar Corte"}
           </button>
@@ -396,7 +396,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => { setShowFondoForm(false); setEditFondoId(null); }} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={guardarFondo} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={guardarFondo} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-aria-primary/30 border border-emerald-500/30 text-aria-accent disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         {editFondoId ? "Actualizar" : "Crear Fondo"}
                       </button>
@@ -421,7 +421,7 @@ export default function CajaChicaPage() {
                               <h3 className="text-sm font-semibold text-white">{f.nombre}</h3>
                               <p className="text-xs text-[#7f93b0]">{f.obra_nombre} · {f.responsable_nombre}</p>
                             </div>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${f.estatus === "ACTIVO" ? "bg-emerald-500/20 text-emerald-400" : f.estatus === "SUSPENDIDO" ? "bg-amber-500/20 text-amber-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{f.estatus}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${f.estatus === "ACTIVO" ? "bg-emerald-500/20 text-aria-accent" : f.estatus === "SUSPENDIDO" ? "bg-amber-500/20 text-amber-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{f.estatus}</span>
                           </div>
                           <div className="space-y-2">
                             <div className="flex justify-between text-xs">
@@ -441,7 +441,7 @@ export default function CajaChicaPage() {
                             <button onClick={() => editFondo(f)} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/[0.04] hover:bg-white/[0.06] rounded-lg text-xs text-[#c9d8ed] transition-colors">
                               <Edit2 className="w-3 h-3" /> Editar
                             </button>
-                            <button onClick={() => toggleFondoEstatus(f)} className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${f.estatus === "ACTIVO" ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
+                            <button onClick={() => toggleFondoEstatus(f)} className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${f.estatus === "ACTIVO" ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-aria-accent"}`}>
                               {f.estatus === "ACTIVO" ? <><AlertTriangle className="w-3 h-3" /> Suspender</> : <><Check className="w-3 h-3" /> Activar</>}
                             </button>
                             <button onClick={() => { setTab("Movimientos"); setFilterFondo(f.id); }} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-aria-primary/10 hover:bg-aria-primary-light rounded-lg text-xs text-aria-accent transition-colors">
@@ -478,7 +478,7 @@ export default function CajaChicaPage() {
                         <div className="flex gap-2">
                           {(["GASTO", "REPOSICION"] as const).map(t => (
                             <button key={t} onClick={() => setMovForm({ ...movForm, tipo: t })}
-                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${movForm.tipo === t ? (t === "GASTO" ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30") : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08]"}`}>
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${movForm.tipo === t ? (t === "GASTO" ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-aria-accent border border-emerald-500/30") : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08]"}`}>
                               {t === "GASTO" ? "Gasto" : "Reposición"}
                             </button>
                           ))}
@@ -517,7 +517,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setShowMovForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={guardarMov} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={guardarMov} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-aria-primary/30 border border-emerald-500/30 text-aria-accent disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         Registrar
                       </button>
@@ -547,13 +547,13 @@ export default function CajaChicaPage() {
                           <td className="px-3 py-2.5 text-[#c9d8ed] whitespace-nowrap">{fmtDate(m.fecha)}</td>
                           <td className="px-3 py-2.5 text-[#c9d8ed] text-xs">{m.fondo_nombre}</td>
                           <td className="px-3 py-2.5">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${m.tipo === "GASTO" ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${m.tipo === "GASTO" ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-aria-accent"}`}>
                               {m.tipo === "GASTO" ? "↓ Gasto" : "↑ Repos."}
                             </span>
                           </td>
                           <td className="px-3 py-2.5 text-white max-w-[200px] truncate">{m.concepto}</td>
                           <td className="px-3 py-2.5"><span className="px-1.5 py-0.5 rounded text-[10px] bg-white/[0.04] text-[#7f93b0]">{m.categoria}</span></td>
-                          <td className={`px-3 py-2.5 text-right font-mono font-medium ${m.tipo === "GASTO" ? "text-red-400" : "text-emerald-400"}`}>
+                          <td className={`px-3 py-2.5 text-right font-mono font-medium ${m.tipo === "GASTO" ? "text-red-400" : "text-aria-accent"}`}>
                             {m.tipo === "GASTO" ? "−" : "+"}{fmt(Number(m.monto))}
                           </td>
                           <td className="px-3 py-2.5 text-[#7f93b0] text-xs">{m.comprobante || "—"}</td>
@@ -603,7 +603,7 @@ export default function CajaChicaPage() {
                     </div>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setShowCorteForm(false)} className="px-4 py-2 text-sm text-[#7f93b0] hover:text-white transition-colors">Cancelar</button>
-                      <button onClick={generarCorte} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
+                      <button onClick={generarCorte} disabled={saving} className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500/20 hover:bg-aria-primary/30 border border-emerald-500/30 text-aria-accent disabled:opacity-50 rounded-lg text-sm font-medium transition-colors">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                         Generar Corte
                       </button>
@@ -636,7 +636,7 @@ export default function CajaChicaPage() {
                           <td className="px-3 py-2.5 text-[#7f93b0] text-xs whitespace-nowrap">{fmtDate(c.fecha_inicio)} → {fmtDate(c.fecha_fin)}</td>
                           <td className="px-3 py-2.5 text-right text-[#c9d8ed] font-mono">{fmt(Number(c.saldo_inicial))}</td>
                           <td className="px-3 py-2.5 text-right text-red-400 font-mono">−{fmt(Number(c.total_gastos))}</td>
-                          <td className="px-3 py-2.5 text-right text-emerald-400 font-mono">+{fmt(Number(c.total_reposiciones))}</td>
+                          <td className="px-3 py-2.5 text-right text-aria-accent font-mono">+{fmt(Number(c.total_reposiciones))}</td>
                           <td className="px-3 py-2.5 text-right text-white font-mono font-medium">{fmt(Number(c.saldo_final))}</td>
                           <td className="px-3 py-2.5 text-center text-[#7f93b0]">{c.num_movimientos}</td>
                           <td className="px-3 py-2.5">

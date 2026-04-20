@@ -397,20 +397,20 @@ export default function MisDocumentosPage() {
       {/* Drag & drop overlay */}
       {dragging && (
         <div className="absolute inset-0 z-30 bg-emerald-500/10  flex flex-col items-center justify-center pointer-events-none">
-          <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">Suelta archivos ocarpetas aqu\u00eid</p>
-          <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas</p>
+          <Inbox className="w-12 h-12 text-aria-accent mb-2" />
+          <p className="text-aria-accent text-sm font-medium">Suelta archivos ocarpetas aqu\u00eid</p>
+          <p className="text-aria-accent/60 text-xs mt-1">Se preservan subcarpetas</p>
         </div>
       )}
       {/* Scanning/uploading progress overlay */}
       {dropProgress && (
         <div className="absolute inset-0 z-30 bg-[#0a1628]/80  flex flex-col items-center justify-center pointer-events-none">
-          <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">
+          <Loader2 className="w-10 h-10 text-aria-accent animate-spin mb-2" />
+          <p className="text-aria-accent text-sm font-medium">
             {dropProgress.phase === "scanning" ? "Escaneando carpetas…" : "Subiendo archivos…"}
           </p>
           {dropProgress.total > 0 && (
-            <p className="text-emerald-400/60 text-xs mt-1">
+            <p className="text-aria-accent/60 text-xs mt-1">
               {dropProgress.current} / {dropProgress.total} archivos
             </p>
           )}
@@ -514,7 +514,7 @@ export default function MisDocumentosPage() {
               onClick={() => selectFolder("compartidos")}
               className="group flex flex-col items-center gap-4 p-8 rounded-2xl bg-[#0c1d38]/50 border border-white/[0.05] hover:border-emerald-500/50 hover:bg-[#0c1d38] transition-all duration-200"
             >
-              <FolderOpen className="w-20 h-20 text-emerald-400 group-hover:scale-110 transition-transform" />
+              <FolderOpen className="w-20 h-20 text-aria-accent group-hover:scale-110 transition-transform" />
               <span className="text-lg font-semibold text-white">Compartidos</span>
               <span className="text-xs text-[#7f93b0]">Acceso libre</span>
             </button>
@@ -661,7 +661,7 @@ export default function MisDocumentosPage() {
                     {uq.error ? (
                       <X className="w-3.5 h-3.5 text-red-400 flex-none" />
                     ) : uq.done ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400 flex-none" />
+                      <Check className="w-3.5 h-3.5 text-aria-accent flex-none" />
                     ) : (
                       <Loader2 className="w-3.5 h-3.5 text-aria-primary animate-spin flex-none" />
                     )}

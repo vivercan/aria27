@@ -201,11 +201,11 @@ export default function IncidenciasPage() {
                     <td className="p-3 text-center"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>{badge.icon} {i.tipo}</span></td>
                     <td className="p-3 text-[#7f93b0]">{i.motivo || "-"}</td>
                     <td className="p-3 text-center">
-                      {i.autorizada ? <CheckCircle2 className="w-4 h-4 text-emerald-400 mx-auto" /> : <span className="text-xs text-[#4a6080]">Pendiente</span>}
+                      {i.autorizada ? <CheckCircle2 className="w-4 h-4 text-aria-accent mx-auto" /> : <span className="text-xs text-[#4a6080]">Pendiente</span>}
                     </td>
                     <td className="p-3 text-center">
                       {!i.autorizada && (
-                        <button onClick={() => autorizar(i.id)} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/30">
+                        <button onClick={() => autorizar(i.id)} className="px-3 py-1 bg-emerald-500/20 text-aria-accent rounded-lg text-xs hover:bg-aria-primary/30">
                           Autorizar
                         </button>
                       )}

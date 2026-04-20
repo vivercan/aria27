@@ -85,7 +85,7 @@ export default function ConfigGeneralPage() {
 
   const roleColors: Record<string, string> = {
     admin: "bg-red-500/20 text-red-300", direccion: "bg-amber-500/20 text-amber-300",
-    compras: "bg-aria-primary-light text-aria-accent", validador: "bg-emerald-500/20 text-emerald-300",
+    compras: "bg-aria-primary-light text-aria-accent", validador: "bg-emerald-500/20 text-aria-accent",
     usuario: "bg-slate-500/20 text-[#c9d8ed]"
   };
 
@@ -158,7 +158,7 @@ export default function ConfigGeneralPage() {
               <div className="font-medium">{u.name}</div>
               <div className="text-[#7f93b0] text-xs truncate">{u.email}</div>
               <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${roleColors[u.role] || roleColors.usuario}`}>{u.role}</span></div>
-              <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${u.active ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>{u.active ? "Activo" : "Inactivo"}</span></div>
+              <div><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${u.active ? "bg-emerald-500/20 text-aria-accent" : "bg-red-500/20 text-red-300"}`}>{u.active ? "Activo" : "Inactivo"}</span></div>
             </div>
           ))}
         </div>

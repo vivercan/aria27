@@ -45,11 +45,11 @@ const PRIO_COLORS: Record<string, string> = {
 };
 const EST_COLORS: Record<string, string> = {
   ABIERTA: "bg-aria-primary-light text-aria-accent", EN_PROCESO: "bg-amber-500/20 text-amber-400",
-  COMPLETADA: "bg-emerald-500/20 text-emerald-400", CANCELADA: "bg-slate-500/20 text-[#7f93b0]",
+  COMPLETADA: "bg-emerald-500/20 text-aria-accent", CANCELADA: "bg-slate-500/20 text-[#7f93b0]",
   ESPERANDO_REFACCIONES: "bg-aria-primary-light text-aria-accent",
 };
 const TIPO_COLORS: Record<string, string> = {
-  PREVENTIVO: "bg-emerald-500/20 text-emerald-400", CORRECTIVO: "bg-red-500/20 text-red-400",
+  PREVENTIVO: "bg-emerald-500/20 text-aria-accent", CORRECTIVO: "bg-red-500/20 text-red-400",
   PREDICTIVO: "bg-aria-accent-bg text-aria-accent", EMERGENCIA: "bg-red-600/30 text-red-300",
 };
 
@@ -300,7 +300,7 @@ export default function MantenimientoPage() {
         <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           {[
             { label: "OTs Abiertas", value: stats.abiertas, icon: ClipboardList, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-            { label: "Completadas", value: stats.completadas, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { label: "Completadas", value: stats.completadas, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
             { label: "Urgentes", value: stats.urgentes, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
             { label: "Costo del Mes", value: fmt(stats.costoMes), icon: DollarSign, color: "text-amber-400", bg: "bg-amber-500/10" },
             { label: "Prog. Vencidos", value: stats.progVencidos, icon: Calendar, color: "text-red-400", bg: "bg-red-500/10" },
@@ -394,7 +394,7 @@ export default function MantenimientoPage() {
                         <td className="px-3 py-2.5 text-xs text-[#7f93b0] whitespace-nowrap">
                           <p>Sol: {fmtDate(o.fecha_solicitud)}</p>
                           {o.fecha_programada && <p className="text-[#4a6080]">Prog: {fmtDate(o.fecha_programada)}</p>}
-                          {o.fecha_fin && <p className="text-emerald-400/70">Fin: {fmtDate(o.fecha_fin)}</p>}
+                          {o.fecha_fin && <p className="text-aria-accent/70">Fin: {fmtDate(o.fecha_fin)}</p>}
                         </td>
                         <td className="px-3 py-2.5 text-right text-[#7f93b0] font-mono text-xs">{Number(o.costo_estimado) > 0 ? fmt(Number(o.costo_estimado)) : "—"}</td>
                         <td className="px-3 py-2.5 text-right font-mono text-xs">
@@ -407,7 +407,7 @@ export default function MantenimientoPage() {
                               <button onClick={() => cambiarEstatus(o, "EN_PROCESO")} className="p-1 bg-amber-500/10 hover:bg-amber-500/20 rounded text-amber-400" title="Iniciar"><Play className="w-3.5 h-3.5" /></button>
                             )}
                             {o.estatus === "EN_PROCESO" && (
-                              <button onClick={() => cambiarEstatus(o, "COMPLETADA")} className="p-1 bg-emerald-500/10 hover:bg-emerald-500/20 rounded text-emerald-400" title="Completar"><CheckCircle2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => cambiarEstatus(o, "COMPLETADA")} className="p-1 bg-emerald-500/10 hover:bg-emerald-500/20 rounded text-aria-accent" title="Completar"><CheckCircle2 className="w-3.5 h-3.5" /></button>
                             )}
                             {o.estatus === "ESPERANDO_REFACCIONES" && (
                               <button onClick={() => cambiarEstatus(o, "EN_PROCESO")} className="p-1 bg-amber-500/10 hover:bg-amber-500/20 rounded text-amber-400" title="Reanudar"><Play className="w-3.5 h-3.5" /></button>
@@ -452,7 +452,7 @@ export default function MantenimientoPage() {
                           <h3 className="text-sm font-semibold text-white">{p.nombre}</h3>
                           <p className="text-xs text-[#7f93b0]">{p.activo_nombre}</p>
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${p.activo ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>{p.activo ? "Activo" : "Pausado"}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${p.activo ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>{p.activo ? "Activo" : "Pausado"}</span>
                       </div>
                       <div className="space-y-1.5 text-xs text-[#7f93b0] mb-3">
                         <p>Cada <span className="text-white">{p.frecuencia_dias} días</span>{p.frecuencia_km ? ` ó ${p.frecuencia_km.toLocaleString()} km` : ""}</p>
@@ -471,7 +471,7 @@ export default function MantenimientoPage() {
                         <button onClick={() => editarProg(p)} className="flex items-center gap-1 px-2 py-1.5 bg-aria-primary/10 hover:bg-aria-primary-light rounded-lg text-xs text-aria-accent transition-colors">
                           <Edit2 className="w-3 h-3" />
                         </button>
-                        <button onClick={() => toggleProg(p)} className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${p.activo ? "bg-slate-500/10 hover:bg-slate-500/20 text-[#7f93b0]" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"}`}>
+                        <button onClick={() => toggleProg(p)} className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${p.activo ? "bg-slate-500/10 hover:bg-slate-500/20 text-[#7f93b0]" : "bg-emerald-500/10 hover:bg-emerald-500/20 text-aria-accent"}`}>
                           {p.activo ? "Pausar" : "Activar"}
                         </button>
                       </div>

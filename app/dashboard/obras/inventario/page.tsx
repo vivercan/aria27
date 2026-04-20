@@ -690,16 +690,16 @@ export default function InventarioObraPage() {
               className="p-6 bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] hover:border-emerald-500/50 rounded-xl text-left transition-all group"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-emerald-500/20 rounded-xl group-hover:bg-emerald-500/30 transition-colors">
-                  <Package className="w-6 h-6 text-emerald-400" />
+                <div className="p-3 bg-emerald-500/20 rounded-xl group-hover:bg-aria-primary/30 transition-colors">
+                  <Package className="w-6 h-6 text-aria-accent" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white group-hover:text-emerald-300 transition-colors">
+                  <h3 className="font-semibold text-white group-hover:text-aria-accent transition-colors">
                     {obra.name}
                   </h3>
                   <p className="text-sm text-[#7f93b0] mt-1">Ver inventario</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#4a6080] group-hover:text-emerald-400 transition-colors" />
+                <ChevronRight className="w-5 h-5 text-[#4a6080] group-hover:text-aria-accent transition-colors" />
               </div>
             </button>
           ))}
@@ -729,7 +729,7 @@ export default function InventarioObraPage() {
             onClick={exportarExcel}
             disabled={exportandoExcel || inventario.length === 0}
             title="Descargar Excel"
-            className="flex items-center gap-2 px-3 py-2 bg-emerald-700/40 hover:bg-emerald-700/70 border border-emerald-600/50 rounded-lg text-emerald-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-2 bg-emerald-700/40 hover:bg-emerald-700/70 border border-emerald-600/50 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {exportandoExcel ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -776,7 +776,7 @@ export default function InventarioObraPage() {
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-emerald-400" />
+            <TrendingUp className="w-8 h-8 text-aria-accent" />
             <div>
               <p className="text-2xl font-bold text-white">{totalDisponible.toLocaleString()}</p>
               <p className="text-sm text-[#7f93b0]">Unidades disponibles</p>
@@ -833,7 +833,7 @@ export default function InventarioObraPage() {
                       </p>
                     </td>
                     <td className="px-3 py-3 text-center">
-                      <span className={`font-bold ${item.cantidad_disponible <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                      <span className={`font-bold ${item.cantidad_disponible <= 5 ? 'text-amber-400' : 'text-aria-accent'}`}>
                         {item.cantidad_disponible}
                       </span>
                     </td>
@@ -862,7 +862,7 @@ export default function InventarioObraPage() {
                           className="p-2 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg transition-colors"
                           title="Registrar entrada"
                         >
-                          <Truck className="w-4 h-4 text-emerald-400" />
+                          <Truck className="w-4 h-4 text-aria-accent" />
                         </button>
                         <button
                           onClick={() => abrirSalida(item)}
@@ -927,7 +927,7 @@ export default function InventarioObraPage() {
                 </p>
                 <button
                   onClick={() => importarDeEntrega(entrega)}
-                  className="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-aria-accent rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Importar a Inventario
@@ -992,9 +992,9 @@ export default function InventarioObraPage() {
                   {validando ? "Validando..." : "Validar nombre con IA"}
                 </button>
                 {validacionResult && (
-                  <div className={`mt-2 p-2 rounded-lg text-sm ${validacionResult.esValido ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+                  <div className={`mt-2 p-2 rounded-lg text-sm ${validacionResult.esValido ? 'bg-emerald-500/10 border border-white/[0.08]' : 'bg-red-500/10 border border-red-500/20'}`}>
                     {validacionResult.esValido ? (
-                      <p className="text-emerald-300">✓ Material válido: <span className="font-medium text-white">{validacionResult.nombreCorregido}</span></p>
+                      <p className="text-aria-accent">✓ Material válido: <span className="font-medium text-white">{validacionResult.nombreCorregido}</span></p>
                     ) : (
                       <p className="text-red-300">✗ {validacionResult.razon || "No parece ser un material de construcción"}</p>
                     )}
@@ -1117,7 +1117,7 @@ export default function InventarioObraPage() {
               className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary mb-3"
             />
             <p className="text-center text-sm text-[#7f93b0] mb-3">
-              Nuevo total: <span className="text-emerald-400 font-bold">{entradaItem.cantidad_disponible + entradaCantidad}</span> {entradaItem.unidad}
+              Nuevo total: <span className="text-aria-accent font-bold">{entradaItem.cantidad_disponible + entradaCantidad}</span> {entradaItem.unidad}
             </p>
 
             <label className="block text-sm text-[#c9d8ed] mb-1">Motivo / OC relacionada</label>
@@ -1145,7 +1145,7 @@ export default function InventarioObraPage() {
               ) : (
                 <button
                   onClick={() => fileInputEntradaRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-3 bg-white/[0.04] border border-dashed border-white/[0.12] rounded-lg text-[#7f93b0] hover:border-emerald-400/50 hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white/[0.04] border border-dashed border-white/[0.12] rounded-lg text-[#7f93b0] hover:border-emerald-400/50 hover:text-aria-accent transition-colors"
                 >
                   <Camera className="w-5 h-5" />
                   Subir foto de evidencia
@@ -1200,12 +1200,12 @@ export default function InventarioObraPage() {
                 className="flex-1 px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-aria-primary"
               />
               <button onClick={() => setAjusteCantidad(ajusteCantidad + 1)} className="p-3 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg">
-                <Plus className="w-5 h-5 text-emerald-400" />
+                <Plus className="w-5 h-5 text-aria-accent" />
               </button>
             </div>
 
             <p className="text-center text-sm mb-4">
-              Nuevo total: <span className={`font-bold ${showAjuste.cantidad_disponible + ajusteCantidad < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+              Nuevo total: <span className={`font-bold ${showAjuste.cantidad_disponible + ajusteCantidad < 0 ? 'text-red-400' : 'text-aria-accent'}`}>
                 {Math.max(0, showAjuste.cantidad_disponible + ajusteCantidad)}
               </span> {showAjuste.unidad}
             </p>
@@ -1272,7 +1272,7 @@ export default function InventarioObraPage() {
 
             <div className="p-3 bg-white/[0.04] rounded-lg mb-4">
               <p className="text-white font-medium">{salidaItem.producto_nombre}</p>
-              <p className="text-sm text-[#7f93b0]">Disponible: <span className="text-emerald-400 font-bold">{salidaItem.cantidad_disponible}</span> {salidaItem.unidad}</p>
+              <p className="text-sm text-[#7f93b0]">Disponible: <span className="text-aria-accent font-bold">{salidaItem.cantidad_disponible}</span> {salidaItem.unidad}</p>
             </div>
 
             <label className="block text-sm text-[#c9d8ed] mb-1">Cantidad a retirar *</label>
@@ -1284,7 +1284,7 @@ export default function InventarioObraPage() {
               className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-center text-xl font-bold focus:outline-none focus:border-red-500 mb-3"
             />
             <p className="text-center text-sm text-[#7f93b0] mb-3">
-              Quedarán: <span className={`font-bold ${salidaItem.cantidad_disponible - salidaCantidad <= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+              Quedarán: <span className={`font-bold ${salidaItem.cantidad_disponible - salidaCantidad <= 5 ? 'text-amber-400' : 'text-aria-accent'}`}>
                 {Math.max(0, salidaItem.cantidad_disponible - salidaCantidad)}
               </span> {salidaItem.unidad}
             </p>

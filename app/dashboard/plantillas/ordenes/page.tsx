@@ -114,7 +114,7 @@ export default function OrdenesPage() {
   const estadoColors: Record<string, string> = {
     borrador: "bg-gray-500/20 text-gray-300",
     pendiente: "bg-amber-500/20 text-amber-300",
-    aprobada: "bg-emerald-500/20 text-emerald-300",
+    aprobada: "bg-emerald-500/20 text-aria-accent",
     enviada: "bg-aria-primary-light text-aria-accent",
     completada: "bg-aria-primary-light text-aria-accent",
   };
@@ -214,7 +214,7 @@ export default function OrdenesPage() {
           <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
         <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><CheckCircle className="w-4 h-4 text-emerald-400" /></div>
+          <div className="inline-flex p-2 rounded-lg bg-emerald-500/10 mb-2"><CheckCircle className="w-4 h-4 text-aria-accent" /></div>
           <p className="text-xl font-bold text-white">{loading ? "..." : ordenes.filter(o => o.estado === "completada" || o.estado === "aprobada").length}</p>
           <p className="text-xs text-[#7f93b0]">Completadas</p>
         </div>
@@ -253,7 +253,7 @@ export default function OrdenesPage() {
                   <td className="p-3 text-white font-medium">{o.nombre}</td>
                   <td className="p-3 text-[#c9d8ed]">{o.proveedor || "—"}</td>
                   <td className="p-3 text-[#7f93b0]">{o.obra || "—"}</td>
-                  <td className="p-3 text-right text-emerald-400 font-medium">${(o.monto || 0).toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent font-medium">${(o.monto || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${estadoColors[o.estado] || estadoColors.borrador}`}>
                       {o.estado || "Borrador"}

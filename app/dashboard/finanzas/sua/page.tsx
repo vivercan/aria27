@@ -27,7 +27,7 @@ interface Obra { id: string; nombre: string; }
 const TIPOS = ["IMSS", "INFONAVIT", "RCV", "AMORTIZACION", "MULTA"] as const;
 const ESTATUS_COLORS: Record<string, string> = {
   PENDIENTE: "bg-amber-500/20 text-amber-400",
-  PAGADA: "bg-emerald-500/20 text-emerald-400",
+  PAGADA: "bg-emerald-500/20 text-aria-accent",
   VENCIDA: "bg-red-500/20 text-red-400",
   PARCIAL: "bg-aria-primary-light text-aria-accent",
 };
@@ -224,10 +224,10 @@ export default function SUAFinanzasPage() {
         <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           {[
             { label: "Deuda Total", value: fmt(stats.deudaTotal), icon: TrendingDown, color: "text-red-400", bg: "bg-red-500/10" },
-            { label: "Pagado Total", value: fmt(stats.pagadoTotal), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { label: "Pagado Total", value: fmt(stats.pagadoTotal), icon: DollarSign, color: "text-aria-accent", bg: "bg-emerald-500/10" },
             { label: "Pendientes", value: stats.pendientes, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
             { label: "Vencidas", value: stats.vencidas, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
-            { label: "Pagadas", value: stats.pagadas, icon: Check, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { label: "Pagadas", value: stats.pagadas, icon: Check, color: "text-aria-accent", bg: "bg-emerald-500/10" },
             { label: "Próx. Vencer (15d)", value: stats.proxVencer, icon: Calendar, color: "text-orange-400", bg: "bg-orange-500/10" },
           ].map(s => (
             <div key={s.label} className="p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -315,7 +315,7 @@ export default function SUAFinanzasPage() {
                       <td className="px-3 py-2.5 text-right text-white font-mono font-medium">{fmt(Number(l.total))}</td>
                       <td className="px-3 py-2.5 text-right font-mono">
                         {Number(l.monto_pagado) > 0 ? (
-                          <span className="text-emerald-400">{fmt(Number(l.monto_pagado))}</span>
+                          <span className="text-aria-accent">{fmt(Number(l.monto_pagado))}</span>
                         ) : <span className="text-[#4a6080]">—</span>}
                         {restante > 0 && l.estatus !== "PAGADA" && (
                           <p className="text-[10px] text-red-400/70">Resta {fmt(restante)}</p>
@@ -335,7 +335,7 @@ export default function SUAFinanzasPage() {
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-1">
                           {l.estatus !== "PAGADA" && (
-                            <button onClick={() => abrirPago(l)} className="p-1 bg-emerald-500/10 hover:bg-emerald-500/20 rounded text-emerald-400 transition-colors" title="Registrar pago">
+                            <button onClick={() => abrirPago(l)} className="p-1 bg-emerald-500/10 hover:bg-emerald-500/20 rounded text-aria-accent transition-colors" title="Registrar pago">
                               <CreditCard className="w-3.5 h-3.5" />
                             </button>
                           )}
@@ -356,7 +356,7 @@ export default function SUAFinanzasPage() {
                   <tr className="text-xs font-medium">
                     <td colSpan={7} className="px-3 py-2.5 text-right text-[#7f93b0]">Totales filtrados:</td>
                     <td className="px-3 py-2.5 text-right text-white font-mono">{fmt(filtered.reduce((s, l) => s + Number(l.total), 0))}</td>
-                    <td className="px-3 py-2.5 text-right text-emerald-400 font-mono">{fmt(filtered.reduce((s, l) => s + Number(l.monto_pagado), 0))}</td>
+                    <td className="px-3 py-2.5 text-right text-aria-accent font-mono">{fmt(filtered.reduce((s, l) => s + Number(l.monto_pagado), 0))}</td>
                     <td colSpan={3}></td>
                   </tr>
                 </tfoot>
@@ -453,7 +453,7 @@ export default function SUAFinanzasPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 " onClick={() => setShowPago(false)}>
           <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-emerald-400" /> Registrar Pago
+              <CreditCard className="w-5 h-5 text-aria-accent" /> Registrar Pago
             </h3>
             <div className="text-xs text-[#7f93b0] space-y-1">
               <p>{pagoTarget.tipo} · {pagoTarget.periodo} · {pagoTarget.obra_nombre || "Sin obra"}</p>

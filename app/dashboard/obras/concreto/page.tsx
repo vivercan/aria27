@@ -221,14 +221,14 @@ export default function ConcretoPage() {
         </div>
 
         {/* % Cumplimiento */}
-        <div className={`p-6 rounded-2xl bg-gradient-to-br ${kpis.pctCumplimiento >= 90 ? "from-emerald-500/10 to-green-500/10 border border-emerald-500/20" : "from-amber-500/10 to-orange-500/10 border border-amber-500/20"} hover:border-opacity-40 transition-all`}>
+        <div className={`p-6 rounded-2xl bg-gradient-to-br ${kpis.pctCumplimiento >= 90 ? "from-emerald-500/10 to-green-500/10 border border-white/[0.08]" : "from-amber-500/10 to-orange-500/10 border border-amber-500/20"} hover:border-opacity-40 transition-all`}>
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-[#7f93b0] text-sm mb-1">% Cumplimiento</p>
-              <p className={`text-3xl font-bold ${kpis.pctCumplimiento >= 90 ? "text-emerald-300" : "text-amber-300"}`}>{kpis.pctCumplimiento.toFixed(1)}%</p>
+              <p className={`text-3xl font-bold ${kpis.pctCumplimiento >= 90 ? "text-aria-accent" : "text-amber-300"}`}>{kpis.pctCumplimiento.toFixed(1)}%</p>
             </div>
             <div className={`p-2.5 rounded-xl ${kpis.pctCumplimiento >= 90 ? "bg-emerald-500/20" : "bg-amber-500/20"}`}>
-              <TrendingUp className={`w-5 h-5 ${kpis.pctCumplimiento >= 90 ? "text-emerald-400" : "text-amber-400"}`} />
+              <TrendingUp className={`w-5 h-5 ${kpis.pctCumplimiento >= 90 ? "text-aria-accent" : "text-amber-400"}`} />
             </div>
           </div>
           <p className="text-xs text-[#4a6080]">Especificación f'c cumplida</p>
@@ -294,11 +294,11 @@ export default function ConcretoPage() {
                       </td>
                       <td className="p-4 text-right text-aria-accent">{resumen.remisiones}</td>
                       <td className="p-4 text-right text-aria-accent">{fmtNum(resumen.m3_total)}</td>
-                      <td className="p-4 text-right text-emerald-300">{fmt(resumen.costo_total)}</td>
+                      <td className="p-4 text-right text-aria-accent">{fmt(resumen.costo_total)}</td>
                       <td className="p-4 text-center text-[#c9d8ed]">{resumen.resistencia_promedio.toFixed(0)} kg/cm²</td>
                       <td className="p-4 text-center text-aria-accent">{resumen.cilindros_total}</td>
                       <td className="p-4 text-center">
-                        <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-semibold ${resumen.pct_cumplimiento >= 90 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"}`}>
+                        <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-xs font-semibold ${resumen.pct_cumplimiento >= 90 ? "bg-emerald-500/20 text-aria-accent border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"}`}>
                           {resumen.pct_cumplimiento.toFixed(1)}%
                         </span>
                       </td>
@@ -342,7 +342,7 @@ export default function ConcretoPage() {
                         <td className="p-4 text-[#c9d8ed] text-xs">{rem.proveedor}</td>
                         <td className="p-4 text-right text-aria-accent font-medium">{fmtNum(rem.m3)}</td>
                         <td className="p-4 text-center text-[#c9d8ed] text-xs">{rem.resistencia_fc}</td>
-                        <td className="p-4 text-right text-emerald-300">{fmt(rem.costo_total)}</td>
+                        <td className="p-4 text-right text-aria-accent">{fmt(rem.costo_total)}</td>
                         <td className="p-4 text-center">
                           {cilindrosDeLaRemision > 0 ? (
                             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-aria-primary-light text-aria-accent text-xs font-semibold">

@@ -287,10 +287,10 @@ export default function CeoDashboardPage() {
             if (c.key === "nombre") return <span className="text-white font-medium">{o.nombre}</span>;
             if (c.key === "presupuesto") return <span className="text-aria-accent">{fmt2(o.presupuesto)}</span>;
             if (c.key === "gastoTotal") return <span className="text-orange-300">{fmt2(o.gastoTotal)}</span>;
-            if (c.key === "cobrado") return <span className="text-emerald-300">{fmt2(o.cobrado)}</span>;
-            if (c.key === "margen") return <span className={`font-bold ${o.margen >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{fmt2(o.margen)}</span>;
+            if (c.key === "cobrado") return <span className="text-aria-accent">{fmt2(o.cobrado)}</span>;
+            if (c.key === "margen") return <span className={`font-bold ${o.margen >= 0 ? "text-aria-accent" : "text-rose-300"}`}>{fmt2(o.margen)}</span>;
             if (c.key === "avFin") return <span className="text-[#c9d8ed] text-xs">{o.avFin.toFixed(1)}%</span>;
-            if (c.key === "pctFis") return <span className="text-emerald-300 text-xs">{o.pctFis !== null ? o.pctFis.toFixed(1) + "%" : "—"}</span>;
+            if (c.key === "pctFis") return <span className="text-aria-accent text-xs">{o.pctFis !== null ? o.pctFis.toFixed(1) + "%" : "—"}</span>;
             return null;
           }}
         />
@@ -306,8 +306,8 @@ export default function CeoDashboardPage() {
 function KpiCard({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: string; sub: string; color: string }) {
   const map: Record<string, string> = {
     blue: "bg-aria-primary/10 border-aria-primary/20 text-aria-accent",
-    emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
-    teal: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
+    emerald: "bg-emerald-500/10 border-emerald-500/20 text-aria-accent",
+    teal: "bg-emerald-500/10 border-emerald-500/20 text-aria-accent",
     amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
     orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
     rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
@@ -326,7 +326,7 @@ function AlertBox({ title, count, items, link }: { title: string; count: number;
     <Link href={link} className="block p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.05] transition">
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-[#7f93b0] uppercase">{title}</p>
-        <span className={`text-2xl font-bold ${count > 0 ? "text-rose-300" : "text-emerald-300"}`}>{count}</span>
+        <span className={`text-2xl font-bold ${count > 0 ? "text-rose-300" : "text-aria-accent"}`}>{count}</span>
       </div>
       {items.length === 0 ? (
         <p className="text-xs text-[#4a6080]">— sin items —</p>

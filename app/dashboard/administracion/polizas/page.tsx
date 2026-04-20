@@ -43,7 +43,7 @@ const TIPO_OPTIONS = [
 ];
 
 const ESTATUS_OPTIONS = [
-  { value: "vigente", label: "Vigente", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "vigente", label: "Vigente", color: "bg-emerald-500/20 text-aria-accent" },
   { value: "por_vencer", label: "Por Vencer", color: "bg-amber-500/20 text-amber-400" },
   { value: "vencida", label: "Vencida", color: "bg-red-500/20 text-red-400" },
   { value: "cancelada", label: "Cancelada", color: "bg-slate-500/20 text-[#7f93b0]" },
@@ -214,7 +214,7 @@ export default function PolizasPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{totalPolizas}</p><p className="text-aria-accent/70 text-xs">Total Pólizas</p></div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3"><p className="text-emerald-400 text-2xl font-bold">{vigentes}</p><p className="text-emerald-400/70 text-xs">Vigentes</p></div>
+        <div className="bg-emerald-500/10 border border-white/[0.08] rounded-xl p-3"><p className="text-aria-accent text-2xl font-bold">{vigentes}</p><p className="text-aria-accent/70 text-xs">Vigentes</p></div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3"><p className="text-amber-400 text-2xl font-bold">{porVencer}</p><p className="text-amber-400/70 text-xs">Por Vencer</p></div>
       </div>
 

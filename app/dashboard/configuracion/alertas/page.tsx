@@ -86,7 +86,7 @@ export default function AlertasPage() {
           <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-2" />
+          <CheckCircle2 className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{alertas.length - pendientes}</p>
           <p className="text-xs text-[#7f93b0]">Notificadas</p>
         </div>
@@ -110,7 +110,7 @@ export default function AlertasPage() {
             <div className="text-xs text-[#7f93b0]">{a.fecha_deteccion || "—"}</div>
             <div>
               {a.notificado ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300">Notificado</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-aria-accent">Notificado</span>
               ) : (
                 <button onClick={() => marcarNotificado(a.id)} className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition">Marcar ✓</button>
               )}

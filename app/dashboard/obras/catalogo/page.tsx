@@ -36,7 +36,7 @@ interface Obra {
 
 const STATUS = [
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
-  { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-emerald-400" },
+  { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-aria-accent" },
   { value: "PAUSADA", label: "Pausada", color: "bg-amber-500/20 text-amber-400" },
   { value: "TERMINADA", label: "Terminada", color: "bg-slate-500/20 text-[#7f93b0]" },
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
@@ -198,7 +198,7 @@ export default function CatalogoObrasPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4">
           {[
             { label: "Total", value: stats.total, color: "text-white" },
-            { label: "Activas", value: stats.activas, color: "text-emerald-400" },
+            { label: "Activas", value: stats.activas, color: "text-aria-accent" },
             { label: "En planeación", value: stats.planeacion, color: "text-aria-accent" },
             { label: "Pausadas", value: stats.pausadas, color: "text-amber-400" },
             { label: "Archivadas", value: stats.archivadas, color: "text-[#7f93b0]" },
@@ -316,7 +316,7 @@ export default function CatalogoObrasPage() {
                     </td>
                     <td className="p-3 text-[#c9d8ed]">{o.cliente || "—"}</td>
                     <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs ${styleFor(o.estado)}`}>{labelFor(o.estado)}</span></td>
-                    <td className="p-3 text-right text-emerald-400 font-medium">{o.presupuesto != null ? `$${o.presupuesto.toLocaleString()}` : "—"}</td>
+                    <td className="p-3 text-right text-aria-accent font-medium">{o.presupuesto != null ? `$${o.presupuesto.toLocaleString()}` : "—"}</td>
                     <td className="p-3 text-[#7f93b0] text-xs">
                       {o.fecha_inicio ? new Date(o.fecha_inicio).toLocaleDateString("es-MX") : "—"}
                       {" → "}

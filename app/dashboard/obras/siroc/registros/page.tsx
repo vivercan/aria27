@@ -53,7 +53,7 @@ const INCIDENCIAS = ["", "SUSPENSION", "REANUDACION", "MODIFICACION_IMPORTE", "A
 function colorEstado(e: string) {
   switch (e) {
     case "REGISTRADA": return "bg-aria-primary-light text-aria-accent border-aria-primary/40";
-    case "EN_CURSO": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+    case "EN_CURSO": return "bg-emerald-500/20 text-aria-accent border-emerald-500/40";
     case "SUSPENDIDA": return "bg-amber-500/20 text-amber-300 border-amber-500/40";
     case "TERMINADA": return "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/40";
     case "CANCELADA": return "bg-rose-500/20 text-rose-300 border-rose-500/40";
@@ -187,7 +187,7 @@ export default function SirocRegistrosPage() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
           { l: "Total", v: stats.total, c: "text-white" },
-          { l: "En curso", v: stats.enCurso, c: "text-emerald-300" },
+          { l: "En curso", v: stats.enCurso, c: "text-aria-accent" },
           { l: "Suspendidas", v: stats.suspendidas, c: "text-amber-300" },
           { l: "Terminadas", v: stats.terminadas, c: "text-[#c9d8ed]" },
           { l: "Importe total", v: `$${stats.importeTotal.toLocaleString("es-MX")}`, c: "text-aria-accent" },

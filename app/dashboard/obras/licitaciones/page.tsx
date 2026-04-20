@@ -33,7 +33,7 @@ interface Licitacion {
 const STATUS_COLORS: Record<string, string> = {
   EN_PROCESO: "bg-aria-primary-light text-aria-accent border-aria-primary/30",
   ENVIADA: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  GANADA: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  GANADA: "bg-emerald-500/20 text-aria-accent border-emerald-500/30",
   PERDIDA: "bg-red-500/20 text-red-300 border-red-500/30",
   CANCELADA: "bg-slate-500/20 text-[#c9d8ed] border-white/[0.1]/30",
   DESIERTA: "bg-aria-primary-light text-aria-accent border-aria-primary/30",

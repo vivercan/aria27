@@ -219,7 +219,7 @@ export default function CobranzaManualPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Monto Total", value: fmtMoney(totMonto), icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Cobrado", value: fmtMoney(totCobrado), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Cobrado", value: fmtMoney(totCobrado), icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Saldo Pendiente", value: fmtMoney(totSaldo), icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Registros", value: cobros.length, icon: AlertTriangle, color: "text-aria-accent", bg: "bg-aria-primary-light" },
         ].map((s, i) => (
@@ -276,7 +276,7 @@ export default function CobranzaManualPage() {
                   <td className="p-3 text-right text-amber-400">{fmtMoney(Number(c.saldo))}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      c.estatus === "PAGADO" ? "bg-emerald-500/20 text-emerald-400" :
+                      c.estatus === "PAGADO" ? "bg-emerald-500/20 text-aria-accent" :
                       c.estatus === "PARCIAL" ? "bg-aria-primary-light text-aria-accent" :
                       c.estatus === "CANCELADO" ? "bg-slate-500/20 text-[#7f93b0]" :
                       "bg-amber-500/20 text-amber-400"
@@ -296,7 +296,7 @@ export default function CobranzaManualPage() {
                         </button>
                       ) : (
                         <button onClick={() => reactivarCobro(c)}
-                          className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30">
+                          className="px-2 py-1 bg-emerald-500/20 text-aria-accent rounded text-xs hover:bg-aria-primary/30">
                           Reactivar
                         </button>
                       )}

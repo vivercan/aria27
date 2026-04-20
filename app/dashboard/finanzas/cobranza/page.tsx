@@ -150,7 +150,7 @@ export default function CobranzaPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: "Total Estimado", value: `$${totalEstimado.toLocaleString()}`, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Fondo Garantía", value: `$${totalRetenido.toLocaleString()}`, icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
           { label: "Pendiente", value: `$${pendiente.toLocaleString()}`, icon: Clock, color: "text-red-400", bg: "bg-red-500/10" },
         ].map((s, i) => (
@@ -240,10 +240,10 @@ export default function CobranzaPage() {
                   <td className="p-3 text-[#c9d8ed]">{e.periodo || "-"}</td>
                   <td className="p-3 text-right text-white">${(e.monto_estimado || 0).toLocaleString()}</td>
                   <td className="p-3 text-right text-amber-400">${(e.retencion_fondo || 0).toLocaleString()}</td>
-                  <td className="p-3 text-right text-emerald-400">${(e.monto_cobrado || 0).toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent">${(e.monto_cobrado || 0).toLocaleString()}</td>
                   <td className="p-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      e.status === "COBRADA" ? "bg-emerald-500/20 text-emerald-400" :
+                      e.status === "COBRADA" ? "bg-emerald-500/20 text-aria-accent" :
                       e.status === "APROBADA" ? "bg-aria-primary-light text-aria-accent" :
                       "bg-amber-500/20 text-amber-400"
                     }`}>{e.status}</span>
@@ -251,7 +251,7 @@ export default function CobranzaPage() {
                   <td className="p-3 text-center">
                     {e.status !== "COBRADA" && (
                       <button onClick={() => abrirCobroModal(e)}
-                        className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/30">
+                        className="px-3 py-1 bg-emerald-500/20 text-aria-accent rounded-lg text-xs hover:bg-aria-primary/30">
                         Cobrar
                       </button>
                     )}

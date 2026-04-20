@@ -241,7 +241,7 @@ export default function ComprasPickingPage() {
         <div className="flex-1 overflow-y-auto space-y-3">
           {reqs.length === 0 ? (
             <EmptyState
-              icon={<CheckCircle2 className="w-6 h-6 text-emerald-400" />}
+              icon={<CheckCircle2 className="w-6 h-6 text-aria-accent" />}
               title="No hay comparativas pendientes"
             />
           ) : reqs.map(req => (
@@ -314,16 +314,16 @@ export default function ComprasPickingPage() {
               return (
                 <div key={name} className={`min-w-[170px] snap-start p-3 rounded-xl border transition-all ${allSelected ? "bg-aria-accent-bg border-aria-accent/40" : "bg-white/[0.03] border-white/[0.08]"}`}>
                   <p className="text-white font-semibold text-sm truncate">{name}</p>
-                  <p className={`text-lg font-bold mt-1 ${total === bestTotal ? "text-emerald-400" : "text-white"}`}>
+                  <p className={`text-lg font-bold mt-1 ${total === bestTotal ? "text-aria-accent" : "text-white"}`}>
                     ${total.toLocaleString()}
                   </p>
-                  {total === bestTotal && <span className="text-emerald-400 text-[9px] font-medium">MEJOR TOTAL</span>}
+                  {total === bestTotal && <span className="text-aria-accent text-[9px] font-medium">MEJOR TOTAL</span>}
                   <div className="flex flex-wrap gap-1.5 mt-2 text-[9px] text-[#7f93b0]">
                     <span>{count}/{items.length} items</span>
                     <span>&middot;</span>
                     <span>{pagoShort(info?.forma_pago || "")}</span>
                     <span>&middot;</span>
-                    <span className={info?.emite_factura ? "text-emerald-400" : "text-amber-400"}>
+                    <span className={info?.emite_factura ? "text-aria-accent" : "text-amber-400"}>
                       {info?.emite_factura ? "Fact." : "Nota"}
                     </span>
                   </div>
@@ -359,7 +359,7 @@ export default function ComprasPickingPage() {
                 {/* Item header */}
                 <div className="flex items-center gap-2 mb-2">
                   {selected ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-aria-accent shrink-0" />
                   ) : (
                     <Package className="w-4 h-4 text-[#4a6080] shrink-0" />
                   )}
@@ -368,7 +368,7 @@ export default function ComprasPickingPage() {
                     <p className="text-[#4a6080] text-[10px]">{item.quantity} {item.unit}</p>
                   </div>
                   {selected && (
-                    <span className="text-emerald-400 text-xs font-bold shrink-0">
+                    <span className="text-aria-accent text-xs font-bold shrink-0">
                       ${(selected.unit_price * item.quantity).toLocaleString()}
                     </span>
                   )}
@@ -393,20 +393,20 @@ export default function ComprasPickingPage() {
                         }`}>
                         {/* Supplier name + badges */}
                         <div className="flex items-center gap-1 mb-1">
-                          {isSelected && <Check className="w-3 h-3 text-emerald-400 shrink-0" />}
-                          <span className={`text-xs font-semibold truncate ${isSelected ? "text-emerald-400" : "text-white"}`}>
+                          {isSelected && <Check className="w-3 h-3 text-aria-accent shrink-0" />}
+                          <span className={`text-xs font-semibold truncate ${isSelected ? "text-aria-accent" : "text-white"}`}>
                             {q.supplier_name}
                           </span>
                         </div>
 
                         {/* Badges */}
                         <div className="flex gap-1 mb-1.5">
-                          {isBest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-emerald-500/20 text-emerald-400">💰 MEJOR</span>}
+                          {isBest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-emerald-500/20 text-aria-accent">💰 MEJOR</span>}
                           {isFastest && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-aria-primary-light text-aria-accent">⚡ RÁPIDO</span>}
                         </div>
 
                         {/* Price */}
-                        <p className={`text-base font-bold ${isSelected ? "text-emerald-400" : isBest ? "text-emerald-400" : "text-white"}`}>
+                        <p className={`text-base font-bold ${isSelected ? "text-aria-accent" : isBest ? "text-aria-accent" : "text-white"}`}>
                           ${q.unit_price.toLocaleString()} <span className="text-[9px] font-normal text-[#4a6080]">/{item.unit}</span>
                         </p>
                         <p className="text-[#4a6080] text-[9px]">
@@ -424,7 +424,7 @@ export default function ComprasPickingPage() {
                           <span className="text-[#7f93b0] flex items-center gap-0.5">
                             <Banknote className="w-2.5 h-2.5" />{pagoShort(info?.forma_pago || "")}
                           </span>
-                          <span className={`flex items-center gap-0.5 ${info?.emite_factura ? "text-emerald-400" : "text-amber-400"}`}>
+                          <span className={`flex items-center gap-0.5 ${info?.emite_factura ? "text-aria-accent" : "text-amber-400"}`}>
                             <Receipt className="w-2.5 h-2.5" />{info?.emite_factura ? "Factura" : "Nota"}
                           </span>
                         </div>

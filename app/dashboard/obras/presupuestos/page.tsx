@@ -94,7 +94,7 @@ export default function PresupuestosPage() {
         {[
           { label: "Total Presupuesto", value: `$${totalPresupuesto.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
           { label: "Partidas", value: filtered.length, icon: Layers, color: "text-aria-accent", bg: "bg-aria-primary-light" },
-          { label: "Obras", value: obras.length, icon: BarChart3, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "Obras", value: obras.length, icon: BarChart3, color: "text-aria-accent", bg: "bg-emerald-500/10" },
           { label: "Categorías", value: categorias.length, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
         ].map((s, i) => (
           <div key={i} className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
@@ -146,7 +146,7 @@ export default function PresupuestosPage() {
           </div>
           {form.cantidad > 0 && form.precio_unitario > 0 && (
             <div className="p-3 bg-white/[0.04] rounded-lg text-sm">
-              <span className="text-[#7f93b0]">Importe: </span><span className="text-emerald-400 font-bold">${(form.cantidad * form.precio_unitario).toLocaleString()}</span>
+              <span className="text-[#7f93b0]">Importe: </span><span className="text-aria-accent font-bold">${(form.cantidad * form.precio_unitario).toLocaleString()}</span>
             </div>
           )}
           <div className="flex gap-3 pt-2">
@@ -203,7 +203,7 @@ export default function PresupuestosPage() {
               {filtered.length > 0 && (
                 <tr className="border-t-2 border-white/[0.08] bg-white/[0.02]">
                   <td colSpan={7} className="p-3 text-right text-white font-semibold">TOTAL:</td>
-                  <td className="p-3 text-right text-emerald-400 font-bold">${totalPresupuesto.toLocaleString()}</td>
+                  <td className="p-3 text-right text-aria-accent font-bold">${totalPresupuesto.toLocaleString()}</td>
                 </tr>
               )}
             </tbody>

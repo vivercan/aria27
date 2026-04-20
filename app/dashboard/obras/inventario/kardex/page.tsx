@@ -74,7 +74,7 @@ function KardexContent() {
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Entradas (suma)</p>
-          <p className="text-2xl font-bold text-emerald-400">+{totalEntradas.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-aria-accent">+{totalEntradas.toLocaleString()}</p>
         </div>
         <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
           <p className="text-sm text-[#7f93b0]">Salidas (suma)</p>
@@ -118,7 +118,7 @@ function KardexContent() {
                 </td>
                 <td className="px-4 py-2 text-white">{m.producto_nombre} <span className="text-xs text-[#7f93b0]">{m.unidad}</span></td>
                 <td className="px-4 py-2 text-center">
-                  {m.tipo === "ENTRADA" && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs"><ArrowDown className="w-3 h-3" />ENTRADA</span>}
+                  {m.tipo === "ENTRADA" && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-aria-accent rounded text-xs"><ArrowDown className="w-3 h-3" />ENTRADA</span>}
                   {m.tipo === "SALIDA" && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-xs"><ArrowUp className="w-3 h-3" />SALIDA</span>}
                   {m.tipo === "AJUSTE" && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-xs"><Settings className="w-3 h-3" />AJUSTE</span>}
                 </td>

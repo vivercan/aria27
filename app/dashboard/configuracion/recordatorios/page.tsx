@@ -67,7 +67,7 @@ export default function RecordatoriosPage() {
   };
 
   const statusColor: Record<string, string> = {
-    PENDIENTE: "bg-amber-500/20 text-amber-300", ENVIADO: "bg-emerald-500/20 text-emerald-300", FALLIDO: "bg-red-500/20 text-red-300"
+    PENDIENTE: "bg-amber-500/20 text-amber-300", ENVIADO: "bg-emerald-500/20 text-aria-accent", FALLIDO: "bg-red-500/20 text-red-300"
   };
   const confirmDelete = async () => {
     try {
@@ -105,7 +105,7 @@ export default function RecordatoriosPage() {
           <p className="text-xs text-[#7f93b0]">Pendientes</p>
         </div>
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-2" />
+          <CheckCircle2 className="w-5 h-5 text-aria-accent mb-2" />
           <p className="text-2xl font-bold">{records.filter(r => r.status_entrega === "ENVIADO").length}</p>
           <p className="text-xs text-[#7f93b0]">Enviados</p>
         </div>
@@ -127,7 +127,7 @@ export default function RecordatoriosPage() {
             <div className="font-medium truncate">{r.empleado_nombre}</div>
             <div className="text-xs text-[#7f93b0]">{r.tipo}</div>
             <div className="text-xs text-[#7f93b0]">{r.fecha_hora || "—"}</div>
-            <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">{r.canal}</span></div>
+            <div className="text-xs"><span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-aria-accent">{r.canal}</span></div>
             <div><span className={`px-2 py-0.5 rounded-full text-[10px] ${statusColor[r.status_entrega] || statusColor.PENDIENTE}`}>{r.status_entrega}</span></div>
             <div><button onClick={() => eliminar(r.id)} className="text-red-400/50 hover:text-red-400 text-xs">✕</button></div>
           </div>

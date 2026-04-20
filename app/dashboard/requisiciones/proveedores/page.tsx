@@ -142,16 +142,16 @@ export default function ProveedoresPage() {
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
             <AriaBackButton href="/dashboard/requisiciones" />
-            <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-emerald-400"/>Proveedores</h1>
+            <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>
-          <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30"><Plus className="w-3 h-3"/>Nuevo</button>
+          <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-emerald-500/20 text-aria-accent rounded-lg hover:bg-aria-primary/30"><Plus className="w-3 h-3"/>Nuevo</button>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder="Buscar nombre, RFC, contacto, email..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none"/>
+              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none"/>
             {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}
@@ -188,7 +188,7 @@ export default function ProveedoresPage() {
                   <tr key={s.id} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-colors group h-[34px]">
                     <td className="pl-4 pr-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3 h-3 text-emerald-400"/></div>
+                        <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3 h-3 text-aria-accent"/></div>
                         <div className="min-w-0">
                           <p className="text-white font-medium truncate text-xs leading-tight">{s.name}</p>
                           {s.contact_name&&<p className="text-[10px] text-[#4a6080] truncate leading-tight">{s.contact_name}</p>}
@@ -210,7 +210,7 @@ export default function ProveedoresPage() {
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
                         <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-1 text-[10px] text-[#7f93b0] hover:text-white" title={s.bank_clabe}>
-                          {copiedId===s.id?<Check className="w-2.5 h-2.5 text-emerald-400"/>:<Copy className="w-2.5 h-2.5"/>}
+                          {copiedId===s.id?<Check className="w-2.5 h-2.5 text-aria-accent"/>:<Copy className="w-2.5 h-2.5"/>}
                           {s.bank_name||"CLABE"}
                         </button>
                       ):null}
@@ -244,53 +244,53 @@ export default function ProveedoresPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Nombre comercial *</label>
-                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Ej: SAACSA"/>
+                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Ej: SAACSA"/>
                   </div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Razón Social</label>
-                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="SA de CV"/>
+                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="SA de CV"/>
                   </div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">RFC</label>
-                    <input value={form.rfc} onChange={e=>updateField("rfc",e.target.value.toUpperCase())} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white uppercase placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ABC123456XY0" maxLength={13}/>
+                    <input value={form.rfc} onChange={e=>updateField("rfc",e.target.value.toUpperCase())} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white uppercase placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="ABC123456XY0" maxLength={13}/>
                   </div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Contacto</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Nombre"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="(449) 123-4567"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ventas@empresa.com"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="4491234567"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="www.empresa.com"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Calle, colonia"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Nombre"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="(449) 123-4567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="ventas@empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="4491234567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="www.empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Calle, colonia"/></div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Comercial</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Forma pago</label>
-                    <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-emerald-500/50 outline-none">
+                    <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none">
                       <option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CHEQUE">Cheque</option><option value="CREDITO">Crédito</option><option value="TARJETA">Tarjeta</option>
                     </select>
                   </div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-emerald-500/50 outline-none" min={0}/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="Aguascalientes"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none" min={0}/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Aguascalientes"/></div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Bancario</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="BBVA"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-emerald-500/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="BBVA"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
                 </div>
               </div>
               <div>
                 <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Notas</label>
-                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-emerald-500/50 outline-none resize-none h-16" placeholder="Observaciones"/>
+                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none resize-none h-16" placeholder="Observaciones"/>
               </div>
             </div>
             <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">

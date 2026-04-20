@@ -266,7 +266,7 @@ export default function CotizacionesIAPage() {
               {/* Recomendación */}
               {resultado.recomendacion && (
                 <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
-                  <p className="text-emerald-400 text-sm">💡 {resultado.recomendacion}</p>
+                  <p className="text-aria-accent text-sm">💡 {resultado.recomendacion}</p>
                 </div>
               )}
 
@@ -274,7 +274,7 @@ export default function CotizacionesIAPage() {
               {resultado.proveedores_internos?.length > 0 && (
                 <div>
                   <h3 className="text-white font-medium mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-aria-accent" />
                     Proveedores Registrados
                   </h3>
                   <div className="space-y-2">

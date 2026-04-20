@@ -194,7 +194,7 @@ export default function EmpresaPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {ct.cliente && <span className="text-xs text-[#4a6080]">{ct.cliente}</span>}
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${ct.estado === "ACTIVA" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${ct.estado === "ACTIVA" ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                           {ct.estado || "—"}
                         </span>
                       </div>
@@ -252,7 +252,7 @@ export default function EmpresaPage() {
             </div>
             <div className="flex items-center justify-end gap-3 p-4 border-t border-white/[0.08]">
               <button onClick={() => setEditEmpresa(null)} className="px-4 py-2 rounded-lg bg-white/[0.04] text-[#7f93b0] hover:bg-white/[0.06] text-sm">Cancelar</button>
-              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 text-sm disabled:opacity-50">
+              <button onClick={guardar} disabled={guardando} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-aria-accent hover:bg-aria-primary/30 text-sm disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Guardar
               </button>

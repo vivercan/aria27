@@ -265,12 +265,12 @@ export default function PreNominaPage() {
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/talento/nomina" />
           <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
-            <Calculator className="w-7 h-7 text-emerald-400" />
+            <Calculator className="w-7 h-7 text-aria-accent" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Pre-Nómina</h1>
             <p className="text-[#7f93b0] text-sm">
-              Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFecha(semanaInfo.inicio)} – {fmtFecha(semanaInfo.fin)} (Vie–Jue) · Modo <strong className={modoNomina === "ONBOARDING" ? "text-amber-400" : "text-emerald-400"}>{modoNomina}</strong>
+              Semana {semanaInfo.semana}/{semanaInfo.anio} · {fmtFecha(semanaInfo.inicio)} – {fmtFecha(semanaInfo.fin)} (Vie–Jue) · Modo <strong className={modoNomina === "ONBOARDING" ? "text-amber-400" : "text-aria-accent"}>{modoNomina}</strong>
             </p>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function PreNominaPage() {
           <button onClick={exportarCSV} disabled={detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] disabled:opacity-40">
             <Download className="w-4 h-4" />CSV
           </button>
-          <button onClick={() => generarNomina(false)} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-medium hover:from-emerald-600 hover:to-emerald-600 disabled:opacity-50">
+          <button onClick={() => generarNomina(false)} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary to-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 disabled:opacity-50">
             {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : (yaExiste ? <RefreshCw className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />)}
             {generando ? "Generando..." : (yaExiste ? "Regenerar" : "Generar Nómina")}
           </button>
@@ -317,7 +317,7 @@ export default function PreNominaPage() {
           </div>
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
             <p className="text-[#7f93b0] text-xs mb-1">Neto a Pagar</p>
-            <p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p>
+            <p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.neto)}</p>
           </div>
           <div className="p-4 rounded-xl bg-gradient-to-br from-aria-primary/10 to-aria-primary/5 border border-aria-primary/30">
             <p className="text-[#7f93b0] text-xs mb-1">Transferencia</p>
@@ -362,14 +362,14 @@ export default function PreNominaPage() {
                     <td className="p-3"><div className="text-white font-medium">{d.empleado?.full_name}</div><div className="text-[#4a6080] text-xs">#{d.empleado?.employee_number}</div></td>
                     <td className="p-3"><span className="px-2 py-0.5 rounded bg-white/[0.05] text-[#c9d8ed] text-xs">{d.empleado?.position}</span></td>
                     <td className="p-3 text-[#7f93b0] text-xs">{d.empleado?.project_site || "—"}</td>
-                    <td className="p-3 text-center"><span className={`font-bold ${d.dias_trabajados >= 6 ? "text-emerald-400" : d.dias_trabajados >= 4 ? "text-amber-400" : "text-red-400"}`}>{d.dias_trabajados}</span></td>
+                    <td className="p-3 text-center"><span className={`font-bold ${d.dias_trabajados >= 6 ? "text-aria-accent" : d.dias_trabajados >= 4 ? "text-amber-400" : "text-red-400"}`}>{d.dias_trabajados}</span></td>
                     <td className="p-3 text-center text-amber-300">{d.dias_incompletos || ""}</td>
                     <td className="p-3 text-center text-red-300">{d.dias_falta || ""}</td>
                     <td className="p-3 text-right text-aria-accent">{d.horas_extra ? d.horas_extra.toFixed(1) : ""}</td>
                     <td className="p-3 text-right text-white">{fmtMoney(d.salario_base)}</td>
                     <td className="p-3 text-right text-aria-accent">{fmtMoney(d.pago_horas_extra)}</td>
                     <td className="p-3 text-right text-red-400">{d.prestamo_descuento ? fmtMoney(d.prestamo_descuento) : "—"}</td>
-                    <td className="p-3 text-right text-emerald-400 font-bold">{fmtMoney(d.sueldo_neto)}</td>
+                    <td className="p-3 text-right text-aria-accent font-bold">{fmtMoney(d.sueldo_neto)}</td>
                     <td className="p-3 text-right text-aria-accent">{fmtMoney(d.pago_tarjeta)}</td>
                     <td className="p-3 text-right text-amber-400">{fmtMoney(d.pago_efectivo)}</td>
                   </tr>
@@ -382,7 +382,7 @@ export default function PreNominaPage() {
 
       <div className="text-xs text-[#4a6080] leading-relaxed">
         <strong>Nota:</strong> en modo <code className="text-amber-400">ONBOARDING</code> se paga el salario semanal completo aunque haya faltas.
-        En modo <code className="text-emerald-400">ESTRICTO</code> se descuento cada falta. Las incidencias (días incompletos / faltas) se muestran solo como alerta.
+        En modo <code className="text-aria-accent">ESTRICTO</code> se descuento cada falta. Las incidencias (días incompletos / faltas) se muestran solo como alerta.
         El cálculo de Pre-Nómina coincide exactamente con lo que guardará "Generar Nómina".
       </div>
 

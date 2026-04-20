@@ -284,7 +284,7 @@ export default function VacacionesPage() {
                       <td className="px-4 py-3 text-center text-[#c9d8ed]">{v.dias_correspondientes}</td>
                       <td className="px-4 py-3 text-center text-amber-400">{v.dias_tomados}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-sm font-medium ${(v.dias_correspondientes - v.dias_tomados) > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-500/20 text-[#7f93b0]"}`}>
+                        <span className={`px-2 py-1 rounded text-sm font-medium ${(v.dias_correspondientes - v.dias_tomados) > 0 ? "bg-emerald-500/20 text-aria-accent" : "bg-slate-500/20 text-[#7f93b0]"}`}>
                           {(v.dias_correspondientes - v.dias_tomados)}
                         </span>
                       </td>
@@ -314,7 +314,7 @@ export default function VacacionesPage() {
                       </span>
                       {s.status === "PENDIENTE" && (
                         <>
-                          <button onClick={() => aprobarSolicitud(s.id, s.employee_id, s.dias_solicitados)} className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">
+                          <button onClick={() => aprobarSolicitud(s.id, s.employee_id, s.dias_solicitados)} className="p-2 rounded-lg bg-emerald-500/20 text-aria-accent hover:bg-aria-primary/30">
                             <Check className="w-4 h-4" />
                           </button>
                           <button onClick={() => rechazarSolicitud(s.id)} className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30">
