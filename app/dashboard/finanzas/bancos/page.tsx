@@ -130,7 +130,7 @@ export default function BancosPage() {
             <p className="text-[#7f93b0] text-sm">Cuentas bancarias del grupo · CRUD completo · baja lógica reversible</p>
           </div>
           <div className="flex items-center gap-2">
-          <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
+          <Link href="/dashboard/finanzas/bancos/movimientos" className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
             <ListChecks className="w-4 h-4" /> Movimientos / Conciliación
           </Link>
           <label className="flex items-center gap-2 text-xs text-[#7f93b0] px-3 py-2 bg-white/[0.04] rounded-lg cursor-pointer">
@@ -138,7 +138,7 @@ export default function BancosPage() {
           </label>
           <button
             onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
-            className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2"
           >
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? "Cancelar" : "Nueva Cuenta"}
@@ -207,7 +207,7 @@ export default function BancosPage() {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">{editId ? "Guardar cambios" : "Crear cuenta"}</button>
+            <button onClick={guardar} className="px-6 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm font-medium">{editId ? "Guardar cambios" : "Crear cuenta"}</button>
             <button onClick={resetForm} className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>

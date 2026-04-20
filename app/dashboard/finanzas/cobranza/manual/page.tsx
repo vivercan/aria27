@@ -211,7 +211,7 @@ export default function CobranzaManualPage() {
           <h1 className="text-2xl font-bold text-white">Cobros Manuales</h1>
           <p className="text-[#7f93b0] text-sm">Registro manual de pagos a clientes — vínculo opcional con obra</p>
         </div>
-        <button onClick={abrirNuevo} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
+        <button onClick={abrirNuevo} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Cobro
         </button>
       </div>

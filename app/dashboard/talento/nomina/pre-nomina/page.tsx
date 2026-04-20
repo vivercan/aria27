@@ -285,7 +285,7 @@ export default function PreNominaPage() {
           <button onClick={exportarCSV} disabled={detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.08] text-[#c9d8ed] disabled:opacity-40">
             <Download className="w-4 h-4" />CSV
           </button>
-          <button onClick={() => generarNomina(false)} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-aria-primary to-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 disabled:opacity-50">
+          <button onClick={() => generarNomina(false)} disabled={generando || detalles.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-aria-accent text-white font-medium hover:from-emerald-600 hover:to-emerald-600 disabled:opacity-50">
             {generando ? <Loader2 className="w-4 h-4 animate-spin" /> : (yaExiste ? <RefreshCw className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />)}
             {generando ? "Generando..." : (yaExiste ? "Regenerar" : "Generar Nómina")}
           </button>

@@ -138,10 +138,10 @@ export default function CobranzaPage() {
           <p className="text-[#7f93b0] text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
         </div>
         <div className="flex gap-2">
-          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
+          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
             <DollarSign className="w-4 h-4" /> Cobros Manuales
           </a>
-          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary-hover/30 transition-colors flex items-center gap-2">
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nueva Estimación
           </button>
         </div>
@@ -189,7 +189,7 @@ export default function CobranzaPage() {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button onClick={guardar} className="px-6 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg text-sm font-medium">Guardar</button>
+            <button onClick={guardar} className="px-6 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm font-medium">Guardar</button>
             <button onClick={() => setShowForm(false)} className="px-6 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-sm">Cancelar</button>
           </div>
         </div>

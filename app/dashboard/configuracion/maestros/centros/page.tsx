@@ -105,7 +105,7 @@ export default function CentrosPage() {
             <h1 className="text-2xl font-bold text-white">Centros de Trabajo</h1>
             <p className="text-[#7f93b0]">Obras con coordenadas GPS para geolocalización</p>
           </div>
-          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg">
+          <button onClick={() => abrirModal()} className="flex items-center gap-2 px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
             <Plus className="w-4 h-4" /> Nuevo Centro
           </button>
         </div>
@@ -197,7 +197,7 @@ export default function CentrosPage() {
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
               <p className="text-xs text-[#4a6080]">💡 Tip: Abre Google Maps, haz clic derecho en la ubicación y copia las coordenadas</p>
-              <button onClick={guardar} className="w-full py-3 bg-aria-primary hover:bg-aria-primary-hover text-white rounded-lg flex items-center justify-center gap-2">
+              <button onClick={guardar} className="w-full py-3 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] flex items-center justify-center gap-2">
                 <Save className="w-4 h-4" /> Guardar
               </button>
             </div>
