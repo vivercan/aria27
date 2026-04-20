@@ -379,7 +379,7 @@ export default function PipelinePage() {
               {/* EXCEL */}
               {modo === "excel" && (
                 <div className="space-y-3">
-                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
                     <p className="text-emerald-400 text-xs">Sube un archivo .xlsx con columnas: NOMBRE, UBICACION, CLIENTE, PRESUPUESTO, DESCRIPCION</p>
                     <p className="text-emerald-400/60 text-xs mt-1">Los nombres de columna pueden ser en mayúsculas o minúsculas.</p>
                   </div>
