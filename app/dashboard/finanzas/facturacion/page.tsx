@@ -292,7 +292,7 @@ export default function FacturacionPage() {
       </div>
 
       {/* Aviso CFDI prominente */}
-      <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
+      <div className="p-5 bg-white/[0.02] border border-white/[0.08] rounded-xl">
         <div className="flex items-start gap-4">
           <div className="p-2.5 rounded-xl bg-amber-500/20 flex-shrink-0">
             <AlertTriangle className="w-6 h-6 text-amber-400" />
