@@ -239,7 +239,7 @@ export default function OrdenesCompraPage() {
               </button>
             )}
             {selectedPO.status === "PAGADA" && (
-              <div className="flex-1 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
+              <div className="flex-1 py-3 rounded-xl bg-white/[0.02] border border-white/[0.08] text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Orden Completada</div>
             )}
           </div>
         </div>
@@ -256,8 +256,8 @@ export default function OrdenesCompraPage() {
       </div>
       <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
         <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
-        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
-        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
+        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
+        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-emerald-400 font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
         <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-[#4a6080] text-[9px]">Pendiente</p></div>
       </div>
       <div className="flex gap-2 mb-3 shrink-0">

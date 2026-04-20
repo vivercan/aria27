@@ -497,7 +497,7 @@ export default function NewRequisitionPage() {
               </div>
             )}
             {selectedProveedor && (selectedProveedor.bank_name || selectedProveedor.bank_clabe) && (
-              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-xs text-emerald-300 flex flex-wrap gap-3">
+              <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] px-3 py-2 text-xs text-emerald-300 flex flex-wrap gap-3">
                 {selectedProveedor.razon_social && <span>Cuenta: {selectedProveedor.razon_social}</span>}
                 {selectedProveedor.bank_name && <span>Banco: {selectedProveedor.bank_name}</span>}
                 {selectedProveedor.bank_clabe && <span>CLABE: {selectedProveedor.bank_clabe}</span>}

@@ -282,7 +282,7 @@ export default function RequisicionesStatusPage() {
         {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && (
           <button
             onClick={() => openDeleteModal("all")}
-            className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/20 transition flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm font-medium hover:bg-red-500/20 transition flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
             Eliminar todas
@@ -292,7 +292,7 @@ export default function RequisicionesStatusPage() {
 
       {/* Barra de selección — solo RH */}
       {canDelete && selectedIds.length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08]">
           <span className="text-sm text-red-300">{selectedIds.length} seleccionada{selectedIds.length > 1 ? "s" : ""}</span>
           <button
             onClick={() => openDeleteModal("selected")}
@@ -480,7 +480,7 @@ export default function RequisicionesStatusPage() {
             </div>
 
             {/* Advertencia */}
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+            <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.08] mb-4">
               <p className="text-sm text-red-300 font-medium mb-1">
                 {deleteType === "single"
                   ? "Se eliminará 1 requisición"
