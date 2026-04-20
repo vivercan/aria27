@@ -189,7 +189,7 @@ export default function VehiculosPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">
         <div className="bg-aria-primary/10 border border-aria-primary/20 rounded-xl p-3">
           <p className="text-aria-accent text-2xl font-bold">{vehiculos.length}</p>
           <p className="text-aria-accent/70 text-xs">Total</p>
@@ -281,7 +281,7 @@ export default function VehiculosPage() {
               <button onClick={() => closeModal()} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#7f93b0]"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">Código</label>
                   <input type="text" value={form.codigo} onChange={e => setForm({ ...form, codigo: e.target.value })} placeholder="VH-001" className={inputClass} />
@@ -292,7 +292,7 @@ export default function VehiculosPage() {
                   {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">Marca</label>
                   <input type="text" value={form.marca} onChange={e => setForm({ ...form, marca: e.target.value })} placeholder="Ford" className={inputClass} />
@@ -307,7 +307,7 @@ export default function VehiculosPage() {
                   {formErrors.anio && <p className="text-red-400 text-xs mt-1">{formErrors.anio}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">Placas</label>
                   <input type="text" value={form.placas} onChange={e => setForm({ ...form, placas: e.target.value })} placeholder="AGS-123-A" className={inputClass} />
@@ -318,7 +318,7 @@ export default function VehiculosPage() {
                   {formErrors.kilometraje && <p className="text-red-400 text-xs mt-1">{formErrors.kilometraje}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#7f93b0] mb-1">Combustible</label>
                   <select value={form.combustible} onChange={e => setForm({ ...form, combustible: e.target.value })} className={inputClass}>

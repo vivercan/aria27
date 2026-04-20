@@ -297,7 +297,7 @@ export default function MantenimientoPage() {
 
       {/* Stats */}
       <div className="flex-none px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-6 gap-3">
           {[
             { label: "OTs Abiertas", value: stats.abiertas, icon: ClipboardList, color: "text-aria-accent", bg: "bg-aria-primary/10" },
             { label: "Completadas", value: stats.completadas, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -435,7 +435,7 @@ export default function MantenimientoPage() {
 
             {/* ══════ Programas Tab ══════ */}
             {tab === "Programas" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredProgs.length === 0 ? (
                   <div className="col-span-full text-center py-16 text-[#4a6080]">
                     <Settings className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -493,7 +493,7 @@ export default function MantenimientoPage() {
               <button onClick={() => setShowOrdenForm(false)} className="text-[#7f93b0] hover:text-white"><XCircle className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Activo *</label>
                   <select value={ordenForm.activo_id} onChange={e => setOrdenForm({ ...ordenForm, activo_id: e.target.value })} required className={inputClass}>
@@ -508,7 +508,7 @@ export default function MantenimientoPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Prioridad</label>
                   <select value={ordenForm.prioridad} onChange={e => setOrdenForm({ ...ordenForm, prioridad: e.target.value })} className={inputClass}>
@@ -528,7 +528,7 @@ export default function MantenimientoPage() {
                 <label className="text-xs text-[#7f93b0] mb-1 block">Diagnóstico</label>
                 <input value={ordenForm.diagnostico} onChange={e => setOrdenForm({ ...ordenForm, diagnostico: e.target.value })} placeholder="Falla detectada..." className={inputClass} />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Responsable</label>
                   <input value={ordenForm.responsable} onChange={e => setOrdenForm({ ...ordenForm, responsable: e.target.value })} className={inputClass} />
@@ -542,7 +542,7 @@ export default function MantenimientoPage() {
                   <input type="number" step="0.01" min="0" value={ordenForm.costo_estimado} onChange={e => setOrdenForm({ ...ordenForm, costo_estimado: e.target.value })} className={inputClass} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Km actual</label>
                   <input type="number" min="0" value={ordenForm.km_actual} onChange={e => setOrdenForm({ ...ordenForm, km_actual: e.target.value })} placeholder="Odómetro" className={inputClass} />
@@ -588,7 +588,7 @@ export default function MantenimientoPage() {
                 <label className="text-xs text-[#7f93b0] mb-1 block">Nombre del programa *</label>
                 <input value={progForm.nombre} onChange={e => setProgForm({ ...progForm, nombre: e.target.value })} placeholder="Ej: Cambio de aceite" required className={inputClass} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Frecuencia (días) *</label>
                   <input type="number" min="1" required value={progForm.frecuencia_dias} onChange={e => setProgForm({ ...progForm, frecuencia_dias: e.target.value })} className={inputClass} />
@@ -602,7 +602,7 @@ export default function MantenimientoPage() {
                 <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>
                 <input value={progForm.descripcion} onChange={e => setProgForm({ ...progForm, descripcion: e.target.value })} placeholder="Detalle del mantenimiento..." className={inputClass} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-[#7f93b0] mb-1 block">Proveedor</label>
                   <input value={progForm.proveedor} onChange={e => setProgForm({ ...progForm, proveedor: e.target.value })} className={inputClass} />
