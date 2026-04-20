@@ -264,7 +264,7 @@ export default function PreNominaPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <AriaBackButton href="/dashboard/talento/nomina" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/20 border border-emerald-500/20">
+          <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
             <Calculator className="w-7 h-7 text-emerald-400" />
           </div>
           <div>
@@ -311,11 +311,11 @@ export default function PreNominaPage() {
             <p className="text-[#7f93b0] text-xs mb-1">Total Bruto</p>
             <p className="text-xl font-bold text-white">{fmtMoney(totales.bruto)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-red-500/10 to-orange-500/5 border border-red-500/20">
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
             <p className="text-[#7f93b0] text-xs mb-1">Deducciones</p>
             <p className="text-xl font-bold text-red-400">{fmtMoney(totales.deducciones)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20">
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
             <p className="text-[#7f93b0] text-xs mb-1">Neto a Pagar</p>
             <p className="text-xl font-bold text-emerald-400">{fmtMoney(totales.neto)}</p>
           </div>
@@ -323,7 +323,7 @@ export default function PreNominaPage() {
             <p className="text-[#7f93b0] text-xs mb-1">Transferencia</p>
             <p className="text-xl font-bold text-aria-accent">{fmtMoney(totales.tarjeta)}</p>
           </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20">
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08]">
             <p className="text-[#7f93b0] text-xs mb-1">Efectivo</p>
             <p className="text-xl font-bold text-amber-400">{fmtMoney(totales.efectivo)}</p>
           </div>
