@@ -8,6 +8,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface CuentaPorPagar {
   id: string;
@@ -192,7 +193,7 @@ export default function PorPagarPage() {
                   <tr key={c.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${c.vencida ? "bg-red-500/[0.03]" : ""}`}>
                     <td className="p-3 text-white font-mono text-xs">{c.folio}</td>
                     <td className="p-3 text-white">{c.supplier_name}</td>
-                    <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
+                    <td className="p-3">{c.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(c.obra_nombre)}`}>{c.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                     <td className="p-3 text-right text-[#c9d8ed]">{fmtMoney(c.total)}</td>
                     <td className="p-3 text-right text-aria-accent">{fmtMoney(c.monto_pagado)}</td>
                     <td className="p-3 text-right text-white font-medium">{fmtMoney(c.saldo)}</td>

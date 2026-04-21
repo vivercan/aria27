@@ -7,6 +7,7 @@ import { DollarSign, Clock, CheckCircle2, Plus, Search, FileText, AlertTriangle,
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Estimacion {
   id: string;
@@ -235,7 +236,7 @@ export default function CobranzaPage() {
               ) : filtered.map(e => (
                 <tr key={e.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-medium">Est. {e.numero}</td>
-                  <td className="p-3 text-white">{e.obra_nombre}</td>
+                  <td className="p-3">{e.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(e.obra_nombre)}`}>{e.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-[#c9d8ed]">{e.cliente || "-"}</td>
                   <td className="p-3 text-[#c9d8ed]">{e.periodo || "-"}</td>
                   <td className="p-3 text-right text-white">${(e.monto_estimado || 0).toLocaleString()}</td>

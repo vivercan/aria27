@@ -463,7 +463,7 @@ export default function ActivosCatalogoPage() {
                           <div className="text-[#7f93b0] text-sm">{asig.activo?.nombre}</div>
                         </td>
                         <td className="px-4 py-3 text-white">{asig.empleado?.full_name}</td>
-                        <td className="px-4 py-3 text-[#7f93b0]">{asig.obra_nombre || "-"}</td>
+                        <td className="px-4 py-3">{asig.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(asig.obra_nombre)}`}>{asig.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                         <td className="px-4 py-3 text-[#7f93b0] text-sm">{asig.fecha_asignacion}</td>
                         <td className="px-4 py-3">
                           <button onClick={() => devolverActivo(asig)} className="px-3 py-1.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm">

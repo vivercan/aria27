@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Gasto {
   id: string;
@@ -219,7 +220,7 @@ export default function IngresoEgresosPage() {
                   <td className="p-3 text-white text-sm font-mono">{f.folio || "—"}</td>
                   <td className="p-3 text-[#c9d8ed] text-sm">{f.cliente || "—"}</td>
                   <td className="p-3 text-[#7f93b0] text-sm">{f.concepto || "—"}</td>
-                  <td className="p-3 text-[#7f93b0] text-sm">{f.obra_nombre || "—"}</td>
+                  <td className="p-3">{f.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(f.obra_nombre)}`}>{f.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-right text-aria-accent text-sm font-medium">{fmt(f.total)}</td>
                   <td className="p-3 text-center text-[#7f93b0] text-xs">
                     {f.fecha_emision ? new Date(f.fecha_emision + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" }) : "—"}

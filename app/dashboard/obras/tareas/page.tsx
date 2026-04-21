@@ -14,6 +14,7 @@ import {
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Obra {
   id: number;
@@ -353,7 +354,7 @@ export default function TareasPage() {
                       {t.titulo}
                     </p>
                   </td>
-                  <td className="p-3 text-[#7f93b0] text-sm">{t.obra_nombre || "—"}</td>
+                  <td className="p-3">{t.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(t.obra_nombre)}`}>{t.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-[#7f93b0] text-sm">{t.responsable || "—"}</td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${getPrioridadStyle(t.prioridad)}`}>

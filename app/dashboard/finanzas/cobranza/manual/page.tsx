@@ -8,6 +8,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Cliente { id: string; nombre: string; estatus: string; }
 interface Obra    { id: string; nombre: string; activo: boolean; }
@@ -271,7 +272,7 @@ export default function CobranzaManualPage() {
                 <tr key={c.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-[#c9d8ed]">{c.fecha}</td>
                   <td className="p-3 text-white font-medium">{c.cliente_nombre}</td>
-                  <td className="p-3 text-[#c9d8ed]">{c.obra_nombre || "-"}</td>
+                  <td className="p-3">{c.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(c.obra_nombre)}`}>{c.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-right text-white">{fmtMoney(Number(c.monto))}</td>
                   <td className="p-3 text-right text-amber-400">{fmtMoney(Number(c.saldo))}</td>
                   <td className="p-3 text-center">

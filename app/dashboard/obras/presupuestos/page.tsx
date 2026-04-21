@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useObrasCatalogo } from "@/lib/use-obras-catalogo";
 import { Plus, Search, DollarSign, BarChart3, TrendingUp, AlertTriangle, Layers , Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Partida {
   id: string;
@@ -192,7 +193,7 @@ export default function PresupuestosPage() {
                 <tr key={p.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-mono text-xs">{p.clave || "-"}</td>
                   <td className="p-3 text-white">{p.descripcion}</td>
-                  <td className="p-3 text-[#c9d8ed] text-xs">{p.obra_nombre}</td>
+                  <td className="p-3">{p.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(p.obra_nombre)}`}>{p.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-center text-xs text-[#7f93b0]">{(p.categoria || "").replace("_", " ")}</td>
                   <td className="p-3 text-center text-[#7f93b0]">{p.unidad}</td>
                   <td className="p-3 text-right text-[#c9d8ed]">{(p.cantidad || 0).toLocaleString()}</td>

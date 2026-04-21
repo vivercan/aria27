@@ -39,6 +39,7 @@ const FORM_INIT = {
 };
 
 import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
+import { getEntityColor } from "@/lib/entity-colors";
 const fmt = fmtMoney;
 const fmtDate = fmtDateCanon;
 const diasPara = (d: string | null) => { if (!d) return null; const diff = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000); return diff; };
@@ -307,7 +308,7 @@ export default function SUAFinanzasPage() {
                           "bg-slate-500/20 text-[#7f93b0]"
                         }`}>{l.tipo}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-[#c9d8ed] text-xs max-w-[140px] truncate">{l.obra_nombre || "—"}</td>
+                      <td className="px-3 py-2.5 max-w-[140px]">{l.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs truncate inline-block max-w-[140px] ${getEntityColor(l.obra_nombre)}`}>{l.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                       <td className="px-3 py-2.5 text-[#7f93b0] text-xs font-mono">{l.linea_captura || "—"}</td>
                       <td className="px-3 py-2.5 text-center text-[#c9d8ed]">{l.num_trabajadores || "—"}</td>
                       <td className="px-3 py-2.5 text-right text-[#c9d8ed] font-mono">{fmt(Number(l.monto_base))}</td>
