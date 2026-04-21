@@ -76,6 +76,14 @@ export default function ActivosCatalogoPage() {
   const [busqueda, setBusqueda] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("TODOS");
 
+  // 21-Abr-2026: si viene ?tipo=HERRAMIENTA del banner de inventario, aterrizar prefiltrado
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const qs = new URLSearchParams(window.location.search);
+    const t = qs.get("tipo");
+    if (t && TIPOS.includes(t.toUpperCase())) setTipoFiltro(t.toUpperCase());
+  }, []);
+
   // Modales
   const [showModalActivo, setShowModalActivo] = useState(false);
   const [showModalAsignacion, setShowModalAsignacion] = useState(false);
