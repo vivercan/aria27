@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
+import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import EmptyState from "@/components/ui/EmptyState";
 
@@ -183,6 +184,7 @@ export default function OrdenesCompraPage() {
           <div className="flex items-center gap-2">
             <button onClick={printOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Imprimir"><Printer className="w-5 h-5 text-[#7f93b0]" /></button>
             <button onClick={downloadOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Descargar PDF"><FileDown className="w-5 h-5 text-[#7f93b0]" /></button>
+            <HistorialButton tabla="purchase_orders" id={String(selectedPO.id)} label="Historial" size="sm" />
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
         </div>

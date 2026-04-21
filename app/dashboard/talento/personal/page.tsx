@@ -9,6 +9,7 @@ import {
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
+import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 interface Empleado {
@@ -365,6 +366,7 @@ export default function PersonalPage() {
                         className="p-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
+                      <HistorialButton tabla="employees" id={e.id} label="Historial" size="sm" />
                     </div>
                   </td>
                 </tr>

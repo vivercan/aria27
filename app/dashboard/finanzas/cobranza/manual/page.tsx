@@ -6,6 +6,7 @@ import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangl
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
+import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
@@ -285,7 +286,7 @@ export default function CobranzaManualPage() {
                   </td>
                   <td className="p-3 text-[#7f93b0] text-xs">{c.referencia || "-"}</td>
                   <td className="p-3 text-center">
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-center items-center">
                       <button onClick={() => abrirEdicion(c)} disabled={c.estatus === "CANCELADO"}
                         className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 disabled:opacity-30">
                         Editar
@@ -301,6 +302,7 @@ export default function CobranzaManualPage() {
                           Reactivar
                         </button>
                       )}
+                      <HistorialButton tabla="cobros_manuales" id={c.id} label="Historial" size="sm" />
                     </div>
                   </td>
                 </tr>
