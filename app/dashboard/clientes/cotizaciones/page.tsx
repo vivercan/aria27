@@ -6,6 +6,7 @@ import { Plus, Search, Loader2, X, FileText, CheckCircle2, Clock, AlertTriangle,
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
+import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
@@ -510,7 +511,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                     </select>
                   </td>
                   <td className="p-3 text-center">
-                    <div className="flex gap-1 justify-center">
+                    <div className="flex gap-1 justify-center items-center">
                       <button onClick={() => imprimirCotizacion(c)} title="Imprimir / PDF"
                         className="p-1.5 bg-aria-primary-light text-aria-accent rounded hover:bg-aria-primary-hover/30">
                         <Printer className="w-3 h-3" />
@@ -519,6 +520,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
                         className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 disabled:opacity-30">
                         Editar
                       </button>
+                      <HistorialButton tabla="cotizaciones_clientes" id={c.id} label="Historial" size="sm" />
                     </div>
                   </td>
                 </tr>

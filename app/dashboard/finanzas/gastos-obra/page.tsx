@@ -7,6 +7,7 @@ import { DollarSign, Search, Download, Calendar, Building2, Filter, X, Loader2, 
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
+import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
@@ -587,6 +588,9 @@ export default function GastosObraPage() {
                   <button onClick={closeDrawer} className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white hover:bg-white/[0.06] transition-all">
                     Cerrar
                   </button>
+                  {selectedGasto?.id && (
+                    <HistorialButton tabla="gastos_obra" id={selectedGasto.id} label="Historial" size="md" />
+                  )}
                   <button onClick={switchToEdit} className="flex items-center gap-2 px-5 py-2 rounded-lg bg-aria-primary-light border border-aria-primary/30 text-aria-accent hover:bg-aria-primary-hover/30 transition-all">
                     <Edit2 className="w-4 h-4" />
                     Editar
