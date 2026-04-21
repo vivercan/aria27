@@ -6,6 +6,7 @@ import { Plus, Search, FileText, DollarSign, Calendar, CheckCircle2, Clock, Buil
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Contrato {
   id: string;
@@ -205,7 +206,7 @@ export default function ContratosPage() {
               ) : filtered.map(c => (
                 <tr key={c.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                   <td className="p-3 text-white font-mono text-xs">{c.numero}</td>
-                  <td className="p-3 text-white font-medium">{c.obra_nombre}</td>
+                  <td className="p-3">{c.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getEntityColor(c.obra_nombre)}`}>{c.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-[#c9d8ed]">{c.cliente}</td>
                   <td className="p-3 text-center"><span className="text-xs text-[#7f93b0]">{(c.tipo || "").replace("_", " ")}</span></td>
                   <td className="p-3 text-right text-white font-medium">${(c.monto_contrato || 0).toLocaleString()}</td>

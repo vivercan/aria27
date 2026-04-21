@@ -6,6 +6,7 @@ import { FileText, Search, Plus, DollarSign, CheckCircle2, Clock, AlertTriangle,
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface Factura {
   id: string;
@@ -427,7 +428,7 @@ export default function FacturacionPage() {
                     <td className="p-3 text-white text-sm">{f.cliente}</td>
                     <td className="p-3 text-[#7f93b0] font-mono text-xs">{f.rfc_cliente}</td>
                     <td className="p-3 text-center text-[#7f93b0] font-mono text-xs">{f.uuid_fiscal ? f.uuid_fiscal.substring(0, 8) + "..." : "-"}</td>
-                    <td className="p-3 text-[#c9d8ed] text-sm">{f.obra_nombre || "-"}</td>
+                    <td className="p-3">{f.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(f.obra_nombre)}`}>{f.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                     <td className="p-3 text-right text-white font-medium">${(f.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-center flex gap-2 justify-center">
                       {files?.xml && <span title="XML"><FileJson className="w-4 h-4 text-aria-accent" /></span>}
