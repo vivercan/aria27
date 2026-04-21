@@ -56,7 +56,7 @@ export async function PATCH(req: NextRequest) {
     const { id, role, permissions, email: newEmail, phone } = body || {};
     if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
-    const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
+    const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user", "usuario", "validador"];
     if (role && (typeof role !== "string" || !ALLOWED_ROLES.includes(role))) {
       return NextResponse.json({ error: `rol invalido: ${role}` }, { status: 400 });
     }

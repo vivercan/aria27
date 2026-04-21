@@ -7,6 +7,7 @@ import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCar
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { getEntityColor } from "@/lib/entity-colors";
 
 interface PurchaseOrder {
   id: string;
@@ -208,7 +209,7 @@ export default function PagosPage() {
                   <tr key={oc.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
                     <td className="p-3 text-white font-mono text-xs">{oc.folio}</td>
                     <td className="p-3 text-white">{oc.supplier_name}</td>
-                    <td className="p-3 text-[#c9d8ed]">{oc.obra_nombre}</td>
+                    <td className="p-3">{oc.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(oc.obra_nombre)}`}>{oc.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                     <td className="p-3 text-right text-white font-medium">${(oc.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-aria-accent">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-amber-400 font-medium">${((oc.total || 0) - (oc.monto_pagado || oc.pagado || 0)).toLocaleString()}</td>

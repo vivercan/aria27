@@ -6,6 +6,7 @@ export const maxDuration = 60;
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { withRetry } from "@/lib/claude-retry";
 const log = logger("BUSCAR-INTELIGENTE");
 
 const supabase = getSupabaseAdmin();
@@ -68,8 +69,8 @@ export async function POST(req: NextRequest) {
     // 3. Lista de nombres de proveedores existentes para excluir
     const nombresExistentes = proveedoresDB?.map(p => p.name?.toLowerCase()).filter(Boolean) || [];
 
-    // 4. Llamar a Claude con web search mejorado
-    const response = await anthropic.messages.create({
+    // 4. Llamar a Claude con web search mejorado (con retry 3x backoff)
+    const response = await withRetry(() => anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 3000,
       tools: [
@@ -129,7 +130,7 @@ RESPONDE ÚNICAMENTE CON ESTE JSON (sin texto adicional):
 IMPORTANTE: Necesito EXACTAMENTE 10 proveedores con información COMPLETA. Si no encuentras teléfono de uno, busca otro proveedor. No me des proveedores incompletos.`
         }
       ]
-    });
+    }), { label: "buscar-proveedores" });
 
     // 5. Extraer el texto de la respuesta
     let resultadoTexto = "";
