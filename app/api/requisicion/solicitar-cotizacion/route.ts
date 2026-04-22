@@ -1,6 +1,7 @@
 import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
+import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import { sendWhatsAppFallback } from "@/lib/whatsapp";
@@ -47,35 +48,7 @@ export async function POST(request: NextRequest) {
       `<tr><td style="padding:10px;border:1px solid #e2e8f0">${i.product_name}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.unit}</td><td style="padding:10px;border:1px solid #e2e8f0;text-align:center">${i.quantity}</td></tr>`
     ).join("");
 
-    const emailHtml = `<div style="font-family:Arial;max-width:650px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:25px;text-align:center">
-        <h1 style="margin:0">Solicitud de Cotización</h1>
-        <p style="margin:5px 0 0;opacity:0.8">Grupo Constructor Urbano Avante</p>
-      </div>
-      <div style="padding:25px">
-        <div style="background:#f8fafc;border-radius:8px;padding:15px;margin-bottom:20px">
-          <p><strong>Folio:</strong> ${folio}</p>
-          <p><strong>Obra:</strong> ${obra}</p>
-          <p><strong>Fecha requerida:</strong> ${urgencyText}</p>
-        </div>
-        <table style="width:100%;border-collapse:collapse;margin:20px 0">
-          <thead><tr style="background:#1e3a5f;color:white">
-            <th style="padding:12px;text-align:left">Material</th>
-            <th style="padding:12px">Unidad</th>
-            <th style="padding:12px">Cantidad</th>
-          </tr></thead>
-          <tbody>${materialesHtml}</tbody>
-        </table>
-        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:15px;margin-top:20px">
-          <p style="margin:0"><strong>Favor de enviar su cotización a:</strong></p>
-          <p style="margin:5px 0">📧 compras@gcuavante.com</p>
-          <p style="margin:5px 0">📱 (449) 588-0244</p>
-        </div>
-      </div>
-      <div style="background:#f1f5f9;padding:15px;text-align:center;font-size:12px;color:#64748b">
-        Sistema ARIA27 - Grupo Constructor Urbano Avante
-      </div>
-    </div>`;
+    const emailHtml = ariaEmailWrapper(ariaEmailHeader("Solicitud de cotizacion") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f8fafc;border-radius:8px;padding:15px;margin-bottom:20px"><p style="margin:0"><strong>Folio:</strong> ${folio}</p><p style="margin:6px 0 0"><strong>Obra:</strong> ${obra}</p><p style="margin:6px 0 0"><strong>Fecha requerida:</strong> ${urgencyText}</p></div><table style="width:100%;border-collapse:collapse;margin:18px 0"><thead><tr style="background:#1E3E7A;color:white"><th style="padding:10px;text-align:left;font-size:12px">Material</th><th style="padding:10px;font-size:12px">Unidad</th><th style="padding:10px;font-size:12px">Cantidad</th></tr></thead><tbody>${materialesHtml}</tbody></table><div style="background:#f0f9ff;border-left:4px solid #1E3E7A;border-radius:4px;padding:14px;margin-top:18px"><p style="margin:0;font-weight:600">Favor de enviar su cotizacion a:</p><p style="margin:6px 0 0">Correo: compras@gcuavante.com</p><p style="margin:4px 0 0">Telefono: (449) 588-0244</p></div></div>` + ariaEmailFooter());
 
     let emailsSent = 0;
     let whatsappSent = 0;

@@ -2,6 +2,7 @@ import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { getResend } from "@/lib/resend";
+import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -320,7 +321,7 @@ export async function GET(request: NextRequest) {
           await resend.emails.send({
             from: RESEND_FROM, to: comprasUser.email,
             subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
-            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Orden de Compra Autorizada</h1></div><div style="padding:25px"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:32px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b">Requisici&oacute;n: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>`
+            html: ariaEmailWrapper(ariaEmailHeader("Orden de compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:30px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b;font-size:12px">Requisicion: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div>` + ariaEmailFooter())
           });
         } catch (emailErr: unknown) {
           log.error("Email compras OC exception", { ocFolio, error: (emailErr as Error).message });
@@ -334,7 +335,7 @@ export async function GET(request: NextRequest) {
         await resend.emails.send({
           from: RESEND_FROM, to: req.user_email,
           subject: `Tu requisici\u00f3n ${req.folio} fue autorizada - ${ocFolio}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#10b981;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Autorizada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> ha sido autorizada.</p><p>OC: <strong>${ocFolio}</strong></p><p>Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p></div></div>`
+          html: ariaEmailWrapper(ariaEmailHeader("Requisicion autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p>Tu requisicion <strong>${req.folio}</strong> ha sido autorizada.</p><div style="background:#f8fafc;border-radius:6px;padding:14px;margin:14px 0"><p style="margin:0"><strong>OC:</strong> ${ocFolio}</p><p style="margin:6px 0 0"><strong>Proveedor:</strong> ${supplierName}</p><p style="margin:6px 0 0"><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>` + ariaEmailFooter())
         });
       } catch (emailErr: unknown) {
         log.error("Email solicitante OC exception", { folio: req.folio, error: (emailErr as Error).message });
@@ -374,7 +375,7 @@ export async function GET(request: NextRequest) {
           await resend.emails.send({
             from: RESEND_FROM, to: comprasUser.email,
             subject: `RECHAZADA: ${req.folio}`,
-            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Compra Rechazada</h1></div><div style="padding:25px"><p>La requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
+            html: ariaEmailWrapper(ariaEmailHeader("Compra rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">La requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter())
           });
         } catch (emailErr: unknown) {
           log.error("Email compras rechazo exception", { folio: req.folio, error: (emailErr as Error).message });
@@ -385,7 +386,7 @@ export async function GET(request: NextRequest) {
         await resend.emails.send({
           from: RESEND_FROM, to: req.user_email,
           subject: `Requisici\u00f3n ${req.folio} rechazada por Direcci\u00f3n`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisici&oacute;n Rechazada</h1></div><div style="padding:25px"><p>Tu requisici&oacute;n <strong>${req.folio}</strong> fue rechazada por Direcci&oacute;n.</p></div></div>`
+          html: ariaEmailWrapper(ariaEmailHeader("Requisicion rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">Tu requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter())
         });
       } catch (emailErr: unknown) {
         log.error("Email solicitante rechazo exception", { folio: req.folio, error: (emailErr as Error).message });

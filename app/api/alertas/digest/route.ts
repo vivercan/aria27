@@ -1,6 +1,7 @@
 import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getResend } from "@/lib/resend";
+import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -81,30 +82,29 @@ function buildHtml(urgentes: Alerta[], atencion: Alerta[], info: Alerta[], base:
     if (items.length === 0) return "";
     const rows = items.slice(0, 20).map(a => `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #334155;">
-          <div style="color:#e2e8f0;font-size:13px;font-weight:600;">${escape(a.titulo)}</div>
-          <div style="color:#94a3b8;font-size:11px;margin-top:2px;">${escape(a.modulo || "")} · ${escape(a.detalle || "")}</div>
+        <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">
+          <div style="color:#0f172a;font-size:13px;font-weight:600;">${escape(a.titulo)}</div>
+          <div style="color:#64748b;font-size:11px;margin-top:2px;">${escape(a.modulo || "")} &middot; ${escape(a.detalle || "")}</div>
         </td>
       </tr>`).join("");
-    const more = items.length > 20 ? `<tr><td style="padding:8px;color:#64748b;font-size:11px;text-align:center;">+${items.length - 20} más...</td></tr>` : "";
+    const more = items.length > 20 ? `<tr><td style="padding:8px;color:#94a3b8;font-size:11px;text-align:center;">+${items.length - 20} mas...</td></tr>` : "";
     return `
       <div style="margin-bottom:20px;">
         <div style="background:${color};color:white;padding:8px 12px;border-radius:6px 6px 0 0;font-size:13px;font-weight:700;">${titulo} (${items.length})</div>
-        <table style="width:100%;border-collapse:collapse;background:#1e293b;border-radius:0 0 6px 6px;">${rows}${more}</table>
+        <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 6px 6px;">${rows}${more}</table>
       </div>`;
   };
-  return `
-    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f172a;color:#e2e8f0;">
-      <h1 style="color:#60a5fa;margin:0 0 8px;font-size:22px;">ARIA27 — Digest diario</h1>
-      <p style="color:#94a3b8;font-size:12px;margin:0 0 20px;">${new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
-      ${section("🔴 Urgentes", "#dc2626", urgentes)}
-      ${section("🟡 Atención", "#d97706", atencion)}
-      ${section("🔵 Info", "#2563eb", info)}
-      <div style="margin-top:24px;padding-top:16px;border-top:1px solid #334155;text-align:center;">
-        <a href="${base}/dashboard/inbox" style="display:inline-block;padding:10px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;font-size:13px;font-weight:600;">Ver inbox completo</a>
+  const fecha = new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const inner = `<div style="padding:24px;font-family:sans-serif;color:#1e293b">
+      <p style="color:#475569;font-size:12px;margin:0 0 20px;">${fecha}</p>
+      ${section("Urgentes", "#dc2626", urgentes)}
+      ${section("Atencion", "#d97706", atencion)}
+      ${section("Info", "#2563eb", info)}
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;">
+        <a href="${base}/dashboard/inbox" style="display:inline-block;padding:10px 22px;background:#1E3E7A;color:white;text-decoration:none;border-radius:6px;font-size:13px;font-weight:600;">Ver inbox completo</a>
       </div>
-      <p style="color:#64748b;font-size:10px;text-align:center;margin-top:16px;">ARIA27 ERP · Grupo Constructor Urbano Avante</p>
     </div>`;
+  return ariaEmailWrapper(ariaEmailHeader("Digest diario") + inner + ariaEmailFooter());
 }
 
 function escape(s: string) {
