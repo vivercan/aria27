@@ -74,6 +74,9 @@ const searchableItems = [
   { name: "Control de Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto/remisiones" },
   { name: "Tareas Asignadas", icon: ChevronRight, href: "/dashboard/talento/tareas" },
   { name: "Gastos de Obra", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra" },
+  // 21-Abr-2026: atajos filtrados por metodo de pago (solicitud Osita Montalvo RH)
+  { name: "Gastos Efectivo", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra?metodo=EFECTIVO" },
+  { name: "Pagos Transferencia", icon: ChevronRight, href: "/dashboard/requisiciones/pagos?metodo=TRANSFERENCIA" },
   { name: "Costeo", icon: ChevronRight, href: "/dashboard/finanzas/costeo" },
   { name: "Facturacion", icon: ChevronRight, href: "/dashboard/finanzas/facturacion" },
   { name: "Caja Chica", icon: ChevronRight, href: "/dashboard/finanzas/caja" },

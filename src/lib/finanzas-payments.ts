@@ -36,6 +36,8 @@ export interface RegistrarPagoOCArgs {
   /** Opcional: método y referencia (Transferencia/Cheque/Efectivo, no. de ref). */
   metodo?: string;
   referencia?: string;
+  /** 21-Abr-2026: URL del comprobante subido (obligatorio en TRANSFERENCIA). */
+  comprobanteUrl?: string;
 }
 
 export interface RegistrarPagoOCResult {
@@ -47,7 +49,7 @@ export interface RegistrarPagoOCResult {
 export async function registrarPagoOC(
   args: RegistrarPagoOCArgs
 ): Promise<RegistrarPagoOCResult> {
-  const { ocId, monto, total, expectedPagado, metodo, referencia } = args;
+  const { ocId, monto, total, expectedPagado, metodo, referencia, comprobanteUrl } = args;
 
   if (!ocId) throw new Error("ocId requerido");
   if (!Number.isFinite(monto) || monto <= 0) {
@@ -74,6 +76,11 @@ export async function registrarPagoOC(
 
   const nuevoStatus = nuevoPagado + EPS >= total ? "PAGADA" : "PAGO_PARCIAL";
 
+  // 21-Abr-2026: Validacion metodo + comprobante obligatorio en TRANSFERENCIA.
+  if (metodo === "Transferencia" && !comprobanteUrl) {
+    throw new Error("Para pago por Transferencia es obligatorio subir comprobante.");
+  }
+
   const updatePayload: Record<string, unknown> = {
     monto_pagado: nuevoPagado,
     status: nuevoStatus,
@@ -81,6 +88,7 @@ export async function registrarPagoOC(
   };
   if (metodo) updatePayload.ultimo_pago_metodo = metodo;
   if (referencia) updatePayload.ultimo_pago_referencia = referencia;
+  if (comprobanteUrl) updatePayload.ultimo_pago_comprobante_url = comprobanteUrl;
 
   // Optimistic lock: si otro proceso ya actualizó monto_pagado entre nuestro
   // SELECT y este UPDATE, .eq("monto_pagado", expectedPagado) hará que el
