@@ -321,9 +321,15 @@ function exportPDFHtml(
     if (sinStock) estadoHtml = `<span class="badge sin-stock">✗ Sin stock</span>`;
     else if (stockBajo) estadoHtml = `<span class="badge bajo">⚠ Stock bajo</span>`;
 
+    // 21-Abr-2026: columna Foto con thumbnail 40x40. Si no hay foto, celda vacía con placeholder discreto.
+    const fotoHtml = item.foto_url
+      ? `<img src="${escHtml(item.foto_url)}" alt="${escHtml(item.producto_nombre)}" class="thumb" loading="lazy" />`
+      : `<span class="thumb-empty">—</span>`;
+
     return `
       <tr class="${idx % 2 === 0 ? "row-par" : "row-impar"}${stockBajo ? " stock-bajo" : ""}">
         <td class="text-center text-gray">${idx + 1}</td>
+        <td class="text-center">${fotoHtml}</td>
         <td class="bold">${escHtml(item.producto_nombre)}</td>
         <td class="text-center${stockBajo ? " text-warn bold" : " text-success bold"}">${item.cantidad_disponible}</td>
         <td class="text-center text-gray">${item.cantidad_usada}</td>
@@ -444,6 +450,26 @@ function exportPDFHtml(
   .badge.bajo      { background: #fef3c7; color: #b45309; }
   .badge.sin-stock { background: #fee2e2; color: #dc2626; }
 
+  /* ── THUMBNAILS (21-Abr-2026: foto en PDF inventario) ── */
+  .thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #d1fae5;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .thumb-empty {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    color: #d1d5db;
+    font-size: 14pt;
+    text-align: center;
+  }
+
   /* ── FILA TOTALES ── */
   .totals-row td {
     background: #047857 !important;
@@ -539,17 +565,19 @@ function exportPDFHtml(
   <thead>
     <tr>
       <th style="width:4%">#</th>
-      <th style="width:32%;text-align:left">Material / Producto</th>
+      <th style="width:7%">Foto</th>
+      <th style="width:26%;text-align:left">Material / Producto</th>
       <th style="width:10%">Disponible</th>
       <th style="width:9%">Usado</th>
       <th style="width:10%">Unidad</th>
-      <th style="width:16%">Último Movimiento</th>
+      <th style="width:15%">Último Movimiento</th>
       <th style="width:13%">Estado</th>
     </tr>
   </thead>
   <tbody>
     ${rows}
     <tr class="totals-row">
+      <td></td>
       <td></td>
       <td>TOTAL — ${inventario.length} productos</td>
       <td class="text-center">${totalDisp.toLocaleString("es-MX")}</td>
