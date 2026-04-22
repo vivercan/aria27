@@ -92,7 +92,7 @@ export default function ConfiguracionPage() {
                   <div className="flex-1 h-px" style={{ background: "rgba(145,175,225,0.11)" }} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "10px" }}>
-                  {grupo.modulos.map((mod, idx) => <HubCard key={mod.href} module={mod} spanFull={grupo.modulos.length % 2 === 1 && idx === grupo.modulos.length - 1} />)}
+                  {grupo.modulos.map((mod, idx) => <HubCard key={mod.href} module={mod} spanFull={grupo.modulos.length > 1 && grupo.modulos.length % 2 === 1 && idx === grupo.modulos.length - 1} />)}
                 </div>
               </section>
             ))}
