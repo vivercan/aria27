@@ -24,6 +24,7 @@ interface Gasto {
   monto: number;
   estatus: string;
   imagen_url?: string;
+  metodo_pago?: string; // 21-Abr-2026: EFECTIVO | TRANSFERENCIA | CHEQUE
   created_at?: string;
 }
 
@@ -56,8 +57,18 @@ export default function GastosObraPage() {
     descripcion: "",
     monto: "",
     estatus: "Pendiente",
+    metodo_pago: "EFECTIVO", // 21-Abr-2026: default EFECTIVO
     comprobante: null as File | null
   });
+
+  // 21-Abr-2026: filtro por metodo_pago (query param ?metodo=EFECTIVO|TRANSFERENCIA)
+  const [filterMetodo, setFilterMetodo] = useState<string>("TODOS");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const qs = new URLSearchParams(window.location.search);
+    const m = qs.get("metodo");
+    if (m) setFilterMetodo(m.toUpperCase());
+  }, []);
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -95,6 +106,11 @@ export default function GastosObraPage() {
     if (filtros.semana && g.semana !== parseInt(filtros.semana)) return false;
     if (filtros.fechaInicio && g.fecha < filtros.fechaInicio) return false;
     if (filtros.fechaFin && g.fecha > filtros.fechaFin) return false;
+    // 21-Abr-2026: filtro por metodo de pago (registros sin metodo defaultean EFECTIVO)
+    if (filterMetodo !== "TODOS") {
+      const met = (g.metodo_pago || "EFECTIVO").toUpperCase();
+      if (met !== filterMetodo) return false;
+    }
     return true;
   });
 
@@ -112,7 +128,7 @@ export default function GastosObraPage() {
   const openNewGasto = () => {
     setDrawerMode("create");
     setSelectedGasto(null);
-    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "", estatus: "Pendiente", comprobante: null });
+    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "", estatus: "Pendiente", metodo_pago: "EFECTIVO", comprobante: null });
     setFormErrors({});
     setDrawerOpen(true);
   };
@@ -120,7 +136,7 @@ export default function GastosObraPage() {
   const openViewGasto = (gasto: Gasto) => {
     setDrawerMode("view");
     setSelectedGasto(gasto);
-    setFormData({ fecha: gasto.fecha, obra: gasto.obra, solicitante: gasto.solicitante, proveedor: gasto.proveedor, descripcion: gasto.descripcion, monto: gasto.monto.toString(), estatus: gasto.estatus, comprobante: null });
+    setFormData({ fecha: gasto.fecha, obra: gasto.obra, solicitante: gasto.solicitante, proveedor: gasto.proveedor, descripcion: gasto.descripcion, monto: gasto.monto.toString(), estatus: gasto.estatus, metodo_pago: (gasto as { metodo_pago?: string }).metodo_pago || "EFECTIVO", comprobante: null });
     setFormErrors({});
     setDrawerOpen(true);
   };
@@ -156,6 +172,12 @@ export default function GastosObraPage() {
 
     try {
       const monto = parseFloat(formData.monto);
+      // 21-Abr-2026: validacion comprobante obligatorio si metodo = TRANSFERENCIA
+      if (formData.metodo_pago === "TRANSFERENCIA" && !formData.comprobante && drawerMode === "create") {
+        flash("err", "Para pago por Transferencia es obligatorio adjuntar comprobante.");
+        setSubmitting(false);
+        return;
+      }
       const baseData = {
         fecha: formData.fecha,
         obra: formData.obra,
@@ -164,6 +186,7 @@ export default function GastosObraPage() {
         descripcion: formData.descripcion,
         monto,
         estatus: formData.estatus || "Pendiente",
+        metodo_pago: formData.metodo_pago || "EFECTIVO",
         semana: calculateSemana(formData.fecha)
       };
 
@@ -361,6 +384,13 @@ export default function GastosObraPage() {
             <option value="">📅 Todas las semanas</option>
             {semanas.map(s => <option key={s} value={s}>Semana {s}</option>)}
           </select>
+          {/* 21-Abr-2026: filtro por metodo de pago */}
+          <select value={filterMetodo} onChange={e => setFilterMetodo(e.target.value)} className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none">
+            <option value="TODOS">💳 Todos los métodos</option>
+            <option value="EFECTIVO">💵 Efectivo</option>
+            <option value="TRANSFERENCIA">🏦 Transferencia</option>
+            <option value="CHEQUE">📄 Cheque</option>
+          </select>
           <div className="flex items-center gap-2">
             <input type="date" value={filtros.fechaInicio} onChange={e => setFiltros({ ...filtros, fechaInicio: e.target.value })} className="px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:border-aria-primary/50 focus:outline-none" />
             <span className="text-[#4a6080]">→</span>
@@ -545,6 +575,24 @@ export default function GastosObraPage() {
                 >
                   {ESTATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
+              </div>
+
+              {/* 21-Abr-2026: Metodo de pago (obligatorio seleccionar) */}
+              <div>
+                <label className="block text-sm font-medium text-[#c9d8ed] mb-2">Método de pago</label>
+                <select
+                  value={formData.metodo_pago}
+                  onChange={e => setFormData({ ...formData, metodo_pago: e.target.value })}
+                  disabled={drawerMode === "view"}
+                  className="w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-aria-primary/50 focus:outline-none"
+                >
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TRANSFERENCIA">Transferencia</option>
+                  <option value="CHEQUE">Cheque</option>
+                </select>
+                {formData.metodo_pago === "TRANSFERENCIA" && (
+                  <p className="text-xs text-amber-400 mt-1">Comprobante requerido para Transferencia.</p>
+                )}
               </div>
 
               {/* Comprobante Upload / Preview */}

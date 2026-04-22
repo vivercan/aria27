@@ -2,12 +2,13 @@
 import { clientLogger } from "@/lib/client-logger";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { Plus, Search, Loader2, X, DollarSign, CheckCircle2, Clock, AlertTriangle, Paperclip } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { uploadComprobantePago } from "@/lib/storage";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
 
@@ -56,6 +57,7 @@ export default function CobranzaManualPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...FORM_INIT });
   const [saving, setSaving] = useState(false);
+  const [comprobante, setComprobante] = useState<File | null>(null); // 21-Abr-2026
   const { msg, flash, clear } = useFlashMessage();
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
 
@@ -121,6 +123,12 @@ export default function CobranzaManualPage() {
     else if (form.saldo > 0 && form.saldo < form.monto && estatus !== "CANCELADO") estatus = "PARCIAL";
     else if (form.saldo === form.monto && estatus !== "CANCELADO") estatus = "PENDIENTE";
 
+    // 21-Abr-2026: comprobante obligatorio en Transferencia (simetrico al egreso)
+    if (form.metodo === "Transferencia" && !comprobante && !editId) {
+      flash("err", "Para cobro por Transferencia es obligatorio adjuntar comprobante.");
+      return;
+    }
+
     const payload: Record<string, unknown> = {
       cliente_id: form.cliente_id,
       cliente_nombre: cli.nombre,
@@ -140,6 +148,12 @@ export default function CobranzaManualPage() {
 
     setSaving(true);
     try {
+      // 21-Abr-2026: upload comprobante ANTES del insert/update
+      if (comprobante) {
+        const comprobanteUrl = await uploadComprobantePago(comprobante, ["cobro", form.cliente_id, form.fecha]);
+        payload.comprobante_url = comprobanteUrl;
+      }
+
       if (editId) {
         const { error } = await supabase.from("cobros_manuales").update(payload).eq("id", editId);
         if (error) throw error;
@@ -150,6 +164,7 @@ export default function CobranzaManualPage() {
       setShowForm(false);
       setEditId(null);
       setForm({ ...FORM_INIT });
+      setComprobante(null);
       await cargar();
     } catch (e: unknown) {
       flash("err", "Error: " + ((e as {message?: string})?.message || "desconocido"));
@@ -391,6 +406,17 @@ export default function CobranzaManualPage() {
                 <label className="text-xs text-[#7f93b0] mb-1 block">Observaciones</label>
                 <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })} rows={2}
                   className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
+              </div>
+
+              {/* 21-Abr-2026: comprobante para cobros por Transferencia */}
+              <div className="md:col-span-2">
+                <label className="text-xs text-[#7f93b0] mb-1 block">
+                  Comprobante del cobro {form.metodo === "Transferencia" ? <span className="text-red-400">*</span> : <span className="text-[#4a6080]">(opcional)</span>}
+                </label>
+                <input type="file" accept="image/*,.pdf"
+                  onChange={e => setComprobante(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-aria-primary/20 file:text-aria-accent hover:file:bg-aria-primary/30" />
+                {comprobante && <p className="text-xs text-[#7f93b0] mt-1 flex items-center gap-1"><Paperclip className="w-3 h-3" />{comprobante.name}</p>}
               </div>
             </div>
 

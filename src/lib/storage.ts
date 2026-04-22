@@ -234,3 +234,32 @@ function sanitize(s: string): string {
     .replace(/_+/g, "_")
     .replace(/^_|_$/g, "");
 }
+
+/**
+ * 21-Abr-2026: helper para subir comprobante de pago sin insert a tabla
+ * (la URL se persiste directamente en purchase_orders / gastos_obra / caja_chica
+ * via registrarPagoOC o UPDATE directo). Evita repetir el patron en 4 pantallas.
+ *
+ * Devuelve la URL publica del comprobante subido al bucket "expedientes"
+ * bajo namespace "pagos/<scope...>/<timestamp>_<safeName>".
+ *
+ * Si upload falla lanza Error con mensaje legible. No hay rollback porque
+ * no hay insert en tabla: si el update de la fila falla despues, el blob
+ * queda huerfano y debe limpiarse manualmente (caso raro, no bloquea flujo).
+ */
+export async function uploadComprobantePago(
+  file: File,
+  scope: (string | number | null | undefined)[]
+): Promise<string> {
+  const path = buildPath({ module: "pagos", scope, file });
+  const { error: uploadError } = await supabase.storage
+    .from("expedientes")
+    .upload(path, file, { upsert: false });
+  if (uploadError) {
+    log.error("upload comprobante fallido", { path, error: uploadError.message });
+    throw new Error(`Error al subir comprobante: ${uploadError.message}`);
+  }
+  const { data: urlData } = supabase.storage.from("expedientes").getPublicUrl(path);
+  log.info("comprobante subido", { path });
+  return urlData.publicUrl;
+}

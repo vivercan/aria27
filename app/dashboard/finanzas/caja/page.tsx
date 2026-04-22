@@ -23,6 +23,7 @@ interface Movimiento {
   id: string; fondo_id: string; tipo: string; concepto: string; monto: number;
   fecha: string; comprobante: string | null; responsable: string | null;
   categoria: string; notas: string | null; created_at: string;
+  metodo_pago?: string; // 21-Abr-2026: EFECTIVO | TRANSFERENCIA | CHEQUE (GASTO=defecto EFECTIVO, REPOSICION=defecto TRANSFERENCIA)
   fondo_nombre?: string;
 }
 interface Corte {
@@ -45,7 +46,7 @@ const CATEGORIAS = [
 ];
 
 const FONDO_INIT = { nombre: "", obra_id: "", responsable_id: "", monto_autorizado: "", notas: "" };
-const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "" };
+const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "", fecha: new Date().toISOString().slice(0,10), comprobante: "", responsable: "", categoria: "GENERAL", notas: "", metodo_pago: "EFECTIVO" };
   const log = clientLogger("CAJA");
 
 import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
@@ -191,6 +192,7 @@ export default function CajaChicaPage() {
       responsable: movForm.responsable || null,
       categoria: movForm.categoria,
       notas: movForm.notas || null,
+      metodo_pago: movForm.metodo_pago || (movForm.tipo === "GASTO" ? "EFECTIVO" : "TRANSFERENCIA"), // 21-Abr-2026
     };
     const { error } = await supabase.from("caja_chica_movimientos").insert(payload);
     if (error) { flash("err", (error as {message?: string})?.message || "Error desconocido"); setSaving(false); return; }
@@ -509,6 +511,15 @@ export default function CajaChicaPage() {
                       <div>
                         <label className="text-xs text-[#7f93b0] mb-1 block">Responsable</label>
                         <input value={movForm.responsable} onChange={e => setMovForm({ ...movForm, responsable: e.target.value })} placeholder="Quién hizo el gasto" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none" />
+                      </div>
+                      {/* 21-Abr-2026: metodo de pago (default EFECTIVO para GASTO, TRANSFERENCIA para REPOSICION) */}
+                      <div>
+                        <label className="text-xs text-[#7f93b0] mb-1 block">Método de pago</label>
+                        <select value={movForm.metodo_pago} onChange={e => setMovForm({ ...movForm, metodo_pago: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
+                          <option value="EFECTIVO">Efectivo</option>
+                          <option value="TRANSFERENCIA">Transferencia</option>
+                          <option value="CHEQUE">Cheque</option>
+                        </select>
                       </div>
                       <div className="md:col-span-2">
                         <label className="text-xs text-[#7f93b0] mb-1 block">Notas</label>

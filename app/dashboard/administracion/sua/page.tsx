@@ -29,6 +29,7 @@ interface SUA {
   estatus: string;
   observaciones: string;
   responsable: string;
+  metodo_pago?: string; // 21-Abr-2026
   created_at: string;
 }
 
@@ -48,6 +49,7 @@ const EMPTY_FORM = {
   obra_id: "", periodo: "", tipo: "SUA", num_trabajadores: "",
   monto: "", fecha_pago: "", documento_url: "", estatus: "pendiente",
   observaciones: "", responsable: "", file: null as File | null,
+  metodo_pago: "TRANSFERENCIA", // 21-Abr-2026: pagos SUA/IMSS/Infonavit son tipicamente transferencia
 };
 
 export default function SUAPage() {
@@ -93,6 +95,7 @@ export default function SUAPage() {
       estatus: form.estatus,
       observaciones: form.observaciones?.trim() || null,
       responsable: form.responsable?.trim() || null,
+      metodo_pago: form.metodo_pago || "TRANSFERENCIA", // 21-Abr-2026
     };
 
     try {
@@ -130,6 +133,7 @@ export default function SUAPage() {
       monto: s.monto ? String(s.monto) : "", fecha_pago: s.fecha_pago || "",
       documento_url: s.documento_url || "", estatus: s.estatus || "pendiente",
       observaciones: s.observaciones || "", responsable: s.responsable || "",
+      metodo_pago: s.metodo_pago || "TRANSFERENCIA",
       file: null,
     });
     setShowForm(true);
@@ -233,6 +237,8 @@ export default function SUAPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Fecha pago</label><input type="date" value={form.fecha_pago} onChange={e => setForm({ ...form, fecha_pago: e.target.value })} className={inputClass} /></div>
+                {/* 21-Abr-2026: metodo de pago */}
+                <div><label className="block text-xs text-[#7f93b0] mb-1">Método</label><select value={form.metodo_pago} onChange={e => setForm({ ...form, metodo_pago: e.target.value })} className={inputClass}><option value="TRANSFERENCIA">Transferencia</option><option value="EFECTIVO">Efectivo</option><option value="CHEQUE">Cheque</option></select></div>
                 <div><label className="block text-xs text-[#7f93b0] mb-1">Estatus</label><select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })} className={inputClass}>{ESTATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
               </div>
               <div><label className="block text-xs text-[#7f93b0] mb-1">Documento</label><input type="file" onChange={e => setForm({ ...form, file: e.target.files?.[0] || null })} className={inputClass} /></div>

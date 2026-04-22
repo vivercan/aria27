@@ -3,7 +3,8 @@ import { clientLogger } from "@/lib/client-logger";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
-import { DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X } from "lucide-react";
+import { uploadComprobantePago } from "@/lib/storage";
+import { DollarSign, Clock, AlertTriangle, CheckCircle2, Search, Calendar, Loader2, X, Paperclip } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
@@ -35,8 +36,18 @@ export default function PorPagarPage() {
   const [pagoMonto, setPagoMonto] = useState("");
   const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
   const [pagoReferencia, setPagoReferencia] = useState("");
+  const [pagoComprobante, setPagoComprobante] = useState<File | null>(null);
   const [pagoSaving, setPagoSaving] = useState(false);
   const { msg, flash, clear } = useFlashMessage();
+
+  // 21-Abr-2026: filtro por metodo via query param (?metodo=EFECTIVO|TRANSFERENCIA)
+  const [filterMetodo, setFilterMetodo] = useState<string>("TODOS");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const qs = new URLSearchParams(window.location.search);
+    const m = qs.get("metodo");
+    if (m) setFilterMetodo(m.toUpperCase());
+  }, []);
 
   useEffect(() => { loadData(); }, []);
 
@@ -83,7 +94,10 @@ export default function PorPagarPage() {
   const filtered = cuentas.filter(c => {
     const matchSearch = !search || c.folio?.toLowerCase().includes(search.toLowerCase()) || c.supplier_name?.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "TODOS" || (filter === "VENCIDAS" && c.vencida) || (filter === "VIGENTES" && !c.vencida);
-    return matchSearch && matchFilter;
+    // 21-Abr-2026: filtro por metodo del ultimo pago registrado
+    const metodoOC = (c as unknown as { ultimo_pago_metodo?: string }).ultimo_pago_metodo || "";
+    const matchMetodo = filterMetodo === "TODOS" || metodoOC.toUpperCase() === filterMetodo;
+    return matchSearch && matchFilter && matchMetodo;
   });
 
   const diasRestantes = (fecha: string) => {
@@ -98,14 +112,27 @@ export default function PorPagarPage() {
     setPagoMonto(String(saldo));
     setPagoMetodo("Transferencia");
     setPagoReferencia("");
+    setPagoComprobante(null);
   }
 
   async function confirmarPago() {
     if (!pagoModal) return;
     const monto = Number(pagoMonto);
     if (isNaN(monto) || monto <= 0) return;
+
+    // 21-Abr-2026: comprobante obligatorio en Transferencia
+    if (pagoMetodo === "Transferencia" && !pagoComprobante) {
+      flash("err", "Para pago por Transferencia es obligatorio adjuntar comprobante.");
+      return;
+    }
+
     setPagoSaving(true);
     try {
+      let comprobanteUrl: string | undefined = undefined;
+      if (pagoComprobante) {
+        comprobanteUrl = await uploadComprobantePago(pagoComprobante, ["oc", pagoModal.id]);
+      }
+
       await registrarPagoOC({
         ocId: pagoModal.id,
         monto,
@@ -113,6 +140,7 @@ export default function PorPagarPage() {
         expectedPagado: pagoModal.pagado,
         metodo: pagoMetodo,
         referencia: pagoReferencia,
+        comprobanteUrl,
       });
       setPagoModal(null);
       await loadData();
@@ -156,11 +184,21 @@ export default function PorPagarPage() {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por folio o proveedor..."
             className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-[#4a6080] focus:border-aria-primary/50 focus:outline-none" />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {["TODOS", "VENCIDAS", "VIGENTES"].map(f => (
             <button key={f} onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
               {f}
+            </button>
+          ))}
+        </div>
+        {/* 21-Abr-2026: filtro por metodo de pago */}
+        <div className="flex gap-2 flex-wrap">
+          <span className="px-2 py-2 text-xs text-[#4a6080] uppercase tracking-wider">Método:</span>
+          {["TODOS", "EFECTIVO", "TRANSFERENCIA", "CHEQUE"].map(m => (
+            <button key={m} onClick={() => setFilterMetodo(m)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${filterMetodo === m ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
+              {m}
             </button>
           ))}
         </div>
@@ -256,10 +294,20 @@ export default function PorPagarPage() {
                 <input type="text" value={pagoReferencia} onChange={e => setPagoReferencia(e.target.value)} placeholder="No. de referencia"
                   className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm focus:border-aria-primary/50 focus:outline-none" />
               </div>
+              {/* 21-Abr-2026: comprobante obligatorio en Transferencia */}
+              <div>
+                <label className="block text-xs text-[#7f93b0] mb-1">
+                  Comprobante {pagoMetodo === "Transferencia" ? <span className="text-red-400">*</span> : <span className="text-[#4a6080]">(opcional)</span>}
+                </label>
+                <input type="file" accept="image/*,.pdf"
+                  onChange={e => setPagoComprobante(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-aria-primary/20 file:text-aria-accent hover:file:bg-aria-primary/30" />
+                {pagoComprobante && <p className="text-xs text-[#7f93b0] mt-1 flex items-center gap-1"><Paperclip className="w-3 h-3" />{pagoComprobante.name}</p>}
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">Cancelar</button>
-              <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || Number(pagoMonto) <= 0}
+              <button onClick={confirmarPago} disabled={pagoSaving || !pagoMonto || Number(pagoMonto) <= 0 || (pagoMetodo === "Transferencia" && !pagoComprobante)}
                 className="flex-1 py-2.5 bg-aria-primary rounded-xl text-white text-sm font-medium hover:bg-aria-primary-hover disabled:opacity-50">
                 {pagoSaving ? "Guardando..." : "Confirmar"}
               </button>
