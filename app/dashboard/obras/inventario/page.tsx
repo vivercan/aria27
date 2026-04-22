@@ -23,6 +23,9 @@ import {
   X,
   Eye,
   Download,
+  Wrench,
+  Box,
+  RefreshCw,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -232,6 +235,22 @@ export default function InventarioObraPage() {
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
+  };
+
+  // 22-Abr-2026 TKT-002: cambiar tipo MATERIAL <-> HERRAMIENTA sin tener que borrar
+  const cambiarTipo = async (item: ItemInventario) => {
+    const nuevo = (item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA" ? "MATERIAL" : "HERRAMIENTA";
+    if (!confirm(`Cambiar "${item.producto_nombre}" a ${nuevo}?`)) return;
+    const { error } = await supabase
+      .from("inventario_obra")
+      .update({ tipo: nuevo })
+      .eq("id", item.id);
+    if (error) {
+      flash("err", "No se pudo cambiar tipo: " + (error.message || "error"));
+      return;
+    }
+    flash("ok", `Cambiado a ${nuevo === "HERRAMIENTA" ? "Herramienta" : "Material"}`);
+    if (obraSeleccionada) await loadInventario(obraSeleccionada.id);
   };
 
   // ====== NUEVO MATERIAL ======
@@ -909,6 +928,15 @@ export default function InventarioObraPage() {
                     </td>
                     <td className="px-3 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => cambiarTipo(item)}
+                          className={`p-2 rounded-lg transition-colors ${(item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA" ? "bg-amber-500/20 hover:bg-amber-500/40" : "bg-blue-500/20 hover:bg-blue-500/40"}`}
+                          title={`Tipo actual: ${(item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA" ? "Herramienta" : "Material"}. Click para cambiar.`}
+                        >
+                          {(item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA"
+                            ? <Wrench className="w-4 h-4 text-amber-400" />
+                            : <Box className="w-4 h-4 text-blue-400" />}
+                        </button>
                         <Link
                           href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`}
                           className="p-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 rounded-lg transition-colors"
