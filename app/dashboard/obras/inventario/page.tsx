@@ -633,12 +633,14 @@ export default function InventarioObraPage() {
     setExportandoExcel(false);
   };
 
-  const exportarPDF = async () => {
+  const [showPDFMenu, setShowPDFMenu] = useState(false);
+  const exportarPDF = async (mode: "full" | "nofotos" | "galeria" = "full") => {
     if (!obraSeleccionada) return;
+    setShowPDFMenu(false);
     setExportandoPDF(true);
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
-      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
+      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf&mode=${mode}`;
       const res = await fetch(url, { headers: { "x-user-email": email } });
       if (!res.ok) { flash("err", "Error al generar PDF"); return; }
       const html = await res.text();
@@ -649,7 +651,8 @@ export default function InventarioObraPage() {
       const fecha = now.toISOString().slice(0, 10);
       const hora = now.toTimeString().slice(0, 8).replace(/:/g, "-");
       const obraNombre = obraSeleccionada.name.replace(/ /g, "_").replace(/[^a-zA-Z0-9_]/g, "");
-      const filename = `ARIA27_Inventario_${obraNombre}_${fecha}_${hora}.html`;
+      const modeSuffix = mode === "galeria" ? "_galeria" : mode === "nofotos" ? "_sinfotos" : "";
+      const filename = `ARIA27_Inventario_${obraNombre}${modeSuffix}_${fecha}_${hora}.html`;
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
@@ -772,20 +775,51 @@ export default function InventarioObraPage() {
             )}
             <span className="hidden sm:inline">Excel</span>
           </button>
-          {/* Exportar PDF (descarga HTML listo para imprimir) */}
-          <button
-            onClick={exportarPDF}
-            disabled={exportandoPDF || inventario.length === 0}
-            title="Descargar reporte listo para imprimir"
-            className="flex items-center gap-2 px-3 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 border border-aria-primary/40 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {exportandoPDF ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
+          {/* Exportar PDF dropdown 3 modos (P-5 22-Abr-2026) */}
+          <div className="relative">
+            <button
+              onClick={() => setShowPDFMenu(v => !v)}
+              disabled={exportandoPDF || inventario.length === 0}
+              title="Opciones de descarga PDF"
+              className="flex items-center gap-2 px-3 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 border border-aria-primary/40 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {exportandoPDF ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">PDF</span>
+              <ChevronRight className={`w-3 h-3 transition-transform ${showPDFMenu ? "rotate-90" : ""}`} />
+            </button>
+            {showPDFMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowPDFMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 w-56 bg-[#0c1d38] border border-white/[0.08] rounded-lg shadow-2xl z-50 overflow-hidden">
+                  <button
+                    onClick={() => exportarPDF("full")}
+                    className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] border-b border-white/[0.04] text-xs"
+                  >
+                    <div className="text-white font-medium flex items-center gap-2"><ImageIcon className="w-3.5 h-3.5 text-aria-accent" />PDF con fotos</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Tabla completa con thumbnails (default)</div>
+                  </button>
+                  <button
+                    onClick={() => exportarPDF("nofotos")}
+                    className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] border-b border-white/[0.04] text-xs"
+                  >
+                    <div className="text-white font-medium flex items-center gap-2"><Download className="w-3.5 h-3.5 text-aria-accent" />PDF sin fotos</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Tabla mas ligera, ideal para print BN</div>
+                  </button>
+                  <button
+                    onClick={() => exportarPDF("galeria")}
+                    className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] text-xs"
+                  >
+                    <div className="text-white font-medium flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-aria-accent" />Solo galeria</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Solo fotos grandes en cuadricula 3x</div>
+                  </button>
+                </div>
+              </>
             )}
-            <span className="hidden sm:inline">PDF</span>
-          </button>
+          </div>
           {/* Nuevo Material */}
           <button
             onClick={abrirNuevoMaterial}
