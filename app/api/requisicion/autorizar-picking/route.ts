@@ -2,6 +2,7 @@ import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("AUTORIZAR-PICKING");
@@ -156,29 +157,7 @@ export async function POST(req: NextRequest) {
           from: RESEND_FROM,
           to: compras.email,
           subject: `Compra Autorizada ${folio} - ${obra || "N/A"} ($${grandTotal.toLocaleString()})`,
-          html: `
-            <div style="font-family:Arial;max-width:600px;margin:0 auto;background:#0f172a;color:white;padding:30px;border-radius:8px;">
-              <div style="text-align:center;margin-bottom:20px;">
-                <div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div>
-                <div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px">Operations OS</div>
-              </div>
-              <div style="background:#064e3b;padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;">
-                <p style="margin:0;font-size:20px;font-weight:bold;color:#34d399">COMPRA AUTORIZADA</p>
-              </div>
-              <p><strong style="color:#94a3b8">Requisici&oacute;n:</strong> ${folio}</p>
-              <p><strong style="color:#94a3b8">Obra:</strong> ${obra || "N/A"}</p>
-              <p><strong style="color:#94a3b8">Total:</strong> <span style="color:#34d399;font-size:20px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p>
-              <hr style="border-color:#334155;margin:20px 0">
-              <p style="color:#94a3b8;font-weight:bold">&Oacute;rdenes de Compra:</p>
-              ${Object.entries(grouped).map(([name, sitems]: [string, unknown[]]) => {
-                const t = (sitems as Array<{total_price?: number}>).reduce((s: number, i) => s + (i.total_price || 0), 0);
-                return `<div style="background:#1e293b;padding:12px;border-radius:6px;margin:8px 0">
-                  <p style="margin:0;color:white;font-weight:bold">${name} - $${t.toLocaleString()}</p>
-                  ${(sitems as Array<{product_name?: string; quantity?: number; unit?: string; unit_price?: number}>).map((i) => `<p style="margin:4px 0 0;color:#94a3b8;font-size:13px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}
-                </div>`;
-              }).join("")}
-            </div>
-          `
+          html: ariaEmailWrapper(ariaEmailHeader("Compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:18px;margin-bottom:18px;text-align:center"><p style="margin:0;font-size:18px;font-weight:bold;color:#10b981">COMPRA AUTORIZADA</p></div><div style="background:#f8fafc;border-radius:6px;padding:14px;margin-bottom:14px"><p style="margin:0"><strong>Requisicion:</strong> ${folio}</p><p style="margin:6px 0 0"><strong>Obra:</strong> ${obra || "N/A"}</p><p style="margin:6px 0 0"><strong>Total:</strong> <span style="color:#10b981;font-size:18px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p></div><p style="color:#475569;font-weight:600;margin:14px 0 8px">Ordenes de compra:</p>${Object.entries(grouped).map(([name, sitems]: [string, unknown[]]) => { const t = (sitems as Array<{total_price?: number}>).reduce((s: number, i) => s + (i.total_price || 0), 0); return `<div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin:6px 0"><p style="margin:0;color:#0f172a;font-weight:bold">${name} - $${t.toLocaleString()}</p>${(sitems as Array<{product_name?: string; quantity?: number; unit?: string; unit_price?: number}>).map((i) => `<p style="margin:4px 0 0;color:#475569;font-size:12px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}</div>`; }).join("")}</div>` + ariaEmailFooter())
         });
         if ((emailResult as Record<string, unknown>)?.error) {
           log.error("Email compras error", { folio, error: ((emailResult as Record<string, unknown>).error as Record<string, unknown>)?.message });

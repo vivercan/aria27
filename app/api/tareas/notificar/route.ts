@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { RESEND_FROM } from "@/lib/email-config";
+import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 
 const log = logger("TAREAS-NOTIFICAR");
@@ -59,32 +60,7 @@ export async function POST(req: NextRequest) {
           from: RESEND_FROM,
           to: empleado.email,
           subject: `Nueva tarea: ${titulo}`,
-          html: `
-            <div style="font-family:Arial;max-width:600px;margin:0 auto;background:#0f172a;color:white;padding:30px;border-radius:8px;">
-              <div style="text-align:center;margin-bottom:20px;">
-                <div style="font-size:28px;font-weight:900;letter-spacing:2px;color:#22d3ee">ARIA</div>
-                <div style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:3px">Operations OS</div>
-              </div>
-              <div style="background:#1e3a5f;padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;">
-                <p style="margin:0;font-size:18px;font-weight:bold;color:#a78bfa">📋 Nueva Tarea Asignada</p>
-              </div>
-              <p style="color:#c9d8ed">Hola <strong style="color:white">${empleado.full_name}</strong>,</p>
-              <p style="color:#94a3b8">Se te asignó la siguiente tarea en ARIA27:</p>
-              <div style="background:#1e293b;padding:20px;border-radius:8px;margin:15px 0;border-left:4px solid #a78bfa">
-                <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:white">${titulo}</p>
-                ${descripcion ? `<p style="margin:0 0 12px;color:#94a3b8;font-size:14px">${descripcion}</p>` : ""}
-                <table style="width:100%;font-size:13px">
-                  <tr><td style="color:#64748b;padding:3px 0">📅 Fecha compromiso:</td><td style="color:white;font-weight:bold">${fechaFmt}</td></tr>
-                  ${obra ? `<tr><td style="color:#64748b;padding:3px 0">🏗️ Obra:</td><td style="color:white">${obra}</td></tr>` : ""}
-                  <tr><td style="color:#64748b;padding:3px 0">✍️ Asignado por:</td><td style="color:white">${asignado_por || "Administrador"}</td></tr>
-                </table>
-              </div>
-              <p style="color:#94a3b8;font-size:13px;text-align:center;margin-top:20px">Ingresa a ARIA27 para actualizar tu avance.</p>
-              <div style="text-align:center;margin-top:15px;padding-top:15px;border-top:1px solid #334155">
-                <span style="color:#475569;font-size:11px">ARIA27 ERP — Grupo Constructor Urbano Avante</span>
-              </div>
-            </div>
-          `
+          html: ariaEmailWrapper(ariaEmailHeader("Nueva tarea asignada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p>Hola <strong>${empleado.full_name}</strong>,</p><p style="color:#475569">Se te asigno la siguiente tarea en ARIA27:</p><div style="background:#f8fafc;border-radius:8px;padding:18px;margin:18px 0;border-left:4px solid #1E3E7A"><p style="margin:0 0 8px;font-size:16px;font-weight:bold;color:#0f172a">${titulo}</p>${descripcion ? `<p style="margin:0 0 12px;color:#475569;font-size:13px">${descripcion}</p>` : ""}<table style="width:100%;font-size:12px;color:#334155"><tr><td style="color:#64748b;padding:3px 0">Fecha compromiso:</td><td style="font-weight:bold">${fechaFmt}</td></tr>${obra ? `<tr><td style="color:#64748b;padding:3px 0">Obra:</td><td>${obra}</td></tr>` : ""}<tr><td style="color:#64748b;padding:3px 0">Asignado por:</td><td>${asignado_por || "Administrador"}</td></tr></table></div><p style="color:#475569;font-size:12px;margin-top:18px">Ingresa a ARIA27 para actualizar tu avance.</p></div>` + ariaEmailFooter())
         });
         if ((emailResult as Record<string, unknown>)?.error) {
           log.error("[TAREAS-NOTIFICAR] Email error", emailResult);
