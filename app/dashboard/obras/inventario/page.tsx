@@ -749,9 +749,7 @@ export default function InventarioObraPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={() => setObraSeleccionada(null)} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </button>
+          <AriaBackButton onClick={() => setObraSeleccionada(null)} />
           <div>
             <h1 className="text-2xl font-bold text-white">{obraSeleccionada.name}</h1>
             <p className="text-[#7f93b0] text-sm">Inventario de materiales</p>
@@ -855,6 +853,7 @@ export default function InventarioObraPage() {
           </div>
 
           <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
+            <div className="max-h-[calc(100vh-340px)] overflow-y-auto">
             <table className="w-full">
               <thead className="bg-white/[0.04] sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
                 <tr>
@@ -871,10 +870,26 @@ export default function InventarioObraPage() {
                   <tr key={item.id} className="hover:bg-white/[0.04]">
                     {/* Foto eliminada de lista — solo visible en Kardex */}
                     <td className="px-3 py-3">
-                      <p className="text-white font-medium">{item.producto_nombre}</p>
-                      <p className="text-xs text-[#7f93b0]">
-                        Último mov: {new Date(item.ultimo_movimiento).toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        {item.foto_url ? (
+                          <img
+                            src={item.foto_url}
+                            alt={item.producto_nombre}
+                            className="w-9 h-9 rounded-lg object-cover bg-white/[0.04] border border-white/[0.08] flex-shrink-0"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                            <ImageIcon className="w-4 h-4 text-[#4a6080]" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-white font-medium truncate">{item.producto_nombre}</p>
+                          <p className="text-xs text-[#7f93b0]">
+                            Último mov: {new Date(item.ultimo_movimiento).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-3 py-3 text-center">
                       <span className={`font-bold ${item.cantidad_disponible <= 5 ? 'text-amber-400' : 'text-aria-accent'}`}>
@@ -937,6 +952,7 @@ export default function InventarioObraPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 

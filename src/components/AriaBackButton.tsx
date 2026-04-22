@@ -7,16 +7,22 @@ import { ArrowLeft } from "lucide-react";
  */
 export default function AriaBackButton({
   href,
+  onClick,
   className = "",
 }: {
   href?: string;
+  onClick?: () => void;
   className?: string;
 }) {
   const router = useRouter();
 
   return (
     <button
-      onClick={() => (href ? router.push(href) : router.back())}
+      onClick={() => {
+        if (onClick) { onClick(); return; }
+        if (href) { router.push(href); return; }
+        router.back();
+      }}
       className={`p-2 rounded-xl transition-all duration-150 ${className}`}
       style={{
         color: "#7f93b0",
