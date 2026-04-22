@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { logger } from "@/lib/logger";
+import { overridePhoneIfTest } from "@/lib/e2e-test-override";
 
 const log = logger("WHATSAPP");
 const WHATSAPP_API_URL = "https://graph.facebook.com/v22.0";
@@ -194,6 +195,10 @@ export async function sendWhatsAppTemplate(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
+
+  // 21-Abr-2026: E2E override - si activo, redirige WhatsApp a JJ.
+  // Ver src/lib/e2e-test-override.ts.
+  phone = overridePhoneIfTest(phone);
 
   if (!token || !phoneId) {
     log.error("Credenciales faltantes", { token: !!token, phoneId: !!phoneId });
