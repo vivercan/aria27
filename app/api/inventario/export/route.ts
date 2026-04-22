@@ -27,6 +27,7 @@ interface InventarioRow {
   ultimo_movimiento: string;
   obra_nombre: string;
   foto_url?: string | null;
+  tipo?: string | null; // 22-Abr-2026: MATERIAL | HERRAMIENTA (default MATERIAL)
 }
 
 export async function GET(req: NextRequest) {
@@ -321,16 +322,27 @@ function exportPDFHtml(
     if (sinStock) estadoHtml = `<span class="badge sin-stock">✗ Sin stock</span>`;
     else if (stockBajo) estadoHtml = `<span class="badge bajo">⚠ Stock bajo</span>`;
 
-    // 21-Abr-2026: columna Foto con thumbnail 40x40. Si no hay foto, celda vacía con placeholder discreto.
-    const fotoHtml = item.foto_url
-      ? `<img src="${escHtml(item.foto_url)}" alt="${escHtml(item.producto_nombre)}" class="thumb" loading="lazy" />`
-      : `<span class="thumb-empty">—</span>`;
+    // 21-Abr-2026: columna Foto con thumbnail 40x40.
+    // 22-Abr-2026 FIX: quitado loading="lazy" (bloqueaba la carga cuando se
+    // imprime o guarda como PDF - solo cargaban las filas visibles en viewport).
+    // Tambien validamos string vacio y agregamos onerror para no mostrar
+    // imagen rota cuando la URL falla.
+    const fotoHtml = (item.foto_url && String(item.foto_url).trim().length > 0)
+      ? `<img src="${escHtml(item.foto_url)}" alt="${escHtml(item.producto_nombre)}" class="thumb" onerror="this.outerHTML='<span class=&quot;thumb-empty&quot;>&mdash;</span>'" />`
+      : `<span class="thumb-empty">&mdash;</span>`;
+
+    // 22-Abr-2026: columna Tipo (MATERIAL o HERRAMIENTA). Default MATERIAL.
+    const tipo = (item as { tipo?: string }).tipo || "MATERIAL";
+    const tipoHtml = tipo === "HERRAMIENTA"
+      ? `<span class="badge-tipo badge-herram">Herramienta</span>`
+      : `<span class="badge-tipo badge-mat">Material</span>`;
 
     return `
       <tr class="${idx % 2 === 0 ? "row-par" : "row-impar"}${stockBajo ? " stock-bajo" : ""}">
         <td class="text-center text-gray">${idx + 1}</td>
         <td class="text-center">${fotoHtml}</td>
         <td class="bold">${escHtml(item.producto_nombre)}</td>
+        <td class="text-center">${tipoHtml}</td>
         <td class="text-center${stockBajo ? " text-warn bold" : " text-success bold"}">${item.cantidad_disponible}</td>
         <td class="text-center text-gray">${item.cantidad_usada}</td>
         <td class="text-center">${escHtml(item.unidad)}</td>
@@ -470,6 +482,18 @@ function exportPDFHtml(
     text-align: center;
   }
 
+  /* ── BADGES TIPO (22-Abr-2026: MATERIAL/HERRAMIENTA) ── */
+  .badge-tipo {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .badge-mat    { background: #dbeafe; color: #1e40af; }
+  .badge-herram { background: #fef3c7; color: #92400e; }
+
   /* ── FILA TOTALES ── */
   .totals-row td {
     background: #047857 !important;
@@ -566,12 +590,13 @@ function exportPDFHtml(
     <tr>
       <th style="width:4%">#</th>
       <th style="width:7%">Foto</th>
-      <th style="width:26%;text-align:left">Material / Producto</th>
-      <th style="width:10%">Disponible</th>
-      <th style="width:9%">Usado</th>
-      <th style="width:10%">Unidad</th>
-      <th style="width:15%">Último Movimiento</th>
-      <th style="width:13%">Estado</th>
+      <th style="width:22%;text-align:left">Producto</th>
+      <th style="width:9%">Tipo</th>
+      <th style="width:9%">Disponible</th>
+      <th style="width:8%">Usado</th>
+      <th style="width:9%">Unidad</th>
+      <th style="width:14%">Último Movimiento</th>
+      <th style="width:12%">Estado</th>
     </tr>
   </thead>
   <tbody>
@@ -580,6 +605,7 @@ function exportPDFHtml(
       <td></td>
       <td></td>
       <td>TOTAL — ${inventario.length} productos</td>
+      <td></td>
       <td class="text-center">${totalDisp.toLocaleString("es-MX")}</td>
       <td class="text-center">${totalUsado.toLocaleString("es-MX")}</td>
       <td></td>

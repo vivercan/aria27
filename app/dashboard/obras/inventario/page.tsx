@@ -43,6 +43,7 @@ interface ItemInventario {
   ultimo_movimiento: string;
   foto_url?: string | null;
   ultimo_usuario?: string | null;
+  tipo?: string | null; // 22-Abr-2026: MATERIAL | HERRAMIENTA
 }
 
 interface MaterialRecibido {
@@ -104,6 +105,11 @@ export default function InventarioObraPage() {
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoUnidad, setNuevoUnidad] = useState("PZA");
   const [nuevoCantidad, setNuevoCantidad] = useState(1);
+  // 22-Abr-2026: tipo MATERIAL | HERRAMIENTA (default MATERIAL)
+  const [nuevoTipo, setNuevoTipo] = useState<"MATERIAL" | "HERRAMIENTA">("MATERIAL");
+
+  // 22-Abr-2026: filtro visual tipo (TODOS | MATERIAL | HERRAMIENTA)
+  const [filterTipo, setFilterTipo] = useState<"TODOS" | "MATERIAL" | "HERRAMIENTA">("TODOS");
   const [nuevoFoto, setNuevoFoto] = useState<File | null>(null);
   const [nuevoFotoPreview, setNuevoFotoPreview] = useState<string | null>(null);
   const [catalogoProductos, setCatalogoProductos] = useState<ProductoCatalogo[]>([]);
@@ -242,6 +248,7 @@ export default function InventarioObraPage() {
     setNuevoNombre("");
     setNuevoUnidad("PZA");
     setNuevoCantidad(1);
+    setNuevoTipo("MATERIAL"); // 22-Abr-2026
     setNuevoFoto(null);
     setNuevoFotoPreview(null);
     setNuevoProductoId(null);
@@ -320,6 +327,7 @@ export default function InventarioObraPage() {
         cantidad_usada: 0,
         ultimo_movimiento: new Date().toISOString(),
         foto_url: fotoUrl,
+        tipo: nuevoTipo, // 22-Abr-2026
         ...(nuevoProductoId ? { producto_id: nuevoProductoId } : {}),
       });
       if (insertError) { flash("err", "Error: " + insertError.message); setGuardando(false); return; }
@@ -654,9 +662,15 @@ export default function InventarioObraPage() {
   };
 
   // ====== COMPUTED ======
-  const inventarioFiltrado = inventario.filter(item =>
-    item.producto_nombre.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const inventarioFiltrado = inventario.filter(item => {
+    if (!item.producto_nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
+    // 22-Abr-2026: filtro por tipo. Items sin tipo (legacy) cuentan como MATERIAL.
+    if (filterTipo !== "TODOS") {
+      const t = (item.tipo || "MATERIAL").toUpperCase();
+      if (t !== filterTipo) return false;
+    }
+    return true;
+  });
   const totalItems = inventario.length;
   const totalDisponible = inventario.reduce((sum, i) => sum + i.cantidad_disponible, 0);
   const itemsBajos = inventario.filter(i => i.cantidad_disponible <= 5).length;
@@ -828,6 +842,16 @@ export default function InventarioObraPage() {
                 className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
               />
             </div>
+          </div>
+
+          {/* 22-Abr-2026: tabs filtro tipo MATERIAL | HERRAMIENTA */}
+          <div className="flex gap-2">
+            {(["TODOS", "MATERIAL", "HERRAMIENTA"] as const).map(t => (
+              <button key={t} onClick={() => setFilterTipo(t)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filterTipo === t ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
+                {t === "TODOS" ? "Todos" : t === "MATERIAL" ? "Materiales" : "Herramientas"}
+              </button>
+            ))}
           </div>
 
           <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
@@ -1062,6 +1086,22 @@ export default function InventarioObraPage() {
                 />
                 {formErrors.nuevoCantidad && <p className="text-red-400 text-xs mt-1">{formErrors.nuevoCantidad}</p>}
               </div>
+            </div>
+
+            {/* 22-Abr-2026: selector Tipo MATERIAL | HERRAMIENTA */}
+            <div className="mb-4">
+              <label className="block text-sm text-[#c9d8ed] mb-2">Tipo</label>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setNuevoTipo("MATERIAL")}
+                  className={`flex-1 px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${nuevoTipo === "MATERIAL" ? "bg-blue-500/20 border-blue-500/40 text-blue-300" : "bg-white/[0.04] border-white/[0.08] text-[#7f93b0] hover:border-white/[0.15]"}`}>
+                  Material
+                </button>
+                <button type="button" onClick={() => setNuevoTipo("HERRAMIENTA")}
+                  className={`flex-1 px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${nuevoTipo === "HERRAMIENTA" ? "bg-amber-500/20 border-amber-500/40 text-amber-300" : "bg-white/[0.04] border-white/[0.08] text-[#7f93b0] hover:border-white/[0.15]"}`}>
+                  Herramienta
+                </button>
+              </div>
+              <p className="text-xs text-[#4a6080] mt-1">Las herramientas tambien pueden vivir en Activos para mantenimiento y asignacion.</p>
             </div>
 
             {/* Foto del material */}
