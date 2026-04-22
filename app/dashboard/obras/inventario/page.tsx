@@ -682,6 +682,26 @@ export default function InventarioObraPage() {
           </div>
         </div>
 
+        {/* 21-Abr-2026: banner educativo — las herramientas van en Activos, no en Inventario */}
+        <div className="p-4 rounded-xl bg-gradient-to-br from-[#1E3E7A]/20 to-[#0A2450]/30 border border-[#3A5E9A]/50">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-aria-primary/20 shrink-0">
+              <Package className="w-5 h-5 text-aria-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white mb-1">Inventario = materiales consumibles</p>
+              <p className="text-xs text-[#c9d8ed] leading-relaxed">
+                Cemento, varilla, tubería, pintura y demás materiales que se agotan van aquí.
+                Las <strong>herramientas</strong> (taladros, martillos, andamios, cinceles) y <strong>maquinaria</strong> se registran en{" "}
+                <Link href="/dashboard/activos/catalogo?tipo=HERRAMIENTA" className="text-aria-accent underline hover:text-white">
+                  Activos → Catálogo
+                </Link>{" "}
+                para llevar control de asignación y mantenimiento.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {obras.map((obra) => (
             <button
