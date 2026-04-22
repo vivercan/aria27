@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
   const obraId = searchParams.get("obra_id");
   const obraParam = searchParams.get("obra_nombre") || "";
   const format = (searchParams.get("format") || "excel").toLowerCase();
+  const mode = (searchParams.get("mode") || "full").toLowerCase();
 
   if (!obraId) {
     return NextResponse.json({ error: "Falta obra_id" }, { status: 400 });
@@ -80,7 +81,7 @@ export async function GET(req: NextRequest) {
     if (format === "excel") {
       return await exportExcel(inventario, obraNombre, generadoEn, email);
     } else if (format === "pdf") {
-      return exportPDFHtml(inventario, obraNombre, generadoEn, email);
+      return exportPDFHtml(inventario, obraNombre, generadoEn, email, mode);
     } else {
       return NextResponse.json({ error: "Formato inválido. Use 'excel' o 'pdf'" }, { status: 400 });
     }
@@ -301,8 +302,14 @@ function exportPDFHtml(
   inventario: InventarioRow[],
   obraNombre: string,
   generadoEn: string,
-  email: string
+  email: string,
+  mode: string = "full"
 ): NextResponse {
+  // 22-Abr-2026 P-5 FIX: 3 modos de descarga
+  if (mode === "galeria") {
+    return exportPDFGaleria(inventario, obraNombre, generadoEn, email);
+  }
+  const showFoto = mode !== "nofotos";
   let totalDisp = 0;
   let totalUsado = 0;
   let bajoStock = 0;
