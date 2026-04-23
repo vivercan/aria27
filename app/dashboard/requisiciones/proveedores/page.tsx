@@ -151,7 +151,7 @@ export default function ProveedoresPage() {
           <div className="flex-1 relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder="Buscar nombre, RFC, contacto, email..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none"/>
+              className="w-full pl-8 pr-7 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none"/>
             {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}
@@ -244,11 +244,11 @@ export default function ProveedoresPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Nombre comercial *</label>
-                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Ej: SAACSA"/>
+                    <input value={form.name} onChange={e=>updateField("name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="Ej: SAACSA"/>
                   </div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Razón Social</label>
-                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="SA de CV"/>
+                    <input value={form.razon_social} onChange={e=>updateField("razon_social",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="SA de CV"/>
                   </div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">RFC</label>
@@ -259,18 +259,18 @@ export default function ProveedoresPage() {
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Contacto</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Nombre"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="(449) 123-4567"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="ventas@empresa.com"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="4491234567"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="www.empresa.com"/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Calle, colonia"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Contacto</label><input value={form.contact_name} onChange={e=>updateField("contact_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="Nombre"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Teléfono</label><input value={form.phone} onChange={e=>updateField("phone",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="(449) 123-4567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Email</label><input value={form.email} onChange={e=>updateField("email",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="ventas@empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">WhatsApp</label><input value={form.whatsapp} onChange={e=>updateField("whatsapp",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="4491234567"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Web</label><input value={form.website} onChange={e=>updateField("website",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="www.empresa.com"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Dirección</label><input value={form.address} onChange={e=>updateField("address",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="Calle, colonia"/></div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Comercial</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Categoría</label><input value={form.categories} onChange={e=>updateField("categories",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="ACEROS" list="cats-list"/><datalist id="cats-list">{categories.map(c=><option key={c} value={c}/>)}</datalist></div>
                   <div>
                     <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Forma pago</label>
                     <select value={form.payment_method} onChange={e=>updateField("payment_method",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none">
@@ -278,24 +278,24 @@ export default function ProveedoresPage() {
                     </select>
                   </div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Días crédito</label><input type="number"  value={form.credit_days} onChange={e=>updateField("credit_days",parseInt(e.target.value)||0)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:border-aria-primary/50 outline-none" min={0}/></div>
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="Aguascalientes"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Zona</label><input value={form.zona_cobertura} onChange={e=>updateField("zona_cobertura",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="Aguascalientes"/></div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-[#7f93b0] uppercase tracking-wider mb-2">Bancario</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="BBVA"/></div>
+                  <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="BBVA"/></div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
                 </div>
               </div>
               <div>
                 <label className="text-[11px] text-[#7f93b0] mb-0.5 block">Notas</label>
-                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/50 outline-none resize-none h-16" placeholder="Observaciones"/>
+                <textarea value={form.notas_comerciales} onChange={e=>updateField("notas_comerciales",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none resize-none h-16" placeholder="Observaciones"/>
               </div>
             </div>
             <div className="flex justify-end gap-2 p-4 border-t border-white/[0.08] flex-none">
               <button onClick={()=>{setShowModal(false);setEditingId(null);}} className="px-3 py-1.5 text-xs text-[#7f93b0] hover:text-white hover:bg-white/[0.06] rounded-lg">Cancelar</button>
-              <button onClick={handleSave} disabled={saving||!form.name.trim()} className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1"><Save className="w-3 h-3"/>{saving?"...":editingId?"Actualizar":"Crear"}</button>
+              <button onClick={handleSave} disabled={saving||!form.name.trim()} className="px-3 py-1.5 text-xs aria-btn-emerald-solid disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1"><Save className="w-3 h-3"/>{saving?"...":editingId?"Actualizar":"Crear"}</button>
             </div>
           </div>
         </div>

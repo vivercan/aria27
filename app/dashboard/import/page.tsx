@@ -233,7 +233,7 @@ export default function ImportCSV() {
             <button onClick={runDryRun} disabled={!csvText} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:bg-[#0f2448] text-white text-sm font-medium">
               1. Validar (dry-run)
             </button>
-            <button onClick={runImport} disabled={!dryRun || dryRun.valid.length === 0 || importing} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-[#0f2448] text-white text-sm font-medium">
+            <button onClick={runImport} disabled={!dryRun || dryRun.valid.length === 0 || importing} className="flex items-center gap-2 px-4 py-2 rounded-lg aria-btn-emerald-solid disabled:bg-[#0f2448] text-white text-sm font-medium">
               {importing && <Loader2 className="w-4 h-4 animate-spin" />}
               2. Importar {dryRun ? `${dryRun.valid.length} registros` : ""}
             </button>

@@ -179,7 +179,7 @@ export default function SirocRegistrosPage() {
         <Link href="/dashboard/obras/siroc/bimestrales" className="px-3 py-2 bg-amber-600/80 hover:bg-amber-600 text-white rounded-lg text-sm">Reportes bimestrales</Link>
         <Link href="/dashboard/obras/siroc" className="px-3 py-2 bg-white/[0.05] hover:bg-[#0f2448] text-white rounded-lg text-sm">Carpetas</Link>
         <button onClick={() => { setEditando(null); setForm(EMPTY); setShowForm(true); }}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 font-medium">
+          className="px-4 py-2 aria-btn-rose-solid text-white rounded-lg flex items-center gap-2 font-medium">
           <Plus className="w-5 h-5" /> Nuevo registro
         </button>
       </div>
@@ -293,7 +293,7 @@ export default function SirocRegistrosPage() {
             </div>
             <div className="sticky bottom-0 bg-[#0a1628] border-t border-white/[0.08] p-5 flex justify-end gap-3">
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY); }} className="px-4 py-2 bg-[#0f2448] hover:bg-[#162040] text-white rounded-lg">Cancelar</button>
-              <button onClick={guardar} disabled={guardando} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
+              <button onClick={guardar} disabled={guardando} className="px-4 py-2 aria-btn-rose-solid text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
                 {guardando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}Guardar
               </button>
             </div>

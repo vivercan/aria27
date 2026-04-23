@@ -125,7 +125,7 @@ export default function ProspeccionPage() {
             <input type="text" placeholder='Ej: "acero corrugado", "diesel", "concreto premezclado"...'
               value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}
               onKeyDown={e=>e.key==="Enter"&&handleSearch()}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-primary/30 outline-none"/>
+              className="w-full pl-8 pr-3 py-1.5 text-xs aria-input-canon focus:border-aria-primary/30 outline-none"/>
           </div>
           <button onClick={handleSearch} disabled={searching||!searchTerm.trim()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-aria-primary-light text-aria-accent rounded-lg hover:bg-aria-primary-hover/30 disabled:opacity-40 font-medium">

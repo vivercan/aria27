@@ -951,7 +951,7 @@ export default function FiniquitosPage() {
                   </button>
                   <button
                     onClick={() => guardarFiniquito(true)}
-                    className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors font-semibold"
+                    className="px-6 py-2 rounded-lg aria-btn-emerald-solid transition-colors font-semibold"
                   >
                     Guardar y Calcular
                   </button>
@@ -1184,7 +1184,7 @@ export default function FiniquitosPage() {
             {currentFiniquito.status === "APROBADO" && (
               <button
                 onClick={() => actualizarEstatus(currentFiniquito.id, "PAGADO")}
-                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg aria-btn-emerald-solid transition-colors flex items-center gap-2"
               >
                 <Check className="w-4 h-4" />
                 Marcar como Pagado
@@ -1194,7 +1194,7 @@ export default function FiniquitosPage() {
             {["BORRADOR", "CALCULADO"].includes(currentFiniquito.status) && (
               <button
                 onClick={() => actualizarEstatus(currentFiniquito.id, "CANCELADO")}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg aria-btn-rose-solid transition-colors flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
                 Cancelar

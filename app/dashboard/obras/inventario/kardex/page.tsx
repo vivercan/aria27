@@ -68,21 +68,21 @@ function KardexContent() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+        <div className="p-4 aria-card-steel">
           <p className="text-sm text-[#7f93b0]">Movimientos</p>
           <p className="text-2xl font-bold text-white">{movs.length}</p>
         </div>
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+        <div className="p-4 aria-card-steel">
           <p className="text-sm text-[#7f93b0]">Entradas (suma)</p>
           <p className="text-2xl font-bold text-white">+{totalEntradas.toLocaleString()}</p>
         </div>
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+        <div className="p-4 aria-card-steel">
           <p className="text-sm text-[#7f93b0]">Salidas (suma)</p>
           <p className="text-2xl font-bold text-red-400">-{totalSalidas.toLocaleString()}</p>
         </div>
       </div>
 
-      <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
+      <div className="aria-card-steel overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[rgba(4,8,16,0.98)] backdrop-blur sticky top-0">
             <tr>

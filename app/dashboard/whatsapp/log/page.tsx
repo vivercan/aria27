@@ -99,7 +99,7 @@ export default function WhatsAppLogPage() {
           <input value={phoneTest} onChange={(e) => setPhoneTest(e.target.value)} placeholder="Tel 10 dígitos" className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm" />
           <input value={paramsTest} onChange={(e) => setParamsTest(e.target.value)} placeholder="Params separados por coma" className="px-3 py-2 bg-[#0a1628] border border-white/[0.08] rounded text-white text-sm md:col-span-2" />
         </div>
-        <button onClick={enviarTest} disabled={sending || !phoneTest} className="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm">
+        <button onClick={enviarTest} disabled={sending || !phoneTest} className="px-4 py-2 rounded aria-btn-emerald-solid disabled:opacity-50 text-white text-sm">
           {sending ? "Enviando..." : "Enviar"}
         </button>
         {testResult && <p className="text-sm text-[#c9d8ed]">{testResult}</p>}
