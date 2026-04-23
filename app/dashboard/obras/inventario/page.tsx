@@ -1,6 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ElementType } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
@@ -23,6 +23,8 @@ import {
   X,
   Eye,
   Download,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
@@ -44,6 +46,7 @@ interface ItemInventario {
   foto_url?: string | null;
   ultimo_usuario?: string | null;
   tipo?: string | null; // 22-Abr-2026: MATERIAL | HERRAMIENTA
+  folio_inventario?: string | null; // TKT-002 22-Abr-2026
 }
 
 interface MaterialRecibido {
@@ -317,6 +320,21 @@ export default function InventarioObraPage() {
         fotoUrl = await subirFoto(nuevoFoto, `${obraSeleccionada.id}/productos`);
       }
 
+      // TKT-002: Calcular siguiente folio (MAT-NNN o HER-NNN) por obra+tipo
+      const prefijo = nuevoTipo === "HERRAMIENTA" ? "HER" : "MAT";
+      const { data: existentes } = await supabase
+        .from("inventario_obra")
+        .select("folio_inventario")
+        .eq("obra_id", obraSeleccionada.id)
+        .eq("tipo", nuevoTipo)
+        .like("folio_inventario", `${prefijo}-%`);
+      let maxNum = 0;
+      (existentes || []).forEach((r: { folio_inventario?: string | null }) => {
+        const m = (r.folio_inventario || "").match(/-(\d+)$/);
+        if (m) { const n = parseInt(m[1], 10); if (n > maxNum) maxNum = n; }
+      });
+      const folioNuevo = `${prefijo}-${String(maxNum + 1).padStart(3, "0")}`;
+
       // Insert en inventario_obra
       const { error: insertError } = await supabase.from("inventario_obra").insert({
         obra_id: obraSeleccionada.id,
@@ -328,6 +346,7 @@ export default function InventarioObraPage() {
         ultimo_movimiento: new Date().toISOString(),
         foto_url: fotoUrl,
         tipo: nuevoTipo, // 22-Abr-2026
+        folio_inventario: folioNuevo, // TKT-002
         ...(nuevoProductoId ? { producto_id: nuevoProductoId } : {}),
       });
       if (insertError) { flash("err", "Error: " + insertError.message); setGuardando(false); return; }
@@ -744,131 +763,117 @@ export default function InventarioObraPage() {
 
   // Vista: Inventario de Obra
   return (
-    <div className="space-y-6">
-      <FlashBanner msg={msg} className="mx-6 mt-3" />
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div
+      className="px-5 pt-4 pb-4 h-full flex flex-col overflow-hidden"
+      style={{
+        background: [
+          "radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%)",
+          "linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%)",
+        ].join(", "),
+      }}
+    >
+      <FlashBanner msg={msg} />
+      {/* Header canon: bloque azul rey solido con titulo + botones de accion */}
+      <div
+        className="flex-shrink-0 rounded-xl px-5 py-3 flex items-center justify-between gap-4"
+        style={{
+          marginBottom: "20px",
+          background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)",
+          borderBottom: "1px solid rgba(150,180,230,0.10)",
+          boxShadow: "inset 0 1px 0 rgba(220,235,255,0.06), 0 4px 14px rgba(0,0,0,0.30)",
+        }}
+      >
+        <div className="flex items-center gap-3 min-w-0">
           <AriaBackButton onClick={() => setObraSeleccionada(null)} />
-          <div>
-            <h1 className="text-2xl font-bold text-white">{obraSeleccionada.name}</h1>
-            <p className="text-[#7f93b0] text-sm">Inventario de materiales</p>
+          <div className="min-w-0">
+            <h1 style={{ fontSize: "26px", fontWeight: 800, letterSpacing: "-0.03em", color: "#F4F8FF", lineHeight: 1.1 }}>
+              {obraSeleccionada.name}
+            </h1>
+            <p style={{ fontSize: "12px", fontWeight: 500, color: "rgba(214,228,255,0.72)", marginTop: 2 }}>
+              Inventario de materiales y herramientas
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Exportar Excel */}
-          <button
-            onClick={exportarExcel}
-            disabled={exportandoExcel || inventario.length === 0}
-            title="Descargar Excel"
-            className="flex items-center gap-2 px-3 py-2 bg-emerald-700/40 hover:bg-emerald-700/70 border border-emerald-600/50 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {exportandoExcel ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-            <span className="hidden sm:inline">Excel</span>
-          </button>
-          {/* Exportar PDF (descarga HTML listo para imprimir) */}
-          <button
-            onClick={exportarPDF}
-            disabled={exportandoPDF || inventario.length === 0}
-            title="Descargar reporte listo para imprimir"
-            className="flex items-center gap-2 px-3 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 border border-aria-primary/40 rounded-lg text-aria-accent font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {exportandoPDF ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-            <span className="hidden sm:inline">PDF</span>
-          </button>
-          {/* Nuevo Material */}
-          <button
-            onClick={abrirNuevoMaterial}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo Material
-          </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <ActionBtn onClick={exportarExcel} disabled={exportandoExcel || inventario.length === 0} loading={exportandoExcel} icon={FileSpreadsheet} label="Excel" variant="emerald" />
+          <ActionBtn onClick={exportarPDF}   disabled={exportandoPDF   || inventario.length === 0} loading={exportandoPDF}   icon={FileText}        label="PDF"   variant="rose" />
+          <ActionBtn onClick={abrirNuevoMaterial} icon={Plus} label="Nuevo Material" variant="primary" />
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-          <div className="flex items-center gap-3">
-            <Package className="w-8 h-8 text-aria-accent" />
-            <div>
-              <p className="text-2xl font-bold text-white">{totalItems}</p>
-              <p className="text-sm text-[#7f93b0]">Productos</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-          <div className="flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-aria-accent" />
-            <div>
-              <p className="text-2xl font-bold text-white">{totalDisponible.toLocaleString()}</p>
-              <p className="text-sm text-[#7f93b0]">Unidades disponibles</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <div>
-              <p className="text-2xl font-bold text-white">{itemsBajos}</p>
-              <p className="text-sm text-[#7f93b0]">Stock bajo (≤5)</p>
-            </div>
-          </div>
-        </div>
+      {/* Stats canon: 3 cards steel solidas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-shrink-0" style={{ marginBottom: "16px" }}>
+        <KpiCard icon={Package}        accent="#7BB6FF" label="Productos"             value={totalItems} />
+        <KpiCard icon={TrendingUp}     accent="#46D4FF" label="Unidades disponibles"  value={totalDisponible.toLocaleString()} />
+        <KpiCard icon={AlertTriangle}  accent="#F59E0B" label="Stock bajo"            value={itemsBajos} sub="<= 5 unidades" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Inventario */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7f93b0]" />
-              <input
-                type="text"
-                placeholder="Buscar material..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
-              />
-            </div>
-          </div>
-
-          {/* 22-Abr-2026: tabs filtro tipo MATERIAL | HERRAMIENTA */}
-          <div className="flex gap-2">
-            {(["TODOS", "MATERIAL", "HERRAMIENTA"] as const).map(t => (
-              <button key={t} onClick={() => setFilterTipo(t)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filterTipo === t ? "bg-aria-primary-light text-aria-accent border border-aria-primary/30" : "bg-white/[0.04] text-[#7f93b0] border border-white/[0.08] hover:bg-white/[0.06]"}`}>
+      {/* Toolbar: tabs + buscador en una sola fila compacta */}
+      <div className="flex items-center gap-3 flex-shrink-0" style={{ marginBottom: "12px" }}>
+        <div className="inline-flex items-center gap-1 p-1 rounded-lg" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.14)", boxShadow: "inset 0 1px 0 rgba(220,235,255,0.04)" }}>
+          {(["TODOS","MATERIAL","HERRAMIENTA"] as const).map(t => {
+            const active = filterTipo === t;
+            return (
+              <button key={t} onClick={() => setFilterTipo(t)} type="button"
+                style={{
+                  padding: "7px 16px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  color: active ? "#FFFFFF" : "rgba(180,200,228,0.72)",
+                  background: active ? "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)" : "transparent",
+                  border: active ? "1px solid rgba(160,200,240,0.30)" : "1px solid transparent",
+                  boxShadow: active ? "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)" : "none",
+                  transition: "all 120ms ease",
+                  cursor: "pointer",
+                }}>
                 {t === "TODOS" ? "Todos" : t === "MATERIAL" ? "Materiales" : "Herramientas"}
               </button>
-            ))}
-          </div>
+            );
+          })}
+        </div>
+        <div className="relative" style={{ maxWidth: 360, flex: 1 }}>
+          <Search style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "rgba(180,200,228,0.55)" }} />
+          <input
+            type="text"
+            placeholder="Buscar material..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px 12px 8px 32px",
+              fontSize: "13px",
+              borderRadius: "8px",
+              color: "#EAF2FF",
+              background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)",
+              border: "1px solid rgba(140,178,228,0.18)",
+              boxShadow: "inset 0 1px 0 rgba(220,235,255,0.04)",
+              outline: "none",
+            }}
+          />
+        </div>
+      </div>
 
-          <div className="bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
-            <div className="max-h-[calc(100vh-340px)] overflow-y-auto">
-            <table className="w-full">
-              <thead className="bg-white/[0.04] sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
+      <div className="flex-1 min-h-0 rounded-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.18)", boxShadow: "inset 0 1px 0 rgba(220,235,255,0.04), 0 4px 14px rgba(0,0,0,0.30)" }}>
+        <div className="h-full overflow-y-auto">
+        <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+              <thead className="sticky top-0 z-10" style={{ background: "linear-gradient(180deg, #243A58 0%, #1A2A44 100%)", boxShadow: "0 2px 6px rgba(0,0,0,0.30)" }}>
                 <tr>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[#c9d8ed]">Material</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Disponible</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Usado</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Unidad</th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[#c9d8ed]">Usuario</th>
-                  <th className="px-3 py-3 text-center text-sm font-medium text-[#c9d8ed]">Acciones</th>
+                  <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Folio</th>
+                  <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Material</th>
+                  <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Disponible</th>
+                  <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Usado</th>
+                  <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Unidad</th>
+                  <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Usuario</th>
+                  <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {inventarioFiltrado.map((item) => (
                   <tr key={item.id} className="hover:bg-white/[0.04]">
-                    {/* Foto eliminada de lista — solo visible en Kardex */}
+                    <td className="px-3 py-3 text-xs font-mono font-bold text-aria-accent whitespace-nowrap">
+                      {item.folio_inventario || "-"}
+                    </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-3">
                         {item.foto_url ? (
@@ -943,7 +948,7 @@ export default function InventarioObraPage() {
                 ))}
                 {inventarioFiltrado.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-[#7f93b0]">
+                    <td colSpan={7} className="px-4 py-12 text-center text-[#7f93b0]">
                       <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
                       <p>No hay materiales en inventario</p>
                       <p className="text-sm mt-1">Agrega materiales con el botón &quot;Nuevo Material&quot;</p>
@@ -952,58 +957,8 @@ export default function InventarioObraPage() {
                 )}
               </tbody>
             </table>
-            </div>
           </div>
         </div>
-
-        {/* Entregas para importar */}
-        <div className="space-y-4">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <Truck className="w-5 h-5 text-aria-accent" />
-            Entregas Recientes
-          </h2>
-
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {entregas.map((entrega) => (
-              <div key={entrega.id} className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="font-medium text-white">{entrega.folio}</p>
-                    <p className="text-sm text-[#7f93b0]">{entrega.proveedor_nombre}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {entrega.foto_url && (
-                      <button onClick={() => setFotoAmpliadaUrl(entrega.foto_url!)} className="p-1">
-                        <Camera className="w-4 h-4 text-aria-accent" />
-                      </button>
-                    )}
-                    <span className="text-xs text-[#7f93b0]">
-                      {new Date(entrega.fecha_entrega).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-sm text-[#c9d8ed] mb-3">
-                  {entrega.materiales_recibidos?.length || 0} materiales
-                </p>
-                <button
-                  onClick={() => importarDeEntrega(entrega)}
-                  className="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-aria-accent rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Importar a Inventario
-                </button>
-              </div>
-            ))}
-
-            {entregas.length === 0 && (
-              <div className="text-center py-8 text-[#7f93b0]">
-                <Truck className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No hay entregas recientes</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* ====== MODAL: Nuevo Material ====== */}
       {showNuevo && (
@@ -1413,6 +1368,101 @@ export default function InventarioObraPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+
+// =============== Helpers visuales canon (TKT-002 22-Abr-2026) ===============
+
+function ActionBtn({
+  onClick, disabled, loading, icon: Icon, label, variant
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  icon: ElementType;
+  label: string;
+  variant: "emerald" | "rose" | "primary";
+}) {
+  const variants: Record<string, { bg: string; bgHover: string; border: string; text: string }> = {
+    emerald: {
+      bg: "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)",
+      bgHover: "linear-gradient(180deg, #259E70 0%, #1A805A 100%)",
+      border: "rgba(160,230,200,0.30)",
+      text: "#FFFFFF",
+    },
+    rose: {
+      bg: "linear-gradient(180deg, #C8444A 0%, #A53039 100%)",
+      bgHover: "linear-gradient(180deg, #D9555B 0%, #B73A44 100%)",
+      border: "rgba(255,180,180,0.30)",
+      text: "#FFFFFF",
+    },
+    primary: {
+      bg: "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)",
+      bgHover: "linear-gradient(180deg, #294F92 0%, #1B3D7A 100%)",
+      border: "rgba(160,200,240,0.30)",
+      text: "#FFFFFF",
+    },
+  };
+  const v = variants[variant];
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex items-center gap-2 rounded-lg transition-all duration-150"
+      style={{
+        padding: "8px 14px",
+        fontSize: "13px",
+        fontWeight: 600,
+        color: v.text,
+        background: v.bg,
+        border: `1px solid ${v.border}`,
+        boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)",
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+      onMouseEnter={(e) => { if (disabled) return; (e.currentTarget as HTMLButtonElement).style.background = v.bgHover; }}
+      onMouseLeave={(e) => { if (disabled) return; (e.currentTarget as HTMLButtonElement).style.background = v.bg; }}
+    >
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" strokeWidth={2.2} />}
+      <span className="hidden sm:inline">{label}</span>
+    </button>
+  );
+}
+
+function KpiCard({ icon: Icon, accent, label, value, sub }: {
+  icon: ElementType;
+  accent: string;
+  label: string;
+  value: number | string;
+  sub?: string;
+}) {
+  return (
+    <div
+      className="flex items-center gap-3 rounded-xl"
+      style={{
+        padding: "14px 16px",
+        background: "linear-gradient(180deg, #2C3D52 0%, #263647 54%, #21303E 100%)",
+        border: "1px solid rgba(120,158,204,0.18)",
+        boxShadow: "inset 0 1px 0 rgba(210,228,252,0.05), 0 4px 14px rgba(0,0,0,0.20)",
+      }}
+    >
+      <div
+        className="flex items-center justify-center rounded-lg flex-shrink-0"
+        style={{
+          width: 40,
+          height: 40,
+          background: `${accent}22`,
+          border: `1px solid ${accent}44`,
+        }}
+      >
+        <Icon style={{ width: 20, height: 20, color: accent }} strokeWidth={2} />
+      </div>
+      <div className="min-w-0">
+        <p style={{ fontSize: "22px", fontWeight: 800, color: "#F4F8FF", lineHeight: 1.1, letterSpacing: "-0.02em" }}>{value}</p>
+        <p style={{ fontSize: "11px", fontWeight: 600, color: "rgba(180,200,228,0.78)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 3 }}>{label}{sub ? ` (${sub})` : ""}</p>
+      </div>
     </div>
   );
 }
