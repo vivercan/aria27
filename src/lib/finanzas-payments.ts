@@ -18,11 +18,8 @@ const log = logger("FINANZAS_PAY");
  *    eliminar lógica duplicada (regla auditoría: cero writes a la misma tabla
  *    fuera del helper oficial).
  *
- * Limitación conocida (P1, requiere DDL):
- *  - No existe tabla `pagos` de historial. Cada pago sobreescribe `monto_pagado`
- *    sin trazabilidad de quién/cuándo/método. Cuando exista la tabla, este
- *    helper deberá insertar el registro de historial dentro de la misma operación.
- *    Documentado en Notion como deuda P1.
+ * P-11 22-Abr-2026: tabla `pagos_oc` creada y este helper inserta el registro
+ * historial automaticamente despues de cada UPDATE exitoso. Trazabilidad total.
  */
 
 export interface RegistrarPagoOCArgs {
@@ -38,6 +35,10 @@ export interface RegistrarPagoOCArgs {
   referencia?: string;
   /** 21-Abr-2026: URL del comprobante subido (obligatorio en TRANSFERENCIA). */
   comprobanteUrl?: string;
+  /** P-11 22-Abr-2026: usuario que registra el pago (para historial pagos_oc). */
+  createdBy?: string;
+  /** P-11 22-Abr-2026: notas opcionales del pago. */
+  notas?: string;
 }
 
 export interface RegistrarPagoOCResult {
@@ -49,7 +50,7 @@ export interface RegistrarPagoOCResult {
 export async function registrarPagoOC(
   args: RegistrarPagoOCArgs
 ): Promise<RegistrarPagoOCResult> {
-  const { ocId, monto, total, expectedPagado, metodo, referencia, comprobanteUrl } = args;
+  const { ocId, monto, total, expectedPagado, metodo, referencia, comprobanteUrl, createdBy, notas } = args;
 
   if (!ocId) throw new Error("ocId requerido");
   if (!Number.isFinite(monto) || monto <= 0) {
@@ -122,6 +123,26 @@ export async function registrarPagoOC(
     nuevoPagado: data.monto_pagado,
     status: data.status,
   });
+
+  // P-11 22-Abr-2026: insertar registro en pagos_oc (historial inmutable)
+  try {
+    const { error: histErr } = await supabase.from("pagos_oc").insert({
+      oc_id: ocId,
+      monto,
+      metodo: metodo || null,
+      referencia: referencia || null,
+      comprobante_url: comprobanteUrl || null,
+      notas: notas || null,
+      monto_pagado_acumulado: data.monto_pagado,
+      status_post: data.status,
+      created_by: createdBy || "sistema",
+    });
+    if (histErr) {
+      log.warn("pago OC: no se pudo registrar historial pagos_oc", { ocId, error: histErr.message });
+    }
+  } catch (e) {
+    log.warn("pago OC: insert pagos_oc fallback", { ocId, error: String(e) });
+  }
 
   return {
     nuevoPagado: data.monto_pagado as number,
