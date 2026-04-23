@@ -131,15 +131,15 @@ function BitacoraContent() {
 
       {obraSel && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div className="p-4 aria-card-steel">
             <p className="text-sm text-[#7f93b0]">Entradas registradas</p>
             <p className="text-2xl font-bold text-white">{totalEntradas}</p>
           </div>
-          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div className="p-4 aria-card-steel">
             <p className="text-sm text-[#7f93b0]">Personal promedio</p>
             <p className="text-2xl font-bold text-white">{personalProm}</p>
           </div>
-          <div className="p-4 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div className="p-4 aria-card-steel">
             <p className="text-sm text-[#7f93b0]">Días con incidentes</p>
             <p className="text-2xl font-bold text-red-400">{conIncidentes}</p>
           </div>
@@ -147,7 +147,7 @@ function BitacoraContent() {
       )}
 
       {showForm && obraSel && (
-        <div className="p-6 bg-white/[0.04] rounded-xl border border-white/[0.08] space-y-4">
+        <div className="p-6 aria-card-steel space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva entrada · {obraSel}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -195,13 +195,13 @@ function BitacoraContent() {
       <div className="space-y-4">
         {loading && <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-amber-400" /></div>}
         {!loading && entradas.length === 0 && (
-          <div className="text-center py-12 text-[#7f93b0] bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div className="text-center py-12 text-[#7f93b0] aria-card-steel">
             <BookOpen className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p>{obraSel ? "Sin entradas en bitácora" : "Selecciona una obra para ver su bitácora"}</p>
           </div>
         )}
         {!loading && entradas.map(e => (
-          <div key={e.id} className="p-5 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div key={e.id} className="p-5 aria-card-steel">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-white font-semibold text-lg">{new Date(e.fecha).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>

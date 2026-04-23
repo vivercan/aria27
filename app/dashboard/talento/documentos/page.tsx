@@ -725,7 +725,7 @@ export default function MisDocumentosPage() {
                 <button
                   onClick={confirmDelete}
                   disabled={deleteModal.word !== "Eliminar" || deleteModal.deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 rounded-xl aria-btn-rose-solid disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   {deleteModal.deleting ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Eliminando…</>

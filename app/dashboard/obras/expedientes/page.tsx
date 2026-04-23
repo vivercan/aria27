@@ -881,7 +881,7 @@ export default function ExpedientesPage() {
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarCarpetaAnio}
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-lg aria-btn-rose-solid text-white text-sm font-medium"
                 >Delete</button>
               </div>
             </div>
@@ -910,7 +910,7 @@ export default function ExpedientesPage() {
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarArchivos}
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-lg aria-btn-rose-solid text-white text-sm font-medium"
                 >Delete</button>
               </div>
             </div>
@@ -1026,7 +1026,7 @@ export default function ExpedientesPage() {
               {archivosSeleccionados.size > 0 && (
                 <button
                   onClick={eliminarArchivosSeleccionados}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg aria-btn-rose-solid text-white text-xs font-medium transition"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete ({archivosSeleccionados.size})
                 </button>
@@ -1090,7 +1090,7 @@ export default function ExpedientesPage() {
         )}
 
         {subcarpetas.length === 0 && archivos.length === 0 && (
-          <div className="text-center py-16 text-[#7f93b0] bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <div className="text-center py-16 text-[#7f93b0] aria-card-steel">
             <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p>Carpeta vacía</p>
             <p className="text-sm mt-2">Crea subcarpetas o sube archivos con los botones de arriba, o arrastra aquí.</p>
@@ -1121,7 +1121,7 @@ export default function ExpedientesPage() {
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarCarpetaAnio}
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-lg aria-btn-rose-solid text-white text-sm font-medium"
                 >Delete</button>
               </div>
             </div>
@@ -1340,7 +1340,7 @@ export default function ExpedientesPage() {
                 >Cancelar</button>
                 <button
                   onClick={confirmarEliminarArchivosAnio}
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="px-4 py-2 rounded-lg aria-btn-rose-solid text-white text-sm font-medium"
                 >Delete</button>
               </div>
             </div>
@@ -1474,7 +1474,7 @@ export default function ExpedientesPage() {
                   </label>
                     {canDelete && (<button
                       onClick={() => eliminarCarpeta(carpetaSeleccionada.id)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-colors"
+                      className="p-2 aria-icon-btn aria-icon-rose text-red-400 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>)}
@@ -1598,7 +1598,7 @@ export default function ExpedientesPage() {
               placeholder="Nombre de la carpeta"
               value={nuevaCarpetaNombre}
               onChange={(e) => setNuevaCarpetaNombre(e.target.value)}
-              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
+              className="w-full px-4 py-3 aria-input-canon"
             />
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setShowNuevaCarpeta(false)} className="px-4 py-2 text-[#7f93b0] hover:text-white">
@@ -1628,14 +1628,14 @@ export default function ExpedientesPage() {
                 placeholder="Título de la tarea"
                 value={nuevaTarea.titulo}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, titulo: e.target.value })}
-                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 aria-input-canon"
               />
               <input
                 type="text"
                 placeholder="Responsable"
                 value={nuevaTarea.responsable}
                 onChange={(e) => setNuevaTarea({ ...nuevaTarea, responsable: e.target.value })}
-                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
+                className="w-full px-4 py-3 aria-input-canon"
               />
               <input
                 type="date"

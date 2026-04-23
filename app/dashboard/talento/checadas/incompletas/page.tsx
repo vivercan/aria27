@@ -236,7 +236,7 @@ export default function IncompletasPage() {
                   <Calendar className="w-5 h-5 text-red-400" />
                   <h2 className="text-lg font-semibold text-white">Días Sin Registro ({sinRegistro.length})</h2>
                 </div>
-                <button onClick={crearTodasAsistencias} disabled={!!procesando} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50">
+                <button onClick={crearTodasAsistencias} disabled={!!procesando} className="px-4 py-2 rounded-lg aria-btn-rose-solid text-white text-sm font-medium transition-colors disabled:opacity-50">
                   <Plus className="w-4 h-4 inline mr-1" />
                   Crear Todas (08:00-18:00)
                 </button>

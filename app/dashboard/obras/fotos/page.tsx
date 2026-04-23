@@ -479,7 +479,7 @@ export default function FotosPage() {
                         <div className="absolute top-2 right-2 flex gap-1 z-20">
                           <button
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
-                            className="p-1.5 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors"
+                            className="p-1.5 rounded aria-btn-rose-solid text-white text-xs font-semibold transition-colors"
                           >
                             Confirmar
                           </button>

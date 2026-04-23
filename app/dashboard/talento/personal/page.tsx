@@ -502,7 +502,7 @@ export default function PersonalPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm disabled:opacity-50 ${
                     editando === "nuevo"
                       ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-aria-primary hover:bg-aria-primary-hover"
+                      : "aria-btn-primary-solid"
                   }`}>
                   {guardando
                     ? <Loader2 className="w-4 h-4 animate-spin" />

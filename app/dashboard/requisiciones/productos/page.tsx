@@ -254,7 +254,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
           <div className="flex-1 relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
             <input type="text" placeholder="Buscar nombre, SKU..." value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:border-aria-accent/50 outline-none"/>
+              className="w-full pl-8 pr-7 py-1.5 text-xs aria-input-canon focus:border-aria-accent/50 outline-none"/>
             {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={category} onChange={e=>setCategory(e.target.value)}
@@ -445,7 +445,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                         setSendingMail(false);
                       }
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-xs font-medium"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 aria-btn-emerald-solid disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-xs font-medium"
                   >
                     {sendingMail ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Send className="w-3.5 h-3.5"/>}
                     Enviar correo
@@ -593,7 +593,7 @@ IMPORTANTE: Responde SOLO con el JSON array, sin texto adicional, sin markdown, 
                 </button>
               ):(
                 <button onClick={saveParsedProducts} disabled={savingParsed}
-                  className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
+                  className="px-3 py-1.5 text-xs aria-btn-emerald-solid disabled:bg-[#0f2448] text-white rounded-lg flex items-center gap-1.5">
                   {savingParsed?<><Loader2 className="w-3 h-3 animate-spin"/>Guardando {savedCount}/{parsedProducts.length}</>:<><Save className="w-3 h-3"/>Guardar {parsedProducts.length} productos</>}
                 </button>
               )}
