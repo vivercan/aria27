@@ -1,6 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
-import { useState, useEffect, useRef, type ElementType } from "react";
+import { useState, useEffect, useRef, type ElementType, type CSSProperties } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FlashBanner from "@/components/FlashBanner";
@@ -138,6 +138,9 @@ export default function InventarioObraPage() {
 
   // Modal Ver Foto
   const [fotoAmpliadaUrl, setFotoAmpliadaUrl] = useState<string | null>(null);
+  const [fotoAmpliadaItem, setFotoAmpliadaItem] = useState<ItemInventario | null>(null);
+  const [fotoReemplazando, setFotoReemplazando] = useState(false);
+  const fotoReplaceInputRef = useRef<HTMLInputElement>(null);
 
   // Validación de formularios
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -222,6 +225,46 @@ export default function InventarioObraPage() {
       flash("err", "Error al subir foto: " + ((e as {message?: string})?.message || "error"));
       return null;
     }
+  };
+
+  // 22-Abr-2026 TKT-002: editar/reemplazar/eliminar foto del item desde modal
+  const reemplazarFoto = async (item: ItemInventario, file: File) => {
+    if (!obraSeleccionada) return;
+    setFotoReemplazando(true);
+    try {
+      const url = await subirFoto(file, `${obraSeleccionada.id}/productos`);
+      if (!url) { setFotoReemplazando(false); return; }
+      const { error } = await supabase
+        .from("inventario_obra")
+        .update({ foto_url: url })
+        .eq("id", item.id);
+      if (error) {
+        flash("err", "No se pudo actualizar foto: " + error.message);
+      } else {
+        flash("ok", "Foto reemplazada");
+        setFotoAmpliadaUrl(url);
+        await loadInventario(obraSeleccionada.id);
+      }
+    } finally {
+      setFotoReemplazando(false);
+    }
+  };
+
+  const eliminarFoto = async (item: ItemInventario) => {
+    if (!obraSeleccionada) return;
+    if (!confirm(`Eliminar la foto de "${item.producto_nombre}"?`)) return;
+    const { error } = await supabase
+      .from("inventario_obra")
+      .update({ foto_url: null })
+      .eq("id", item.id);
+    if (error) {
+      flash("err", "No se pudo eliminar foto: " + error.message);
+      return;
+    }
+    flash("ok", "Foto eliminada");
+    setFotoAmpliadaUrl(null);
+    setFotoAmpliadaItem(null);
+    await loadInventario(obraSeleccionada.id);
   };
 
   // ====== HELPERS PARA FILE PREVIEW ======
@@ -877,16 +920,28 @@ export default function InventarioObraPage() {
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-3">
                         {item.foto_url ? (
-                          <img
-                            src={item.foto_url}
-                            alt={item.producto_nombre}
-                            className="w-9 h-9 rounded-lg object-cover bg-white/[0.04] border border-white/[0.08] flex-shrink-0"
-                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                          />
+                          <button
+                            type="button"
+                            onClick={() => { setFotoAmpliadaUrl(item.foto_url!); setFotoAmpliadaItem(item); }}
+                            className="w-9 h-9 rounded-lg overflow-hidden bg-white/[0.04] border border-white/[0.08] flex-shrink-0 transition-all hover:border-aria-accent hover:scale-110"
+                            title="Ver/editar foto"
+                          >
+                            <img
+                              src={item.foto_url}
+                              alt={item.producto_nombre}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                            />
+                          </button>
                         ) : (
-                          <div className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => { setFotoAmpliadaItem(item); fotoReplaceInputRef.current?.click(); }}
+                            className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 hover:border-aria-accent hover:bg-white/[0.08] transition-all"
+                            title="Subir foto"
+                          >
                             <ImageIcon className="w-4 h-4 text-[#4a6080]" />
-                          </div>
+                          </button>
                         )}
                         <div className="min-w-0">
                           <p className="text-white font-medium truncate">{item.producto_nombre}</p>
@@ -913,35 +968,11 @@ export default function InventarioObraPage() {
                       )}
                     </td>
                     <td className="px-3 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <Link
-                          href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`}
-                          className="p-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 rounded-lg transition-colors"
-                          title="Ver kardex"
-                        >
-                          <History className="w-4 h-4 text-aria-accent" />
-                        </Link>
-                        <button
-                          onClick={() => abrirRegistrarEntrada(item)}
-                          className="p-2 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg transition-colors"
-                          title="Registrar entrada"
-                        >
-                          <Truck className="w-4 h-4 text-aria-accent" />
-                        </button>
-                        <button
-                          onClick={() => abrirSalida(item)}
-                          className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition-colors"
-                          title="Registrar salida"
-                        >
-                          <Minus className="w-4 h-4 text-red-400" />
-                        </button>
-                        <button
-                          onClick={() => abrirAjuste(item)}
-                          className="p-2 bg-aria-primary-light hover:bg-aria-primary-hover/40 rounded-lg transition-colors"
-                          title="Ajustar"
-                        >
-                          <Plus className="w-4 h-4 text-aria-accent" />
-                        </button>
+                      <div className="inline-flex items-center rounded-lg overflow-hidden" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.18)", boxShadow: "inset 0 1px 0 rgba(220,235,255,0.05), 0 2px 6px rgba(0,0,0,0.30)" }}>
+                        <IconBtn href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`} icon={History} title="Ver kardex" variant="primary" />
+                        <IconBtn onClick={() => abrirRegistrarEntrada(item)} icon={Truck} title="Registrar entrada" variant="emerald" />
+                        <IconBtn onClick={() => abrirSalida(item)} icon={Minus} title="Registrar salida" variant="rose" />
+                        <IconBtn onClick={() => abrirAjuste(item)} icon={Plus} title="Ajustar inventario" variant="amber" />
                       </div>
                     </td>
                   </tr>
@@ -1344,30 +1375,58 @@ export default function InventarioObraPage() {
         </div>
       )}
 
-      {/* ====== MODAL: Ver Foto Ampliada ====== */}
+      {/* ====== MODAL: Ver/Editar Foto Ampliada ====== */}
       {fotoAmpliadaUrl && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setFotoAmpliadaUrl(null)}>
-          <div className="relative max-w-3xl max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
-            <div className="absolute -top-3 right-8 flex items-center gap-2 z-10">
-              <a
-                href={fotoAmpliadaUrl}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 bg-aria-primary rounded-full border border-white/[0.08] hover:bg-aria-primary-hover transition-colors"
-                title="Descargar foto"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Download className="w-5 h-5 text-white" />
-              </a>
-              <button onClick={() => setFotoAmpliadaUrl(null)} className="p-2 bg-[#0c1d38] rounded-full border border-white/[0.08] hover:bg-[#0f2448]">
-                <X className="w-5 h-5 text-white" />
-              </button>
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4" onClick={() => { setFotoAmpliadaUrl(null); setFotoAmpliadaItem(null); }}>
+          <div className="relative" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "92vh", display: "flex", flexDirection: "column", gap: 12 }}>
+            <img src={fotoAmpliadaUrl} alt={fotoAmpliadaItem?.producto_nombre || "Foto ampliada"} className="rounded-xl" style={{ maxWidth: "90vw", maxHeight: "78vh", objectFit: "contain", boxShadow: "0 12px 40px rgba(0,0,0,0.6)" }} />
+            <div className="flex items-center justify-between gap-3 rounded-xl px-4 py-3" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.18)", boxShadow: "inset 0 1px 0 rgba(220,235,255,0.06)" }}>
+              <div className="min-w-0">
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#F4F8FF", letterSpacing: "-0.01em" }}>{fotoAmpliadaItem?.producto_nombre || "Foto"}</p>
+                {fotoAmpliadaItem?.folio_inventario && (
+                  <p style={{ fontSize: "11px", fontFamily: "monospace", color: "rgba(180,200,228,0.72)", marginTop: 2 }}>{fotoAmpliadaItem.folio_inventario}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a href={fotoAmpliadaUrl} download target="_blank" rel="noopener noreferrer"
+                  style={{ padding: "8px 14px", fontSize: "13px", fontWeight: 600, color: "#FFFFFF", background: "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)", border: "1px solid rgba(160,200,240,0.30)", borderRadius: 8, boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                  onClick={(e) => e.stopPropagation()} title="Descargar">
+                  <Download style={{ width: 14, height: 14 }} strokeWidth={2.2} /> Descargar
+                </a>
+                {fotoAmpliadaItem && (
+                  <>
+                    <button type="button" disabled={fotoReemplazando}
+                      onClick={() => fotoReplaceInputRef.current?.click()}
+                      style={{ padding: "8px 14px", fontSize: "13px", fontWeight: 600, color: "#FFFFFF", background: "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)", border: "1px solid rgba(160,230,200,0.30)", borderRadius: 8, boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", opacity: fotoReemplazando ? 0.5 : 1 }}
+                      title="Reemplazar foto">
+                      {fotoReemplazando ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Upload style={{ width: 14, height: 14 }} strokeWidth={2.2} />} Reemplazar
+                    </button>
+                    <button type="button"
+                      onClick={() => fotoAmpliadaItem && eliminarFoto(fotoAmpliadaItem)}
+                      style={{ padding: "8px 14px", fontSize: "13px", fontWeight: 600, color: "#FFFFFF", background: "linear-gradient(180deg, #C8444A 0%, #A53039 100%)", border: "1px solid rgba(255,180,180,0.30)", borderRadius: 8, boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                      title="Eliminar foto">
+                      <X style={{ width: 14, height: 14 }} strokeWidth={2.2} /> Eliminar
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => { setFotoAmpliadaUrl(null); setFotoAmpliadaItem(null); }}
+                  style={{ padding: "8px 14px", fontSize: "13px", fontWeight: 600, color: "rgba(214,228,255,0.85)", background: "linear-gradient(180deg, #2C3D52 0%, #21303E 100%)", border: "1px solid rgba(140,178,228,0.18)", borderRadius: 8, boxShadow: "inset 0 1px 0 rgba(220,235,255,0.06), 0 2px 6px rgba(0,0,0,0.30)", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+                  title="Cerrar">
+                  Cerrar
+                </button>
+              </div>
             </div>
-            <img src={fotoAmpliadaUrl} alt="Foto ampliada" className="max-w-full max-h-[85vh] rounded-xl object-contain" />
           </div>
         </div>
       )}
+
+      {/* Input siempre montado: para reemplazar foto desde modal o desde placeholder vacio */}
+      <input ref={fotoReplaceInputRef} type="file" accept="image/*" style={{ display: "none" }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f && fotoAmpliadaItem) reemplazarFoto(fotoAmpliadaItem, f);
+          if (e.target) e.target.value = "";
+        }} />
     </div>
   );
 }
@@ -1464,5 +1523,87 @@ function KpiCard({ icon: Icon, accent, label, value, sub }: {
         <p style={{ fontSize: "11px", fontWeight: 600, color: "rgba(180,200,228,0.78)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 3 }}>{label}{sub ? ` (${sub})` : ""}</p>
       </div>
     </div>
+  );
+}
+
+
+function IconBtn({
+  onClick, href, icon: Icon, title, variant
+}: {
+  onClick?: () => void;
+  href?: string;
+  icon: ElementType;
+  title: string;
+  variant: "primary" | "emerald" | "rose" | "amber";
+}) {
+  const variants: Record<string, { bg: string; bgHover: string; iconColor: string }> = {
+    primary: {
+      bg: "transparent",
+      bgHover: "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)",
+      iconColor: "#7BB6FF",
+    },
+    emerald: {
+      bg: "transparent",
+      bgHover: "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)",
+      iconColor: "#22D88A",
+    },
+    rose: {
+      bg: "transparent",
+      bgHover: "linear-gradient(180deg, #C8444A 0%, #A53039 100%)",
+      iconColor: "#FF6470",
+    },
+    amber: {
+      bg: "transparent",
+      bgHover: "linear-gradient(180deg, #B5811C 0%, #8E631A 100%)",
+      iconColor: "#F59E0B",
+    },
+  };
+  const v = variants[variant];
+  const baseStyle: CSSProperties = {
+    width: 34,
+    height: 34,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: v.bg,
+    color: v.iconColor,
+    transition: "all 120ms ease",
+    cursor: "pointer",
+    borderLeft: "1px solid rgba(140,178,228,0.10)",
+  };
+  const handleEnter = (el: HTMLElement) => {
+    el.style.background = v.bgHover;
+    el.style.color = "#FFFFFF";
+    el.style.boxShadow = "inset 0 1px 0 rgba(220,235,255,0.10)";
+  };
+  const handleLeave = (el: HTMLElement) => {
+    el.style.background = v.bg;
+    el.style.color = v.iconColor;
+    el.style.boxShadow = "none";
+  };
+  if (href) {
+    return (
+      <Link
+        href={href}
+        title={title}
+        style={baseStyle}
+        onMouseEnter={(e) => handleEnter(e.currentTarget)}
+        onMouseLeave={(e) => handleLeave(e.currentTarget)}
+      >
+        <Icon style={{ width: 16, height: 16 }} strokeWidth={2.2} />
+      </Link>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      style={baseStyle}
+      onMouseEnter={(e) => handleEnter(e.currentTarget)}
+      onMouseLeave={(e) => handleLeave(e.currentTarget)}
+    >
+      <Icon style={{ width: 16, height: 16 }} strokeWidth={2.2} />
+    </button>
   );
 }
