@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
   const obraId = searchParams.get("obra_id");
   const obraParam = searchParams.get("obra_nombre") || "";
   const format = (searchParams.get("format") || "excel").toLowerCase();
+  const mode = (searchParams.get("mode") || "full").toLowerCase();
 
   if (!obraId) {
     return NextResponse.json({ error: "Falta obra_id" }, { status: 400 });
@@ -80,7 +81,7 @@ export async function GET(req: NextRequest) {
     if (format === "excel") {
       return await exportExcel(inventario, obraNombre, generadoEn, email);
     } else if (format === "pdf") {
-      return exportPDFHtml(inventario, obraNombre, generadoEn, email);
+      return exportPDFHtml(inventario, obraNombre, generadoEn, email, mode);
     } else {
       return NextResponse.json({ error: "Formato inválido. Use 'excel' o 'pdf'" }, { status: 400 });
     }
@@ -301,8 +302,13 @@ function exportPDFHtml(
   inventario: InventarioRow[],
   obraNombre: string,
   generadoEn: string,
-  email: string
+  email: string,
+  mode: string = "full"
 ): NextResponse {
+  if (mode === "galeria") {
+    return exportPDFGaleria(inventario, obraNombre, generadoEn, email);
+  }
+  const showFoto = mode !== "nofotos";
   let totalDisp = 0;
   let totalUsado = 0;
   let bajoStock = 0;
@@ -340,7 +346,7 @@ function exportPDFHtml(
     return `
       <tr class="${idx % 2 === 0 ? "row-par" : "row-impar"}${stockBajo ? " stock-bajo" : ""}">
         <td class="text-center text-gray">${idx + 1}</td>
-        <td class="text-center">${fotoHtml}</td>
+        ${showFoto ? `<td class="text-center">${fotoHtml}</td>` : ""}
         <td class="bold">${escHtml(item.producto_nombre)}</td>
         <td class="text-center">${tipoHtml}</td>
         <td class="text-center${stockBajo ? " text-warn bold" : " text-success bold"}">${item.cantidad_disponible}</td>
@@ -589,8 +595,8 @@ function exportPDFHtml(
   <thead>
     <tr>
       <th style="width:4%">#</th>
-      <th style="width:7%">Foto</th>
-      <th style="width:22%;text-align:left">Producto</th>
+      ${showFoto ? `<th style="width:7%">Foto</th>` : ""}
+      <th style="width:${showFoto ? "22" : "27"}%;text-align:left">Producto</th>
       <th style="width:9%">Tipo</th>
       <th style="width:9%">Disponible</th>
       <th style="width:8%">Usado</th>
@@ -603,7 +609,7 @@ function exportPDFHtml(
     ${rows}
     <tr class="totals-row">
       <td></td>
-      <td></td>
+      ${showFoto ? `<td></td>` : ""}
       <td>TOTAL — ${inventario.length} productos</td>
       <td></td>
       <td class="text-center">${totalDisp.toLocaleString("es-MX")}</td>
@@ -635,6 +641,62 @@ function exportPDFHtml(
       "Cache-Control": "no-store",
     },
   });
+}
+
+
+
+// PDF Galeria modo (P-5)
+function exportPDFGaleria(
+  inventario: InventarioRow[],
+  obraNombre: string,
+  generadoEn: string,
+  email: string
+): NextResponse {
+  const conFoto = inventario.filter(i => i.foto_url && String(i.foto_url).trim().length > 0);
+  const cards = conFoto.map((item) => {
+    const tipo = (item as { tipo?: string }).tipo || "MATERIAL";
+    const tipoLabel = tipo === "HERRAMIENTA" ? "Herramienta" : "Material";
+    return `
+      <div class="card">
+        <div class="card-img-wrap"><img src="${escHtml(item.foto_url || "")}" alt="${escHtml(item.producto_nombre)}" class="card-img" onerror="this.style.display='none'" /></div>
+        <div class="card-body">
+          <div class="card-title">${escHtml(item.producto_nombre)}</div>
+          <div class="card-meta">
+            <span class="card-tipo ${tipo === "HERRAMIENTA" ? "tipo-herr" : "tipo-mat"}">${tipoLabel}</span>
+            <span class="card-stock">${item.cantidad_disponible} ${escHtml(item.unidad)}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+  const sinFoto = inventario.length - conFoto.length;
+  const html = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8" /><title>ARIA27 - Galeria ${escHtml(obraNombre)}</title>
+<style>
+  @page { size: letter; margin: 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a2a1a; }
+  .header { border-bottom: 3px solid #10b981; padding-bottom: 8px; margin-bottom: 16px; }
+  .header h1 { font-size: 16pt; color: #064e3b; margin-bottom: 4px; }
+  .header .meta { font-size: 9pt; color: #475569; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; page-break-inside: avoid; }
+  .card-img-wrap { width: 100%; aspect-ratio: 4 / 3; background: #f8fafc; overflow: hidden; }
+  .card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-body { padding: 8px 10px 10px; }
+  .card-title { font-size: 10pt; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 8.5pt; }
+  .card-tipo { padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 7.5pt; text-transform: uppercase; }
+  .tipo-mat { background: #dbeafe; color: #1e40af; }
+  .tipo-herr { background: #fef3c7; color: #92400e; }
+  .card-stock { color: #475569; font-weight: 600; }
+  .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #cbd5e1; font-size: 8pt; color: #475569; display: flex; justify-content: space-between; }
+</style></head><body>
+  <div class="header"><h1>Galeria de Inventario - ${escHtml(obraNombre)}</h1>
+    <div class="meta">${conFoto.length} productos con foto${sinFoto ? ` (${sinFoto} sin foto)` : ""} - ${escHtml(generadoEn)}</div></div>
+  <div class="grid">${cards || '<p style="color:#475569;font-size:11pt">No hay productos con foto en este inventario.</p>'}</div>
+  <div class="footer"><span>ARIA27 ERP - Grupo Constructor Urbano Avante - Usuario: ${escHtml(email)}</span><span>${escHtml(generadoEn)}</span></div>
+</body></html>`;
+  return new NextResponse(html, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
 }
 
 // ─── Util ────────────────────────────────────────────────────────────────────

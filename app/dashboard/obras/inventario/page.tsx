@@ -695,12 +695,14 @@ export default function InventarioObraPage() {
     setExportandoExcel(false);
   };
 
-  const exportarPDF = async () => {
+  const [showPDFMenu, setShowPDFMenu] = useState(false);
+  const exportarPDF = async (mode: "full" | "nofotos" | "galeria" = "full") => {
     if (!obraSeleccionada) return;
+    setShowPDFMenu(false);
     setExportandoPDF(true);
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
-      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
+      const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf&mode=${mode}`;
       const res = await fetch(url, { headers: { "x-user-email": email } });
       if (!res.ok) { flash("err", "Error al generar PDF"); return; }
       const html = await res.text();
@@ -711,7 +713,8 @@ export default function InventarioObraPage() {
       const fecha = now.toISOString().slice(0, 10);
       const hora = now.toTimeString().slice(0, 8).replace(/:/g, "-");
       const obraNombre = obraSeleccionada.name.replace(/ /g, "_").replace(/[^a-zA-Z0-9_]/g, "");
-      const filename = `ARIA27_Inventario_${obraNombre}_${fecha}_${hora}.html`;
+      const modeSuffix = mode === "galeria" ? "_galeria" : mode === "nofotos" ? "_sinfotos" : "";
+      const filename = `ARIA27_Inventario_${obraNombre}${modeSuffix}_${fecha}_${hora}.html`;
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
@@ -839,7 +842,28 @@ export default function InventarioObraPage() {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <ActionBtn onClick={exportarExcel} disabled={exportandoExcel || inventario.length === 0} loading={exportandoExcel} icon={FileSpreadsheet} label="Excel" variant="emerald" />
-          <ActionBtn onClick={exportarPDF}   disabled={exportandoPDF   || inventario.length === 0} loading={exportandoPDF}   icon={FileText}        label="PDF"   variant="rose" />
+          <div className="relative">
+            <ActionBtn onClick={() => setShowPDFMenu(v => !v)} disabled={exportandoPDF || inventario.length === 0} loading={exportandoPDF} icon={FileText} label="PDF" variant="rose" />
+            {showPDFMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowPDFMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 w-56 rounded-lg shadow-2xl z-50 overflow-hidden" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.18)" }}>
+                  <button type="button" onClick={() => exportarPDF("full")} className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] border-b border-white/[0.04] text-xs text-white">
+                    <div className="font-medium flex items-center gap-2"><ImageIcon className="w-3.5 h-3.5 text-aria-accent"/>PDF con fotos</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Tabla completa con thumbnails (default)</div>
+                  </button>
+                  <button type="button" onClick={() => exportarPDF("nofotos")} className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] border-b border-white/[0.04] text-xs text-white">
+                    <div className="font-medium flex items-center gap-2"><Download className="w-3.5 h-3.5 text-aria-accent"/>PDF sin fotos</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Tabla mas ligera, ideal para print BN</div>
+                  </button>
+                  <button type="button" onClick={() => exportarPDF("galeria")} className="w-full text-left px-3 py-2.5 hover:bg-white/[0.06] text-xs text-white">
+                    <div className="font-medium flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-aria-accent"/>Solo galeria</div>
+                    <div className="text-[10px] text-[#7f93b0] mt-0.5">Solo fotos grandes en cuadricula 3x</div>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <ActionBtn onClick={abrirNuevoMaterial} icon={Plus} label="Nuevo Material" variant="primary" />
         </div>
       </div>
