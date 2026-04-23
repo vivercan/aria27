@@ -403,9 +403,7 @@ Responde SOLO con JSON así:
     <div className="max-w-7xl mx-auto space-y-3 text-sm">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
-        <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-          <ArrowLeft className="w-4 h-4 text-[#7f93b0]" />
-        </button>
+        <AriaBackButton onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} />
         <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
         <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
         <span className="text-[#7f93b0] flex-1">{selectedReq.cost_center_name}</span>

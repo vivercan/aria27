@@ -520,15 +520,10 @@ export default function FiniquitosPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
-              <button
-                onClick={() => {
+              <AriaBackButton onClick={() => {
                   resetForm();
                   setView("list");
-                }}
-                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-              </button>
+                }} />
               <h1 className="text-2xl font-bold">Nuevo Finiquito</h1>
             </div>
 
@@ -972,15 +967,10 @@ export default function FiniquitosPage() {
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">
             <div className="flex items-center gap-4 mb-4">
-              <button
-                onClick={() => {
+              <AriaBackButton onClick={() => {
                   setView("list");
                   setCurrentFiniquito(null);
-                }}
-                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-              </button>
+                }} />
               <h1 className="text-2xl font-bold">Detalle del Finiquito</h1>
             </div>
 

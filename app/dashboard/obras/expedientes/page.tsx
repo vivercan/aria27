@@ -918,9 +918,7 @@ export default function ExpedientesPage() {
         )}
 
         <div className="flex items-center gap-3 flex-wrap">
-          <button onClick={volverNivel} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors shrink-0">
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </button>
+          <AriaBackButton onClick={volverNivel} />
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-white truncate max-w-full">{carpetaAnioSeleccionada.nombre}</h1>
             <div className="text-[#7f93b0] text-xs flex flex-wrap items-center gap-1 mt-0.5">
@@ -1129,9 +1127,7 @@ export default function ExpedientesPage() {
         )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => { setAnioSeleccionado(null); loadCarpetasCounts(); }} className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-            </button>
+            <AriaBackButton onClick={() => { setAnioSeleccionado(null); loadCarpetasCounts(); }} />
             <div>
               <h1 className="text-2xl font-bold text-white">Año {anioSeleccionado === "SIN_ANIO" ? "— Sin fecha" : anioSeleccionado}</h1>
               <p className="text-[#7f93b0] text-sm">{carpetasAnio.length} {carpetasAnio.length === 1 ? "carpeta libre" : "carpetas libres"} · {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "obra" : "obras"}</p>
@@ -1376,12 +1372,7 @@ export default function ExpedientesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => { setObraSeleccionada(null); setCarpetaSeleccionada(null); }}
-            className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-          </button>
+          <AriaBackButton onClick={() => { setObraSeleccionada(null); setCarpetaSeleccionada(null); }} />
           <div>
             <h1 className="text-2xl font-bold text-white">{obraSeleccionada.name}</h1>
             <p className="text-[#7f93b0] text-sm">Expediente de obra</p>

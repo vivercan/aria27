@@ -9,6 +9,7 @@ import {
   Loader2, File as FileIcon, Image, FileText, Trash2, Check,
   CheckSquare, Square, ChevronRight, X, Eye, Lock, Globe, Inbox
 } from "lucide-react";
+import AriaBackButton from "@/components/AriaBackButton";
 
 const log = clientLogger("MIS-DOCS");
 const BUCKET = "expedientes";
@@ -420,9 +421,7 @@ export default function MisDocumentosPage() {
       <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-white/[0.05] bg-[#0a1628]/50 ">
         <div className="flex items-center gap-3">
           {view === "files" && (
-            <button onClick={goBack} className="p-2 rounded-lg bg-white/[0.05] hover:bg-[#162040]/50 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-[#c9d8ed]" />
-            </button>
+            <AriaBackButton onClick={goBack} />
           )}
           <div>
             <h1 className="text-2xl font-bold text-white">Mis Documentos</h1>
