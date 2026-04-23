@@ -232,7 +232,7 @@ export default function ConcretoRemisionesPage() {
   const cilindrosPorRem = (remId: string) => cilindros.filter(c => c.remision_id === remId);
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <ConfirmModal open={confirmState.open} message={confirmState.msg} onConfirm={() => { confirmState.onOk(); setConfirmState(p => ({...p, open: false})); }} onCancel={() => setConfirmState(p => ({...p, open: false}))} />
       <div className="flex items-center gap-4">

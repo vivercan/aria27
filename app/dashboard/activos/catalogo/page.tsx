@@ -339,7 +339,7 @@ export default function ActivosCatalogoPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       {/* EX-4 18-Abr-2026: PageHeader canónico */}
       <PageHeader
         title="Gestión de Activos"

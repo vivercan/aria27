@@ -80,7 +80,7 @@ export default function WhatsAppLogPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <div className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08]">
         <AriaBackButton href="/dashboard" />
         <h1 className="mt-2 text-2xl font-bold text-white flex items-center gap-2">

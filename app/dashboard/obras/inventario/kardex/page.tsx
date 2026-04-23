@@ -53,7 +53,7 @@ function KardexContent() {
   const totalSalidas = movs.filter(m => m.tipo === "SALIDA").reduce((s, m) => s + Number(m.cantidad), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras/inventario" />
         <div className="flex-1">

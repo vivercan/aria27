@@ -493,13 +493,13 @@ button:not(.btn-flat):not(.aria-btn-ghost):not(.aria-btn-icon)
 /* Wrapper raiz canonico */
 .aria-page-canon {
   padding: 16px 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  min-height: 100%;
   background:
     radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%),
     linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%);
+}
+.aria-page-canon > * + * {
+  margin-top: 16px;
 }
 
 /* Header bloque canonico (azul rey) */

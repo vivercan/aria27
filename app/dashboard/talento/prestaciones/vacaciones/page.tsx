@@ -187,7 +187,7 @@ export default function VacacionesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       {/* Header */}
       <div className="flex items-center justify-between">

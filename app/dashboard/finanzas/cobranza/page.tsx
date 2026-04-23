@@ -129,7 +129,7 @@ export default function CobranzaPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <AriaBackButton href="/dashboard/finanzas" />
 

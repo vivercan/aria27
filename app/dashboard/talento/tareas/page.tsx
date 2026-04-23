@@ -216,7 +216,7 @@ export default function TareasTalentoPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/talento" />
         <div className="flex-1">
