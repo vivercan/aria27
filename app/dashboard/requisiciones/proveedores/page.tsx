@@ -21,14 +21,14 @@ interface Supplier {
   email: string | null; address: string | null; categories: string[] | string | null;
   contact_name: string | null; credit_days: number | null; active: boolean;
   website: string | null; whatsapp: string | null; bank_name: string | null;
-  bank_clabe: string | null; payment_method: string | null; razon_social: string | null;
+  bank_clabe: string | null; bank_account_number: string | null; payment_method: string | null; razon_social: string | null;
   zona_cobertura: string | null; notas_comerciales: string | null;
 }
 
 const EMPTY_FORM = {
   name:"",rfc:"",phone:"",email:"",address:"",categories:"",contact_name:"",
   credit_days:0,website:"",whatsapp:"",bank_name:"",bank_clabe:"",
-  payment_method:"TRANSFERENCIA",razon_social:"",zona_cobertura:"",notas_comerciales:""
+  bank_account_number:"",payment_method:"TRANSFERENCIA",razon_social:"",zona_cobertura:"",notas_comerciales:""
 };
 
 export default function ProveedoresPage() {
@@ -41,6 +41,8 @@ export default function ProveedoresPage() {
   const [loading,setLoading] = useState(true);
   const [search,setSearch] = useState("");
   const [filterCat,setFilterCat] = useState("");
+  // FC2 23-Abr-2026: tabs Activos / Catalogo
+  const [tabFilter,setTabFilter] = useState<"ACTIVOS" | "CATALOGO" | "TODOS">("ACTIVOS");
   const [showModal,setShowModal] = useState(false);
   const [editingId,setEditingId] = useState<string|null>(null);
   const [form,setForm] = useState(EMPTY_FORM);
@@ -52,7 +54,7 @@ export default function ProveedoresPage() {
 
   const loadSuppliers = useCallback(async()=>{
     const{data}=await supabase.from("Proveedores")
-      .select("id,name,rfc,phone,email,address,categories,contact_name,credit_days,active,website,whatsapp,bank_name,bank_clabe,payment_method,razon_social,zona_cobertura,notas_comerciales")
+      .select("id,name,rfc,phone,email,address,categories,contact_name,credit_days,active,website,whatsapp,bank_name,bank_clabe,bank_account_number,payment_method,razon_social,zona_cobertura,notas_comerciales")
       .order("name");
     if(data)setSuppliers(data);
     setLoading(false);
@@ -80,13 +82,17 @@ export default function ProveedoresPage() {
     const ms = !search || s.name?.toLowerCase().includes(search.toLowerCase()) || s.rfc?.toLowerCase().includes(search.toLowerCase()) || s.contact_name?.toLowerCase().includes(search.toLowerCase()) || s.email?.toLowerCase().includes(search.toLowerCase());
     const cats = getCatDisplay(s.categories);
     const mc = !filterCat || cats.includes(filterCat);
-    return ms && mc;
+    // FC2: filtro por tab activos/catalogo
+    const mt = tabFilter === "TODOS" ? true : tabFilter === "ACTIVOS" ? s.active === true : s.active === false;
+    return ms && mc && mt;
   });
+  const countActivos  = suppliers.filter(s => s.active === true).length;
+  const countCatalogo = suppliers.filter(s => s.active === false).length;
 
   const openNew = ()=>{setForm(EMPTY_FORM);setEditingId(null);setShowModal(true);};
   const openEdit = (s:Supplier)=>{
     const catStr = getCatDisplay(s.categories).join(", ");
-    setForm({name:s.name||"",rfc:s.rfc||"",phone:s.phone||"",email:s.email||"",address:s.address||"",categories:catStr,contact_name:s.contact_name||"",credit_days:s.credit_days||0,website:s.website||"",whatsapp:s.whatsapp||"",bank_name:s.bank_name||"",bank_clabe:s.bank_clabe||"",payment_method:s.payment_method||"TRANSFERENCIA",razon_social:s.razon_social||"",zona_cobertura:s.zona_cobertura||"",notas_comerciales:s.notas_comerciales||""});
+    setForm({name:s.name||"",rfc:s.rfc||"",phone:s.phone||"",email:s.email||"",address:s.address||"",categories:catStr,contact_name:s.contact_name||"",credit_days:s.credit_days||0,website:s.website||"",whatsapp:s.whatsapp||"",bank_name:s.bank_name||"",bank_clabe:s.bank_clabe||"",bank_account_number:s.bank_account_number||"",payment_method:s.payment_method||"TRANSFERENCIA",razon_social:s.razon_social||"",zona_cobertura:s.zona_cobertura||"",notas_comerciales:s.notas_comerciales||""});
     setEditingId(s.id);setShowModal(true);
   };
 
@@ -124,6 +130,16 @@ export default function ProveedoresPage() {
     await supabase.from("suppliers").delete().eq("id",id);await loadSuppliers();
   };
 
+  // FC2: toggle active suppliers
+  const toggleActivo = async (id: string, currentActive: boolean) => {
+    const nuevo = !currentActive;
+    const accion = nuevo ? "activar" : "desactivar";
+    if (!confirm(`Confirmas ${accion} este proveedor?`)) return;
+    const { error } = await supabase.from("suppliers").update({ active: nuevo }).eq("id", id);
+    if (error) { flash("err", "No se pudo " + accion + ": " + error.message); return; }
+    flash("ok", nuevo ? "Proveedor activado" : "Proveedor pasado a catalogo");
+    await loadSuppliers();
+  };
   const copyClabe = (id:string,clabe:string)=>{navigator.clipboard.writeText(clabe);setCopiedId(id);setTimeout(()=>setCopiedId(null),2000);};
   const updateField = (f:string,v:string|number)=>setForm(p=>({...p,[f]:v}));
   const confirmDelete = async () => {
@@ -146,6 +162,30 @@ export default function ProveedoresPage() {
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>
           <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-emerald-500/20 text-aria-accent rounded-lg hover:bg-aria-primary/30"><Plus className="w-3 h-3"/>Nuevo</button>
+        </div>
+        <div className="flex items-center gap-1.5 mb-2">
+          {(["ACTIVOS","CATALOGO","TODOS"] as const).map(t => {
+            const active = tabFilter === t;
+            const count = t === "ACTIVOS" ? countActivos : t === "CATALOGO" ? countCatalogo : suppliers.length;
+            return (
+              <button key={t} onClick={() => setTabFilter(t)} type="button"
+                style={{
+                  padding: "5px 12px",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  color: active ? "#FFFFFF" : "rgba(180,200,228,0.72)",
+                  background: active ? "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)" : "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)",
+                  border: active ? "1px solid rgba(160,200,240,0.30)" : "1px solid rgba(140,178,228,0.14)",
+                  boxShadow: active ? "inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30)" : "inset 0 1px 0 rgba(220,235,255,0.04)",
+                  transition: "all 120ms ease",
+                  cursor: "pointer",
+                }}>
+                {t === "ACTIVOS" ? "Activos" : t === "CATALOGO" ? "Catalogo" : "Todos"}
+                <span style={{ marginLeft: 6, opacity: 0.75 }}>({count})</span>
+              </button>
+            );
+          })}
         </div>
         <div className="flex gap-2">
           <div className="flex-1 relative">
@@ -178,6 +218,7 @@ export default function ProveedoresPage() {
                 <th className="text-left py-1.5">Email</th>
                 <th className="text-left py-1.5 w-[100px]">Crédito</th>
                 <th className="text-left py-1.5 w-[120px]">CLABE</th>
+                <th className="text-center py-1.5 w-[80px]">Activo</th>
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
@@ -214,6 +255,29 @@ export default function ProveedoresPage() {
                           {s.bank_name||"CLABE"}
                         </button>
                       ):null}
+                    </td>
+                    <td className="text-center pr-2">
+                      <button
+                        onClick={() => toggleActivo(s.id, s.active)}
+                        title={s.active ? "Activo - click para mover a catalogo" : "En catalogo - click para activar"}
+                        style={{
+                          padding: "3px 9px",
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          borderRadius: "5px",
+                          color: "#FFFFFF",
+                          background: s.active
+                            ? "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)"
+                            : "linear-gradient(180deg, #4A5468 0%, #353C4A 100%)",
+                          border: s.active ? "1px solid rgba(160,230,200,0.30)" : "1px solid rgba(140,160,200,0.18)",
+                          boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 1px 4px rgba(0,0,0,0.30)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {s.active ? "Activo" : "Catalogo"}
+                      </button>
                     </td>
                     <td className="pr-2">
                       <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -286,6 +350,11 @@ export default function ProveedoresPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">Banco</label><input value={form.bank_name} onChange={e=>updateField("bank_name",e.target.value)} className="w-full px-2.5 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none" placeholder="BBVA"/></div>
                   <div><label className="text-[11px] text-[#7f93b0] mb-0.5 block">CLABE</label><input value={form.bank_clabe} onChange={e=>updateField("bank_clabe",e.target.value)} className="w-full px-2.5 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white font-mono placeholder-[#4a6080] focus:border-aria-primary/50 outline-none" placeholder="18 dígitos" maxLength={18}/></div>
+            <div>
+              <label className="block text-[10px] text-[#7f93b0] mb-0.5 uppercase tracking-wide">No. Cuenta</label>
+              <input type="text" value={form.bank_account_number} onChange={e=>updateField("bank_account_number",e.target.value)}
+                placeholder="00-1234-5678" className="w-full px-2 py-1 text-xs aria-input-canon" />
+            </div>
                 </div>
               </div>
               <div>
