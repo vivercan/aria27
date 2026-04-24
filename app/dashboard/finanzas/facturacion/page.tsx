@@ -8,6 +8,7 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { getEntityColor } from "@/lib/entity-colors";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import PortalesBlikonCard from "@/components/PortalesBlikonCard";
 
 interface Factura {
   id: string;
@@ -313,6 +314,9 @@ export default function FacturacionPage() {
           </div>
         </div>
       </div>
+
+      {/* Portales facturacion CFDI - 24-Abr-2026 */}
+      <PortalesBlikonCard />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
