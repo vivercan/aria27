@@ -283,9 +283,7 @@ export default function ComprasPickingPage() {
       <div className="h-full flex flex-col">
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-3 shrink-0">
-        <button onClick={goBack} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </button>
+        <AriaBackButton onClick={goBack} />
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold text-white truncate">{selectedReq.folio}</h1>
           <p className="text-[#7f93b0] text-xs">{selectedReq.cost_center_name}</p>

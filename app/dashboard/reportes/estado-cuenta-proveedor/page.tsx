@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Printer, Loader2, ArrowLeft } from "lucide-react";
+import { Printer, Loader2 } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney as fmt } from "@/lib/formatters";
@@ -84,7 +84,7 @@ function Content() {
     <>
       <div className="no-print sticky top-0 z-20 bg-[#040810]/90 backdrop-blur border-b border-white/[0.08] px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/reportes/estado-cuenta-proveedor" className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-4 h-4 text-white" /></Link>
+          <AriaBackButton href="/dashboard/reportes/estado-cuenta-proveedor" />
           <div className="text-white text-sm">Estado de cuenta · <b>{proveedor}</b></div>
         </div>
         <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-white text-sm"><Printer className="w-4 h-4" /> Imprimir / PDF</button>

@@ -528,12 +528,8 @@ export default function FotosPage() {
 
             {/* Previous button */}
             {photos.length > 1 && (
-              <button
-                onClick={goToPrevious}
-                className="absolute left-4 p-2 rounded-lg bg-white/[0.1] hover:bg-white/[0.2] text-white transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
+              <AriaBackButton
+                onClick={goToPrevious} />
             )}
 
             {/* Next button */}
