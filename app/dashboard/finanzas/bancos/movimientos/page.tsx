@@ -157,7 +157,7 @@ export default function MovimientosBancariosPage() {
   const pendientes = movsFiltrados.filter(m => (m.status_match || "PENDIENTE") === "PENDIENTE").length;
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas/bancos" />

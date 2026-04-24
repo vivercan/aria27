@@ -136,7 +136,7 @@ export default function HistoricoNominaPage() {
   if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

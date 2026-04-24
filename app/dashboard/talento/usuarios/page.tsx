@@ -184,7 +184,7 @@ export default function UsuariosPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       {/* Modal de confirmación de borrado */}
       {deletingUser && (
         <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50">

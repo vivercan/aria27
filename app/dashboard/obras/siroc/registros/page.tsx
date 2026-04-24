@@ -168,7 +168,7 @@ export default function SirocRegistrosPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-4">
         <AriaBackButton href="/dashboard/obras" />

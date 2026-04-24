@@ -177,7 +177,7 @@ export default function AsignacionPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="aria-page-canon">
       {/* EX-4 18-Abr-2026: PageHeader canónico */}
       <PageHeader
         title="Asignación de Activos"
