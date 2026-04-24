@@ -1,11 +1,10 @@
-import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
-import { getResend } from "@/lib/resend";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import { sendWhatsAppFallback } from "@/lib/whatsapp";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmailLogged, REPLY_TO_COMPRAS, BCC_AUDIT } from "@/lib/email-log";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
 
@@ -16,8 +15,6 @@ interface LineItem {
 }
 
 export async function POST(request: NextRequest) {
-  const resend = getResend();
-
   try {
     const { folio, obra, fecha_requerida, items, proveedores, user_email } = await request.json().catch(() => ({}));
 
@@ -57,16 +54,20 @@ export async function POST(request: NextRequest) {
     for (const prov of proveedores) {
       // Email
       if (prov.email) {
-        try {
-          await resend.emails.send({
-            from: RESEND_FROM,
-            to: prov.email,
-            subject: `Solicitud de Cotización - ${folio} - ${obra}`,
-            html: emailHtml,
-          });
+        const res = await sendEmailLogged({
+          template: "requisicion_solicitar_cotizacion",
+          to: prov.email,
+          subject: `[COTIZACION] ${folio} - ${obra}`,
+          html: emailHtml,
+          replyTo: REPLY_TO_COMPRAS,
+          bcc: BCC_AUDIT || undefined,
+          origen: "req-solicitar-cotizacion",
+          enviadoPor: user_email || "compras",
+        });
+        if (res.success) {
           emailsSent++;
-        } catch (e: unknown) {
-          errors.push(`Email ${prov.name}: ${(e as {message?: string})?.message}`);
+        } else {
+          errors.push(`Email ${prov.name}: ${res.error}`);
         }
       }
 

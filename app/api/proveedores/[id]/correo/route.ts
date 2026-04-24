@@ -14,8 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
-import { getResend } from "@/lib/resend";
-import { RESEND_FROM } from "@/lib/email-config";
+import { sendEmailLogged } from "@/lib/email-log";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -69,20 +68,19 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       ariaEmailFooter("Enviado desde ARIA27 ERP por " + escapeHtml(sender))
     );
 
-    const resend = getResend();
-
-    const sent = await resend.emails.send({
-      from: RESEND_FROM,
+    const sent = await sendEmailLogged({
+      template: "proveedor_correo_manual",
       to: supplier.email,
       subject,
       html,
       replyTo: sender,
+      origen: "proveedor-correo-manual",
+      enviadoPor: sender,
     });
 
-    if ((sent as { error?: { message?: string } })?.error) {
-      const e = (sent as { error?: { message?: string } }).error;
-      log.error("resend error", e);
-      return NextResponse.json({ error: String(e?.message || "resend error") }, { status: 502 });
+    if (!sent.success) {
+      log.error("resend error", { error: sent.error });
+      return NextResponse.json({ error: String(sent.error || "resend error") }, { status: 502 });
     }
 
     log.info("correo proveedor enviado", {

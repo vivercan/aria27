@@ -1,10 +1,10 @@
-import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmailLogged } from "@/lib/email-log";
 const log = logger("AUTORIZAR-PICKING");
 
 // Status enum para flujo de requisiciones
@@ -43,10 +43,6 @@ export async function POST(req: NextRequest) {
       log.warn(`[AUTORIZAR-PICKING] denegado para ${user_email} (rol=${callerUser?.role})`);
       return NextResponse.json({ error: "No autorizado para esta acción" }, { status: 403 });
     }
-
-    const { getResend } = await import("@/lib/resend");
-    const resend = getResend();
-
     interface Selection {
       supplier_name: string;
       item_id?: string | number;
@@ -152,18 +148,16 @@ export async function POST(req: NextRequest) {
 
     // Email
     if (compras?.email) {
-      try {
-        const emailResult = await resend.emails.send({
-          from: RESEND_FROM,
-          to: compras.email,
-          subject: `Compra Autorizada ${folio} - ${obra || "N/A"} ($${grandTotal.toLocaleString()})`,
-          html: ariaEmailWrapper(ariaEmailHeader("Compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:18px;margin-bottom:18px;text-align:center"><p style="margin:0;font-size:18px;font-weight:bold;color:#10b981">COMPRA AUTORIZADA</p></div><div style="background:#f8fafc;border-radius:6px;padding:14px;margin-bottom:14px"><p style="margin:0"><strong>Requisicion:</strong> ${folio}</p><p style="margin:6px 0 0"><strong>Obra:</strong> ${obra || "N/A"}</p><p style="margin:6px 0 0"><strong>Total:</strong> <span style="color:#10b981;font-size:18px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p></div><p style="color:#475569;font-weight:600;margin:14px 0 8px">Ordenes de compra:</p>${Object.entries(grouped).map(([name, sitems]: [string, unknown[]]) => { const t = (sitems as Array<{total_price?: number}>).reduce((s: number, i) => s + (i.total_price || 0), 0); return `<div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin:6px 0"><p style="margin:0;color:#0f172a;font-weight:bold">${name} - $${t.toLocaleString()}</p>${(sitems as Array<{product_name?: string; quantity?: number; unit?: string; unit_price?: number}>).map((i) => `<p style="margin:4px 0 0;color:#475569;font-size:12px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}</div>`; }).join("")}</div>` + ariaEmailFooter())
-        });
-        if ((emailResult as Record<string, unknown>)?.error) {
-          log.error("Email compras error", { folio, error: ((emailResult as Record<string, unknown>).error as Record<string, unknown>)?.message });
-        }
-      } catch (emailErr: unknown) {
-        log.error("Email compras exception", { folio, error: (emailErr as Error).message });
+      const emailResult = await sendEmailLogged({
+        template: "requisicion_compra_autorizada_picking",
+        to: compras.email,
+        subject: `[COMPRA AUTORIZADA] ${folio} - ${obra || "N/A"} - $${grandTotal.toLocaleString()}`,
+        html: ariaEmailWrapper(ariaEmailHeader("Compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:18px;margin-bottom:18px;text-align:center"><p style="margin:0;font-size:18px;font-weight:bold;color:#10b981">COMPRA AUTORIZADA</p></div><div style="background:#f8fafc;border-radius:6px;padding:14px;margin-bottom:14px"><p style="margin:0"><strong>Requisicion:</strong> ${folio}</p><p style="margin:6px 0 0"><strong>Obra:</strong> ${obra || "N/A"}</p><p style="margin:6px 0 0"><strong>Total:</strong> <span style="color:#10b981;font-size:18px;font-weight:bold">$${grandTotal.toLocaleString()}</span></p></div><p style="color:#475569;font-weight:600;margin:14px 0 8px">Ordenes de compra:</p>${Object.entries(grouped).map(([name, sitems]: [string, unknown[]]) => { const t = (sitems as Array<{total_price?: number}>).reduce((s: number, i) => s + (i.total_price || 0), 0); return `<div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:6px;margin:6px 0"><p style="margin:0;color:#0f172a;font-weight:bold">${name} - $${t.toLocaleString()}</p>${(sitems as Array<{product_name?: string; quantity?: number; unit?: string; unit_price?: number}>).map((i) => `<p style="margin:4px 0 0;color:#475569;font-size:12px">&bull; ${i.product_name} (${i.quantity} ${i.unit}) @ $${(i.unit_price || 0).toLocaleString()}</p>`).join("")}</div>`; }).join("")}</div>` + ariaEmailFooter()),
+        origen: "oc-picking-compras",
+        enviadoPor: "autorizar-picking",
+      });
+      if (!emailResult.success) {
+        log.error("Email compras error", { folio, error: emailResult.error });
       }
     }
 

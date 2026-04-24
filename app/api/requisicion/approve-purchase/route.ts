@@ -1,7 +1,5 @@
-import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { getResend } from "@/lib/resend";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
@@ -10,6 +8,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 // (!) ZONA CRITICA -- usar admin client. RLS bloquea sequences, purchase_orders, Users.
 // B9 fix: lazy-init para evitar throw en module-level (mismo patrón que B8 en route.ts principal)
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { sendEmailLogged } from "@/lib/email-log";
 let _db: SupabaseClient | undefined;
 function getDb(): SupabaseClient {
   if (!_db) _db = getSupabaseAdmin();
@@ -178,8 +177,6 @@ export async function GET(request: NextRequest) {
     log.warn("Rate limit excedido en approve-purchase", { clientId });
     return rateLimitResponse(rl);
   }
-
-  const resend = getResend();
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
@@ -317,28 +314,29 @@ export async function GET(request: NextRequest) {
       }
 
       if (comprasUser) {
-        try {
-          await resend.emails.send({
-            from: RESEND_FROM, to: comprasUser.email,
-            subject: `OC AUTORIZADA: ${ocFolio} - ${req.folio}`,
-            html: ariaEmailWrapper(ariaEmailHeader("Orden de compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:30px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b;font-size:12px">Requisicion: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div>` + ariaEmailFooter())
-          });
-        } catch (emailErr: unknown) {
-          log.error("Email compras OC exception", { ocFolio, error: (emailErr as Error).message });
-        }
+        await sendEmailLogged({
+          template: "requisicion_oc_autorizada_compras",
+          to: comprasUser.email,
+          subject: `[OC AUTORIZADA] ${ocFolio} - ${req.folio}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Orden de compra autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#f0fdf4;border:2px solid #10b981;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center"><div style="font-size:30px;font-weight:bold;color:#10b981">${ocFolio}</div><div style="color:#64748b;font-size:12px">Requisicion: ${req.folio}</div></div><p><strong>Obra:</strong> ${req.cost_center_name || "N/A"}</p><p><strong>Proveedor elegido:</strong> ${supplierName}</p><p><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div>` + ariaEmailFooter()),
+          origen: "oc-autorizada-compras",
+          enviadoPor: "approve-purchase",
+        });
         if (comprasUser.phone) {
           await sendWhatsAppLogged("oc_generada", [req.folio, ocFolio, req.cost_center_name || "N/A", supplierName, String(total), elegidoData.forma_pago || "Transferencia"], comprasUser.phone, { origen: "oc-generada-approve", enviadoPor: "approve-purchase" });
         }
       }
 
-      try {
-        await resend.emails.send({
-          from: RESEND_FROM, to: req.user_email,
-          subject: `Tu requisici\u00f3n ${req.folio} fue autorizada - ${ocFolio}`,
-          html: ariaEmailWrapper(ariaEmailHeader("Requisicion autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p>Tu requisicion <strong>${req.folio}</strong> ha sido autorizada.</p><div style="background:#f8fafc;border-radius:6px;padding:14px;margin:14px 0"><p style="margin:0"><strong>OC:</strong> ${ocFolio}</p><p style="margin:6px 0 0"><strong>Proveedor:</strong> ${supplierName}</p><p style="margin:6px 0 0"><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>` + ariaEmailFooter())
+      // Guard duplicado: si compras y solicitante son el mismo email, no mandar dos veces.
+      if (req.user_email && req.user_email !== comprasUser?.email) {
+        await sendEmailLogged({
+          template: "requisicion_oc_autorizada_solicitante",
+          to: req.user_email,
+          subject: `[OC AUTORIZADA] ${ocFolio} - ${req.folio}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Requisicion autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p>Tu requisicion <strong>${req.folio}</strong> ha sido autorizada.</p><div style="background:#f8fafc;border-radius:6px;padding:14px;margin:14px 0"><p style="margin:0"><strong>OC:</strong> ${ocFolio}</p><p style="margin:6px 0 0"><strong>Proveedor:</strong> ${supplierName}</p><p style="margin:6px 0 0"><strong>Total:</strong> $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div></div>` + ariaEmailFooter()),
+          origen: "oc-autorizada-solicitante",
+          enviadoPor: "approve-purchase",
         });
-      } catch (emailErr: unknown) {
-        log.error("Email solicitante OC exception", { folio: req.folio, error: (emailErr as Error).message });
       }
 
       // FIX-C: WA al solicitante cuando su OC es autorizada
@@ -371,25 +369,25 @@ export async function GET(request: NextRequest) {
       if (rechErr) { log.error("Error rechazar requisicion", { error: rechErr.message, req: req.folio }); throw new Error(`Error rechazando requisición ${req.folio}: ${rechErr.message}`); }
 
       if (comprasUser) {
-        try {
-          await resend.emails.send({
-            from: RESEND_FROM, to: comprasUser.email,
-            subject: `RECHAZADA: ${req.folio}`,
-            html: ariaEmailWrapper(ariaEmailHeader("Compra rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">La requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter())
-          });
-        } catch (emailErr: unknown) {
-          log.error("Email compras rechazo exception", { folio: req.folio, error: (emailErr as Error).message });
-        }
+        await sendEmailLogged({
+          template: "requisicion_oc_rechazada_compras",
+          to: comprasUser.email,
+          subject: `[RECHAZADA] ${req.folio}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Compra rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">La requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter()),
+          origen: "oc-rechazada-compras",
+          enviadoPor: "approve-purchase",
+        });
       }
 
-      try {
-        await resend.emails.send({
-          from: RESEND_FROM, to: req.user_email,
-          subject: `Requisici\u00f3n ${req.folio} rechazada por Direcci\u00f3n`,
-          html: ariaEmailWrapper(ariaEmailHeader("Requisicion rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">Tu requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter())
+      if (req.user_email && req.user_email !== comprasUser?.email) {
+        await sendEmailLogged({
+          template: "requisicion_oc_rechazada_solicitante",
+          to: req.user_email,
+          subject: `[RECHAZADA] ${req.folio}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Requisicion rechazada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#991b1b">Tu requisicion <strong>${req.folio}</strong> fue rechazada por Direccion.</p></div></div>` + ariaEmailFooter()),
+          origen: "oc-rechazada-solicitante",
+          enviadoPor: "approve-purchase",
         });
-      } catch (emailErr: unknown) {
-        log.error("Email solicitante rechazo exception", { folio: req.folio, error: (emailErr as Error).message });
       }
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x274C;</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });

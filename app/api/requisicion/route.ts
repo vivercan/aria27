@@ -1,11 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
+import { sendEmailLogged } from "@/lib/email-log";
 
 const log = logger("REQUISICION");
 
@@ -100,7 +100,6 @@ export async function POST(request: NextRequest) {
   const logs: string[] = [];
 
   try {
-    const resend = getResend();
     const body = await request.json().catch(() => ({}));
     const { usuario, obra, comentarios, materiales, requiredDate, solicitante, subcategoria } = body;
 
@@ -237,15 +236,18 @@ export async function POST(request: NextRequest) {
     const destinoTexto = flujo === "direccion" ? "Dirección para autorización" : "Compras";
 
     // 1. EMAIL + WA AL CREADOR
-    try {
-      await resend.emails.send({
-        from: "ARIA27 <noreply@mail.jjcrm27.com>", to: usuario.email,
-        subject: `Requisicion ${folio} generada`,
-        html: ariaEmailWrapper(ariaEmailHeader("ARIA27 ERP") + `<div style="padding:25px"><h2 style="color:#1e3a5f;margin-top:0">Requisicion Generada</h2><p>Hola <strong>${displayName}</strong>, tu requisicion ha sido registrada y enviada a ${destinoTexto}.</p><div style="background:#f8fafc;border-radius:8px;padding:20px;margin:20px 0"><table style="width:100%"><tr><td style="color:#64748b">Folio:</td><td style="font-weight:bold">${folio}</td></tr><tr><td style="color:#64748b">Obra:</td><td style="font-weight:bold">${obra}</td></tr><tr><td style="color:#64748b">Generada:</td><td>${fechaGen}</td></tr><tr><td style="color:#64748b">Requerida:</td><td style="font-weight:bold;color:${urgencyColor}">${fechaReq}</td></tr></table></div>${tablaHtml}</div>` + emailFooter)
+    {
+      const r = await sendEmailLogged({
+        template: "requisicion_creada_creador",
+        to: usuario.email,
+        subject: `[CREADA] ${folio} - ${obra}`,
+        html: ariaEmailWrapper(ariaEmailHeader("ARIA27 ERP") + `<div style="padding:25px"><h2 style="color:#1e3a5f;margin-top:0">Requisicion Generada</h2><p>Hola <strong>${displayName}</strong>, tu requisicion ha sido registrada y enviada a ${destinoTexto}.</p><div style="background:#f8fafc;border-radius:8px;padding:20px;margin:20px 0"><table style="width:100%"><tr><td style="color:#64748b">Folio:</td><td style="font-weight:bold">${folio}</td></tr><tr><td style="color:#64748b">Obra:</td><td style="font-weight:bold">${obra}</td></tr><tr><td style="color:#64748b">Generada:</td><td>${fechaGen}</td></tr><tr><td style="color:#64748b">Requerida:</td><td style="font-weight:bold;color:${urgencyColor}">${fechaReq}</td></tr></table></div>${tablaHtml}</div>` + emailFooter),
+        origen: "req-creada-creador",
+        enviadoPor: usuario.email,
       });
-      logs.push(`Email creador OK: ${usuario.email}`);
-      logger("REQUISICION").info(`[REQUISICION] Email creador OK: ${usuario.email}`);
-    } catch (e: unknown) { logs.push(`Email creador ERROR: ${(e as {message?: string})?.message}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, (e as {message?: string})?.message); }
+      if (r.success) { logs.push(`Email creador OK: ${usuario.email}`); logger("REQUISICION").info(`[REQUISICION] Email creador OK: ${usuario.email}`); }
+      else { logs.push(`Email creador ERROR: ${r.error}`); logger("REQUISICION").error(`[REQUISICION] Email creador ERROR:`, r.error); }
+    }
 
     if (creatorUser?.phone) {
       await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
@@ -254,15 +256,18 @@ export async function POST(request: NextRequest) {
 
     // 2. EMAIL + WA A COMPRAS (solo flujo compras)
     if (flujo === "compras" && comprasUser) {
-      try {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
-          subject: `COTIZAR: ${folio} - ${urgencyText}`,
-          html: ariaEmailWrapper(ariaEmailHeader("Nueva Requisicion para Compras") + `<div style="background:${urgencyColor};color:white;padding:18px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div>` + emailFooter)
+      {
+        const r = await sendEmailLogged({
+          template: "requisicion_creada_compras",
+          to: comprasUser.email,
+          subject: `[COTIZAR] ${folio} - ${obra} - ${urgencyText}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Nueva Requisicion para Compras") + `<div style="background:${urgencyColor};color:white;padding:18px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div>` + emailFooter),
+          origen: "req-creada-compras",
+          enviadoPor: usuario.email,
         });
-        logs.push(`Email compras OK: ${comprasUser.email}`);
-        logger("REQUISICION").info(`[REQUISICION] Email compras OK: ${comprasUser.email}`);
-      } catch (e: unknown) { logs.push(`Email compras ERROR: ${(e as {message?: string})?.message}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, (e as {message?: string})?.message); }
+        if (r.success) { logs.push(`Email compras OK: ${comprasUser.email}`); logger("REQUISICION").info(`[REQUISICION] Email compras OK: ${comprasUser.email}`); }
+        else { logs.push(`Email compras ERROR: ${r.error}`); logger("REQUISICION").error(`[REQUISICION] Email compras ERROR:`, r.error); }
+      }
 
       if (comprasUser.phone) {
         await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
@@ -275,15 +280,18 @@ export async function POST(request: NextRequest) {
       const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`;
       const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`;
 
-      try {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: direccionUser.email,
-          subject: `AUTORIZAR: ${folio} - ${subcategoria} - ${urgencyText}`,
-          html: ariaEmailWrapper(ariaEmailHeader("Solicitud Directa de Autorizacion") + `<div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:28px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">${subcategoria} - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Tipo:</strong> ${subcategoria}</p></div>${tablaHtml}<div style="text-align:center;margin:30px 0"><a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a><a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a></div></div>` + emailFooter)
+      {
+        const r = await sendEmailLogged({
+          template: "requisicion_creada_direccion",
+          to: direccionUser.email,
+          subject: `[AUTORIZAR] ${folio} - ${obra} - ${subcategoria} - ${urgencyText}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Solicitud Directa de Autorizacion") + `<div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:28px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">${subcategoria} - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Tipo:</strong> ${subcategoria}</p></div>${tablaHtml}<div style="text-align:center;margin:30px 0"><a href="${approveUrl}" style="display:inline-block;background:#10b981;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">AUTORIZAR</a><a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a></div></div>` + emailFooter),
+          origen: "req-creada-direccion",
+          enviadoPor: usuario.email,
         });
-        logs.push(`Email dirección OK: ${direccionUser.email}`);
-        logger("REQUISICION").info(`[REQUISICION] Email dirección OK: ${direccionUser.email}`);
-      } catch (e: unknown) { logs.push(`Email dirección ERROR: ${(e as {message?: string})?.message}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, (e as {message?: string})?.message); }
+        if (r.success) { logs.push(`Email dirección OK: ${direccionUser.email}`); logger("REQUISICION").info(`[REQUISICION] Email dirección OK: ${direccionUser.email}`); }
+        else { logs.push(`Email dirección ERROR: ${r.error}`); logger("REQUISICION").error(`[REQUISICION] Email dirección ERROR:`, r.error); }
+      }
 
       if (direccionUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], direccionUser.phone, { origen: "req-creada-direccion", enviadoPor: usuario.email });
@@ -293,15 +301,18 @@ export async function POST(request: NextRequest) {
 
     // 3. EMAIL AL ADMIN (informativo)
     if (!isAdmin && adminUser) {
-      try {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: adminUser.email,
-          subject: `Nueva requisicion ${folio} - ${displayName}`,
-          html: ariaEmailWrapper(ariaEmailHeader("Nueva Requisicion") + `<div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:30px;font-weight:bold">${urgencyText}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Para:</strong> ${fechaReq}</p></div>${tablaHtml}</div>` + emailFooter)
+      {
+        const r = await sendEmailLogged({
+          template: "requisicion_creada_admin",
+          to: adminUser.email,
+          subject: `[CREADA] ${folio} - ${obra} - ${displayName}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Nueva Requisicion") + `<div style="background:${urgencyColor};color:white;padding:15px;text-align:center"><div style="font-size:30px;font-weight:bold">${urgencyText}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Solicitante:</strong> ${displayName}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Para:</strong> ${fechaReq}</p></div>${tablaHtml}</div>` + emailFooter),
+          origen: "req-creada-admin",
+          enviadoPor: usuario.email,
         });
-        logs.push(`Email admin OK: ${adminUser.email}`);
-        logger("REQUISICION").info(`[REQUISICION] Email admin OK: ${adminUser.email}`);
-      } catch (e: unknown) { logs.push(`Email admin ERROR: ${(e as {message?: string})?.message}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, (e as {message?: string})?.message); }
+        if (r.success) { logs.push(`Email admin OK: ${adminUser.email}`); logger("REQUISICION").info(`[REQUISICION] Email admin OK: ${adminUser.email}`); }
+        else { logs.push(`Email admin ERROR: ${r.error}`); logger("REQUISICION").error(`[REQUISICION] Email admin ERROR:`, r.error); }
+      }
 
       if (adminUser.phone) {
         await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], adminUser.phone, { origen: "req-creada-admin", enviadoPor: usuario.email });
