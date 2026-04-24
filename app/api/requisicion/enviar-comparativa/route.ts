@@ -1,10 +1,10 @@
-import { RESEND_FROM } from "@/lib/email-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import crypto from "crypto";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmailLogged } from "@/lib/email-log";
 const log = logger("ENVIAR-COMPARATIVA");
 
 // ===== TypeScript Interfaces =====
@@ -74,8 +74,6 @@ interface WhatsAppResult {
 
 export async function POST(req: NextRequest) {
   try {
-    const { getResend } = await import("@/lib/resend");
-    const resend = getResend();
     const body = await req.json().catch(() => ({}));
     const { requisition_id, folio, obra, quotes, items, items_detail, suppliers, user_email } = body;
 
@@ -205,13 +203,20 @@ export async function POST(req: NextRequest) {
     let emailResult: EmailResult | null = null;
     let emailError: string | null = null;
     try {
-      emailResult = await resend.emails.send({ from: RESEND_FROM, to: director.email, subject: `Comparativa: ${folio} - ${obra} (${supList.length || quotes?.length || 0} proveedores)`, html: emailHTML }) as unknown as EmailResult;
-      if (emailResult?.error) {
-        const errMsg = typeof emailResult.error === "string" ? emailResult.error : (emailResult.error as Record<string, unknown>)?.message ? String((emailResult.error as Record<string, unknown>).message) : JSON.stringify(emailResult.error);
-        emailError = errMsg;
+      const sendRes = await sendEmailLogged({
+        template: "requisicion_comparativa_director",
+        to: director.email,
+        subject: `[COMPARATIVA] ${folio} - ${obra} - ${supList.length || quotes?.length || 0} proveedores`,
+        html: emailHTML,
+        origen: "req-comparativa-director",
+        enviadoPor: "enviar-comparativa",
+      });
+      emailResult = { data: sendRes.messageId ? { id: sendRes.messageId } : undefined, error: sendRes.error || undefined } as unknown as EmailResult;
+      if (!sendRes.success) {
+        emailError = sendRes.error || "unknown";
         log.error("Resend email error", { id: requisition_id, error: emailError });
       } else {
-        log.info("Email enviado", { to: director.email, id: emailResult?.data?.id });
+        log.info("Email enviado", { to: director.email, id: sendRes.messageId });
       }
     } catch (e: unknown) {
       emailError = (e as Error)?.message || String(e);

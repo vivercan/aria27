@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import { sendWhatsAppFallback } from "@/lib/whatsapp";
-import { getResend } from "@/lib/resend";
+import { sendEmailLogged } from "@/lib/email-log";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("REGISTRAR-ENTREGA");
@@ -16,11 +16,15 @@ interface Material {
   unidad?: string;
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
-  try {
-    const resend = getResend();
-    await resend.emails.send({ from: "ARIA27 <noreply@mail.jjcrm27.com>", to, subject, html });
-  } catch (e: unknown) { log.error("Error email:", e); }
+async function sendEmail(to: string, subject: string, html: string, enviadoPor?: string) {
+  await sendEmailLogged({
+    template: "requisicion_entrega_registrada",
+    to,
+    subject,
+    html,
+    origen: "req-entrega-registrada",
+    enviadoPor: enviadoPor || "registrar-entrega",
+  });
 }
 
 // PL07 17-Abr-2026: aplica materiales a inventario_obra vía RPC atómico.

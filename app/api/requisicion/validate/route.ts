@@ -1,10 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
-import { getResend } from "@/lib/resend";
 import { sendWhatsAppLogged, sendWhatsAppFallback } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmailLogged } from "@/lib/email-log";
 const log = logger("REQ-VALIDATE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -32,8 +32,6 @@ export async function GET(request: Request) {
     const nReq = new NextRequest(request);
     const rl = checkRateLimit(getClientIdentifier(nReq), { key: "req:validate", ...RATE_LIMITS.READ });
     if (!rl.allowed) return rateLimitResponse(rl);
-
-    const resend = getResend();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
     const action = searchParams.get("action");
@@ -115,10 +113,13 @@ export async function GET(request: Request) {
 
       if (comprasUser) {
         try {
-          await resend.emails.send({
-            from: "ARIA27 <noreply@mail.jjcrm27.com>", to: comprasUser.email,
-            subject: `COTIZAR: ${req.folio} - ${urgencyText}`,
-            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`
+          await sendEmailLogged({
+            template: "requisicion_validada_compras",
+            to: comprasUser.email,
+            subject: `[COTIZAR] ${req.folio} - ${urgencyText}`,
+            html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#3b82f6;color:white;padding:25px;text-align:center"><h1 style="margin:0">Nueva Requisicion para Compras</h1></div><div style="background:${urgencyColor};color:white;padding:20px;text-align:center"><div style="font-size:36px;font-weight:bold">${urgencyText}</div><div>para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${req.folio}</p><p><strong>Obra:</strong> ${req.cost_center_name}</p><p><strong>Solicitante:</strong> ${req.created_by}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div></div>`,
+            origen: "req-validada-compras",
+            enviadoPor: "validate-link",
           });
         } catch (emailErr: unknown) {
           log.error("Email compras cotizar exception", { folio: req.folio, error: (emailErr as Error).message });
@@ -135,10 +136,13 @@ export async function GET(request: Request) {
       const creatorUser = await getUserByEmail(req.user_email);
       
       try {
-        await resend.emails.send({
-          from: "ARIA27 <noreply@mail.jjcrm27.com>", to: req.user_email,
-          subject: `Requisicion ${req.folio} rechazada`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada por el validador.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`
+        await sendEmailLogged({
+          template: "requisicion_rechazada_validador",
+          to: req.user_email,
+          subject: `[RECHAZADA] ${req.folio}`,
+          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto"><div style="background:#ef4444;color:white;padding:25px;text-align:center"><h1 style="margin:0">Requisicion Rechazada</h1></div><div style="padding:25px"><p>Tu requisicion <strong>${req.folio}</strong> ha sido rechazada por el validador.</p><p>Contacta a tu supervisor para mas informacion.</p></div></div>`,
+          origen: "req-rechazada-validador",
+          enviadoPor: "validate-link",
         });
       } catch (emailErr: unknown) {
         log.error("Email solicitante rechazada exception", { folio: req.folio, error: (emailErr as Error).message });

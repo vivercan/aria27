@@ -1,11 +1,10 @@
-import { RESEND_FROM } from "@/lib/email-config";
 import { NextResponse, NextRequest } from "next/server";
-import { getResend } from "@/lib/resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
+import { sendEmailLogged } from "@/lib/email-log";
 const log = logger("AUTHORIZE-PURCHASE");
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
@@ -57,9 +56,6 @@ export async function POST(request: Request) {
   const req = new NextRequest(request);
   const rl = checkRateLimit(getClientIdentifier(req), { key: "req:auth-purchase", ...RATE_LIMITS.WRITE });
   if (!rl.allowed) return rateLimitResponse(rl);
-
-  const resend = getResend();
-
   try {
     const body = await request.json().catch(() => ({}));
 
@@ -120,12 +116,11 @@ export async function POST(request: Request) {
     ).join("");
 
     if (autorizadorUser) {
-      try {
-        const emailResult = await resend.emails.send({
-          from: RESEND_FROM,
-          to: autorizadorUser.email,
-          subject: `AUTORIZAR: ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
-          html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">
+      const emailResult = await sendEmailLogged({
+        template: "requisicion_autorizar_oc_direccion",
+        to: autorizadorUser.email,
+        subject: `[AUTORIZAR] ${req.folio} - $${total.toLocaleString()} - ${urgencyText}`,
+        html: `<div style="font-family:Arial;max-width:650px;margin:0 auto">
             <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:25px;text-align:center">
               <h1 style="margin:0">Solicitud de Autorizacion</h1>
             </div>
@@ -157,14 +152,12 @@ export async function POST(request: Request) {
                 <a href="${rejectUrl}" style="display:inline-block;background:#ef4444;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold;margin:5px">RECHAZAR</a>
               </div>
             </div>
-          </div>`
-        });
-        const emailErr = emailResult as { error?: { message: string } };
-        if (emailErr?.error) {
-          log.error("Email autorizador error", { folio: req.folio, error: emailErr.error?.message });
-        }
-      } catch (emailErr: unknown) {
-        log.error("Email autorizador exception", { folio: req.folio, error: (emailErr as Error).message });
+          </div>`,
+        origen: "authorize-purchase-direccion",
+        enviadoPor: "authorize-purchase",
+      });
+      if (!emailResult.success) {
+        log.error("Email autorizador error", { folio: req.folio, error: emailResult.error });
       }
 
       if (autorizadorUser.phone) {
