@@ -7,6 +7,7 @@ import { TrendingUp, Save, Loader2, Calendar, AlertTriangle } from "lucide-react
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Avance {
   id: string;
@@ -118,20 +119,14 @@ export default function AvanceObrasPage() {
   if (loading || loadingObras) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
-    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
+    <div className="aria-page-canon space-y-6 max-w-7xl mx-auto">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <AriaBackButton href="/dashboard/obras" />
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-white/[0.08]">
-              <TrendingUp className="w-7 h-7 text-aria-accent" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Avance Físico de Obras</h1>
-              <p className="text-[#7f93b0] text-sm">Captura semanal de % de avance físico por obra</p>
-            </div>
-          </div>
+      <CanonPageHeader
+        title="Avance Fisico de Obras"
+        subtitle="Captura semanal de % de avance fisico por obra"
+        backHref="/dashboard/obras"
+        icon={<TrendingUp className="w-6 h-6" />}
+        right={
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08]">
             <Calendar className="w-4 h-4 text-[#7f93b0]" />
             <input
@@ -141,8 +136,8 @@ export default function AvanceObrasPage() {
               className="bg-transparent text-white text-sm focus:outline-none"
             />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="p-4 rounded-xl bg-aria-primary/5 border border-aria-primary/20 flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-aria-accent mt-0.5" />

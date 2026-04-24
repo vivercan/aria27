@@ -8,6 +8,7 @@ import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save } fr
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 /**
  * CATÁLOGO MAESTRO DE OBRAS
@@ -175,25 +176,25 @@ export default function CatalogoObrasPage() {
   const labelFor = (s: string) => STATUS.find(o => o.value === s)?.label || s;
 
   return (
-    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
+    <div className="aria-page-canon h-full flex flex-col overflow-hidden">
       <div className="flex-none p-6 pb-3 border-b border-white/[0.08]">
-        <AriaBackButton href="/dashboard/obras" />
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Catálogo Maestro de Obras</h1>
-            <p className="text-xs text-[#7f93b0]">Fuente única · CRUD + cierre/archivo + historial · enlazado a costeo, gastos, expediente, personal</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Vista Pipeline</Link>
-            <button
-              onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
-              className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
-            >
-              {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {showForm ? "Cancelar" : "Nueva Obra"}
-            </button>
-          </div>
-        </div>
+        <CanonPageHeader
+          title="Catalogo Maestro de Obras"
+          subtitle="Fuente unica - CRUD + cierre/archivo + historial - enlazado a costeo, gastos, expediente, personal"
+          backHref="/dashboard/obras"
+          right={
+            <>
+              <Link href="/dashboard/obras/pipeline" className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Vista Pipeline</Link>
+              <button
+                onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}
+                className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
+              >
+                {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {showForm ? "Cancelar" : "Nueva Obra"}
+              </button>
+            </>
+          }
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4">
           {[

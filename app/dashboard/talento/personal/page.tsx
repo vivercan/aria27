@@ -11,6 +11,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Empleado {
   id: string;
@@ -268,7 +269,7 @@ export default function PersonalPage() {
   );
 
   return (
-    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
+    <div className="aria-page-canon h-full flex flex-col overflow-hidden">
       {fetchError && (
         <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm flex-shrink-0">
           <X className="w-4 h-4 shrink-0" />
@@ -276,21 +277,22 @@ export default function PersonalPage() {
         </div>
       )}
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/talento" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Personal</h1>
-            <p className="text-xs text-[#7f93b0]">{empleados.length} empleados activos</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
+      <CanonPageHeader
+        title="Personal"
+        subtitle={`${empleados.length} empleados activos`}
+        backHref="/dashboard/talento"
+        right={
           <button
             onClick={nuevoEmpleado}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-medium">
             <UserPlus className="w-4 h-4" />
             Nuevo Empleado
           </button>
+        }
+      />
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div />
+        <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0]" />
             <input
