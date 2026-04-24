@@ -8,6 +8,8 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { getEntityColor } from "@/lib/entity-colors";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 
 interface Estimacion {
   id: string;
@@ -131,38 +133,29 @@ export default function CobranzaPage() {
   return (
     <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <AriaBackButton href="/dashboard/finanzas" />
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Cobranza</h1>
-          <p className="text-[#7f93b0] text-sm">Estimaciones de avance y cobro a clientes — Fondo de garantía 5%</p>
-        </div>
-        <div className="flex gap-2">
-          <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
-            <DollarSign className="w-4 h-4" /> Cobros Manuales
-          </a>
-          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Nueva Estimación
-          </button>
-        </div>
-      </div>
+      <CanonPageHeader
+        title="Cobranza"
+        subtitle="Estimaciones de avance y cobro a clientes - Fondo de garantia 5%"
+        backHref="/dashboard/finanzas"
+        icon={<DollarSign className="w-6 h-6" />}
+        right={
+          <>
+            <a href="/dashboard/finanzas/cobranza/manual" className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
+              <DollarSign className="w-4 h-4" /> Cobros Manuales
+            </a>
+            <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Nueva Estimacion
+            </button>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Estimado", value: `$${totalEstimado.toLocaleString()}`, icon: FileText, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Cobrado", value: `$${totalCobrado.toLocaleString()}`, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
-          { label: "Fondo Garantía", value: `$${totalRetenido.toLocaleString()}`, icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Pendiente", value: `$${pendiente.toLocaleString()}`, icon: Clock, color: "text-red-400", bg: "bg-red-500/10" },
-        ].map((s, i) => (
-          <div key={i} className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
-            <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
-            <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-[#7f93b0]">{s.label}</p>
-          </div>
-        ))}
+        <KpiCard label="Total Estimado" value={loading ? "..." : `$${totalEstimado.toLocaleString()}`} icon={<FileText className="w-5 h-5" />} variant="neutral" />
+        <KpiCard label="Cobrado" value={loading ? "..." : `$${totalCobrado.toLocaleString()}`} icon={<CheckCircle2 className="w-5 h-5" />} variant="emerald" />
+        <KpiCard label="Fondo Garantia" value={loading ? "..." : `$${totalRetenido.toLocaleString()}`} icon={<AlertTriangle className="w-5 h-5" />} variant="neutral" />
+        <KpiCard label="Pendiente" value={loading ? "..." : `$${pendiente.toLocaleString()}`} icon={<Clock className="w-5 h-5" />} variant="rose" />
       </div>
-
       {showForm && (
         <div className="p-6 bg-white/[0.03] border border-white/[0.06] rounded-xl space-y-4">
           <h3 className="text-lg font-semibold text-white">Nueva Estimación</h3>

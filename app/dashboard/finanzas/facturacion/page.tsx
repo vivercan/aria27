@@ -7,6 +7,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { getEntityColor } from "@/lib/entity-colors";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Factura {
   id: string;
@@ -277,20 +278,17 @@ export default function FacturacionPage() {
   });
 
   return (
-    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <AriaBackButton href="/dashboard/finanzas" />
-
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Facturación</h1>
-            <p className="text-[#7f93b0] text-sm">Control de facturas emitidas — IVA 16%</p>
-          </div>
+    <div className="aria-page-canon space-y-6 max-w-7xl mx-auto">
+      <CanonPageHeader
+        title="Facturacion"
+        subtitle="Control de facturas emitidas - IVA 16%"
+        backHref="/dashboard/finanzas"
+        right={
           <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" /> Nueva Factura
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Aviso CFDI prominente */}
       <div className="p-5 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Wallet, AlertTriangle, TrendingUp, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 const fmt = (n: number) => fmtMoney(n, { noDecimals: true });
 
@@ -96,14 +97,13 @@ export default function PanelFinanzas() {
   }
 
   return (
-    <div className="aria-bg-canon h-full flex flex-col overflow-hidden p-6">
-      <div className="flex items-center gap-3 mb-4 flex-shrink-0">
-        <AriaBackButton href="/dashboard/finanzas" />
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Wallet className="w-6 h-6 text-aria-accent" /> Panel Finanzas</h1>
-          <p className="text-sm text-[#7f93b0]">Vista director financiero · cobranza, cuentas por pagar y saldos</p>
-        </div>
-      </div>
+    <div className="aria-page-canon h-full flex flex-col overflow-hidden p-6">
+      <CanonPageHeader
+        title="Panel Finanzas"
+        subtitle="Vista director financiero - cobranza, cuentas por pagar y saldos"
+        backHref="/dashboard/finanzas"
+        icon={<Wallet className="w-6 h-6" />}
+      />
 
       {loading ? <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
       <div className="flex-1 overflow-y-auto space-y-4">

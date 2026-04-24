@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { DollarSign, TrendingUp, TrendingDown, HardHat, Search, BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface CentroDeTrabajo {
   id: string;
@@ -137,15 +138,12 @@ export default function CosteoPage() {
   };
 
   return (
-    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <AriaBackButton href="/dashboard/finanzas" />
-
-        <div className="mt-4">
-          <h1 className="text-2xl font-bold text-white">Costeo por Obra</h1>
-          <p className="text-[#7f93b0] text-sm">Presupuesto vs costo real — materiales, mano de obra, subcontratos e indirectos</p>
-        </div>
-      </div>
+    <div className="aria-page-canon space-y-6 max-w-7xl mx-auto">
+      <CanonPageHeader
+        title="Costeo por Obra"
+        subtitle="Presupuesto vs costo real - materiales, mano de obra, subcontratos e indirectos"
+        backHref="/dashboard/finanzas"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[

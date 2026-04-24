@@ -8,6 +8,7 @@ import { BookOpen, Plus, X, Loader2, Cloud, Users, AlertTriangle, Camera } from 
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Obra { id: number; nombre: string; }
 interface Entrada {
@@ -104,29 +105,25 @@ function BitacoraContent() {
   const personalProm = entradas.length > 0 ? Math.round(entradas.reduce((s, e) => s + (e.personal_en_obra || 0), 0) / entradas.length) : 0;
 
   return (
-    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
+    <div className="aria-page-canon space-y-6 max-w-7xl mx-auto">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-amber-400" /> Bitácora de Obra
-            </h1>
-            <p className="text-[#7f93b0] text-sm">Registro diario de actividades, personal, clima e incidencias</p>
-          </div>
+      <CanonPageHeader
+        title="Bitacora de Obra"
+        subtitle="Registro diario de actividades, personal, clima e incidencias"
+        backHref="/dashboard/obras"
+        icon={<BookOpen className="w-6 h-6" />}
+        right={
           <button onClick={() => setShowForm(!showForm)} disabled={!obraSel} className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 disabled:opacity-50 text-amber-300 rounded-lg flex items-center gap-2 text-sm">
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? "Cancelar" : "Nueva entrada"}
           </button>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <select value={obraSel} onChange={e => setObraSel(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm min-w-[280px]">
-            <option value="">— Selecciona obra —</option>
-            {obras.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
-          </select>
-        </div>
+        }
+      />
+      <div className="flex items-center gap-3">
+        <select value={obraSel} onChange={e => setObraSel(e.target.value)} className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm min-w-[280px]">
+          <option value="">- Selecciona obra -</option>
+          {obras.map(o => <option key={o.id} value={o.nombre}>{o.nombre}</option>)}
+        </select>
       </div>
 
       {obraSel && (

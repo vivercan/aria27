@@ -7,6 +7,8 @@ import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 
 interface Cuenta { id: string; banco: string; cuenta: string; empresa: string; }
 interface Movimiento {
@@ -159,35 +161,23 @@ export default function MovimientosBancariosPage() {
   return (
     <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <div className="flex items-center gap-4">
-        <AriaBackButton href="/dashboard/finanzas/bancos" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white">Movimientos Bancarios · Conciliación</h1>
-          <p className="text-[#7f93b0] text-sm">Alta manual + match con cobros y órdenes de compra</p>
-        </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/30 text-aria-accent rounded-lg flex items-center gap-2 text-sm">
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? "Cancelar" : "Nuevo movimiento"}
-        </button>
-      </div>
+      <CanonPageHeader
+        title="Movimientos Bancarios - Conciliacion"
+        subtitle="Alta manual + match con cobros y ordenes de compra"
+        backHref="/dashboard/finanzas/bancos"
+        right={
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-aria-primary-light hover:bg-aria-primary-hover/30 text-aria-accent rounded-lg flex items-center gap-2 text-sm">
+            {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {showForm ? "Cancelar" : "Nuevo movimiento"}
+          </button>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-4 aria-card-steel">
-          <p className="text-sm text-[#7f93b0]">Movimientos</p>
-          <p className="text-2xl font-bold text-white">{movsFiltrados.length}</p>
-        </div>
-        <div className="p-4 aria-card-steel">
-          <p className="text-sm text-[#7f93b0]">Abonos</p>
-          <p className="text-2xl font-bold text-white">${totalAbonos.toLocaleString()}</p>
-        </div>
-        <div className="p-4 aria-card-steel">
-          <p className="text-sm text-[#7f93b0]">Cargos</p>
-          <p className="text-2xl font-bold text-red-400">${totalCargos.toLocaleString()}</p>
-        </div>
-        <div className="p-4 aria-card-steel">
-          <p className="text-sm text-[#7f93b0]">Pendientes match</p>
-          <p className="text-2xl font-bold text-amber-400">{pendientes}</p>
-        </div>
+        <KpiCard label="Movimientos" value={movsFiltrados.length} variant="neutral" />
+        <KpiCard label="Abonos" value={`$${totalAbonos.toLocaleString()}`} variant="emerald" />
+        <KpiCard label="Cargos" value={`$${totalCargos.toLocaleString()}`} variant="rose" />
+        <KpiCard label="Pendientes match" value={pendientes} variant="neutral" />
       </div>
 
       {showForm && (

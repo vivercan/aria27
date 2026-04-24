@@ -280,6 +280,32 @@ export default function InventarioObraPage() {
     reader.readAsDataURL(file);
   };
 
+  // 23-Abr-2026 PR toggle tipo: click en cuadrito cambia MATERIAL <-> HERRAMIENTA.
+  // Solo actualiza tipo en BD + auditoria. Folio se conserva (reasignar manual bulk).
+  const cambiarTipo = async (item: ItemInventario) => {
+    const tipoActual = String(item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA" ? "HERRAMIENTA" : "MATERIAL";
+    const tipoNuevo: "MATERIAL" | "HERRAMIENTA" = tipoActual === "MATERIAL" ? "HERRAMIENTA" : "MATERIAL";
+    // Optimistic UI
+    setInventario(prev => prev.map(i => i.id === item.id ? { ...i, tipo: tipoNuevo } : i));
+    try {
+      const email = typeof window !== "undefined" ? (localStorage.getItem("userEmail") || "") : "";
+      const res = await fetch("/api/inventario/tipo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, tipo: tipoNuevo, user_email: email }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error || `HTTP ${res.status}`);
+      }
+      flash("ok", `${item.producto_nombre}: ${tipoActual} -> ${tipoNuevo}`);
+    } catch (e: unknown) {
+      // Rollback
+      setInventario(prev => prev.map(i => i.id === item.id ? { ...i, tipo: tipoActual } : i));
+      flash("err", `Error cambiando tipo: ${(e as Error).message}`);
+    }
+  };
+
   // ====== NUEVO MATERIAL ======
   const validarNuevoMaterial = (): boolean => {
     const errors: Record<string, string> = {};
@@ -903,6 +929,7 @@ export default function InventarioObraPage() {
               <thead className="sticky top-0 z-10" style={{ background: "linear-gradient(180deg, #243A58 0%, #1A2A44 100%)", boxShadow: "0 2px 6px rgba(0,0,0,0.30)" }}>
                 <tr>
                   <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Folio</th>
+                  <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Tipo</th>
                   <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Material</th>
                   <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Disponible</th>
                   <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wider" style={{ color: "#C9D8ED", letterSpacing: "0.06em" }}>Usado</th>
@@ -916,6 +943,31 @@ export default function InventarioObraPage() {
                   <tr key={item.id} className="hover:bg-white/[0.04]">
                     <td className="px-3 py-3 text-xs font-mono font-bold text-aria-accent whitespace-nowrap">
                       {item.folio_inventario || "-"}
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      {(() => {
+                        const esHerramienta = String(item.tipo || "MATERIAL").toUpperCase() === "HERRAMIENTA";
+                        const bg = esHerramienta
+                          ? "linear-gradient(180deg, #D97706 0%, #B45309 100%)"
+                          : "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)";
+                        const label = esHerramienta ? "HER" : "MAT";
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => cambiarTipo(item)}
+                            title={`Cambiar a ${esHerramienta ? "MATERIAL" : "HERRAMIENTA"}`}
+                            className="inline-flex items-center justify-center w-10 h-7 rounded-md text-[10px] font-bold tracking-wide transition-transform hover:scale-105 active:scale-95"
+                            style={{
+                              background: bg,
+                              color: "#FFFFFF",
+                              border: "1px solid rgba(140,178,228,0.25)",
+                              boxShadow: "inset 0 1px 0 rgba(220,235,255,0.15), 0 2px 4px rgba(0,0,0,0.30)",
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })()}
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-3">
@@ -979,7 +1031,7 @@ export default function InventarioObraPage() {
                 ))}
                 {inventarioFiltrado.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center text-[#7f93b0]">
+                    <td colSpan={8} className="px-4 py-12 text-center text-[#7f93b0]">
                       <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
                       <p>No hay materiales en inventario</p>
                       <p className="text-sm mt-1">Agrega materiales con el botón &quot;Nuevo Material&quot;</p>

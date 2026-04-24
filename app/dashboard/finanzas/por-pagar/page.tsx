@@ -10,6 +10,8 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 
 interface CuentaPorPagar {
   id: string;
@@ -152,30 +154,20 @@ export default function PorPagarPage() {
   }
 
   return (
-    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
+    <div className="aria-page-canon space-y-6 max-w-7xl mx-auto">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <AriaBackButton href="/dashboard/finanzas" />
-
-        <div className="mt-4">
-          <h1 className="text-2xl font-bold text-white">Cuentas por Pagar</h1>
-          <p className="text-[#7f93b0] text-sm">Saldos pendientes con proveedores y antigüedad</p>
-        </div>
-      </div>
+      <CanonPageHeader
+        title="Cuentas por Pagar"
+        subtitle="Saldos pendientes con proveedores y antiguedad"
+        backHref="/dashboard/finanzas"
+        icon={<DollarSign className="w-6 h-6" />}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total por Pagar", value: `$${totalPorPagar.toLocaleString()}`, icon: DollarSign, color: "text-aria-accent", bg: "bg-aria-primary/10" },
-          { label: "Vencido", value: `$${totalVencido.toLocaleString()}`, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
-          { label: "Cuentas Vencidas", value: vencidas.length, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-          { label: "Vigentes", value: porVencer.length, icon: CheckCircle2, color: "text-aria-accent", bg: "bg-emerald-500/10" },
-        ].map((s, i) => (
-          <div key={i} className="p-4 bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
-            <div className={`inline-flex p-2 rounded-lg ${s.bg} mb-2`}><s.icon className={`w-4 h-4 ${s.color}`} /></div>
-            <p className="text-xl font-bold text-white">{loading ? "..." : s.value}</p>
-            <p className="text-xs text-[#7f93b0]">{s.label}</p>
-          </div>
-        ))}
+        <KpiCard label="Total por Pagar" value={loading ? "..." : `$${totalPorPagar.toLocaleString()}`} icon={<DollarSign className="w-5 h-5" />} variant="neutral" />
+        <KpiCard label="Vencido" value={loading ? "..." : `$${totalVencido.toLocaleString()}`} icon={<AlertTriangle className="w-5 h-5" />} variant="rose" />
+        <KpiCard label="Cuentas Vencidas" value={loading ? "..." : vencidas.length} icon={<Clock className="w-5 h-5" />} variant="neutral" />
+        <KpiCard label="Vigentes" value={loading ? "..." : porVencer.length} icon={<CheckCircle2 className="w-5 h-5" />} variant="emerald" />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
