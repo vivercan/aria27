@@ -50,6 +50,7 @@ const MOV_INIT = { fondo_id: "", tipo: "GASTO" as string, concepto: "", monto: "
   const log = clientLogger("CAJA");
 
 import { fmtMoney, fmtDate as fmtDateCanon } from "@/lib/formatters";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 const fmt = fmtMoney;
 const fmtDate = fmtDateCanon;
 
@@ -282,16 +283,15 @@ export default function CajaChicaPage() {
 
   /* ────────── render ────────── */
   return (
-    <div className="aria-bg-canon flex flex-col h-full overflow-hidden">
+    <div className="aria-page-canon flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
-        <AriaBackButton href="/dashboard/finanzas" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Wallet className="w-6 h-6 text-aria-accent" /> Caja Chica
-          </h1>
-          <p className="text-sm text-[#7f93b0] mt-0.5">Fondos revolventes · gastos · reposiciones · cortes</p>
-        </div>
+      <div className="flex-none px-6 pt-6 pb-2">
+        <CanonPageHeader
+          title="Caja Chica"
+          subtitle="Fondos revolventes - gastos - reposiciones - cortes"
+          backHref="/dashboard/finanzas"
+          icon={<Wallet className="w-6 h-6" />}
+        />
       </div>
 
       {/* Flash — EX-3 18-Abr-2026: FlashBanner canónico */}

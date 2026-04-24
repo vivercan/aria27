@@ -34,6 +34,7 @@ interface ObraRow {
 const CATS = ["MATERIALES", "MANO_OBRA", "HERRAMIENTA", "SUBCONTRATO", "INDIRECTOS", "OTROS"];
 
 import { fmtMoney as fmt } from "@/lib/formatters";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 const log = clientLogger("CONTROL");
 
 function semaforoOf(avance: number, presupuesto: number): ObraRow["semaforo"] {
@@ -185,22 +186,17 @@ export default function ControlObrasPage() {
 
   return (
     <div className="aria-page-canon">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <AriaBackButton href="/dashboard/obras" />
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-aria-accent/20 to-aria-primary/20 border border-aria-accent/20">
-            <Activity className="w-7 h-7 text-aria-accent" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Centro de Control de Obras</h1>
-            <p className="text-[#7f93b0] text-sm">Presupuesto vs Gasto Real (OC + Nómina) por obra</p>
-          </div>
-        </div>
-        <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-aria-accent hover:bg-emerald-500/20 disabled:opacity-40">
-          <Download className="w-4 h-4" /> CSV
-        </button>
-      </div>
-
+      <CanonPageHeader
+        title="Centro de Control de Obras"
+        subtitle="Presupuesto vs Gasto Real (OC + Nomina) por obra"
+        backHref="/dashboard/obras"
+        icon={<Activity className="w-6 h-6" />}
+        right={
+          <button onClick={exportCSV} disabled={filtradas.length === 0} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/[0.08] text-aria-accent hover:bg-emerald-500/20 disabled:opacity-40">
+            <Download className="w-4 h-4" /> CSV
+          </button>
+        }
+      />
       {/* Totales */}
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-4 rounded-xl bg-aria-primary/10 border border-aria-primary/20">

@@ -9,6 +9,7 @@ import {
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney } from "@/lib/formatters";
 import { getEntityColor } from "@/lib/entity-colors";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Gasto {
   id: string;
@@ -73,26 +74,23 @@ export default function IngresoEgresosPage() {
   };
 
   return (
-    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/finanzas" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Ingreso - Egresos</h1>
-            <p className="text-xs text-[#7f93b0] capitalize">{mesLabel()}</p>
+    <div className="aria-page-canon h-full flex flex-col overflow-hidden">
+      <CanonPageHeader
+        title="Ingreso - Egresos"
+        subtitle={mesLabel()}
+        backHref="/dashboard/finanzas"
+        right={
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#4a6080]" />
+            <input
+              type="month"
+              value={periodo}
+              onChange={e => setPeriodo(e.target.value)}
+              className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"
+            />
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-[#4a6080]" />
-          <input
-            type="month"
-            value={periodo}
-            onChange={e => setPeriodo(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none"
-          />
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 flex-shrink-0">

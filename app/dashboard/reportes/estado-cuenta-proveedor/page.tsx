@@ -6,6 +6,7 @@ import { Printer, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
 import { fmtMoney as fmt } from "@/lib/formatters";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface OC {
   folio: string;
@@ -65,9 +66,12 @@ function Content() {
 
   if (!proveedor) {
     return (
-      <div className="aria-bg-canon p-8 max-w-2xl mx-auto">
-        <AriaBackButton href="/dashboard/reportes" />
-        <h1 className="text-2xl font-bold text-white mb-4">Estado de cuenta por proveedor</h1>
+      <div className="aria-page-canon p-8 max-w-2xl mx-auto">
+        <CanonPageHeader
+          title="Estado de cuenta por proveedor"
+          subtitle="Selecciona un proveedor"
+          backHref="/dashboard/reportes"
+        />
         <p className="text-[#7f93b0] mb-4">Selecciona un proveedor:</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">
           {proveedores.map(p => (

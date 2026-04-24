@@ -7,6 +7,7 @@ import {
   FileText, User, Calendar, DollarSign, AlertCircle
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface Empleado {
   id: string;
@@ -362,20 +363,15 @@ export default function FiniquitosPage() {
   // ==================== VISTA: LIST ====================
   if (view === "list") {
     return (
-      <div className="aria-bg-canon h-full overflow-auto bg-[#040810] text-white p-6">
+      <div className="aria-page-canon h-full overflow-auto bg-[#040810] text-white p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-[#040810] pb-4">
-            <div className="flex items-center gap-4 mb-4">
-              <AriaBackButton href="/dashboard/talento" />
-              <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <FileText className="w-8 h-8" />
-                  Finiquitos y Bajas
-                </h1>
-                <p className="text-[#7f93b0]">Liquidación y terminación de empleados</p>
-              </div>
-            </div>
+          <CanonPageHeader
+            title="Finiquitos y Bajas"
+            subtitle="Liquidacion y terminacion de empleados"
+            backHref="/dashboard/talento"
+            icon={<FileText className="w-6 h-6" />}
+          />
 
             {/* Flash message */}
             {flashMsg && (
@@ -508,7 +504,6 @@ export default function FiniquitosPage() {
             </div>
           )}
         </div>
-      </div>
     );
   }
 
