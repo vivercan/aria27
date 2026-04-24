@@ -30,6 +30,7 @@ const TIPO_MAP: Record<string, string> = {
   "LONAS": "libre", "LUMINARIAS": "catalogo",
   "ARADO DE DADOS Y ZAPATAS": "libre",
   "REPARACIONES": "libre", "GASTOS ADMINISTRATIVOS": "libre",
+  "RENTA MAQUINARIA": "libre",
 };
 
 export default function NewRequisitionPage() {
@@ -502,11 +503,32 @@ export default function NewRequisitionPage() {
                 )}
               </div>
             )}
-            {selectedProveedor && (selectedProveedor.bank_name || selectedProveedor.bank_clabe) && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] px-3 py-2 text-xs text-aria-accent flex flex-wrap gap-3">
-                {selectedProveedor.razon_social && <span>Cuenta: {selectedProveedor.razon_social}</span>}
-                {selectedProveedor.bank_name && <span>Banco: {selectedProveedor.bank_name}</span>}
-                {selectedProveedor.bank_clabe && <span>CLABE: {selectedProveedor.bank_clabe}</span>}
+            {selectedProveedor && (
+              <div className="mt-2 rounded-xl bg-white/[0.02] border border-white/[0.08] p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-sm font-semibold text-white">{selectedProveedor.name}</span>
+                  {(() => {
+                    const m = (selectedProveedor.payment_method || formaPago || "").toUpperCase();
+                    const esTransfer = m.includes("TRANSFER");
+                    const bg = esTransfer ? "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)" : "linear-gradient(180deg, #D97706 0%, #B45309 100%)";
+                    const label = esTransfer ? "TRANSFERENCIA" : m.includes("CHEQUE") ? "CHEQUE" : "EFECTIVO";
+                    return (
+                      <span
+                        className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-white shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
+                        style={{ background: bg }}
+                      >
+                        {label}
+                      </span>
+                    );
+                  })()}
+                </div>
+                {(selectedProveedor.bank_name || selectedProveedor.bank_clabe || selectedProveedor.razon_social) && (
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-aria-accent">
+                    {selectedProveedor.razon_social && <span>Cuenta: {selectedProveedor.razon_social}</span>}
+                    {selectedProveedor.bank_name && <span>Banco: {selectedProveedor.bank_name}</span>}
+                    {selectedProveedor.bank_clabe && <span>CLABE: {selectedProveedor.bank_clabe}</span>}
+                  </div>
+                )}
               </div>
             )}
           </div>
