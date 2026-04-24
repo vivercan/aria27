@@ -114,7 +114,7 @@ export default function ChecadasPage() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-none p-6 border-b border-white/[0.08]">
         <AriaBackButton href="/dashboard/talento" />

@@ -62,7 +62,7 @@ export default function IncapacidadesPage() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <div className="flex-shrink-0 mb-6">
         <AriaBackButton href="/dashboard/talento/prestaciones" />

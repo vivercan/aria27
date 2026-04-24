@@ -160,7 +160,7 @@ export default function LicitacionesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-4 p-6 h-full overflow-auto">
       <FlashBanner msg={msg} className="mx-3 -mt-3 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

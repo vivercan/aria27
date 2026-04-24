@@ -92,7 +92,7 @@ export default function ConfigGeneralPage() {
   if (loading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-aria-accent" /></div>;
 
   return (
-    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/configuracion" />

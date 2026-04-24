@@ -78,7 +78,7 @@ export default function RecordatoriosPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-4 p-6 h-full overflow-auto">
       <FlashBanner msg={msg} className="mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

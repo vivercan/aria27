@@ -174,7 +174,7 @@ export default function IncompletasPage() {
   const totalPendientes = incompletas.length + sinRegistro.length;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/talento/checadas" />

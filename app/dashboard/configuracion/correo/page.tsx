@@ -88,7 +88,7 @@ export default function CorreoPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       <AriaBackButton href="/dashboard/configuracion" />
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center justify-between">

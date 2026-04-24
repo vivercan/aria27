@@ -280,7 +280,7 @@ export default function MantenimientoPage() {
 
   /* ────────── render ────────── */
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="aria-bg-canon flex flex-col h-full overflow-hidden">
       {/* EX-4 18-Abr-2026: PageHeader canónico */}
       <div className="flex-none px-6 pt-6">
         <PageHeader

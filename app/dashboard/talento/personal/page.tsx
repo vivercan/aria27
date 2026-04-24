@@ -268,7 +268,7 @@ export default function PersonalPage() {
   );
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       {fetchError && (
         <div className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm flex-shrink-0">
           <X className="w-4 h-4 shrink-0" />

@@ -45,7 +45,7 @@ export default function MatrizSalarialPage() {
   const totalNomina = empleados.reduce((s, e) => s + (e.salario_diario || 0), 0);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 mb-6">
         <AriaBackButton href="/dashboard/talento" />
         <div className="flex items-center justify-between">

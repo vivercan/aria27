@@ -228,7 +228,7 @@ export default function ComprasPickingPage() {
   // ==========================================
   if (!selectedReq) {
     return (
-      <div className="h-full flex flex-col">
+      <div className="aria-bg-canon h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4">
           <AriaBackButton href="/dashboard/requisiciones" />

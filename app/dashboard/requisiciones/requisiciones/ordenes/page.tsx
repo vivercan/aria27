@@ -173,7 +173,7 @@ export default function OrdenesCompraPage() {
     const st = getStatus(selectedPO.status);
     const StatusIcon = st.icon;
     return (
-      <div className="h-full flex flex-col">
+      <div className="aria-bg-canon h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <button onClick={closeDetail} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></button>

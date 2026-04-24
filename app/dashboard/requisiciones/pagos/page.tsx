@@ -171,7 +171,7 @@ export default function PagosPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       <FlashBanner msg={msg} className="mx-0 mb-3" />
       <AriaBackButton href="/dashboard/requisiciones" />
 

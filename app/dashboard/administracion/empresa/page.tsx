@@ -92,7 +92,7 @@ export default function EmpresaPage() {
   const activas = centros.filter(c => c.estado === "ACTIVA").length;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href="/dashboard/administracion" />

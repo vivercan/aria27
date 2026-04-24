@@ -313,7 +313,7 @@ export default function EstimacionesPage() {
   const totalAcumulado = filtered.reduce((s, e) => s + (e.importe_acumulado || 0), 0);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto pb-12">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/obras" />
