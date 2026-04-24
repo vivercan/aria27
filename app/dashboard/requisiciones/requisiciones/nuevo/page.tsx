@@ -24,6 +24,12 @@ const TIPO_MAP: Record<string, string> = {
   "MANTENIMIENTO AUTOMOTRIZ": "libre", "OFICINA": "catalogo",
   "COMIDA COMPENSACION": "libre", "ACARREOS": "libre",
   "FLETE MAQUINARIA": "libre", "ESTIMACIONES": "libre",
+  // FC3 23-Abr-2026 Jessica Gallardo: nuevas subcategorias
+  "OTROS": "libre", "SANITARIOS": "catalogo", "HERRERIA": "catalogo",
+  "MATERIAL AUTOMOTRIZ": "catalogo", "IMPRESION DIGITAL": "libre",
+  "LONAS": "libre", "LUMINARIAS": "catalogo",
+  "ARADO DE DADOS Y ZAPATAS": "libre",
+  "REPARACIONES": "libre", "GASTOS ADMINISTRATIVOS": "libre",
 };
 
 export default function NewRequisitionPage() {
