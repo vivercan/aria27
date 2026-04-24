@@ -53,9 +53,11 @@ export default function ProveedoresPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const loadSuppliers = useCallback(async()=>{
-    const{data}=await supabase.from("Proveedores")
+    // Hotfix 24-Abr-2026: la VIEW Proveedores no expone "active" (solo status). Leemos tabla base suppliers directamente (consistente con insert/update/delete del mismo modulo).
+    const{data,error}=await supabase.from("suppliers")
       .select("id,name,rfc,phone,email,address,categories,contact_name,credit_days,active,website,whatsapp,bank_name,bank_clabe,bank_account_number,payment_method,razon_social,zona_cobertura,notas_comerciales")
       .order("name");
+    if(error) log.error("Error cargando suppliers", { err: error.message });
     if(data)setSuppliers(data);
     setLoading(false);
   },[]);

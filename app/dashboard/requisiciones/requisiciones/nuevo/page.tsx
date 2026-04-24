@@ -509,9 +509,13 @@ export default function NewRequisitionPage() {
                   <span className="text-sm font-semibold text-white">{selectedProveedor.name}</span>
                   {(() => {
                     const m = (selectedProveedor.payment_method || formaPago || "").toUpperCase();
-                    const esTransfer = m.includes("TRANSFER");
-                    const bg = esTransfer ? "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)" : "linear-gradient(180deg, #D97706 0%, #B45309 100%)";
-                    const label = esTransfer ? "TRANSFERENCIA" : m.includes("CHEQUE") ? "CHEQUE" : "EFECTIVO";
+                    let bg = "linear-gradient(180deg, #D97706 0%, #B45309 100%)"; // EFECTIVO ambar
+                    let label: string = "EFECTIVO";
+                    if (m.includes("TRANSFER")) { bg = "linear-gradient(180deg, #1E3E7A 0%, #163068 100%)"; label = "TRANSFERENCIA"; }
+                    else if (m.includes("CHEQUE")) { bg = "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)"; label = "CHEQUE"; }
+                    else if (m.includes("CREDITO") || m.includes("CRÉDITO")) { bg = "linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%)"; label = "CREDITO"; }
+                    else if (m === "" || m === "EFECTIVO") { /* defaults */ }
+                    else { bg = "linear-gradient(180deg, #475569 0%, #334155 100%)"; label = m; }
                     return (
                       <span
                         className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide text-white shadow-[inset_0_1px_0_rgba(220,235,255,0.15),0_2px_4px_rgba(0,0,0,0.30)] border border-[rgba(140,178,228,0.25)]"
