@@ -5,7 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { handlePrintOC, handleDownloadPDFOC } from "@/components/OCPrint";
 import {
-  ArrowLeft, Loader2, Package, Search, Filter,
+  Loader2, Package, Search, Filter,
   CheckCircle2, Truck, CreditCard,
   FileText, ChevronRight, Printer, FileDown,
   PackageCheck, Banknote, LucideIcon
@@ -15,6 +15,8 @@ import FlashBanner from "@/components/FlashBanner";
 import HistorialButton from "@/components/HistorialButton";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import EmptyState from "@/components/ui/EmptyState";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 
 type PO = {
   id: number;
@@ -173,21 +175,21 @@ export default function OrdenesCompraPage() {
     const st = getStatus(selectedPO.status);
     const StatusIcon = st.icon;
     return (
-      <div className="aria-bg-canon h-full flex flex-col">
+      <div className="aria-page-canon h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
-        <div className="flex items-center gap-3 mb-4 shrink-0">
-          <button onClick={closeDetail} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]"><ArrowLeft className="w-5 h-5 text-[#7f93b0]" /></button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-white">{selectedPO.folio}</h1>
-            <p className="text-[#7f93b0] text-sm truncate">{selectedPO.supplier_name}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={printOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Imprimir"><Printer className="w-5 h-5 text-[#7f93b0]" /></button>
-            <button onClick={downloadOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Descargar PDF"><FileDown className="w-5 h-5 text-[#7f93b0]" /></button>
-            <HistorialButton tabla="purchase_orders" id={String(selectedPO.id)} label="Historial" size="sm" />
-          </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
-        </div>
+        <CanonPageHeader
+          title={selectedPO.folio}
+          subtitle={selectedPO.supplier_name}
+          onBack={closeDetail}
+          right={
+            <>
+              <button onClick={printOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Imprimir"><Printer className="w-5 h-5 text-[#7f93b0]" /></button>
+              <button onClick={downloadOC} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]" title="Descargar PDF"><FileDown className="w-5 h-5 text-[#7f93b0]" /></button>
+              <HistorialButton tabla="purchase_orders" id={String(selectedPO.id)} label="Historial" size="sm" />
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${st.bg} ${st.color}`}><StatusIcon className="w-3.5 h-3.5" />{st.label}</span>
+            </>
+          }
+        />
         {loadingDetail ? <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent" /></div> : (
           <div className="flex-1 overflow-y-auto space-y-4 pb-32">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -250,17 +252,19 @@ export default function OrdenesCompraPage() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="aria-page-canon h-full flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-3" />
-      <div className="flex items-center gap-3 mb-4 shrink-0">
-        <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
-        <div className="flex-1"><h1 className="text-2xl font-bold text-white">Órdenes de Compra</h1><p className="text-[#7f93b0] text-sm">{orders.length} órdenes generadas</p></div>
-      </div>
+      <CanonPageHeader
+        title="Ordenes de Compra"
+        subtitle={`${orders.length} ordenes generadas`}
+        backHref="/dashboard/requisiciones/requisiciones"
+        icon={<Package className="w-6 h-6" />}
+      />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4 shrink-0">
-        <div className="p-2.5 rounded-xl bg-aria-primary/10 border border-aria-primary/20 text-center"><p className="text-aria-accent font-bold text-lg">{stats.generadas}</p><p className="text-[#4a6080] text-[9px]">Generadas</p></div>
-        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-amber-400 font-bold text-lg">{stats.enTransito}</p><p className="text-[#4a6080] text-[9px]">En Tránsito</p></div>
-        <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-center"><p className="text-aria-accent font-bold text-lg">{stats.recibidas}</p><p className="text-[#4a6080] text-[9px]">Recibidas</p></div>
-        <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-center"><p className="text-white font-bold text-sm">${(stats.montoPendiente/1000).toFixed(0)}k</p><p className="text-[#4a6080] text-[9px]">Pendiente</p></div>
+        <KpiCard label="Generadas" value={stats.generadas} variant="neutral" />
+        <KpiCard label="En Transito" value={stats.enTransito} variant="neutral" />
+        <KpiCard label="Recibidas" value={stats.recibidas} variant="emerald" />
+        <KpiCard label="Pendiente" value={`$${(stats.montoPendiente/1000).toFixed(0)}k`} variant="rose" />
       </div>
       <div className="flex gap-2 mb-3 shrink-0">
         <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6080]" /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar OC o proveedor..." className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#4a6080] focus:border-aria-accent outline-none" /></div>

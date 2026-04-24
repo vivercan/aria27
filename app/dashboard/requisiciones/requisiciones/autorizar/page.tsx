@@ -7,6 +7,7 @@ import { CheckCircle, XCircle, MessageSquare, Loader2 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 type Requisition = {
   id: number;
@@ -112,15 +113,13 @@ export default function AuthorizeRequisicionesPage() {
   };
 
   return (
-    <div className="aria-bg-canon p-6 h-[calc(100vh-64px)] flex flex-col">
+    <div className="aria-page-canon p-6 h-[calc(100vh-64px)] flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-4" />
-      <div className="flex items-center gap-4 mb-6">
-        <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
-        <div>
-          <h1 className="text-2xl font-bold">Autorizar Requisiciones</h1>
-          <p className="text-white/60 text-sm">Revisar y aprobar solicitudes pendientes.</p>
-        </div>
-      </div>
+      <CanonPageHeader
+        title="Autorizar Requisiciones"
+        subtitle="Revisar y aprobar solicitudes pendientes."
+        backHref="/dashboard/requisiciones/requisiciones"
+      />
 
       <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
         {/* Lista de pendientes */}
