@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowLeft, Loader2, Package, Clock, CreditCard, Banknote,
+  Loader2, Package, Clock, CreditCard, Banknote,
   Receipt, Truck, Check, ShoppingCart, ChevronRight, AlertCircle,
   CheckCircle2, Star, Zap, X
 } from "lucide-react";
@@ -12,6 +12,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import EmptyState from "@/components/ui/EmptyState";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 type Req = {
   id: number; folio: string; cost_center_name: string;
@@ -228,15 +229,14 @@ export default function ComprasPickingPage() {
   // ==========================================
   if (!selectedReq) {
     return (
-      <div className="aria-bg-canon h-full flex flex-col">
+      <div className="aria-page-canon h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
-        <div className="flex items-center gap-3 mb-4">
-          <AriaBackButton href="/dashboard/requisiciones" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Autorizar Compras</h1>
-            <p className="text-[#7f93b0] text-sm">{reqs.length} requisiciones pendientes</p>
-          </div>
-        </div>
+        <CanonPageHeader
+          title="Autorizar Compras"
+          subtitle={`${reqs.length} requisiciones pendientes`}
+          backHref="/dashboard/requisiciones"
+          icon={<ShoppingCart className="w-6 h-6" />}
+        />
 
         <div className="flex-1 overflow-y-auto space-y-3">
           {reqs.length === 0 ? (
@@ -282,18 +282,16 @@ export default function ComprasPickingPage() {
       />
       <div className="h-full flex flex-col">
       {/* HEADER */}
-      <div className="flex items-center gap-3 mb-3 shrink-0">
-        <button onClick={goBack} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-          <ArrowLeft className="w-5 h-5 text-[#7f93b0]" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-white truncate">{selectedReq.folio}</h1>
-          <p className="text-[#7f93b0] text-xs">{selectedReq.cost_center_name}</p>
-        </div>
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${urgencyColor(selectedReq.urgency)}`}>
-          {urgencyLabel(selectedReq.urgency)}
-        </span>
-      </div>
+      <CanonPageHeader
+        title={selectedReq.folio}
+        subtitle={selectedReq.cost_center_name}
+        onBack={goBack}
+        right={
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${urgencyColor(selectedReq.urgency)}`}>
+            {urgencyLabel(selectedReq.urgency)}
+          </span>
+        }
+      />
 
       {/* SCROLLABLE CONTENT */}
       <div className="flex-1 overflow-y-auto space-y-4 pb-32">

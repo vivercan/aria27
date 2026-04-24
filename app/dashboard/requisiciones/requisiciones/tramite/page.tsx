@@ -6,11 +6,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, ArrowLeft, Sparkles, ExternalLink
+  ShoppingCart, Building2, AlertCircle, Send, Loader2, Phone, Sparkles, ExternalLink
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 type Requisition = {
   id: number;
@@ -365,13 +366,12 @@ Responde SOLO con JSON así:
     return (
     <div className="aria-page-canon">
         <FlashBanner msg={msg} className="mx-0 mb-2" />
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
-          <div>
-            <h1 className="text-2xl font-bold text-white">Compras - Cotizar</h1>
-            <p className="text-[#4a6080] text-sm">{requisiciones.length} pendientes</p>
-          </div>
-        </div>
+        <CanonPageHeader
+          title="Compras - Cotizar"
+          subtitle={`${requisiciones.length} pendientes`}
+          backHref="/dashboard/requisiciones/requisiciones"
+          icon={<ShoppingCart className="w-6 h-6" />}
+        />
 
         {loading ? (
           <div className="text-center py-10 text-[#7f93b0]">Cargando...</div>
@@ -402,15 +402,17 @@ Responde SOLO con JSON así:
   return (
     <div className="max-w-7xl mx-auto space-y-3 text-sm">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-center gap-3">
-        <button onClick={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }} className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06]">
-          <ArrowLeft className="w-4 h-4 text-[#7f93b0]" />
-        </button>
-        <span className="text-lg font-bold text-white">{selectedReq.folio}</span>
-        <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
-        <span className="text-[#7f93b0] flex-1">{selectedReq.cost_center_name}</span>
-        <span className="text-aria-accent font-bold text-lg">${calculateTotal().toLocaleString()}</span>
-      </div>
+      <CanonPageHeader
+        title={selectedReq.folio}
+        subtitle={selectedReq.cost_center_name}
+        onBack={() => { setSelectedReq(null); setItems([]); setProveedoresIA([]); }}
+        right={
+          <>
+            <span className={`px-2 py-0.5 rounded text-xs text-white ${urgency.color}`}>{urgency.text}</span>
+            <span className="text-aria-accent font-bold text-lg">${calculateTotal().toLocaleString()}</span>
+          </>
+        }
+      />
 
       {loadingItems ? (
         <div className="text-center py-10"><Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" /></div>
