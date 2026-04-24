@@ -275,7 +275,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="aria-page-canon">
       {/* HEADER */}
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold text-white" suppressHydrationWarning>

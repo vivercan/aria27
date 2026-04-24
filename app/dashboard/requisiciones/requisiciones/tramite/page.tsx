@@ -363,7 +363,7 @@ Responde SOLO con JSON así:
   // === LISTA ===
   if (!selectedReq) {
     return (
-      <div className="space-y-4">
+    <div className="aria-page-canon">
         <FlashBanner msg={msg} className="mx-0 mb-2" />
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />

@@ -205,7 +205,7 @@ export default function SUAFinanzasPage() {
 
   /* ────────── render ────────── */
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="aria-bg-canon flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex-none px-6 pt-6 pb-4 flex items-center gap-4">
         <AriaBackButton href="/dashboard/finanzas" />

@@ -375,7 +375,7 @@ export default function MisDocumentosPage() {
   // Auth loading state
   if (authLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="aria-bg-canon h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-aria-primary animate-spin" />
       </div>
     );

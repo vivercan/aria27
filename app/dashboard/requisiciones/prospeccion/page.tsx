@@ -109,7 +109,7 @@ export default function ProspeccionPage() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">

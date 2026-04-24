@@ -25,7 +25,7 @@ export default function CarpetasModuloPage({ params }: { params: Promise<{ modul
   const [selectedName, setSelectedName] = useState<string>("");
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href={cfg.back} />
         <div className="flex-1">

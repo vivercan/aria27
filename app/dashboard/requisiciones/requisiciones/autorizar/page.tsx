@@ -112,7 +112,7 @@ export default function AuthorizeRequisicionesPage() {
   };
 
   return (
-    <div className="p-6 h-[calc(100vh-64px)] flex flex-col">
+    <div className="aria-bg-canon p-6 h-[calc(100vh-64px)] flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-4" />
       <div className="flex items-center gap-4 mb-6">
         <AriaBackButton href="/dashboard/requisiciones/requisiciones" />

@@ -163,7 +163,7 @@ export default function ClientesPage() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <div className="flex-none p-6 pb-3 border-b border-white/[0.08]">
         <AriaBackButton href="/dashboard" />
         <div className="flex items-center justify-between flex-wrap gap-3">

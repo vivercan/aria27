@@ -186,7 +186,7 @@ export default function ImportCSV() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-6">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden p-6">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <AriaBackButton href="/dashboard" />
         <div>

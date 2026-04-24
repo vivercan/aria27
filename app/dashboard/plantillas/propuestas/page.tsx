@@ -113,7 +113,7 @@ export default function PropuestasPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-6 p-6 h-full overflow-auto">
       <FlashBanner msg={mensaje} />
 
       <AriaBackButton href="/dashboard/plantillas" />

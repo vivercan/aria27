@@ -267,7 +267,7 @@ export default function RequisicionesStatusPage() {
   const formatCurrency = (value?: number) => (value ? fmtMoney(value) : "-");
 
   return (
-    <div className="space-y-4">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

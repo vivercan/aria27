@@ -12,7 +12,7 @@ const submodulos = [
 
 export default function NominaPage() {
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto p-6">
       <AriaBackButton href="/dashboard/talento" />
       <h1 className="text-2xl font-bold text-white mb-2">Nómina</h1>
       <p className="text-[#7f93b0] mb-8">Gestión de nómina y pagos</p>

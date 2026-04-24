@@ -65,7 +65,7 @@ function Content() {
 
   if (!proveedor) {
     return (
-      <div className="p-8 max-w-2xl mx-auto">
+      <div className="aria-bg-canon p-8 max-w-2xl mx-auto">
         <AriaBackButton href="/dashboard/reportes" />
         <h1 className="text-2xl font-bold text-white mb-4">Estado de cuenta por proveedor</h1>
         <p className="text-[#7f93b0] mb-4">Selecciona un proveedor:</p>

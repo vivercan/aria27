@@ -144,7 +144,7 @@ export default function EntregasPage() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="aria-bg-canon h-full flex flex-col">
       <FlashBanner msg={msg} className="mx-0 mb-3" />
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">

@@ -119,7 +119,7 @@ export default function BancosPage() {
   const totalSaldo = cuentasMostradas.reduce((s, c) => s + (c.saldo || 0), 0);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="aria-bg-canon space-y-6 max-w-7xl mx-auto">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <AriaBackButton href="/dashboard/finanzas" />

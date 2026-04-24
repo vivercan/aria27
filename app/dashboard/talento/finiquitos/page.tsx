@@ -362,7 +362,7 @@ export default function FiniquitosPage() {
   // ==================== VISTA: LIST ====================
   if (view === "list") {
     return (
-      <div className="h-full overflow-auto bg-[#040810] text-white p-6">
+      <div className="aria-bg-canon h-full overflow-auto bg-[#040810] text-white p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="sticky top-0 z-10 bg-[#040810] pb-4">

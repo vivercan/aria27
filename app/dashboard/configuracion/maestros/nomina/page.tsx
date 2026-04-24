@@ -85,7 +85,7 @@ export default function NominaConfigPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="aria-bg-canon space-y-6 animate-in fade-in duration-300">
       <FlashBanner msg={msg} className="mx-6" />
       <div className="flex items-center gap-2 text-sm text-[#7f93b0]">
         <Link href="/dashboard/configuracion/maestros" className="hover:text-white">Maestros</Link>

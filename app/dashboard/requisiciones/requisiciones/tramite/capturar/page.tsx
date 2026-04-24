@@ -298,7 +298,7 @@ function CapturarContent() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="aria-page-canon">
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex items-center gap-3">

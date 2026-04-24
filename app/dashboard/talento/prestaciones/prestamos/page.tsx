@@ -92,7 +92,7 @@ export default function PrestamosPage() {
   const formatMoney = (n: number) => `${fmtMoney(n)}`;
 
   return (
-    <div className="p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+    <div className="aria-bg-canon p-6 h-[calc(100vh-64px)] flex flex-col overflow-hidden">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3 absolute top-20" />}
       {/* Flecha de regreso */}
               <AriaBackButton href="/dashboard/talento/prestaciones" />

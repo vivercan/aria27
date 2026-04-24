@@ -158,7 +158,7 @@ export default function AuditoriaPage() {
 
   if (!esAdmin && !loading && userEmail) {
     return (
-      <div className="p-8 text-white">
+      <div className="aria-bg-canon p-8 text-white">
         <AriaBackButton href="/dashboard/admin" />
         <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-6">
           <Shield className="w-8 h-8 text-red-400 mb-2" />

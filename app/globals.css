@@ -669,3 +669,13 @@ button.bg-red-600 {
   color: rgba(214,228,255,0.72);
   margin-top: 2px;
 }
+
+
+/* Variante ligera: solo fondo navy + min-height. Sin padding ni layout.
+   Para inyectar como clase extra en pantallas existentes sin romper layouts. */
+.aria-bg-canon {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%),
+    linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%);
+}

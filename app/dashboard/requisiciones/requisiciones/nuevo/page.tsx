@@ -328,7 +328,7 @@ export default function NewRequisitionPage() {
   const isEmpty = getTotalPartidas() === 0;
 
   return (
-    <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-4 p-6 h-full overflow-auto">
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>

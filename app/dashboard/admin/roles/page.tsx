@@ -118,7 +118,7 @@ export default function RolesAdminPage() {
 
   if (authorized === null || loading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="aria-bg-canon h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-aria-accent" />
       </div>
     );

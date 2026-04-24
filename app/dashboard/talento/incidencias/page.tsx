@@ -98,7 +98,7 @@ export default function IncidenciasPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       {msg && <FlashBanner msg={msg} className="mx-6 mt-3" />}
       <AriaBackButton href="/dashboard/talento" />
 

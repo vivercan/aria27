@@ -96,7 +96,7 @@ export default function CentrosPage() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <FlashBanner msg={msg} className="p-6 pb-0" />
       <div className="flex-none p-6 border-b border-white/[0.08]">
         <AriaBackButton href="/dashboard/configuracion/maestros" />

@@ -433,7 +433,7 @@ ${c.notas ? `<div class="notas"><strong>Notas:</strong> ${c.notas.replace(/</g, 
   const totEnviado = cots.filter((c: Cotizacion) => c.estatus === "ENVIADA").reduce((s: number, c: Cotizacion) => s + Number(c.total || 0), 0);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <AriaBackButton href="/dashboard/clientes" />
 

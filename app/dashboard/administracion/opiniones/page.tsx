@@ -149,7 +149,7 @@ export default function OpinionesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="aria-bg-canon max-w-7xl mx-auto space-y-6">
       <FlashBanner msg={msg} className="mx-6 mt-3" />
       <input type="file" ref={fileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png"
         onChange={handleFileUpload} />
