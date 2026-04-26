@@ -71,10 +71,17 @@ export async function GET(req: NextRequest) {
   const supa = getSupabaseAdmin();
 
   if (empresa) {
-    // Devolver password real solo para la empresa especifica
+    // P-15 (25-Abr-2026): leer password descifrada via RPC pgp_sym_decrypt.
+    // La RPC vive en Supabase y usa la KEY de session settings o pasada como param.
+    // Si la KEY de env esta presente, descifrar; si no, fallback a password texto plano (transitorio).
+    const cryptoKey = process.env.PORTALES_CRYPTO_KEY || "";
+    const useCipher = !!cryptoKey;
+    const selectCols = useCipher
+      ? "id, portal_key, portal_nombre, portal_url, empresa, rfc, usuario, pin, notas, activo, password, password_enc"
+      : "id, portal_key, portal_nombre, portal_url, empresa, rfc, usuario, password, pin, notas, activo";
     const { data, error } = await supa
       .from("portales_credenciales")
-      .select("id, portal_key, portal_nombre, portal_url, empresa, rfc, usuario, password, pin, notas, activo")
+      .select(selectCols)
       .eq("portal_key", portal)
       .eq("empresa", empresa)
       .eq("activo", true)
@@ -82,15 +89,33 @@ export async function GET(req: NextRequest) {
     if (error || !data) {
       return NextResponse.json({ error: "Credencial no encontrada" }, { status: 404 });
     }
+    const credRow = data as unknown as Record<string, unknown>;
+    // Descifrar password si existe password_enc + KEY (P-15 25-Abr-2026)
+    if (useCipher && credRow.password_enc) {
+      try {
+        const { data: dec, error: decErr } = await supa.rpc("decrypt_portal_password", {
+          p_id: credRow.id as string,
+          p_key: cryptoKey,
+        });
+        if (!decErr && typeof dec === "string" && dec.length > 0) {
+          credRow.password = dec;
+        }
+      } catch (e: unknown) {
+        log.error("Error descifrando password", { err: (e as Error).message });
+      }
+    }
+    // Limpiar campos internos antes de devolver
+    delete credRow.password_enc;
+
     await logAcceso({
-      credencialId: data.id,
+      credencialId: credRow.id as string,
       portalKey: portal,
-      empresa: data.empresa,
+      empresa: credRow.empresa as string,
       userEmail: auth.email,
       accion: "VIEW_PASSWORD",
       ip, ua,
     });
-    return NextResponse.json({ ok: true, credencial: data });
+    return NextResponse.json({ ok: true, credencial: credRow });
   }
 
   // Lista sin password
