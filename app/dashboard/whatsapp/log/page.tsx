@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Send, RefreshCw, MessageCircle, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 interface WaLogRow {
   id: string;
@@ -81,13 +82,13 @@ export default function WhatsAppLogPage() {
 
   return (
     <div className="aria-page-canon">
-      <div className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08]">
-        <AriaBackButton href="/dashboard" />
-        <h1 className="mt-2 text-2xl font-bold text-white flex items-center gap-2">
-          <MessageCircle className="w-6 h-6 text-aria-accent" /> WhatsApp Log — JJCRM27
-        </h1>
-        <p className="text-sm text-[#7f93b0]">Auditoría de envíos vía WABA 842930185269415 / Phone 963627606824867</p>
-      </div>
+      {/* B4 26-Abr-2026: CanonPageHeader canon AAA */}
+      <CanonPageHeader
+        title="WhatsApp Log — JJCRM27"
+        subtitle="Auditoría de envíos vía WABA 842930185269415 / Phone 963627606824867"
+        backHref="/dashboard"
+        icon={<MessageCircle className="w-6 h-6" />}
+      />
 
       {/* Test send */}
       <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1E3E7A]/15 to-[#0A2450]/25 border border-[#3A5E9A]/40 shadow-[0_4px_16px_rgba(0,0,0,0.3)] space-y-3">

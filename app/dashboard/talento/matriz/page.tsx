@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { BarChart3, Users, DollarSign, Building2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 import { fmtMoney } from "@/lib/formatters";
 
 interface Empleado {
@@ -47,37 +49,27 @@ export default function MatrizSalarialPage() {
   return (
     <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 mb-6">
-        <AriaBackButton href="/dashboard/talento" />
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Matriz Salarial</h1>
-            <p className="text-[#7f93b0] text-sm mt-1">Tabulador de sueldos por puesto y empresa</p>
-          </div>
-          <select value={groupBy} onChange={e => setGroupBy(e.target.value as typeof groupBy)}
-            className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
-            <option value="empresa">Por Empresa</option>
-            <option value="position">Por Puesto</option>
-            <option value="department">Por Departamento</option>
-          </select>
-        </div>
+        {/* B4 26-Abr-2026: CanonPageHeader + KpiCard canon AAA */}
+        <CanonPageHeader
+          title="Matriz Salarial"
+          subtitle="Tabulador de sueldos por puesto y empresa"
+          backHref="/dashboard/talento"
+          icon={<BarChart3 className="w-6 h-6" />}
+          right={
+            <select value={groupBy} onChange={e => setGroupBy(e.target.value as typeof groupBy)}
+              className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
+              <option value="empresa">Por Empresa</option>
+              <option value="position">Por Puesto</option>
+              <option value="department">Por Departamento</option>
+            </select>
+          }
+        />
       </div>
 
       <div className="flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-          <Users className="w-5 h-5 text-aria-accent mb-2" />
-          <p className="text-2xl font-bold text-white">{empleados.length}</p>
-          <p className="text-xs text-[#7f93b0]">Empleados Activos</p>
-        </div>
-        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-          <DollarSign className="w-5 h-5 text-aria-accent mb-2" />
-          <p className="text-2xl font-bold text-white">{fmtMoney(totalNomina)}</p>
-          <p className="text-xs text-[#7f93b0]">Nómina Diaria Total</p>
-        </div>
-        <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-          <Building2 className="w-5 h-5 text-aria-accent mb-2" />
-          <p className="text-2xl font-bold text-white">{Object.keys(groups).length}</p>
-          <p className="text-xs text-[#7f93b0]">Grupos</p>
-        </div>
+        <KpiCard label="Empleados Activos" value={empleados.length} variant="neutral" icon={<Users className="w-5 h-5" />} />
+        <KpiCard label="Nomina Diaria Total" value={fmtMoney(totalNomina)} variant="emerald" icon={<DollarSign className="w-5 h-5" />} />
+        <KpiCard label="Grupos" value={Object.keys(groups).length} variant="neutral" icon={<Building2 className="w-5 h-5" />} />
       </div>
 
       <div className="flex-1 overflow-auto space-y-4">

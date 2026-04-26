@@ -9,6 +9,8 @@ import {
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import ConfirmModal from "@/components/ConfirmModal";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import KpiCard from "@/components/ui/KpiCard";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 
@@ -164,43 +166,36 @@ export default function ClientesPage() {
 
   return (
     <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
-      <div className="flex-none p-6 pb-3 border-b border-white/[0.08]">
-        <AriaBackButton href="/dashboard" />
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Users className="w-6 h-6 text-aria-accent" /> Clientes
-            </h1>
-            <p className="text-xs text-[#7f93b0]">CRUD + baja lógica + expediente documental reusable</p>
-          </div>
-          <div className="flex gap-2">
-            <a
-              href="/dashboard/clientes/cotizaciones"
-              className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
-            >
-              Cotizaciones
-            </a>
-            <button
-              onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
-              className="px-4 py-2 bg-emerald-500/20 text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary/30 flex items-center gap-2"
-            >
-              {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {showForm ? "Cancelar" : "Nuevo cliente"}
-            </button>
-          </div>
-        </div>
+      <div className="flex-none p-6 pb-3">
+        {/* B4 26-Abr-2026: CanonPageHeader + KpiCard canon AAA */}
+        <CanonPageHeader
+          title="Clientes"
+          subtitle="CRUD + baja lógica + expediente documental reusable"
+          backHref="/dashboard"
+          icon={<Users className="w-6 h-6" />}
+          right={
+            <>
+              <a
+                href="/dashboard/clientes/cotizaciones"
+                className="px-4 py-2 bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] text-white rounded-full text-sm font-medium hover:bg-[#2A4A8E] flex items-center gap-2"
+              >
+                Cotizaciones
+              </a>
+              <button
+                onClick={() => { if (showForm) reset(); else { setForm({ ...FORM_INIT }); setShowForm(true); } }}
+                className="px-4 py-2 bg-emerald-500/20 text-aria-accent rounded-xl text-sm font-medium hover:bg-aria-primary/30 flex items-center gap-2"
+              >
+                {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {showForm ? "Cancelar" : "Nuevo cliente"}
+              </button>
+            </>
+          }
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-          {[
-            { label: "Total", value: stats.total, color: "text-white" },
-            { label: "Activos", value: stats.activos, color: "text-aria-accent" },
-            { label: "Inactivos", value: stats.inactivos, color: "text-[#7f93b0]" },
-          ].map(s => (
-            <div key={s.label} className="p-3 bg-white/[0.04] rounded-lg">
-              <p className={`text-xl font-bold ${s.color}`}>{loading ? "…" : s.value}</p>
-              <p className="text-xs text-[#7f93b0]">{s.label}</p>
-            </div>
-          ))}
+          <KpiCard label="Total" value={loading ? "…" : stats.total} variant="neutral" />
+          <KpiCard label="Activos" value={loading ? "…" : stats.activos} variant="emerald" />
+          <KpiCard label="Inactivos" value={loading ? "…" : stats.inactivos} variant="neutral" />
         </div>
 
         <div className="flex items-center gap-2 mt-4">

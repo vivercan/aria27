@@ -12,6 +12,7 @@ import {
   Server,
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
 const ALLOWED_EMAILS = [
   "juanviverosv@gmail.com",
@@ -130,19 +131,13 @@ export default function RestorePage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      {/* Header — EX-6 18-Abr-2026: AriaBackButton canónico */}
-      <div className="flex items-center gap-3">
-        <AriaBackButton />
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-red-500/20 rounded-lg">
-            <DatabaseBackup className="w-6 h-6 text-red-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Restaurar Sistema</h1>
-            <p className="text-xs text-gray-400">Punto de restauración — Solo administrador principal</p>
-          </div>
-        </div>
-      </div>
+      {/* B4 26-Abr-2026: CanonPageHeader canon AAA */}
+      <CanonPageHeader
+        title="Restaurar Sistema"
+        subtitle="Punto de restauración — Solo administrador principal"
+        backHref="/dashboard/configuracion"
+        icon={<DatabaseBackup className="w-6 h-6 text-red-400" />}
+      />
 
       {/* Advertencia */}
       <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex gap-3">

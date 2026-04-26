@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
@@ -137,26 +138,26 @@ export default function RolesAdminPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <AriaBackButton href="/dashboard" />
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-aria-accent" /> Roles y Permisos
-            </h1>
-            <p className="text-xs text-[#7f93b0]">{users.length} usuarios · marca los modulos que cada uno puede ver</p>
-          </div>
-        </div>
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
-          <input
-            type="text"
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            placeholder="Buscar usuario..."
-            className="pl-9 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 w-64"
-          />
-        </div>
+      <div className="mb-4 flex-shrink-0">
+        {/* B4 26-Abr-2026: CanonPageHeader canon AAA */}
+        <CanonPageHeader
+          title="Roles y Permisos"
+          subtitle={`${users.length} usuarios · marca los módulos que cada uno puede ver`}
+          backHref="/dashboard"
+          icon={<ShieldCheck className="w-6 h-6" />}
+          right={
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6080]" />
+              <input
+                type="text"
+                value={filter}
+                onChange={e => setFilter(e.target.value)}
+                placeholder="Buscar usuario..."
+                className="pl-9 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 w-64"
+              />
+            </div>
+          }
+        />
       </div>
 
       {/* EX-3 18-Abr-2026: FlashBanner canónico */}
