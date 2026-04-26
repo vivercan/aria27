@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import AriaBackButton from "@/components/AriaBackButton";
+import CanonPageHeader from "@/components/ui/CanonPageHeader";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Database, Undo2 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -170,21 +171,20 @@ export default function AuditoriaPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      <header className="sticky top-0 z-10 bg-[#040810]/80 backdrop-blur border-b border-white/[0.08] px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <AriaBackButton href="/dashboard/admin" />
-            <Database className="w-6 h-6 text-aria-accent" />
-            <div>
-              <h1 className="text-2xl font-bold">Auditoría y Respaldos</h1>
-              <p className="text-xs text-white/50">Historial perpetuo de cambios · {audit.length} eventos · {deleted.length} registros borrados</p>
-            </div>
-          </div>
-          <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-sm text-white">
-            <RefreshCw className="w-4 h-4" /> Refrescar
-          </button>
-        </div>
+    <div className="aria-bg-canon flex h-screen flex-col text-white">
+      <header className="px-6 py-4">
+        {/* B4 26-Abr-2026: CanonPageHeader canon AAA */}
+        <CanonPageHeader
+          title="Auditoría y Respaldos"
+          subtitle={`Historial perpetuo de cambios · ${audit.length} eventos · ${deleted.length} registros borrados`}
+          backHref="/dashboard/admin"
+          icon={<Database className="w-6 h-6" />}
+          right={
+            <button onClick={cargar} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E3E7A] border border-[rgba(130,170,230,0.25)] hover:bg-[#2A4A8E] text-sm text-white">
+              <RefreshCw className="w-4 h-4" /> Refrescar
+            </button>
+          }
+        />
 
         <div className="mt-4 flex items-center gap-2">
           <button
