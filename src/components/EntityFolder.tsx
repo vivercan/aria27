@@ -398,8 +398,8 @@ export default function EntityFolder({
       {dragging && (
         <div className="absolute inset-0 z-30 bg-emerald-500/10  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Inbox className="w-12 h-12 text-emerald-400 mb-2" />
-          <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aqu\u00ed</p>
-          <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas autom\u00e1ticamente</p>
+          <p className="text-emerald-300 text-sm font-medium">Suelta archivos o carpetas aquí</p>
+          <p className="text-emerald-400/60 text-xs mt-1">Se preservan subcarpetas automáticamente</p>
         </div>
       )}
       {/* Scanning/uploading progress overlay */}
@@ -407,7 +407,7 @@ export default function EntityFolder({
         <div className="absolute inset-0 z-30 bg-[#0a1628]/80  rounded-xl flex flex-col items-center justify-center pointer-events-none">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-2" />
           <p className="text-emerald-300 text-sm font-medium">
-            {dropProgress.phase === "scanning" ? "Escaneando carpetas\u2026" : "Subiendo archivos\u2026"}
+            {dropProgress.phase === "scanning" ? "Escaneando carpetas…" : "Subiendo archivos…"}
           </p>
           {dropProgress.total > 0 && (
             <p className="text-emerald-400/60 text-xs mt-1">
@@ -543,7 +543,16 @@ export default function EntityFolder({
         {loading ? (
           <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-aria-accent mx-auto" /></div>
         ) : docs.length === 0 ? (
-          <p className="text-center text-xs text-[#4a6080] py-6">Sin documentos. Arrastra archivos aqu\u00ed o usa los botones &quot;Archivos&quot; / &quot;Carpeta&quot;.</p>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={busy === "upload"}
+            className="w-full py-12 px-4 border-2 border-dashed border-emerald-400/40 rounded-lg bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-400/70 transition flex flex-col items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
+          >
+            <Upload className="w-10 h-10 text-emerald-400/80" />
+            <p className="text-sm text-emerald-300 font-medium">Click aquí o arrastra archivos para subirlos</p>
+            <p className="text-[11px] text-[#7f93b0]">También puedes usar los botones &quot;Archivos&quot; o &quot;Carpeta&quot; arriba a la derecha</p>
+          </button>
         ) : (
           <div className="space-y-1">
             {docs.filter(d => !filterCat || (d.categoria || "Otro") === filterCat).map(d => (
