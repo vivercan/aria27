@@ -28,6 +28,7 @@ const sistemaItems: ModuleItem[] = [
   { title: "General",       description: "Parámetros globales del sistema y usuarios.",     href: "/dashboard/configuracion/general",       icon: Settings,     accent: BLUE, hero: true },
   { title: "Datos Maestros",description: "Centros de trabajo, centros de costo y nómina.", href: "/dashboard/configuracion/maestros",       icon: Database,     accent: BLUE },
   { title: "Correo",        description: "Configuración de correo y notificaciones.",       href: "/dashboard/configuracion/correo",         icon: Mail,         accent: BLUE },
+  { title: "Mi Inbox personal", description: "Conecta tu propia cuenta Zoho — cifrado pgcrypto.",  href: "/dashboard/configuracion/inbox-creds",    icon: Mail,         accent: BLUE },
   { title: "Alertas",       description: "Alertas de atrasos y vencimientos automáticos.", href: "/dashboard/configuracion/alertas",        icon: Bell,         accent: BLUE },
 ];
 

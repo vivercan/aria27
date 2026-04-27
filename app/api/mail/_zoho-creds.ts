@@ -1,15 +1,22 @@
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { logger } from "@/lib/logger";
 
+const log = logger("ZOHO-CREDS");
 const COOKIE_NAME = "zoho_creds";
 
 /**
- * Lee credenciales Zoho.
- * Prioridad: 1) cookie httpOnly de sesión personal
- *            2) ZOHO_EMAIL + ZOHO_PASSWORD del sistema (env vars Vercel)
- * Retorna { email, password } o null si no hay credenciales.
+ * Lee credenciales Zoho del usuario que hace la peticion.
+ * Prioridad:
+ *   1. Cookie httpOnly de sesion personal (set por POST /api/mail/auth)
+ *   2. Tabla public.users.zoho_password_encrypted del usuario identificado
+ *      por el header `x-user-email` (cifrado con pgcrypto, descifrado por RPC).
+ * Sin fallback a env vars compartidas (eliminado 27-Abr-2026 para evitar cruce de inboxes
+ * entre administracion@ y recursos.humanos@).
  */
-export async function getZohoCreds(): Promise<{ email: string; password: string } | null> {
-  // 1. Cookie de sesión personal (usuario logueó manualmente)
+export async function getZohoCreds(req?: NextRequest): Promise<{ email: string; password: string } | null> {
+  // 1. Cookie de sesion personal
   try {
     const cookieStore = await cookies();
     const raw = cookieStore.get(COOKIE_NAME)?.value;
@@ -18,14 +25,38 @@ export async function getZohoCreds(): Promise<{ email: string; password: string 
       const { email, password } = JSON.parse(decoded);
       if (email && password) return { email, password };
     }
-  } catch { /* continuar al fallback */ }
+  } catch { /* continuar */ }
 
-  // 2. Credenciales del sistema (env vars) — cuenta corporativa compartida
-  const envEmail    = process.env.ZOHO_EMAIL;
-  const envPassword = process.env.ZOHO_PASSWORD;
-  if (envEmail && envPassword) {
-    return { email: envEmail, password: envPassword };
+  // 2. Credenciales del usuario en BD (cifradas)
+  if (!req) return null;
+  const userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  if (!userEmail) {
+    log.warn("getZohoCreds: x-user-email ausente — no se puede leer creds personales");
+    return null;
   }
 
-  return null;
+  const cryptoKey = process.env.PORTALES_CRYPTO_KEY;
+  if (!cryptoKey) {
+    log.error("getZohoCreds: PORTALES_CRYPTO_KEY env var ausente");
+    return null;
+  }
+
+  try {
+    const sb = getSupabaseAdmin();
+    const { data, error } = await sb.rpc("get_user_zoho_creds", { p_email: userEmail, p_key: cryptoKey });
+    if (error) {
+      log.error("RPC get_user_zoho_creds fallo", { err: error.message, user: userEmail });
+      return null;
+    }
+    if (!data || (data as Array<unknown>).length === 0) {
+      log.info("Usuario sin creds Zoho configuradas", { user: userEmail });
+      return null;
+    }
+    const row = (data as Array<{ zoho_email: string; zoho_password: string }>)[0];
+    if (!row.zoho_email || !row.zoho_password) return null;
+    return { email: row.zoho_email, password: row.zoho_password };
+  } catch (e) {
+    log.error("getZohoCreds: excepcion", { err: (e as Error).message, user: userEmail });
+    return null;
+  }
 }
