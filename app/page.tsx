@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const [showPass, setShowPass] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
   const router = useRouter()
 
@@ -172,8 +173,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value);
-  const [showPass, setShowPass] = useState(false); setError(''); }}
+                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   disabled={loading}
                   required
                   className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
