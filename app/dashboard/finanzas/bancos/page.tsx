@@ -80,10 +80,22 @@ export default function BancosPage() {
     const payload = { ...form, updated_at: new Date().toISOString() } as Record<string, unknown>;
     if (editId) {
       const { error } = await supabase.from("cuentas_bancarias").update(payload).eq("id", editId);
-      if (error) { flash("err", "Error al actualizar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+      if (error) {
+        log.error("UPDATE cuentas_bancarias fallo", { err: error.message, code: (error as {code?:string}).code, details: (error as {details?:string}).details, hint: (error as {hint?:string}).hint });
+        const fullMsg = `Error al actualizar cuenta: ${error.message}${(error as {hint?:string}).hint ? " | hint: " + (error as {hint?:string}).hint : ""}`;
+        flash("err", fullMsg);
+        alert(fullMsg);
+        return;
+      }
     } else {
       const { error } = await supabase.from("cuentas_bancarias").insert({ ...payload, activa: true });
-      if (error) { flash("err", "Error al crear: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+      if (error) {
+        log.error("INSERT cuentas_bancarias fallo", { err: error.message, code: (error as {code?:string}).code, details: (error as {details?:string}).details, hint: (error as {hint?:string}).hint });
+        const fullMsg = `Error al crear cuenta: ${error.message}${(error as {hint?:string}).hint ? " | hint: " + (error as {hint?:string}).hint : ""}`;
+        flash("err", fullMsg);
+        alert(fullMsg);
+        return;
+      }
     }
     resetForm();
     loadData();
