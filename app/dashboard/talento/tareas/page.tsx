@@ -24,6 +24,7 @@ interface Tarea {
   fecha_compromiso: string;
   estatus: string;
   prioridad: string;
+  foto_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +41,7 @@ const EMPTY_FORM = {
   fecha_compromiso: "",
   estatus: "PENDIENTE",
   prioridad: "MEDIA",
+  foto_url: "",
 };
 
 const ESTATUS = ["PENDIENTE", "EN_PROGRESO", "COMPLETADA", "CANCELADA"];
@@ -77,6 +79,11 @@ export default function TareasTalentoPage() {
   const [search, setSearch] = useState("");
   const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
   const [userEmail, setUserEmail] = useState("");
+  const [page, setPage] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [photoModal, setPhotoModal] = useState<string | null>(null);
+  const ROWS_PER_PAGE = 12;
+  const ROTATION_MS = 10000;
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [confirmState, setConfirmState] = useState<{open: boolean; id: string}>({open: false, id: ""});
   const closeConfirm = () => setConfirmState({open: false, id: ""});
@@ -130,6 +137,7 @@ export default function TareasTalentoPage() {
       estatus: form.estatus,
       prioridad: form.prioridad,
       asignado_por: userEmail || "sistema",
+      foto_url: form.foto_url || null,
     };
     let error;
     const esNueva = !editando;
@@ -193,6 +201,7 @@ export default function TareasTalentoPage() {
       avance: t.avance,
       fecha_compromiso: t.fecha_compromiso,
       estatus: t.estatus,
+      foto_url: t.foto_url || "",
       prioridad: t.prioridad,
     });
     setShowForm(true);
@@ -206,6 +215,33 @@ export default function TareasTalentoPage() {
     const matchEstatus = filtroEstatus === "TODAS" || t.estatus === filtroEstatus;
     return matchSearch && matchEstatus;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtradas.length / ROWS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleRows = filtradas.slice(currentPage * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
+
+  useEffect(() => { setPage(0); }, [search, filtroEstatus]);
+
+  useEffect(() => {
+    if (paused || totalPages <= 1) return;
+    const id = setInterval(() => {
+      setPage(p => (p + 1) % totalPages);
+    }, ROTATION_MS);
+    return () => clearInterval(id);
+  }, [paused, totalPages]);
+
+  const subirFoto = async (file: File): Promise<string | null> => {
+    try {
+      const path = `tareas/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await supabase.storage.from("expedientes").upload(path, file, { upsert: false });
+      if (error) { alert("Error al subir foto: " + error.message); return null; }
+      const { data } = supabase.storage.from("expedientes").getPublicUrl(path);
+      return data.publicUrl;
+    } catch (e) {
+      alert("Error: " + (e as Error).message);
+      return null;
+    }
+  };
 
   const stats = {
     total: tareas.length,
@@ -283,80 +319,112 @@ export default function TareasTalentoPage() {
       ) : filtradas.length === 0 ? (
         <div className="text-center py-12 text-[#7f93b0]">No hay tareas registradas.</div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filtradas.map(t => {
-            const vencida = t.estatus !== "COMPLETADA" && t.estatus !== "CANCELADA" && t.fecha_compromiso && new Date(t.fecha_compromiso) < new Date();
-            return (
-              <div key={t.id} className={`rounded-xl bg-[#0c1d38]/50 border p-5 ${vencida ? "border-rose-500/50" : "border-white/[0.05]"}`}>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-white text-lg">{t.titulo}</h3>
-                      <Flag className={`w-4 h-4 ${colorPrioridad(t.prioridad)}`} />
+        <div
+          className="rounded-xl border border-white/[0.06] bg-[#040810] overflow-hidden font-mono"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          {/* HEADER de la tabla estilo aeropuerto */}
+          <div className="grid grid-cols-[44px_1.2fr_2fr_1fr_110px_140px_120px_100px] gap-2 px-3 py-2 bg-[#0a1628] border-b border-white/[0.08] text-[10px] font-bold uppercase tracking-wider text-[#7f93b0]">
+            <div></div>
+            <div>Asignado</div>
+            <div>Tarea / Obra</div>
+            <div>Vence</div>
+            <div className="text-center">Avance</div>
+            <div className="text-center">Estatus</div>
+            <div>Ultima resp.</div>
+            <div className="text-right">Acciones</div>
+          </div>
+
+          {/* FILAS */}
+          <div className="divide-y divide-white/[0.05]">
+            {visibleRows.map((t, i) => {
+              const vencida = t.estatus !== "COMPLETADA" && t.estatus !== "CANCELADA" && t.fecha_compromiso && new Date(t.fecha_compromiso) < new Date();
+              const fecha = t.fecha_compromiso ? new Date(t.fecha_compromiso) : null;
+              const fechaTxt = fecha ? fecha.toLocaleDateString("es-MX", { day: "2-digit", month: "short" }).toUpperCase() : "—";
+              const respTxt = t.respuesta_ultima ? (t.respuesta_ultima.length > 18 ? t.respuesta_ultima.slice(0, 18) + "…" : t.respuesta_ultima) : "—";
+              return (
+                <div
+                  key={t.id}
+                  className={`grid grid-cols-[44px_1.2fr_2fr_1fr_110px_140px_120px_100px] gap-2 px-3 py-2 items-center text-xs hover:bg-white/[0.03] transition-colors ${i % 2 === 0 ? "bg-[#040810]" : "bg-[#060d18]"} ${vencida ? "border-l-2 border-rose-500/60" : "border-l-2 border-transparent"}`}
+                >
+                  {/* THUMB FOTO */}
+                  <div>
+                    {t.foto_url ? (
+                      <button onClick={() => setPhotoModal(t.foto_url!)} className="w-9 h-9 rounded overflow-hidden border border-white/[0.08] hover:border-aria-accent block">
+                        <img src={t.foto_url} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ) : (
+                      <div className="w-9 h-9 rounded border border-dashed border-white/[0.06] flex items-center justify-center text-[#4a6080]"><User className="w-4 h-4" /></div>
+                    )}
+                  </div>
+
+                  {/* ASIGNADO */}
+                  <div className="truncate text-[#dee7f4] font-medium" title={t.asignado_nombre}>{t.asignado_nombre || "—"}</div>
+
+                  {/* TAREA + OBRA */}
+                  <div className="min-w-0">
+                    <div className="text-white truncate flex items-center gap-1.5" title={t.titulo}>
+                      <Flag className={`w-3 h-3 flex-shrink-0 ${colorPrioridad(t.prioridad)}`} />
+                      {t.titulo}
                     </div>
-                    {t.descripcion && <p className="text-sm text-[#7f93b0]">{t.descripcion}</p>}
+                    {t.obra && <div className="text-[10px] text-[#4a6080] truncate" title={t.obra}>{t.obra}</div>}
                   </div>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${colorEstatus(t.estatus)}`}>
-                    {t.estatus.replace("_", " ")}
-                  </span>
-                </div>
-                <div className="space-y-2 text-sm text-[#c9d8ed] mb-4">
-                  <div className="flex items-center gap-2"><User className="w-4 h-4 text-[#4a6080]" /> {t.asignado_nombre || "—"}</div>
-                  {t.obra && <div className="flex items-center gap-2"><ClipboardList className="w-4 h-4 text-[#4a6080]" /> {t.obra}</div>}
+
+                  {/* VENCE */}
+                  <div className={`tabular-nums ${vencida ? "text-rose-400 font-bold" : "text-[#dee7f4]"}`}>{fechaTxt}{vencida && <div className="text-[9px] text-rose-500/80">VENCIDA</div>}</div>
+
+                  {/* AVANCE */}
                   <div className="flex items-center gap-2">
-                    <Calendar className={`w-4 h-4 ${vencida ? "text-rose-400" : "text-[#4a6080]"}`} />
-                    <span className={vencida ? "text-rose-400 font-semibold" : ""}>
-                      {t.fecha_compromiso ? new Date(t.fecha_compromiso).toLocaleDateString("es-MX") : "—"}
-                      {vencida && " (VENCIDA)"}
-                    </span>
+                    <div className="flex-1 h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-emerald-500 to-aria-primary" style={{ width: `${t.avance}%` }} />
+                    </div>
+                    <span className="text-[10px] tabular-nums text-white font-semibold w-7 text-right">{t.avance}%</span>
+                  </div>
+
+                  {/* ESTATUS */}
+                  <div className="text-center">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${colorEstatus(t.estatus)}`}>{t.estatus.replace("_", " ")}</span>
+                  </div>
+
+                  {/* ULTIMA RESPUESTA WA */}
+                  <div className="text-[10px] text-[#7f93b0] truncate" title={t.respuesta_ultima || ""}>{respTxt}</div>
+
+                  {/* ACCIONES */}
+                  <div className="flex items-center gap-1 justify-end">
+                    <button onClick={() => abrirEditar(t)} title="Editar" className="p-1.5 rounded bg-white/[0.04] hover:bg-white/[0.10] text-aria-accent"><Edit2 className="w-3.5 h-3.5" /></button>
+                    {t.estatus !== "COMPLETADA" && (
+                      <button onClick={() => cambiarAvance(t.id, 100)} title="Completar" className="p-1.5 rounded bg-emerald-600/70 hover:bg-emerald-600 text-white"><CheckCircle2 className="w-3.5 h-3.5" /></button>
+                    )}
+                    <button onClick={() => eliminar(t.id)} title="Eliminar" className="p-1.5 rounded bg-rose-600/70 hover:bg-rose-600 text-white"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
-                <div className="mb-3">
-                  <div className="flex items-center justify-between text-xs text-[#7f93b0] mb-1">
-                    <span>Avance</span>
-                    <span className="font-semibold text-white">{t.avance}%</span>
-                  </div>
-                  <div className="w-full bg-white/[0.05] rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-emerald-500 to-aria-primary h-2 rounded-full transition-all"
-                      style={{ width: `${t.avance}%` }}
-                    />
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value={t.avance}
-                    onChange={e => cambiarAvance(t.id, Number(e.target.value))}
-                    className="w-full mt-2 accent-fuchsia-500"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => abrirEditar(t)}
-                    className="flex-1 px-3 py-1.5 text-sm bg-white/[0.05] hover:bg-[#0f2448] text-white rounded-lg flex items-center justify-center gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" /> Editar
-                  </button>
-                  {t.estatus !== "COMPLETADA" && (
-                    <button
-                      onClick={() => cambiarAvance(t.id, 100)}
-                      className="px-3 py-1.5 text-sm bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-lg flex items-center gap-1"
-                    >
-                      <CheckCircle2 className="w-4 h-4" /> Completar
-                    </button>
-                  )}
-                  <button
-                    onClick={() => eliminar(t.id)}
-                    className="px-3 py-1.5 text-sm bg-rose-600/80 hover:bg-rose-600 text-white rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+              );
+            })}
+          </div>
+
+          {/* FOOTER paginacion estilo aeropuerto */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-3 py-2 bg-[#0a1628] border-t border-white/[0.08] text-[10px] text-[#7f93b0]">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-aria-accent">{paused ? "PAUSADO" : "AUTO"}</span>
+                <span>·</span>
+                <span>Pasa el cursor por encima para pausar la rotacion</span>
               </div>
-            );
-          })}
+              <div className="flex items-center gap-2">
+                <button onClick={() => setPage((currentPage - 1 + totalPages) % totalPages)} className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-white">‹</button>
+                <span className="tabular-nums font-bold">PAGINA {currentPage + 1} / {totalPages}</span>
+                <button onClick={() => setPage((currentPage + 1) % totalPages)} className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-white">›</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL preview de foto */}
+      {photoModal && (
+        <div onClick={() => setPhotoModal(null)} className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-6 cursor-zoom-out">
+          <img src={photoModal} alt="Foto tarea" className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl" />
         </div>
       )}
 
@@ -426,6 +494,42 @@ export default function TareasTalentoPage() {
                     className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary">
                     {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
                   </select>
+                </div>
+              </div>
+
+              {/* FOTO de la tarea (opcional, soporta foto compartida desde WhatsApp) */}
+              <div>
+                <label className="text-sm text-[#7f93b0] mb-1 block">Foto (opcional)</label>
+                <div className="flex items-start gap-3">
+                  {form.foto_url ? (
+                    <div className="relative">
+                      <img src={form.foto_url} alt="Foto" className="w-24 h-24 object-cover rounded-lg border border-white/[0.08]" />
+                      <button type="button" onClick={() => setForm((prev: any) => ({...prev, foto_url: ""}))} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xs">×</button>
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 rounded-lg border-2 border-dashed border-white/[0.08] flex items-center justify-center text-[#4a6080] text-xs">Sin foto</div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        const url = await subirFoto(f);
+                        if (url) setForm((prev: any) => ({...prev, foto_url: url}));
+                      }}
+                      className="text-xs text-[#dee7f4] file:mr-2 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-aria-primary/30 file:text-aria-accent file:font-medium hover:file:bg-aria-primary/50"
+                    />
+                    <p className="text-[10px] text-[#4a6080]">Tambien puedes pegar la URL si la foto vino de WhatsApp:</p>
+                    <input
+                      type="text"
+                      value={form.foto_url}
+                      onChange={(e) => setForm((prev: any) => ({...prev, foto_url: e.target.value}))}
+                      placeholder="https://... (URL de la foto)"
+                      className="w-full px-2 py-1.5 bg-[#0c1d38] border border-white/[0.08] rounded text-[11px] text-white focus:outline-none focus:border-aria-primary"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
