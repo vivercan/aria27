@@ -90,6 +90,21 @@ function CapturarContent() {
 
   useEffect(() => { if (reqId) loadAll(); else setLoading(false); }, [reqId]);
 
+  // 27-Abr-2026: auto-recarga suppliers al volver el foco a la pestana
+  useEffect(() => {
+    const reloadSuppliers = async () => {
+      const { data: sups } = await supabase.from("suppliers").select("id, name").eq("active", true).order("name");
+      setSuppliers(sups || []);
+    };
+    const onVisibility = () => { if (document.visibilityState === "visible") reloadSuppliers(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", reloadSuppliers);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", reloadSuppliers);
+    };
+  }, []);
+
   const loadAll = async () => {
     setLoading(true);
     const { data: req } = await supabase.from("Requisiciones").select("*").eq("id", reqId).single();

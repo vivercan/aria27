@@ -107,6 +107,19 @@ export default function ComprasTramitePage() {
 
   useEffect(() => { loadData(); }, []);
 
+  // 27-Abr-2026: auto-recarga al volver el foco a la pestana (proveedores recien creados)
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") loadData();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", loadData);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", loadData);
+    };
+  }, []);
+
   const loadData = async () => {
     const { data: reqs } = await supabase
       .from("Requisiciones")
@@ -428,6 +441,10 @@ Responde SOLO con JSON así:
               <h3 className="text-white font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-aria-accent" />
                 Proveedores Relevantes ({relevantSuppliers.length})
+                <button onClick={loadData} title="Recargar lista de proveedores"
+                  className="ml-1 px-2 py-1 rounded-md bg-white/[0.06] hover:bg-white/[0.12] text-aria-accent text-[10px] font-medium border border-white/[0.08]">
+                  Recargar
+                </button>
               </h3>
               <button onClick={buscarConARIA} disabled={buscandoIA}
                 className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-aria-accent to-aria-primary text-white text-xs font-medium flex items-center gap-1.5">
