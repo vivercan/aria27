@@ -192,7 +192,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const fetchUnread = async () => {
       if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
       try {
-        const r = await fetch("/api/mail/unread-count");
+        const r = await fetch("/api/mail/unread-count", { headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "") } });
         if (r.ok) {
           const d = await r.json().catch(() => ({}));
           const serverCount = d.count || 0;
