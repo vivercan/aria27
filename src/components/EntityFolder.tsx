@@ -232,7 +232,10 @@ export default function EntityFolder({
         urlField: "url",
       });
       return true;
-    } catch {
+    } catch (e: unknown) {
+      const msg = (e as Error)?.message || JSON.stringify(e);
+      console.error("[EntityFolder] subir() failed:", { file: file.name, error: e });
+      alert(`Error al subir "${file.name}": ${msg}`);
       return false;
     }
   };
