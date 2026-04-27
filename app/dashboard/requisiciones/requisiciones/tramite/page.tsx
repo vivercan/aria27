@@ -115,10 +115,14 @@ export default function ComprasTramitePage() {
       .order("required_date", { ascending: true });
     setRequisiciones((reqs || []) as Requisition[]);
     
+    // 27-Abr-2026: leer tabla base suppliers + filtro active=true
+    // Consistente con el modulo de alta /dashboard/requisiciones/proveedores
+    // que escribe active=true. La VIEW Proveedores filtra por status=ACTIVO
+    // que NO se setea en el insert -> proveedor recien creado no aparecia.
     const { data: suppliers } = await supabase
-      .from("Proveedores")
+      .from("suppliers")
       .select("id, name, phone, email, categories, credit_days, website")
-      .eq("status", "ACTIVO")
+      .eq("active", true)
       .order("name");
     setAllSuppliers((suppliers || []) as Supplier[]);
     

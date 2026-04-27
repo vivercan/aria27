@@ -101,7 +101,8 @@ function CapturarContent() {
     const { data: qs } = await supabase.from("quotations").select("*").eq("requisition_id", reqId).order("total", { ascending: true });
     setQuotes((qs || []) as QuoteRow[]);
 
-    const { data: sups } = await supabase.from("Proveedores").select("id, name").eq("status", "ACTIVO").order("name");
+    // 27-Abr-2026: leer tabla base suppliers + filtro active=true (consistente con alta)
+    const { data: sups } = await supabase.from("suppliers").select("id, name").eq("active", true).order("name");
     setSuppliers(sups || []);
 
     setLoading(false);
