@@ -362,7 +362,7 @@ export default function TareasTalentoPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0a1628] border border-white/[0.08] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{position:'relative', zIndex: 51}}>
             <div className="sticky top-0 bg-[#0a1628] border-b border-white/[0.08] p-5 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">{editando ? "Editar tarea" : "Nueva tarea"}</h2>
               <button onClick={() => { setShowForm(false); setEditando(null); setForm(EMPTY_FORM); }} className="p-1 rounded hover:bg-white/[0.06]">
@@ -385,7 +385,7 @@ export default function TareasTalentoPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Asignado a *</label>
-                  <select value={form.asignado_id} onChange={e => setForm((prev: any) => ({...prev, asignado_id: e.target.value }))}
+                  <select size={1} value={form.asignado_id} onChange={e => setForm((prev: any) => ({...prev, asignado_id: e.target.value }))}
                     className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.asignado_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
                     <option value="">Seleccionar...</option>
                     {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
