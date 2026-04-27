@@ -329,7 +329,7 @@ export default function NewRequisitionPage() {
   const isEmpty = getTotalPartidas() === 0;
 
   return (
-    <div className="aria-bg-canon flex flex-col gap-4 p-6 h-full overflow-auto">
+    <div className="aria-bg-canon flex flex-col gap-5 p-6 min-h-screen pb-24">
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
@@ -384,7 +384,7 @@ export default function NewRequisitionPage() {
         </button>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-1 xl:grid-cols-2">
         {/* SECCION 1: CONFIGURACION */}
         <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>

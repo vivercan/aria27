@@ -210,12 +210,65 @@ export async function POST(request: NextRequest) {
 
     if (reqErr) throw reqErr;
 
-    const items = materiales.map((m: Record<string, unknown>) => ({
-      requisition_id: req.id, product_id: m.id || null, product_name: m.name, sku: m.sku || "", unit: m.unit,
-      quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || "",
-      // Precio capturado al crear (modo libre: monto por ítem; catálogo: null hasta picking)
-      ...(m.price != null ? { selected_price: Number(m.price) } : {}),
-    }));
+    // 27-Abr-2026: enriquecer catalogo con productos manuales (id=null o id<0).
+    // El usuario agrego un producto que no existia. Insertar en products para futuras requisiciones.
+    // Si el upsert falla, no rompe el flujo (catalogo se enriquece "best-effort").
+    const productosManualesNuevos = materiales.filter((m: Record<string, unknown>) => {
+      const idVal = m.id;
+      const isManual = idVal === null || idVal === undefined || (typeof idVal === "number" && idVal < 0);
+      return isManual && typeof m.name === "string" && (m.name as string).trim().length > 0;
+    });
+    const idMap: Record<string, number> = {};
+    for (const m of productosManualesNuevos) {
+      try {
+        const nombreNorm = ((m.name as string) || "").trim();
+        if (!nombreNorm) continue;
+        // Buscar si ya existe por nombre exacto (case insensitive) para evitar duplicados
+        const { data: existente } = await getDb()
+          .from("products")
+          .select("id")
+          .ilike("name", nombreNorm)
+          .limit(1);
+        let prodId: number | null = null;
+        if (existente && existente.length > 0) {
+          prodId = (existente[0] as { id: number }).id;
+        } else {
+          const { data: nuevo, error: insErr } = await getDb()
+            .from("products")
+            .insert({
+              name: nombreNorm,
+              unit: ((m.unit as string) || "PZA"),
+              category: ((m.category as string) || subcategoria || "OTROS"),
+              description: ((m.comments as string) || ""),
+              created_by: usuario.email,
+            })
+            .select("id")
+            .single();
+          if (!insErr && nuevo) {
+            prodId = (nuevo as { id: number }).id;
+            logs.push(`Catalogo enriquecido: ${nombreNorm} (id ${prodId})`);
+          } else if (insErr) {
+            logger("REQUISICION").warn(`No se pudo enriquecer catalogo con ${nombreNorm}: ${insErr.message}`);
+          }
+        }
+        if (prodId !== null && m.id !== undefined) {
+          idMap[String(m.id)] = prodId;
+        }
+      } catch (e) {
+        logger("REQUISICION").warn(`Excepcion enriqueciendo catalogo: ${(e as Error).message}`);
+      }
+    }
+
+    const items = materiales.map((m: Record<string, unknown>) => {
+      // Si el producto fue enriquecido, usar su nuevo id real de products
+      const mappedId = m.id !== undefined && idMap[String(m.id)] !== undefined ? idMap[String(m.id)] : null;
+      const finalProductId = (typeof m.id === "number" && m.id > 0) ? m.id : mappedId;
+      return {
+        requisition_id: req.id, product_id: finalProductId, product_name: m.name, sku: m.sku || "", unit: m.unit,
+        quantity: m.qty, comments: m.comments || "", category: m.category || "", subcategory: m.subcategory || "",
+        ...(m.price != null ? { selected_price: Number(m.price) } : {}),
+      };
+    });
     const { error: itemsErr } = await getDb().from("requisition_items").insert(items);
     if (itemsErr) throw itemsErr;
 
@@ -253,6 +306,23 @@ export async function POST(request: NextRequest) {
       await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
     }
     notificados.push(`Creador: ${usuario.email}`);
+
+    // 27-Abr-2026: Fallback si flujo='compras' pero no hay usuario con ese role
+    if (flujo === "compras" && !comprasUser) {
+      logger("REQUISICION").error(`[REQUISICION] FLUJO COMPRAS pero NO hay usuario con role='compras' en BD. Notificando admin como fallback.`);
+      logs.push(`AVISO: No se encontro usuario con role='compras'. Email fallback al admin.`);
+      if (adminUser) {
+        const r = await sendEmailLogged({
+          template: "requisicion_creada_compras_fallback",
+          to: adminUser.email,
+          subject: `[FALLBACK COMPRAS] ${folio} - ${obra} - ${urgencyText}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Fallback - Compras sin asignar") + `<div style="background:#f59e0b;color:white;padding:18px;text-align:center"><div style="font-size:18px;font-weight:bold">REQUISICION SIN COMPRADOR ASIGNADO</div><div style="font-size:12px;opacity:0.9">Asigna role='compras' a un usuario en /dashboard/admin/roles</div></div><div style="padding:25px"><p>La requisicion <strong>${folio}</strong> se creo con flujo Compras pero no hay usuario configurado con role='compras'. Notifico al admin para que la procese o asigne.</p>${tablaHtml}</div>` + emailFooter),
+          origen: "req-creada-compras-fallback",
+          enviadoPor: usuario.email,
+        });
+        if (r.success) { logs.push(`Email fallback admin OK: ${adminUser.email}`); }
+      }
+    }
 
     // 2. EMAIL + WA A COMPRAS (solo flujo compras)
     if (flujo === "compras" && comprasUser) {
