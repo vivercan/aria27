@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   try {
-    const creds = await getZohoCreds();
+    const creds = await getZohoCreds(req);
     if (!creds) {
       return NextResponse.json({ count: 0 });
     }
