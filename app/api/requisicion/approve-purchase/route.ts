@@ -182,6 +182,8 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get("token");
     const action = searchParams.get("action");
     const proveedorElegido = searchParams.get("proveedor");
+    const motivoStr = searchParams.get("motivo") || "";
+    const sugerenciaStr = searchParams.get("sugerencia") || "";
 
     if (!token) {
       return NextResponse.json({ error: "Token requerido" }, { status: 400 });
@@ -391,6 +393,65 @@ export async function GET(request: NextRequest) {
       }
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x274C;</div><h1 style="color:#ef4444">Compra Rechazada</h1><p style="color:#94a3b8">${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+    } else if (action === "VOLVER_COTIZAR" || action === "volver-cotizar") {
+      // 26-Abr-2026 (JJ): Direccion regresa requisicion a Compras para volver a cotizar.
+      // No genera OC, no rechaza. Status -> EN_COTIZACION para que Compras la retome.
+      const { error: volErr } = await getDb().from("requisitions").update({
+        status: "EN_COTIZACION",
+        // Conservamos token y limpiamos solo el campo de comentario para que Compras
+        // sepa que fue regresada via Direccion. authorization_comments lleva motivo+sugerencia.
+        authorization_comments: JSON.stringify({
+          motivo: motivoStr || null,
+          sugerencia: sugerenciaStr || null,
+          regresado_por: `magic_link:${String(token).substring(0, 12)}`,
+          regresado_at: new Date().toISOString(),
+        }),
+      }).eq("id", req.id);
+      if (volErr) {
+        log.error("Error VOLVER_COTIZAR requisicion", { error: volErr.message, req: req.folio });
+        throw new Error(`Error regresando requisicion ${req.folio}: ${volErr.message}`);
+      }
+
+      const motivoBlock = motivoStr ? `<div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#92400e;font-size:13px"><strong>Motivo:</strong> ${motivoStr}</p></div>` : "";
+      const sugBlock = sugerenciaStr ? `<div style="background:#eff6ff;border-left:4px solid #3b82f6;padding:14px;border-radius:4px;margin-bottom:14px"><p style="margin:0;color:#1e40af;font-size:13px"><strong>Sugerencia de proveedor:</strong> ${sugerenciaStr}</p></div>` : "";
+
+      if (comprasUser) {
+        await sendEmailLogged({
+          template: "requisicion_volver_cotizar_compras",
+          to: comprasUser.email,
+          subject: `[VOLVER A COTIZAR] ${req.folio} - ${req.cost_center_name || ""}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Volver a cotizar") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p style="margin:0 0 14px"><strong>Direccion</strong> requiere otras opciones para la requisicion <strong>${req.folio}</strong> (${req.cost_center_name || "N/A"}).</p>${motivoBlock}${sugBlock}<p style="margin:14px 0 0;color:#64748b;font-size:12px">La requisicion volvio al estado <strong>EN_COTIZACION</strong>. Por favor solicita nuevas cotizaciones y vuelve a enviar la comparativa cuando este lista.</p></div>` + ariaEmailFooter()),
+          origen: "volver-cotizar-compras",
+          enviadoPor: "approve-purchase",
+        });
+        if (comprasUser.phone) {
+          // Reusamos un template generico de WA o solo log si template no existe.
+          try {
+            await sendWhatsAppLogged(
+              "compra_autorizar",
+              [req.folio, req.cost_center_name || "N/A", "VOLVER A COTIZAR", motivoStr || "Direccion solicito otras opciones", "", ""],
+              comprasUser.phone,
+              { origen: "volver-cotizar-compras-wa", enviadoPor: "approve-purchase" }
+            );
+          } catch (waErr: unknown) {
+            log.error("WA volver-cotizar fallo", { error: (waErr as Error).message });
+          }
+        }
+      }
+
+      // Notifica tambien al solicitante para que sepa el estado.
+      if (req.user_email && req.user_email !== comprasUser?.email) {
+        await sendEmailLogged({
+          template: "requisicion_volver_cotizar_solicitante",
+          to: req.user_email,
+          subject: `[EN PROCESO] ${req.folio}`,
+          html: ariaEmailWrapper(ariaEmailHeader("Tu requisicion sigue en proceso") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p style="margin:0 0 12px">Tu requisicion <strong>${req.folio}</strong> regreso a Compras para revisar mas opciones de proveedores.</p>${motivoBlock}<p style="margin:12px 0 0;color:#64748b;font-size:12px">Te avisaremos cuando se autorice la compra.</p></div>` + ariaEmailFooter()),
+          origen: "volver-cotizar-solicitante",
+          enviadoPor: "approve-purchase",
+        });
+      }
+
+      return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Outfit,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:linear-gradient(135deg,#040810 0%,#091525 100%)"><div style="text-align:center;background:linear-gradient(135deg,#0F1A2E 0%,#091525 100%);padding:48px 36px;border-radius:18px;border:1px solid rgba(245,158,11,0.30);max-width:480px;color:#F4F8FF"><div style="width:64px;height:64px;border-radius:999px;background:linear-gradient(135deg,#F59E0B 0%,#D97706 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#1A1206;font-size:28px;font-weight:800">&#x21BA;</div><h1 style="color:#FCD34D;margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-0.02em">Regresada a Compras</h1><p style="margin:0;color:rgba(214,228,255,0.65);font-size:13px">${req.folio} se notifico a Compras para volver a cotizar.</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
     } else {
       return NextResponse.json({ error: `Acci\u00f3n no v\u00e1lida: ${action}` }, { status: 400 });
     }
