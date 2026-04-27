@@ -246,44 +246,52 @@ export async function POST(req: NextRequest) {
     }
     // Normalizar phone (quitar +, 521, etc.)
     const phone10 = phoneRaw.replace(/\D/g, "").slice(-10);
+    log.info(`[POST] phone10=${phone10} text="${text.slice(0, 60)}"`);
 
-    // Identificar empleado por whatsapp (los ultimos 10 digitos)
-    const { data: empleadosData } = await supabase
+    // Identificar empleado por whatsapp (busca los ultimos 10 digitos)
+    const { data: empleadosData, error: empErr } = await supabase
       .from("employees")
-      .select("id, full_name, whatsapp, email");
+      .select("id, full_name, whatsapp, email")
+      .ilike("whatsapp", `%${phone10}%`);
+    if (empErr) log.error("Query employees fallo", { err: empErr.message });
     const empleados = (empleadosData || []) as Array<{ id: string; full_name: string; whatsapp: string | null; email: string | null }>;
+    log.info(`[POST] employees encontrados con phone: ${empleados.length}`);
     const empleado = empleados.find((e) => (e.whatsapp || "").replace(/\D/g, "").slice(-10) === phone10);
 
     if (!empleado) {
       // Si no encontramos en employees, probar tabla users (para personal admin sin ficha employee)
-      const { data: usersData } = await supabase
+      const { data: usersData, error: usrErr } = await supabase
         .from("users")
-        .select("id, name, phone, email");
+        .select("id, name, phone, email")
+        .eq("phone", phone10);
+      if (usrErr) log.error("Query users fallo", { err: usrErr.message });
       const users = (usersData || []) as Array<{ id: string; name: string; phone: string | null; email: string | null }>;
+      log.info(`[POST] users encontrados con phone: ${users.length}`);
       const usr = users.find((u) => (u.phone || "").replace(/\D/g, "").slice(-10) === phone10);
       if (!usr) {
         await sendWhatsAppText(phoneRaw, "🤖 No encuentro tu numero registrado en ARIA27. Pide a RH que te de de alta.", { origen: "tarea-respuesta-no-id" });
         return NextResponse.json({ ok: false, reason: "phone-no-encontrado" });
       }
       // Buscar tareas asignadas por nombre
-      const { data: tareasData } = await supabase
+      const { data: tareasData, error: trErr2 } = await supabase
         .from("tareas_asignadas")
         .select("*")
         .ilike("asignado_nombre", `%${usr.name}%`)
-        .neq("estatus", "COMPLETADA")
-        .neq("estatus", "CANCELADA")
+        .not("estatus", "in", "(COMPLETADA,CANCELADA)")
         .order("fecha_compromiso", { ascending: true });
+      if (trErr2) log.error("Query tareas users-fallback fallo", { err: trErr2.message });
       return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], usr.name, usr.email);
     }
 
-    // Buscar tareas asignadas a este empleado activo
-    const { data: tareasData } = await supabase
+    // Buscar tareas asignadas a este empleado activo (excluye COMPLETADA y CANCELADA)
+    const { data: tareasData, error: trErr } = await supabase
       .from("tareas_asignadas")
       .select("*")
       .eq("asignado_id", empleado.id)
-      .neq("estatus", "COMPLETADA")
-      .neq("estatus", "CANCELADA")
+      .not("estatus", "in", "(COMPLETADA,CANCELADA)")
       .order("fecha_compromiso", { ascending: true });
+    if (trErr) log.error("Query tareas_asignadas fallo", { err: trErr.message, asignado_id: empleado.id });
+    log.info(`[POST] tareas pendientes para ${empleado.full_name}: ${(tareasData || []).length}`);
 
     return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], empleado.full_name, empleado.email);
   } catch (e: unknown) {
@@ -358,7 +366,9 @@ async function procesarRespuesta(
       completadaAt = ahora;
       break;
     case "BLOQUEADO":
-      nuevoEstatus = "BLOQUEADA";
+      // El check constraint solo permite PENDIENTE/EN_PROGRESO/COMPLETADA/CANCELADA.
+      // Marcamos motivo_bloqueo y mantenemos estatus EN_PROGRESO (la tarea sigue viva pero pausada).
+      nuevoEstatus = "EN_PROGRESO";
       motivoBloqueo = parsed.motivo || "Sin detalle";
       break;
     case "AYUDA":
@@ -373,7 +383,7 @@ async function procesarRespuesta(
   }
 
   if (parsed.intent !== "AYUDA") {
-    await supabase
+    const { error: updErr } = await supabase
       .from("tareas_asignadas")
       .update({
         avance: nuevoAvance,
@@ -385,6 +395,12 @@ async function procesarRespuesta(
         updated_at: ahora,
       })
       .eq("id", tarea.id);
+    if (updErr) {
+      log.error("UPDATE tareas_asignadas fallo", { err: updErr.message, tarea_id: tarea.id, intent: parsed.intent, nuevoEstatus });
+      await sendWhatsAppText(phone, `\u26A0\uFE0F Recibi tu mensaje pero no pude actualizar la tarea: ${updErr.message.slice(0, 100)}`, { origen: "tarea-update-error" });
+      return NextResponse.json({ ok: false, reason: "update-fallo", error: updErr.message });
+    }
+    log.info(`[UPDATE OK] tarea=${tarea.id} estatus=${nuevoEstatus} avance=${nuevoAvance}`);
     tarea.avance = nuevoAvance;
     tarea.estatus = nuevoEstatus;
   }
