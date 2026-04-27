@@ -78,6 +78,10 @@ export async function sendWhatsAppText(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
   if (!token || !phoneId) return { success: false, error: "WhatsApp credentials missing" };
 
+  // 26-Abr-2026 (JJ): respeta E2E override igual que sendWhatsAppLogged.
+  // Sin esto, WA de tareas / texto libre no llegaba al numero override en prueba E2E.
+  phone = overridePhoneIfTest(phone);
+
   try {
     const res = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: "POST",
