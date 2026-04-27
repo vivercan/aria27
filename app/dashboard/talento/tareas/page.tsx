@@ -372,20 +372,20 @@ export default function TareasTalentoPage() {
             <div className="p-5 space-y-4">
               <div>
                 <label className="text-sm text-[#7f93b0] mb-1 block">Título *</label>
-                <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
+                <input type="text" value={form.titulo} onChange={e => setForm((prev: any) => ({...prev, titulo: e.target.value }))}
                   className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.titulo ? "border-red-500/50" : "border-white/[0.08]"}`} />
                 {formErrors.titulo && <p className="text-red-400 text-xs mt-1">{formErrors.titulo}</p>}
               </div>
               <div>
                 <label className="text-sm text-[#7f93b0] mb-1 block">Descripción</label>
-                <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                <textarea value={form.descripcion} onChange={e => setForm((prev: any) => ({...prev, descripcion: e.target.value }))}
                   rows={3}
                   className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Asignado a *</label>
-                  <select value={form.asignado_id} onChange={e => setForm({ ...form, asignado_id: e.target.value })}
+                  <select value={form.asignado_id} onChange={e => setForm((prev: any) => ({...prev, asignado_id: e.target.value }))}
                     className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.asignado_id ? "border-red-500/50" : "border-white/[0.08]"}`}>
                     <option value="">Seleccionar...</option>
                     {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
@@ -394,20 +394,20 @@ export default function TareasTalentoPage() {
                 </div>
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Obra (opcional)</label>
-                  <input type="text" value={form.obra} onChange={e => setForm({ ...form, obra: e.target.value })}
+                  <input type="text" value={form.obra} onChange={e => setForm((prev: any) => ({...prev, obra: e.target.value }))}
                     className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Fecha compromiso *</label>
-                  <input type="date" value={form.fecha_compromiso} onChange={e => setForm({ ...form, fecha_compromiso: e.target.value })}
+                  <input type="date" value={form.fecha_compromiso} onChange={e => setForm((prev: any) => ({...prev, fecha_compromiso: e.target.value }))}
                     className={`w-full px-3 py-2 bg-[#0c1d38] border rounded-lg text-white focus:outline-none focus:border-aria-primary ${formErrors.fecha_compromiso ? "border-red-500/50" : "border-white/[0.08]"}`} />
                   {formErrors.fecha_compromiso && <p className="text-red-400 text-xs mt-1">{formErrors.fecha_compromiso}</p>}
                 </div>
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Prioridad</label>
-                  <select value={form.prioridad} onChange={e => setForm({ ...form, prioridad: e.target.value })}
+                  <select value={form.prioridad} onChange={e => setForm((prev: any) => ({...prev, prioridad: e.target.value }))}
                     className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary">
                     {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
@@ -417,12 +417,12 @@ export default function TareasTalentoPage() {
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Avance ({form.avance}%)</label>
                   <input type="range" min="0" max="100" step="5" value={form.avance}
-                    onChange={e => setForm({ ...form, avance: Number(e.target.value) })}
+                    onChange={e => setForm((prev: any) => ({...prev, avance: Number(e.target.value) }))}
                     className="w-full accent-fuchsia-500" />
                 </div>
                 <div>
                   <label className="text-sm text-[#7f93b0] mb-1 block">Estatus</label>
-                  <select value={form.estatus} onChange={e => setForm({ ...form, estatus: e.target.value })}
+                  <select value={form.estatus} onChange={e => setForm((prev: any) => ({...prev, estatus: e.target.value }))}
                     className="w-full px-3 py-2 bg-[#0c1d38] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary">
                     {ESTATUS.map(e => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
                   </select>

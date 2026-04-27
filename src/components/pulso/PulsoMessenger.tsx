@@ -101,7 +101,8 @@ export default function PulsoMessenger({ userEmail, onClose }: { userEmail: stri
 
   const cargarUsuarios = async () => {
     try {
-      const res = await fetch("/api/pulso/estado");
+      if (!userEmail) return; // necesita userEmail para auth
+      const res = await fetch(`/api/pulso/estado?email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       const nuevosUsuarios = (data.usuarios || []).filter((u: Usuario) => u.email !== userEmail);
       
