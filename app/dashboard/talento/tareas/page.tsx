@@ -25,6 +25,11 @@ interface Tarea {
   estatus: string;
   prioridad: string;
   foto_url: string | null;
+  respuesta_ultima?: string | null;
+  respuesta_ultima_at?: string | null;
+  motivo_bloqueo?: string | null;
+  completada_at?: string | null;
+  asignado_por_email?: string | null;
   created_at: string;
   updated_at: string;
 }
