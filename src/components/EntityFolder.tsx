@@ -332,6 +332,10 @@ export default function EntityFolder({
     try {
       // 1. Subir el nuevo
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(newPath, file, { upsert: false });
+      if (upErr) {
+        console.error("[EntityFolder] Storage upload error:", upErr);
+        alert(`Error al subir ${file.name}: ${upErr.message || JSON.stringify(upErr)}`);
+      }
       if (upErr) throw new Error(upErr.message);
       const newUrl = supabase.storage.from(BUCKET).getPublicUrl(newPath).data.publicUrl;
 
