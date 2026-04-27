@@ -232,7 +232,7 @@ export default function ComprasPickingPage() {
       <div className="aria-page-canon h-full flex flex-col">
         <FlashBanner msg={msg} className="mx-0 mb-3" />
         <CanonPageHeader
-          title="Autorizar Compras"
+          title="Solicitar Autorización de Compra"
           subtitle={`${reqs.length} requisiciones pendientes`}
           backHref="/dashboard/requisiciones"
           icon={<ShoppingCart className="w-6 h-6" />}
@@ -467,9 +467,9 @@ export default function ComprasPickingPage() {
               : "bg-white/[0.04] text-[#4a6080] cursor-not-allowed"
           }`}>
           {authorizing ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Autorizando...</>
+            <><Loader2 className="w-5 h-5 animate-spin" /> Enviando solicitud...</>
           ) : selectedCount === items.length ? (
-            <><CheckCircle2 className="w-5 h-5" /> Autorizar Compra &middot; ${grandTotal.toLocaleString()}</>
+            <><CheckCircle2 className="w-5 h-5" /> Solicitar Autorización · ${grandTotal.toLocaleString()}</>
           ) : (
             <><AlertCircle className="w-5 h-5" /> Selecciona {items.length - selectedCount} material(es) más</>
           )}

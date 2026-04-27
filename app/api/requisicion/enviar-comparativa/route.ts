@@ -178,27 +178,47 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
     const linkAutorizar = `${baseUrl}/autorizar/${token}`;
 
-    const supH = supTotals.map((s) => `<th style="padding:8px;text-align:center;${s.total === bestTot && bestTot > 0 ? "background:#16a34a;color:white" : "background:#1e3a5f;color:white"};font-size:12px;border:1px solid #334155">${s.supplier}</th>`).join("");
+    // 26-Abr-2026: rediseno canon AAA - email comparativa con tarjetas, no estilo Excel.
+    // Header navy gradient, tarjeta destacada para el mejor proveedor, tabla minimalista compacta.
+    const supTotalsSorted = [...supTotals].sort((a, b) => (a.total || 0) - (b.total || 0));
+    const mejorProv = supTotalsSorted[0];
 
-    const prodRows = itemsDet.map((item: ItemDetail, idx: number) => {
-      const allP = supTotals.map((s) => s.items_prices?.[item.product_name] || 0).filter((p: number) => p > 0);
-      const bestP = allP.length > 0 ? Math.min(...allP) : 0;
-      const cells = supTotals.map((s) => {
-        const p = s.items_prices?.[item.product_name] || 0;
-        const bg = p > 0 && p === bestP ? "background:#dcfce7;" : s.total === bestTot && bestTot > 0 ? "background:#f0fdf4;" : "";
-        return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${p > 0 ? "$ " + p.toLocaleString("es-MX", {minimumFractionDigits: 2}) : "-"}</td>`;
-      }).join("");
-      return `<tr><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${idx+1}</td><td style="padding:6px 8px;border:1px solid #e2e8f0;font-size:12px">${item.product_name}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.quantity}</td><td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px">${item.unit || "PZA"}</td>${cells}</tr>`;
+    const supplierCards = supTotalsSorted.map((s, idx) => {
+      const isMejor = idx === 0 && bestTot > 0;
+      const cardBg = isMejor
+        ? "background:linear-gradient(135deg,#0F4C3A 0%,#16704D 100%);border:1px solid rgba(34,197,94,0.5)"
+        : "background:#0F1A2E;border:1px solid rgba(124,148,180,0.20)";
+      const badge = isMejor
+        ? `<div style="display:inline-block;padding:3px 10px;background:rgba(255,255,255,0.18);color:#D9FBE7;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.05em;margin-bottom:8px">MEJOR PRECIO</div>`
+        : "";
+      const ivaBadge = s.rebaja_iva
+        ? `<span style="background:rgba(34,197,94,0.18);color:#86efac;padding:2px 8px;border-radius:6px;font-size:11px">REBAJA IVA: SI</span>`
+        : `<span style="background:rgba(239,68,68,0.18);color:#fca5a5;padding:2px 8px;border-radius:6px;font-size:11px">REBAJA IVA: NO</span>`;
+      return `<div style="${cardBg};border-radius:14px;padding:18px;margin-bottom:12px">${badge}<div style="color:#F4F8FF;font-size:18px;font-weight:700;letter-spacing:-0.01em;margin-bottom:4px">${s.supplier}</div><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap"><div><div style="color:rgba(214,228,255,0.55);font-size:11px;text-transform:uppercase;letter-spacing:0.06em">Total</div><div style="color:#F4F8FF;font-size:28px;font-weight:800;letter-spacing:-0.02em">$ ${(s.total || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div></div><div style="text-align:right;font-size:12px;color:rgba(214,228,255,0.70);line-height:1.5"><div>Subtotal: $ ${(s.subtotal || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div><div>IVA ${(s.tax_rate ?? 16)}%: $ ${(s.iva || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div><div>Anticipo ${s.advance_percentage || 0}%: $ ${(s.advance_amount || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div></div></div><div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">${ivaBadge}${s.observaciones ? `<span style="color:rgba(214,228,255,0.55);font-size:11px;font-style:italic">"${s.observaciones}"</span>` : ""}${s.entrega ? `<span style="color:rgba(214,228,255,0.55);font-size:11px">Entrega: ${s.entrega}</span>` : ""}</div></div>`;
     }).join("");
 
-    const mkRow = (lbl: string, fn: (s: SupplierTotal) => number, bold: boolean) => `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">${lbl}</td>${supTotals.map((s) => { const v = fn(s); const bg = s.total === bestTot && bestTot > 0 ? (bold ? "background:#16a34a;color:white;" : "background:#dcfce7;") : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;${bold?"font-weight:bold;":""}font-size:12px;${bg}">$ ${v.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
+    // Tabla detalle compacta de items, monochromatica navy con celda destacada del mejor precio por item.
+    const detalleRows = itemsDet.map((item: ItemDetail, idx: number) => {
+      const allP = supTotalsSorted.map((s) => s.items_prices?.[item.product_name] || 0).filter((p: number) => p > 0);
+      const bestP = allP.length > 0 ? Math.min(...allP) : 0;
+      const cells = supTotalsSorted.map((s) => {
+        const p = s.items_prices?.[item.product_name] || 0;
+        const isWin = p > 0 && p === bestP;
+        const tdStyle = isWin
+          ? "padding:8px 10px;text-align:right;font-size:12px;color:#86efac;font-weight:700;border-bottom:1px solid rgba(124,148,180,0.10)"
+          : "padding:8px 10px;text-align:right;font-size:12px;color:rgba(214,228,255,0.85);border-bottom:1px solid rgba(124,148,180,0.10)";
+        return `<td style="${tdStyle}">${p > 0 ? "$ " + p.toLocaleString("es-MX", { minimumFractionDigits: 2 }) : "-"}</td>`;
+      }).join("");
+      return `<tr><td style="padding:8px 10px;color:rgba(214,228,255,0.85);font-size:12px;border-bottom:1px solid rgba(124,148,180,0.10)">${item.product_name}</td><td style="padding:8px 10px;text-align:center;color:rgba(214,228,255,0.70);font-size:12px;border-bottom:1px solid rgba(124,148,180,0.10)">${item.quantity} ${item.unit || "PZA"}</td>${cells}</tr>`;
+    }).join("");
 
-    const ivaLabelRow = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">I.V.A.</td>${supTotals.map((s) => { const bg = s.total === bestTot && bestTot > 0 ? "background:#dcfce7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${(s.tax_rate ?? 16)}% &nbsp; $ ${(s.iva || 0).toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
-    const advanceR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#b45309">ANTICIPO</td>${supTotals.map((s) => { const pct = s.advance_percentage || 0; const amt = s.advance_amount || 0; const bg = s.total === bestTot && bestTot > 0 ? "background:#fef3c7;" : ""; return `<td style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-size:12px;${bg}">${pct}% &nbsp; $ ${amt.toLocaleString("es-MX",{minimumFractionDigits:2})}</td>`; }).join("")}</tr>`;
-    const rebajaR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px;color:#7c3aed">¿REBAJAN IVA?</td>${supTotals.map((s) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-weight:bold;${s.rebaja_iva ? "background:#16a34a;color:white" : "background:#dc2626;color:white"}">${s.rebaja_iva ? "SI" : "NO"}</td>`).join("")}</tr>`;
-    const obsR = `<tr><td colspan="4" style="padding:6px 8px;text-align:right;border:1px solid #e2e8f0;font-weight:bold;font-size:12px">OBSERVACIONES</td>${supTotals.map((s) => `<td style="padding:6px 8px;text-align:center;border:1px solid #e2e8f0;font-size:11px">${s.observaciones || s.entrega || "-"}</td>`).join("")}</tr>`;
+    const supThead = supTotalsSorted.map((s, idx) => {
+      const isMejor = idx === 0 && bestTot > 0;
+      const color = isMejor ? "#86efac" : "rgba(214,228,255,0.70)";
+      return `<th style="padding:10px;text-align:right;color:${color};font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-bottom:1px solid rgba(124,148,180,0.20)">${s.supplier}</th>`;
+    }).join("");
 
-    const emailHTML = `<div style="font-family:Arial;max-width:900px;margin:0 auto"><div style="background:#1e3a5f;padding:15px;text-align:center;border-radius:8px 8px 0 0"><h1 style="color:white;margin:0;font-size:20px">COMPARATIVA DE COTIZACIONES</h1><p style="color:#93c5fd;margin:4px 0 0;font-size:14px">REQ ${folio} ${obra}</p></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f1f5f9"><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px">#</th><th style="padding:8px;text-align:left;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">PRODUCTO</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">CANT</th><th style="padding:8px;border:1px solid #e2e8f0;font-size:11px;color:#7c3aed">UNIDAD</th>${supH}</tr></thead><tbody>${prodRows}${mkRow("SUBTOTAL",(s: SupplierTotal)=>s.subtotal,false)}${ivaLabelRow}${mkRow("TOTAL",(s: SupplierTotal)=>s.total,true)}${advanceR}${rebajaR}${obsR}</tbody></table><div style="text-align:center;padding:20px"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 48px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-weight:bold">VER COMPARATIVA Y AUTORIZAR</a></div><p style="text-align:center;color:#94a3b8;font-size:10px">ARIA27 - Grupo Constructor Urbano Avante</p></div>`;
+    const emailHTML = `<div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;max-width:720px;margin:0 auto;background:#040810;border-radius:18px;overflow:hidden"><div style="background:linear-gradient(135deg,#123E92 0%,#0F2D6E 100%);padding:28px 24px"><div style="color:rgba(214,228,255,0.65);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px">Comparativa de Cotizaciones</div><h1 style="color:#F4F8FF;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em">${folio}</h1><div style="color:rgba(214,228,255,0.70);font-size:14px;margin-top:4px">${obra} &middot; ${supTotalsSorted.length} proveedores</div></div><div style="padding:24px">${supplierCards}</div><div style="padding:0 24px 24px"><div style="color:rgba(214,228,255,0.55);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;font-weight:600">Detalle por producto</div><table style="width:100%;border-collapse:collapse;background:#0F1A2E;border-radius:12px;overflow:hidden"><thead><tr><th style="padding:10px;text-align:left;color:rgba(214,228,255,0.70);font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-bottom:1px solid rgba(124,148,180,0.20)">Producto</th><th style="padding:10px;text-align:center;color:rgba(214,228,255,0.70);font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-bottom:1px solid rgba(124,148,180,0.20)">Cantidad</th>${supThead}</tr></thead><tbody>${detalleRows}</tbody></table><div style="color:rgba(214,228,255,0.45);font-size:11px;margin-top:8px;font-style:italic">Las cifras en verde son el mejor precio por producto.</div></div><div style="padding:0 24px 28px;text-align:center"><a href="${linkAutorizar}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#1F8A60 0%,#16704D 100%);color:#F4F8FF;text-decoration:none;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(22,112,77,0.35)">Ver comparativa y autorizar</a><div style="color:rgba(214,228,255,0.45);font-size:11px;margin-top:14px">Click para revisar y aprobar la requisición.</div></div><div style="padding:16px 24px;background:rgba(0,0,0,0.30);border-top:1px solid rgba(124,148,180,0.10);text-align:center;color:rgba(214,228,255,0.40);font-size:10px;letter-spacing:0.05em">ARIA27 &middot; Grupo Constructor Urbano Avante</div></div>`;
 
     let emailResult: EmailResult | null = null;
     let emailError: string | null = null;
