@@ -66,7 +66,19 @@ export async function sendEmailLogged(opts: SendEmailLoggedOpts): Promise<SendEm
     html: opts.html,
   };
   if (opts.replyTo) payload.replyTo = opts.replyTo;
-  if (opts.bcc) payload.bcc = opts.bcc;
+  // BCC: combinar bcc explicito + ADMIN_BCC_EMAIL global (26-Abr-2026 JJ).
+  // Admin (Deya/RH) recibe copia automatica de TODO el flujo del ERP.
+  // Se evita auto-BCC si el destinatario ya es el admin.
+  const adminBcc = process.env.ADMIN_BCC_EMAIL || "";
+  const toList = Array.isArray(opts.to) ? opts.to : [opts.to];
+  const explicitBcc: string[] = opts.bcc
+    ? (Array.isArray(opts.bcc) ? opts.bcc : [opts.bcc])
+    : [];
+  const finalBcc: string[] = [...explicitBcc];
+  if (adminBcc && !toList.includes(adminBcc) && !explicitBcc.includes(adminBcc)) {
+    finalBcc.push(adminBcc);
+  }
+  if (finalBcc.length > 0) payload.bcc = finalBcc.length === 1 ? finalBcc[0] : finalBcc;
 
   let success = false;
   let messageId: string | null = null;
