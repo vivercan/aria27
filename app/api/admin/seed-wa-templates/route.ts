@@ -28,16 +28,16 @@ function tpl(name: string, body: string, examples: string[]): Template {
 }
 
 const TEMPLATES: Template[] = [
-  tpl("tarea_asignada_empleado", "Hola {{1}}, se te asigno una nueva tarea en ARIA27. Tarea: {{2}}. Fecha compromiso: {{3}}. Obra: {{4}}. Responde con OK para iniciar, AVANCE 50 para porcentaje, LISTO para terminar o BLOQUEADO motivo.", ["Samuel", "Revisar avance cimentacion", "28-abr-2026", "JUAN DIEGO"]),
-  tpl("tarea_iniciada_empleado", "Registrado: {{1}} iniciada al {{2}} por ciento. Avisame cuando lleves mas avance respondiendo AVANCE 50, LISTO o BLOQUEADO motivo.", ["Revisar avance cimentacion", "25"]),
-  tpl("tarea_avance_empleado", "Registrado: {{1}} en {{2}} por ciento. Sigues en progreso. Cuando termines, responde LISTO.", ["Revisar avance cimentacion", "50"]),
-  tpl("tarea_completada_empleado", "Excelente {{1}}, tarea {{2}} completada al 100 por ciento. Gracias por tu trabajo. Tu jefe ya fue notificado.", ["Samuel", "Revisar avance cimentacion"]),
-  tpl("tarea_bloqueada_empleado", "Registrado bloqueo en {{1}}. Motivo: {{2}}. Notifique a tu jefe para que te apoye lo antes posible.", ["Revisar avance cimentacion", "se rompio la varilla"]),
-  tpl("tarea_iniciada_asignador", "Aviso ARIA27: {{1}} comenzo la tarea. Tarea: {{2}}. Obra: {{3}}. Avance: {{4}} por ciento.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "25"]),
-  tpl("tarea_completada_asignador", "Aviso ARIA27: {{1}} termino la tarea. Tarea: {{2}}. Obra: {{3}}. La tarea ya esta cerrada en el sistema.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO"]),
-  tpl("tarea_bloqueada_asignador", "Aviso ARIA27: {{1}} reporta bloqueo en una tarea. Tarea: {{2}}. Obra: {{3}}. Motivo: {{4}}. Contacta al responsable para destrabar.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "se rompio la varilla"]),
-  tpl("tarea_ayuda_asignador", "Aviso ARIA27: {{1}} solicita ayuda en una tarea. Tarea: {{2}}. Obra: {{3}}. Avance: {{4}} por ciento. Contactalo lo antes posible.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "25"]),
-  tpl("tarea_status_empleado", "Hola {{1}}, tienes {{2}} tareas pendientes. {{3}}. Responde con 1 LISTO o AVANCE 50 para actualizar.", ["Samuel", "2", "1. Revisar cimentacion 28-abr. 2. Inspeccionar acero 30-abr"]),
+  tpl("aria_tarea_asignada", "Hola {{1}}, se te asigno una nueva tarea en ARIA27. Tarea: {{2}}. Fecha compromiso: {{3}}. Obra: {{4}}. Responde con OK para iniciar, AVANCE 50 para porcentaje, LISTO para terminar o BLOQUEADO motivo.", ["Samuel", "Revisar avance cimentacion", "28-abr-2026", "JUAN DIEGO"]),
+  tpl("aria_tarea_iniciada", "Registrado: {{1}} iniciada al {{2}} por ciento. Avisame cuando lleves mas avance respondiendo AVANCE 50, LISTO o BLOQUEADO motivo.", ["Revisar avance cimentacion", "25"]),
+  tpl("aria_tarea_avance", "Registrado: {{1}} en {{2}} por ciento. Sigues en progreso. Cuando termines, responde LISTO.", ["Revisar avance cimentacion", "50"]),
+  tpl("aria_tarea_completada", "Excelente {{1}}, tarea {{2}} completada al 100 por ciento. Gracias por tu trabajo. Tu jefe ya fue notificado.", ["Samuel", "Revisar avance cimentacion"]),
+  tpl("aria_tarea_bloqueada", "Registrado bloqueo en {{1}}. Motivo: {{2}}. Notifique a tu jefe para que te apoye lo antes posible.", ["Revisar avance cimentacion", "se rompio la varilla"]),
+  tpl("aria_aviso_iniciada", "Aviso ARIA27: {{1}} comenzo la tarea. Tarea: {{2}}. Obra: {{3}}. Avance: {{4}} por ciento.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "25"]),
+  tpl("aria_aviso_completada", "Aviso ARIA27: {{1}} termino la tarea. Tarea: {{2}}. Obra: {{3}}. La tarea ya esta cerrada en el sistema.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO"]),
+  tpl("aria_aviso_bloqueada", "Aviso ARIA27: {{1}} reporta bloqueo en una tarea. Tarea: {{2}}. Obra: {{3}}. Motivo: {{4}}. Contacta al responsable para destrabar.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "se rompio la varilla"]),
+  tpl("aria_aviso_ayuda", "Aviso ARIA27: {{1}} solicita ayuda en una tarea. Tarea: {{2}}. Obra: {{3}}. Avance: {{4}} por ciento. Contactalo lo antes posible.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "25"]),
+  tpl("aria_tarea_status", "Hola {{1}}, tienes {{2}} tareas pendientes. {{3}}. Responde con 1 LISTO o AVANCE 50 para actualizar.", ["Samuel", "2", "1. Revisar cimentacion 28-abr. 2. Inspeccionar acero 30-abr"]),
 ];
 
 export async function POST(req: NextRequest) {
@@ -71,12 +71,8 @@ export async function POST(req: NextRequest) {
           ok: false,
           error: data?.error?.message,
           error_user_msg: data?.error?.error_user_msg,
-          error_user_title: data?.error?.error_user_title,
           error_subcode: data?.error?.error_subcode,
-          fbtrace_id: data?.error?.fbtrace_id,
-          full_error: data?.error,
         });
-        log.warn(`[SEED] ${t.name} FALLO ${JSON.stringify(data?.error)}`);
       }
     } catch (e: unknown) {
       results.push({ name: t.name, ok: false, error: (e as Error).message });
@@ -84,11 +80,5 @@ export async function POST(req: NextRequest) {
   }
 
   const ok = results.filter((r) => r.ok).length;
-  return NextResponse.json({
-    waba_id: WABA_ID,
-    total: TEMPLATES.length,
-    creados: ok,
-    fallidos: TEMPLATES.length - ok,
-    results,
-  });
+  return NextResponse.json({ waba_id: WABA_ID, total: TEMPLATES.length, creados: ok, fallidos: TEMPLATES.length - ok, results });
 }
