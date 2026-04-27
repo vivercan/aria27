@@ -172,7 +172,8 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                  onChange={(e) => { setEmail(e.target.value);
+  const [showPass, setShowPass] = useState(false); setError(''); }}
                   disabled={loading}
                   required
                   className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
@@ -180,16 +181,27 @@ export default function LoginPage() {
                   placeholder="usuario@gcuavante.com"
                 />
 
-                <input
-                  type="password"
-                  value={pass}
-                  onChange={(e) => { setPass(e.target.value); setError(''); }}
-                  disabled={loading}
-                  required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
-                  style={{ padding: '8px 12px', fontSize: '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: '0.25em' }}
-                  placeholder="••••••••"
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    value={pass}
+                    onChange={(e) => { setPass(e.target.value); setError(''); }}
+                    disabled={loading}
+                    required
+                    className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
+                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: showPass ? 'normal' : '0.25em' }}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(s => !s)}
+                    aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    tabIndex={-1}
+                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#94a3b8', fontSize: '13px' }}
+                  >
+                    {showPass ? '🙈' : '👁'}
+                  </button>
+                </div>
 
                 <label className="flex items-center gap-2 cursor-pointer select-none" style={{ marginTop: '-2px' }}>
                   <input
