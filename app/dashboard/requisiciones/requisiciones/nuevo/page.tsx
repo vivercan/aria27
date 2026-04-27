@@ -39,7 +39,7 @@ export default function NewRequisitionPage() {
   const [selectedCostCenterId, setSelectedCostCenterId] = useState<string | null>(null);
   const [requiredDate, setRequiredDate] = useState("");
   const [generalComments, setGeneralComments] = useState("");
-  const [solicitante, setSolicitante] = useState("");
+  // const [solicitante, setSolicitante] = useState(""); // 26-Abr-2026 eliminado: el solicitante = usuario logueado
   const [subcategoria, setSubcategoria] = useState("");
   const [solicitantes, setSolicitantes] = useState<string[]>([]);
   const [subcategorias, setSubcategorias] = useState<string[]>([]);
@@ -273,9 +273,9 @@ export default function NewRequisitionPage() {
     setSending(true);
 
     const userEmail = localStorage.getItem("userEmail") || "";
-    const userName = localStorage.getItem("userRole") === "admin"
-      ? (solicitante || "Administrador")
-      : (solicitante || "Usuario ARIA27");
+    // 26-Abr-2026: solicitante = nombre del usuario logueado (ya no hay dropdown).
+    const userDisplay = localStorage.getItem("userDisplayName") || localStorage.getItem("userName") || "";
+    const userName = userDisplay || (localStorage.getItem("userRole") === "admin" ? "Administrador" : "Usuario ARIA27");
 
     let materiales: Record<string, unknown>[] = [];
     if (formMode === "catalogo") {
@@ -298,7 +298,7 @@ export default function NewRequisitionPage() {
         body: JSON.stringify({
           usuario: { nombre: userName, email: userEmail },
           obra: center.name, comentarios: generalComments, materiales,
-          solicitante, subcategoria, requiredDate, costCenterId: center.id,
+          solicitante: userName, subcategoria, requiredDate, costCenterId: center.id,
           // ERP fields
           prioridad,
           presupuesto_estimado: presupuesto ? Number(presupuesto) : null,
@@ -399,13 +399,6 @@ export default function NewRequisitionPage() {
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Fecha Requerida *</label>
               <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-white/70">Solicitante</label>
-              <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={solicitante} onChange={e => setSolicitante(e.target.value)}>
-                <option value="">Seleccione...</option>
-                {solicitantes.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Tipo / Subcategoría</label>
