@@ -241,12 +241,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const phoneRaw: string = body.phone || "";
     const text: string = body.text || "";
+    const debug: boolean = body.debug === true || body.debug === "true";
     if (!phoneRaw || !text) {
       return NextResponse.json({ error: "phone y text requeridos" }, { status: 400 });
     }
     // Normalizar phone (quitar +, 521, etc.)
     const phone10 = phoneRaw.replace(/\D/g, "").slice(-10);
-    log.info(`[POST] phone10=${phone10} text="${text.slice(0, 60)}"`);
+    log.info(`[POST] phone10=${phone10} text="${text.slice(0, 60)}" debug=${debug}`);
 
     // Identificar empleado por whatsapp (busca los ultimos 10 digitos)
     const { data: empleadosData, error: empErr } = await supabase
@@ -270,7 +271,19 @@ export async function POST(req: NextRequest) {
       const usr = users.find((u) => (u.phone || "").replace(/\D/g, "").slice(-10) === phone10);
       if (!usr) {
         await sendWhatsAppText(phoneRaw, "🤖 No encuentro tu numero registrado en ARIA27. Pide a RH que te de de alta.", { origen: "tarea-respuesta-no-id" });
-        return NextResponse.json({ ok: false, reason: "phone-no-encontrado" });
+        return NextResponse.json({
+          ok: false,
+          reason: "phone-no-encontrado",
+          debug: debug ? {
+            phone10,
+            employees_query_count: empleados.length,
+            employees_sample: empleados.slice(0, 3).map((e) => ({ name: e.full_name, wa: e.whatsapp })),
+            users_query_count: users.length,
+            users_sample: users.slice(0, 3).map((u) => ({ name: u.name, phone: u.phone })),
+            employees_query_error: empErr?.message || null,
+            users_query_error: usrErr?.message || null,
+          } : undefined,
+        });
       }
       // Buscar tareas asignadas por nombre
       const { data: tareasData, error: trErr2 } = await supabase
@@ -280,7 +293,12 @@ export async function POST(req: NextRequest) {
         .not("estatus", "in", "(COMPLETADA,CANCELADA)")
         .order("fecha_compromiso", { ascending: true });
       if (trErr2) log.error("Query tareas users-fallback fallo", { err: trErr2.message });
-      return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], usr.name, usr.email);
+      return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], usr.name, usr.email, debug, {
+        empleado_origen: "users",
+        empleado_id: usr.id,
+        empleado_nombre: usr.name,
+        tareas_query_error: trErr2?.message || null,
+      });
     }
 
     // Buscar tareas asignadas a este empleado activo (excluye COMPLETADA y CANCELADA)
@@ -293,11 +311,25 @@ export async function POST(req: NextRequest) {
     if (trErr) log.error("Query tareas_asignadas fallo", { err: trErr.message, asignado_id: empleado.id });
     log.info(`[POST] tareas pendientes para ${empleado.full_name}: ${(tareasData || []).length}`);
 
-    return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], empleado.full_name, empleado.email);
+    return await procesarRespuesta(supabase, phoneRaw, text, (tareasData as Tarea[]) || [], empleado.full_name, empleado.email, debug, {
+      empleado_origen: "employees",
+      empleado_id: empleado.id,
+      empleado_nombre: empleado.full_name,
+      empleado_wa: empleado.whatsapp,
+      tareas_query_error: trErr?.message || null,
+    });
   } catch (e: unknown) {
     log.error("Excepcion procesando respuesta", { err: (e as Error).message });
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
+}
+
+interface DebugInfo {
+  empleado_origen?: string;
+  empleado_id?: string;
+  empleado_nombre?: string;
+  empleado_wa?: string | null;
+  tareas_query_error?: string | null;
 }
 
 async function procesarRespuesta(
@@ -306,7 +338,9 @@ async function procesarRespuesta(
   text: string,
   tareas: Tarea[],
   nombre: string,
-  emailEmpleado: string | null
+  emailEmpleado: string | null,
+  debug: boolean = false,
+  debugInfo: DebugInfo = {}
 ): Promise<NextResponse> {
   // 1) Parser rapido
   let parsed = parseRapido(text);
@@ -327,7 +361,11 @@ async function procesarRespuesta(
 
   if (tareas.length === 0) {
     await sendWhatsAppText(phone, `🤔 ${nombre}, no encuentro tareas pendientes a tu nombre.\n\nResponde *STATUS* para ver tu lista (vacia hoy).`, { origen: "tarea-respuesta-sin-tareas", enviadoPor: emailEmpleado || "system" });
-    return NextResponse.json({ ok: false, reason: "sin-tareas" });
+    return NextResponse.json({
+      ok: false,
+      reason: "sin-tareas",
+      debug: debug ? { ...debugInfo, tareas_count: tareas.length } : undefined,
+    });
   }
 
   // 4) Identificar tarea destino
