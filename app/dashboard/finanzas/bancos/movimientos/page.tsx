@@ -222,6 +222,14 @@ export default function MovimientosBancariosPage() {
               <label className="text-xs text-[#7f93b0]">Referencia / Notas</label>
               <input value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} placeholder="Referencia bancaria, nota interna" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
+            {/* 27-Abr-2026: Fotos del movimiento (estado de cuenta + factura + estimacion para abonos) */}
+            <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-white/[0.05]">
+              <FotoUpload label="Foto del movimiento" desc="Estado de cuenta o ticket" value={form.foto_movimiento_url} onChange={url => setForm({ ...form, foto_movimiento_url: url })} />
+              <FotoUpload label="Foto de la factura" desc="PDF o imagen del CFDI" value={form.foto_factura_url} onChange={url => setForm({ ...form, foto_factura_url: url })} />
+              {form.tipo_movimiento === "ABONO" && (
+                <FotoUpload label="Foto de estimacion" desc="Solo abonos (estimaciones)" value={form.foto_estimacion_url} onChange={url => setForm({ ...form, foto_estimacion_url: url })} />
+              )}
+            </div>
           </div>
           <div className="flex gap-3">
             <button onClick={crearMovimiento} className="px-4 py-2 bg-[#1E3E7A] hover:bg-[#2A4A8E] text-white font-medium rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.25)] text-sm">Guardar</button>
@@ -348,6 +356,35 @@ export default function MovimientosBancariosPage() {
         }}
         onCancel={() => setConfirmState(p => ({...p, open: false}))}
       />
+    </div>
+  );
+}
+
+function FotoUpload({ label, desc, value, onChange }: { label: string; desc: string; value: string; onChange: (url: string) => void }) {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const path = `bancos/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { error } = await supabase.storage.from("expedientes").upload(path, f, { upsert: false });
+    if (error) { alert("Error al subir: " + error.message); return; }
+    const { data } = supabase.storage.from("expedientes").getPublicUrl(path);
+    onChange(data.publicUrl);
+  };
+  return (
+    <div>
+      <label className="text-xs text-[#7f93b0] block mb-1">{label}</label>
+      {value ? (
+        <div className="relative">
+          <img src={value} alt={label} className="w-full h-24 object-cover rounded-lg border border-white/[0.08]" />
+          <button type="button" onClick={() => onChange("")} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600 text-white text-xs">x</button>
+        </div>
+      ) : (
+        <label className="block w-full h-24 rounded-lg border-2 border-dashed border-white/[0.08] hover:border-aria-accent/50 cursor-pointer flex flex-col items-center justify-center text-[#4a6080] text-[10px] hover:text-aria-accent transition">
+          <span>+ Subir</span>
+          <span className="opacity-60 mt-0.5">{desc}</span>
+          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} />
+        </label>
+      )}
     </div>
   );
 }
