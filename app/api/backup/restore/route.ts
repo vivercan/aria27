@@ -12,10 +12,8 @@ const log = logger("BACKUP-RESTORE");
 // Body: { date: "2026-04-13", includeStorage?: boolean }
 // ---------------------------------------------------------------------------
 
-const ALLOWED_EMAILS = [
-  "juanviverosv@gmail.com",          // JJ — administrador principal
-  "recursos.humanos@gcuavante.com",   // Deya Montalvo — Recursos Humanos
-];
+import { ADMIN_EMAILS } from "@/lib/admin-emails";
+const ALLOWED_EMAILS = [...ADMIN_EMAILS, "recursos.humanos@gcuavante.com"];
 
 async function resolveUserEmail(req: NextRequest): Promise<string | null> {
   const supabase = getSupabaseAdmin();

@@ -13,11 +13,9 @@ import {
 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
+import { ADMIN_EMAILS } from "@/lib/admin-emails";
 
-const ALLOWED_EMAILS = [
-  "juanviverosv@gmail.com",
-  "recursos.humanos@gcuavante.com",
-];
+const ALLOWED_EMAILS = [...ADMIN_EMAILS, "recursos.humanos@gcuavante.com"];
 
 interface TableResult {
   tabla: string;

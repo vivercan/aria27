@@ -7,10 +7,8 @@ import {
 import Link from "next/link";
 import React from "react";
 
-const RESTORE_EMAILS = [
-  "juanviverosv@gmail.com",
-  "recursos.humanos@gcuavante.com",
-];
+import { ADMIN_EMAILS } from "@/lib/admin-emails";
+const RESTORE_EMAILS = [...ADMIN_EMAILS, "recursos.humanos@gcuavante.com"];
 
 type ModuleItem = {
   title: string;

@@ -7,6 +7,7 @@ import { Loader2, Shield, RefreshCw, RotateCcw, Search, Plus, Edit3, Trash2, Dat
 import ConfirmModal from "@/components/ConfirmModal";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
+import { ADMIN_EMAILS } from "@/lib/admin-emails";
 
 type Tab = "audit" | "deleted";
 
@@ -31,7 +32,7 @@ interface DeletedRow {
   restore_notes: string | null;
 }
 
-const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
+
 
 export default function AuditoriaPage() {
   const [confirmState, setConfirmState] = useState<{ open: boolean; msg: string; onOk: () => void }>({ open: false, msg: "", onOk: () => {} });
