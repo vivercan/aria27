@@ -36,6 +36,7 @@ const searchableItems = [
   { name: "Expedientes", icon: ChevronRight, href: "/dashboard/obras/expedientes" },
   { name: "Contratos", icon: ChevronRight, href: "/dashboard/obras/contratos" },
   { name: "REPSE / SIROC", icon: ChevronRight, href: "/dashboard/obras/siroc" },
+  { name: "Estimaciones", icon: ChevronRight, href: "/dashboard/administracion/estimaciones" },
   { name: "Presupuestos", icon: ChevronRight, href: "/dashboard/obras/presupuestos" },
   { name: "Inventario", icon: ChevronRight, href: "/dashboard/obras/inventario" },
   { name: "Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto" },
