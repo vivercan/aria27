@@ -228,9 +228,17 @@ export async function GET(request: NextRequest) {
       let total = 0;
       let elegidoData: SupplierQuote | SupplierData | Record<string, never> = {};
 
+      // 27-Abr-2026: respetar el proveedor que el autorizador eligio en /autorizar/{token}.
+      // Buscar en `quotes` (estructura nueva del flujo Compras desde 26-Abr) y luego en `suppliers` (legacy).
       if (proveedorElegido) {
-        elegidoData = suppliers.find((s: SupplierQuote) => s.supplier === proveedorElegido) || {};
+        const matchQuote = quotes.find((q: SupplierQuote) => q.supplier === proveedorElegido);
+        if (matchQuote) elegidoData = matchQuote;
+        else {
+          const matchSup = suppliers.find((s: SupplierQuote) => s.supplier === proveedorElegido);
+          if (matchSup) elegidoData = matchSup;
+        }
       }
+
       if (!elegidoData.supplier && suppliers.length > 0) {
         const itemsDet: ItemDetail[] = cotData.items_detail || [];
         elegidoData = suppliers.reduce((best: SupplierQuote | SupplierData | Record<string, never>, s: SupplierQuote): SupplierQuote | SupplierData | Record<string, never> => {
@@ -246,6 +254,21 @@ export async function GET(request: NextRequest) {
       }
       if (!elegidoData.supplier && quotes.length > 0) {
         elegidoData = quotes.reduce((m: SupplierQuote, q: SupplierQuote): SupplierQuote => (q.total ?? 0) < (m.total ?? 0) ? q : m, quotes[0]);
+      }
+
+      // 27-Abr-2026: si quotes solo trae `total` (estructura simple sin subtotal/iva separados),
+      // tratar ese total como subtotal y derivar IVA/total con tax_rate. Antes: subtotal=0 -> IVA=0 -> total final=0 -> bloqueo "OC con total 0".
+      if (elegidoData.supplier && elegidoData.total != null && (elegidoData.subtotal == null || Number(elegidoData.subtotal) === 0)) {
+        const tr = typeof elegidoData.tax_rate === "number" ? elegidoData.tax_rate : 16;
+        const facturaSi = elegidoData.factura === true || elegidoData.factura === "SI" || elegidoData.factura === "si";
+        const sub = Number(elegidoData.total);
+        if (facturaSi) {
+          const subDerived = +(sub / (1 + tr/100)).toFixed(2);
+          const ivaDerived = +(sub - subDerived).toFixed(2);
+          elegidoData = { ...elegidoData, subtotal: subDerived, iva: ivaDerived, tax_rate: tr };
+        } else {
+          elegidoData = { ...elegidoData, subtotal: sub, iva: 0, tax_rate: 0 };
+        }
       }
 
       supplierName = elegidoData.supplier || "N/A";
