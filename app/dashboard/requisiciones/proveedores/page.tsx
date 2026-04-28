@@ -85,11 +85,15 @@ export default function ProveedoresPage() {
     const cats = getCatDisplay(s.categories);
     const mc = !filterCat || cats.includes(filterCat);
     // FC2: filtro por tab activos/catalogo
-    const mt = tabFilter === "TODOS" ? true : tabFilter === "ACTIVOS" ? s.active === true : s.active === false;
+    // 27-Abr-2026: Activos = active=true Y CLABE valida (>=10 char). Sin clabe -> Catalogo.
+    const tieneClabeValida = !!(s.bank_clabe && s.bank_clabe.trim().length >= 10);
+    const mt = tabFilter === "TODOS" ? true
+      : tabFilter === "ACTIVOS" ? (s.active === true && tieneClabeValida)
+      : (s.active === false || !tieneClabeValida);
     return ms && mc && mt;
   });
-  const countActivos  = suppliers.filter(s => s.active === true).length;
-  const countCatalogo = suppliers.filter(s => s.active === false).length;
+  const countActivos  = suppliers.filter(s => s.active === true && !!(s.bank_clabe && s.bank_clabe.trim().length >= 10)).length;
+  const countCatalogo = suppliers.filter(s => s.active === false || !(s.bank_clabe && s.bank_clabe.trim().length >= 10)).length;
 
   const openNew = ()=>{setForm(EMPTY_FORM);setEditingId(null);setShowModal(true);};
   const openEdit = (s:Supplier)=>{
