@@ -8,7 +8,7 @@ import AriaBackButton from "@/components/AriaBackButton";
 
 type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
-type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string };
+type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string; price?: number };
 type FreeRow = { tempId: number; descripcion: string; unidad: string; cantidad: number; monto: number; observaciones: string };
 type ProveedorOption = { id: string; name: string; bank_name: string | null; bank_clabe: string | null; payment_method: string | null; razon_social: string | null };
 
@@ -77,6 +77,8 @@ export default function NewRequisitionPage() {
   const [formaPago, setFormaPago] = useState<string>("EFECTIVO");
   const [fechaPago, setFechaPago] = useState<string>("");
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
+  const [descripcionCompra, setDescripcionCompra] = useState<string>("");
+  const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
 
   // ── Proveedor pre-seleccionado ─────────────────────────────────────────────
   const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
@@ -281,7 +283,7 @@ export default function NewRequisitionPage() {
     if (formMode === "catalogo") {
       const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
       if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad > 0."); setSending(false); return; }
-      materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations }));
+      materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations, price: m.price ?? 0 }));
     } else if (formMode === "combustible") {
       const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim());
       if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0 y destino."); setSending(false); return; }
@@ -307,6 +309,8 @@ export default function NewRequisitionPage() {
           forma_pago: formaPago,
           fecha_pago: fechaPago || null,
           iva_porcentaje: ivaPorcentaje,
+          descripcion_compra: descripcionCompra || null,
+          motivo_solicitud: motivoSolicitud || null,
           // Proveedor pre-seleccionado
           ...(selectedProveedor ? {
             proveedor_nombre: selectedProveedor.name,
@@ -319,7 +323,7 @@ export default function NewRequisitionPage() {
       const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
       if (!res.ok) throw new Error(data.error || `Error del servidor (${res.status})`);
       setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
-      setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments("");
+      setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments(""); setDescripcionCompra(""); setMotivoSolicitud("");
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición. Intenta de nuevo.");
@@ -530,6 +534,31 @@ export default function NewRequisitionPage() {
             )}
           </div>
 
+          {/* DESCRIPCION DE LA COMPRA + MOTIVO - 28-Abr-2026 PR #108 */}
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Tipo de compra *</label>
+              <select required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
+                <option value="">Selecciona tipo...</option>
+                <option value="MATERIALES">Materiales</option>
+                <option value="GASTOS ADMINISTRATIVOS">Gastos Administrativos</option>
+                <option value="GASTOS OPERATIVOS">Gastos Operativos</option>
+                <option value="DESTAJOS">Destajos</option>
+                <option value="MANO DE OBRA">Mano de Obra</option>
+                <option value="PRESTAMOS">Prestamos</option>
+                <option value="SERVICIOS">Servicios</option>
+                <option value="HERRAMIENTAS">Herramientas</option>
+                <option value="COMBUSTIBLE">Combustible</option>
+                <option value="RENTA MAQUINARIA">Renta Maquinaria</option>
+                <option value="OTROS">Otros</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/70">Motivo de la solicitud *</label>
+              <textarea required className="h-[42px] w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Razon o motivo..." value={motivoSolicitud} onChange={e => setMotivoSolicitud(e.target.value)} />
+            </div>
+          </div>
+
           <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-white/70">Instrucciones generales</label>
             <textarea className="h-16 w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
@@ -680,21 +709,28 @@ export default function NewRequisitionPage() {
               Total: ${freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0).toLocaleString()}
             </span>
           )}
+          {formMode === "catalogo" && materials.length > 0 && (
+            <span className="text-sm text-aria-accent font-medium">
+              Total: ${materials.reduce((s,m) => s + ((m.price ?? 0) * m.qty), 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}
+            </span>
+          )}
         </div>
 
         <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08] bg-black/20 max-h-60">
           {formMode === "catalogo" && (
             <>
-              <div className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
-                <div>Descripción</div><div>Unidad</div><div>Cantidad</div><div>Observaciones</div><div></div>
+              <div className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
+                <div>Descripcion</div><div>Unidad</div><div>Cantidad</div><div className="text-right">P.U.</div><div className="text-right">Subtotal</div><div>Observaciones</div><div></div>
               </div>
               {materials.length === 0 ? (
                 <div className="px-3 py-8 text-center text-sm text-white/40"><ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />Busca y agrega materiales arriba.</div>
               ) : materials.map(m => (
-                <div key={m.id} className="grid grid-cols-[1fr_90px_90px_1.5fr_40px] gap-2 items-center px-3 py-2 text-xs">
+                <div key={m.id} className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="truncate font-medium">{m.name}</div>
                   <div className="text-white/60">{m.unit}</div>
                   <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" min={1} className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Math.max(1,Number(e.target.value))} : x))} />
+                  <input type="number" min={0} step="0.01" placeholder="$" className="w-full rounded-lg bg-black/40 px-2 py-1 text-right outline-none" value={m.price ?? ""} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, price: Number(e.target.value)} : x))} />
+                  <div className="text-right text-aria-accent font-medium">${(((m.price ?? 0) * m.qty) || 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}</div>
                   <input type="text" className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
                   <button onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))} className="rounded-full bg-red-500/70 p-1.5 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                 </div>

@@ -200,6 +200,9 @@ export async function POST(request: NextRequest) {
       ...(body.forma_pago ? { forma_pago: body.forma_pago } : {}),
       ...(body.fecha_pago ? { fecha_pago: body.fecha_pago } : {}),
       ...(body.iva_porcentaje != null ? { iva_porcentaje: body.iva_porcentaje } : {}),
+      // Descripcion + motivo (PR #108 28-Abr-2026)
+      ...(body.descripcion_compra ? { descripcion_compra: body.descripcion_compra } : {}),
+      ...(body.motivo_solicitud ? { motivo_solicitud: body.motivo_solicitud } : {}),
       // Datos de proveedor pre-seleccionado
       ...(body.proveedor_nombre ? { proveedor: body.proveedor_nombre } : {}),
       ...(body.proveedor_banco ? { banco: body.proveedor_banco } : {}),

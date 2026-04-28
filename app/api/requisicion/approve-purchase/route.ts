@@ -69,6 +69,8 @@ interface Requisition {
   proveedor?: string;
   forma_pago?: string;
   monto?: number;
+  descripcion_compra?: string | null;
+  motivo_solicitud?: string | null;
 }
 
 interface RequisitionItem {
@@ -323,6 +325,10 @@ export async function GET(request: NextRequest) {
         authorized_at: new Date().toISOString(),
         // B5 fix: propagar obra desde la requisición para que sea visible en Pagos/Por Pagar
         obra_nombre: req.cost_center_name || null,
+        // PR #108 28-Abr-2026: heredar descripcion + motivo de la requisicion
+        descripcion_compra: req.descripcion_compra || null,
+        motivo_solicitud: req.motivo_solicitud || null,
+        requisition_folio: req.folio || null,
       });
       if (poInsErr) { log.error("Error insert purchase_order", { error: poInsErr.message, ocFolio }); throw new Error(`Error creando OC ${ocFolio}: ${poInsErr.message}`); }
 
