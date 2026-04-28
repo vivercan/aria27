@@ -14,7 +14,7 @@ interface ComparativaHist {
   monto: number | null;
   created_at: string;
   authorized_at: string | null;
-  cotizacion_data: { quotes?: Array<{ supplier?: string; total?: number }>, items?: string[] } | null;
+  cotizacion_data: { quotes?: Array<{ supplier?: string; subtotal?: number; iva?: number; tax_rate?: number; total?: number }>, items?: string[] } | null;
 }
 
 export default function HistorialComparativasPage() {
@@ -160,7 +160,10 @@ export default function HistorialComparativasPage() {
               <thead className="bg-black/30">
                 <tr>
                   <th className="px-2 py-1 text-left text-[#7f93b0]">Proveedor</th>
-                  <th className="px-2 py-1 text-right text-[#7f93b0]">Total</th>
+                  <th className="px-2 py-1 text-right text-[#7f93b0]">Subt s/IVA</th>
+                  <th className="px-2 py-1 text-center text-[#7f93b0]">IVA %</th>
+                  <th className="px-2 py-1 text-right text-[#7f93b0]">IVA $</th>
+                  <th className="px-2 py-1 text-right text-[#7f93b0]">Total c/IVA</th>
                   <th className="px-2 py-1 text-center text-[#7f93b0]">Marca</th>
                 </tr>
               </thead>
@@ -169,10 +172,17 @@ export default function HistorialComparativasPage() {
                   const mejorTotal = Math.min(...(detalle.cotizacion_data?.quotes || []).map(x => x.total ?? Infinity));
                   const isMejor = (q.total ?? Infinity) === mejorTotal;
                   const isElegido = q.supplier === detalle.proveedor;
+                  const tasa = Number(q.tax_rate ?? 16);
+                  const tasaLabel = tasa === 0 ? "0% (Nota)" : tasa === 8 ? "8% Frontera" : `${tasa}%`;
                   return (
                     <tr key={i} className="border-t border-white/[0.05]">
                       <td className="px-2 py-1 text-white">{q.supplier}</td>
-                      <td className="px-2 py-1 text-right text-aria-accent">{fmtMoney(q.total ?? null)}</td>
+                      <td className="px-2 py-1 text-right text-[#c9d8ed]">{fmtMoney(q.subtotal ?? null)}</td>
+                      <td className="px-2 py-1 text-center">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${tasa === 0 ? "bg-slate-500/30 text-slate-300" : tasa === 8 ? "bg-sky-500/30 text-sky-300" : "bg-aria-primary-light text-aria-accent"}`}>{tasaLabel}</span>
+                      </td>
+                      <td className="px-2 py-1 text-right text-[#c9d8ed]">{fmtMoney(q.iva ?? null)}</td>
+                      <td className="px-2 py-1 text-right text-aria-accent font-medium">{fmtMoney(q.total ?? null)}</td>
                       <td className="px-2 py-1 text-center">
                         {isElegido && <span className="px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300 text-[10px]">ELEGIDO</span>}
                         {!isElegido && isMejor && <span className="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 text-[10px]">MEJOR</span>}
