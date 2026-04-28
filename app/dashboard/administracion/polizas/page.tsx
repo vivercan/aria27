@@ -40,6 +40,9 @@ const TIPO_OPTIONS = [
   { value: "equipo", label: "Equipo" },
   { value: "caucion", label: "Caución" },
   { value: "vida", label: "Vida" },
+  { value: "fianza_obra", label: "Fianza de Obra" },
+  { value: "fianza_anticipo", label: "Fianza de Anticipo" },
+  { value: "fianza_cumplimiento", label: "Fianza de Cumplimiento" },
 ];
 
 const ESTATUS_OPTIONS = [
