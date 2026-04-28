@@ -5,6 +5,7 @@ import CanonPageHeader from "@/components/ui/CanonPageHeader";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
+import { ADMIN_EMAILS } from "@/lib/admin-emails";
 
 // MODULES — sincronizado 20-Abr-2026 con rutas reales /dashboard/**
 // Cada módulo top-level del sistema debe estar aquí.
@@ -29,7 +30,7 @@ const MODULES = [
 ];
 
 const ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
-const ADMIN_EMAILS = ["juanviverosv@gmail.com"];
+
 
 interface UserRow {
   id: string;
