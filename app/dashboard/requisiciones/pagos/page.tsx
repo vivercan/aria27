@@ -52,6 +52,8 @@ export default function PagosPage() {
   const [pagoDescripcion, setPagoDescripcion] = useState("");
   const [pagoMotivo, setPagoMotivo] = useState("");
   const [exportandoExcel, setExportandoExcel] = useState(false);
+  const [destajistas, setDestajistas] = useState<Array<{proveedor: string, monto: number, fotos: string[]}>>([]);
+  const [destajistaActual, setDestajistaActual] = useState({proveedor: "", monto: 0});
   const [pagoSaving, setPagoSaving] = useState(false);
 
   // 21-Abr-2026: filtro opcional por metodo via query param (?metodo=EFECTIVO|TRANSFERENCIA).
@@ -114,6 +116,11 @@ export default function PagosPage() {
     setPagoMetodo("Transferencia");
     setPagoReferencia("");
     setPagoComprobante(null);
+    setPagoFactura(null);
+    setPagoDescripcion("");
+    setPagoMotivo("");
+    setDestajistas([]);
+    setDestajistaActual({proveedor: "", monto: 0});
   }
 
   async function exportarExcel() {
@@ -172,11 +179,12 @@ export default function PagosPage() {
         facturaUrl = await uploadComprobantePago(pagoFactura, ["oc", pagoModal.ocId, "factura"]);
       }
       // Actualizar campos extra en purchase_orders
-      if (facturaUrl || pagoDescripcion || pagoMotivo) {
-        const updatePayload: Record<string, string> = {};
+      if (facturaUrl || pagoDescripcion || pagoMotivo || destajistas.length > 0) {
+        const updatePayload: Record<string, unknown> = {};
         if (facturaUrl) updatePayload.factura_url = facturaUrl;
         if (pagoDescripcion) updatePayload.descripcion_compra = pagoDescripcion;
         if (pagoMotivo) updatePayload.motivo_solicitud = pagoMotivo;
+        if (destajistas.length > 0) updatePayload.destajistas = destajistas;
         await supabase.from("purchase_orders").update(updatePayload).eq("id", pagoModal.ocId);
       }
 
@@ -418,6 +426,61 @@ export default function PagosPage() {
                   rows={2} placeholder="Razon o motivo de la compra..."
                   className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm" />
               </div>
+              {/* DESTAJISTAS: solo cuando descripcion = DESTAJOS */}
+              {pagoDescripcion === "DESTAJOS" && (
+                <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-amber-300 text-sm font-semibold">Destajistas (proveedor + fotos de trabajo)</h4>
+                    <span className="text-[10px] text-[#7f93b0]">{destajistas.length} agregados</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto] gap-2 items-end">
+                    <input type="text" placeholder="Nombre del destajista/proveedor" value={destajistaActual.proveedor}
+                      onChange={e => setDestajistaActual(prev => ({...prev, proveedor: e.target.value}))}
+                      className="px-2 py-1.5 bg-black/30 border border-white/[0.08] rounded-lg text-white text-xs" />
+                    <input type="number" placeholder="Monto" value={destajistaActual.monto || ""}
+                      onChange={e => setDestajistaActual(prev => ({...prev, monto: Number(e.target.value)}))}
+                      className="px-2 py-1.5 bg-black/30 border border-white/[0.08] rounded-lg text-white text-xs" />
+                    <button type="button" onClick={() => {
+                      if (!destajistaActual.proveedor.trim() || destajistaActual.monto <= 0) return;
+                      setDestajistas(prev => [...prev, { proveedor: destajistaActual.proveedor.trim(), monto: destajistaActual.monto, fotos: [] }]);
+                      setDestajistaActual({proveedor: "", monto: 0});
+                    }} className="px-3 py-1.5 bg-emerald-500/30 hover:bg-emerald-500/50 text-emerald-300 text-xs rounded-lg">+ Agregar</button>
+                  </div>
+                  {destajistas.length > 0 && (
+                    <div className="space-y-1.5 max-h-40 overflow-auto">
+                      {destajistas.map((d, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs bg-black/30 px-2 py-1.5 rounded border border-white/[0.05]">
+                          <span className="flex-1 text-white">{d.proveedor}</span>
+                          <span className="text-aria-accent tabular-nums">${d.monto.toLocaleString()}</span>
+                          <label className="px-2 py-0.5 bg-aria-primary/30 text-aria-accent rounded cursor-pointer text-[10px]">
+                            +Foto{d.fotos.length > 0 && ` (${d.fotos.length})`}
+                            <input type="file" accept="image/*" className="hidden" multiple onChange={async (e) => {
+                              const files = Array.from(e.target.files || []);
+                              const urls: string[] = [];
+                              for (const f of files) {
+                                const path = `destajos/${Date.now()}_${i}_${f.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+                                const { error } = await supabase.storage.from("expedientes").upload(path, f);
+                                if (!error) {
+                                  const { data } = supabase.storage.from("expedientes").getPublicUrl(path);
+                                  urls.push(data.publicUrl);
+                                }
+                              }
+                              if (urls.length > 0) {
+                                setDestajistas(prev => prev.map((x, idx) => idx === i ? {...x, fotos: [...x.fotos, ...urls]} : x));
+                              }
+                            }} />
+                          </label>
+                          <button type="button" onClick={() => setDestajistas(prev => prev.filter((_, idx) => idx !== i))} className="px-1.5 py-0.5 bg-rose-500/30 text-rose-300 rounded text-[10px]">x</button>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-xs pt-2 border-t border-white/[0.05]">
+                        <span className="text-[#7f93b0]">Total destajos:</span>
+                        <span className="text-amber-300 font-semibold tabular-nums">${destajistas.reduce((s, d) => s + d.monto, 0).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setPagoModal(null)} className="flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[#c9d8ed] text-sm font-medium hover:bg-white/[0.06]">Cancelar</button>
