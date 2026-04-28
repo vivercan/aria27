@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { registrarPagoOC } from "@/lib/finanzas-payments";
 import { uploadComprobantePago } from "@/lib/storage";
-import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2, Paperclip } from "lucide-react";
+import { DollarSign, Clock, CheckCircle2, AlertCircle, Search, Filter, CreditCard, Building2, Calendar, Hash, X , Loader2, Paperclip, Download, Receipt } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
@@ -14,6 +14,7 @@ interface PurchaseOrder {
   id: string;
   folio: string;
   requisition_folio: string;
+  requisition_id?: string;
   supplier_name: string;
   total: number;
   status: string;
@@ -22,6 +23,11 @@ interface PurchaseOrder {
   monto_pagado?: number;
   pagado?: number;
   saldo?: number;
+  descripcion_compra?: string;
+  motivo_solicitud?: string;
+  factura_url?: string;
+  comprobante_url?: string;
+  payment_method?: string;
 }
 
 interface ProcessedOrder extends PurchaseOrder {
@@ -42,6 +48,10 @@ export default function PagosPage() {
   const [pagoMetodo, setPagoMetodo] = useState("Transferencia");
   const [pagoReferencia, setPagoReferencia] = useState("");
   const [pagoComprobante, setPagoComprobante] = useState<File | null>(null);
+  const [pagoFactura, setPagoFactura] = useState<File | null>(null);
+  const [pagoDescripcion, setPagoDescripcion] = useState("");
+  const [pagoMotivo, setPagoMotivo] = useState("");
+  const [exportandoExcel, setExportandoExcel] = useState(false);
   const [pagoSaving, setPagoSaving] = useState(false);
 
   // 21-Abr-2026: filtro opcional por metodo via query param (?metodo=EFECTIVO|TRANSFERENCIA).
@@ -62,7 +72,7 @@ export default function PagosPage() {
     try {
       const { data: ocs, error } = await supabase
         .from("purchase_orders")
-        .select("*")
+        .select("*, descripcion_compra, motivo_solicitud, factura_url, comprobante_url, requisition_id, payment_method")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -106,6 +116,40 @@ export default function PagosPage() {
     setPagoComprobante(null);
   }
 
+  async function exportarExcel() {
+    setExportandoExcel(true);
+    try {
+      const XLSX = await import("xlsx");
+      const filtered = orders.filter(o => filterMetodo === "TODOS" || (o.payment_method || "").toUpperCase() === filterMetodo);
+      const rows = filtered.map(oc => ({
+        "Folio Req": oc.requisition_folio || "",
+        "Folio OC": oc.folio,
+        "Proveedor": oc.supplier_name,
+        "Obra": oc.obra_nombre || "",
+        "Descripcion": oc.descripcion_compra || "",
+        "Motivo": oc.motivo_solicitud || "",
+        "Total": oc.total || 0,
+        "Pagado": oc.monto_pagado || 0,
+        "Saldo": (oc.total || 0) - (oc.monto_pagado || 0),
+        "Metodo": oc.payment_method || "",
+        "Estado": oc.status,
+        "Comprobante": oc.comprobante_url ? "SI" : "NO",
+        "Factura": oc.factura_url ? "SI" : "NO",
+        "Fecha": oc.created_at ? new Date(oc.created_at).toLocaleDateString("es-MX") : "",
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Control de Pagos");
+      const fname = `Control_Pagos_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(wb, fname);
+      flash("ok", `Excel descargado: ${rows.length} filas`);
+    } catch (e: unknown) {
+      flash("err", "Error al exportar: " + (e as Error).message);
+    } finally {
+      setExportandoExcel(false);
+    }
+  }
+
   async function confirmarPago() {
     if (!pagoModal) return;
     const monto = parseFloat(pagoMonto);
@@ -122,6 +166,18 @@ export default function PagosPage() {
       let comprobanteUrl: string | undefined = undefined;
       if (pagoComprobante) {
         comprobanteUrl = await uploadComprobantePago(pagoComprobante, ["oc", pagoModal.ocId]);
+      }
+      let facturaUrl: string | undefined = undefined;
+      if (pagoFactura) {
+        facturaUrl = await uploadComprobantePago(pagoFactura, ["oc", pagoModal.ocId, "factura"]);
+      }
+      // Actualizar campos extra en purchase_orders
+      if (facturaUrl || pagoDescripcion || pagoMotivo) {
+        const updatePayload: Record<string, string> = {};
+        if (facturaUrl) updatePayload.factura_url = facturaUrl;
+        if (pagoDescripcion) updatePayload.descripcion_compra = pagoDescripcion;
+        if (pagoMotivo) updatePayload.motivo_solicitud = pagoMotivo;
+        await supabase.from("purchase_orders").update(updatePayload).eq("id", pagoModal.ocId);
       }
 
       await registrarPagoOC({
@@ -175,9 +231,19 @@ export default function PagosPage() {
       <FlashBanner msg={msg} className="mx-0 mb-3" />
       <AriaBackButton href="/dashboard/requisiciones" />
 
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
-        <h1 className="text-2xl font-bold text-white">Control de Pagos</h1>
-        <p className="text-[#7f93b0] text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4 flex items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Control de Pagos</h1>
+          <p className="text-[#7f93b0] text-sm">Seguimiento de pagos a proveedores por Órdenes de compra</p>
+        </div>
+        <button
+          onClick={exportarExcel}
+          disabled={exportandoExcel || orders.length === 0}
+          className="px-4 py-2 bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+        >
+          {exportandoExcel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          Descargar Excel
+        </button>
       </div>
 
       {/* Stats */}
@@ -229,31 +295,43 @@ export default function PagosPage() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)] backdrop-blur z-10">
               <tr className="text-[#7f93b0] text-xs uppercase">
-                <th className="text-left p-3">OC</th>
+                <th className="text-left p-3">Folio Req</th>
                 <th className="text-left p-3">Proveedor</th>
                 <th className="text-left p-3">Obra</th>
+                <th className="text-left p-3">Descripcion</th>
+                <th className="text-left p-3">Motivo</th>
                 <th className="text-right p-3">Total</th>
                 <th className="text-right p-3">Pagado</th>
                 <th className="text-right p-3">Saldo</th>
+                <th className="text-center p-3">Comp/Fac</th>
                 <th className="text-center p-3">Estado</th>
-                <th className="text-center p-3">Acción</th>
+                <th className="text-center p-3">Accion</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
+                <tr><td colSpan={11} className="p-8 text-center text-[#7f93b0]"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-[#7f93b0]">No hay Órdenes de compra</td></tr>
+                <tr><td colSpan={11} className="p-8 text-center text-[#7f93b0]">No hay Órdenes de compra</td></tr>
               ) : filtered.map(oc => {
                 const badge = getStatusBadge(oc);
                 return (
                   <tr key={oc.id} className="border-t border-white/[0.05] hover:bg-white/[0.02]">
-                    <td className="p-3 text-white font-mono text-xs">{oc.folio}</td>
+                    <td className="p-3 text-white font-mono text-xs">{oc.requisition_folio || oc.folio}</td>
                     <td className="p-3 text-white">{oc.supplier_name}</td>
                     <td className="p-3">{oc.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(oc.obra_nombre)}`}>{oc.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
+                    <td className="p-3 text-[#c9d8ed] text-xs max-w-[160px] truncate" title={oc.descripcion_compra || ""}>{oc.descripcion_compra || <span className="text-[#4a6080]">-</span>}</td>
+                    <td className="p-3 text-[#c9d8ed] text-xs max-w-[160px] truncate" title={oc.motivo_solicitud || ""}>{oc.motivo_solicitud || <span className="text-[#4a6080]">-</span>}</td>
                     <td className="p-3 text-right text-white font-medium">${(oc.total || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-aria-accent">${(oc.monto_pagado || oc.pagado || 0).toLocaleString()}</td>
                     <td className="p-3 text-right text-amber-400 font-medium">${((oc.total || 0) - (oc.monto_pagado || oc.pagado || 0)).toLocaleString()}</td>
+                    <td className="p-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {oc.comprobante_url && <a href={oc.comprobante_url} target="_blank" rel="noopener noreferrer" title="Comprobante transferencia" className="p-1 bg-emerald-500/20 text-aria-accent rounded text-[10px]"><Receipt className="w-3 h-3" /></a>}
+                        {oc.factura_url && <a href={oc.factura_url} target="_blank" rel="noopener noreferrer" title="Factura" className="p-1 bg-aria-primary/20 text-aria-accent rounded text-[10px]"><Paperclip className="w-3 h-3" /></a>}
+                        {!oc.comprobante_url && !oc.factura_url && <span className="text-[#4a6080] text-[10px]">-</span>}
+                      </div>
+                    </td>
                     <td className="p-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>{badge.label}</span></td>
                     <td className="p-3 text-center">
                       {badge.label !== "PAGADA" && (
@@ -303,12 +381,42 @@ export default function PagosPage() {
               {/* 21-Abr-2026: comprobante obligatorio si metodo=Transferencia */}
               <div>
                 <label className="block text-xs text-[#7f93b0] mb-1">
-                  Comprobante {pagoMetodo === "Transferencia" ? <span className="text-red-400">*</span> : <span className="text-[#4a6080]">(opcional)</span>}
+                  Comprobante de pago {pagoMetodo === "Transferencia" ? <span className="text-red-400">*</span> : <span className="text-[#4a6080]">(opcional)</span>}
                 </label>
                 <input type="file" accept="image/*,.pdf"
                   onChange={e => setPagoComprobante(e.target.files?.[0] || null)}
-                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-aria-primary/20 file:text-aria-accent hover:file:bg-aria-primary/30" />
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-aria-accent hover:file:bg-emerald-500/30" />
                 {pagoComprobante && <p className="text-xs text-[#7f93b0] mt-1 flex items-center gap-1"><Paperclip className="w-3 h-3" />{pagoComprobante.name}</p>}
+              </div>
+              <div>
+                <label className="block text-xs text-[#7f93b0] mb-1">Factura (opcional)</label>
+                <input type="file" accept="image/*,.pdf,.xml"
+                  onChange={e => setPagoFactura(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-aria-primary/20 file:text-aria-accent hover:file:bg-aria-primary/30" />
+                {pagoFactura && <p className="text-xs text-[#7f93b0] mt-1 flex items-center gap-1"><Paperclip className="w-3 h-3" />{pagoFactura.name}</p>}
+              </div>
+              <div>
+                <label className="block text-xs text-[#7f93b0] mb-1">Descripcion de compra</label>
+                <select value={pagoDescripcion} onChange={e => setPagoDescripcion(e.target.value)}
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm">
+                  <option value="">Seleccionar...</option>
+                  <option value="MATERIALES">Materiales</option>
+                  <option value="GASTOS_ADMIN">Gastos Administrativos</option>
+                  <option value="GASTOS_OPERATIVOS">Gastos Operativos</option>
+                  <option value="DESTAJOS">Destajos</option>
+                  <option value="MANO_OBRA">Mano de Obra</option>
+                  <option value="PRESTAMOS">Prestamos</option>
+                  <option value="SERVICIOS">Servicios</option>
+                  <option value="HERRAMIENTAS">Herramientas</option>
+                  <option value="COMBUSTIBLE">Combustible</option>
+                  <option value="OTROS">Otros</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-[#7f93b0] mb-1">Motivo de la solicitud</label>
+                <textarea value={pagoMotivo} onChange={e => setPagoMotivo(e.target.value)}
+                  rows={2} placeholder="Razon o motivo de la compra..."
+                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm" />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
