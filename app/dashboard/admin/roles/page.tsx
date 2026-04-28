@@ -4,28 +4,27 @@ import AriaBackButton from "@/components/AriaBackButton";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
-import { Loader2, Save, ShieldCheck, ShieldAlert, Search } from "lucide-react";
+import { Loader2, Save, ShieldCheck, ShieldAlert, Search, Crown, User as UserIcon } from "lucide-react";
 
-// MODULES — sincronizado 20-Abr-2026 con rutas reales /dashboard/**
-// Cada módulo top-level del sistema debe estar aquí.
-const MODULES = [
-  { key: "obras", label: "Obras" },
-  { key: "talento", label: "Talento" },
-  { key: "requisiciones", label: "Requisiciones" },
-  { key: "finanzas", label: "Finanzas" },
-  { key: "activos", label: "Activos" },
-  { key: "clientes", label: "Clientes" },
-  { key: "administracion", label: "Administración" },
-  { key: "plantillas", label: "Plantillas" },
-  { key: "reportes", label: "Reportes" },
-  { key: "ceo", label: "CEO (Dashboard ejecutivo)" },
-  { key: "inbox", label: "Inbox (Correo)" },
-  { key: "comunicacion", label: "Comunicación" },
-  { key: "carpetas", label: "Carpetas (docs globales)" },
-  { key: "whatsapp", label: "WhatsApp" },
-  { key: "import", label: "Importar CSV" },
-  { key: "configuracion", label: "Configuración" },
-  { key: "admin", label: "Admin (solo sistema)" },
+// MODULES - sincronizado 20-Abr-2026 con rutas reales /dashboard/**
+const MODULES: { key: string; label: string; short: string }[] = [
+  { key: "obras", label: "Obras", short: "Obras" },
+  { key: "talento", label: "Talento", short: "Talento" },
+  { key: "requisiciones", label: "Requisiciones", short: "Requis." },
+  { key: "finanzas", label: "Finanzas", short: "Finanzas" },
+  { key: "activos", label: "Activos", short: "Activos" },
+  { key: "clientes", label: "Clientes", short: "Clientes" },
+  { key: "administracion", label: "Administración", short: "Admin." },
+  { key: "plantillas", label: "Plantillas", short: "Plantillas" },
+  { key: "reportes", label: "Reportes", short: "Reportes" },
+  { key: "ceo", label: "CEO (Dashboard ejecutivo)", short: "CEO" },
+  { key: "inbox", label: "Inbox (Correo)", short: "Inbox" },
+  { key: "comunicacion", label: "Comunicación", short: "Comunic." },
+  { key: "carpetas", label: "Carpetas (docs globales)", short: "Carpetas" },
+  { key: "whatsapp", label: "WhatsApp", short: "WhatsApp" },
+  { key: "import", label: "Importar CSV", short: "Importar" },
+  { key: "configuracion", label: "Configuración", short: "Config." },
+  { key: "admin", label: "Admin (solo sistema)", short: "Admin sys" },
 ];
 
 const ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user"];
@@ -45,7 +44,6 @@ export default function RolesAdminPage() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [filter, setFilter] = useState("");
-  // EX-3 18-Abr-2026: flash canónico via useFlashMessage
   const { msg, flash } = useFlashMessage(2500);
 
   const authEmail = () => (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "");
@@ -73,7 +71,7 @@ export default function RolesAdminPage() {
       setAuthorized(true);
       setUsers((j.users as UserRow[]) || []);
     } catch (e: unknown) {
-      flash("err", (e as {message?: string})?.message || "Error de red");
+      flash("err", (e as { message?: string })?.message || "Error de red");
       setAuthorized(true);
     }
     setLoading(false);
@@ -102,7 +100,7 @@ export default function RolesAdminPage() {
       if (!r.ok) flash("err", j.error || "Error");
       else flash("ok", `Permisos actualizados para ${u.email}`);
     } catch (e: unknown) {
-      flash("err", (e as {message?: string})?.message || "Error de red");
+      flash("err", (e as { message?: string })?.message || "Error de red");
     }
     setGuardando(null);
   };
@@ -136,10 +134,16 @@ export default function RolesAdminPage() {
     );
   }
 
+  const initials = (u: UserRow) => {
+    const base = (u.display_name || u.email || "?").trim();
+    const parts = base.split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return base.slice(0, 2).toUpperCase();
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="mb-4 flex-shrink-0">
-        {/* B4 26-Abr-2026: CanonPageHeader canon AAA */}
         <CanonPageHeader
           title="Roles y Permisos"
           subtitle={`${users.length} usuarios · marca los módulos que cada uno puede ver`}
@@ -160,82 +164,111 @@ export default function RolesAdminPage() {
         />
       </div>
 
-      {/* EX-3 18-Abr-2026: FlashBanner canónico */}
       <FlashBanner msg={msg} className="mb-3 flex-shrink-0" />
 
-      <div className="flex-1 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-[rgba(4,8,16,0.98)]  z-10">
-            <tr className="border-b border-white/[0.08]">
-              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Usuario</th>
-              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Rol</th>
-              {MODULES.map(m => (
-                <th key={m.key} className="p-2 text-[#c9d8ed] font-semibold text-[11px] h-28 align-bottom" title={m.label}>
-                  <div className="flex items-end justify-center">
-                    <span className="inline-block whitespace-nowrap origin-bottom-left" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", padding: "4px 0" }}>
-                      {m.label}
-                    </span>
-                  </div>
-                </th>
-              ))}
-              <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtrados.length === 0 ? (
-              <tr><td colSpan={MODULES.length + 3} className="p-8 text-center text-[#4a6080] text-sm">Sin usuarios</td></tr>
-            ) : filtrados.map(u => {
+      <div className="flex-1 overflow-y-auto pr-1">
+        {filtrados.length === 0 ? (
+          <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-12 text-center text-[#4a6080] text-sm">
+            Sin usuarios
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {filtrados.map(u => {
               const perms = u.permissions || {};
               const isAdminRow = u.role === "admin" || u.role === "Administrador";
+              const activeCount = isAdminRow
+                ? MODULES.length
+                : MODULES.filter(m => Array.isArray(perms[m.key]) && perms[m.key].length > 0).length;
               return (
-                <tr key={u.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
-                  <td className="p-3">
-                    <p className="text-white text-sm font-medium">{u.display_name || u.email}</p>
-                    <p className="text-[#4a6080] text-xs">{u.email}</p>
-                  </td>
-                  <td className="p-3">
-                    <select
-                      value={u.role || "user"}
-                      onChange={e => cambiarRol(u, e.target.value)}
-                      className="px-2 py-1 rounded bg-white/[0.04] border border-white/[0.08] text-white text-xs"
+                <div
+                  key={u.id}
+                  className="rounded-2xl bg-[#0c1d38]/55 border border-white/[0.08] p-5 transition hover:border-white/[0.14]"
+                >
+                  <div className="flex flex-wrap items-center gap-4 mb-4">
+                    <div
+                      className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold ${
+                        isAdminRow
+                          ? "bg-gradient-to-br from-amber-400/30 to-amber-600/20 text-amber-200 border border-amber-400/40"
+                          : "bg-aria-primary-light text-aria-accent border border-aria-accent/20"
+                      }`}
                     >
-                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                  </td>
-                  {MODULES.map(m => {
-                    const active = isAdminRow || (Array.isArray(perms[m.key]) && perms[m.key].length > 0);
-                    return (
-                      <td key={m.key} className="p-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={active}
-                          disabled={isAdminRow}
-                          onChange={() => toggleModule(u, m.key)}
-                          className="w-4 h-4 accent-aria-primary disabled:opacity-50"
-                          title={isAdminRow ? "Admin tiene acceso total" : m.label}
-                        />
-                      </td>
-                    );
-                  })}
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => guardar(u)}
-                      disabled={guardando === u.id}
-                      className="px-3 py-1.5 rounded bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 text-xs flex items-center gap-1 mx-auto disabled:opacity-50"
-                    >
-                      {guardando === u.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                      Guardar
-                    </button>
-                  </td>
-                </tr>
+                      {isAdminRow ? <Crown className="w-5 h-5" /> : initials(u)}
+                    </div>
+                    <div className="flex-1 min-w-[180px]">
+                      <p className="text-white text-sm font-semibold leading-tight">{u.display_name || u.email}</p>
+                      <p className="text-[#7f93b0] text-[11px]">{u.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wide text-[#7f93b0]">Rol</span>
+                      <select
+                        value={u.role || "user"}
+                        onChange={e => cambiarRol(u, e.target.value)}
+                        className="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-xs focus:border-aria-primary outline-none"
+                      >
+                        {ROLES.map(r => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[10px] text-[#c9d8ed]">
+                        {activeCount}/{MODULES.length} módulos
+                      </span>
+                      <button
+                        onClick={() => guardar(u)}
+                        disabled={guardando === u.id}
+                        className="px-3 py-1.5 rounded-lg bg-aria-primary-light text-aria-accent hover:bg-aria-primary-hover/30 text-xs flex items-center gap-1 disabled:opacity-50 border border-aria-accent/20"
+                      >
+                        {guardando === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                        Guardar
+                      </button>
+                    </div>
+                  </div>
+
+                  {isAdminRow ? (
+                    <div className="rounded-lg bg-amber-500/10 border border-amber-400/20 p-3 text-amber-200 text-xs flex items-center gap-2">
+                      <Crown className="w-4 h-4" />
+                      Acceso total - los administradores no se toggean por módulo.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                      {MODULES.map(m => {
+                        const active = Array.isArray(perms[m.key]) && perms[m.key].length > 0;
+                        return (
+                          <button
+                            key={m.key}
+                            type="button"
+                            onClick={() => toggleModule(u, m.key)}
+                            title={m.label}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition ${
+                              active
+                                ? "bg-aria-primary-light border-aria-accent/40 text-white"
+                                : "bg-white/[0.02] border-white/[0.06] text-[#7f93b0] hover:bg-white/[0.05]"
+                            }`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                active ? "bg-aria-accent" : "bg-[#3a4a66]"
+                              }`}
+                            />
+                            <span className="text-[11px] font-medium truncate">{m.short}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
-          </tbody>
-        </table>
+          </div>
+        )}
       </div>
 
-      <p className="mt-2 text-[11px] text-[#4a6080] flex-shrink-0">
-        Admin email whitelist: {ADMIN_EMAILS.join(", ")} · Los usuarios con rol "admin" tienen acceso total y no se pueden toquear por modulo.
+      <p className="mt-3 text-[11px] text-[#4a6080] flex-shrink-0">
+        <UserIcon className="w-3 h-3 inline mr-1" />
+        Admin email whitelist: {ADMIN_EMAILS.join(", ")} · Los usuarios con rol "admin" tienen acceso total y no se toggean por módulo.
       </p>
     </div>
   );
