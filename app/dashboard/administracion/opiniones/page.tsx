@@ -13,10 +13,10 @@ import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 
 const OPINIONES = [
-  { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", color: "text-aria-accent", bg: "bg-emerald-500/10" },
-  { key: "infonavit", label: "Infonavit", desc: "Opinión de cumplimiento de aportaciones patronales.", color: "text-aria-accent", bg: "bg-aria-primary/10" },
-  { key: "sat", label: "SAT (32-D)", desc: "Opinión de cumplimiento de obligaciones fiscales.", color: "text-amber-400", bg: "bg-amber-500/10" },
-  { key: "sar", label: "SAR", desc: "Opinión de cumplimiento del Sistema de Ahorro para el Retiro.", color: "text-aria-accent", bg: "bg-aria-primary/10" },
+  { key: "imss", label: "IMSS", desc: "Opinión de cumplimiento del Instituto Mexicano del Seguro Social.", plazo: "Diario", color: "text-aria-accent", bg: "bg-emerald-500/10" },
+  { key: "infonavit", label: "Infonavit", desc: "Opinión de cumplimiento de aportaciones patronales.", plazo: "Cada 15 días", color: "text-aria-accent", bg: "bg-aria-primary/10" },
+  { key: "sat", label: "SAT (32-D)", desc: "Opinión de cumplimiento de obligaciones fiscales.", plazo: "Mensual", color: "text-amber-400", bg: "bg-amber-500/10" },
+  { key: "sefi", label: "SEFI", desc: "Opinión de cumplimiento de la Secretaría de Finanzas (estatal).", plazo: "Mensual", color: "text-aria-accent", bg: "bg-aria-primary/10" },
 ];
 
 interface OpinionDoc {
@@ -158,7 +158,7 @@ export default function OpinionesPage() {
 
       <div className="sticky top-0 z-10 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-4">
         <h1 className="text-2xl font-bold text-white">Opiniones de Cumplimiento</h1>
-        <p className="text-[#7f93b0] text-sm">IMSS, Infonavit, SAT, SAR — sube y controla vigencias</p>
+        <p className="text-[#7f93b0] text-sm">IMSS, Infonavit, SAT, SEFI — sube y controla vigencias</p>
       </div>
 
       {/* Summary */}
