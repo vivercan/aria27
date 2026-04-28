@@ -115,6 +115,7 @@ const searchableItems = [
   // Talento sub-vistas
   { name: "Finiquitos", icon: ChevronRight, href: "/dashboard/talento/finiquitos" },
   { name: "Checadas Incompletas", icon: ChevronRight, href: "/dashboard/talento/checadas/incompletas" },
+  { name: "Calculadora Nomina 2026", icon: ChevronRight, href: "/dashboard/talento/nomina/calculadora" },
   { name: "Pre-nómina Semanal", icon: ChevronRight, href: "/dashboard/talento/nomina/pre-nomina" },
   { name: "Recibos de Nómina", icon: ChevronRight, href: "/dashboard/talento/nomina/recibos" },
   { name: "Nómina Manual", icon: ChevronRight, href: "/dashboard/talento/nomina/manual" },
