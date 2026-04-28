@@ -266,9 +266,9 @@ export async function GET(request: NextRequest) {
         if (facturaSi) {
           const subDerived = +(sub / (1 + tr/100)).toFixed(2);
           const ivaDerived = +(sub - subDerived).toFixed(2);
-          elegidoData = { ...elegidoData, subtotal: subDerived, iva: ivaDerived, tax_rate: tr };
+          elegidoData = { ...(elegidoData as SupplierQuote), subtotal: subDerived, iva: ivaDerived, tax_rate: tr } as SupplierData;
         } else {
-          elegidoData = { ...elegidoData, subtotal: sub, iva: 0, tax_rate: 0 };
+          elegidoData = { ...(elegidoData as SupplierQuote), subtotal: sub, iva: 0, tax_rate: 0 } as SupplierData;
         }
       }
 
