@@ -2,6 +2,7 @@
 
 import {
   FileText, Shield, ScrollText, Building2, Calculator, HardHat, ChevronRight,
+  Banknote, FilePlus2,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -37,9 +38,16 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
       { title: "SIROC",              description: "Registro de obras ante el IMSS vía SIROC.",              href: "/dashboard/administracion/siroc",   icon: HardHat,    accent: ROSE },
     ],
   },
+  {
+    label: "Pagos & Formatos",
+    modulos: [
+      { title: "Pagos en Efectivo",   description: "Vista filtrada de gastos de obra pagados en efectivo.",  href: "/dashboard/finanzas/gastos-obra?metodo=EFECTIVO", icon: Banknote, accent: AMBER },
+      { title: "Formatos Plantilla",  description: "Vacaciones, permisos sin goce, préstamos personales.",   href: "/dashboard/administracion/formatos", icon: FilePlus2, accent: ROSE },
+    ],
+  },
 ];
 
-const filas = [[grupos[0], grupos[1]]];
+const filas = [[grupos[0], grupos[1]], [grupos[2]]];
 
 export default function AdministracionPage() {
   return (
