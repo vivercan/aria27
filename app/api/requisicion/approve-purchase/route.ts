@@ -260,7 +260,8 @@ export async function GET(request: NextRequest) {
       // tratar ese total como subtotal y derivar IVA/total con tax_rate. Antes: subtotal=0 -> IVA=0 -> total final=0 -> bloqueo "OC con total 0".
       if (elegidoData.supplier && elegidoData.total != null && (elegidoData.subtotal == null || Number(elegidoData.subtotal) === 0)) {
         const tr = typeof elegidoData.tax_rate === "number" ? elegidoData.tax_rate : 16;
-        const facturaSi = elegidoData.factura === true || elegidoData.factura === "SI" || elegidoData.factura === "si";
+        const facturaRaw = (elegidoData as { factura?: unknown }).factura;
+        const facturaSi = facturaRaw === true || facturaRaw === "SI" || facturaRaw === "si" || facturaRaw === "sí" || (typeof facturaRaw === "string" && facturaRaw.toLowerCase().startsWith("s"));
         const sub = Number(elegidoData.total);
         if (facturaSi) {
           const subDerived = +(sub / (1 + tr/100)).toFixed(2);
