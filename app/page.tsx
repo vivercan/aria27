@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -197,9 +198,9 @@ export default function LoginPage() {
                     onClick={() => setShowPass(s => !s)}
                     aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     tabIndex={-1}
-                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#94a3b8', fontSize: '13px' }}
+                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#ffffff', display: 'flex', alignItems: 'center' }}
                   >
-                    {showPass ? '🙈' : '👁'}
+                    {showPass ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
                   </button>
                 </div>
 
