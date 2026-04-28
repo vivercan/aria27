@@ -259,14 +259,12 @@ export default function MovimientosBancariosPage() {
               <th className="px-3 py-3 text-center text-[#c9d8ed]">Tipo</th>
               <th className="px-3 py-3 text-right text-[#c9d8ed]">Monto</th>
               <th className="px-3 py-3 text-left text-[#c9d8ed]">Concepto</th>
-              <th className="px-3 py-3 text-center text-[#c9d8ed]">Status</th>
-              <th className="px-3 py-3 text-center text-[#c9d8ed]">Acciones</th>
+              <th className="px-3 py-3 text-center text-[#c9d8ed]">Foto</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {loading && <tr><td colSpan={7} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>}
             {!loading && movsFiltrados.map(m => {
-              const status = m.status_match || "PENDIENTE";
               return (
                 <tr key={m.id} className="hover:bg-white/[0.04]">
                   <td className="px-3 py-2 text-[#c9d8ed]">{m.fecha_movimiento ? new Date(m.fecha_movimiento).toLocaleDateString("es-MX") : "-"}</td>
@@ -279,20 +277,18 @@ export default function MovimientosBancariosPage() {
                   <td className={`px-3 py-2 text-right font-medium ${m.tipo_movimiento === "ABONO" ? "text-aria-accent" : "text-red-400"}`}>${Number(m.monto || 0).toLocaleString()}</td>
                   <td className="px-3 py-2 text-[#c9d8ed] text-xs">{m.concepto || "-"}<br /><span className="text-[#4a6080]">{m.notas}</span></td>
                   <td className="px-3 py-2 text-center">
-                    {status === "MATCHED"
-                      ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-aria-accent rounded text-xs"><CheckCircle2 className="w-3 h-3" />OK</span>
-                      : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-xs"><AlertCircle className="w-3 h-3" />PEND</span>}
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    {status === "MATCHED"
-                      ? <button onClick={() => desconciliar(m)} className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs hover:bg-red-500/30">Desconciliar</button>
-                      : <button onClick={() => abrirMatch(m)} className="px-2 py-1 bg-aria-primary-light text-aria-accent rounded text-xs hover:bg-aria-primary-hover/30 inline-flex items-center gap-1"><Link2 className="w-3 h-3" />Conciliar</button>}
+                    <div className="flex items-center justify-center gap-1">
+                      {m.foto_movimiento_url && <a href={m.foto_movimiento_url} target="_blank" rel="noopener noreferrer" title="Movimiento"><img src={m.foto_movimiento_url} alt="mov" className="w-8 h-8 object-cover rounded border border-emerald-500/40" /></a>}
+                      {m.foto_factura_url && <a href={m.foto_factura_url} target="_blank" rel="noopener noreferrer" title="Factura"><img src={m.foto_factura_url} alt="fac" className="w-8 h-8 object-cover rounded border border-aria-primary/40" /></a>}
+                      {m.foto_estimacion_url && <a href={m.foto_estimacion_url} target="_blank" rel="noopener noreferrer" title="Estimacion"><img src={m.foto_estimacion_url} alt="est" className="w-8 h-8 object-cover rounded border border-amber-500/40" /></a>}
+                      {!m.foto_movimiento_url && !m.foto_factura_url && !m.foto_estimacion_url && <span className="text-[#4a6080] text-xs">-</span>}
+                    </div>
                   </td>
                 </tr>
               );
             })}
             {!loading && movsFiltrados.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-[#7f93b0]">Sin movimientos. Da de alta el primero.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-[#7f93b0]">Sin movimientos. Da de alta el primero.</td></tr>
             )}
           </tbody>
         </table>
