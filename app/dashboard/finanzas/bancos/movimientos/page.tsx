@@ -26,12 +26,15 @@ interface Movimiento {
   cobro_id: string | null;
   oc_id: string | null;
   notas: string | null;
+  foto_movimiento_url: string | null;
+  foto_factura_url: string | null;
+  foto_estimacion_url: string | null;
   created_at: string;
 }
 interface Cobro { id: string; folio: string | null; monto: number | null; fecha: string | null; obra_nombre: string | null; cliente_nombre: string | null; estatus: string | null; }
 interface OC { id: string; po_number: string | null; total: number | null; created_at: string; supplier_name: string | null; status: string | null; }
 
-const FORM_INIT = { cuenta_id: "", fecha_movimiento: new Date().toISOString().slice(0,10), monto: 0, concepto: "", referencia: "", tipo_movimiento: "ABONO", notas: "" };
+const FORM_INIT = { cuenta_id: "", fecha_movimiento: new Date().toISOString().slice(0,10), monto: 0, concepto: "", referencia: "", tipo_movimiento: "ABONO", notas: "", foto_movimiento_url: "", foto_factura_url: "", foto_estimacion_url: "" };
 
 export default function MovimientosBancariosPage() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
@@ -83,6 +86,9 @@ export default function MovimientosBancariosPage() {
       referencia: form.referencia,
       tipo_movimiento: form.tipo_movimiento,
       notas: form.notas,
+      foto_movimiento_url: form.foto_movimiento_url || null,
+      foto_factura_url: form.foto_factura_url || null,
+      foto_estimacion_url: form.foto_estimacion_url || null,
       status_match: "PENDIENTE",
     };
     const { error } = await supabase.from("conciliacion_bancaria").insert(payload);
