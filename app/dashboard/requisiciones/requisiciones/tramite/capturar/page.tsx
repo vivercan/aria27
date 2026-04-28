@@ -498,10 +498,13 @@ function CapturarContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-[#7f93b0] text-xs block mb-1">IVA (%)</label>
-              <input type="number" min="0" max="100" step="0.01" value={taxRate}
-                onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none" />
-              <p className="text-[10px] text-[#4a6080] mt-1">Default 16%. Si el proveedor emite Nota, se guarda como 0%.</p>
+              <select value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none">
+                <option value={0}>0% (Sin IVA / Nota)</option>
+                <option value={8}>8% (Frontera Norte)</option>
+                <option value={16}>16% (General México)</option>
+              </select>
+              <p className="text-[10px] text-[#4a6080] mt-1">Default 16%. Si el proveedor emite Nota, selecciona 0%.</p>
             </div>
             <div>
               <label className="text-[#7f93b0] text-xs block mb-1">Anticipo</label>

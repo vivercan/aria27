@@ -56,6 +56,7 @@ const searchableItems = [
   { name: "Productos", icon: ChevronRight, href: "/dashboard/requisiciones/productos" },
   { name: "Proveedores", icon: ChevronRight, href: "/dashboard/requisiciones/proveedores" },
   { name: "Comparativas", icon: ChevronRight, href: "/dashboard/requisiciones/compras" },
+  { name: "Historial Comparativas", icon: ChevronRight, href: "/dashboard/requisiciones/comparativas/historial" },
   { name: "Pagos", icon: ChevronRight, href: "/dashboard/requisiciones/pagos" },
   { name: "Entregas", icon: ChevronRight, href: "/dashboard/requisiciones/entregas" },
   { name: "Prospeccion", icon: ChevronRight, href: "/dashboard/requisiciones/prospeccion" },
