@@ -26,7 +26,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
     modulos: [
       { title: "Documentación Legal",       description: "Acta constitutiva, REPSE, CSF y domicilio fiscal.",  href: "/dashboard/administracion/documentacion", icon: FileText,   accent: AMBER, hero: true },
       { title: "Pólizas",                   description: "Seguros y fianzas de la empresa.",                   href: "/dashboard/administracion/polizas",       icon: Shield,     accent: AMBER },
-      { title: "Opiniones de Cumplimiento", description: "IMSS, Infonavit, SAT y SAR.",                        href: "/dashboard/administracion/opiniones",     icon: ScrollText, accent: AMBER },
+      { title: "Opiniones de Cumplimiento", description: "IMSS, Infonavit, SAT y SEFI.",                        href: "/dashboard/administracion/opiniones",     icon: ScrollText, accent: AMBER },
     ],
   },
   {
