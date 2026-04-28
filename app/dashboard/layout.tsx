@@ -82,7 +82,7 @@ const searchableItems = [
   { name: "Bancos", icon: ChevronRight, href: "/dashboard/finanzas/bancos" },
   { name: "Por Pagar", icon: ChevronRight, href: "/dashboard/finanzas/por-pagar" },
   { name: "Cobranza", icon: ChevronRight, href: "/dashboard/finanzas/cobranza" },
-  { name: "SUA Infonavit", icon: ChevronRight, href: "/dashboard/finanzas/sua" },
+
   { name: "Ingreso Egresos", icon: ChevronRight, href: "/dashboard/finanzas/ingreso-egresos" },
   { name: "Catalogo Activos", icon: ChevronRight, href: "/dashboard/activos/catalogo" },
   { name: "Estado Activos", icon: ChevronRight, href: "/dashboard/activos/estado" },

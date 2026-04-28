@@ -55,7 +55,7 @@ export default function GastosObraPage() {
     solicitante: "",
     proveedor: "",
     descripcion: "",
-    monto: "",
+    monto: "0.00",
     estatus: "Pendiente",
     metodo_pago: "EFECTIVO", // 21-Abr-2026: default EFECTIVO
     comprobante: null as File | null
@@ -128,7 +128,7 @@ export default function GastosObraPage() {
   const openNewGasto = () => {
     setDrawerMode("create");
     setSelectedGasto(null);
-    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "", estatus: "Pendiente", metodo_pago: "EFECTIVO", comprobante: null });
+    setFormData({ fecha: "", obra: "", solicitante: "", proveedor: "", descripcion: "", monto: "0.00", estatus: "Pendiente", metodo_pago: "EFECTIVO", comprobante: null });
     setFormErrors({});
     setDrawerOpen(true);
   };
