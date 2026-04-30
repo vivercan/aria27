@@ -91,11 +91,57 @@ export default function GastosObraPage() {
 
   const cargarDatos = async () => {
     setLoading(true);
-    const { data } = await supabase.from("gastos").select("*").order("fecha", { ascending: false });
-    if (data) {
-      setGastos(data);
-      setObras([...new Set(data.map(g => g.obra).filter(Boolean))].sort());
-      setSemanas([...new Set(data.map(g => g.semana).filter(Boolean))].sort((a, b) => b - a));
+    const TIPOS_GASTO = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
+
+    // 1) Gastos directos (tabla gastos)
+    const { data: dGastos } = await supabase.from("gastos").select("*").order("fecha", { ascending: false });
+
+    // 2) FIX 30-Abr-2026: incluir requisiciones tipo GASTO POR PAGAR (que Deya crea como pago en efectivo)
+    //    Mostradas como filas de gasto para que aparezcan en el listado y se exporten a Excel.
+    const { data: dReqs } = await supabase
+      .from("requisitions")
+      .select("id, folio, cost_center_name, created_by, descripcion_compra, motivo_solicitud, monto, presupuesto_estimado, forma_pago, status, created_at, required_date")
+      .in("descripcion_compra", TIPOS_GASTO)
+      .order("created_at", { ascending: false });
+
+    type GastoRow = {
+      id: string;
+      fecha?: string;
+      semana?: number;
+      obra?: string;
+      solicitante?: string;
+      proveedor?: string;
+      descripcion?: string;
+      monto?: number;
+      estatus?: string;
+      metodo_pago?: string;
+      origen_requisicion?: string;
+    };
+
+    const reqsAsGastos: GastoRow[] = (dReqs || []).map((r) => {
+      const fecha = (r.required_date || r.created_at || "").slice(0, 10);
+      const semana = fecha ? Math.ceil((new Date(fecha).getTime() - new Date(new Date(fecha).getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) : 0;
+      return {
+        id: `req-${r.id}`,
+        fecha,
+        semana,
+        obra: r.cost_center_name || "",
+        solicitante: r.created_by || "",
+        proveedor: "",
+        descripcion: `[${r.descripcion_compra}] ${r.motivo_solicitud || r.folio}`,
+        monto: Number(r.monto || r.presupuesto_estimado || 0),
+        estatus: r.status === "OC_GENERADA" ? "Pagado" : (r.status === "EN_AUTORIZACION" ? "En autorizacion" : "Pendiente"),
+        metodo_pago: (r.forma_pago && /efectivo/i.test(r.forma_pago)) ? "EFECTIVO" : (r.forma_pago || "EFECTIVO").toUpperCase(),
+        origen_requisicion: r.folio,
+      };
+    });
+
+    // Mezclar ambos arrays. Las requis aparecen como filas adicionales.
+    const combined = [...(dGastos || []), ...reqsAsGastos];
+    if (combined.length > 0) {
+      setGastos(combined as Gasto[]);
+      setObras([...new Set(combined.map((g) => g.obra).filter(Boolean))].sort());
+      setSemanas([...new Set(combined.map((g) => g.semana).filter(Boolean) as number[])].sort((a, b) => b - a));
     }
     setLoading(false);
   };
