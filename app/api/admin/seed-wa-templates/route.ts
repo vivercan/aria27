@@ -59,10 +59,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "WHATSAPP_ACCESS_TOKEN missing" }, { status: 500 });
   }
 
+  // PR 30-Abr: filtrar por nombre via ?only=name1,name2 para no timeout
+  const onlyParam = searchParams.get("only") || "";
+  const onlyList = onlyParam.split(",").map(s => s.trim()).filter(Boolean);
+
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${WABA_ID}/message_templates`;
   const results: Array<Record<string, unknown>> = [];
 
-  for (const t of TEMPLATES) {
+  const TEMPLATES_TO_RUN = onlyList.length > 0 ? TEMPLATES.filter(t => onlyList.includes(t.name)) : TEMPLATES;
+  for (const t of TEMPLATES_TO_RUN) {
     try {
       const r = await fetch(url, {
         method: "POST",
