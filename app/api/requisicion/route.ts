@@ -327,14 +327,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // PR 30-Abr-2026: detectar si es GASTO POR PAGAR vs COTIZAR
+    const TIPOS_GASTO = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
+    const esGastoPorPagar = body.descripcion_compra && TIPOS_GASTO.includes(String(body.descripcion_compra).toUpperCase());
+    const tipoLabel = esGastoPorPagar ? "GASTO POR PAGAR" : "COTIZAR";
+    const tipoIcon = esGastoPorPagar ? "&#x1F4B0;" : "&#x1F6CD;";
+
     // 2. EMAIL + WA A COMPRAS (solo flujo compras)
     if (flujo === "compras" && comprasUser) {
       {
         const r = await sendEmailLogged({
           template: "requisicion_creada_compras",
           to: comprasUser.email,
-          subject: `[COTIZAR] ${folio} - ${obra} - ${urgencyText}`,
-          html: ariaEmailWrapper(ariaEmailHeader("Nueva Requisicion para Compras") + `<div style="background:${urgencyColor};color:white;padding:18px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">IR A COTIZAR</a></div></div>` + emailFooter),
+          subject: `[${tipoLabel}] ${folio} - ${obra} - ${urgencyText}`,
+          html: ariaEmailWrapper(ariaEmailHeader(esGastoPorPagar ? "Nueva Requisicion de GASTO por pagar" : "Nueva Requisicion para Cotizar") + `<div style="background:${urgencyColor};color:white;padding:18px;text-align:center"><div style="font-size:32px;font-weight:bold">${urgencyText}</div><div style="font-size:12px;opacity:0.9">para surtir - ${fechaReq}</div></div><div style="padding:25px"><div style="background:#f8fafc;border-radius:8px;padding:20px;margin-bottom:20px"><p><strong>Folio:</strong> ${folio}</p><p><strong>Obra:</strong> ${obra}</p><p><strong>Solicitante:</strong> ${displayName}</p></div>${tablaHtml}<div style="text-align:center;margin-top:30px"><a href="${BASE_URL}/dashboard/requisiciones/requisiciones/tramite" style="display:inline-block;background:#3b82f6;color:white;padding:15px 40px;text-decoration:none;border-radius:30px;font-weight:bold">${esGastoPorPagar ? "IR A REGISTRAR PAGO" : "IR A COTIZAR"}</a></div></div>` + emailFooter),
           origen: "req-creada-compras",
           enviadoPor: usuario.email,
         });
@@ -343,7 +349,17 @@ export async function POST(request: NextRequest) {
       }
 
       if (comprasUser.phone) {
-        await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
+        // PR 30-Abr: usar template aria_requisicion_gasto si es gasto, sino el clasico
+        if (esGastoPorPagar) {
+          const conceptoCorto = (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0, 60) : materialesResumen.slice(0, 60)) || "(sin concepto)";
+          const wa1 = await sendWhatsAppLogged("aria_requisicion_gasto", [folio, obra, String(body.descripcion_compra || "GASTO"), conceptoCorto], comprasUser.phone, { origen: "req-creada-compras-gasto", enviadoPor: usuario.email });
+          if (!wa1.success) {
+            // Fallback: si template nuevo no esta aprobado aun, usar el clasico con prefijo en folio
+            await sendWhatsAppLogged("requisicion_compras", [`[GASTO POR PAGAR] ${folio}`, obra, urgencyText, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : materialesResumen)], comprasUser.phone, { origen: "req-creada-compras-gasto-fallback", enviadoPor: usuario.email });
+          }
+        } else {
+          await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
+        }
       }
       notificados.push(`Compras: ${comprasUser.email}`);
     }

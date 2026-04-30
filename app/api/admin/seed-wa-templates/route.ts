@@ -38,6 +38,8 @@ const TEMPLATES: Template[] = [
   tpl("aria_aviso_bloqueada", "Aviso ARIA27: {{1}} reporta bloqueo en una tarea. Tarea: {{2}}. Obra: {{3}}. Motivo: {{4}}. Contacta al responsable para destrabar.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "se rompio la varilla"]),
   tpl("aria_aviso_ayuda", "Aviso ARIA27: {{1}} solicita ayuda en una tarea. Tarea: {{2}}. Obra: {{3}}. Avance: {{4}} por ciento. Contactalo lo antes posible.", ["Samuel Rodarte", "Revisar avance cimentacion", "JUAN DIEGO", "25"]),
   tpl("aria_tarea_status", "Hola {{1}}, tienes {{2}} tareas pendientes. {{3}}. Responde con 1 LISTO o AVANCE 50 para actualizar.", ["Samuel", "2", "1. Revisar cimentacion 28-abr. 2. Inspeccionar acero 30-abr"]),
+  tpl("aria_requisicion_gasto", "Nueva requisicion de GASTO por pagar. Folio: {{1}}. Obra: {{2}}. Tipo: {{3}}. Concepto: {{4}}. Ingresa al sistema para registrar el pago.", ["REQ-2026-00010", "OFICINA", "GASTOS ADMINISTRATIVOS", "Pago renta mensual"]),
+  tpl("aria_requisicion_cotizar", "Nueva requisicion para cotizar. Folio: {{1}}. Obra: {{2}}. Urgencia: {{3}}. Materiales: {{4}}. Ingresa al sistema para cotizar.", ["REQ-2026-00010", "MIRAVALLE", "MANANA", "Cemento Portland 50kg, Varilla 3/8 (10 productos)"]),
 ];
 
 export async function POST(req: NextRequest) {
