@@ -101,7 +101,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
             </div>
 
             <div style={{ background: "linear-gradient(135deg,#0F1A2E 0%,#091525 100%)", borderRadius: "0 0 18px 18px", padding: 22, marginBottom: 16, border: "1px solid rgba(124,148,180,0.18)", borderTop: "1px solid rgba(124,148,180,0.10)" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 14, marginBottom: items.length > 0 ? 16 : 0 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 14, marginBottom: 0 }}>
                 <div>
                   <p style={{ color: "rgba(214,228,255,0.50)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 4px", textTransform: "uppercase" }}>Folio</p>
                   <p style={{ color: "#F4F8FF", fontWeight: 700, fontSize: 17, margin: 0 }}>{req.folio}</p>
@@ -120,16 +120,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                   </div>
                 )}
               </div>
-              {items.length > 0 && (
-                <div style={{ paddingTop: 14, borderTop: "1px solid rgba(124,148,180,0.18)" }}>
-                  <p style={{ color: "rgba(214,228,255,0.50)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", margin: "0 0 8px", textTransform: "uppercase" }}>Materiales</p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {items.map((it: unknown, i: number) => (
-                      <span key={i} style={{ background: "rgba(34,197,94,0.10)", color: "#86efac", padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500, border: "1px solid rgba(34,197,94,0.20)" }}>{String(it)}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
+
             </div>
 
             <AutorizarForm
