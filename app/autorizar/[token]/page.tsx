@@ -69,7 +69,9 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   const cotData = (req as Record<string, unknown>).cotizacion_data as Record<string, unknown> || {};
   const quotes: Quote[] = ((cotData as Record<string, unknown>).quotes as Quote[]) || [];
   const items: string[] = ((cotData as Record<string, unknown>).items as string[]) || [];
-  const mejor: Quote | null = quotes.length > 0 ? quotes.reduce((min: Quote, q: Quote) => q.total < min.total ? q : min, quotes[0]) : null;
+  const itemsDetailRaw = ((cotData as Record<string, unknown>).items_detail as Array<{product_name: string; quantity: number; unit: string}>) || [];
+  // Si no viene items_detail, construirlo desde items con qty=1
+  const itemsDetail = itemsDetailRaw.length > 0 ? itemsDetailRaw : items.map((p) => ({ product_name: String(p), quantity: 1, unit: "PZA" }));
   const solicitante = req.created_by || "N/A";
 
   return (
@@ -127,9 +129,8 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
               obra={req.cost_center_name || "-"}
               solicitante={solicitante}
               urgency={req.urgency}
-              items={items}
+              items_detail={itemsDetail}
               quotes={quotes}
-              bestSupplier={mejor?.supplier || null}
             />
 
             <div style={{ textAlign: "center", marginTop: 28 }}>
