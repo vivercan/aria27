@@ -203,6 +203,8 @@ export async function POST(request: NextRequest) {
       // Descripcion + motivo (PR #108 28-Abr-2026)
       ...(body.descripcion_compra ? { descripcion_compra: body.descripcion_compra } : {}),
       ...(body.motivo_solicitud ? { motivo_solicitud: body.motivo_solicitud } : {}),
+      // PR 30-Abr gastos: solicitante nombre completo
+      ...(body.solicitante_nombre_completo ? { solicitante_nombre_completo: body.solicitante_nombre_completo } : {}),
       // Datos de proveedor pre-seleccionado
       ...(body.proveedor_nombre ? { proveedor: body.proveedor_nombre } : {}),
       ...(body.proveedor_banco ? { banco: body.proveedor_banco } : {}),
@@ -333,8 +335,20 @@ export async function POST(request: NextRequest) {
     const tipoLabel = esGastoPorPagar ? "GASTO POR PAGAR" : "COTIZAR";
     const tipoIcon = esGastoPorPagar ? "&#x1F4B0;" : "&#x1F6CD;";
 
-    // 2. EMAIL + WA A COMPRAS (solo flujo compras)
-    if (flujo === "compras" && comprasUser) {
+    // PR 30-Abr: Si es gasto en efectivo, NO mandar a Compras (va directo a tesoreria)
+    const FORMAS_EFECTIVO = ["EFECTIVO", "CAJA CHICA", "CAJA"];
+    const esGastoEfectivo = esGastoPorPagar && FORMAS_EFECTIVO.includes(String(body.forma_pago || "").toUpperCase());
+    if (esGastoEfectivo) {
+      // Marcar como gasto_efectivo: lo vera tesoreria/Deya, NO Compras
+      try {
+        await getDb().from("requisitions").update({ purchase_status: "GASTO_EFECTIVO_PENDIENTE" }).eq("id", req.id);
+      } catch { /* ignore */ }
+      logs.push("Flujo: GASTO EFECTIVO (no notifica a Compras)");
+      notificados.push("Gasto efectivo: ira a Pagos por pagar");
+    }
+
+    // 2. EMAIL + WA A COMPRAS (solo flujo compras Y NO gasto efectivo)
+    if (flujo === "compras" && comprasUser && !esGastoEfectivo) {
       {
         const r = await sendEmailLogged({
           template: "requisicion_creada_compras",
