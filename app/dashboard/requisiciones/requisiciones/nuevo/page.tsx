@@ -79,6 +79,11 @@ export default function NewRequisitionPage() {
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
   const [descripcionCompra, setDescripcionCompra] = useState<string>("");
   const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
+  // 30-Abr PR gastos: solicitante nombre completo + foto ticket
+  const [solicitanteCompleto, setSolicitanteCompleto] = useState<string>("");
+  const [fotoTicket, setFotoTicket] = useState<File | null>(null);
+  const TIPOS_GASTO_REQ = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
+  const esGastoTipo = TIPOS_GASTO_REQ.includes(descripcionCompra);
 
   // ── Proveedor pre-seleccionado ─────────────────────────────────────────────
   const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
@@ -295,6 +300,18 @@ export default function NewRequisitionPage() {
     }
 
     try {
+      // PR 30-Abr: subir foto ticket a Storage si hay
+      let fotoTicketUrl = "";
+      if (fotoTicket) {
+        try {
+          const fname = `tickets/${Date.now()}_${fotoTicket.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+          const { data: up, error: upErr } = await supabase.storage.from("expedientes").upload(fname, fotoTicket, { upsert: false });
+          if (!upErr && up) {
+            const { data: pub } = supabase.storage.from("expedientes").getPublicUrl(up.path);
+            fotoTicketUrl = pub.publicUrl;
+          }
+        } catch (e) { console.warn("upload ticket fallo", e); }
+      }
       const res = await fetch("/api/requisicion", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -311,6 +328,8 @@ export default function NewRequisitionPage() {
           iva_porcentaje: ivaPorcentaje,
           descripcion_compra: descripcionCompra || null,
           motivo_solicitud: motivoSolicitud || null,
+          solicitante_nombre_completo: solicitanteCompleto || null,
+          foto_ticket_url: fotoTicketUrl || null,
           // Proveedor pre-seleccionado
           ...(selectedProveedor ? {
             proveedor_nombre: selectedProveedor.name,
@@ -323,7 +342,7 @@ export default function NewRequisitionPage() {
       const data = await res.json().catch(() => ({})) as { folio?: string; error?: string };
       if (!res.ok) throw new Error(data.error || `Error del servidor (${res.status})`);
       setMessage("✅ Requisición " + data.folio + " generada exitosamente.");
-      setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments(""); setDescripcionCompra(""); setMotivoSolicitud("");
+      setMaterials([]); setFreeRows([]); setCombRows([]); setGeneralComments(""); setDescripcionCompra(""); setMotivoSolicitud(""); setSolicitanteCompleto(""); setFotoTicket(null);
       setTimeout(() => router.push("/dashboard/requisiciones/requisiciones/estatus"), 3000);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err?.message : "Error al generar la requisición. Intenta de nuevo.");
@@ -558,6 +577,25 @@ export default function NewRequisitionPage() {
               <textarea required className="h-[42px] w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Razon o motivo..." value={motivoSolicitud} onChange={e => setMotivoSolicitud(e.target.value)} />
             </div>
           </div>
+
+          {/* PR 30-Abr: campos extra cuando es GASTO POR PAGAR */}
+          {esGastoTipo && (
+            <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-3 space-y-3">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300">Datos para pago en efectivo / gasto por pagar</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-white/70">Solicitante (nombre completo) *</label>
+                  <input type="text" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Ej: Juan Carlos Mendez Lopez" value={solicitanteCompleto} onChange={e => setSolicitanteCompleto(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-white/70">Foto del ticket / comprobante</label>
+                  <input type="file" accept="image/*,application/pdf" className="w-full text-xs text-white/80 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-aria-primary-light file:text-aria-accent file:cursor-pointer" onChange={e => setFotoTicket(e.target.files?.[0] || null)} />
+                  {fotoTicket && <div className="text-[10px] text-emerald-300 mt-1">{fotoTicket.name} ({(fotoTicket.size/1024).toFixed(0)}KB)</div>}
+                </div>
+              </div>
+              <div className="text-[10px] text-amber-200/70">Esta requisicion se enviara al area de PAGOS POR PAGAR (no a Compras para cotizar).</div>
+            </div>
+          )}
 
           <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-white/70">Instrucciones generales</label>

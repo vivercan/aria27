@@ -125,6 +125,8 @@ export default function ComprasTramitePage() {
       .from("Requisiciones")
       .select("*")
       .in("status", ["PENDIENTE", "APROBADA", "EN_COTIZACION"])
+      // PR 30-Abr: NO mostrar gastos en efectivo (esos van a Pagos por Pagar, no a cotizar)
+      .or("purchase_status.is.null,purchase_status.neq.GASTO_EFECTIVO_PENDIENTE")
       .order("required_date", { ascending: true });
     setRequisiciones((reqs || []) as Requisition[]);
     
