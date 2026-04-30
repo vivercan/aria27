@@ -55,14 +55,23 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
   interface Quote {
     supplier: string;
     total: number;
+    subtotal?: number;
+    iva?: number;
+    tax_rate?: number;
+    advance_percentage?: number;
+    advance_amount?: number;
     factura?: boolean | string;
-    entrega?: string;
+    entrega?: string | number;
     delivery?: string;
     forma_pago?: string;
     payment?: string;
     credito?: string;
     credit?: string;
     dias_credito?: number;
+    rebaja_iva?: boolean;
+    notas?: string;
+    items_prices?: Record<string, number>;
+    observaciones?: string;
     [key: string]: unknown;
   }
 
@@ -130,7 +139,22 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
               solicitante={solicitante}
               urgency={req.urgency}
               items_detail={itemsDetail}
-              quotes={quotes}
+              quotes={quotes.map((q) => ({
+                supplier: q.supplier || "",
+                subtotal: Number(q.subtotal ?? q.total ?? 0),
+                iva: Number(q.iva ?? 0),
+                total: Number(q.total ?? 0),
+                tax_rate: Number(q.tax_rate ?? 16),
+                advance_percentage: Number(q.advance_percentage ?? 0),
+                advance_amount: Number(q.advance_amount ?? 0),
+                forma_pago: q.forma_pago || q.payment || "",
+                entrega: q.entrega ?? q.delivery ?? "",
+                dias_credito: Number(q.dias_credito ?? 0),
+                rebaja_iva: Boolean(q.rebaja_iva),
+                notas: typeof q.notas === "string" ? q.notas : "",
+                items_prices: (q.items_prices as Record<string, number>) || {},
+                observaciones: typeof q.observaciones === "string" ? q.observaciones : "",
+              }))}
             />
 
             <div style={{ textAlign: "center", marginTop: 28 }}>
