@@ -43,10 +43,16 @@ const TEMPLATES: Template[] = [
 ];
 
 export async function POST(req: NextRequest) {
+  // PR 30-Abr-2026: aceptar tambien auth via x-user-email admin (mas conveniente para invocar)
+  const adminEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  const ADMIN_LIST = (process.env.ADMIN_EMAIL || "juanviverosv@gmail.com").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
+  ADMIN_LIST.push("recursos.humanos@gcuavante.com");
+  const isAdmin = ADMIN_LIST.includes(adminEmail);
   const { searchParams } = new URL(req.url);
   const token = searchParams.get("token") || "";
   const expected = process.env.SEED_WA_TEMPLATES_TOKEN || "";
-  if (!expected || token !== expected) {
+  const tokenOk = expected && token === expected;
+  if (!tokenOk && !isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!ACCESS_TOKEN) {
