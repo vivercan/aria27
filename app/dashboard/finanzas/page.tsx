@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Receipt, PieChart, FileSpreadsheet, Wallet,
+  Receipt, PieChart, FileSpreadsheet, Wallet, Banknote,
   Landmark, CreditCard, HandCoins, Building2, ArrowLeftRight, ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,6 +29,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
     label: "Control",
     modulos: [
       { title: "Gastos de Obra", description: "Registro y control de gastos por proyecto.", href: "/dashboard/finanzas/gastos-obra",  icon: Receipt,         accent: GREEN, hero: true },
+      { title: "Gastos en Efectivo", description: "Vista filtrada de gastos pagados en efectivo + requisiciones.", href: "/dashboard/finanzas/gastos-obra?metodo=EFECTIVO", icon: Banknote, accent: GREEN, hero: true },
       { title: "Costeo",         description: "Costeo por obra y partida presupuestal.",    href: "/dashboard/finanzas/costeo",        icon: PieChart,        accent: GREEN },
       { title: "Facturación",    description: "Emisión y seguimiento de facturas CFDI.",    href: "/dashboard/finanzas/facturacion",   icon: FileSpreadsheet, accent: GREEN },
       { title: "Caja Chica",     description: "Control de fondo revolvente por obra.",      href: "/dashboard/finanzas/caja",          icon: Wallet,          accent: GREEN },
