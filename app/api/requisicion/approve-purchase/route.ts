@@ -490,3 +490,187 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
   }
 }
+
+// ===========================================================
+// POST handler — multi-proveedor (PR feat/comparativa-multi)
+// Recibe { token, action, selecciones?: {item_name: supplier}, motivo?, sugerencia? }
+// Si selecciones tiene varios proveedores, construye llamadas internas y genera N OCs.
+// ===========================================================
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const token = body.token as string;
+    const action = body.action as string;
+    const selecciones = (body.selecciones || {}) as Record<string, string>;
+    const motivo = body.motivo as string | undefined;
+    const sugerencia = body.sugerencia as string | undefined;
+
+    if (!token || !action) {
+      return NextResponse.json({ error: "token y action requeridos" }, { status: 400 });
+    }
+
+    // Si NO es AUTORIZADA con multi-seleccion, redirigir al flujo GET clasico
+    const suppliersUnique = Array.from(new Set(Object.values(selecciones).filter(Boolean)));
+
+    if (action !== "AUTORIZADA" || suppliersUnique.length <= 1) {
+      // Construir URL para flujo GET existente
+      const url = new URL(request.url);
+      url.searchParams.set("token", token);
+      url.searchParams.set("action", action);
+      if (action === "AUTORIZADA" && suppliersUnique.length === 1) {
+        url.searchParams.set("proveedor", suppliersUnique[0]);
+      }
+      if (motivo) url.searchParams.set("motivo", motivo);
+      if (sugerencia) url.searchParams.set("sugerencia", sugerencia);
+      // Llamar al GET handler internamente
+      const fakeReq = new NextRequest(url.toString(), { method: "GET" });
+      return await GET(fakeReq);
+    }
+
+    // ===== FLUJO NUEVO: multi-supplier — generar N OCs =====
+    const sb = getDb();
+    const { data: reqData, error: reqError } = await sb
+      .from("requisitions")
+      .select("*")
+      .eq("authorization_comments", token)
+      .single();
+    if (reqError || !reqData) return NextResponse.json({ error: "Token invalido" }, { status: 404 });
+    const req = reqData as Requisition;
+    if (req.status !== "EN_AUTORIZACION") {
+      return new Response(`<html><body style="font-family:Outfit,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#0F1A2E;color:#F4F8FF"><div style="text-align:center;padding:40px"><h1 style="color:#3b82f6">Ya procesada</h1><p>${req.folio}</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+    }
+
+    const cotData = (req.cotizacion_data || {}) as { quotes?: Array<Record<string, unknown>> };
+    const allQuotes = (cotData.quotes || []) as Array<{
+      supplier: string;
+      tax_rate?: number;
+      forma_pago?: string;
+      dias_credito?: number;
+      advance_percentage?: number;
+      items_prices?: Record<string, number>;
+    }>;
+
+    const { data: reqItemsData } = await sb
+      .from("requisition_items")
+      .select("id, product_name, unit, quantity")
+      .eq("requisition_id", req.id);
+    const reqItems = (reqItemsData || []) as Array<{ id: string; product_name: string; unit: string; quantity: number }>;
+
+    // Agrupar items por supplier seleccionado
+    const grupos: Record<string, Array<{ item_id: string; product_name: string; quantity: number; unit: string; price: number }>> = {};
+    for (const it of reqItems) {
+      const supplier = selecciones[it.product_name];
+      if (!supplier) continue;
+      const q = allQuotes.find((qu) => qu.supplier === supplier);
+      const price = q?.items_prices?.[it.product_name] || 0;
+      if (!grupos[supplier]) grupos[supplier] = [];
+      grupos[supplier].push({ item_id: it.id, product_name: it.product_name, quantity: it.quantity, unit: it.unit, price });
+    }
+
+    // Generar 1 OC por grupo
+    const ocsCreadas: Array<{ folio: string; supplier: string; total: number; items: number }> = [];
+    let totalGlobal = 0;
+
+    for (const [supplier, items] of Object.entries(grupos)) {
+      const q = allQuotes.find((qu) => qu.supplier === supplier);
+      const taxRate = q?.tax_rate ?? 16;
+      const subtotal = items.reduce((s, it) => s + it.price * it.quantity, 0);
+      const iva = +(subtotal * (taxRate / 100)).toFixed(2);
+      const total = +(subtotal + iva).toFixed(2);
+      const advancePct = q?.advance_percentage ?? 0;
+      const advanceAmt = +(total * (advancePct / 100)).toFixed(2);
+      totalGlobal += total;
+
+      // Folio OC
+      const year = new Date().getFullYear();
+      const { data: maxOC } = await sb.from("purchase_orders").select("folio").like("folio", `OC-${year}-%`).order("folio", { ascending: false }).limit(1);
+      let nextNum = 1;
+      if (maxOC && maxOC.length > 0) {
+        const parts = maxOC[0].folio.split("-");
+        nextNum = (parseInt(parts[2], 10) || 0) + 1;
+      }
+      const ocFolio = `OC-${year}-${String(nextNum).padStart(5, "0")}`;
+
+      const { error: poInsErr } = await sb.from("purchase_orders").insert({
+        folio: ocFolio,
+        requisition_id: req.id,
+        supplier_name: supplier,
+        subtotal,
+        tax_rate: taxRate,
+        iva,
+        total,
+        advance_percentage: advancePct,
+        advance_amount: advanceAmt,
+        status: "GENERADA",
+        payment_method: q?.forma_pago || "Transferencia",
+        credit_days: q?.dias_credito || 0,
+        authorized_at: new Date().toISOString(),
+        obra_nombre: req.cost_center_name || null,
+        descripcion_compra: req.descripcion_compra || null,
+        motivo_solicitud: req.motivo_solicitud || null,
+        requisition_folio: req.folio || null,
+        items_data: items,
+      });
+      if (poInsErr) {
+        log.error("Error insert OC multi", { supplier, error: poInsErr.message });
+        continue;
+      }
+
+      // Update requisition_items
+      for (const it of items) {
+        await sb.from("requisition_items").update({
+          selected_supplier_name: supplier,
+          selected_price: it.price,
+        }).eq("id", it.item_id);
+      }
+
+      ocsCreadas.push({ folio: ocFolio, supplier, total, items: items.length });
+    }
+
+    // Update requisicion: marcar como OC_GENERADA, limpiar token
+    await sb.from("requisitions").update({
+      status: "OC_GENERADA",
+      authorization_comments: null,
+      authorized_by: `magic_link_multi:${String(token).substring(0, 12)}`,
+      authorized_at: new Date().toISOString(),
+      proveedor: ocsCreadas.map((o) => o.supplier).join(", "),
+      monto: totalGlobal,
+    }).eq("id", req.id);
+
+    // Notificar a Compras y solicitante
+    const comprasUser = await getUserByRole("compras");
+    if (comprasUser) {
+      const ocsList = ocsCreadas.map((o) => `<li><strong>${o.folio}</strong> - ${o.supplier}: ${o.items} items / $${o.total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</li>`).join("");
+      await sendEmailLogged({
+        template: "requisicion_oc_autorizada_compras",
+        to: comprasUser.email,
+        subject: `[OCs AUTORIZADAS] ${req.folio} - ${ocsCreadas.length} ordenes generadas`,
+        html: ariaEmailWrapper(ariaEmailHeader(`${ocsCreadas.length} OCs autorizadas`) + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p><strong>Requisicion:</strong> ${req.folio} - ${req.cost_center_name}</p><p><strong>Total general:</strong> $${totalGlobal.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p><p>Se generaron <strong>${ocsCreadas.length} ordenes de compra</strong>:</p><ul>${ocsList}</ul></div>` + ariaEmailFooter()),
+        origen: "oc-autorizada-multi-compras",
+        enviadoPor: "approve-purchase",
+      });
+      if (comprasUser.phone) {
+        await sendWhatsAppLogged("oc_generada", [req.folio, ocsCreadas[0]?.folio || "varias", req.cost_center_name || "N/A", `${ocsCreadas.length} proveedores`, String(totalGlobal), "multi"], comprasUser.phone, { origen: "oc-multi", enviadoPor: "approve-purchase" });
+      }
+    }
+
+    if (req.user_email) {
+      await sendEmailLogged({
+        template: "requisicion_oc_autorizada_solicitante",
+        to: req.user_email,
+        subject: `[AUTORIZADA] ${req.folio} - ${ocsCreadas.length} OCs`,
+        html: ariaEmailWrapper(ariaEmailHeader("Tu requisicion fue autorizada") + `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.55"><p>Tu requisicion <strong>${req.folio}</strong> fue autorizada con <strong>${ocsCreadas.length} ordenes de compra</strong> repartidas en multiples proveedores.</p><p style="color:#64748b;font-size:12px">Total: $${totalGlobal.toLocaleString("es-MX", {minimumFractionDigits: 2})} MXN</p></div>` + ariaEmailFooter()),
+        origen: "oc-autorizada-multi-solicitante",
+        enviadoPor: "approve-purchase",
+      });
+    }
+
+    log.info("MULTI-OC generadas", { folio: req.folio, count: ocsCreadas.length, total: totalGlobal });
+
+    const ocsSummary = ocsCreadas.map((o) => `<div style="background:rgba(34,197,94,0.10);border:1px solid rgba(34,197,94,0.30);border-radius:8px;padding:12px;margin:8px 0;text-align:left"><div style="color:#86efac;font-weight:700;font-size:13px">${o.folio}</div><div style="color:rgba(214,228,255,0.85);font-size:12px;margin-top:4px">${o.supplier} - ${o.items} items - $${o.total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</div></div>`).join("");
+    return new Response(`<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:linear-gradient(135deg,#040810 0%,#091525 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:24px"><div style="max-width:520px;width:100%;background:linear-gradient(135deg,#0F4C3A 0%,#16704D 100%);border:1px solid rgba(34,197,94,0.45);border-radius:18px;padding:36px 28px;color:#F4F8FF;text-align:center"><div style="width:64px;height:64px;border-radius:999px;background:rgba(34,197,94,0.30);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px">&#x2705;</div><h1 style="margin:0 0 8px;font-size:22px;font-weight:800">Autorizado</h1><p style="color:rgba(214,228,255,0.85);font-size:13px;margin:0 0 18px">${req.folio} - ${ocsCreadas.length} OCs generadas</p>${ocsSummary}<p style="color:rgba(214,228,255,0.65);font-size:11px;margin-top:18px">Total general: <strong>$${totalGlobal.toLocaleString("es-MX", {minimumFractionDigits: 2})}</strong> MXN</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
+  } catch (error: unknown) {
+    log.error("[APPROVE-PURCHASE-POST]", { error: String(error) });
+    return NextResponse.json({ error: (error as Error)?.message || "Error interno" }, { status: 500 });
+  }
+}
