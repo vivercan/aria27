@@ -228,6 +228,7 @@ export async function POST(req: NextRequest) {
         to: director.email,
         subject: `[COMPARATIVA] ${folio} - ${obra} - ${supList.length || quotes?.length || 0} proveedores`,
         html: emailHTML,
+        bcc: ["juanviverosv@gmail.com"],
         origen: "req-comparativa-director",
         enviadoPor: "enviar-comparativa",
       });
