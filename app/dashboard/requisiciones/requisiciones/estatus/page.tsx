@@ -38,6 +38,8 @@ interface Requisition {
   iva_monto?: number;
   total?: number;
   monto?: number;
+  motivo_solicitud?: string;
+  descripcion_compra?: string;
 }
 
 interface ReqItem {
