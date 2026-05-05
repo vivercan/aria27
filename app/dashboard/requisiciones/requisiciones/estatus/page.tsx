@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Printer, FileDown, Loader2, Trash2 } from "lucide-react";
+import { Printer, FileDown, Send, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -65,6 +65,11 @@ export default function RequisicionesStatusPage() {
   const [singleDeleteId, setSingleDeleteId] = useState<string>("");
   const [itemsCache, setItemsCache] = useState<Record<string, ReqItem[]>>({});
   const [loadingPrint, setLoadingPrint] = useState<string | null>(null);
+  // PR 30-Abr: modal avisar pago
+  const [avisarPago, setAvisarPago] = useState<Requisition | null>(null);
+  const [pagoPhone, setPagoPhone] = useState<string>("");
+  const [pagoEmail, setPagoEmail] = useState<string>("");
+  const [enviandoPago, setEnviandoPago] = useState(false);
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
   const [detailItems, setDetailItems] = useState<ReqItem[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -388,6 +393,16 @@ export default function RequisicionesStatusPage() {
                         >
                           <FileDown className="w-4 h-4" />
                         </button>
+                        {/* PR 30-Abr: Avisar pago a tesoreria — visible solo si autorizada */}
+                        {(req.status === "APROBADA" || req.status === "OC_GENERADA" || req.status === "AUTORIZADA") && (
+                          <button
+                            onClick={() => setAvisarPago(req)}
+                            className="p-2 rounded-lg bg-white/[0.04] hover:bg-amber-500/20 text-[#7f93b0] hover:text-amber-300 transition-all"
+                            title="Avisar pago"
+                          >
+                            <Send className="w-4 h-4" />
+                          </button>
+                        )}
                         {/* Eliminar individual — solo RH */}
                         {canDelete && (
                           <button
@@ -535,6 +550,65 @@ export default function RequisicionesStatusPage() {
                   </>
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Avisar Pago */}
+      {avisarPago && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setAvisarPago(null)}>
+          <div className="bg-[#0c1d38] border border-amber-400/40 rounded-2xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-amber-300 text-xs font-bold tracking-wider uppercase">📤 Avisar pago a tesoreria</p>
+                <h3 className="text-white text-lg font-bold mt-1">{avisarPago.folio}</h3>
+              </div>
+              <button onClick={() => setAvisarPago(null)} className="p-2 rounded hover:bg-white/[0.06] text-[#7f93b0]">✕</button>
+            </div>
+            <div className="bg-black/30 border border-white/[0.08] rounded-lg p-3 mb-4">
+              <pre className="text-[#bbf7d0] text-xs font-mono whitespace-pre-wrap leading-relaxed">{`REQ ${avisarPago.folio} ${(avisarPago.motivo_solicitud || avisarPago.descripcion_compra || "").toUpperCase()} ${avisarPago.cost_center_name || ""}
+${avisarPago.proveedor || ""}
+$${(Number(avisarPago.monto || avisarPago.total || 0)).toLocaleString("es-MX", {minimumFractionDigits: 2})}
+${avisarPago.banco || ""}
+${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] text-[#7f93b0] uppercase tracking-wide font-semibold">WhatsApp destinatario (10 digitos)</label>
+                <input type="tel" placeholder="4951234567" value={pagoPhone} onChange={e => setPagoPhone(e.target.value)} className="w-full px-3 py-2 bg-black/30 border border-white/[0.08] rounded-lg text-white text-sm focus:border-amber-400 outline-none mt-1" />
+              </div>
+              <div>
+                <label className="text-[10px] text-[#7f93b0] uppercase tracking-wide font-semibold">Email destinatario (opcional)</label>
+                <input type="email" placeholder="nandito@gcuavante.com" value={pagoEmail} onChange={e => setPagoEmail(e.target.value)} className="w-full px-3 py-2 bg-black/30 border border-white/[0.08] rounded-lg text-white text-sm focus:border-amber-400 outline-none mt-1" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button
+                disabled={enviandoPago || (!pagoPhone && !pagoEmail)}
+                onClick={async () => {
+                  setEnviandoPago(true);
+                  try {
+                    const r = await fetch("/api/requisicion/avisar-pago", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") },
+                      body: JSON.stringify({ folio: avisarPago.folio, phone: pagoPhone, email: pagoEmail }),
+                    });
+                    const j = await r.json();
+                    if (r.ok) {
+                      alert("✅ Aviso enviado: " + (j.result?.wa?.ok ? "WA OK " : "") + (j.result?.email?.ok ? "Email OK" : ""));
+                      setAvisarPago(null); setPagoPhone(""); setPagoEmail("");
+                    } else {
+                      alert("Error: " + (j.error || r.status));
+                    }
+                  } catch (e) { alert("Error de red: " + (e as Error).message); }
+                  finally { setEnviandoPago(false); }
+                }}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold ${(!pagoPhone && !pagoEmail) ? "bg-white/[0.04] text-[#4a6080] cursor-not-allowed" : "bg-gradient-to-br from-amber-400 to-amber-600 text-black"}`}
+              >
+                {enviandoPago ? "Enviando..." : "Enviar aviso"}
+              </button>
+              <button onClick={() => setAvisarPago(null)} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-[#7f93b0] text-sm">Cancelar</button>
             </div>
           </div>
         </div>
