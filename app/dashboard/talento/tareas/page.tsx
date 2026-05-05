@@ -84,6 +84,13 @@ export default function TareasTalentoPage() {
   const [search, setSearch] = useState("");
   const [filtroEstatus, setFiltroEstatus] = useState("TODAS");
   const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [miEmpleadoId, setMiEmpleadoId] = useState<string | null>(null);
+  // FIX 30-Abr-2026 — filtro ambito tareas:
+  //   "MIAS"  = solo asignadas a mi (empleado por email) o creadas por mi
+  //   "TODAS" = todas las tareas del sistema (admin / direccion / talento)
+  // Default: si rol es admin/direccion/talento => TODAS, sino MIAS
+  const [ambitoFiltro, setAmbitoFiltro] = useState<"MIAS" | "TODAS">("MIAS");
   const [page, setPage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [photoModal, setPhotoModal] = useState<string | null>(null);
@@ -96,7 +103,20 @@ export default function TareasTalentoPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setUserEmail(localStorage.getItem("userEmail") || "");
+      const em = localStorage.getItem("userEmail") || "";
+      const ro = localStorage.getItem("userRole") || "user";
+      setUserEmail(em);
+      setUserRole(ro);
+      // Default: admin/direccion/talento ven TODAS, resto solo MIAS
+      const verTodas = ["admin", "direccion", "talento", "rh"].includes(ro);
+      setAmbitoFiltro(verTodas ? "TODAS" : "MIAS");
+      // Resolver mi empleado_id por email para filtro "MIAS"
+      if (em) {
+        supabase.from("employees").select("id").eq("email", em).maybeSingle()
+          .then(({ data }) => {
+            if (data?.id) setMiEmpleadoId(data.id);
+          });
+      }
     }
     cargar();
   }, []);
@@ -154,20 +174,37 @@ export default function TareasTalentoPage() {
     setGuardando(false);
     if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
 
-    // Notificar al colaborador asignado solo en creación nueva
+    // Notificar al colaborador asignado solo en creacion nueva
+    // FIX 30-Abr-2026: await + feedback explicito. Antes era fire-and-forget
+    // y los usuarios no sabian si la notif se mando o fallo.
     if (esNueva && form.asignado_id) {
-      fetch("/api/tareas/notificar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          asignado_id: form.asignado_id,
-          titulo: form.titulo,
-          descripcion: form.descripcion,
-          fecha_compromiso: form.fecha_compromiso,
-          obra: form.obra,
-          asignado_por: userEmail || "Administrador",
-        }),
-      }).catch(() => { /* silent — no bloquear UI por notificación */ });
+      try {
+        const r = await fetch("/api/tareas/notificar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            asignado_id: form.asignado_id,
+            titulo: form.titulo,
+            descripcion: form.descripcion,
+            fecha_compromiso: form.fecha_compromiso,
+            obra: form.obra,
+            asignado_por: userEmail || "Administrador",
+          }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (j?.notified) {
+          flash("ok", `Tarea creada y notificada (${(j.notificaciones || []).join(" / ") || "WA/email"})`);
+        } else if (j?.reason) {
+          flash("err", `Tarea creada pero NO se pudo notificar: ${j.reason}`);
+        } else {
+          flash("ok", "Tarea creada");
+        }
+      } catch (e: unknown) {
+        log.warn("notificar tarea fallo", { err: (e as Error)?.message });
+        flash("ok", "Tarea creada (notificacion en background)");
+      }
+    } else if (!esNueva) {
+      flash("ok", "Tarea actualizada");
     }
 
     setShowForm(false);
@@ -218,14 +255,22 @@ export default function TareasTalentoPage() {
       t.asignado_nombre?.toLowerCase().includes(s) ||
       t.obra?.toLowerCase().includes(s);
     const matchEstatus = filtroEstatus === "TODAS" || t.estatus === filtroEstatus;
-    return matchSearch && matchEstatus;
+    // FIX 30-Abr-2026: filtro ambito MIAS vs TODAS
+    // MIAS = asignadas a mi (empleado_id) o creadas por mi (asignado_por = email)
+    let matchAmbito = true;
+    if (ambitoFiltro === "MIAS") {
+      const esAsignada = !!miEmpleadoId && t.asignado_id === miEmpleadoId;
+      const esCreada = !!userEmail && (t.asignado_por === userEmail || t.asignado_por_email === userEmail);
+      matchAmbito = esAsignada || esCreada;
+    }
+    return matchSearch && matchEstatus && matchAmbito;
   });
 
   const totalPages = Math.max(1, Math.ceil(filtradas.length / ROWS_PER_PAGE));
   const currentPage = Math.min(page, totalPages - 1);
   const visibleRows = filtradas.slice(currentPage * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
 
-  useEffect(() => { setPage(0); }, [search, filtroEstatus]);
+  useEffect(() => { setPage(0); }, [search, filtroEstatus, ambitoFiltro]);
 
   useEffect(() => {
     if (paused || totalPages <= 1) return;
@@ -308,6 +353,20 @@ export default function TareasTalentoPage() {
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg text-white placeholder-[#4a6080] focus:outline-none focus:border-aria-primary"
           />
+        </div>
+        <div className="flex bg-[#0c1d38]/50 border border-white/[0.08] rounded-lg overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setAmbitoFiltro("MIAS")}
+            className={`px-3 py-2 text-xs font-medium transition-colors ${ambitoFiltro === "MIAS" ? "bg-aria-primary text-white" : "text-[#7f93b0] hover:text-white"}`}
+            title="Tareas asignadas a mi o creadas por mi"
+          >Mis tareas</button>
+          <button
+            type="button"
+            onClick={() => setAmbitoFiltro("TODAS")}
+            className={`px-3 py-2 text-xs font-medium transition-colors ${ambitoFiltro === "TODAS" ? "bg-aria-primary text-white" : "text-[#7f93b0] hover:text-white"}`}
+            title="Todas las tareas del sistema"
+          >Todas</button>
         </div>
         <select
           value={filtroEstatus}

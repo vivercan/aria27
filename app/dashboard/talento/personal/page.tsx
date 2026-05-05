@@ -77,6 +77,48 @@ const EMPTY_FORM = {
   project_site: ""
 };
 
+
+// FIX 30-Abr-2026: Field movido AFUERA del componente padre.
+// Antes: estaba definido dentro de PersonalPage -> cada keystroke en setForm
+// recreaba la referencia del componente -> React desmontaba y remontaba el input
+// -> perdia foco -> usuario no podia escribir nombre completo, ni ningun campo.
+// Ahora Field es estable y solo se re-renderiza, sin perder foco.
+type FieldProps = {
+  label: string; field: string; type?: string; placeholder?: string; min?: string;
+  options?: { value: string; label: string }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setForm: (f: any) => void;
+  formErrors: Record<string, string>;
+};
+function Field({ label, field, type = "text", placeholder = "", options, min, form, setForm, formErrors }: FieldProps) {
+  return (
+    <div>
+      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
+      {options ? (
+        <select
+          value={form[field] || ""}
+          onChange={e => setForm({ ...form, [field]: e.target.value })}
+          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}>
+          <option value="">{"\u2014 Seleccionar \u2014"}</option>
+          {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      ) : (
+        <input
+          type={type}
+          value={form[field] || ""}
+          onChange={e => setForm({ ...form, [field]: e.target.value })}
+          placeholder={placeholder}
+          min={min}
+          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}
+        />
+      )}
+      {formErrors[field] && <p className="text-red-400 text-xs mt-1">{formErrors[field]}</p>}
+    </div>
+  );
+}
+
 export default function PersonalPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
@@ -239,34 +281,6 @@ export default function PersonalPage() {
   );
 
   const getEmpresaNombre = (id: string) => empresas.find(e => e.id === id)?.nombre || "\u2014";
-
-  const Field = ({ label, field, type = "text", placeholder = "", options, min }: {
-    label: string; field: string; type?: string; placeholder?: string; min?: string;
-    options?: { value: string; label: string }[];
-  }) => (
-    <div>
-      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
-      {options ? (
-        <select
-          value={form[field] || ""}
-          onChange={e => setForm({ ...form, [field]: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}>
-          <option value="">{"\u2014 Seleccionar \u2014"}</option>
-          {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      ) : (
-        <input
-          type={type}
-          value={form[field] || ""}
-          onChange={e => setForm({ ...form, [field]: e.target.value })}
-          placeholder={placeholder}
-          min={min}
-          className={`w-full px-3 py-2 rounded-lg bg-white/[0.04] border text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600 ${formErrors[field] ? "border-red-500/50" : "border-white/[0.08]"}`}
-        />
-      )}
-      {formErrors[field] && <p className="text-red-400 text-xs mt-1">{formErrors[field]}</p>}
-    </div>
-  );
 
   return (
     <div className="aria-page-canon h-full flex flex-col overflow-hidden">
@@ -431,40 +445,40 @@ export default function PersonalPage() {
             <div className="p-4 overflow-y-auto max-h-[55vh]">
               {tab === "general" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Field label="Nombre completo *" field="full_name" />
-                  <Field label="Puesto" field="position" />
-                  <Field label="Centro de Trabajo / Obra" field="project_site"
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Nombre completo *" field="full_name" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Puesto" field="position" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Centro de Trabajo / Obra" field="project_site"
                     options={centros.map(c => ({ value: c.nombre, label: c.nombre }))} />
-                  <Field label="Email" field="email" type="email" />
-                  <Field label={"WhatsApp (10 d\u00edgitos)"} field="whatsapp" placeholder="4491234567" />
-                  <Field label="Empresa" field="empresa_id"
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Email" field="email" type="email" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"WhatsApp (10 d\u00edgitos)"} field="whatsapp" placeholder="4491234567" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Empresa" field="empresa_id"
                     options={empresas.map(e => ({ value: e.id, label: e.nombre }))} />
-                  <Field label="Fecha de ingreso" field="fecha_ingreso" type="date" />
-                  <Field label="Departamento" field="department" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Fecha de ingreso" field="fecha_ingreso" type="date" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Departamento" field="department" />
                 </div>
               )}
               {tab === "laboral" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Field label="Salario diario" field="salario_diario" type="number" min="0" />
-                  <Field label="Salario semanal" field="salario_semanal" type="number" min="0" />
-                  <Field label="Salario mensual" field="salary_monthly" type="number" min="0" />
-                  <Field label={"M\u00ednimo tarjeta"} field="minimo_tarjeta" type="number" min="0" />
-                  <Field label={"Tipo n\u00f3mina"} field="tipo_nomina"
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Salario diario" field="salario_diario" type="number" min="0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Salario semanal" field="salario_semanal" type="number" min="0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Salario mensual" field="salary_monthly" type="number" min="0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"M\u00ednimo tarjeta"} field="minimo_tarjeta" type="number" min="0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"Tipo n\u00f3mina"} field="tipo_nomina"
                     options={[
                       { value: "semanal", label: "Semanal" },
                       { value: "quincenal", label: "Quincenal" },
                       { value: "mensual", label: "Mensual" }
                     ]} />
-                  <Field label="Hora entrada" field="hora_entrada" type="time" />
-                  <Field label="Hora salida" field="hora_salida" type="time" />
-                  <Field label="Días laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Hora entrada" field="hora_entrada" type="time" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Hora salida" field="hora_salida" type="time" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Días laborales" field="dias_laborales" placeholder="L,M,X,J,V,S" />
                 </div>
               )}
               {tab === "bancario" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Field label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
-                  <Field label={"CLABE (18 d\u00edgitos)"} field="clabe" placeholder="012345678901234567" />
-                  <Field label={"N\u00famero de cuenta"} field="numero_cuenta" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="Banco" field="banco" placeholder="BBVA, Banorte, etc." />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"CLABE (18 d\u00edgitos)"} field="clabe" placeholder="012345678901234567" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"N\u00famero de cuenta"} field="numero_cuenta" />
                   <div className="col-span-2 p-3 rounded-lg bg-aria-primary/10 border border-aria-primary/20">
                     <p className="text-aria-accent text-xs">
                       {"Los datos bancarios se usan para la dispersi\u00f3n de n\u00f3mina. Verifica CLABE y banco con el empleado."}
@@ -474,9 +488,9 @@ export default function PersonalPage() {
               )}
               {tab === "fiscal" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Field label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
-                  <Field label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
-                  <Field label={"NSS (11 d\u00edgitos)"} field="nss" placeholder="00000000000" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="CURP (18 caracteres)" field="curp" placeholder="XXXX000000XXXXXXX0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label="RFC (13 caracteres)" field="rfc" placeholder="XXXX000000XX0" />
+                  <Field form={form} setForm={setForm} formErrors={formErrors} label={"NSS (11 d\u00edgitos)"} field="nss" placeholder="00000000000" />
                   <div className="col-span-2 p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]">
                     <p className="text-amber-400 text-xs">
                       {"Estos datos son requeridos por el IMSS y SAT. El NSS es obligatorio para el alta ante el Seguro Social."}
