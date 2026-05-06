@@ -235,7 +235,7 @@ export default function ComprasPickingPage() {
           title="Solicitar Autorización de Compra"
           subtitle={`${reqs.length} requisiciones pendientes`}
           backHref="/dashboard/requisiciones"
-          icon={<ShoppingCart className="w-6 h-6" />} right={<Link href="/dashboard/requisiciones/comparativas/historial" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white hover:bg-aria-primary-hover transition-colors text-sm font-medium"><History className="w-4 h-4" /> Historial</Link>}
+          icon={<ShoppingCart className="w-6 h-6" />} right={<div className="flex items-center gap-2"><Link href="/dashboard/requisiciones/comparativas/express" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-medium"><Zap className="w-4 h-4" /> Express</Link><Link href="/dashboard/requisiciones/comparativas/historial" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white hover:bg-aria-primary-hover transition-colors text-sm font-medium"><History className="w-4 h-4" /> Historial</Link></div>}
         />
 
         <div className="flex-1 overflow-y-auto space-y-3">
