@@ -4,6 +4,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText, verifyWebhookSignature, verifyWebhookUrlToken } from "@/lib/whatsapp";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("WEBHOOK-ATTENDANCE");
 
