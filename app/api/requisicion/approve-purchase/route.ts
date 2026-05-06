@@ -403,7 +403,7 @@ export async function GET(request: NextRequest) {
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 
-    } else if (action === "rechazar" || action === "RECHAZADA") {
+    } else if (action === "rechazar" || action === "RECHAZADA") { notifyOps({ evento: "REQUISICION_RECHAZADA", resumen: req.folio + " RECHAZADA", actor: "magic_link" }).catch(() => {});
       const { error: rechErr } = await getDb().from("requisitions").update({
         status: "RECHAZADA_DIRECCION",
         authorization_comments: null
