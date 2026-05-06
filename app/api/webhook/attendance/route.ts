@@ -4,6 +4,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { processAndUploadPhoto } from "@/lib/image-watermark";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText, verifyWebhookSignature, verifyWebhookUrlToken } from "@/lib/whatsapp";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("WEBHOOK-ATTENDANCE");
 
@@ -636,7 +637,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       centro_nombre: workCenter.nombre,
       notas: `Entrada: ${workCenter.nombre} - ${formatDistance(distance)}`
     });
-    if (errAsis1) log.error("insert asistencias (clock-in) failed", { error: errAsis1.message });
+    if (errAsis1) log.error("insert asistencias (clock-in) failed", { error: errAsis1.message }); notifyOps({ evento: "ASISTENCIA_ENTRADA", resumen: emp.full_name + " ENTRADA " + hora + " " + workCenter.nombre, actor: emp.full_name }).catch(() => {});
 
     const distText = formatDistance(distance);
     if (dentroGeocerca) {
@@ -657,7 +658,7 @@ async function handleAsistencia(from: string, phone10: string, lat: number, lng:
       distancia_salida: Math.round(distance),
       notas: (asistenciaHoy.notas || "") + ` | Salida: ${workCenter.nombre} - ${formatDistance(distance)}`
     }).eq("id", asistenciaHoy.id);
-    if (errAsis2) log.error("update asistencias (clock-out) failed", { error: errAsis2.message });
+    if (errAsis2) log.error("update asistencias (clock-out) failed", { error: errAsis2.message }); notifyOps({ evento: "ASISTENCIA_SALIDA", resumen: emp.full_name + " SALIDA " + hora + " " + workCenter.nombre, actor: emp.full_name }).catch(() => {});
 
     const [hE, mE] = asistenciaHoy.hora_entrada.split(":").map(Number);
     const [hS, mS] = hora.split(":").map(Number);
