@@ -691,7 +691,7 @@ export default function NewRequisitionPage() {
               <button onClick={addFreeRow} className="mb-3 flex items-center gap-2 rounded-xl bg-aria-primary-light px-4 py-2 text-sm text-aria-accent hover:bg-aria-primary-hover/30 transition">
                 <Plus className="w-4 h-4" /> Agregar partida
               </button>
-              <div className="max-h-52 overflow-auto space-y-2">
+              <div className="max-h-96 overflow-auto space-y-2">
                 {freeRows.map((r, i) => (
                   <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
                     <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
@@ -714,7 +714,7 @@ export default function NewRequisitionPage() {
               <button onClick={addCombRow} className="mb-3 flex items-center gap-2 rounded-xl bg-amber-500/20 px-4 py-2 text-sm text-amber-300 hover:bg-amber-500/30 transition">
                 <Plus className="w-4 h-4" /> Agregar línea
               </button>
-              <div className="max-h-52 overflow-auto space-y-2">
+              <div className="max-h-96 overflow-auto space-y-2">
                 {combRows.map(r => (
                   <div key={r.tempId} className="grid grid-cols-[100px_80px_1fr_100px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
                     <select required className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
