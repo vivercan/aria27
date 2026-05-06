@@ -5,6 +5,7 @@ import { sendEmailLogged } from "@/lib/email-log";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { ariaEmailWrapper, ariaEmailHeader, ariaEmailFooter } from "@/lib/email-templates";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("AVISAR-PAGO");
 
@@ -75,5 +76,15 @@ export async function POST(req: NextRequest) {
   }
 
   log.info("Aviso de pago enviado", { folio, phone, email, result });
+
+  // Notificacion global a Direccion + RH
+  await notifyOps({
+    evento: "PAGO_AVISADO",
+    resumen: `${r.folio} ${proveedor} ${fmt(r.monto)} ${obra}`,
+    detalle: mensajePlano,
+    actor: auth.email,
+    metadata: { folio: r.folio, monto: r.monto, proveedor, obra, banco, clabe },
+  }).catch(() => { /* notify es best-effort */ });
+
   return NextResponse.json({ ok: true, mensaje: mensajePlano, result });
 }

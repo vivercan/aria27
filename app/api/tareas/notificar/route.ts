@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("TAREAS-NOTIFICAR");
 
@@ -99,6 +100,15 @@ export async function POST(req: NextRequest) {
         log.info(`[TAREAS-NOTIFICAR] Email enviado a ${empleado.full_name} (${empleado.email})`);
       }
     }
+
+    // Notificacion global a Direccion + RH
+    await notifyOps({
+      evento: "TAREA_CREADA",
+      resumen: `${empleado.full_name} - ${titulo}`,
+      detalle: `Asignada a: ${empleado.full_name}\nTitulo: ${titulo}${descripcion ? "\n" + descripcion : ""}\nFecha compromiso: ${fechaFmt}${obra ? "\nObra: " + obra : ""}`,
+      actor: asignado_por || "sistema",
+      metadata: { asignado_id, asignado_nombre: empleado.full_name, titulo, fecha_compromiso, obra },
+    }).catch(() => { /* notify es best-effort */ });
 
     return NextResponse.json({
       notified: notificaciones.length > 0,
