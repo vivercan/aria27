@@ -6,6 +6,7 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendEmailLogged } from "@/lib/email-log";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("REQUISICION");
 
@@ -424,6 +425,17 @@ export async function POST(request: NextRequest) {
     }
 
     const posibleDuplicado = logs.some(l => l.includes("POSIBLE DUPLICADO"));
+
+    // Notificacion global a Direccion + RH
+    const motivoStr = String(body.motivo_solicitud || body.descripcion_compra || "").trim();
+    await notifyOps({
+      evento: "REQUISICION_CREADA",
+      resumen: `${folio} ${obra}${motivoStr ? " - " + motivoStr : ""} - ${displayName}`,
+      detalle: `Folio: ${folio}\nObra: ${obra}\nSolicitante: ${displayName}\nFlujo: ${flujo}\nUrgencia: ${urgencyText}${motivoStr ? "\nMotivo: " + motivoStr : ""}`,
+      actor: usuario.email,
+      metadata: { folio, obra, flujo, urgency: urgencyText, motivo: motivoStr },
+    }).catch(() => { /* notify es best-effort */ });
+
     return NextResponse.json({ success: true, folio, flujo, notificados, logs, posibleDuplicado });
   } catch (error: unknown) {
     log.error(`ERROR:`, error);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
+import { notifyOps } from "@/lib/notify-ops";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -390,6 +391,15 @@ export async function GET(request: NextRequest) {
       } catch (waSolErr: unknown) {
         log.error("WA solicitante OC exception", { folio: req.folio, error: (waSolErr as Error).message });
       }
+
+      // Notificacion global a Direccion + RH (OC generada)
+      await notifyOps({
+        evento: "OC_GENERADA",
+        resumen: `${ocFolio} ${req.folio} ${supplierName} $${total.toLocaleString("es-MX",{minimumFractionDigits:2})} ${req.cost_center_name || ""}`,
+        detalle: `OC: ${ocFolio}\nRequisicion: ${req.folio}\nObra: ${req.cost_center_name || "N/A"}\nProveedor: ${supplierName}\nTotal: $${total.toLocaleString("es-MX",{minimumFractionDigits:2})} MXN\nForma de pago: ${elegidoData.forma_pago || "Transferencia"}`,
+        actor: `magic_link:${String(token).substring(0,12)}`,
+        metadata: { oc_folio: ocFolio, req_folio: req.folio, supplier: supplierName, total, obra: req.cost_center_name },
+      }).catch(() => { /* notify es best-effort */ });
 
       return new Response(`<html><head><meta charset="utf-8"></head><body style="font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a"><div style="text-align:center;background:#1e293b;padding:50px;border-radius:20px"><div style="font-size:80px">&#x2705;</div><h1 style="color:#10b981">Compra Autorizada</h1><p style="font-size:24px;font-weight:bold;color:#10b981">${ocFolio}</p><p style="color:#94a3b8">Requisici&oacute;n: ${req.folio}</p><p style="color:#94a3b8">Proveedor: ${supplierName} - $${total.toLocaleString("es-MX", {minimumFractionDigits: 2})}</p><p style="color:#64748b">Se notific&oacute; a Compras y al Solicitante</p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
 

@@ -254,6 +254,20 @@ export default function PersonalPage() {
         setMensaje({ tipo: "error", texto: "Error al crear: " + error?.message });
       } else {
         setMensaje({ tipo: "success", texto: "Empleado " + empNumber + " creado correctamente" });
+        // Disparar notificacion global a Direccion + RH
+        const actorEmail = typeof window !== "undefined" ? (localStorage.getItem("userEmail") || "sistema") : "sistema";
+        const empresaNombre = empresas.find(e => e.id === insertData.empresa_id)?.nombre || "";
+        fetch("/api/talento/personal/notify-alta", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            full_name: insertData.full_name,
+            position: insertData.position,
+            project_site: insertData.project_site,
+            empresa: empresaNombre,
+            actor: actorEmail,
+          }),
+        }).catch(() => { /* notify es best-effort */ });
         setEditando(null);
         cargarDatos();
       }
