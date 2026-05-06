@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import {
   Loader2, Package, Clock, CreditCard, Banknote,
   Receipt, Truck, Check, ShoppingCart, ChevronRight, AlertCircle,
-  CheckCircle2, Star, Zap, X
+  CheckCircle2, Star, Zap, X, History
 } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -235,7 +235,7 @@ export default function ComprasPickingPage() {
           title="Solicitar Autorización de Compra"
           subtitle={`${reqs.length} requisiciones pendientes`}
           backHref="/dashboard/requisiciones"
-          icon={<ShoppingCart className="w-6 h-6" />}
+          icon={<ShoppingCart className="w-6 h-6" />} right={<Link href="/dashboard/requisiciones/comparativas/historial" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white hover:bg-aria-primary-hover transition-colors text-sm font-medium"><History className="w-4 h-4" /> Historial</Link>}
         />
 
         <div className="flex-1 overflow-y-auto space-y-3">
