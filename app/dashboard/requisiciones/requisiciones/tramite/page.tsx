@@ -73,7 +73,7 @@ export default function ComprasTramitePage() {
 
   // META por columna de proveedor
   const [columnMeta, setColumnMeta] = useState<Array<{rebaja_iva: boolean; observaciones: string}>>(
-    Array.from({length: 5}, () => ({rebaja_iva: false, observaciones: ""}))
+    Array.from({length: 12}, () => ({rebaja_iva: false, observaciones: ""}))
   );
   const updateColumnMeta = (colIdx: number, field: "rebaja_iva" | "observaciones", value: boolean | string) => {
     setColumnMeta(prev => {
@@ -86,7 +86,7 @@ export default function ComprasTramitePage() {
   const initQuotes = (itemsList: RequisitionItem[]) => {
     const q: Record<number, Array<{supplier: string; price: number; entrega: string; forma_pago: string; factura: boolean; pdf_url: string}>> = {};
     itemsList.forEach((item: RequisitionItem) => {
-      q[item.id] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
+      q[item.id] = Array.from({length: 12}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
     });
     setItemQuotes(q);
   };
@@ -94,7 +94,7 @@ export default function ComprasTramitePage() {
   const updateQuote = (itemId: number, idx: number, field: "supplier" | "price" | "entrega" | "forma_pago" | "factura" | "pdf_url", value: string | number | boolean) => {
     setItemQuotes(prev => {
       const updated = {...prev};
-      if (!updated[itemId]) updated[itemId] = Array.from({length: 5}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
+      if (!updated[itemId]) updated[itemId] = Array.from({length: 12}, () => ({supplier: "", price: 0, entrega: "", forma_pago: "transferencia", factura: true, pdf_url: ""}));
       updated[itemId] = [...updated[itemId]];
       updated[itemId][idx] = {...updated[itemId][idx], [field]: value};
       return updated;
@@ -525,7 +525,7 @@ Responde SOLO con JSON así:
               });
             });
             // Rellenar hasta 5 columnas
-            while (capturedSuppliers.length < 5) capturedSuppliers.push("");
+            while (capturedSuppliers.length < 12) capturedSuppliers.push("");
 
             // Helper: set proveedor en columna para TODOS los productos
             const setColumnSupplier = (colIdx: number, supplierName: string) => {
