@@ -572,7 +572,7 @@ Responde SOLO con JSON así:
             };
 
             return (
-              <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden">
+              <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-x-auto">
                 {/* HEADER: Proveedores + condiciones */}
                 <div className="grid gap-0" style={{gridTemplateColumns: `200px 70px repeat(${capturedSuppliers.length}, minmax(140px, 1fr))`}}>
                   {/* Esquina */}
