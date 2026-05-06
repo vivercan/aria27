@@ -64,7 +64,7 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
   // Leer Users — los nombres de columna varian segun proyecto, intentamos lo mas comun
   const { data, error } = await supabase
     .from("Users")
-    .select("email, phone, nombre, full_name, role, active")
+    .select("email, phone, name, display_name, role, active")
     .in("role", ["direccion", "rh"]);
   if (error) {
     log.warn("[NOTIFY-OPS] Users query fallo", { err: error.message });
@@ -73,8 +73,8 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
   type UserRow = {
     email?: string | null;
     phone?: string | null;
-    nombre?: string | null;
-    full_name?: string | null;
+    name?: string | null;
+    display_name?: string | null;
     role?: string | null;
     active?: boolean | null;
   };
@@ -84,7 +84,7 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
     .map(u => ({
       email: u.email as string,
       phone: u.phone || null,
-      nombre: u.nombre || u.full_name || null,
+      nombre: u.name || u.display_name || null,
       role: (u.role as string) || "",
     }));
 }
