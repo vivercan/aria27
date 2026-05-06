@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 const supabase = getSupabaseAdmin();
 import crypto from "crypto";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logger"; import { notifyOps } from "@/lib/notify-ops";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { sendEmailLogged } from "@/lib/email-log";
 const log = logger("ENVIAR-COMPARATIVA");
@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
         emailError = sendRes.error || "unknown";
         log.error("Resend email error", { id: requisition_id, error: emailError });
       } else {
-        log.info("Email enviado", { to: director.email, id: sendRes.messageId });
+        log.info("Email enviado", { to: director.email, id: sendRes.messageId }); notifyOps({ evento: "COTIZACION_ENVIADA", resumen: "Comparativa " + folio + " " + obra, actor: user_email || "compras" }).catch(() => {});
       }
     } catch (e: unknown) {
       emailError = (e as Error)?.message || String(e);
