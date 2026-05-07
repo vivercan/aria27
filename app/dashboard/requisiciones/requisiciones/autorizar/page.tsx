@@ -228,13 +228,13 @@ export default function AuthorizeRequisicionesPage() {
               </div>
 
               <div className="flex gap-3 justify-end shrink-0">
-                <button onClick={() => handleAction("RECHAZADA")} disabled={processing} className="inline-flex items-center gap-2 rounded-full bg-red-500/80 px-4 py-2 text-sm font-medium hover:bg-red-500">
+                <button onClick={() => handleAction("RECHAZADA")} disabled={processing} className="inline-flex items-center gap-2 rounded-full aria-btn aria-btn-danger px-4 py-2 text-sm font-medium">
                   <XCircle className="h-4 w-4" /> Rechazar
                 </button>
-                <button onClick={() => handleAction("REVISION")} disabled={processing} className="inline-flex items-center gap-2 rounded-full bg-amber-500/80 px-4 py-2 text-sm font-medium hover:bg-amber-500">
+                <button onClick={() => handleAction("REVISION")} disabled={processing} className="inline-flex items-center gap-2 rounded-full aria-btn aria-btn-warning px-4 py-2 text-sm font-medium">
                   <MessageSquare className="h-4 w-4" /> Devolver
                 </button>
-                <button onClick={() => handleAction("APROBADA")} disabled={processing} className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-emerald-400">
+                <button onClick={() => handleAction("APROBADA")} disabled={processing} className="inline-flex items-center gap-2 rounded-full aria-btn aria-btn-success px-4 py-2 text-sm font-medium">
                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />} Aprobar
                 </button>
               </div>

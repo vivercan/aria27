@@ -263,11 +263,11 @@ export default function RequisicionesStatusPage() {
   }
 
   const getStatusColor = (status: string) => {
-    if (status?.includes("FINALIZADA")) return "bg-emerald-500/20 text-aria-accent";
-    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "bg-aria-primary-light text-aria-accent";
-    if (status?.includes("PENDIENTE")) return "bg-amber-500/20 text-amber-400";
-    if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "bg-red-500/20 text-red-400";
-    if (status?.includes("COTIZA")) return "bg-aria-primary-light text-aria-accent";
+    if (status?.includes("FINALIZADA")) return "aria-badge aria-badge-oc";
+    if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "aria-badge aria-badge-autorizada";
+    if (status?.includes("PENDIENTE")) return "aria-badge aria-badge-pendiente";
+    if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "aria-badge aria-badge-rechazada";
+    if (status?.includes("COTIZA")) return "aria-badge aria-badge-en-autorizacion";
     return "bg-slate-500/20 text-[#7f93b0]";
   };
 
@@ -292,7 +292,7 @@ export default function RequisicionesStatusPage() {
         {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && (
           <button
             onClick={() => openDeleteModal("all")}
-            className="px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.08] text-red-400 text-sm font-medium hover:bg-red-500/20 transition flex items-center gap-2"
+            className="aria-btn aria-btn-danger"
           >
             <Trash2 className="w-4 h-4" />
             Eliminar todas
@@ -393,7 +393,7 @@ export default function RequisicionesStatusPage() {
                         <button
                           onClick={() => handlePDFClick(req)}
                           disabled={loadingPrint === req.id}
-                          className="p-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-[#7f93b0] hover:text-aria-accent transition-all disabled:opacity-50"
+                          className="aria-btn aria-btn-pdf"
                           title="Descargar PDF"
                         >
                           <FileDown className="w-4 h-4" />
@@ -412,7 +412,7 @@ export default function RequisicionesStatusPage() {
                         {canDelete && (
                           <button
                             onClick={() => openDeleteModal("single", req.id)}
-                            className="p-2 rounded-lg bg-white/[0.04] hover:bg-red-500/20 text-[#7f93b0] hover:text-red-400 transition-all"
+                            className="aria-btn aria-btn-danger"
                             title="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -502,7 +502,7 @@ export default function RequisicionesStatusPage() {
           <div className="bg-aria-bg p-6 rounded-xl border border-red-500/30 w-[420px] shadow-2xl shadow-red-500/10">
             {/* Icono de advertencia */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+              <div className="aria-btn aria-btn-danger">
                 <Trash2 className="w-6 h-6 text-red-400" />
               </div>
               <div>
