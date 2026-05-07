@@ -10,6 +10,7 @@ import {
   MapPin, X, Save, Copy, Check, Trash2, Globe,
   MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
 } from "lucide-react";
+import BankLogo from "@/components/BankLogo";
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
@@ -264,14 +265,23 @@ export default function ProveedoresPage() {
                       {s.email&&<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>}
                     </td>
                     <td className="text-[#7f93b0]">
-                      {s.credit_days&&s.credit_days>0?<span className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded">{s.credit_days}d</span>:null}
+                      {s.credit_days&&s.credit_days>0?(()=>{
+                        const d = s.credit_days;
+                        const style = d <= 7 ? { bg: "linear-gradient(180deg,#2EAE6E 0%,#1B7E4D 100%)", color: "#F4F8FF", ring: "rgba(180,255,210,0.40)" } :
+                                      d <= 15 ? { bg: "linear-gradient(180deg,#F5B23E 0%,#C7821B 100%)", color: "#1A1206", ring: "rgba(255,230,180,0.40)" } :
+                                      d <= 30 ? { bg: "linear-gradient(180deg,#F09137 0%,#C56A18 100%)", color: "#FFFFFF", ring: "rgba(255,210,170,0.40)" } :
+                                                { bg: "linear-gradient(180deg,#D14550 0%,#A02530 100%)", color: "#FFF4F4", ring: "rgba(255,180,180,0.40)" };
+                        return <span style={{padding:"2px 9px",fontSize:10,fontWeight:700,letterSpacing:"0.04em",borderRadius:6,background:style.bg,color:style.color,border:`1px solid ${style.ring}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.20)"}}>{d}d</span>;
+                      })():<span className="text-[10px] text-[#4a6080]">contado</span>}
                     </td>
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
-                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-1 text-[10px] text-[#7f93b0] hover:text-white" title={s.bank_clabe}>
-                          {copiedId===s.id?<Check className="w-2.5 h-2.5 text-aria-accent"/>:<Copy className="w-2.5 h-2.5"/>}
-                          {s.bank_name||"CLABE"}
+                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-2 hover:opacity-80 transition" title={s.bank_clabe}>
+                          <BankLogo name={s.bank_name} size="sm" showName={true} />
+                          {copiedId===s.id?<Check className="w-3 h-3 text-aria-accent"/>:<Copy className="w-3 h-3 text-[#7f93b0]"/>}
                         </button>
+                      ):s.bank_name?(
+                        <BankLogo name={s.bank_name} size="sm" showName={true} />
                       ):null}
                     </td>
                     <td className="text-center pr-2">
