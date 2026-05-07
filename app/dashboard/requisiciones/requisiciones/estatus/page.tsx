@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { Printer, FileDown, Send, Loader2, Trash2 } from "lucide-react";
+import { Printer, FileDown, Send, Loader2, Trash2, Pencil } from "lucide-react";
+import RequisicionEditModal from "@/components/RequisicionEditModal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
@@ -73,6 +74,8 @@ export default function RequisicionesStatusPage() {
   const [pagoEmail, setPagoEmail] = useState<string>("");
   const [enviandoPago, setEnviandoPago] = useState(false);
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
+  const [editReq, setEditReq] = useState<Requisition | null>(null);
+  const STATUS_BLOQUEADOS_EDIT = ["AUTORIZADA", "OC_GENERADA", "CANCELADA"];
   const [detailItems, setDetailItems] = useState<ReqItem[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
@@ -474,11 +477,23 @@ export default function RequisicionesStatusPage() {
               </div>
             </div>
             <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
+              {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
+                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-sm text-amber-300 transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
+              )}
               <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
               <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Editar requisicion (PR 7-may-2026) */}
+      {editReq && (
+        <RequisicionEditModal
+          req={editReq as unknown as { id: string; folio: string; status: string }}
+          onClose={() => setEditReq(null)}
+          onSaved={() => { setEditReq(null); if (userEmail) loadData(userEmail); }}
+        />
       )}
 
       {/* Modal Eliminar — confirmación con "Borrar" */}
