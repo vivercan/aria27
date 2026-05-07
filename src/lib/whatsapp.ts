@@ -186,6 +186,12 @@ const TEMPLATE_CONFIG: Record<string, {
     description: "Solicitar cotizacion a proveedor"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia
   },
+  aria_tarea_status: {
+    language: "es_MX",
+    paramCount: 3,
+    description: "Notificacion generica con mensaje libre - usado por notifyOps para todos los eventos operativos"
+    // {{1}}=Nombre destinatario, {{2}}=Numero (0 o cantidad), {{3}}=Mensaje completo del evento
+  },
 };
 
 /**

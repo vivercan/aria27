@@ -11,7 +11,7 @@
 // El helper NUNCA tira la operacion principal — si la notif falla, log y sigue.
 
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { sendWhatsAppText } from "@/lib/whatsapp";
+import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
@@ -141,11 +141,21 @@ export async function notifyOps(input: NotifyOpsInput): Promise<void> {
 
   // 2. Mandar WA + email a cada destinatario
   for (const d of destinatarios) {
-    // -- WhatsApp --
+    // -- WhatsApp via TEMPLATE aprobado (aria_tarea_status) --
+    // 6-May-2026: migrado de sendWhatsAppText a sendWhatsAppLogged con template
+    // aprobado para garantizar entrega FUERA del window de 24h. Templates
+    // approved por Meta SIEMPRE entregan a numero con WA activo, no requieren
+    // que el receptor haya iniciado conversacion en las ultimas 24h.
     if (d.phone) {
-      const waMsg = `${icono} *ARIA27 — ${titulo}*\n\n${resumen}${detalle ? `\n\n${detalle}` : ""}${actor ? `\n\n_Por: ${actor}_` : ""}`;
+      const nombre = (d.nombre || "Equipo").slice(0, 60);
+      const cantidad = "0";
+      const mensajeBody = `${icono} ${titulo}: ${resumen}${detalle ? " - " + detalle : ""}${actor ? " (por " + actor + ")" : ""}`
+        .replace(/\n+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 700);
       try {
-        const waRes = await sendWhatsAppText(d.phone, waMsg, {
+        const waRes = await sendWhatsAppLogged("aria_tarea_status", [nombre, cantidad, mensajeBody], d.phone, {
           origen: `notify-ops:${evento}`,
           enviadoPor: actor || "sistema",
         });
