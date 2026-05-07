@@ -59,12 +59,11 @@ export async function GET(req: Request) {
   const lang = url.searchParams.get("lang") || "es_MX";
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const wabaId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+  const wabaId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || process.env.WHATSAPP_WABA_ID || "842930185269415";
 
   if (!token || !phoneId) return NextResponse.json({ error: "missing token/phoneId" }, { status: 500 });
 
   if (mode === "list") {
-    if (!wabaId) return NextResponse.json({ error: "missing WHATSAPP_BUSINESS_ACCOUNT_ID env" }, { status: 500 });
     const r = await listApprovedTemplates(token, wabaId);
     return NextResponse.json(r);
   }
