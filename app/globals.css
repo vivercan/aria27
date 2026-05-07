@@ -679,3 +679,155 @@ button.bg-red-600 {
     radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%),
     linear-gradient(180deg, #06152F 0%, #081E46 44%, #0A2450 100%);
 }
+
+/* ==========================================================================
+   CANON BOTONES — 7-May-2026
+   Reglas: sólidos, ligero 3D vía gradient interno + shadow + ring sutil,
+   texto fuerte (alto contraste). Sin transparencias arcade.
+   ========================================================================== */
+
+.aria-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.aria-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+.aria-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.30);
+}
+.aria-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* PRIMARY — azul aria (acción principal) */
+.aria-btn-primary {
+  background: linear-gradient(180deg, #3B6FB8 0%, #1F4A8C 100%);
+  color: #F4F8FF;
+  border-color: rgba(180,210,255,0.30);
+  box-shadow: inset 0 1px 0 rgba(220,235,255,0.18), 0 3px 8px rgba(31,74,140,0.40);
+}
+
+/* SUCCESS — verde aprobar / guardar / WhatsApp */
+.aria-btn-success {
+  background: linear-gradient(180deg, #2EAE6E 0%, #1B7E4D 100%);
+  color: #F4F8FF;
+  border-color: rgba(180,255,210,0.30);
+  box-shadow: inset 0 1px 0 rgba(220,255,235,0.20), 0 3px 8px rgba(27,126,77,0.45);
+}
+
+/* DANGER — rojo eliminar / rechazar */
+.aria-btn-danger {
+  background: linear-gradient(180deg, #D14550 0%, #A02530 100%);
+  color: #FFF4F4;
+  border-color: rgba(255,180,180,0.30);
+  box-shadow: inset 0 1px 0 rgba(255,220,220,0.18), 0 3px 8px rgba(160,37,48,0.45);
+}
+
+/* WARNING — ámbar editar / devolver / advertencia */
+.aria-btn-warning {
+  background: linear-gradient(180deg, #F5B23E 0%, #C7821B 100%);
+  color: #1A1206;
+  border-color: rgba(255,230,180,0.40);
+  box-shadow: inset 0 1px 0 rgba(255,240,200,0.30), 0 3px 8px rgba(199,130,27,0.40);
+}
+
+/* SECONDARY — slate neutro: cancelar, imprimir, navegación */
+.aria-btn-secondary {
+  background: linear-gradient(180deg, #475569 0%, #2D3848 100%);
+  color: #F1F5F9;
+  border-color: rgba(180,200,225,0.20);
+  box-shadow: inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 6px rgba(0,0,0,0.30);
+}
+
+/* PDF — rojo Acrobat (cualquier botón que descargue PDF) */
+.aria-btn-pdf {
+  background: linear-gradient(180deg, #E83838 0%, #B72020 100%);
+  color: #FFFFFF;
+  border-color: rgba(255,180,180,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,220,220,0.20), 0 3px 8px rgba(183,32,32,0.50);
+}
+
+/* GHOST — solo texto/icono cuando el espacio es chico (action icons en tablas).
+   Mantiene transparencia pero con borde definido y hover sólido. */
+.aria-btn-ghost {
+  background: rgba(255,255,255,0.04);
+  color: #C9D8ED;
+  border-color: rgba(180,200,225,0.15);
+  box-shadow: none;
+  padding: 8px;
+  border-radius: 8px;
+  gap: 0;
+}
+.aria-btn-ghost:hover {
+  background: rgba(255,255,255,0.10);
+  color: #F4F8FF;
+  transform: none;
+}
+
+/* Tamaños */
+.aria-btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+.aria-btn-lg {
+  padding: 14px 28px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+
+/* ==========================================================================
+   CANON BADGES (status pills) — alto contraste, sólidos, no arcade
+   ========================================================================== */
+
+.aria-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.aria-badge-pendiente {
+  background: linear-gradient(180deg, #F5B23E 0%, #C7821B 100%);
+  color: #1A1206;
+  border-color: rgba(255,230,180,0.50);
+}
+.aria-badge-aprobada,
+.aria-badge-autorizada,
+.aria-badge-oc {
+  background: linear-gradient(180deg, #2EAE6E 0%, #1B7E4D 100%);
+  color: #F4F8FF;
+  border-color: rgba(180,255,210,0.40);
+}
+.aria-badge-en-autorizacion,
+.aria-badge-cotizando {
+  background: linear-gradient(180deg, #3B6FB8 0%, #1F4A8C 100%);
+  color: #F4F8FF;
+  border-color: rgba(180,210,255,0.40);
+}
+.aria-badge-rechazada,
+.aria-badge-cancelada {
+  background: linear-gradient(180deg, #D14550 0%, #A02530 100%);
+  color: #FFF4F4;
+  border-color: rgba(255,180,180,0.40);
+}
