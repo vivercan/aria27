@@ -77,6 +77,15 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
 
   const cotData = (req as Record<string, unknown>).cotizacion_data as Record<string, unknown> || {};
   const quotes: Quote[] = ((cotData as Record<string, unknown>).quotes as Quote[]) || [];
+  // 6-May-2026: BUGFIX precios "—". cotData.quotes a menudo trae items_prices vacio,
+  // pero cotData.suppliers SI los trae completos (set por enviar-comparativa). Mergear.
+  const suppliersList = ((cotData as Record<string, unknown>).suppliers as Array<{ supplier?: string; items_prices?: Record<string, number> }>) || [];
+  const supplierPricesMap: Record<string, Record<string, number>> = {};
+  for (const s of suppliersList) {
+    if (s && s.supplier && s.items_prices) {
+      supplierPricesMap[s.supplier] = s.items_prices;
+    }
+  }
   const items: string[] = ((cotData as Record<string, unknown>).items as string[]) || [];
   const itemsDetailRaw = ((cotData as Record<string, unknown>).items_detail as Array<{product_name: string; quantity: number; unit: string}>) || [];
   // Si no viene items_detail, construirlo desde items con qty=1
@@ -143,7 +152,7 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
                 dias_credito: Number(q.dias_credito ?? 0),
                 rebaja_iva: Boolean(q.rebaja_iva),
                 notas: typeof q.notas === "string" ? q.notas : "",
-                items_prices: (q.items_prices as Record<string, number>) || {},
+                items_prices: (q.items_prices && Object.keys(q.items_prices).length > 0) ? (q.items_prices as Record<string, number>) : (supplierPricesMap[q.supplier || ""] || {}),
                 observaciones: typeof q.observaciones === "string" ? q.observaciones : "",
               }))}
             />

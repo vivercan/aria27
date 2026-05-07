@@ -21,6 +21,7 @@ export function canAccessModule(role: string, permissions: UserPermissions, modu
     return SYSTEM_ROLES.includes(role);
   }
 
+  // 6-May-2026 FIX: ["*"] es wildcard "todos los submodulos" -> permite acceso al modulo.
   return Array.isArray(permissions[moduleKey]) && permissions[moduleKey].length > 0;
 }
 
@@ -34,6 +35,11 @@ export function canAccessSub(role: string, permissions: UserPermissions, moduleK
 
   const moduleSubs = permissions[moduleKey];
   if (!moduleSubs || moduleSubs.length === 0) return false;
+  // 6-May-2026 FIX: "*" es wildcard que concede TODOS los submodulos del modulo.
+  // Antes: ["*"] solo hacia match con literal "*" -> usuarios con permission ["*"]
+  // veian "Acceso Restringido" en TODOS los submodulos. Reportado por Jessica
+  // (rol=compras) en /dashboard/requisiciones/compras.
+  if (moduleSubs.includes("*")) return true;
   return moduleSubs.includes(subKey);
 }
 
