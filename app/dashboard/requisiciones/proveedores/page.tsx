@@ -276,9 +276,21 @@ export default function ProveedoresPage() {
                     </td>
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
-                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="flex items-center gap-2 hover:opacity-80 transition" title={s.bank_clabe}>
-                          <BankLogo name={s.bank_name} size="sm" showName={true} />
-                          {copiedId===s.id?<Check className="w-3 h-3 text-aria-accent"/>:<Copy className="w-3 h-3 text-[#7f93b0]"/>}
+                        <button
+                          onClick={()=>copyClabe(s.id,s.bank_clabe!)}
+                          className="flex items-center gap-2 hover:opacity-80 transition group"
+                          title={`Click para copiar CLABE: ${s.bank_clabe}`}
+                        >
+                          {s.bank_name?(
+                            <BankLogo name={s.bank_name} size="sm" showName={true} />
+                          ):(
+                            <span className="text-[10px] text-[#7f93b0] italic">CLABE sin banco</span>
+                          )}
+                          {copiedId===s.id?(
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-medium"><Check className="w-3 h-3"/>Copiado</span>
+                          ):(
+                            <span className="flex items-center gap-1 text-[10px] text-[#7f93b0] group-hover:text-aria-accent"><Copy className="w-3 h-3"/>Copiar CLABE</span>
+                          )}
                         </button>
                       ):s.bank_name?(
                         <BankLogo name={s.bank_name} size="sm" showName={true} />
