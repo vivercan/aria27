@@ -478,10 +478,10 @@ export default function RequisicionesStatusPage() {
             </div>
             <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
-                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-sm text-amber-300 transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
+                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
               )}
-              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-aria-accent-bg text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>
-              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-emerald-500/20 text-sm text-[#c9d8ed] hover:text-aria-accent transition flex items-center gap-2"><FileDown className="w-4 h-4" />PDF</button>
+              <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-white/10"><Printer className="w-4 h-4" />Imprimir</button>
+              <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-emerald-500/30 ring-1 ring-emerald-300/30"><FileDown className="w-4 h-4" />PDF</button>
             </div>
           </div>
         </div>
