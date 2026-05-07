@@ -45,9 +45,9 @@ export default function BankLogo({ name, size = "md", showName = true }: BankLog
   const bank = findBank(trimmed);
 
   // Tarjeta tamaños — TODOS la misma proporcion para consistencia
-  const dim = size === "sm" ? { w: 78, h: 28, gap: 6, txt: 11, pad: 1 } :
-              size === "lg" ? { w: 130, h: 44, gap: 10, txt: 14, pad: 2 } :
-                              { w: 100, h: 34, gap: 8, txt: 13, pad: 1 };
+  const dim = size === "sm" ? { w: 64, h: 20, gap: 6, txt: 11, pad: 1 } :
+              size === "lg" ? { w: 100, h: 30, gap: 10, txt: 14, pad: 2 } :
+                              { w: 80, h: 24, gap: 8, txt: 13, pad: 1 };
 
   // Estilo tarjeta canon: fondo blanco + ligero 3D + ring sutil
   const cardStyle: React.CSSProperties = {
