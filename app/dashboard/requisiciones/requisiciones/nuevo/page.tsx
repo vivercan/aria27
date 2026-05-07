@@ -281,8 +281,25 @@ export default function NewRequisitionPage() {
 
     const userEmail = localStorage.getItem("userEmail") || "";
     // 26-Abr-2026: solicitante = nombre del usuario logueado (ya no hay dropdown).
-    const userDisplay = localStorage.getItem("userDisplayName") || localStorage.getItem("userName") || "";
-    const userName = userDisplay || (localStorage.getItem("userRole") === "admin" ? "Administrador" : "Usuario ARIA27");
+    // 7-May-2026: BUG FIX. Antes el fallback era "Usuario ARIA27" hardcoded
+    // cuando localStorage no tenia displayName. Ahora consultamos Users por
+    // email para obtener name/display_name real, y solo si falla todo usamos
+    // el email (no string placeholder).
+    let userDisplay = localStorage.getItem("userDisplayName") || localStorage.getItem("userName") || "";
+    if (!userDisplay && userEmail) {
+      try {
+        const { data: u } = await supabase.from("Users").select("name, display_name").eq("email", userEmail).single();
+        const row = (u as { name?: string; display_name?: string } | null);
+        userDisplay = row?.display_name || row?.name || "";
+        if (userDisplay) {
+          // Cache en localStorage para futuras requisiciones
+          localStorage.setItem("userDisplayName", userDisplay);
+        }
+      } catch {
+        // ignore - usar fallback
+      }
+    }
+    const userName = userDisplay || userEmail || "Sin identificar";
 
     let materiales: Record<string, unknown>[] = [];
     if (formMode === "catalogo") {
