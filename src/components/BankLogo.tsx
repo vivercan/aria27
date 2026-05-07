@@ -48,7 +48,11 @@ function findBank(name: string | null | undefined): BankConfig | null {
 }
 
 export default function BankLogo({ name, size = "md", showName = true }: BankLogoProps) {
-  const bank = findBank(name);
+  const trimmed = (name || "").trim();
+  // 7-May-2026: si no hay nombre, no rendereamos cuadro fantasma "??".
+  if (!trimmed) return null;
+
+  const bank = findBank(trimmed);
 
   // Tamaños
   const dim = size === "sm" ? { box: 22, font: 9, gap: 6, txt: 11 } :
@@ -56,26 +60,11 @@ export default function BankLogo({ name, size = "md", showName = true }: BankLog
                               { box: 28, font: 11, gap: 8, txt: 13 };
 
   if (!bank) {
-    // Fallback: cuadro genérico con primeras 2 letras del nombre
-    const fallbackLetters = (name || "??").trim().slice(0, 2).toUpperCase();
+    // Fallback para banco no conocido (texto raro): mostrar SOLO el nombre
+    // sin cuadro fantasma. Mejor que un "??" o iniciales aleatorias.
+    if (!showName) return null;
     return (
-      <span style={{ display: "inline-flex", alignItems: "center", gap: dim.gap }}>
-        <span style={{
-          width: dim.box, height: dim.box,
-          background: "linear-gradient(180deg, #475569 0%, #2D3848 100%)",
-          color: "#F1F5F9",
-          borderRadius: 6,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: dim.font,
-          fontWeight: 800,
-          letterSpacing: "-0.02em",
-          border: "1px solid rgba(255,255,255,0.15)",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10), 0 1px 3px rgba(0,0,0,0.30)",
-        }}>{fallbackLetters}</span>
-        {showName && <span style={{ fontSize: dim.txt, color: "#C9D8ED" }}>{name || "-"}</span>}
-      </span>
+      <span style={{ fontSize: dim.txt, color: "#C9D8ED", fontWeight: 500 }}>{trimmed}</span>
     );
   }
 
