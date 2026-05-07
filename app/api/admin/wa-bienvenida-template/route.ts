@@ -29,12 +29,23 @@ async function listApprovedTemplates(token: string, wabaId: string) {
   return { all_count: all.length, approved_count: approved.length, approved };
 }
 
-async function sendTemplate(phone: string, template: string, lang: string, token: string, phoneId: string) {
-  const body = {
+async function sendTemplate(phone: string, template: string, lang: string, token: string, phoneId: string, params: string[] = []) {
+  const components: Array<Record<string, unknown>> = [];
+  if (params.length > 0) {
+    components.push({
+      type: "body",
+      parameters: params.map(p => ({ type: "text", text: String(p) })),
+    });
+  }
+  const body: Record<string, unknown> = {
     messaging_product: "whatsapp",
     to: phone,
     type: "template",
-    template: { name: template, language: { code: lang } },
+    template: {
+      name: template,
+      language: { code: lang },
+      ...(components.length > 0 ? { components } : {}),
+    },
   };
   try {
     const r = await fetch(`https://graph.facebook.com/v22.0/${phoneId}/messages`, {
@@ -71,6 +82,9 @@ export async function GET(req: Request) {
   if (!phonesParam) return NextResponse.json({ error: "phones param requerido" }, { status: 400 });
 
   const sb = getSupabaseAdmin();
+  const paramsRaw = url.searchParams.get("params") || "";
+  const params = paramsRaw ? paramsRaw.split("|") : [];
+
   const phones = phonesParam.split(",").map(p => ({
     phone: normalizePhone(p.trim()),
     last4: normalizePhone(p.trim()).slice(-4),
@@ -78,7 +92,7 @@ export async function GET(req: Request) {
 
   const results = [];
   for (const p of phones) {
-    const r = await sendTemplate(p.phone, templateName, lang, token, phoneId);
+    const r = await sendTemplate(p.phone, templateName, lang, token, phoneId, params);
     results.push({
       phone_last4: p.last4,
       template: templateName,
