@@ -233,10 +233,10 @@ export default function ProveedoresPage() {
               <tr className="bg-[rgba(4,8,16,0.98)]  border-b border-white/[0.06] text-[10px] text-[#4a6080] font-semibold uppercase tracking-wider">
                 <th className="text-left pl-4 py-1.5 w-[220px]">Proveedor</th>
                 <th className="text-left py-1.5 w-[120px]">Categoría</th>
-                <th className="text-left py-1.5 w-[120px]">Teléfono</th>
-                <th className="text-left py-1.5">Email</th>
-                <th className="text-left py-1.5 w-[100px]">Crédito</th>
-                <th className="text-left py-1.5 w-[120px]">CLABE</th>
+                <th className="text-left py-1.5 w-[130px]">Teléfono</th>
+                <th className="text-left py-1.5 w-[260px]">Email</th>
+                <th className="text-left py-1.5 w-[80px]">Crédito</th>
+                <th className="text-left py-1.5 w-[200px]">CLABE</th>
                 <th className="text-center py-1.5 w-[80px]">Activo</th>
                 <th className="w-[60px]"></th>
               </tr>
@@ -278,17 +278,22 @@ export default function ProveedoresPage() {
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
                         <button
                           onClick={()=>copyClabe(s.id,s.bank_clabe!)}
-                          className={`hover:scale-105 transition-transform ${copiedId===s.id?"ring-2 ring-emerald-400 rounded-md":""}`}
+                          className={`flex items-center gap-2 hover:opacity-80 transition ${copiedId===s.id?"":""}`}
                           title={copiedId===s.id?"CLABE copiada":`Click para copiar CLABE: ${s.bank_clabe}`}
                         >
                           {s.bank_name?(
-                            <BankLogo name={s.bank_name} size="md" showName={false} />
+                            <BankLogo name={s.bank_name} size="sm" showName={true} />
                           ):(
                             <span className="text-[10px] text-[#7f93b0] italic">Sin banco</span>
                           )}
+                          {copiedId===s.id?(
+                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0"/>
+                          ):(
+                            <Copy className="w-3.5 h-3.5 text-[#7f93b0] hover:text-aria-accent shrink-0"/>
+                          )}
                         </button>
                       ):s.bank_name?(
-                        <BankLogo name={s.bank_name} size="md" showName={false} />
+                        <BankLogo name={s.bank_name} size="sm" showName={true} />
                       ):null}
                     </td>
                     <td className="text-center pr-2">
