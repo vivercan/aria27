@@ -1102,3 +1102,91 @@ button.bg-red-600 {
   background: linear-gradient(180deg, #356BB8 0%, #295AA0 100%);
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   CANON PANTALLA ASISTENCIAS — 8-MAY-2026
+   Pills/KPIs sólidos + ligero 3D para reemplazar los arcade transparentes
+   ========================================================================== */
+
+/* Pill secondary: navy/slate sólido (Hoy / 7 días / Mes) */
+.aria-pill-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, #475569 0%, #2D3848 100%);
+  color: #F1F5F9;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(180,200,225,0.20);
+  box-shadow: inset 0 1px 0 rgba(220,235,255,0.10), 0 2px 4px rgba(0,0,0,0.30);
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+.aria-pill-secondary:hover {
+  background: linear-gradient(180deg, #56647A 0%, #3A4356 100%);
+  transform: translateY(-1px);
+}
+
+/* Pill warning: ámbar sólido (Ver Incompletas) */
+.aria-pill-warning {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, #F5B23E 0%, #C7821B 100%);
+  color: #1A1206;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid rgba(255,230,180,0.40);
+  box-shadow: inset 0 1px 0 rgba(255,240,200,0.30), 0 3px 8px rgba(199,130,27,0.40);
+  transition: all 150ms ease;
+}
+.aria-pill-warning:hover {
+  background: linear-gradient(180deg, #F8BF55 0%, #D89224 100%);
+  transform: translateY(-1px);
+}
+
+/* KPI cards: sólidos con barra lateral de color */
+.aria-kpi-card {
+  position: relative;
+  padding: 16px 18px 16px 22px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(15,30,60,0.85) 0%, rgba(8,18,40,0.92) 100%);
+  border: 1px solid rgba(180,200,225,0.15);
+  box-shadow: inset 0 1px 0 rgba(220,235,255,0.08), 0 4px 10px rgba(0,0,0,0.35);
+}
+.aria-kpi-card::before {
+  content: "";
+  position: absolute;
+  left: 8px; top: 12px; bottom: 12px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--kpi-accent, #475569);
+}
+.aria-kpi-card p:last-child {
+  color: rgba(214,228,255,0.55);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.aria-kpi-slate   { --kpi-accent: #94A3B8; }
+.aria-kpi-success { --kpi-accent: #10B981; }
+.aria-kpi-primary { --kpi-accent: #3B82F6; }
+.aria-kpi-danger  { --kpi-accent: #EF4444; }
+
+/* Pill geocerca OK/Fuera */
+.aria-pill-geocerca {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(180deg, rgba(15,30,60,0.85) 0%, rgba(8,18,40,0.92) 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(180,200,225,0.18);
+  box-shadow: inset 0 1px 0 rgba(220,235,255,0.10), 0 1px 3px rgba(0,0,0,0.30);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
