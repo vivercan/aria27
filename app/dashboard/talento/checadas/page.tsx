@@ -188,7 +188,7 @@ export default function ChecadasPage() {
                     // está físicamente invertida (entra de noche = "salida" del día anterior).
                     // Para mostrar correctamente, swappear las etiquetas en pantalla.
                     const fullName = (a.employees?.full_name || "").toLowerCase();
-                    const position = (a.employees?.position || "").toLowerCase();
+                    const position = (((a.employees as unknown) as { position?: string })?.position || "").toLowerCase();
                     const isVelador = position.includes("velador") || fullName.includes("baudelio");
                     const labelEntrada = isVelador ? "Salida" : "Entrada";
                     const labelSalida  = isVelador ? "Entrada" : "Salida";
