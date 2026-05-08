@@ -52,15 +52,63 @@ export default function ChecadasPage() {
 
   const cargarAsistencias = async () => {
     setLoading(true);
-    const { data } = await supabase
+    // 8-May-2026: SELECT robusto. No usar relations directas que pueden tronar
+    // si FK no esta declarada. Hacer query base y enriquecer en N+1 simple.
+    const { data, error } = await supabase
       .from("asistencias")
-      .select("*, employees(full_name, employee_number, position), centros_trabajo(codigo, nombre, latitud, longitud, radio_metros)")
+      .select("*, employees(full_name, employee_number)")
       .gte("fecha", fechaInicio)
       .lte("fecha", fechaFin)
       .order("fecha", { ascending: false })
       .order("hora_entrada", { ascending: true });
 
+    if (error) {
+      console.error("[asistencias] cargar fallo", error);
+    }
+
     let registros: Asistencia[] = (data as Asistencia[]) || [];
+
+    // Enriquecer con position (si la columna existe en employees) y centros_trabajo
+    if (registros.length > 0) {
+      const empIds = Array.from(new Set(registros.map(r => r.employee_id).filter(Boolean)));
+      const ctIds = Array.from(new Set(registros.map(r => r.centro_trabajo_id).filter(Boolean) as string[]));
+      // position por employee
+      if (empIds.length > 0) {
+        try {
+          const { data: empExtra } = await supabase
+            .from("employees")
+            .select("id, position")
+            .in("id", empIds);
+          if (empExtra) {
+            const posMap: Record<string, string> = {};
+            (empExtra as Array<{ id: string; position: string }>).forEach(e => { posMap[e.id] = e.position; });
+            registros = registros.map(r => ({
+              ...r,
+              employees: r.employees ? { ...r.employees, position: posMap[r.employee_id] || "" } : null,
+            }));
+          }
+        } catch (e) { console.warn("[asistencias] position lookup fallo", e); }
+      }
+      // centros_trabajo
+      if (ctIds.length > 0) {
+        try {
+          const { data: cts } = await supabase
+            .from("centros_trabajo")
+            .select("id, codigo, nombre, latitud, longitud, radio_metros")
+            .in("id", ctIds);
+          if (cts) {
+            const ctMap: Record<string, { codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }> = {};
+            (cts as Array<{ id: string; codigo: string; nombre: string; latitud: number; longitud: number; radio_metros: number }>).forEach(c => {
+              ctMap[c.id] = { codigo: c.codigo, nombre: c.nombre, latitud: c.latitud, longitud: c.longitud, radio_metros: c.radio_metros };
+            });
+            registros = registros.map(r => ({
+              ...r,
+              centros_trabajo: r.centro_trabajo_id ? ctMap[r.centro_trabajo_id] || null : null,
+            }));
+          }
+        } catch (e) { console.warn("[asistencias] centros_trabajo lookup fallo", e); }
+      }
+    }
 
     // Fallback: enriquecer registros sin nombre desde Personal (VIEW) por employee_id
     const sinNombre = registros.filter(r => !r.employees?.full_name).map((r: Asistencia) => r.employee_id).filter(Boolean);
