@@ -48,7 +48,8 @@ export default function ChecadasPage() {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [empleadosList, setEmpleadosList] = useState<EmpleadoInfo[]>([]);
-  const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
+  const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
+  const [userRole, setUserRole] = useState<string>("");
   const { msg, flash, clear } = useFlashMessage();
 
   useEffect(() => { cargarAsistencias();
@@ -72,7 +73,21 @@ export default function ChecadasPage() {
       (data as Array<{ id: string; centro_trabajo_id: string | null }>).forEach(e => { if (e.centro_trabajo_id) map[e.id] = e.centro_trabajo_id; });
       setEmpCentroMap(map);
     });
+    // Cargar rol del usuario actual (para mostrar boton Manual solo a admin/director/rh)
+    if (typeof window !== "undefined") {
+      const email = localStorage.getItem("userEmail") || "";
+      if (email) {
+        supabase.from("Users").select("role").eq("email", email).maybeSingle().then(({ data }) => {
+          if (data) setUserRole(((data as { role?: string })?.role || "").toLowerCase());
+        });
+      }
+    }
   }, []);
+
+  const puedeRegistrarManual = (() => {
+    const r = userRole.toLowerCase();
+    return r.includes("admin") || r.includes("director") || r === "rh" || r.includes("recursos") || r.includes("talento");
+  })();
 
   const cargarAsistencias = async () => {
     setLoading(true);
@@ -240,11 +255,13 @@ export default function ChecadasPage() {
   const handleManual = async () => {
     if (!formManual.employee_id) return;
     setSaving(true);
+    const ctId = formManual.centro_trabajo_id || empCentroMap[formManual.employee_id] || (oficinaDefault as { id?: string } | null)?.id || null;
     const { error } = await supabase.from("asistencias").insert({
       employee_id: formManual.employee_id,
       fecha: formManual.fecha,
       hora_entrada: formManual.hora_entrada,
       hora_salida: formManual.hora_salida,
+      centro_trabajo_id: ctId,
       tipo_registro: "MANUAL",
       dentro_geocerca_entrada: true
     });
@@ -253,8 +270,9 @@ export default function ChecadasPage() {
       flash("err", "No se pudo registrar la asistencia: " + (((error as {message?: string})?.message) || "Error desconocido"));
       return;
     }
+    flash("ok", "Asistencia registrada manualmente");
     setShowModal(false);
-    setFormManual({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00" });
+    setFormManual({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
     cargarAsistencias();
   };
 
@@ -280,6 +298,11 @@ export default function ChecadasPage() {
             <Link href="/dashboard/talento/checadas/incompletas" className="aria-pill-warning text-xs">
               Ver Incompletas
             </Link>
+            {puedeRegistrarManual && (
+              <button onClick={() => setShowModal(true)} className="aria-btn-success text-xs flex items-center gap-1.5" title="Captura administrativa de asistencia (sin GPS)">
+                <Plus className="w-3.5 h-3.5" /> Registro Manual
+              </button>
+            )}
           </div>
         </div>
 
@@ -381,7 +404,10 @@ export default function ChecadasPage() {
                                 >
                                   <div className="font-semibold">{labelEntrada}: {a!.hora_entrada}</div>
                                   <div className="font-semibold opacity-95">{labelSalida}: {a!.hora_salida || "—"}</div>
-                                  {fuera && <div className="text-[8px] font-bold mt-0.5 tracking-wider opacity-95">FUERA</div>}
+                                  <div className="flex items-center justify-center gap-1 mt-0.5">
+                                    {fuera && <span className="text-[8px] font-bold tracking-wider opacity-95">FUERA</span>}
+                                    {a!.tipo_registro === "MANUAL" && <span className="text-[8px] font-bold px-1 rounded bg-white/15 tracking-wider opacity-90" title="Captura manual sin GPS">M</span>}
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="text-[10px] text-[#3d5275] py-2">—</div>
@@ -473,7 +499,19 @@ export default function ChecadasPage() {
             <div className="bg-aria-bg rounded-2xl border border-white/15 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
               <div className="p-4 border-b border-white/10 flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Mapa de checada — {tipo === "entrada" ? "Entrada" : "Salida"}</h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-white">Mapa de checada — {tipo === "entrada" ? "Entrada" : "Salida"}</h3>
+                    {a.tipo_registro === "MANUAL" && (
+                      <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-amber-500/15 border border-amber-500/40 text-amber-200" title="Asistencia capturada desde el panel administrativo, no por WhatsApp ni movil. No tiene GPS del empleado.">
+                        Manual · sin GPS
+                      </span>
+                    )}
+                    {a.tipo_registro === "WHATSAPP" && (
+                      <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-emerald-500/15 border border-emerald-500/40 text-emerald-200">
+                        WhatsApp
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[#7f93b0]">{empleado} · {a.fecha} · {tipo === "entrada" ? a.hora_entrada : a.hora_salida || "--:--"}</p>
                 </div>
                 <button onClick={() => setMapaModal(null)} className="p-2 rounded hover:bg-white/[0.06] text-[#7f93b0] hover:text-white">✕</button>
@@ -604,11 +642,25 @@ export default function ChecadasPage() {
               <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-[#7f93b0]" /></button>
             </div>
             <div className="space-y-3">
+              <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                <p className="text-[11px] text-amber-200 leading-relaxed">
+                  <span className="font-bold">Captura administrativa.</span> Esta asistencia NO tendra GPS — se usa para empleados que olvidaron marcar, sin cobertura, o velador. Selecciona el centro de trabajo para que el mapa muestre la geocerca esperada.
+                </p>
+              </div>
               <div>
                 <label className="text-xs text-[#7f93b0]">Empleado *</label>
-                <select value={formManual.employee_id} onChange={e => setFormManual({...formManual, employee_id: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
+                <select value={formManual.employee_id} onChange={e => setFormManual({...formManual, employee_id: e.target.value, centro_trabajo_id: empCentroMap[e.target.value] || ""})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
                   <option value="">Seleccionar...</option>
                   {empleadosList.map(e => <option key={e.id} value={e.id}>{e.employee_number} - {e.full_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-[#7f93b0]">Centro de trabajo (opcional, usa geocerca)</label>
+                <select value={formManual.centro_trabajo_id} onChange={e => setFormManual({...formManual, centro_trabajo_id: e.target.value})} className="w-full bg-[#0f2448] text-white rounded-lg px-3 py-2 text-sm border border-white/[0.08]">
+                  <option value="">Auto (usa el del empleado o OFICINA default)</option>
+                  {centrosList.filter(c => c.latitud != null && c.longitud != null).map(c => (
+                    <option key={c.id} value={c.id}>{c.codigo || ""} - {c.nombre || ""}</option>
+                  ))}
                 </select>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
