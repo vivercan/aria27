@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import {
   Plus, Search, Edit2, Phone, Mail, Building2,
   MapPin, X, Save, Copy, Check, Trash2, Globe,
-  MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
+  MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen, FileText, ClipboardCopy, ClipboardCheck
 } from "lucide-react";
 import BankLogo from "@/components/BankLogo";
 import { formatProperName } from "@/lib/format-name";
@@ -35,6 +35,26 @@ const EMPTY_FORM = {
   bank_account_number:"",payment_method:"TRANSFERENCIA",razon_social:"",zona_cobertura:"",notas_comerciales:""
 };
 
+
+function KpiBox({ label, value, accent, onClick, active }: { label: string; value: number; accent: string; onClick?: () => void; active?: boolean }) {
+  const Comp = onClick ? "button" : "div";
+  return (
+    <Comp
+      onClick={onClick}
+      className={`px-3 py-1.5 rounded-md flex items-center gap-2 transition cursor-${onClick ? "pointer" : "default"} ${active ? "ring-2 ring-aria-accent" : ""}`}
+      style={{
+        background: `linear-gradient(180deg, rgba(15,30,60,0.85) 0%, rgba(8,18,40,0.92) 100%)`,
+        border: `1px solid ${accent}55`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.30)`,
+      }}
+    >
+      <span style={{ width: 4, height: 22, background: accent, borderRadius: 2 }} />
+      <span className="text-[10px] uppercase tracking-wider text-[#7f93b0]">{label}</span>
+      <span className="text-sm font-bold" style={{ color: accent }}>{value}</span>
+    </Comp>
+  );
+}
+
 export default function ProveedoresPage() {
   const log = clientLogger("PROVEEDORES");
   const { msg, flash, clear } = useFlashMessage();
@@ -45,6 +65,7 @@ export default function ProveedoresPage() {
   const [loading,setLoading] = useState(true);
   const [search,setSearch] = useState("");
   const [filterCat,setFilterCat] = useState("");
+<<<<<<< ours
   const [sortBy,setSortBy] = useState<string>("");
   const [sortDir,setSortDir] = useState<"asc"|"desc">("asc");
   const toggleSort = (col: string) => {
@@ -53,6 +74,9 @@ export default function ProveedoresPage() {
       else { setSortBy(""); setSortDir("asc"); }
     } else { setSortBy(col); setSortDir("asc"); }
   };
+=======
+  const [density,setDensity] = useState<"compact"|"comfy">("comfy");
+>>>>>>> theirs
   // FC2 23-Abr-2026: tabs Activos / Catalogo
   const [tabFilter,setTabFilter] = useState<"ACTIVOS" | "CATALOGO" | "TODOS">("ACTIVOS");
   const [showModal,setShowModal] = useState(false);
@@ -106,6 +130,32 @@ export default function ProveedoresPage() {
   });
   const countActivos  = suppliers.filter(s => s.active === true && !!(s.bank_clabe && /^\d{18}$/.test(s.bank_clabe.trim()))).length;
   const countCatalogo = suppliers.filter(s => s.active === false || !(s.bank_clabe && /^\d{18}$/.test(s.bank_clabe.trim()))).length;
+  const kpiSinEmail   = suppliers.filter(s => !s.email).length;
+  const kpiSinTel     = suppliers.filter(s => !s.phone).length;
+  const kpiCredito30  = suppliers.filter(s => (s.credit_days || 0) >= 30).length;
+  const kpiSinClabe   = suppliers.filter(s => !s.bank_clabe || s.bank_clabe.length < 10).length;
+
+  const exportCSV = () => {
+    const rows = filtered.map((p:Supplier) => [
+      formatProperName(p.name) || "",
+      Array.isArray(p.categories) ? p.categories.join(" | ") : (p.categories || ""),
+      p.phone || "",
+      p.email || "",
+      p.credit_days ? p.credit_days + "d" : "Contado",
+      p.bank_name || "",
+      p.bank_clabe || "",
+      p.active ? "ACTIVO" : "CATALOGO",
+    ]);
+    const headers = ["Proveedor","Categoria","Telefono","Email","Credito","Banco","CLABE","Estado"];
+    const csv = [headers, ...rows].map(r => r.map((c:any) => `"` + String(c).replace(/"/g, `""`) + `"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `proveedores_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const openNew = ()=>{setForm(EMPTY_FORM);setEditingId(null);setShowModal(true);};
   const openEdit = (s:Supplier)=>{
@@ -218,6 +268,22 @@ export default function ProveedoresPage() {
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
           <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
         </div>
+        {/* KPI cards */}
+        <div className="flex gap-2 mb-2 flex-wrap">
+          <KpiBox label="Activos" value={countActivos} accent="#1F4A8C" onClick={()=>setTabFilter("ACTIVOS")} active={tabFilter==="ACTIVOS"} />
+          <KpiBox label="En catálogo" value={countCatalogo} accent="#475569" onClick={()=>setTabFilter("CATALOGO")} active={tabFilter==="CATALOGO"} />
+          <KpiBox label="Crédito 30d+" value={kpiCredito30} accent="#D97706" />
+          <KpiBox label="Sin email" value={kpiSinEmail} accent="#EC0000" />
+          <KpiBox label="Sin teléfono" value={kpiSinTel} accent="#A02530" />
+          <KpiBox label="Sin CLABE" value={kpiSinClabe} accent="#6B7B95" />
+          <div className="flex-1" />
+          <button onClick={exportCSV} className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition flex items-center gap-1.5" title="Exportar CSV de la lista filtrada">
+            <FileText className="w-3.5 h-3.5"/>Exportar
+          </button>
+          <button onClick={()=>setDensity(density==="compact"?"comfy":"compact")} className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition flex items-center gap-1.5" title="Cambiar densidad">
+            {density==="compact"?"Densidad: Compacta":"Densidad: Cómoda"}
+          </button>
+        </div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <div className="flex items-center gap-1.5 mr-3">
           {(["ACTIVOS","CATALOGO","TODOS"] as const).map(t => {
@@ -303,10 +369,10 @@ export default function ProveedoresPage() {
                       {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,3).map(c=><span key={c} className="aria-table-tag-cat">{c}</span>)}{cats.length>3&&<span className="text-[10px] text-[#475569] self-center">+{cats.length-3}</span>}</div>}
                     </td>
                     <td className="text-[#7f93b0]">
-                      {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1 text-[12px]"><Phone className="w-3 h-3"/>{formatPhoneMx(s.phone)}</a>}
+                      {s.phone?<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1 text-[12px]"><Phone className="w-3 h-3"/>{formatPhoneMx(s.phone)}</a>:<span className="text-[#94a3b8] text-[12px]">—</span>}
                     </td>
                     <td className="text-[#7f93b0] truncate max-w-[200px]">
-                      {s.email&&<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>}
+                      {s.email?<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>:<span className="text-[#94a3b8]">—</span>}
                     </td>
                     <td className="text-[#7f93b0]">
                       {s.credit_days&&s.credit_days>0?(()=>{
