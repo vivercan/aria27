@@ -831,3 +831,114 @@ button.bg-red-600 {
   color: #FFF4F4;
   border-color: rgba(255,180,180,0.40);
 }
+
+/* ==========================================================================
+   PANTALLA PROVEEDORES - CANON AAA (7-MAY-2026)
+   Header navy con porte, fondo zona claro premium, tipografia oscura.
+   ========================================================================== */
+
+.aria-table-zone-light {
+  background: linear-gradient(180deg, #E8F0FA 0%, #DEE9F5 50%, #D4E2F0 100%);
+  border-radius: 0;
+  position: relative;
+}
+.aria-table-zone-light::before {
+  content: "";
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.aria-table-zone-light table {
+  background: transparent;
+}
+
+/* Header cells navy intenso con border accent */
+.aria-table-header {
+  background: linear-gradient(180deg, #1F4A8C 0%, #0F2D6E 100%);
+  border-bottom: 2px solid rgba(72,128,230,0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(220,235,255,0.18),
+    0 2px 6px rgba(0,0,0,0.30);
+}
+.aria-table-header th {
+  letter-spacing: 0.10em;
+  color: #F4F8FF;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Filas: tipografia oscura, hover sutil */
+.aria-table-row {
+  border-bottom: 1px solid rgba(120,150,190,0.18);
+  transition: background 120ms ease;
+}
+.aria-table-row:hover {
+  background: rgba(255,255,255,0.55);
+}
+.aria-table-row td {
+  color: #1A2E5C;
+}
+.aria-table-row .aria-table-name {
+  color: #0A1A45;
+}
+.aria-table-row .aria-table-subtle {
+  color: #6B7B95;
+}
+.aria-table-row a {
+  color: #1F4A8C;
+  text-decoration: none;
+}
+.aria-table-row a:hover {
+  color: #0A1A45;
+  text-decoration: underline;
+}
+
+/* Tag de categoria */
+.aria-table-tag-cat {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  background: linear-gradient(180deg, rgba(31,74,140,0.15) 0%, rgba(15,45,110,0.18) 100%);
+  color: #0A1A45;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(31,74,140,0.20);
+  margin-right: 2px;
+}
+
+/* Boton Nuevo con vida */
+.aria-btn-nuevo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, #2EE890 0%, #1FB870 50%, #168E5A 100%);
+  color: #062B16;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(46,232,144,0.55);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.40),
+    0 4px 14px rgba(46,232,144,0.40),
+    0 1px 2px rgba(0,0,0,0.30);
+  transition: all 150ms ease;
+}
+.aria-btn-nuevo:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    0 6px 20px rgba(46,232,144,0.55),
+    0 2px 4px rgba(0,0,0,0.30);
+}
+.aria-btn-nuevo:active {
+  transform: translateY(0);
+}

@@ -1,25 +1,27 @@
 "use client";
 
-// 7-May-2026 — Logos reales de bancos como tarjetas blancas con shadow 3D ligero.
-// Los archivos PNG estan en /public/banks/.
-// Si el banco no tiene archivo, fallback a tarjeta gris con texto.
+// 7-May-2026 — Logos de bancos como etiquetas con nitidez AAA.
+// SVG/PNG inline. Per-banco se puede indicar si requiere fondo blanco
+// (logos con texto sobre transparente) o NO (logos que ya traen su
+// propio fondo de color como Santander, Banorte).
 
 interface BankLogoProps {
   name: string | null | undefined;
   size?: "sm" | "md" | "lg";
-  showName?: boolean; // si false, solo se muestra la tarjeta del logo
+  showName?: boolean;
 }
 
 interface BankConfig {
-  file: string;       // archivo en /public/banks/{file}
-  label: string;      // nombre canonico para tooltip/showName
-  matches: string[];  // patrones para matching (lowercase)
+  file: string;
+  label: string;
+  matches: string[];
+  noBg?: boolean; // Si true: no aplicar fondo blanco, el logo va directo
 }
 
 const BANKS: BankConfig[] = [
   { file: "bbva.png",        label: "BBVA",        matches: ["bbva", "bancomer"] },
-  { file: "santander.png",   label: "Santander",   matches: ["santander"] },
-  { file: "banorte.png",     label: "Banorte",     matches: ["banorte"] },
+  { file: "santander.png",   label: "Santander",   matches: ["santander"], noBg: true },
+  { file: "banorte.png",     label: "Banorte",     matches: ["banorte"], noBg: true },
   { file: "hsbc.png",        label: "HSBC",        matches: ["hsbc"] },
   { file: "citibanamex.png", label: "Citibanamex", matches: ["banamex", "citibanamex", "citi"] },
   { file: "babajio.png",     label: "BanBajío",    matches: ["banbajio", "ban bajio", "bajio"] },
@@ -44,55 +46,65 @@ export default function BankLogo({ name, size = "md", showName = true }: BankLog
 
   const bank = findBank(trimmed);
 
-  // Tarjeta tamaños — TODOS la misma proporcion para consistencia
-  const dim = size === "sm" ? { w: 64, h: 20, gap: 6, txt: 11, pad: 1 } :
-              size === "lg" ? { w: 100, h: 30, gap: 10, txt: 14, pad: 2 } :
-                              { w: 80, h: 24, gap: 8, txt: 13, pad: 1 };
+  // Etiqueta tipo tag, altura corta. Border-radius 4 (canon).
+  const dim = size === "sm" ? { w: 70, h: 22, gap: 6, txt: 11, pad: 1, radius: 4 } :
+              size === "lg" ? { w: 110, h: 32, gap: 10, txt: 14, pad: 2, radius: 5 } :
+                              { w: 88, h: 26, gap: 8, txt: 13, pad: 1, radius: 4 };
 
-  // Estilo tarjeta canon: fondo blanco + ligero 3D + ring sutil
-  const cardStyle: React.CSSProperties = {
+  const baseCard: React.CSSProperties = {
     width: dim.w,
     height: dim.h,
-    background: "#FFFFFF",
-    borderRadius: 6,
+    borderRadius: dim.radius,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: dim.pad,
-    border: "1px solid rgba(255,255,255,0.18)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.40), 0 2px 4px rgba(0,0,0,0.30), 0 1px 2px rgba(0,0,0,0.15)",
     flexShrink: 0,
+    overflow: "hidden",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.30), 0 1px 2px rgba(0,0,0,0.30), 0 1px 1px rgba(0,0,0,0.10)",
   };
 
   if (bank) {
+    // Si el banco usa noBg (Santander, Banorte): el logo ocupa 100% sin fondo blanco
+    const cardStyle: React.CSSProperties = bank.noBg
+      ? { ...baseCard, padding: 0, border: "1px solid rgba(255,255,255,0.10)" }
+      : { ...baseCard, padding: dim.pad, background: "#FFFFFF", border: "1px solid rgba(255,255,255,0.18)" };
+
+    const imgStyle: React.CSSProperties = bank.noBg
+      ? {
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+          imageRendering: "auto",
+        }
+      : {
+          maxWidth: "100%",
+          maxHeight: "100%",
+          objectFit: "contain",
+          display: "block",
+          imageRendering: "auto",
+        };
+
     return (
       <span style={{ display: "inline-flex", alignItems: "center", gap: dim.gap }}>
         <span style={cardStyle} title={bank.label}>
           <img
             src={`/banks/${bank.file}`}
             alt={bank.label}
-            style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
+            style={imgStyle}
+            loading="eager"
+            decoding="sync"
           />
         </span>
-        {showName && <span style={{ fontSize: dim.txt, color: "#C9D8ED", fontWeight: 400 }}>{bank.label}</span>}
+        {showName && <span style={{ fontSize: dim.txt, color: "#0A1A45", fontWeight: 500 }}>{bank.label}</span>}
       </span>
     );
   }
 
-  // Fallback tarjeta gris con texto del banco no reconocido
+  // Banco no reconocido: solo texto plano (sin cuadro fantasma)
+  if (!showName) return null;
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: dim.gap }}>
-      <span style={{
-        ...cardStyle,
-        background: "linear-gradient(180deg, #475569 0%, #2D3848 100%)",
-        color: "#F1F5F9",
-        fontSize: Math.max(8, dim.txt - 2),
-        fontWeight: 700,
-      }}>
-        {trimmed.slice(0, 8).toUpperCase()}
-      </span>
-      {showName && <span style={{ fontSize: dim.txt, color: "#C9D8ED" }}>{trimmed}</span>}
-    </span>
+    <span style={{ fontSize: dim.txt, color: "#475569", fontWeight: 500 }}>{trimmed}</span>
   );
 }
 

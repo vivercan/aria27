@@ -11,6 +11,7 @@ import {
   MessageCircle, CreditCard, Filter, ChevronRight, Loader2, FolderOpen
 } from "lucide-react";
 import BankLogo from "@/components/BankLogo";
+import { formatProperName } from "@/lib/format-name";
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
@@ -120,7 +121,14 @@ export default function ProveedoresPage() {
       const catsArr = form.categories
         ? form.categories.split(",").map(c=>c.trim()).filter(Boolean)
         : null;
-      const payload:any = {...form, categories: catsArr && catsArr.length>0 ? catsArr : null};
+      // 7-May-2026 canon AAA: aplicar Title Case al nombre y contacto antes de guardar
+      const payload:any = {
+        ...form,
+        name: formatProperName(form.name) || form.name,
+        contact_name: form.contact_name ? formatProperName(form.contact_name) : form.contact_name,
+        razon_social: form.razon_social ? formatProperName(form.razon_social) : form.razon_social,
+        categories: catsArr && catsArr.length>0 ? catsArr : null,
+      };
       if(editingId){
         const { error } = await supabase.from("suppliers").update(payload).eq("id",editingId);
         if (error) {
@@ -180,9 +188,13 @@ export default function ProveedoresPage() {
             <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
             <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
           </div>
-          <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 text-[11px] bg-emerald-500/20 text-aria-accent rounded-lg hover:bg-aria-primary/30"><Plus className="w-3 h-3"/>Nuevo</button>
+          <button onClick={openNew} className="aria-btn-nuevo group" type="button">
+            <Plus className="w-3.5 h-3.5 transition-transform group-hover:rotate-90"/>
+            <span>Nuevo</span>
+          </button>
         </div>
-        <div className="flex items-center gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+          <div className="flex items-center gap-1.5 mr-3">
           {(["ACTIVOS","CATALOGO","TODOS"] as const).map(t => {
             const active = tabFilter === t;
             const count = t === "ACTIVOS" ? countActivos : t === "CATALOGO" ? countCatalogo : suppliers.length;
@@ -205,24 +217,24 @@ export default function ProveedoresPage() {
               </button>
             );
           })}
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
+          </div>
+          <div className="relative" style={{ width: 280 }}>
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4a6080]"/>
-            <input type="text" placeholder="Buscar nombre, RFC, contacto, email..." value={search} onChange={e=>setSearch(e.target.value)}
+            <input type="text" placeholder="Buscar nombre, RFC, contacto..." value={search} onChange={e=>setSearch(e.target.value)}
               className="w-full pl-8 pr-7 py-1.5 text-xs aria-input-canon focus:border-aria-primary/50 outline-none"/>
             {search&&<button onClick={()=>setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2"><X className="w-3 h-3 text-[#7f93b0]"/></button>}
           </div>
           <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}
-            className="appearance-none pl-2.5 pr-6 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none cursor-pointer min-w-[160px]">
+            className="appearance-none pl-2.5 pr-6 py-1.5 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white outline-none cursor-pointer min-w-[150px]">
             <option value="">Todas ({categories.length})</option>
             {categories.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
         </div>
+
       </div>
 
       {/* TABLA */}
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className="flex-1 overflow-auto min-h-0 aria-table-zone-light">
         {loading?(
           <div className="flex items-center justify-center py-16"><Loader2 className="w-5 h-5 animate-spin text-aria-accent"/></div>
         ):filtered.length===0?(
@@ -230,14 +242,14 @@ export default function ProveedoresPage() {
         ):(
           <table className="w-full">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-[rgba(4,8,16,0.98)]  border-b border-white/[0.06] text-[10px] text-[#4a6080] font-semibold uppercase tracking-wider">
-                <th className="text-left pl-4 py-1.5 w-[220px]">Proveedor</th>
-                <th className="text-left py-1.5 w-[120px]">Categoría</th>
-                <th className="text-left py-1.5 w-[130px]">Teléfono</th>
-                <th className="text-left py-1.5 w-[260px]">Email</th>
-                <th className="text-left py-1.5 w-[80px]">Crédito</th>
-                <th className="text-left py-1.5 w-[200px]">CLABE</th>
-                <th className="text-center py-1.5 w-[80px]">Activo</th>
+              <tr className="aria-table-header text-[10px] text-white font-bold uppercase tracking-wider">
+                <th className="text-left pl-4 py-2.5 w-[220px]"><span className="inline-flex items-center gap-1.5"><Building2 className="w-3 h-3 opacity-70"/>Proveedor</span></th>
+                <th className="text-left py-2.5 w-[120px]">Categoría</th>
+                <th className="text-left py-2.5 w-[130px]"><span className="inline-flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-70"/>Teléfono</span></th>
+                <th className="text-left py-2.5 w-[260px]">Email</th>
+                <th className="text-left py-2.5 w-[80px]">Crédito</th>
+                <th className="text-left py-2.5 w-[200px]">CLABE</th>
+                <th className="text-center py-2.5 w-[80px]">Activo</th>
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
@@ -245,18 +257,18 @@ export default function ProveedoresPage() {
               {filtered.map(s=>{
                 const cats = getCatDisplay(s.categories);
                 return (
-                  <tr key={s.id} className="border-b border-white/[0.02] hover:bg-white/[0.04] transition-colors group h-[34px]">
+                  <tr key={s.id} className="aria-table-row group h-[36px]">
                     <td className="pl-4 pr-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3 h-3 text-aria-accent"/></div>
                         <div className="min-w-0">
-                          <p className="text-white font-medium truncate text-xs leading-tight">{s.name}</p>
-                          {s.contact_name&&<p className="text-[10px] text-[#4a6080] truncate leading-tight">{s.contact_name}</p>}
+                          <p className="aria-table-name font-semibold truncate text-xs leading-tight">{formatProperName(s.name)}</p>
+                          {s.contact_name&&<p className="aria-table-subtle text-[10px] truncate leading-tight">{formatProperName(s.contact_name)}</p>}
                         </div>
                       </div>
                     </td>
                     <td>
-                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="text-[9px] px-1 py-0.5 bg-aria-primary/15 text-aria-accent rounded">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-[#4a6080]">+{cats.length-2}</span>}</div>}
+                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="aria-table-tag-cat">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-[#4a6080]">+{cats.length-2}</span>}</div>}
                     </td>
                     <td className="text-[#7f93b0]">
                       {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1"><Phone className="w-2.5 h-2.5"/>{s.phone}</a>}
