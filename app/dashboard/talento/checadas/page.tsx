@@ -38,6 +38,8 @@ export default function ChecadasPage() {
   const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
   const [scorecardEmp, setScorecardEmp] = useState<string | null>(null);
   const [oficinaDefault, setOficinaDefault] = useState<{ codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null>(null);
+  const [centrosList, setCentrosList] = useState<Array<{ id: string; codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }>>([]);
+  const [empCentroMap, setEmpCentroMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const hoy = new Date().toISOString().split("T")[0];
   const [fechaInicio, setFechaInicio] = useState(hoy);
@@ -53,8 +55,22 @@ export default function ChecadasPage() {
     supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fechaInicio, fechaFin]);
 
   useEffect(() => {
-    supabase.from("centros_trabajo").select("codigo, nombre, latitud, longitud, radio_metros").eq("codigo", "CT-OFICINA").maybeSingle().then(({ data }) => {
-      if (data) setOficinaDefault(data as { codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number });
+    // Cargar todos los centros con coords + tabla pivote employee->centro para fallback en cadena
+    supabase.from("centros_trabajo").select("id, codigo, nombre, latitud, longitud, radio_metros").then(({ data }) => {
+      if (!data) return;
+      const list = data as Array<{ id: string; codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }>;
+      setCentrosList(list);
+      // CT-OFICINA si existe; si no, primer centro con lat/lng
+      const oficina = list.find(c => c.codigo === "CT-OFICINA" && c.latitud != null && c.longitud != null)
+        || list.find(c => c.latitud != null && c.longitud != null)
+        || null;
+      if (oficina) setOficinaDefault(oficina);
+    });
+    supabase.from("employees").select("id, centro_trabajo_id").then(({ data }) => {
+      if (!data) return;
+      const map: Record<string, string> = {};
+      (data as Array<{ id: string; centro_trabajo_id: string | null }>).forEach(e => { if (e.centro_trabajo_id) map[e.id] = e.centro_trabajo_id; });
+      setEmpCentroMap(map);
     });
   }, []);
 
@@ -413,13 +429,18 @@ export default function ChecadasPage() {
         const lat = tipo === "entrada" ? a.lat_entrada : a.lat_salida;
         const lng = tipo === "entrada" ? a.lng_entrada : a.lng_salida;
         const dist = tipo === "entrada" ? a.distancia_entrada_m : a.distancia_salida_m;
-        // Fallback: si la asistencia no tiene centros_trabajo, usar OFICINA default
-        const ctSrc = a.centros_trabajo || oficinaDefault;
+        // Fallback en cadena: ct directo de la asistencia -> ct del empleado -> CT-OFICINA -> primer disponible
+        let ctSrc: { codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null = a.centros_trabajo || null;
+        if (!ctSrc && a.employee_id) {
+          const empCentroId = empCentroMap[a.employee_id];
+          if (empCentroId) ctSrc = centrosList.find(c => c.id === empCentroId) || null;
+        }
+        if (!ctSrc) ctSrc = oficinaDefault;
         const ctLat = ctSrc?.latitud;
         const ctLng = ctSrc?.longitud;
         const radio = ctSrc?.radio_metros || 50;
-        const ctNombre = ctSrc?.nombre || "Sin geocerca";
-        const ctIsFallback = !a.centros_trabajo && !!oficinaDefault;
+        const ctNombre = ctSrc?.nombre || "Sin centro de trabajo";
+        const ctIsFallback = !a.centros_trabajo && !!ctSrc;
         const empleado = a.employees?.full_name || "Empleado";
         // Usar OpenStreetMap (gratis, sin API key)
         const hasReal = lat != null && lng != null;
@@ -433,8 +454,10 @@ export default function ChecadasPage() {
             const maxLng = Math.max(Number(lng), Number(ctLng)) + 0.003;
             return `${minLng},${minLat},${maxLng},${maxLat}`;
           }
-          const c = (hasReal ? [lat, lng] : (hasTarget ? [ctLat, ctLng] : [21.88234, -102.29572])) as [number, number];
-          return `${(c[1] as number) - 0.005},${(c[0] as number) - 0.005},${(c[1] as number) + 0.005},${(c[0] as number) + 0.005}`;
+          // Solo uno de los dos: zoom cerrado al punto disponible (~250m radio visible)
+          const c = (hasReal ? [lat, lng] : [ctLat, ctLng]) as [number, number];
+          const delta = 0.0015;
+          return `${(c[1] as number) - delta},${(c[0] as number) - delta},${(c[1] as number) + delta},${(c[0] as number) + delta}`;
         })();
         const markers = [hasReal ? `marker=${lat},${lng}` : "", hasTarget ? `marker=${ctLat},${ctLng}` : ""].filter(Boolean).join("&");
         const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&${markers}`;
@@ -451,8 +474,8 @@ export default function ChecadasPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 text-sm">
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   <p className="text-[10px] uppercase text-emerald-300 font-bold tracking-wider">Target / Geocerca</p>
-                  <p className="text-white font-medium mt-1">{ctNombre} {ctIsFallback && <span className="text-[9px] text-amber-300 font-bold uppercase ml-1">DEFAULT</span>}</p>
-                  {hasTarget ? <p className="text-xs text-[#c9d8ed] mt-0.5 font-mono">{Number(ctLat).toFixed(5)}, {Number(ctLng).toFixed(5)}</p> : <p className="text-xs text-red-300 mt-0.5">Sin geocerca configurada</p>}
+                  <p className="text-white font-medium mt-1">{ctNombre} {ctIsFallback && <span className="text-[9px] text-amber-300 font-bold uppercase ml-1 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30">DEFAULT</span>}</p>
+                  {hasTarget ? <p className="text-xs text-[#c9d8ed] mt-0.5 font-mono">{Number(ctLat).toFixed(5)}, {Number(ctLng).toFixed(5)}</p> : <p className="text-xs text-amber-300 mt-0.5">Esta asistencia no tiene centro asignado</p>}
                   <p className="text-xs text-[#7f93b0] mt-1">Radio permitido: {radio}m</p>
                 </div>
                 <div className={`p-3 rounded-lg border ${a.dentro_geocerca_entrada ? "bg-aria-primary/10 border-aria-primary/30" : "bg-red-500/10 border-red-500/30"}`}>
@@ -461,12 +484,24 @@ export default function ChecadasPage() {
                   {dist != null && <p className="text-xs text-[#7f93b0] mt-1">Distancia al target: <span className={Number(dist) > radio ? "text-red-400 font-bold" : "text-emerald-300 font-bold"}>{Math.round(Number(dist))}m</span></p>}
                 </div>
               </div>
-              <div className="flex-1 min-h-[400px] bg-black/40">
-                <iframe
-                  src={mapUrl}
-                  className="w-full h-full border-0"
-                  title="Mapa checada"
-                />
+              <div className="h-[420px] bg-[#06101e] border-t border-white/[0.06]">
+                {(hasReal || hasTarget) ? (
+                  <iframe
+                    src={mapUrl}
+                    className="w-full h-full border-0 block"
+                    title="Mapa checada"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center px-8 text-center">
+                    <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mb-3">
+                      <MapPin className="w-7 h-7 text-amber-300" />
+                    </div>
+                    <p className="text-white font-semibold">Sin coordenadas para mostrar</p>
+                    <p className="text-sm text-[#9fb1cc] mt-2 max-w-md leading-relaxed">
+                      Esta asistencia fue capturada manualmente sin GPS y el empleado no tiene un centro de trabajo asignado con geocerca. Asigna un centro de trabajo en su perfil para que las proximas checadas tengan referencia visual.
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="p-3 border-t border-white/10 flex justify-between items-center">
                 {hasReal && (
