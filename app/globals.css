@@ -942,3 +942,149 @@ button.bg-red-600 {
 .aria-btn-nuevo:active {
   transform: translateY(0);
 }
+
+/* ==========================================================================
+   PANTALLA PROVEEDORES - CANON AAA TOTAL (8-MAY-2026)
+   ========================================================================== */
+
+.aria-table-zone-light {
+  background: linear-gradient(180deg, #E8F0FA 0%, #DEE9F5 50%, #D4E2F0 100%);
+  position: relative;
+  box-shadow: inset 0 4px 12px rgba(0,0,0,0.10);
+}
+
+.aria-table-header {
+  background: linear-gradient(180deg, #1F4A8C 0%, #0F2D6E 100%);
+  border-bottom: 2px solid rgba(72,128,230,0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(220,235,255,0.18),
+    0 4px 8px rgba(0,0,0,0.30);
+}
+.aria-table-header th {
+  letter-spacing: 0.10em;
+  color: #F4F8FF;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* Zebra striping para profundidad */
+.aria-table-row {
+  border-bottom: 1px solid rgba(120,150,190,0.18);
+  transition: background 120ms ease;
+}
+.aria-table-row:nth-child(odd)  { background: rgba(255,255,255,0.45); }
+.aria-table-row:nth-child(even) { background: rgba(255,255,255,0.20); }
+.aria-table-row:hover {
+  background: rgba(255,255,255,0.85) !important;
+  box-shadow: inset 4px 0 0 #1F4A8C;
+}
+.aria-table-row td {
+  color: #1A2E5C;
+  font-size: 13px;
+}
+.aria-table-row .aria-table-name {
+  color: #0A1A45;
+  font-weight: 600;
+}
+.aria-table-row .aria-table-subtle {
+  color: #6B7B95;
+}
+.aria-table-row a {
+  color: #1F4A8C;
+  text-decoration: none;
+}
+.aria-table-row a:hover { color: #0A1A45; text-decoration: underline; }
+
+/* Tag de categoria CLICKEABLE - con power */
+.aria-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  padding: 3px 8px;
+  background: linear-gradient(180deg, #E0E9F5 0%, #C8D7EA 100%);
+  color: #0A1A45;
+  border-radius: 5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(31,74,140,0.25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50), 0 1px 2px rgba(0,0,0,0.10);
+  cursor: pointer;
+  transition: all 120ms ease;
+  margin-right: 3px;
+}
+.aria-cat-tag:hover {
+  background: linear-gradient(180deg, #B8CCE5 0%, #9CB4D5 100%);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 2px 4px rgba(0,0,0,0.20);
+}
+.aria-cat-tag.active {
+  background: linear-gradient(180deg, #1F4A8C 0%, #0F2D6E 100%);
+  color: #F4F8FF;
+  border-color: rgba(180,210,255,0.40);
+}
+
+/* Boton ACTIVO/CATALOGO - azul navy estilo header (no verde gamer) */
+.aria-pill-activo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: linear-gradient(180deg, #1F4A8C 0%, #0F2D6E 100%);
+  color: #F4F8FF;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 5px;
+  border: 1px solid rgba(180,210,255,0.30);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 3px rgba(0,0,0,0.30);
+  cursor: pointer;
+  transition: all 120ms ease;
+  min-width: 70px;
+}
+.aria-pill-activo:hover {
+  background: linear-gradient(180deg, #2A5AA2 0%, #1A3F88 100%);
+  transform: translateY(-1px);
+}
+.aria-pill-catalogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: linear-gradient(180deg, #475569 0%, #2D3848 100%);
+  color: #F1F5F9;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 5px;
+  border: 1px solid rgba(180,200,225,0.20);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 1px 3px rgba(0,0,0,0.30);
+  cursor: pointer;
+  min-width: 70px;
+}
+
+/* Boton Nuevo - corporativo */
+.aria-btn-nuevo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(180deg, #1F8A60 0%, #16704D 100%);
+  color: #F4F8FF;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), 0 2px 6px rgba(0,0,0,0.30);
+  transition: all 150ms ease;
+}
+.aria-btn-nuevo:hover {
+  background: linear-gradient(180deg, #259B6E 0%, #1B7D56 100%);
+  transform: translateY(-1px);
+}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import BankLogo from "@/components/BankLogo";
 import { formatProperName } from "@/lib/format-name";
+import { getCategoryIcon } from "@/lib/category-icons";
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
 import FlashBanner from "@/components/FlashBanner";
@@ -248,8 +249,8 @@ export default function ProveedoresPage() {
                 <th className="text-left py-2.5 w-[130px]"><span className="inline-flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-70"/>Teléfono</span></th>
                 <th className="text-left py-2.5 w-[260px]">Email</th>
                 <th className="text-left py-2.5 w-[80px]">Crédito</th>
-                <th className="text-left py-2.5 w-[200px]">CLABE</th>
-                <th className="text-center py-2.5 w-[80px]">Activo</th>
+                <th className="text-left py-2.5 w-[200px]">Banco / CLABE</th>
+                <th className="text-center py-2.5 w-[100px]">Estado</th>
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
@@ -260,9 +261,13 @@ export default function ProveedoresPage() {
                   <tr key={s.id} className="aria-table-row group h-[36px]">
                     <td className="pl-4 pr-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0"><Building2 className="w-3 h-3 text-aria-accent"/></div>
+                        {(() => { const ci = getCategoryIcon(s.categories); const Icon = ci.icon; return (
+                          <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.85)", border: `1px solid ${ci.color}55`, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.50), 0 1px 2px rgba(0,0,0,0.15)" }}>
+                            <Icon className="w-4 h-4" style={{ color: ci.color }}/>
+                          </div>
+                        );})()}
                         <div className="min-w-0">
-                          <p className="aria-table-name font-semibold truncate text-xs leading-tight">{formatProperName(s.name)}</p>
+                          <p className="aria-table-name truncate text-xs leading-tight">{formatProperName(s.name)}</p>
                           {s.contact_name&&<p className="aria-table-subtle text-[10px] truncate leading-tight">{formatProperName(s.contact_name)}</p>}
                         </div>
                       </div>
@@ -288,21 +293,8 @@ export default function ProveedoresPage() {
                     </td>
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
-                        <button
-                          onClick={()=>copyClabe(s.id,s.bank_clabe!)}
-                          className={`flex items-center gap-2 hover:opacity-80 transition ${copiedId===s.id?"":""}`}
-                          title={copiedId===s.id?"CLABE copiada":`Click para copiar CLABE: ${s.bank_clabe}`}
-                        >
-                          {s.bank_name?(
-                            <BankLogo name={s.bank_name} size="sm" showName={true} />
-                          ):(
-                            <span className="text-[10px] text-[#7f93b0] italic">Sin banco</span>
-                          )}
-                          {copiedId===s.id?(
-                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0"/>
-                          ):(
-                            <Copy className="w-3.5 h-3.5 text-[#7f93b0] hover:text-aria-accent shrink-0"/>
-                          )}
+                        <button onClick={()=>copyClabe(s.id,s.bank_clabe!)} className="hover:opacity-80 transition" title={copiedId===s.id?"CLABE copiada":`Click para copiar CLABE: ${s.bank_clabe}`}>
+                          <BankLogo name={s.bank_name} size="sm" showName={true} showCopy={true} copied={copiedId===s.id} />
                         </button>
                       ):s.bank_name?(
                         <BankLogo name={s.bank_name} size="sm" showName={true} />
