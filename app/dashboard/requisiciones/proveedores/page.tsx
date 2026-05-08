@@ -45,6 +45,14 @@ export default function ProveedoresPage() {
   const [loading,setLoading] = useState(true);
   const [search,setSearch] = useState("");
   const [filterCat,setFilterCat] = useState("");
+  const [sortBy,setSortBy] = useState<string>("");
+  const [sortDir,setSortDir] = useState<"asc"|"desc">("asc");
+  const toggleSort = (col: string) => {
+    if (sortBy === col) {
+      if (sortDir === "asc") setSortDir("desc");
+      else { setSortBy(""); setSortDir("asc"); }
+    } else { setSortBy(col); setSortDir("asc"); }
+  };
   // FC2 23-Abr-2026: tabs Activos / Catalogo
   const [tabFilter,setTabFilter] = useState<"ACTIVOS" | "CATALOGO" | "TODOS">("ACTIVOS");
   const [showModal,setShowModal] = useState(false);
@@ -105,6 +113,27 @@ export default function ProveedoresPage() {
     setForm({name:s.name||"",rfc:s.rfc||"",phone:s.phone||"",email:s.email||"",address:s.address||"",categories:catStr,contact_name:s.contact_name||"",credit_days:s.credit_days||0,website:s.website||"",whatsapp:s.whatsapp||"",bank_name:s.bank_name||"",bank_clabe:s.bank_clabe||"",bank_account_number:s.bank_account_number||"",payment_method:s.payment_method||"TRANSFERENCIA",razon_social:s.razon_social||"",zona_cobertura:s.zona_cobertura||"",notas_comerciales:s.notas_comerciales||""});
     setEditingId(s.id);setShowModal(true);
   };
+
+  const sorted = (() => {
+    if (!sortBy) return filtered;
+    const cmp = (a: any, b: any): number => {
+      let av: any = a[sortBy] ?? "";
+      let bv: any = b[sortBy] ?? "";
+      if (sortBy === "categoria") {
+        av = Array.isArray(a.categories) ? (a.categories[0] || "") : (a.categories || "");
+        bv = Array.isArray(b.categories) ? (b.categories[0] || "") : (b.categories || "");
+      }
+      if (sortBy === "credit") { av = Number(a.credit_days || 0); bv = Number(b.credit_days || 0); }
+      if (sortBy === "active") { av = a.active ? 1 : 0; bv = b.active ? 1 : 0; }
+      if (typeof av === "string") av = av.toLowerCase();
+      if (typeof bv === "string") bv = bv.toLowerCase();
+      if (av < bv) return sortDir === "asc" ? -1 : 1;
+      if (av > bv) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    };
+    return [...filtered].sort(cmp);
+  })();
+
 
   const validar = (): boolean => {
     const errors: Record<string, string> = {};
@@ -242,18 +271,18 @@ export default function ProveedoresPage() {
           <table className="w-full">
             <thead className="sticky top-0 z-10">
               <tr className="aria-table-header text-[10px] text-white font-bold uppercase tracking-wider">
-                <th className="text-left pl-4 py-2.5 w-[220px]"><span className="inline-flex items-center gap-1.5"><Building2 className="w-3 h-3 opacity-70"/>Proveedor</span></th>
-                <th className="text-left py-2.5 w-[240px]">Categoría</th>
-                <th className="text-left py-2.5 w-[130px]"><span className="inline-flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-70"/>Teléfono</span></th>
-                <th className="text-left py-2.5 w-[260px]">Email</th>
-                <th className="text-left py-2.5 w-[80px]">Crédito</th>
-                <th className="text-left py-2.5 w-[200px]">Banco / CLABE</th>
-                <th className="text-center py-2.5 w-[100px]">Estado</th>
+                <th onClick={()=>toggleSort("name")} className={`aria-th-sortable text-left pl-4 py-2.5 w-[220px] ${sortBy==="name"?"active":""}`}><span className="inline-flex items-center gap-1.5"><Building2 className="w-3 h-3 opacity-70"/>Proveedor<span className="sort-arrow">{sortBy==="name"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></span></th>
+                <th onClick={()=>toggleSort("categoria")} className={`aria-th-sortable text-left py-2.5 w-[240px] ${sortBy==="categoria"?"active":""}`}>Categoría<span className="sort-arrow">{sortBy==="categoria"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></th>
+                <th onClick={()=>toggleSort("phone")} className={`aria-th-sortable text-left py-2.5 w-[130px] ${sortBy==="phone"?"active":""}`}><span className="inline-flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-70"/>Teléfono<span className="sort-arrow">{sortBy==="phone"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></span></th>
+                <th onClick={()=>toggleSort("email")} className={`aria-th-sortable text-left py-2.5 w-[260px] ${sortBy==="email"?"active":""}`}>Email<span className="sort-arrow">{sortBy==="email"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></th>
+                <th onClick={()=>toggleSort("credit")} className={`aria-th-sortable text-left py-2.5 w-[80px] ${sortBy==="credit"?"active":""}`}>Crédito<span className="sort-arrow">{sortBy==="credit"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></th>
+                <th onClick={()=>toggleSort("bank_name")} className={`aria-th-sortable text-left py-2.5 w-[200px] ${sortBy==="bank_name"?"active":""}`}>Banco / CLABE<span className="sort-arrow">{sortBy==="bank_name"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></th>
+                <th onClick={()=>toggleSort("active")} className={`aria-th-sortable text-center py-2.5 w-[100px] ${sortBy==="active"?"active":""}`}>Estado<span className="sort-arrow">{sortBy==="active"?(sortDir==="asc"?"↑":"↓"):"⇅"}</span></th>
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
             <tbody className="text-[12px]">
-              {filtered.map(s=>{
+              {sorted.map(s=>{
                 const cats = getCatDisplay(s.categories);
                 return (
                   <tr key={s.id} className="aria-table-row group h-[36px]">
