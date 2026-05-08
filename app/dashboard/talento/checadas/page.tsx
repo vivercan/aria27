@@ -16,7 +16,15 @@ interface Asistencia {
   hora_salida: string | null;
   dentro_geocerca_entrada: boolean;
   tipo_registro: string;
-  employees: { full_name: string; employee_number: string } | null;
+  lat_entrada?: number | null;
+  lng_entrada?: number | null;
+  lat_salida?: number | null;
+  lng_salida?: number | null;
+  distancia_entrada_m?: number | null;
+  distancia_salida_m?: number | null;
+  centro_trabajo_id?: string | null;
+  employees: { full_name: string; employee_number: string; position?: string } | null;
+  centros_trabajo?: { codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null;
 }
 
 interface EmpleadoInfo {
@@ -27,6 +35,7 @@ interface EmpleadoInfo {
 
 export default function ChecadasPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
+  const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
   const [loading, setLoading] = useState(true);
   const hoy = new Date().toISOString().split("T")[0];
   const [fechaInicio, setFechaInicio] = useState(hoy);
@@ -45,7 +54,7 @@ export default function ChecadasPage() {
     setLoading(true);
     const { data } = await supabase
       .from("asistencias")
-      .select("*, employees(full_name, employee_number)")
+      .select("*, employees(full_name, employee_number, position), centros_trabajo(codigo, nombre, latitud, longitud, radio_metros)")
       .gte("fecha", fechaInicio)
       .lte("fecha", fechaFin)
       .order("fecha", { ascending: false })
@@ -206,12 +215,12 @@ export default function ChecadasPage() {
                       </>
                     );
                   })()}
-                  <div className="aria-pill-geocerca">
+                  <button onClick={() => setMapaModal({ a, tipo: "entrada" })} className="aria-pill-geocerca hover:scale-105 transition-transform" title="Click para ver en mapa">
                     <MapPin className={`w-3.5 h-3.5 ${a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}`} />
                     <span className={a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}>
                       {a.dentro_geocerca_entrada ? "OK" : "Fuera"}
                     </span>
-                  </div>
+                  </button>
                 </div>
               </div>
             ))}
@@ -219,6 +228,75 @@ export default function ChecadasPage() {
         )}
       </div>
     
+            {/* Modal Mapa de Checada (8-May-2026) */}
+      {mapaModal && (() => {
+        const { a, tipo } = mapaModal;
+        const lat = tipo === "entrada" ? a.lat_entrada : a.lat_salida;
+        const lng = tipo === "entrada" ? a.lng_entrada : a.lng_salida;
+        const dist = tipo === "entrada" ? a.distancia_entrada_m : a.distancia_salida_m;
+        const ctLat = a.centros_trabajo?.latitud;
+        const ctLng = a.centros_trabajo?.longitud;
+        const radio = a.centros_trabajo?.radio_metros || 50;
+        const ctNombre = a.centros_trabajo?.nombre || "Centro de trabajo";
+        const empleado = a.employees?.full_name || "Empleado";
+        // Usar OpenStreetMap (gratis, sin API key)
+        const hasReal = lat != null && lng != null;
+        const hasTarget = ctLat != null && ctLng != null;
+        const center = hasReal ? `${lat},${lng}` : (hasTarget ? `${ctLat},${ctLng}` : "21.88234,-102.29572");
+        const bbox = (() => {
+          if (hasReal && hasTarget) {
+            const minLat = Math.min(Number(lat), Number(ctLat)) - 0.003;
+            const maxLat = Math.max(Number(lat), Number(ctLat)) + 0.003;
+            const minLng = Math.min(Number(lng), Number(ctLng)) - 0.003;
+            const maxLng = Math.max(Number(lng), Number(ctLng)) + 0.003;
+            return `${minLng},${minLat},${maxLng},${maxLat}`;
+          }
+          const c = (hasReal ? [lat, lng] : (hasTarget ? [ctLat, ctLng] : [21.88234, -102.29572])) as [number, number];
+          return `${(c[1] as number) - 0.005},${(c[0] as number) - 0.005},${(c[1] as number) + 0.005},${(c[0] as number) + 0.005}`;
+        })();
+        const markers = [hasReal ? `marker=${lat},${lng}` : "", hasTarget ? `marker=${ctLat},${ctLng}` : ""].filter(Boolean).join("&");
+        const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&${markers}`;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setMapaModal(null)}>
+            <div className="bg-aria-bg rounded-2xl border border-white/15 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Mapa de checada — {tipo === "entrada" ? "Entrada" : "Salida"}</h3>
+                  <p className="text-xs text-[#7f93b0]">{empleado} · {a.fecha} · {tipo === "entrada" ? a.hora_entrada : a.hora_salida || "--:--"}</p>
+                </div>
+                <button onClick={() => setMapaModal(null)} className="p-2 rounded hover:bg-white/[0.06] text-[#7f93b0] hover:text-white">✕</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 text-sm">
+                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <p className="text-[10px] uppercase text-emerald-300 font-bold tracking-wider">Target / Geocerca</p>
+                  <p className="text-white font-medium mt-1">{ctNombre}</p>
+                  {hasTarget ? <p className="text-xs text-[#c9d8ed] mt-0.5 font-mono">{Number(ctLat).toFixed(5)}, {Number(ctLng).toFixed(5)}</p> : <p className="text-xs text-red-300 mt-0.5">Sin geocerca configurada</p>}
+                  <p className="text-xs text-[#7f93b0] mt-1">Radio permitido: {radio}m</p>
+                </div>
+                <div className={`p-3 rounded-lg border ${a.dentro_geocerca_entrada ? "bg-aria-primary/10 border-aria-primary/30" : "bg-red-500/10 border-red-500/30"}`}>
+                  <p className={`text-[10px] uppercase font-bold tracking-wider ${a.dentro_geocerca_entrada ? "text-aria-accent" : "text-red-300"}`}>Donde checó</p>
+                  {hasReal ? <p className="text-xs text-[#c9d8ed] mt-1 font-mono">{Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}</p> : <p className="text-xs text-red-300 mt-1">Sin coordenadas</p>}
+                  {dist != null && <p className="text-xs text-[#7f93b0] mt-1">Distancia al target: <span className={Number(dist) > radio ? "text-red-400 font-bold" : "text-emerald-300 font-bold"}>{Math.round(Number(dist))}m</span></p>}
+                </div>
+              </div>
+              <div className="flex-1 min-h-[400px] bg-black/40">
+                <iframe
+                  src={mapUrl}
+                  className="w-full h-full border-0"
+                  title="Mapa checada"
+                />
+              </div>
+              <div className="p-3 border-t border-white/10 flex justify-between items-center">
+                {hasReal && (
+                  <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noopener noreferrer" className="text-xs text-aria-accent hover:underline">Abrir en Google Maps</a>
+                )}
+                <button onClick={() => setMapaModal(null)} className="aria-pill-secondary text-xs ml-auto">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-[#0c1d38] rounded-2xl p-6 w-full max-w-md border border-white/[0.08] space-y-4">
