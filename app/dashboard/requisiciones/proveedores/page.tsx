@@ -65,18 +65,15 @@ export default function ProveedoresPage() {
   const [loading,setLoading] = useState(true);
   const [search,setSearch] = useState("");
   const [filterCat,setFilterCat] = useState("");
-<<<<<<< ours
   const [sortBy,setSortBy] = useState<string>("");
   const [sortDir,setSortDir] = useState<"asc"|"desc">("asc");
+  const [density,setDensity] = useState<"compact"|"comfy">("comfy");
   const toggleSort = (col: string) => {
     if (sortBy === col) {
       if (sortDir === "asc") setSortDir("desc");
       else { setSortBy(""); setSortDir("asc"); }
     } else { setSortBy(col); setSortDir("asc"); }
   };
-=======
-  const [density,setDensity] = useState<"compact"|"comfy">("comfy");
->>>>>>> theirs
   // FC2 23-Abr-2026: tabs Activos / Catalogo
   const [tabFilter,setTabFilter] = useState<"ACTIVOS" | "CATALOGO" | "TODOS">("ACTIVOS");
   const [showModal,setShowModal] = useState(false);
