@@ -911,33 +911,33 @@ button.bg-red-600 {
   margin-right: 2px;
 }
 
-/* Boton Nuevo con vida */
+/* Boton Nuevo - corporativo profesional, no gamer */
 .aria-btn-nuevo {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
-  background: linear-gradient(135deg, #2EE890 0%, #1FB870 50%, #168E5A 100%);
-  color: #062B16;
-  font-weight: 800;
+  background: linear-gradient(180deg, #1F8A60 0%, #16704D 100%);
+  color: #F4F8FF;
+  font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border: 1px solid rgba(46,232,144,0.55);
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 6px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.40),
-    0 4px 14px rgba(46,232,144,0.40),
-    0 1px 2px rgba(0,0,0,0.30);
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    0 2px 6px rgba(0,0,0,0.30),
+    0 1px 2px rgba(0,0,0,0.20);
   transition: all 150ms ease;
 }
 .aria-btn-nuevo:hover {
+  background: linear-gradient(180deg, #259B6E 0%, #1B7D56 100%);
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.55),
-    0 6px 20px rgba(46,232,144,0.55),
-    0 2px 4px rgba(0,0,0,0.30);
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 4px 10px rgba(0,0,0,0.35),
+    0 1px 2px rgba(0,0,0,0.20);
 }
 .aria-btn-nuevo:active {
   transform: translateY(0);

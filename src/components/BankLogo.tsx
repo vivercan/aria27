@@ -20,8 +20,8 @@ interface BankConfig {
 
 const BANKS: BankConfig[] = [
   { file: "bbva.png",        label: "BBVA",        matches: ["bbva", "bancomer"] },
-  { file: "santander.png",   label: "Santander",   matches: ["santander"], noBg: true },
-  { file: "banorte.png",     label: "Banorte",     matches: ["banorte"], noBg: true },
+  { file: "santander.png",   label: "Santander",   matches: ["santander"] },
+  { file: "banorte.png",     label: "Banorte",     matches: ["banorte"] },
   { file: "hsbc.png",        label: "HSBC",        matches: ["hsbc"] },
   { file: "citibanamex.png", label: "Citibanamex", matches: ["banamex", "citibanamex", "citi"] },
   { file: "babajio.png",     label: "BanBajío",    matches: ["banbajio", "ban bajio", "bajio"] },
