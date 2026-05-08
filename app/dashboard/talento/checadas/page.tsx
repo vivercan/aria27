@@ -320,7 +320,7 @@ export default function ChecadasPage() {
                     <th className="text-left pl-3 py-2.5 text-white font-bold uppercase tracking-wider sticky left-0 bg-[#0F2D6E] min-w-[200px]">Empleado</th>
                     {rangeDays.map(d => {
                       const lbl = dayLabel(d);
-                      return <th key={d} className="px-2 py-2.5 text-white font-bold uppercase tracking-wider min-w-[90px]"><div className="text-[9px] opacity-80">{lbl.dia}</div><div className="text-sm">{lbl.num}</div></th>;
+                      return <th key={d} className="px-2 py-2.5 text-white font-bold uppercase tracking-wider min-w-[130px]"><div className="text-[9px] opacity-80">{lbl.dia}</div><div className="text-sm">{lbl.num}</div></th>;
                     })}
                   </tr>
                 </thead>
@@ -342,13 +342,13 @@ export default function ChecadasPage() {
                           const hasEntrada = !!a?.hora_entrada;
                           const hasSalida = !!a?.hora_salida;
                           const fuera = a && !a.dentro_geocerca_entrada;
-                          const labelEntrada = isV ? "S" : "E";
-                          const labelSalida = isV ? "E" : "S";
+                          const labelEntrada = isV ? "Salida" : "Entrada";
+                          const labelSalida = isV ? "Entrada" : "Salida";
                           return (
                             <td key={d} className="px-2 py-1.5 text-center align-top" onClick={e => { if (a) { e.stopPropagation(); setMapaModal({ a, tipo: "entrada" }); } }}>
                               {hasEntrada ? (
                                 <div
-                                  className={`rounded-md px-2 py-1.5 text-[10px] font-mono leading-tight cursor-pointer transition-transform hover:-translate-y-0.5 ${
+                                  className={`rounded-md px-2.5 py-1.5 text-[11px] leading-tight cursor-pointer transition-transform hover:-translate-y-0.5 tracking-tight ${
                                     fuera
                                       ? "bg-gradient-to-b from-rose-700 to-rose-900 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_4px_rgba(0,0,0,0.45)]"
                                       : (hasEntrada && hasSalida)
