@@ -345,15 +345,23 @@ export default function ChecadasPage() {
                           const labelEntrada = isV ? "S" : "E";
                           const labelSalida = isV ? "E" : "S";
                           return (
-                            <td key={d} className="px-2 py-1 text-center align-top" onClick={e => { if (a) { e.stopPropagation(); setMapaModal({ a, tipo: "entrada" }); } }}>
+                            <td key={d} className="px-2 py-1.5 text-center align-top" onClick={e => { if (a) { e.stopPropagation(); setMapaModal({ a, tipo: "entrada" }); } }}>
                               {hasEntrada ? (
-                                <div className={`rounded-md px-1 py-1 text-[10px] font-mono leading-tight cursor-pointer hover:scale-105 transition ${hasEntrada && hasSalida ? "bg-emerald-500/15 text-emerald-200 border border-emerald-500/30" : "bg-amber-500/15 text-amber-200 border border-amber-500/30"}`}>
-                                  <div>{labelEntrada}: {a!.hora_entrada}</div>
-                                  <div>{labelSalida}: {a!.hora_salida || "—"}</div>
-                                  {fuera && <div className="text-[8px] text-red-300 font-bold mt-0.5">FUERA</div>}
+                                <div
+                                  className={`rounded-md px-2 py-1.5 text-[10px] font-mono leading-tight cursor-pointer transition-transform hover:-translate-y-0.5 ${
+                                    fuera
+                                      ? "bg-gradient-to-b from-rose-700 to-rose-900 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_4px_rgba(0,0,0,0.45)]"
+                                      : (hasEntrada && hasSalida)
+                                        ? "bg-gradient-to-b from-emerald-700 to-emerald-900 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_4px_rgba(0,0,0,0.45)]"
+                                        : "bg-gradient-to-b from-amber-700 to-amber-900 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_4px_rgba(0,0,0,0.45)]"
+                                  }`}
+                                >
+                                  <div className="font-semibold">{labelEntrada}: {a!.hora_entrada}</div>
+                                  <div className="font-semibold opacity-95">{labelSalida}: {a!.hora_salida || "—"}</div>
+                                  {fuera && <div className="text-[8px] font-bold mt-0.5 tracking-wider opacity-95">FUERA</div>}
                                 </div>
                               ) : (
-                                <div className="text-[10px] text-[#4a6080] italic py-2">—</div>
+                                <div className="text-[10px] text-[#3d5275] py-2">—</div>
                               )}
                             </td>
                           );
