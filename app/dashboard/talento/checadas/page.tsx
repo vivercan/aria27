@@ -129,33 +129,20 @@ export default function ChecadasPage() {
             <span className="text-[#4a6080] text-xs">→</span>
             <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} title="Hasta"
               className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
-            <button onClick={() => { setFechaInicio(hoy); setFechaFin(hoy); }} className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Hoy</button>
-            <button onClick={() => { const d = new Date(); const start = new Date(d); start.setDate(d.getDate() - 6); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">7 días</button>
-            <button onClick={() => { const d = new Date(); const start = new Date(d.getFullYear(), d.getMonth(), 1); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="px-3 py-2 bg-white/[0.04] hover:bg-white/[0.06] text-[#c9d8ed] rounded-lg text-xs">Mes</button>
-            <Link href="/dashboard/talento/checadas/incompletas"
-              className="px-4 py-2 bg-amber-500/20 text-amber-400 rounded-lg hover:bg-amber-500/30">
+            <button onClick={() => { setFechaInicio(hoy); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">Hoy</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d); start.setDate(d.getDate() - 6); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">7 días</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d.getFullYear(), d.getMonth(), 1); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">Mes</button>
+            <Link href="/dashboard/talento/checadas/incompletas" className="aria-pill-warning text-xs">
               Ver Incompletas
             </Link>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-          <div className="p-4 bg-white/[0.04] rounded-xl">
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
-            <p className="text-sm text-[#7f93b0]">Total registros</p>
-          </div>
-          <div className="p-4 bg-emerald-500/10 rounded-xl">
-            <p className="text-2xl font-bold text-white">{stats.completas}</p>
-            <p className="text-sm text-[#7f93b0]">Completas</p>
-          </div>
-          <div className="p-4 bg-aria-primary/10 rounded-xl">
-            <p className="text-2xl font-bold text-white">{stats.enSitio}</p>
-            <p className="text-sm text-[#7f93b0]">En sitio</p>
-          </div>
-          <div className="p-4 bg-red-500/10 rounded-xl">
-            <p className="text-2xl font-bold text-red-400">{stats.fueraGeocerca}</p>
-            <p className="text-sm text-[#7f93b0]">Fuera de geocerca</p>
-          </div>
+          <div className="aria-kpi-card aria-kpi-slate"><p className="text-2xl font-bold text-white">{stats.total}</p><p className="text-sm">Total registros</p></div>
+          <div className="aria-kpi-card aria-kpi-success"><p className="text-2xl font-bold text-white">{stats.completas}</p><p className="text-sm">Completas</p></div>
+          <div className="aria-kpi-card aria-kpi-primary"><p className="text-2xl font-bold text-white">{stats.enSitio}</p><p className="text-sm">En sitio</p></div>
+          <div className="aria-kpi-card aria-kpi-danger"><p className="text-2xl font-bold text-white">{stats.fueraGeocerca}</p><p className="text-sm">Fuera de geocerca</p></div>
         </div>
       </div>
 
@@ -195,17 +182,33 @@ export default function ChecadasPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
-                  <div className="text-center">
-                    <p className="text-[#7f93b0]">Entrada</p>
-                    <p className="text-white font-medium">{a.hora_entrada || "--:--"}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[#7f93b0]">Salida</p>
-                    <p className="text-white font-medium">{a.hora_salida || "--:--"}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className={`w-4 h-4 ${a.dentro_geocerca_entrada ? "text-aria-accent" : "text-red-400"}`} />
-                    <span className={a.dentro_geocerca_entrada ? "text-aria-accent" : "text-red-400"}>
+                  {(() => {
+                    // 8-May-2026 — Lógica Baudelio (turno nocturno):
+                    // Si el empleado es VELADOR o se llama Baudelio, su entrada/salida
+                    // está físicamente invertida (entra de noche = "salida" del día anterior).
+                    // Para mostrar correctamente, swappear las etiquetas en pantalla.
+                    const fullName = (a.employees?.full_name || "").toLowerCase();
+                    const position = (a.employees?.position || "").toLowerCase();
+                    const isVelador = position.includes("velador") || fullName.includes("baudelio");
+                    const labelEntrada = isVelador ? "Salida" : "Entrada";
+                    const labelSalida  = isVelador ? "Entrada" : "Salida";
+                    return (
+                      <>
+                        <div className="text-center">
+                          <p className="text-[#7f93b0]">{labelEntrada}</p>
+                          <p className="text-white font-medium">{a.hora_entrada || "--:--"}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[#7f93b0]">{labelSalida}</p>
+                          <p className="text-white font-medium">{a.hora_salida || "--:--"}</p>
+                        </div>
+                        {isVelador && <span className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Nocturno</span>}
+                      </>
+                    );
+                  })()}
+                  <div className="aria-pill-geocerca">
+                    <MapPin className={`w-3.5 h-3.5 ${a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}`} />
+                    <span className={a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}>
                       {a.dentro_geocerca_entrada ? "OK" : "Fuera"}
                     </span>
                   </div>
