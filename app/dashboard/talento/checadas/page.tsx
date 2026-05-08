@@ -36,6 +36,8 @@ interface EmpleadoInfo {
 export default function ChecadasPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
+  const [scorecardEmp, setScorecardEmp] = useState<string | null>(null);
+  const [oficinaDefault, setOficinaDefault] = useState<{ codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const hoy = new Date().toISOString().split("T")[0];
   const [fechaInicio, setFechaInicio] = useState(hoy);
@@ -49,6 +51,12 @@ export default function ChecadasPage() {
 
   useEffect(() => { cargarAsistencias();
     supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name").then(({ data }) => { if (data) setEmpleadosList(data); }); }, [fechaInicio, fechaFin]);
+
+  useEffect(() => {
+    supabase.from("centros_trabajo").select("codigo, nombre, latitud, longitud, radio_metros").eq("codigo", "CT-OFICINA").maybeSingle().then(({ data }) => {
+      if (data) setOficinaDefault(data as { codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number });
+    });
+  }, []);
 
   const cargarAsistencias = async () => {
     setLoading(true);
@@ -148,6 +156,83 @@ export default function ChecadasPage() {
     fueraGeocerca: asistencias.filter(a => !a.dentro_geocerca_entrada).length
   };
 
+  // === HELPERS RANGO + AGRUPACION (8-May-2026) ===
+  const rangeDays = (() => {
+    const days: string[] = [];
+    const start = new Date(fechaInicio + "T00:00:00");
+    const end = new Date(fechaFin + "T00:00:00");
+    if (start > end) return days;
+    const cur = new Date(start);
+    while (cur <= end && days.length < 31) {
+      days.push(cur.toISOString().split("T")[0]);
+      cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+  })();
+  const isMultiDay = rangeDays.length > 1;
+
+  type EmpGroup = {
+    employee_id: string;
+    nombre: string;
+    numero: string;
+    position: string;
+    porFecha: Map<string, Asistencia>;
+  };
+  const empleadosMap = new Map<string, EmpGroup>();
+  asistencias.forEach((a: Asistencia) => {
+    const key = a.employee_id;
+    if (!empleadosMap.has(key)) {
+      empleadosMap.set(key, {
+        employee_id: key,
+        nombre: a.employees?.full_name || "Sin nombre",
+        numero: a.employees?.employee_number || "—",
+        position: ((a.employees as unknown) as { position?: string })?.position || "",
+        porFecha: new Map(),
+      });
+    }
+    empleadosMap.get(key)!.porFecha.set(a.fecha, a);
+  });
+  const empleadosArr = Array.from(empleadosMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  const esVelador = (nombre: string, position: string) => {
+    const fn = nombre.toLowerCase();
+    const pos = position.toLowerCase();
+    return pos.includes("velador") || fn.includes("baudelio");
+  };
+
+  const calcHoras = (entrada: string | null, salida: string | null): number => {
+    if (!entrada || !salida) return 0;
+    const [h1, m1] = entrada.split(":").map(Number);
+    const [h2, m2] = salida.split(":").map(Number);
+    let diff = (h2 + m2 / 60) - (h1 + m1 / 60);
+    if (diff < 0) diff += 24;
+    return Math.round(diff * 100) / 100;
+  };
+
+  const empStats = (emp: EmpGroup) => {
+    let diasCheck = 0, diasCompletos = 0, totalHoras = 0, retardos = 0, fueras = 0;
+    rangeDays.forEach(d => {
+      const a = emp.porFecha.get(d);
+      if (a?.hora_entrada) diasCheck++;
+      if (a?.hora_entrada && a?.hora_salida) {
+        diasCompletos++;
+        totalHoras += calcHoras(a.hora_entrada, a.hora_salida);
+      }
+      if (a?.hora_entrada && a.hora_entrada > "08:00") retardos++;
+      if (a && !a.dentro_geocerca_entrada) fueras++;
+    });
+    const totalDiasRango = rangeDays.length;
+    const ausencias = totalDiasRango - diasCheck;
+    return { diasCheck, diasCompletos, totalHoras: Math.round(totalHoras * 10) / 10, retardos, fueras, ausencias, totalDiasRango };
+  };
+
+  const dayLabel = (fecha: string) => {
+    const d = new Date(fecha + "T00:00:00");
+    const labels = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    return { dia: labels[d.getDay()], num: d.getDate() };
+  };
+
+
 
   const handleManual = async () => {
     if (!formManual.employee_id) return;
@@ -226,53 +311,91 @@ export default function ChecadasPage() {
             title="No hay registros para esta fecha"
           />
         ) : (
-          <div className="space-y-3">
-            {asistencias.map(a => (
-              <div key={a.id} className="p-4 bg-white/[0.04] border border-white/[0.08] rounded-xl flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-emerald-500/20" : "bg-aria-primary-light"}`}>
-                    {a.hora_salida ? <CheckCircle className="w-5 h-5 text-aria-accent" /> : <Clock className="w-5 h-5 text-aria-accent" />}
-                  </div>
-                  <div>
-                    <p className="font-medium text-white">{a.employees?.full_name || "Sin nombre"}</p>
-                    <p className="text-sm text-[#7f93b0]">{a.employees?.employee_number}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6 text-sm">
-                  {(() => {
-                    // 8-May-2026 — Lógica Baudelio (turno nocturno):
-                    // Si el empleado es VELADOR o se llama Baudelio, su entrada/salida
-                    // está físicamente invertida (entra de noche = "salida" del día anterior).
-                    // Para mostrar correctamente, swappear las etiquetas en pantalla.
-                    const fullName = (a.employees?.full_name || "").toLowerCase();
-                    const position = (((a.employees as unknown) as { position?: string })?.position || "").toLowerCase();
-                    const isVelador = position.includes("velador") || fullName.includes("baudelio");
-                    const labelEntrada = isVelador ? "Salida" : "Entrada";
-                    const labelSalida  = isVelador ? "Entrada" : "Salida";
+          isMultiDay ? (
+            // VISTA MATRIZ: filas = empleados, columnas = dias
+            <div className="overflow-auto rounded-xl border border-white/[0.08] bg-black/20">
+              <table className="w-full text-xs">
+                <thead className="bg-gradient-to-b from-[#1F4A8C] to-[#0F2D6E] sticky top-0">
+                  <tr>
+                    <th className="text-left pl-3 py-2.5 text-white font-bold uppercase tracking-wider sticky left-0 bg-[#0F2D6E] min-w-[200px]">Empleado</th>
+                    {rangeDays.map(d => {
+                      const lbl = dayLabel(d);
+                      return <th key={d} className="px-2 py-2.5 text-white font-bold uppercase tracking-wider min-w-[90px]"><div className="text-[9px] opacity-80">{lbl.dia}</div><div className="text-sm">{lbl.num}</div></th>;
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {empleadosArr.map(emp => {
+                    const isV = esVelador(emp.nombre, emp.position);
                     return (
-                      <>
-                        <div className="text-center">
-                          <p className="text-[#7f93b0]">{labelEntrada}</p>
-                          <p className="text-white font-medium">{a.hora_entrada || "--:--"}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[#7f93b0]">{labelSalida}</p>
-                          <p className="text-white font-medium">{a.hora_salida || "--:--"}</p>
-                        </div>
-                        {isVelador && <span className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Nocturno</span>}
-                      </>
+                      <tr key={emp.employee_id} className="border-t border-white/[0.06] hover:bg-white/[0.04] transition group cursor-pointer" onClick={() => setScorecardEmp(emp.employee_id)}>
+                        <td className="pl-3 py-2 sticky left-0 bg-[rgba(8,18,40,0.96)] group-hover:bg-[rgba(15,30,60,0.96)] transition">
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <p className="font-semibold text-white truncate text-xs leading-tight">{emp.nombre}</p>
+                              <p className="text-[10px] text-[#7f93b0] leading-tight">{emp.numero}{isV && <span className="ml-1.5 text-[8px] text-purple-300 font-bold uppercase tracking-wider">N</span>}</p>
+                            </div>
+                          </div>
+                        </td>
+                        {rangeDays.map(d => {
+                          const a = emp.porFecha.get(d);
+                          const hasEntrada = !!a?.hora_entrada;
+                          const hasSalida = !!a?.hora_salida;
+                          const fuera = a && !a.dentro_geocerca_entrada;
+                          const labelEntrada = isV ? "S" : "E";
+                          const labelSalida = isV ? "E" : "S";
+                          return (
+                            <td key={d} className="px-2 py-1 text-center align-top" onClick={e => { if (a) { e.stopPropagation(); setMapaModal({ a, tipo: "entrada" }); } }}>
+                              {hasEntrada ? (
+                                <div className={`rounded-md px-1 py-1 text-[10px] font-mono leading-tight cursor-pointer hover:scale-105 transition ${hasEntrada && hasSalida ? "bg-emerald-500/15 text-emerald-200 border border-emerald-500/30" : "bg-amber-500/15 text-amber-200 border border-amber-500/30"}`}>
+                                  <div>{labelEntrada}: {a!.hora_entrada}</div>
+                                  <div>{labelSalida}: {a!.hora_salida || "—"}</div>
+                                  {fuera && <div className="text-[8px] text-red-300 font-bold mt-0.5">FUERA</div>}
+                                </div>
+                              ) : (
+                                <div className="text-[10px] text-[#4a6080] italic py-2">—</div>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
                     );
-                  })()}
-                  <button onClick={() => setMapaModal({ a, tipo: "entrada" })} className="aria-pill-geocerca hover:scale-105 transition-transform" title="Click para ver en mapa">
-                    <MapPin className={`w-3.5 h-3.5 ${a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}`} />
-                    <span className={a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}>
-                      {a.dentro_geocerca_entrada ? "OK" : "Fuera"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            // VISTA LISTA: 1 dia, lista vertical compacta
+            <div className="space-y-3">
+              {asistencias.map(a => {
+                const isV = esVelador(a.employees?.full_name || "", ((a.employees as unknown) as { position?: string })?.position || "");
+                const labelEntrada = isV ? "Salida" : "Entrada";
+                const labelSalida = isV ? "Entrada" : "Salida";
+                return (
+                  <div key={a.id} className="p-4 bg-white/[0.04] border border-white/[0.08] rounded-xl flex items-center justify-between hover:bg-white/[0.06] cursor-pointer" onClick={() => a.employee_id && setScorecardEmp(a.employee_id)}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${a.hora_salida ? "bg-emerald-500/20" : "bg-aria-primary-light"}`}>
+                        {a.hora_salida ? <CheckCircle className="w-5 h-5 text-aria-accent" /> : <Clock className="w-5 h-5 text-aria-accent" />}
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">{a.employees?.full_name || "Sin nombre"}</p>
+                        <p className="text-sm text-[#7f93b0]">{a.employees?.employee_number}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div className="text-center"><p className="text-[#7f93b0]">{labelEntrada}</p><p className="text-white font-medium">{a.hora_entrada || "--:--"}</p></div>
+                      <div className="text-center"><p className="text-[#7f93b0]">{labelSalida}</p><p className="text-white font-medium">{a.hora_salida || "--:--"}</p></div>
+                      {isV && <span className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Nocturno</span>}
+                      <button onClick={e => { e.stopPropagation(); setMapaModal({ a, tipo: "entrada" }); }} className="aria-pill-geocerca hover:scale-105 transition" title="Ver en mapa">
+                        <MapPin className={`w-3.5 h-3.5 ${a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}`} />
+                        <span className={a.dentro_geocerca_entrada ? "text-emerald-300" : "text-red-300"}>{a.dentro_geocerca_entrada ? "OK" : "Fuera"}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
     
@@ -282,10 +405,13 @@ export default function ChecadasPage() {
         const lat = tipo === "entrada" ? a.lat_entrada : a.lat_salida;
         const lng = tipo === "entrada" ? a.lng_entrada : a.lng_salida;
         const dist = tipo === "entrada" ? a.distancia_entrada_m : a.distancia_salida_m;
-        const ctLat = a.centros_trabajo?.latitud;
-        const ctLng = a.centros_trabajo?.longitud;
-        const radio = a.centros_trabajo?.radio_metros || 50;
-        const ctNombre = a.centros_trabajo?.nombre || "Centro de trabajo";
+        // Fallback: si la asistencia no tiene centros_trabajo, usar OFICINA default
+        const ctSrc = a.centros_trabajo || oficinaDefault;
+        const ctLat = ctSrc?.latitud;
+        const ctLng = ctSrc?.longitud;
+        const radio = ctSrc?.radio_metros || 50;
+        const ctNombre = ctSrc?.nombre || "Sin geocerca";
+        const ctIsFallback = !a.centros_trabajo && !!oficinaDefault;
         const empleado = a.employees?.full_name || "Empleado";
         // Usar OpenStreetMap (gratis, sin API key)
         const hasReal = lat != null && lng != null;
@@ -317,13 +443,13 @@ export default function ChecadasPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 text-sm">
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   <p className="text-[10px] uppercase text-emerald-300 font-bold tracking-wider">Target / Geocerca</p>
-                  <p className="text-white font-medium mt-1">{ctNombre}</p>
+                  <p className="text-white font-medium mt-1">{ctNombre} {ctIsFallback && <span className="text-[9px] text-amber-300 font-bold uppercase ml-1">DEFAULT</span>}</p>
                   {hasTarget ? <p className="text-xs text-[#c9d8ed] mt-0.5 font-mono">{Number(ctLat).toFixed(5)}, {Number(ctLng).toFixed(5)}</p> : <p className="text-xs text-red-300 mt-0.5">Sin geocerca configurada</p>}
                   <p className="text-xs text-[#7f93b0] mt-1">Radio permitido: {radio}m</p>
                 </div>
                 <div className={`p-3 rounded-lg border ${a.dentro_geocerca_entrada ? "bg-aria-primary/10 border-aria-primary/30" : "bg-red-500/10 border-red-500/30"}`}>
                   <p className={`text-[10px] uppercase font-bold tracking-wider ${a.dentro_geocerca_entrada ? "text-aria-accent" : "text-red-300"}`}>Donde checó</p>
-                  {hasReal ? <p className="text-xs text-[#c9d8ed] mt-1 font-mono">{Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}</p> : <p className="text-xs text-red-300 mt-1">Sin coordenadas</p>}
+                  {hasReal ? <p className="text-xs text-[#c9d8ed] mt-1 font-mono">{Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}</p> : <p className="text-xs text-amber-300 mt-1">Checada manual sin GPS</p>}
                   {dist != null && <p className="text-xs text-[#7f93b0] mt-1">Distancia al target: <span className={Number(dist) > radio ? "text-red-400 font-bold" : "text-emerald-300 font-bold"}>{Math.round(Number(dist))}m</span></p>}
                 </div>
               </div>
@@ -339,6 +465,81 @@ export default function ChecadasPage() {
                   <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noopener noreferrer" className="text-xs text-aria-accent hover:underline">Abrir en Google Maps</a>
                 )}
                 <button onClick={() => setMapaModal(null)} className="aria-pill-secondary text-xs ml-auto">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+            {/* Modal Balance Scorecard del empleado */}
+      {scorecardEmp && (() => {
+        const emp = empleadosMap.get(scorecardEmp);
+        if (!emp) return null;
+        const stats = empStats(emp);
+        const isVelador = esVelador(emp.nombre, emp.position);
+        const puntualidad = stats.diasCheck > 0 ? Math.round(((stats.diasCheck - stats.retardos) / stats.diasCheck) * 100) : 0;
+        const asistencia = stats.totalDiasRango > 0 ? Math.round((stats.diasCheck / stats.totalDiasRango) * 100) : 0;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setScorecardEmp(null)}>
+            <div className="bg-aria-bg rounded-2xl border border-white/15 w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="p-5 border-b border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-aria-primary-light flex items-center justify-center"><Clock className="w-6 h-6 text-aria-accent" /></div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{emp.nombre}</h3>
+                    <p className="text-xs text-[#7f93b0]">{emp.numero}{emp.position && ` · ${emp.position}`}{isVelador && " · Turno nocturno"}</p>
+                  </div>
+                </div>
+                <button onClick={() => setScorecardEmp(null)} className="p-2 rounded hover:bg-white/[0.06] text-[#7f93b0] hover:text-white">✕</button>
+              </div>
+              <div className="flex-1 overflow-auto p-5 space-y-4">
+                <div className="text-xs uppercase tracking-wider text-[#7f93b0] font-bold">Balance Scorecard ({fechaInicio} → {fechaFin})</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="aria-kpi-card aria-kpi-success"><p className="text-2xl font-bold text-white">{asistencia}%</p><p className="text-sm">Asistencia</p></div>
+                  <div className="aria-kpi-card aria-kpi-primary"><p className="text-2xl font-bold text-white">{puntualidad}%</p><p className="text-sm">Puntualidad</p></div>
+                  <div className="aria-kpi-card aria-kpi-slate"><p className="text-2xl font-bold text-white">{stats.totalHoras}h</p><p className="text-sm">Horas trabajadas</p></div>
+                  <div className="aria-kpi-card aria-kpi-danger"><p className="text-2xl font-bold text-white">{stats.fueras}</p><p className="text-sm">Días fuera geocerca</p></div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]"><p className="text-[10px] uppercase text-[#7f93b0]">Días checados</p><p className="text-lg font-bold text-white">{stats.diasCheck} / {stats.totalDiasRango}</p></div>
+                  <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]"><p className="text-[10px] uppercase text-[#7f93b0]">Días completos</p><p className="text-lg font-bold text-white">{stats.diasCompletos}</p></div>
+                  <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]"><p className="text-[10px] uppercase text-[#7f93b0]">Retardos</p><p className="text-lg font-bold text-amber-300">{stats.retardos}</p></div>
+                  <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]"><p className="text-[10px] uppercase text-[#7f93b0]">Ausencias</p><p className="text-lg font-bold text-red-300">{stats.ausencias}</p></div>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-[#7f93b0] font-bold mb-2">Detalle por día</p>
+                  <div className="space-y-1">
+                    {rangeDays.map(d => {
+                      const a = emp.porFecha.get(d);
+                      const lbl = dayLabel(d);
+                      const hasE = !!a?.hora_entrada;
+                      const horas = a ? calcHoras(a.hora_entrada, a.hora_salida) : 0;
+                      return (
+                        <div key={d} className="flex items-center justify-between p-2 rounded-md bg-white/[0.02] border border-white/[0.05]">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-[#7f93b0] w-16">{lbl.dia} {lbl.num}</span>
+                            <span className="text-xs text-[#7f93b0]">{d}</span>
+                          </div>
+                          {hasE ? (
+                            <div className="flex items-center gap-3 text-xs">
+                              <span className="text-white font-mono">{a!.hora_entrada} → {a!.hora_salida || "Sin salida"}</span>
+                              {horas > 0 && <span className="text-aria-accent">{horas}h</span>}
+                              {a && !a.dentro_geocerca_entrada && <span className="text-red-400 font-bold uppercase">Fuera</span>}
+                              <button onClick={e => { e.stopPropagation(); setMapaModal({ a: a!, tipo: "entrada" }); }} className="aria-pill-geocerca hover:scale-105 transition" title="Ver mapa">
+                                <MapPin className="w-3 h-3 text-aria-accent"/>
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-red-300 italic">Falta / sin checar</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <div className="p-3 border-t border-white/10 flex justify-end">
+                <button onClick={() => setScorecardEmp(null)} className="aria-pill-secondary text-xs">Cerrar</button>
               </div>
             </div>
           </div>
