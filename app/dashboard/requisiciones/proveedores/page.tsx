@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import BankLogo from "@/components/BankLogo";
 import { formatProperName } from "@/lib/format-name";
+import { formatPhoneMx } from "@/lib/format-phone";
 import { getCategoryIcon } from "@/lib/category-icons";
 import Link from "next/link";
 import { EntityFolderDrawer } from "@/components/EntityFolder";
@@ -242,7 +243,7 @@ export default function ProveedoresPage() {
             <thead className="sticky top-0 z-10">
               <tr className="aria-table-header text-[10px] text-white font-bold uppercase tracking-wider">
                 <th className="text-left pl-4 py-2.5 w-[220px]"><span className="inline-flex items-center gap-1.5"><Building2 className="w-3 h-3 opacity-70"/>Proveedor</span></th>
-                <th className="text-left py-2.5 w-[120px]">Categoría</th>
+                <th className="text-left py-2.5 w-[240px]">Categoría</th>
                 <th className="text-left py-2.5 w-[130px]"><span className="inline-flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-70"/>Teléfono</span></th>
                 <th className="text-left py-2.5 w-[260px]">Email</th>
                 <th className="text-left py-2.5 w-[80px]">Crédito</th>
@@ -251,7 +252,7 @@ export default function ProveedoresPage() {
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
-            <tbody className="text-xs">
+            <tbody className="text-[12px]">
               {filtered.map(s=>{
                 const cats = getCatDisplay(s.categories);
                 return (
@@ -270,10 +271,10 @@ export default function ProveedoresPage() {
                       </div>
                     </td>
                     <td>
-                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,2).map(c=><span key={c} className="aria-table-tag-cat">{c}</span>)}{cats.length>2&&<span className="text-[9px] text-[#4a6080]">+{cats.length-2}</span>}</div>}
+                      {cats.length>0&&<div className="flex gap-0.5 flex-wrap">{cats.slice(0,3).map(c=><span key={c} className="aria-table-tag-cat">{c}</span>)}{cats.length>3&&<span className="text-[10px] text-[#475569] self-center">+{cats.length-3}</span>}</div>}
                     </td>
                     <td className="text-[#7f93b0]">
-                      {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1"><Phone className="w-2.5 h-2.5"/>{s.phone}</a>}
+                      {s.phone&&<a href={`tel:${s.phone}`} className="hover:text-aria-accent flex items-center gap-1 text-[12px]"><Phone className="w-3 h-3"/>{formatPhoneMx(s.phone)}</a>}
                     </td>
                     <td className="text-[#7f93b0] truncate max-w-[200px]">
                       {s.email&&<a href={`mailto:${s.email}`} className="hover:text-aria-accent">{s.email}</a>}
@@ -286,7 +287,7 @@ export default function ProveedoresPage() {
                                       d <= 30 ? { bg: "linear-gradient(180deg,#F09137 0%,#C56A18 100%)", color: "#FFFFFF", ring: "rgba(255,210,170,0.40)" } :
                                                 { bg: "linear-gradient(180deg,#D14550 0%,#A02530 100%)", color: "#FFF4F4", ring: "rgba(255,180,180,0.40)" };
                         return <span style={{padding:"2px 9px",fontSize:10,fontWeight:700,letterSpacing:"0.04em",borderRadius:6,background:style.bg,color:style.color,border:`1px solid ${style.ring}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.20)"}}>{d}d</span>;
-                      })():<span className="text-[10px] text-[#4a6080]">contado</span>}
+                      })():<span className="text-[12px] font-medium text-[#475569]">Contado</span>}
                     </td>
                     <td>
                       {s.bank_clabe&&s.bank_clabe.length>=10?(
