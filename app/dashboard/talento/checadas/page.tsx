@@ -152,19 +152,6 @@ export default function ChecadasPage() {
     setLoading(false);
   };
 
-  // Acumulados por empleado en el rango
-  const acumulados = (() => {
-    const map: Record<string, { nombre: string; numero: string; total: number; completas: number; sinSalida: number }> = {};
-    asistencias.forEach((a: Asistencia) => {
-      const key = a.employee_id || a.employees?.employee_number || "desconocido";
-      if (!map[key]) map[key] = { nombre: a.employees?.full_name || "Sin nombre", numero: a.employees?.employee_number || "—", total: 0, completas: 0, sinSalida: 0 };
-      map[key].total += 1;
-      if (a.hora_entrada && a.hora_salida) map[key].completas += 1;
-      if (a.hora_entrada && !a.hora_salida) map[key].sinSalida += 1;
-    });
-    return Object.values(map).sort((x, y) => y.total - x.total);
-  })();
-
   const stats = {
     total: asistencias.length,
     completas: asistencias.filter(a => a.hora_entrada && a.hora_salida).length,
@@ -304,16 +291,36 @@ export default function ChecadasPage() {
         </div>
       </div>
 
-      {acumulados.length > 0 && (fechaInicio !== fechaFin) && (
+      {empleadosArr.length > 0 && (fechaInicio !== fechaFin) && (
         <div className="flex-none px-6 py-3 border-b border-white/[0.08] bg-white/[0.02]">
-          <p className="text-xs text-[#7f93b0] mb-2">Acumulados por empleado ({fechaInicio} → {fechaFin})</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-            {acumulados.map(a => (
-              <div key={a.numero + a.nombre} className="flex items-center justify-between px-3 py-1.5 rounded bg-white/[0.04] text-xs">
-                <span className="text-white truncate flex-1">{a.nombre}</span>
-                <span className="text-[#7f93b0] ml-2">{a.total} reg · {a.completas} ok · {a.sinSalida} sin salida</span>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-[#7f93b0]">Indicadores por empleado ({fechaInicio} → {fechaFin}) · click para Balance Scorecard</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 max-h-44 overflow-y-auto pr-1">
+            {empleadosArr.map(emp => {
+              const s = empStats(emp);
+              const asistPct = s.totalDiasRango > 0 ? Math.round((s.diasCheck / s.totalDiasRango) * 100) : 0;
+              const puntPct = s.diasCheck > 0 ? Math.round(((s.diasCheck - s.retardos) / s.diasCheck) * 100) : 0;
+              const asistColor = asistPct >= 80 ? "text-emerald-300" : asistPct >= 50 ? "text-amber-300" : "text-rose-300";
+              const puntColor = puntPct >= 80 ? "text-emerald-300" : puntPct >= 50 ? "text-amber-300" : "text-rose-300";
+              const fueraColor = s.fueras === 0 ? "text-[#9fb1cc]" : "text-rose-300";
+              return (
+                <button
+                  key={emp.employee_id}
+                  onClick={() => setScorecardEmp(emp.employee_id)}
+                  className="text-left p-2.5 rounded-lg bg-gradient-to-b from-[#0f1f3a] to-[#0a1628] border border-white/[0.08] hover:border-aria-accent/50 hover:from-[#13284a] hover:to-[#0d1d3a] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition group"
+                >
+                  <p className="text-white font-semibold text-xs truncate group-hover:text-aria-accent transition">{emp.nombre}</p>
+                  <p className="text-[10px] text-[#7f93b0] truncate mb-1.5">{emp.numero}</p>
+                  <div className="grid grid-cols-4 gap-1 text-center">
+                    <div><p className={`text-sm font-bold ${asistColor}`}>{asistPct}%</p><p className="text-[8px] uppercase tracking-wider text-[#7f93b0]">Asist</p></div>
+                    <div><p className={`text-sm font-bold ${puntColor}`}>{puntPct}%</p><p className="text-[8px] uppercase tracking-wider text-[#7f93b0]">Punt</p></div>
+                    <div><p className="text-sm font-bold text-white">{s.totalHoras}</p><p className="text-[8px] uppercase tracking-wider text-[#7f93b0]">Hrs</p></div>
+                    <div><p className={`text-sm font-bold ${fueraColor}`}>{s.fueras}</p><p className="text-[8px] uppercase tracking-wider text-[#7f93b0]">Fuera</p></div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
