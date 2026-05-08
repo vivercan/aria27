@@ -36,24 +36,6 @@ const EMPTY_FORM = {
 };
 
 
-function KpiBox({ label, value, accent, onClick, active }: { label: string; value: number; accent: string; onClick?: () => void; active?: boolean }) {
-  const Comp = onClick ? "button" : "div";
-  return (
-    <Comp
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-md flex items-center gap-2 transition cursor-${onClick ? "pointer" : "default"} ${active ? "ring-2 ring-aria-accent" : ""}`}
-      style={{
-        background: `linear-gradient(180deg, rgba(15,30,60,0.85) 0%, rgba(8,18,40,0.92) 100%)`,
-        border: `1px solid ${accent}55`,
-        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.30)`,
-      }}
-    >
-      <span style={{ width: 4, height: 22, background: accent, borderRadius: 2 }} />
-      <span className="text-[10px] uppercase tracking-wider text-[#7f93b0]">{label}</span>
-      <span className="text-sm font-bold" style={{ color: accent }}>{value}</span>
-    </Comp>
-  );
-}
 
 export default function ProveedoresPage() {
   const log = clientLogger("PROVEEDORES");
@@ -127,10 +109,6 @@ export default function ProveedoresPage() {
   });
   const countActivos  = suppliers.filter(s => s.active === true && !!(s.bank_clabe && /^\d{18}$/.test(s.bank_clabe.trim()))).length;
   const countCatalogo = suppliers.filter(s => s.active === false || !(s.bank_clabe && /^\d{18}$/.test(s.bank_clabe.trim()))).length;
-  const kpiSinEmail   = suppliers.filter(s => !s.email).length;
-  const kpiSinTel     = suppliers.filter(s => !s.phone).length;
-  const kpiCredito30  = suppliers.filter(s => (s.credit_days || 0) >= 30).length;
-  const kpiSinClabe   = suppliers.filter(s => !s.bank_clabe || s.bank_clabe.length < 10).length;
 
   const exportCSV = () => {
     const rows = filtered.map((p:Supplier) => [
@@ -265,22 +243,6 @@ export default function ProveedoresPage() {
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
           <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
         </div>
-        {/* KPI cards */}
-        <div className="flex gap-2 mb-2 flex-wrap">
-          <KpiBox label="Activos" value={countActivos} accent="#1F4A8C" onClick={()=>setTabFilter("ACTIVOS")} active={tabFilter==="ACTIVOS"} />
-          <KpiBox label="En catálogo" value={countCatalogo} accent="#475569" onClick={()=>setTabFilter("CATALOGO")} active={tabFilter==="CATALOGO"} />
-          <KpiBox label="Crédito 30d+" value={kpiCredito30} accent="#D97706" />
-          <KpiBox label="Sin email" value={kpiSinEmail} accent="#EC0000" />
-          <KpiBox label="Sin teléfono" value={kpiSinTel} accent="#A02530" />
-          <KpiBox label="Sin CLABE" value={kpiSinClabe} accent="#6B7B95" />
-          <div className="flex-1" />
-          <button onClick={exportCSV} className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition flex items-center gap-1.5" title="Exportar CSV de la lista filtrada">
-            <FileText className="w-3.5 h-3.5"/>Exportar
-          </button>
-          <button onClick={()=>setDensity(density==="compact"?"comfy":"compact")} className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition flex items-center gap-1.5" title="Cambiar densidad">
-            {density==="compact"?"Densidad: Compacta":"Densidad: Cómoda"}
-          </button>
-        </div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <div className="flex items-center gap-1.5 mr-3">
           {(["ACTIVOS","CATALOGO","TODOS"] as const).map(t => {
@@ -317,6 +279,12 @@ export default function ProveedoresPage() {
             <option value="">Todas ({categories.length})</option>
             {categories.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
+          <button onClick={exportCSV} className="px-2.5 py-1.5 text-[11px] bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition flex items-center gap-1" title="Exportar CSV">
+            <FileText className="w-3.5 h-3.5"/>
+          </button>
+          <button onClick={()=>setDensity(density==="compact"?"comfy":"compact")} className="px-2.5 py-1.5 text-[11px] bg-white/[0.04] border border-white/[0.10] rounded-md text-[#c9d8ed] hover:bg-white/[0.08] transition" title={density==="compact"?"Densidad cómoda":"Densidad compacta"}>
+            {density==="compact"?"☰":"≡"}
+          </button>
           <button onClick={openNew} className="aria-btn-nuevo" type="button">
             <Plus className="w-3.5 h-3.5"/>Nuevo
           </button>
