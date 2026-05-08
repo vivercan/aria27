@@ -912,36 +912,50 @@ button.bg-red-600 {
 }
 
 /* Boton Nuevo - corporativo profesional, no gamer */
+/* Boton Nuevo - azul navy para coherencia con canon header */
 .aria-btn-nuevo {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
-  background: linear-gradient(180deg, #1F8A60 0%, #16704D 100%);
+  background: linear-gradient(180deg, #2A5AA2 0%, #1F4A8C 100%);
   color: #F4F8FF;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.04em;
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(180,210,255,0.30);
   border-radius: 6px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 1px 0 rgba(220,235,255,0.20),
     0 2px 6px rgba(0,0,0,0.30),
     0 1px 2px rgba(0,0,0,0.20);
   transition: all 150ms ease;
 }
 .aria-btn-nuevo:hover {
-  background: linear-gradient(180deg, #259B6E 0%, #1B7D56 100%);
+  background: linear-gradient(180deg, #356BB8 0%, #295AA0 100%);
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 1px 0 rgba(220,235,255,0.30),
     0 4px 10px rgba(0,0,0,0.35),
     0 1px 2px rgba(0,0,0,0.20);
 }
-.aria-btn-nuevo:active {
-  transform: translateY(0);
+.aria-btn-nuevo:active { transform: translateY(0); }
+
+/* Header column clickeable para sort */
+.aria-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 120ms ease;
 }
+.aria-th-sortable:hover { background: rgba(220,235,255,0.10); }
+.aria-th-sortable .sort-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+  opacity: 0.55;
+}
+.aria-th-sortable.active .sort-arrow { opacity: 1; }
 
 /* ==========================================================================
    PANTALLA PROVEEDORES - CANON AAA TOTAL (8-MAY-2026)
