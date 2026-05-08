@@ -183,16 +183,10 @@ export default function ProveedoresPage() {
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-2">
-            <AriaBackButton href="/dashboard/requisiciones" />
-            <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
-            <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
-          </div>
-          <button onClick={openNew} className="aria-btn-nuevo group" type="button">
-            <Plus className="w-3.5 h-3.5 transition-transform group-hover:rotate-90"/>
-            <span>Nuevo</span>
-          </button>
+        <div className="flex items-center gap-2 mb-2">
+          <AriaBackButton href="/dashboard/requisiciones" />
+          <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
+          <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
         </div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <div className="flex items-center gap-1.5 mr-3">
@@ -230,6 +224,9 @@ export default function ProveedoresPage() {
             <option value="">Todas ({categories.length})</option>
             {categories.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
+          <button onClick={openNew} className="aria-btn-nuevo" type="button">
+            <Plus className="w-3.5 h-3.5"/>Nuevo
+          </button>
         </div>
 
       </div>
@@ -304,23 +301,10 @@ export default function ProveedoresPage() {
                       <button
                         onClick={() => toggleActivo(s.id, s.active)}
                         title={s.active ? "Activo - click para mover a catalogo" : "En catalogo - click para activar"}
-                        style={{
-                          padding: "3px 9px",
-                          fontSize: "10px",
-                          fontWeight: 700,
-                          borderRadius: "5px",
-                          color: "#FFFFFF",
-                          background: s.active
-                            ? "linear-gradient(180deg, #1F8A60 0%, #16704D 100%)"
-                            : "linear-gradient(180deg, #4A5468 0%, #353C4A 100%)",
-                          border: s.active ? "1px solid rgba(160,230,200,0.30)" : "1px solid rgba(140,160,200,0.18)",
-                          boxShadow: "inset 0 1px 0 rgba(220,235,255,0.10), 0 1px 4px rgba(0,0,0,0.30)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.04em",
-                          cursor: "pointer",
-                        }}
+                        className={s.active ? "aria-pill-activo" : "aria-pill-catalogo"}
+                        type="button"
                       >
-                        {s.active ? "Activo" : "Catalogo"}
+                        {s.active ? "ACTIVO" : "CATALOGO"}
                       </button>
                     </td>
                     <td className="pr-2">
