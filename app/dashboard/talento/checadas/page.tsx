@@ -37,7 +37,7 @@ export default function ChecadasPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
   const [scorecardEmp, setScorecardEmp] = useState<string | null>(null);
-  const [scorecardWindow, setScorecardWindow] = useState<"current" | "4w" | "12w">("current");
+  const [scorecardWindow, setScorecardWindow] = useState<"current" | "month" | "year">("current");
   const [asistenciasHist, setAsistenciasHist] = useState<Asistencia[]>([]);
   const [oficinaDefault, setOficinaDefault] = useState<{ codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null>(null);
   const [centrosList, setCentrosList] = useState<Array<{ id: string; codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }>>([]);
@@ -94,14 +94,19 @@ export default function ChecadasPage() {
 
   useEffect(() => {
     if (!scorecardEmp || scorecardWindow === "current") { setAsistenciasHist([]); return; }
-    const weeks = scorecardWindow === "4w" ? 4 : 12;
-    const start = new Date();
-    start.setDate(start.getDate() - weeks * 7);
+    const today = new Date();
+    let start: Date;
+    if (scorecardWindow === "month") {
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+    } else {
+      start = new Date(today.getFullYear(), 0, 1);
+    }
     supabase
       .from("asistencias")
       .select("*, employees(full_name, employee_number)")
       .eq("employee_id", scorecardEmp)
       .gte("fecha", localDate(start))
+      .lte("fecha", localDate(today))
       .order("fecha", { ascending: true })
       .then(({ data }) => { if (data) setAsistenciasHist(data as Asistencia[]); });
   }, [scorecardEmp, scorecardWindow]);
@@ -273,15 +278,24 @@ export default function ChecadasPage() {
     return { dia: labels[d.getDay()], num: d.getDate(), mes: meses[d.getMonth()] };
   };
 
-  const isoWeek = (fecha: string) => {
+  // Semana laboral construccion: sabado a viernes (no ISO).
+  // Hoy vie 8-may-2026 cierra sem 18, mañana sab 9-may inicia sem 19.
+  // Algoritmo: encontrar primer sabado del año, contar (fecha - primerSabado) / 7
+  const semanaSabVie = (fecha: string) => {
     const d = new Date(fecha + "T00:00:00");
-    const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = (target.getUTCDay() + 6) % 7;
-    target.setUTCDate(target.getUTCDate() - dayNum + 3);
-    const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
-    const diff = (target.getTime() - firstThursday.getTime()) / 86400000;
-    return 1 + Math.round((diff - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+    const year = d.getFullYear();
+    let firstSat = new Date(year, 0, 1);
+    while (firstSat.getDay() !== 6) firstSat.setDate(firstSat.getDate() + 1);
+    if (d < firstSat) {
+      const lastSat = new Date(year - 1, 0, 1);
+      while (lastSat.getDay() !== 6) lastSat.setDate(lastSat.getDate() + 1);
+      const days = Math.floor((d.getTime() - lastSat.getTime()) / 86400000);
+      return Math.floor(days / 7) + 1;
+    }
+    const days = Math.floor((d.getTime() - firstSat.getTime()) / 86400000);
+    return Math.floor(days / 7) + 1;
   };
+  const isoWeek = semanaSabVie;
 
 
 
@@ -649,9 +663,9 @@ export default function ChecadasPage() {
               </div>
               <div className="flex-1 overflow-auto p-5 space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="text-xs uppercase tracking-wider text-slate-600 font-bold">Balance Scorecard {scorecardWindow === "current" ? `(${fechaInicio} → ${fechaFin})` : scorecardWindow === "4w" ? "(últimas 4 semanas)" : "(últimas 12 semanas)"}</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-600 font-bold">Balance Scorecard {scorecardWindow === "current" ? `(${fechaInicio} → ${fechaFin})` : scorecardWindow === "month" ? "(Mes en curso)" : "(Año en curso)"}</div>
                   <div className="flex gap-1 p-0.5 rounded-lg bg-slate-200 border border-slate-300">
-                    {([["current","Esta semana"],["4w","4 sem"],["12w","12 sem"]] as Array<["current"|"4w"|"12w", string]>).map(([k,l]) => (
+                    {([["current","Esta semana"],["month","Mes actual"],["year","Año actual"]] as Array<["current"|"month"|"year", string]>).map(([k,l]) => (
                       <button key={k} onClick={() => setScorecardWindow(k)} className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${scorecardWindow === k ? "bg-aria-accent text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{l}</button>
                     ))}
                   </div>
