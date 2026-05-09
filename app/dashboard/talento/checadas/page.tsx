@@ -657,16 +657,32 @@ export default function ChecadasPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="aria-kpi-card aria-kpi-success"><p className="text-2xl font-bold text-white">{asistencia}%</p><p className="text-sm">Asistencia</p></div>
-                  <div className="aria-kpi-card aria-kpi-primary"><p className="text-2xl font-bold text-white">{puntualidad}%</p><p className="text-sm">Puntualidad</p></div>
-                  <div className="aria-kpi-card aria-kpi-slate"><p className="text-2xl font-bold text-white">{stats.totalHoras}h</p><p className="text-sm">Horas trabajadas</p></div>
-                  <div className="aria-kpi-card aria-kpi-danger"><p className="text-2xl font-bold text-white">{stats.fueras}</p><p className="text-sm">Días fuera geocerca</p></div>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></span>
+                    <p className="text-2xl font-bold text-slate-900">{asistencia}%</p>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Asistencia</p>
+                  </div>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></span>
+                    <p className="text-2xl font-bold text-slate-900">{puntualidad}%</p>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Puntualidad</p>
+                  </div>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-slate-500"></span>
+                    <p className="text-2xl font-bold text-slate-900">{stats.totalHoras}h</p>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Horas trabajadas</p>
+                  </div>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500"></span>
+                    <p className="text-2xl font-bold text-slate-900">{stats.fueras}</p>
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Días fuera geocerca</p>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días checados</p><p className="text-lg font-bold text-slate-900">{stats.diasCheck} / {stats.totalDiasRango}</p></div>
-                  <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días completos</p><p className="text-lg font-bold text-slate-900">{stats.diasCompletos}</p></div>
-                  <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Retardos</p><p className="text-lg font-bold text-amber-600">{stats.retardos}</p></div>
-                  <div className="p-3 rounded-lg bg-white border border-slate-200 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Ausencias</p><p className="text-lg font-bold text-rose-600">{stats.ausencias}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días checados</p><p className="text-lg font-bold text-slate-900">{stats.diasCheck} / {stats.totalDiasRango}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días completos</p><p className="text-lg font-bold text-slate-900">{stats.diasCompletos}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Retardos</p><p className="text-lg font-bold text-amber-600">{stats.retardos}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Ausencias</p><p className="text-lg font-bold text-rose-600">{stats.ausencias}</p></div>
                 </div>
 
                 {scorecardWindow !== "current" && historico.length > 0 && (
@@ -750,7 +766,7 @@ export default function ChecadasPage() {
                         const hasE = !!a?.hora_entrada;
                         const horas = a ? calcHoras(a.hora_entrada, a.hora_salida) : 0;
                         return (
-                          <div key={d} className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 shadow-sm">
+                          <div key={d} className="flex items-center justify-between p-2.5 rounded-md bg-slate-200/70 border border-slate-300 hover:bg-slate-200 transition">
                             <div className="flex items-center gap-3">
                               <span className="text-xs font-bold text-slate-800 w-16">{lbl.dia} {lbl.num}</span>
                               <span className="text-xs text-slate-500">{d}</span>
