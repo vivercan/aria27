@@ -388,9 +388,9 @@ export default function ChecadasPage() {
       {empleadosArr.length > 0 && (fechaInicio !== fechaFin) && (
         <div className="flex-none px-6 py-3 border-b border-white/[0.08] bg-white/[0.02]">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-[#7f93b0]">Indicadores por empleado ({fechaInicio} → {fechaFin}) · click para Balance Scorecard</p>
+            <p className="text-xs font-bold text-[#c9d8ed] tracking-wide">Indicadores por empleado ({fechaInicio} → {fechaFin}) <span className="text-[#7f93b0] font-normal">· click para Balance Scorecard</span></p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 max-h-[200px] overflow-y-auto pr-1" style={{ scrollSnapType: "y proximity" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 max-h-[240px] overflow-y-auto pr-1 scroll-pb-2" style={{ scrollSnapType: "y proximity" }}>
             {empleadosArr.map(emp => {
               const s = empStats(emp);
               const asistPct = s.totalDiasRango > 0 ? Math.round((s.diasCheck / s.totalDiasRango) * 100) : 0;
@@ -436,11 +436,11 @@ export default function ChecadasPage() {
                 <span className="px-2.5 py-1 rounded-md bg-aria-accent/15 border border-aria-accent/30 text-aria-accent font-bold uppercase tracking-wider">Semana {isoWeek(fechaInicio)}{isoWeek(fechaFin) !== isoWeek(fechaInicio) && ` - ${isoWeek(fechaFin)}`}</span>
                 <span className="text-[#7f93b0]">{rangeDays.length} dias en el rango</span>
               </div>
-              <div className="overflow-auto rounded-xl border border-white/[0.08] bg-black/20" style={{ scrollSnapType: "y proximity" }}>
+              <div className="overflow-auto rounded-xl border border-white/[0.08] bg-black/20 max-h-[60vh] scroll-pb-2" style={{ scrollSnapType: "y proximity" }}>
               <table className="w-full text-xs">
-                <thead className="bg-gradient-to-b from-[#1F4A8C] to-[#0F2D6E] sticky top-0">
+                <thead className="bg-gradient-to-b from-[#1F4A8C] to-[#0F2D6E] sticky top-0 z-10">
                   <tr>
-                    <th className="text-left pl-3 py-2.5 text-white font-bold uppercase tracking-wider sticky left-0 bg-[#0F2D6E] min-w-[200px]">Empleado</th>
+                    <th className="text-left pl-3 py-2.5 text-white font-bold uppercase tracking-wider sticky left-0 bg-[#0F2D6E] min-w-[200px] z-20">Empleado</th>
                     {rangeDays.map(d => {
                       const lbl = dayLabel(d);
                       return <th key={d} className="px-2 py-2.5 text-white font-bold uppercase tracking-wider min-w-[130px]"><div className="text-[9px] opacity-80">{lbl.dia}</div><div className="text-sm leading-tight">{lbl.num}</div><div className="text-[8px] opacity-70 font-semibold">{lbl.mes}</div></th>;
@@ -452,7 +452,7 @@ export default function ChecadasPage() {
                     const isV = esVelador(emp.nombre, emp.position);
                     return (
                       <tr key={emp.employee_id} className="border-t border-white/[0.06] hover:bg-white/[0.04] transition group cursor-pointer" style={{ scrollSnapAlign: "start" }} onClick={() => setScorecardEmp(emp.employee_id)}>
-                        <td className="pl-3 py-2 sticky left-0 bg-[rgba(8,18,40,0.96)] group-hover:bg-[rgba(15,30,60,0.96)] transition">
+                        <td className="pl-3 py-2 sticky left-0 bg-[rgba(8,18,40,0.96)] group-hover:bg-[rgba(15,30,60,0.96)] transition z-[5]">
                           <div className="flex items-center gap-2">
                             <div>
                               <p className="font-semibold text-white truncate text-xs leading-tight">{emp.nombre}</p>
