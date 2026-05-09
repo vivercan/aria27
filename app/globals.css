@@ -1145,6 +1145,23 @@ button.bg-red-600 {
   transform: translateY(-1px);
 }
 
+.aria-pill-success {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid rgba(187,247,208,0.35);
+  box-shadow: inset 0 1px 0 rgba(220,252,231,0.30), 0 3px 8px rgba(21,128,61,0.40);
+  transition: all 150ms ease;
+}
+.aria-pill-success:hover {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+}
+
 /* KPI cards: sólidos con barra lateral de color */
 .aria-kpi-card {
   position: relative;
