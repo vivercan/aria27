@@ -37,7 +37,9 @@ export default function ChecadasPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [mapaModal, setMapaModal] = useState<{ a: Asistencia; tipo: "entrada" | "salida" } | null>(null);
   const [scorecardEmp, setScorecardEmp] = useState<string | null>(null);
-  const [scorecardWindow, setScorecardWindow] = useState<"current" | "month" | "year">("current");
+  const [scorecardWindow, setScorecardWindow] = useState<"current" | "month" | "year" | "weeks">("current");
+  const [weekFrom, setWeekFrom] = useState<string>("");
+  const [weekTo, setWeekTo] = useState<string>("");
   const [asistenciasHist, setAsistenciasHist] = useState<Asistencia[]>([]);
   const [oficinaDefault, setOficinaDefault] = useState<{ codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number } | null>(null);
   const [centrosList, setCentrosList] = useState<Array<{ id: string; codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }>>([]);
@@ -96,20 +98,30 @@ export default function ChecadasPage() {
     if (!scorecardEmp || scorecardWindow === "current") { setAsistenciasHist([]); return; }
     const today = new Date();
     let start: Date;
+    let end: Date = today;
     if (scorecardWindow === "month") {
       start = new Date(today.getFullYear(), today.getMonth(), 1);
-    } else {
+    } else if (scorecardWindow === "year") {
       start = new Date(today.getFullYear(), 0, 1);
+    } else {
+      // weeks: semana N o rango N-M
+      const wf = parseInt(weekFrom) || 0;
+      const wt = parseInt(weekTo) || wf;
+      if (!wf) { setAsistenciasHist([]); return; }
+      const r1 = semanaToRange(today.getFullYear(), wf);
+      const r2 = semanaToRange(today.getFullYear(), wt || wf);
+      start = r1.start;
+      end = r2.end;
     }
     supabase
       .from("asistencias")
       .select("*, employees(full_name, employee_number)")
       .eq("employee_id", scorecardEmp)
       .gte("fecha", localDate(start))
-      .lte("fecha", localDate(today))
+      .lte("fecha", localDate(end))
       .order("fecha", { ascending: true })
       .then(({ data }) => { if (data) setAsistenciasHist(data as Asistencia[]); });
-  }, [scorecardEmp, scorecardWindow]);
+  }, [scorecardEmp, scorecardWindow, weekFrom, weekTo]);
 
   const puedeRegistrarManual = (() => {
     const r = userRole.toLowerCase();
@@ -296,6 +308,17 @@ export default function ChecadasPage() {
     return Math.floor(days / 7) + 1;
   };
   const isoWeek = semanaSabVie;
+
+  // Convertir numero de semana a fecha de inicio (sabado) y fin (viernes siguiente)
+  const semanaToRange = (year: number, semana: number) => {
+    let firstSat = new Date(year, 0, 1);
+    while (firstSat.getDay() !== 6) firstSat.setDate(firstSat.getDate() + 1);
+    const start = new Date(firstSat);
+    start.setDate(start.getDate() + (semana - 1) * 7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    return { start, end };
+  };
 
 
 
@@ -663,40 +686,49 @@ export default function ChecadasPage() {
               </div>
               <div className="flex-1 overflow-auto p-5 space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="text-xs uppercase tracking-wider text-slate-600 font-bold">Balance Scorecard {scorecardWindow === "current" ? `(${fechaInicio} → ${fechaFin})` : scorecardWindow === "month" ? "(Mes en curso)" : "(Año en curso)"}</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-600 font-bold">Balance Scorecard {scorecardWindow === "current" ? `(${fechaInicio} → ${fechaFin})` : scorecardWindow === "month" ? "(Mes en curso)" : scorecardWindow === "year" ? "(Año en curso)" : weekFrom ? (weekTo && weekTo !== weekFrom ? `(Sem ${weekFrom} - ${weekTo})` : `(Semana ${weekFrom})`) : "(Selecciona semana)"}</div>
                   <div className="flex gap-1 p-0.5 rounded-lg bg-slate-200 border border-slate-300">
-                    {([["current","Esta semana"],["month","Mes actual"],["year","Año actual"]] as Array<["current"|"month"|"year", string]>).map(([k,l]) => (
+                    {([["current","Esta semana"],["month","Mes actual"],["year","Año actual"],["weeks","Por semanas"]] as Array<["current"|"month"|"year"|"weeks", string]>).map(([k,l]) => (
                       <button key={k} onClick={() => setScorecardWindow(k)} className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${scorecardWindow === k ? "bg-aria-accent text-white shadow" : "text-slate-600 hover:text-slate-900"}`}>{l}</button>
                     ))}
                   </div>
                 </div>
+                {scorecardWindow === "weeks" && (
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-200 border border-slate-300">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Sem desde</span>
+                    <input type="number" min={1} max={53} value={weekFrom} onChange={e => setWeekFrom(e.target.value)} placeholder="1" className="w-16 px-2 py-1 text-sm rounded border border-slate-400 bg-white text-slate-900 font-bold text-center" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">hasta</span>
+                    <input type="number" min={1} max={53} value={weekTo} onChange={e => setWeekTo(e.target.value)} placeholder="(misma)" className="w-20 px-2 py-1 text-sm rounded border border-slate-400 bg-white text-slate-900 font-bold text-center" />
+                    <button onClick={() => { setWeekFrom(""); setWeekTo(""); }} className="ml-auto text-[10px] uppercase tracking-wider text-slate-500 hover:text-slate-900">Limpiar</button>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></span>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border-2 border-slate-300 shadow-md overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-600"></span>
                     <p className="text-2xl font-bold text-slate-900">{asistencia}%</p>
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Asistencia</p>
                   </div>
-                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></span>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border-2 border-slate-300 shadow-md overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></span>
                     <p className="text-2xl font-bold text-slate-900">{puntualidad}%</p>
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Puntualidad</p>
                   </div>
-                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-slate-500"></span>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border-2 border-slate-300 shadow-md overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-slate-700"></span>
                     <p className="text-2xl font-bold text-slate-900">{stats.totalHoras}h</p>
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Horas trabajadas</p>
                   </div>
-                  <div className="relative p-4 pl-5 rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500"></span>
+                  <div className="relative p-4 pl-5 rounded-xl bg-white border-2 border-slate-300 shadow-md overflow-hidden">
+                    <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-rose-600"></span>
                     <p className="text-2xl font-bold text-slate-900">{stats.fueras}</p>
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Días fuera geocerca</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días checados</p><p className="text-lg font-bold text-slate-900">{stats.diasCheck} / {stats.totalDiasRango}</p></div>
-                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días completos</p><p className="text-lg font-bold text-slate-900">{stats.diasCompletos}</p></div>
-                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Retardos</p><p className="text-lg font-bold text-amber-600">{stats.retardos}</p></div>
-                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-300"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Ausencias</p><p className="text-lg font-bold text-rose-600">{stats.ausencias}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-200 border-2 border-slate-400 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días checados</p><p className="text-lg font-bold text-slate-900">{stats.diasCheck} / {stats.totalDiasRango}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-200 border-2 border-slate-400 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Días completos</p><p className="text-lg font-bold text-slate-900">{stats.diasCompletos}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-200 border-2 border-slate-400 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Retardos</p><p className="text-lg font-bold text-amber-600">{stats.retardos}</p></div>
+                  <div className="p-3 rounded-lg bg-slate-200 border-2 border-slate-400 shadow-sm"><p className="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Ausencias</p><p className="text-lg font-bold text-rose-600">{stats.ausencias}</p></div>
                 </div>
 
                 {scorecardWindow !== "current" && historico.length > 0 && (
@@ -780,7 +812,7 @@ export default function ChecadasPage() {
                         const hasE = !!a?.hora_entrada;
                         const horas = a ? calcHoras(a.hora_entrada, a.hora_salida) : 0;
                         return (
-                          <div key={d} className="flex items-center justify-between p-2.5 rounded-md bg-slate-200/70 border border-slate-300 hover:bg-slate-200 transition">
+                          <div key={d} className="flex items-center justify-between p-2.5 rounded-md bg-white border-2 border-slate-300 shadow-sm hover:bg-slate-50 transition">
                             <div className="flex items-center gap-3">
                               <span className="text-xs font-bold text-slate-800 w-16">{lbl.dia} {lbl.num}</span>
                               <span className="text-xs text-slate-500">{d}</span>
