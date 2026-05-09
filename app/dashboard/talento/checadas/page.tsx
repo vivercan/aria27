@@ -41,14 +41,20 @@ export default function ChecadasPage() {
   const [centrosList, setCentrosList] = useState<Array<{ id: string; codigo?: string; nombre?: string; latitud?: number; longitud?: number; radio_metros?: number }>>([]);
   const [empCentroMap, setEmpCentroMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const hoy = new Date().toISOString().split("T")[0];
+  const localDate = (d: Date = new Date()) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+  const hoy = localDate();
   const [fechaInicio, setFechaInicio] = useState(hoy);
   const [fechaFin, setFechaFin] = useState(hoy);
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [empleadosList, setEmpleadosList] = useState<EmpleadoInfo[]>([]);
-  const [formManual, setFormManual] = useState({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
+  const [formManual, setFormManual] = useState({ employee_id: "", fecha: hoy, hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
   const [userRole, setUserRole] = useState<string>("");
   const { msg, flash, clear } = useFlashMessage();
 
@@ -182,7 +188,7 @@ export default function ChecadasPage() {
     if (start > end) return days;
     const cur = new Date(start);
     while (cur <= end && days.length < 31) {
-      days.push(cur.toISOString().split("T")[0]);
+      days.push(localDate(cur));
       cur.setDate(cur.getDate() + 1);
     }
     return days;
@@ -272,7 +278,7 @@ export default function ChecadasPage() {
     }
     flash("ok", "Asistencia registrada manualmente");
     setShowModal(false);
-    setFormManual({ employee_id: "", fecha: new Date().toISOString().split("T")[0], hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
+    setFormManual({ employee_id: "", fecha: hoy, hora_entrada: "08:00", hora_salida: "17:00", centro_trabajo_id: "" });
     cargarAsistencias();
   };
 
@@ -293,8 +299,8 @@ export default function ChecadasPage() {
             <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} title="Hasta"
               className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             <button onClick={() => { setFechaInicio(hoy); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">Hoy</button>
-            <button onClick={() => { const d = new Date(); const start = new Date(d); start.setDate(d.getDate() - 6); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">7 días</button>
-            <button onClick={() => { const d = new Date(); const start = new Date(d.getFullYear(), d.getMonth(), 1); setFechaInicio(start.toISOString().split("T")[0]); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">Mes</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d); start.setDate(d.getDate() - 6); setFechaInicio(localDate(start)); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">7 días</button>
+            <button onClick={() => { const d = new Date(); const start = new Date(d.getFullYear(), d.getMonth(), 1); setFechaInicio(localDate(start)); setFechaFin(hoy); }} className="aria-pill-secondary text-xs">Mes</button>
             <Link href="/dashboard/talento/checadas/incompletas" className="aria-pill-warning text-xs">
               Ver Incompletas
             </Link>
