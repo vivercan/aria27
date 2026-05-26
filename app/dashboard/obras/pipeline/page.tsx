@@ -17,6 +17,7 @@ interface Obra {
   nombre: string;
   direccion: string;
   estado: string;
+  empresa: string | null;
   presupuesto: number;
   fecha_inicio: string;
   fecha_fin: string;
@@ -31,6 +32,7 @@ interface ObraForm {
   nombre: string;
   direccion: string;
   estado: string;
+  empresa: string;
   presupuesto: string | number;
   presupuesto_contratado: string | number;
   presupuesto_ampliaciones: string | number;
@@ -40,6 +42,29 @@ interface ObraForm {
   descripcion: string;
 }
 
+// Empresas del grupo Avante. Editable en codigo cuando entren nuevas.
+// Color por empresa para badges
+const empresaLabel = (v?: string | null): string => {
+  if (!v) return "";
+  const map: Record<string, string> = { AVANTE: "AVANTE", TERRACRET: "TERRACRET", DENIVEL: "DENIVEL", EN_SOCIEDAD: "EN SOCIEDAD" };
+  return map[v] || v;
+};
+const empresaColor = (v?: string | null): string => {
+  if (!v) return "bg-slate-500/20 text-slate-300";
+  if (v === "AVANTE") return "bg-blue-500/20 text-blue-300";
+  if (v === "TERRACRET") return "bg-emerald-500/20 text-emerald-300";
+  if (v === "DENIVEL") return "bg-amber-500/20 text-amber-300";
+  if (v === "EN_SOCIEDAD") return "bg-fuchsia-500/20 text-fuchsia-300";
+  return "bg-slate-500/20 text-slate-300";
+};
+
+const EMPRESAS = [
+  { value: "AVANTE", label: "AVANTE" },
+  { value: "TERRACRET", label: "TERRACRET" },
+  { value: "DENIVEL", label: "DENIVEL" },
+  { value: "EN_SOCIEDAD", label: "EN SOCIEDAD CON..." },
+];
+
 const STATUS_OPTIONS = [
   { value: "ACTIVA", label: "Activa", color: "bg-emerald-500/20 text-aria-accent" },
   { value: "EN_PLANEACION", label: "En Planeación", color: "bg-aria-primary-light text-aria-accent" },
@@ -48,7 +73,7 @@ const STATUS_OPTIONS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const EMPTY: ObraForm = { nombre: "", direccion: "", estado: "ACTIVA", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
+const EMPTY: ObraForm = { nombre: "", direccion: "", estado: "ACTIVA", empresa: "", presupuesto: "", presupuesto_contratado: "", presupuesto_ampliaciones: "", fecha_inicio: "", fecha_fin: "", cliente: "", descripcion: "" };
 
 export default function PipelinePage() {
   const log = clientLogger("PIPELINE");
@@ -106,6 +131,7 @@ export default function PipelinePage() {
       nombre: form.nombre,
       direccion: form.direccion || null,
       estado: form.estado,
+      empresa: form.empresa || null,
       cliente: form.cliente || null,
       descripcion: form.descripcion || null,
       presupuesto: presupuesto || null,
@@ -203,6 +229,7 @@ export default function PipelinePage() {
       nombre: o.nombre || "",
       direccion: o.direccion || "",
       estado: o.estado || "ACTIVA",
+      empresa: o.empresa || "",
       presupuesto: o.presupuesto || "",
       presupuesto_contratado: "",
       presupuesto_ampliaciones: "",
@@ -262,6 +289,7 @@ export default function PipelinePage() {
               <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Obra</th>
               <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Ubicación</th>
               <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Cliente</th>
+              <th className="text-left p-3 text-[#7f93b0] font-medium text-xs">Empresa</th>
               <th className="text-right p-3 text-[#7f93b0] font-medium text-xs">Presupuesto</th>
               <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Estado</th>
               <th className="text-center p-3 text-[#7f93b0] font-medium text-xs">Acc</th>
@@ -269,14 +297,15 @@ export default function PipelinePage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
+              <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-aria-accent" /></td></tr>
             ) : obras.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-[#4a6080] text-sm">Sin obras registradas</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-[#4a6080] text-sm">Sin obras registradas</td></tr>
             ) : obras.map(o => (
               <tr key={o.id} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                 <td className="p-3 text-white text-sm font-medium">{o.nombre}</td>
                 <td className="p-3 text-[#7f93b0] text-sm">{o.direccion || "—"}</td>
                 <td className="p-3 text-[#7f93b0] text-sm">{o.cliente || "—"}</td>
+                <td className="p-3 text-sm">{o.empresa ? <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${empresaColor(o.empresa)}`}>{empresaLabel(o.empresa)}</span> : <span className="text-[#4a6080]">—</span>}</td>
                 <td className="p-3 text-right text-sm text-white">{o.presupuesto ? `$${Number(o.presupuesto).toLocaleString()}` : "—"}</td>
                 <td className="p-3 text-center"><span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(o.estado)}`}>{getStatusLabel(o.estado)}</span></td>
                 <td className="p-3 text-center flex items-center justify-center gap-1">
@@ -331,6 +360,13 @@ export default function PipelinePage() {
                   <div>
                     <label className="block text-xs text-[#7f93b0] mb-1">Cliente</label>
                     <input type="text" value={form.cliente || ""} onChange={e => setForm({ ...form, cliente: e.target.value })} placeholder="Nombre del cliente" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" autoComplete="off" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#7f93b0] mb-1">Empresa <span className="text-aria-accent">*</span></label>
+                    <select value={form.empresa || ""} onChange={e => setForm({ ...form, empresa: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none">
+                      <option value="">Selecciona empresa...</option>
+                      {EMPRESAS.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs text-[#7f93b0] mb-1">Monto contratado</label>
