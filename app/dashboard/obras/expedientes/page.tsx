@@ -392,7 +392,19 @@ export default function ExpedientesPage() {
     if (a) iniciarEliminarUnArchivo(a);
   };
 
-  const dispararAnalisis = async (archivoId: string) => {
+  // Tipos que Claude puede analizar: PDF, imagen, texto. Para Excel/Word/PPT NO se dispara.
+  const puedeAnalizarse = (nombre: string, tipo: string): boolean => {
+    const ext = (nombre.split(".").pop() || "").toLowerCase();
+    const t = (tipo || "").toLowerCase();
+    if (t.includes("pdf") || ext === "pdf") return true;
+    if (t.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) return true;
+    if (t.startsWith("text/") || ["txt", "md", "csv"].includes(ext)) return true;
+    return false;
+  };
+
+  const dispararAnalisis = async (archivoId: string, nombre?: string, tipo?: string) => {
+    // Skip si el tipo no es analizable (Excel, Word, PPT, ZIP, etc)
+    if (nombre && tipo && !puedeAnalizarse(nombre, tipo)) return;
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       await fetch("/api/expedientes/analizar", {
@@ -439,7 +451,7 @@ export default function ExpedientesPage() {
         .eq("url", result.publicUrl)
         .maybeSingle();
       if (nuevoRow?.id) {
-        dispararAnalisis(nuevoRow.id);
+        dispararAnalisis(nuevoRow.id, file.name, file.type);
       }
     } catch (err: unknown) {
       flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
@@ -509,7 +521,7 @@ export default function ExpedientesPage() {
       const { data: nuevoRow } = await supabase
         .from("expedientes_archivos").select("id")
         .eq("carpeta_id", rootId).eq("url", result.publicUrl).maybeSingle();
-      if (nuevoRow?.id) dispararAnalisis(nuevoRow.id);
+      if (nuevoRow?.id) dispararAnalisis(nuevoRow.id, file.name, file.type);
     } catch (err: unknown) {
       flash("err", ((err as {message?: string})?.message) || "Error al subir archivo");
     }

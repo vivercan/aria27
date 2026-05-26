@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
       try {
         await supabase
           .from("expedientes_archivos")
-          .update({ resumen: "(Error al analizar — reintenta después)", analizado_at: new Date().toISOString() })
+          .update({ resumen: "(Análisis pendiente)", analizado_at: new Date().toISOString() })
           .eq("id", archivoId);
       } catch {}
     }
