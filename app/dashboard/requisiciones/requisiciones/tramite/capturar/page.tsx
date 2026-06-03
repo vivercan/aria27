@@ -306,9 +306,9 @@ function CapturarContent() {
   if (!requisition) return (
     <div className="text-center py-20 text-[#7f93b0]">
       <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
-      <p className="mb-2">No se encontr\u00f3 la requisici\u00f3n</p>
+      <p className="mb-2">No se encontró la requisición</p>
       <Link href="/dashboard/requisiciones/requisiciones/tramite" className="text-aria-accent hover:underline text-sm">
-        \u2190 Ver requisiciones activas
+        ← Ver requisiciones activas
       </Link>
     </div>
   );
@@ -321,7 +321,7 @@ function CapturarContent() {
         <AriaBackButton href="/dashboard/requisiciones/requisiciones/tramite" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-white">Capturar Cotizaciones</h1>
-          <p className="text-[#7f93b0] text-sm">{requisition.folio} &middot; {requisition.cost_center_name}</p>
+          <p className="text-[#7f93b0] text-sm">{requisition.folio} · {requisition.cost_center_name}</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-white">{quotes.length}</p>
@@ -501,7 +501,10 @@ function CapturarContent() {
               <select value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))}
                 className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none">
                 <option value={0}>0% (Sin IVA / Nota)</option>
+                <option value={7}>7%</option>
                 <option value={8}>8% (Frontera Norte)</option>
+                <option value={10}>10%</option>
+                <option value={11}>11%</option>
                 <option value={16}>16% (General México)</option>
               </select>
               <p className="text-[10px] text-[#4a6080] mt-1">Default 16%. Si el proveedor emite Nota, selecciona 0%.</p>
@@ -602,7 +605,7 @@ function CapturarContent() {
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
           <div>
             <p className="text-white font-semibold">Comparativa lista</p>
-            <p className="text-[#7f93b0] text-xs">{quotes.length} de 5 cotizaciones &middot; Mejor: ${bestPrice.toLocaleString()}</p>
+            <p className="text-[#7f93b0] text-xs">{quotes.length} de 5 cotizaciones · Mejor: ${bestPrice.toLocaleString()}</p>
           </div>
           <button onClick={enviarComparativa} disabled={enviando}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-emerald-500/25">
