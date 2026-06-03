@@ -10,7 +10,7 @@ type CostCenter = { id: string; code: string; name: string };
 type Product = { id: number; sku: string | null; name: string | null; unit: string | null; category: string | null; description: string | null };
 type MaterialRow = { id: number; name: string; unit: string; qty: number; observations: string; price?: number };
 type FreeRow = { tempId: number; descripcion: string; unidad: string; cantidad: number; monto: number; observaciones: string };
-type ProveedorOption = { id: string; name: string; bank_name: string | null; bank_clabe: string | null; payment_method: string | null; razon_social: string | null };
+type ProveedorOption = { id: string; name: string; bank_name: string | null; bank_clabe: string | null; bank_account_number: string | null; payment_method: string | null; razon_social: string | null };
 
 const TIPO_MAP: Record<string, string> = {
   "MATERIALES": "catalogo", "ACEROS": "catalogo", "FERRETERIA": "catalogo",
@@ -69,11 +69,11 @@ export default function NewRequisitionPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // ── ERP: Prioridad + Presupuesto ──────────────────────────────────────────
+  // ── ERP: Prioridad + Presupuesto ─────────────────────────────────────────
   const [prioridad, setPrioridad] = useState<"CRITICO"|"URGENTE"|"NORMAL"|"PLANIFICADO">("NORMAL");
   const [presupuesto, setPresupuesto] = useState<string>("");
 
-  // ── Datos de pago e IVA (para PDF) ────────────────────────────────────────
+  // ── Datos de pago e IVA (para PDF) ───────────────────────────────────────
   const [formaPago, setFormaPago] = useState<string>("EFECTIVO");
   const [fechaPago, setFechaPago] = useState<string>("");
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
@@ -85,7 +85,7 @@ export default function NewRequisitionPage() {
   const TIPOS_GASTO_REQ = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
   const esGastoTipo = TIPOS_GASTO_REQ.includes(descripcionCompra);
 
-  // ── Proveedor pre-seleccionado ─────────────────────────────────────────────
+  // ── Proveedor pre-seleccionado ───────────────────────────────────────────
   const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
   const [proveedorSearch, setProveedorSearch] = useState<string>("");
   const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
@@ -110,7 +110,7 @@ export default function NewRequisitionPage() {
         setSubcategorias(data.filter(d => d.tipo === "SUBCATEGORIA").map(d => d.valor));
       }
     });
-    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
+    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
@@ -352,6 +352,7 @@ export default function NewRequisitionPage() {
             proveedor_nombre: selectedProveedor.name,
             proveedor_banco: selectedProveedor.bank_name || null,
             proveedor_clabe: selectedProveedor.bank_clabe || null,
+            proveedor_cuenta: selectedProveedor.bank_account_number || null,
             proveedor_razon_social: selectedProveedor.razon_social || null,
           } : {}),
         })
@@ -378,7 +379,7 @@ export default function NewRequisitionPage() {
       {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
       {message && <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">{message}</div>}
 
-      {/* ── DUPLICATE WARNING ──────────────────────────────────────────── */}
+      {/* ── DUPLICATE WARNING ───────────────────────────────────────────────────── */}
       {duplicadoWarning && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-400" />
@@ -392,7 +393,7 @@ export default function NewRequisitionPage() {
         </div>
       )}
 
-      {/* ── AI ASSIST PANEL ───────────────────────────────────────────── */}
+      {/* ── AI ASSIST PANEL ───────────────────────────────────────────────────── */}
       {showAI ? (
         <div className="rounded-2xl border border-aria-primary/30 bg-aria-primary/5 p-5 shadow-lg">
           <div className="flex items-center justify-between mb-3">
@@ -482,7 +483,7 @@ export default function NewRequisitionPage() {
             </div>
           </div>
 
-          {/* ── DATOS DE PAGO E IVA ─────────────────────────────────── */}
+          {/* ── DATOS DE PAGO E IVA ─────────────────────────────────────────── */}
           <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Forma de pago</label>
@@ -500,13 +501,16 @@ export default function NewRequisitionPage() {
               <label className="text-xs font-medium text-white/70">IVA</label>
               <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
                 <option value={0}>0% (Sin IVA)</option>
-                <option value={8}>8%</option>
-                <option value={16}>16%</option>
+                <option value={7}>7%</option>
+                <option value={8}>8% (Frontera Norte)</option>
+                <option value={10}>10%</option>
+                <option value={11}>11%</option>
+                <option value={16}>16% (General Mexico)</option>
               </select>
             </div>
           </div>
 
-          {/* ── PROVEEDOR PRE-SELECCIONADO ─────────────────────────── */}
+          {/* ── PROVEEDOR PRE-SELECCIONADO ─────────────────────────────────── */}
           <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-white/70">Proveedor (opcional — auto-llena datos de pago)</label>
             <div className="relative">
