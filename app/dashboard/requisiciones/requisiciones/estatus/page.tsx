@@ -17,6 +17,7 @@ interface Requisition {
   status: string;
   created_by: string;
   user_email: string;
+  solicitante_nombre_completo?: string;
   required_date: string;
   created_at: string;
   instructions?: string;
@@ -139,14 +140,30 @@ export default function RequisicionesStatusPage() {
     setLoadingDetail(false);
   }
 
+  // 04-Jun-2026 — nombre legal completo en imprimibles
+  async function resolverSolicitanteCompleto(req: Requisition): Promise<string> {
+    if (req.solicitante_nombre_completo && req.solicitante_nombre_completo.trim()) {
+      return req.solicitante_nombre_completo;
+    }
+    if (req.user_email) {
+      try {
+        const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(req.user_email)}`, { cache: "no-store" });
+        const d = await r.json();
+        if (d?.full_name) return d.full_name as string;
+      } catch {}
+    }
+    return req.created_by || "";
+  }
+
   async function handlePrintClick(req: Requisition) {
     setLoadingPrint(req.id);
     const items = await loadItemsForPrint(req.id);
+    const solicitanteResuelto = await resolverSolicitanteCompleto(req);
     handlePrint({
       folio: req.folio,
       fechaCreacion: req.created_at,
       fechaRequerida: req.required_date,
-      solicitante: req.created_by,
+      solicitante: solicitanteResuelto,
       obra: req.cost_center_name,
       materiales: items.map((i) => ({
         name: i.product_name,
@@ -179,11 +196,12 @@ export default function RequisicionesStatusPage() {
   async function handlePDFClick(req: Requisition) {
     setLoadingPrint(req.id);
     const items = await loadItemsForPrint(req.id);
+    const solicitanteResuelto = await resolverSolicitanteCompleto(req);
     handleDownloadPDF({
       folio: req.folio,
       fechaCreacion: req.created_at,
       fechaRequerida: req.required_date,
-      solicitante: req.created_by,
+      solicitante: solicitanteResuelto,
       obra: req.cost_center_name,
       materiales: items.map((i) => ({
         name: i.product_name,
