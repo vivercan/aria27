@@ -69,6 +69,7 @@ export default function RequisicionesStatusPage() {
   const [singleDeleteId, setSingleDeleteId] = useState<string>("");
   const [itemsCache, setItemsCache] = useState<Record<string, ReqItem[]>>({});
   const [loadingPrint, setLoadingPrint] = useState<string | null>(null);
+  const [nombresPorEmail, setNombresPorEmail] = useState<Record<string, string>>({});
   // PR 30-Abr: modal avisar pago
   const [avisarPago, setAvisarPago] = useState<Requisition | null>(null);
   const [pagoPhone, setPagoPhone] = useState<string>("");
@@ -384,7 +385,7 @@ export default function RequisicionesStatusPage() {
                       <button onClick={() => openDetail(req)} className="font-mono text-aria-accent text-sm hover:text-aria-accent hover:underline transition">{req.folio}</button>
                     </td>
                     <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
-                    <td className="p-3 text-[#c9d8ed] text-sm">{req.created_by}</td>
+                    <td className="p-3 text-[#c9d8ed] text-sm">{nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by}</td>
                     <td className="p-3 text-[#c9d8ed] text-sm">{formatDate(req.required_date)}</td>
                     <td className="p-3 text-aria-accent text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
@@ -462,7 +463,7 @@ export default function RequisicionesStatusPage() {
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{detailReq.created_by}</p></div>
+                <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Creación</p><p className="text-sm text-white">{formatDate(detailReq.created_at)}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Total</p><p className="text-sm text-aria-accent font-medium">{formatCurrency(detailReq.monto || detailReq.total)}</p></div>
