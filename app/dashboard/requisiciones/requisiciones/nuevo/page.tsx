@@ -110,7 +110,7 @@ export default function NewRequisitionPage() {
         setSubcategorias(data.filter(d => d.tipo === "SUBCATEGORIA").map(d => d.valor));
       }
     });
-    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
+    supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").range(0, 1999).then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
@@ -522,7 +522,7 @@ export default function NewRequisitionPage() {
                 onChange={e => { setProveedorSearch(e.target.value); setSelectedProveedor(null); }}
                 onFocus={() => {
                   // 03-Jun-2026 Daisy bug3: refresh on focus para detectar proveedores recien dados de alta
-                  supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
+                  supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").range(0, 1999).then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
                 }}
               />
               {selectedProveedor && (
