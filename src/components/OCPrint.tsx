@@ -15,6 +15,10 @@ interface OCPrintData {
     selected_price: number;
   }[];
   requisicionFolio?: string;
+  // 04-Jun-2026 — nombres legales completos en firmas
+  elaboroNombre?: string;
+  autorizoNombre?: string;
+  recibioNombre?: string;
 }
 
 function generarHTMLOC(data: OCPrintData): string {
@@ -106,9 +110,21 @@ function generarHTMLOC(data: OCPrintData): string {
   </table>
   <div class="notes"><strong>NOTAS IMPORTANTES:</strong><br>- Favor de enviar factura a: administracion@gcuavante.com<br>- Entregar en obra: ${data.obraNombre}<br>- Incluir copia de esta orden con el material</div>
   <div class="footer">
-    <div class="firma"><div class="firma-line">Elaboró</div><div style="font-size:9px;color:#666">Depto. Compras</div></div>
-    <div class="firma"><div class="firma-line">Autorizó</div><div style="font-size:9px;color:#666">Dirección General</div></div>
-    <div class="firma"><div class="firma-line">Recibió Proveedor</div><div style="font-size:9px;color:#666">Nombre y Firma</div></div>
+    <div class="firma">
+      <div class="firma-line">${data.elaboroNombre || ""}</div>
+      <div style="font-size:10px;color:#333;font-weight:bold">Elaboró</div>
+      <div style="font-size:9px;color:#666">${data.elaboroNombre ? "Depto. Compras" : "Depto. Compras"}</div>
+    </div>
+    <div class="firma">
+      <div class="firma-line">${data.autorizoNombre || ""}</div>
+      <div style="font-size:10px;color:#333;font-weight:bold">Autorizó</div>
+      <div style="font-size:9px;color:#666">${data.autorizoNombre ? "Dirección General" : "Dirección General"}</div>
+    </div>
+    <div class="firma">
+      <div class="firma-line">${data.recibioNombre || data.proveedor || ""}</div>
+      <div style="font-size:10px;color:#333;font-weight:bold">Recibió Proveedor</div>
+      <div style="font-size:9px;color:#666">Nombre y Firma</div>
+    </div>
   </div>
 </body>
 </html>`;
