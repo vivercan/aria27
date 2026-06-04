@@ -1,16 +1,19 @@
 /**
  * /api/proveedores/search?q=SANTA
- * GET -> Server-side search de proveedores ACTIVO con ilike. Usa service_role,
- * ignora RLS, limites de paginacion del cliente anon, y cualquier issue de
- * caching. Fuente de verdad para autocomplete de proveedores.
+ * GET -> Server-side search de proveedores ACTIVO. Usa service_role.
  *
- * 04-Jun-2026 (Daisy bug3 fix definitivo) — Auto-detecta columnas bancarias
- * porque el cliente Supabase fallaba silenciosamente cuando incluia columnas
- * inexistentes (bank_account_number etc).
+ * 04-Jun-2026 v3 — bug Daisy "mecanico Sin resultados":
+ *   - Causa: bundle stale en browser de Daisy.
+ *   - Fix preventivo: amplia busqueda a `name` + `razon_social` (.or)
+ *     porque algunos proveedores estan dados de alta solo con razon_social.
+ *   - Anti-cache: no-store en respuesta y dynamic en route.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const log = logger("PROVEEDORES-SEARCH");
 
@@ -18,22 +21,26 @@ export async function GET(req: NextRequest) {
   try {
     const q = (req.nextUrl.searchParams.get("q") || "").trim();
     if (q.length < 2) {
-      return NextResponse.json({ proveedores: [] });
+      return NextResponse.json(
+        { proveedores: [] },
+        { headers: { "Cache-Control": "no-store, max-age=0" } }
+      );
     }
     const db = getSupabaseAdmin();
-    // Query con * para evitar errores de columnas inexistentes
+    // OR busca en name + razon_social. Si una columna no existe en la BD,
+    // Supabase rechaza el .or — por eso usamos columnas confirmadas.
+    const pattern = `%${q.replace(/[%_]/g, "")}%`;
     const { data, error } = await db
       .from("suppliers")
       .select("*")
       .eq("status", "ACTIVO")
-      .ilike("name", `%${q}%`)
+      .or(`name.ilike.${pattern},razon_social.ilike.${pattern}`)
       .order("name")
       .limit(20);
     if (error) {
       log.error("query error", { err: error.message });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // Mapear a shape consumido por el front
     type Row = {
       id: string;
       name: string;
@@ -41,7 +48,6 @@ export async function GET(req: NextRequest) {
       payment_method?: string | null;
       bank_name?: string | null;
       bank_clabe?: string | null;
-      // Variantes posibles del nombre de cuenta
       bank_account_number?: string | null;
       bank_account?: string | null;
       account_number?: string | null;
@@ -58,9 +64,12 @@ export async function GET(req: NextRequest) {
       bank_account_number:
         r.bank_account_number || r.bank_account || r.account_number || r.cuenta || null,
     }));
-    return NextResponse.json({ proveedores });
+    return NextResponse.json(
+      { proveedores },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   } catch (e: unknown) {
-    log.error("POST error", { e });
+    log.error("GET error", { e });
     return NextResponse.json(
       { error: (e as { message?: string })?.message || "Error" },
       { status: 500 }
