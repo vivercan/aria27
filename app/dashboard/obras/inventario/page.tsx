@@ -25,7 +25,8 @@ import {
   Download,
   FileSpreadsheet,
   FileText,
-} from "lucide-react";
+  Edit2,
+  Trash2 } from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 
 // ====== TYPES ======
@@ -135,6 +136,12 @@ export default function InventarioObraPage() {
   const [salidaItem, setSalidaItem] = useState<ItemInventario | null>(null);
   const [salidaCantidad, setSalidaCantidad] = useState(1);
   const [salidaMotivo, setSalidaMotivo] = useState("");
+  // 03-Jun-2026 (Daisy bug2): destino opcional para mover material entre obras
+  const [salidaDestinoObraId, setSalidaDestinoObraId] = useState<string>("");
+
+  // Modal Editar Material (03-Jun-2026 Daisy bug1)
+  const [showEditar, setShowEditar] = useState<ItemInventario | null>(null);
+  const [editarNombre, setEditarNombre] = useState("");
 
   // Modal Ver Foto
   const [fotoAmpliadaUrl, setFotoAmpliadaUrl] = useState<string | null>(null);
@@ -548,22 +555,114 @@ export default function InventarioObraPage() {
         return;
       }
 
+      const esTraslado = !!salidaDestinoObraId && salidaDestinoObraId !== String(obraSeleccionada.id);
+      const obraDestino = esTraslado ? obras.find((c: Obra) => String(c.id) === salidaDestinoObraId) : null;
+
       await supabase.from("inventario_movimientos").insert({
         obra_id: obraSeleccionada.id,
         obra_nombre: obraSeleccionada.name,
         producto_nombre: salidaItem.producto_nombre,
         unidad: salidaItem.unidad,
-        tipo: "SALIDA",
+        tipo: esTraslado ? "TRASLADO_SALIDA" : "SALIDA",
         cantidad: salidaCantidad,
         saldo_post: nuevoDisp,
-        motivo: salidaMotivo || "Salida manual",
-        referencia_tipo: "SALIDA_MANUAL",
+        motivo: esTraslado
+          ? `Traslado a ${obraDestino?.name || "obra destino"}` + (salidaMotivo ? ` | ${salidaMotivo}` : "")
+          : (salidaMotivo || "Salida manual"),
+        referencia_tipo: esTraslado ? "TRASLADO" : "SALIDA_MANUAL",
         referencia_id: salidaItem.id,
         usuario: getUserEmail(),
       });
 
+      if (esTraslado && obraDestino) {
+        // Buscar si ya existe el item en la obra destino
+        const { data: existeDestino } = await supabase
+          .from("inventario_obra")
+          .select("id, cantidad_disponible, cantidad_usada")
+          .eq("obra_id", obraDestino.id)
+          .eq("producto_nombre", salidaItem.producto_nombre)
+          .maybeSingle();
+
+        if (existeDestino) {
+          await supabase.from("inventario_obra").update({
+            cantidad_disponible: existeDestino.cantidad_disponible + salidaCantidad,
+            ultimo_movimiento: new Date().toISOString(),
+          }).eq("id", existeDestino.id);
+        } else {
+          await supabase.from("inventario_obra").insert({
+            obra_id: obraDestino.id,
+            obra_nombre: obraDestino.name,
+            producto_nombre: salidaItem.producto_nombre,
+            unidad: salidaItem.unidad,
+            cantidad_disponible: salidaCantidad,
+            cantidad_usada: 0,
+            tipo: salidaItem.tipo || "MATERIAL",
+            ultimo_movimiento: new Date().toISOString(),
+          });
+        }
+
+        await supabase.from("inventario_movimientos").insert({
+          obra_id: obraDestino.id,
+          obra_nombre: obraDestino.name,
+          producto_nombre: salidaItem.producto_nombre,
+          unidad: salidaItem.unidad,
+          tipo: "TRASLADO_ENTRADA",
+          cantidad: salidaCantidad,
+          saldo_post: (existeDestino?.cantidad_disponible || 0) + salidaCantidad,
+          motivo: `Traslado desde ${obraSeleccionada.name}`,
+          referencia_tipo: "TRASLADO",
+          referencia_id: salidaItem.id,
+          usuario: getUserEmail(),
+        });
+
+        flash("ok", `Traslado registrado: ${salidaCantidad} ${salidaItem.unidad} a ${obraDestino.name}`);
+      } else {
+        flash("ok", `Salida registrada: ${salidaCantidad} ${salidaItem.unidad}`);
+      }
+
       setShowSalida(false);
+      setSalidaDestinoObraId("");
       loadInventario(obraSeleccionada.id);
+    } catch (err: unknown) {
+      flash("err", "Error: " + (err as Error).message);
+    }
+    setGuardando(false);
+  };
+
+  // ====== EDITAR NOMBRE MATERIAL (03-Jun-2026 Daisy bug1) ======
+  const abrirEditar = (item: ItemInventario) => {
+    setShowEditar(item);
+    setEditarNombre(item.producto_nombre);
+  };
+
+  const guardarEditar = async () => {
+    if (!showEditar || !editarNombre.trim()) return;
+    setGuardando(true);
+    try {
+      const { error } = await supabase
+        .from("inventario_obra")
+        .update({ producto_nombre: editarNombre.trim() })
+        .eq("id", showEditar.id);
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
+      flash("ok", "Nombre actualizado");
+      setShowEditar(null);
+      setEditarNombre("");
+      if (obraSeleccionada) loadInventario(obraSeleccionada.id);
+    } catch (err: unknown) {
+      flash("err", "Error: " + (err as Error).message);
+    }
+    setGuardando(false);
+  };
+
+  // ====== ELIMINAR MATERIAL (03-Jun-2026 Daisy bug1) ======
+  const eliminarMaterial = async (item: ItemInventario) => {
+    if (!confirm(`Eliminar definitivamente "${item.producto_nombre}" del inventario?\n\nDisponible: ${item.cantidad_disponible} ${item.unidad}\n\nEsta accion no se puede deshacer.`)) return;
+    setGuardando(true);
+    try {
+      const { error } = await supabase.from("inventario_obra").delete().eq("id", item.id);
+      if (error) { flash("err", "Error: " + error.message); setGuardando(false); return; }
+      flash("ok", "Material eliminado");
+      if (obraSeleccionada) loadInventario(obraSeleccionada.id);
     } catch (err: unknown) {
       flash("err", "Error: " + (err as Error).message);
     }
@@ -1023,8 +1122,10 @@ export default function InventarioObraPage() {
                       <div className="inline-flex items-center rounded-lg overflow-hidden" style={{ background: "linear-gradient(180deg, #1A2A44 0%, #14223A 100%)", border: "1px solid rgba(140,178,228,0.18)", boxShadow: "inset 0 1px 0 rgba(220,235,255,0.05), 0 2px 6px rgba(0,0,0,0.30)" }}>
                         <IconBtn href={`/dashboard/obras/inventario/kardex?obra=${encodeURIComponent(item.obra_nombre)}&producto=${encodeURIComponent(item.producto_nombre)}`} icon={History} title="Ver kardex" variant="primary" />
                         <IconBtn onClick={() => abrirRegistrarEntrada(item)} icon={Truck} title="Registrar entrada" variant="emerald" />
-                        <IconBtn onClick={() => abrirSalida(item)} icon={Minus} title="Registrar salida" variant="rose" />
+                        <IconBtn onClick={() => abrirSalida(item)} icon={Minus} title="Registrar salida o traslado" variant="rose" />
                         <IconBtn onClick={() => abrirAjuste(item)} icon={Plus} title="Ajustar inventario" variant="amber" />
+                        <IconBtn onClick={() => abrirEditar(item)} icon={Edit2} title="Editar nombre" variant="primary" />
+                        <IconBtn onClick={() => eliminarMaterial(item)} icon={Trash2} title="Eliminar material" variant="rose" />
                       </div>
                     </td>
                   </tr>
@@ -1403,6 +1504,23 @@ export default function InventarioObraPage() {
               </span> {salidaItem.unidad}
             </p>
 
+            <label className="block text-sm text-[#c9d8ed] mb-1">Destino (opcional)</label>
+            <select
+              value={salidaDestinoObraId}
+              onChange={(e) => setSalidaDestinoObraId(e.target.value)}
+              className="w-full px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary mb-3"
+            >
+              <option value="">(Salida sin destino - consumido en obra)</option>
+              {obras.filter((c: Obra) => obraSeleccionada && String(c.id) !== String(obraSeleccionada.id)).map((c: Obra) => (
+                <option key={c.id} value={c.id}>Trasladar a {c.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-[#7f93b0] mb-3">
+              {salidaDestinoObraId
+                ? "Se restara aqui y se agregara al inventario de la obra destino."
+                : "Si no eliges destino, se marca como salida consumida (no entra a otra obra)."}
+            </p>
+
             <label className="block text-sm text-[#c9d8ed] mb-1">Motivo / Requisición *</label>
             <input
               type="text"
@@ -1421,6 +1539,41 @@ export default function InventarioObraPage() {
               >
                 {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
                 Registrar Salida
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ====== MODAL: Editar Nombre Material (03-Jun-2026 Daisy bug1) ====== */}
+      {showEditar && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c1d38] rounded-xl p-6 w-full max-w-md border border-white/[0.08]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Editar nombre del material</h3>
+              <button onClick={() => { setShowEditar(null); setEditarNombre(""); }} className="p-1 hover:bg-white/[0.06] rounded-lg">
+                <X className="w-5 h-5 text-[#7f93b0]" />
+              </button>
+            </div>
+            <p className="text-sm text-[#7f93b0] mb-3">Folio: {showEditar.folio_inventario}</p>
+            <label className="block text-sm text-[#c9d8ed] mb-1">Nuevo nombre *</label>
+            <input
+              type="text"
+              value={editarNombre}
+              onChange={(e) => setEditarNombre(e.target.value)}
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white focus:outline-none focus:border-aria-primary mb-4"
+              placeholder="Nombre del material"
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => { setShowEditar(null); setEditarNombre(""); }} className="px-4 py-2 text-[#7f93b0] hover:text-white">Cancelar</button>
+              <button
+                onClick={guardarEditar}
+                disabled={!editarNombre.trim() || editarNombre.trim() === showEditar.producto_nombre || guardando}
+                className="px-4 py-2 bg-aria-primary hover:bg-aria-primary disabled:opacity-50 rounded-lg text-white font-medium flex items-center gap-2"
+              >
+                {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
+                Guardar
               </button>
             </div>
           </div>
