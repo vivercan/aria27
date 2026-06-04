@@ -12,6 +12,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { parseAvance, ObraSugerencia } from "@/lib/avances-parser";
+import { sendWhatsAppText } from "@/lib/whatsapp";
+import { sendEmailLogged } from "@/lib/email-log";
 
 const log = logger("AVANCES-INBOX-API");
 
@@ -173,6 +175,41 @@ export async function POST(req: NextRequest) {
       obra_sugerida: parsed.obra_nombre,
       confidence: parsed.raw_match_confidence,
     });
+
+    // Notificar a Daisy (responsable de validar avances) - fire and forget
+    try {
+      const { data: daisy } = await db
+        .from("Users")
+        .select("email, phone, name")
+        .or("name.ilike.%daisy%,email.ilike.%daisy%")
+        .limit(1)
+        .maybeSingle();
+
+      if (daisy) {
+        const obraText = parsed.obra_nombre || "obra sin identificar";
+        const detallesText = `Realizadas: ${parsed.realizadas.length} | Programadas: ${parsed.programadas.length}`;
+        const linkInbox = "https://aria.jjcrm27.com/dashboard/obras/avances/inbox";
+
+        if (daisy.phone) {
+          sendWhatsAppText(
+            daisy.phone,
+            `Nuevo avance pendiente de validar:\n\nArquitecto: ${arq.full_name}\nObra: ${obraText}\n${detallesText}\n\nAprobar en: ${linkInbox}`,
+            { origen: "avance-inbox", enviadoPor: "system" }
+          ).catch((e: unknown) => log.error("WA Daisy fallo", { err: String(e) }));
+        }
+        if (daisy.email) {
+          sendEmailLogged({
+            template: "avance_pendiente_validar",
+            to: daisy.email,
+            subject: `[ARIA27] Avance pendiente: ${arq.full_name} - ${obraText}`,
+            html: `<div style="font-family:system-ui,sans-serif;padding:20px;background:#0B1626;color:#fff;border-radius:8px"><h2 style="color:#60a5fa;margin:0 0 12px">Nuevo avance pendiente de validar</h2><p style="margin:6px 0"><strong>Arquitecto:</strong> ${arq.full_name}</p><p style="margin:6px 0"><strong>Obra sugerida:</strong> ${obraText}</p><p style="margin:6px 0"><strong>Actividades:</strong> ${parsed.realizadas.length} realizadas / ${parsed.programadas.length} programadas</p><p style="margin:18px 0 0"><a href="${linkInbox}" style="background:#2563EB;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;display:inline-block">Abrir bandeja</a></p></div>`,
+            origen: "avance-inbox-daisy",
+          }).catch((e: unknown) => log.error("Email Daisy fallo", { err: String(e) }));
+        }
+      }
+    } catch (eN: unknown) {
+      log.error("notif Daisy fallo (no critico)", { err: String(eN) });
+    }
 
     return NextResponse.json({
       id: ins.id,
