@@ -40,6 +40,7 @@ const TEMPLATES: Template[] = [
   tpl("aria_tarea_status", "Hola {{1}}, tienes {{2}} tareas pendientes. {{3}}. Responde con 1 LISTO o AVANCE 50 para actualizar.", ["Samuel", "2", "1. Revisar cimentacion 28-abr. 2. Inspeccionar acero 30-abr"]),
   tpl("aria_requisicion_gasto", "Nueva requisicion de GASTO por pagar. Folio: {{1}}. Obra: {{2}}. Tipo: {{3}}. Concepto: {{4}}. Ingresa al sistema para registrar el pago.", ["REQ-2026-00010", "OFICINA", "GASTOS ADMINISTRATIVOS", "Pago renta mensual"]),
   tpl("aria_requisicion_cotizar", "Nueva requisicion para cotizar. Folio: {{1}}. Obra: {{2}}. Urgencia: {{3}}. Materiales: {{4}}. Ingresa al sistema para cotizar.", ["REQ-2026-00010", "MIRAVALLE", "MANANA", "Cemento Portland 50kg, Varilla 3/8 (10 productos)"]),
+  tpl("aria_avance_pendiente", "Nuevo avance de obra pendiente de validar. Arquitecto: {{1}}. Obra: {{2}}. Realizadas: {{3}}. Programadas: {{4}}. Aprueba en /dashboard/obras/avances/inbox", ["Gustavo Garibay Oceguera", "PERIODISTAS", "2 actividades", "1 actividad"]),
 ];
 
 export async function POST(req: NextRequest) {
