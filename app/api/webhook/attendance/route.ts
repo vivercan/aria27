@@ -770,6 +770,50 @@ export async function POST(request: NextRequest) {
     // Normalizar a los ultimos 10 digitos del numero mexicano
     // WhatsApp envia "5218112392266" (13 digitos) - employees.phone guarda "8112392266" (10 digitos)
     const phone10 = from.replace(/\D/g, "").slice(-10);
+    // ====== ROUTING ARQUITECTOS = AVANCE WA (03-Jun-2026 F3+F4) ======
+    // Si el remitente esta registrado como Arquitecto, forward del mensaje (text/image)
+    // al endpoint /api/obras/avances/inbox SIN procesar asistencia/gasto.
+    // Los arquitectos no usan ese flow; ellos solo mandan reportes de avance de obra.
+    try {
+      const { data: arqMatch } = await db
+        .from("employees")
+        .select("id, full_name")
+        .eq("whatsapp_phone", phone10)
+        .ilike("position", "%arquitect%")
+        .maybeSingle();
+
+      if (arqMatch && (message.type === "text" || message.type === "image")) {
+        const textPayload: string = message.type === "text"
+          ? (message.text?.body || "")
+          : (message.image?.caption || "");
+        const mediaIds: string[] = message.type === "image" && message.image?.id
+          ? [message.image.id]
+          : [];
+
+        if (textPayload || mediaIds.length > 0) {
+          const proto = request.headers.get("x-forwarded-proto") || "https";
+          const host = request.headers.get("host") || "aria.jjcrm27.com";
+          fetch(`${proto}://${host}/api/obras/avances/inbox`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              from: phone10,
+              text: textPayload,
+              media_ids: mediaIds,
+              wa_message_id: message.id,
+            }),
+          }).catch((e: unknown) => log.error("forward avance failed", { err: String(e) }));
+
+          const primerNombre = (arqMatch.full_name || "").split(" ")[1] || arqMatch.full_name || "";
+          await sendWhatsApp(from, `Recibido Arq. ${primerNombre}. Tu reporte llego a la bandeja, ya se notifico al equipo para validar y subirlo a la bitacora de obra.`);
+          return NextResponse.json({ status: "avance arquitecto forwarded", arquitecto: arqMatch.full_name });
+        }
+      }
+    } catch (eArq: unknown) {
+      log.error("routing arquitecto fallo, sigue flow normal", { err: String(eArq) });
+    }
+
+
 
     // ====== UBICACION = ASISTENCIA ======
     if (message.type === "location") {
