@@ -49,6 +49,17 @@ const STATUS_OPTIONS = [
 
 const EMPTY_FORM = { titulo: "", responsable: "", fecha_limite: "", prioridad: "normal", obra_id: "", status: "pendiente" };
 
+// MOVED OUT OF TareasPage to avoid input losing focus on each keystroke
+// (re-creating component on every render unmounted inputs). 03-Jun-2026 fix Daisy.
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
+    {children}
+  </div>
+);
+
+const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
+
 export default function TareasPage() {
   const log = clientLogger("TAREAS");
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -226,14 +237,6 @@ export default function TareasPage() {
   const completadas = tareas.filter(t => t.status === "completada").length;
   const vencidas = tareas.filter(t => isVencida(t.fecha_limite, t.status)).length;
 
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div>
-      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
-      {children}
-    </div>
-  );
-
-  const inputClass = "w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600";
 
   return (
     <div className="aria-bg-canon h-full flex flex-col overflow-hidden">
