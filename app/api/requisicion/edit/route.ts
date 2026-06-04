@@ -148,18 +148,35 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    // 6. Recalcular monto total si se editaron items
-    if (items.length > 0 || deletedItemIds.length > 0) {
+    // 6. Recalcular subtotal/iva_monto/total/monto si se editaron items o cambio iva_porcentaje
+    if (items.length > 0 || deletedItemIds.length > 0 || safeFields.iva_porcentaje !== undefined) {
       const { data: itemsAll } = await sb
         .from("requisition_items")
         .select("quantity, selected_price")
         .eq("requisition_id", id);
-      const totalRecalc = (itemsAll || []).reduce((s: number, r: { quantity: number; selected_price: number | null }) => {
+      const subtotal = (itemsAll || []).reduce((s: number, r: { quantity: number; selected_price: number | null }) => {
         return s + Number(r.quantity || 0) * Number(r.selected_price || 0);
       }, 0);
-      if (totalRecalc > 0) {
-        await sb.from("requisitions").update({ monto: totalRecalc }).eq("id", id);
+
+      // Leer iva_porcentaje actualizado (preferir el delta enviado, sino el de BD)
+      let ivaPorc = 0;
+      if (safeFields.iva_porcentaje !== undefined) {
+        ivaPorc = Number(safeFields.iva_porcentaje) || 0;
+      } else {
+        const { data: row } = await sb.from("requisitions").select("iva_porcentaje").eq("id", id).single();
+        ivaPorc = Number((row as { iva_porcentaje?: number })?.iva_porcentaje || 0);
       }
+      const ivaMonto = subtotal * (ivaPorc / 100);
+      const total = subtotal + ivaMonto;
+
+      await sb.from("requisitions").update({
+        monto: subtotal,
+        subtotal,
+        iva_monto: ivaMonto,
+        total,
+      }).eq("id", id);
+
+      log.info("Recalculo cabecera", { id, folio: cur.folio, subtotal, ivaPorc, ivaMonto, total });
     }
 
     // 7. Audit log + notifyOps
