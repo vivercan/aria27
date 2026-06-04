@@ -116,24 +116,21 @@ export default function NewRequisitionPage() {
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
 
-  // 03-Jun-2026 Daisy bug3: search server-side de proveedores (BD tiene 1095 ACTIVO, default limit oculta algunos)
+  // 04-Jun-2026 Daisy bug3 FIX DEFINITIVO: endpoint server-side con service_role
+  // (elimina problemas con anon client, paginacion, RLS, ordering case-sensitive)
   useEffect(() => {
     if (proveedorSearch.length < 2) {
       setProveedoresResults([]);
       return;
     }
     const handle = setTimeout(() => {
-      supabase
-        .from("Proveedores")
-        .select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social")
-        .eq("status", "ACTIVO")
-        .ilike("name", `%${proveedorSearch}%`)
-        .order("name")
-        .limit(20)
-        .then(({ data }) => {
-          if (data) setProveedoresResults(data as ProveedorOption[]);
-        });
-    }, 200); // debounce
+      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d?.proveedores) setProveedoresResults(d.proveedores as ProveedorOption[]);
+        })
+        .catch(() => {});
+    }, 200);
     return () => clearTimeout(handle);
   }, [proveedorSearch]);
 
