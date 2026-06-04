@@ -81,6 +81,23 @@ export default function NewRequisitionPage() {
   const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
   // 30-Abr PR gastos: solicitante nombre completo + foto ticket
   const [solicitanteCompleto, setSolicitanteCompleto] = useState<string>("");
+  const [solicitanteVisible, setSolicitanteVisible] = useState<string>("");
+
+  // 04-Jun-2026 — resolver nombre completo del solicitante automaticamente al montar
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail") || "";
+    if (!userEmail) return;
+    fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        const full = (d?.full_name as string) || "";
+        if (full) {
+          setSolicitanteVisible(full);
+          setSolicitanteCompleto(full);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [fotoTicket, setFotoTicket] = useState<File | null>(null);
   const TIPOS_GASTO_REQ = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
   const esGastoTipo = TIPOS_GASTO_REQ.includes(descripcionCompra);
@@ -393,6 +410,12 @@ export default function NewRequisitionPage() {
       <div className="flex items-center gap-3">
         <AriaBackButton href="/dashboard/requisiciones" />
         <h1 className="text-2xl font-bold">Nueva Requisición</h1>
+        {solicitanteVisible ? (
+          <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 text-xs">
+            <span className="text-emerald-300 font-semibold">Solicitante:</span>
+            <span className="text-white font-medium">{solicitanteVisible}</span>
+          </div>
+        ) : null}
       </div>
 
       {errorMsg && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">{errorMsg}</div>}
