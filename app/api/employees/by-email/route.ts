@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
     const full = found?.full_name || found?.name;
     if (full) {
       return NextResponse.json(
-        { full_name: full, source, employee_number: found?.employee_number, position: found?.position, status: found?.status },
+        { full_name: full, source, ...found },
         { headers: { "Cache-Control": "no-store" } }
       );
     }
