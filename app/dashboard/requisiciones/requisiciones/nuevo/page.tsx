@@ -555,7 +555,7 @@ export default function NewRequisitionPage() {
             </div>
             {!selectedProveedor && proveedorSearch.length >= 2 && (
               <div className="max-h-40 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c1d38]">
-                {proveedores.filter(p => p.name.toLowerCase().includes(proveedorSearch.toLowerCase())).slice(0, 8).map(p => (
+                {proveedoresResults.slice(0, 20).map(p => (
                   <div key={p.id} onClick={() => { setSelectedProveedor(p); setProveedorSearch(""); if (p.payment_method) setFormaPago(p.payment_method); }} className="cursor-pointer px-3 py-2 text-sm hover:bg-white/[0.06] transition-colors">
                     <div className="text-white">{p.name}</div>
                     {(p.bank_name || p.bank_clabe) && <div className="text-xs text-white/40">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
