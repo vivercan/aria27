@@ -135,14 +135,28 @@ export default function OrdenesCompraPage() {
     setUpdatingStatus(false);
   };
 
-  const printOC = () => {
+  // 04-Jun-2026 — resolver nombre legal completo via /api/employees/by-email
+  async function resolverNombreLegal(email: string | null | undefined): Promise<string> {
+    if (!email) return "";
+    try {
+      const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(email)}`, { cache: "no-store" });
+      const d = await r.json();
+      return (d?.full_name as string) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  const printOC = async () => {
     if (!selectedPO || !poReq) return;
-    handlePrintOC({ folio: selectedPO.folio, fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at, proveedor: selectedPO.supplier_name, obraNombre: poReq.cost_center_name, formaPago: selectedPO.payment_method, diasCredito: selectedPO.credit_days, total: selectedPO.total, materiales: poItems, requisicionFolio: poReq.folio });
+    const elaboro = await resolverNombreLegal(poReq.user_email);
+    handlePrintOC({ folio: selectedPO.folio, fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at, proveedor: selectedPO.supplier_name, obraNombre: poReq.cost_center_name, formaPago: selectedPO.payment_method, diasCredito: selectedPO.credit_days, total: selectedPO.total, materiales: poItems, requisicionFolio: poReq.folio, elaboroNombre: elaboro });
   };
 
-  const downloadOC = () => {
+  const downloadOC = async () => {
     if (!selectedPO || !poReq) return;
-    handleDownloadPDFOC({ folio: selectedPO.folio, fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at, proveedor: selectedPO.supplier_name, obraNombre: poReq.cost_center_name, formaPago: selectedPO.payment_method, diasCredito: selectedPO.credit_days, total: selectedPO.total, materiales: poItems, requisicionFolio: poReq.folio });
+    const elaboro = await resolverNombreLegal(poReq.user_email);
+    handleDownloadPDFOC({ folio: selectedPO.folio, fechaAutorizacion: selectedPO.authorized_at || selectedPO.created_at, proveedor: selectedPO.supplier_name, obraNombre: poReq.cost_center_name, formaPago: selectedPO.payment_method, diasCredito: selectedPO.credit_days, total: selectedPO.total, materiales: poItems, requisicionFolio: poReq.folio, elaboroNombre: elaboro });
   };
 
   const proveedores = [...new Set(orders.map(o => o.supplier_name))].sort();
