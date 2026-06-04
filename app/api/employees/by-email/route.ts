@@ -1,3 +1,17 @@
+/**
+ * /api/employees/by-email?email=X
+ * GET -> resuelve nombre completo del empleado para imprimibles.
+ *
+ * Estrategia multi-tabla:
+ *   1) employees: email/correo/mail = X
+ *   2) Personal (VIEW espanol)
+ *   3) Users: email = X (fallback minimo)
+ *
+ * Para imprimibles donde se quiere el nombre completo en lugar del apodo
+ * del username (req.created_by puede ser "daisy" pero queremos "Daisy Sánchez Calvillo").
+ *
+ * 04-Jun-2026
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
@@ -9,11 +23,10 @@ interface EmployeeShape {
   email?: string;
   employee_number?: string;
   position?: string;
-  status?: string;
   [k: string]: unknown;
 }
 
-async function findEmployee(
+async function tryLookup(
   db: ReturnType<typeof getSupabaseAdmin>,
   email: string,
   name: string,
@@ -24,7 +37,7 @@ async function findEmployee(
       try {
         const { data } = await db
           .from(table)
-          .select("*")
+          .select("full_name, name, employee_number, position, email")
           .ilike(col, email)
           .limit(1)
           .maybeSingle();
@@ -35,11 +48,11 @@ async function findEmployee(
     }
   }
   if (name) {
-    for (const col of ["full_name", "name", "nombre"]) {
+    for (const col of ["full_name", "name"]) {
       try {
         const { data } = await db
           .from(table)
-          .select("*")
+          .select("full_name, name, employee_number, position, email")
           .ilike(col, `%${name}%`)
           .limit(1)
           .maybeSingle();
@@ -56,16 +69,17 @@ export async function GET(req: NextRequest) {
   try {
     const email = (req.nextUrl.searchParams.get("email") || "").trim().toLowerCase();
     const name = (req.nextUrl.searchParams.get("name") || "").trim();
-    const debug = req.nextUrl.searchParams.get("debug") === "1";
+
+    if (!email && !name) {
+      return NextResponse.json({ full_name: null });
+    }
 
     const db = getSupabaseAdmin();
-
-    // Probar tablas: employees, Personal (VIEW), Users
-    const tables = ["employees", "Personal", "personal", "Users"];
+    const tables = ["employees", "Personal", "Users"];
     let found: EmployeeShape | null = null;
     let source = "none";
     for (const t of tables) {
-      const r = await findEmployee(db, email, name, t);
+      const r = await tryLookup(db, email, name, t);
       if (r) {
         found = r;
         source = t;
@@ -73,29 +87,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const full = found?.full_name || found?.name;
-    if (full) {
-      return NextResponse.json(
-        { full_name: full, source, ...found },
-        { headers: { "Cache-Control": "no-store" } }
-      );
-    }
-
-    if (debug) {
-      // Listar primeras 3 de cada tabla
-      const samples: Record<string, unknown> = {};
-      for (const t of tables) {
-        try {
-          const { data, error } = await db.from(t).select("*").limit(2);
-          samples[t] = error ? { error: error.message } : data;
-        } catch (e) {
-          samples[t] = { exception: String(e) };
-        }
-      }
-      return NextResponse.json({ full_name: null, source: "none", samples });
-    }
-
-    return NextResponse.json({ full_name: null, source: "none" });
+    const full = found?.full_name || found?.name || null;
+    return NextResponse.json(
+      {
+        full_name: full,
+        source,
+        employee_number: found?.employee_number || null,
+        position: found?.position || null,
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (e: unknown) {
     return NextResponse.json(
       { error: (e as { message?: string })?.message || "Error", full_name: null },
