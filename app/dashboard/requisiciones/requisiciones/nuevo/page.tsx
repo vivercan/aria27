@@ -124,7 +124,7 @@ export default function NewRequisitionPage() {
       return;
     }
     const handle = setTimeout(() => {
-      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`)
+      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { cache: "no-store" })
         .then((r) => r.json())
         .then((d) => {
           if (d?.proveedores) setProveedoresResults(d.proveedores as ProveedorOption[]);
