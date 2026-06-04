@@ -114,6 +114,23 @@ export default function RequisicionesStatusPage() {
 
     const { data } = await query;
     setRequisiciones((data || []) as Requisition[]);
+
+    // 04-Jun-2026 — batch lookup nombres completos por email
+    const emailsUnicos = Array.from(
+      new Set(((data || []) as Requisition[]).map((r) => r.user_email).filter(Boolean))
+    );
+    if (emailsUnicos.length > 0) {
+      try {
+        const rNombres = await fetch("/api/employees/by-emails", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emails: emailsUnicos }),
+          cache: "no-store",
+        });
+        const dNombres = await rNombres.json();
+        if (dNombres?.map) setNombresPorEmail(dNombres.map as Record<string, string>);
+      } catch {}
+    }
     setLoading(false);
   }
 
