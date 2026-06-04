@@ -1,18 +1,56 @@
-/**
- * /api/employees/by-email?email=X&name=Y
- * GET -> resuelve nombre legal completo:
- *   1) employees.email = email -> employees.full_name
- *   2) employees.full_name ilike name (fuzzy match)
- *   3) Users.email = email -> Users.name
- *   4) null
- *
- * Para imprimibles donde apodos no son aceptables.
- * 04-Jun-2026 v2 — fallback por nombre cuando employees.email no matchea.
- */
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
+
+interface EmployeeShape {
+  full_name?: string;
+  name?: string;
+  email?: string;
+  employee_number?: string;
+  position?: string;
+  status?: string;
+  [k: string]: unknown;
+}
+
+async function findEmployee(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  email: string,
+  name: string,
+  table: string
+): Promise<EmployeeShape | null> {
+  if (email) {
+    for (const col of ["email", "correo", "mail"]) {
+      try {
+        const { data } = await db
+          .from(table)
+          .select("*")
+          .ilike(col, email)
+          .limit(1)
+          .maybeSingle();
+        if (data) return data as EmployeeShape;
+      } catch {
+        // skip
+      }
+    }
+  }
+  if (name) {
+    for (const col of ["full_name", "name", "nombre"]) {
+      try {
+        const { data } = await db
+          .from(table)
+          .select("*")
+          .ilike(col, `%${name}%`)
+          .limit(1)
+          .maybeSingle();
+        if (data) return data as EmployeeShape;
+      } catch {
+        // skip
+      }
+    }
+  }
+  return null;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,74 +60,39 @@ export async function GET(req: NextRequest) {
 
     const db = getSupabaseAdmin();
 
-    // 1. Por email exacto en employees (probar varios nombres de columna)
-    let emp = null;
-    if (email) {
-      const tryColumns = ["email", "correo", "mail", "email_address"];
-      for (const col of tryColumns) {
-        try {
-          const { data } = await db
-            .from("employees")
-            .select("full_name, employee_number, position, email, status")
-            .ilike(col, email)
-            .limit(1)
-            .maybeSingle();
-          if (data) {
-            emp = data;
-            break;
-          }
-        } catch {
-          // columna no existe, seguir intentando
-        }
+    // Probar tablas: employees, Personal (VIEW), Users
+    const tables = ["employees", "Personal", "personal", "Users"];
+    let found: EmployeeShape | null = null;
+    let source = "none";
+    for (const t of tables) {
+      const r = await findEmployee(db, email, name, t);
+      if (r) {
+        found = r;
+        source = t;
+        break;
       }
     }
 
-    // 2. Por nombre fuzzy si no se encontro por email
-    if (!emp && name) {
-      const { data } = await db
-        .from("employees")
-        .select("full_name, employee_number, position, status")
-        .ilike("full_name", `%${name}%`)
-        .limit(1)
-        .maybeSingle();
-      if (data) emp = data;
-    }
-
-    if (emp?.full_name) {
+    const full = found?.full_name || found?.name;
+    if (full) {
       return NextResponse.json(
-        {
-          full_name: emp.full_name,
-          source: "employees",
-          employee_number: emp.employee_number,
-          position: emp.position,
-        },
+        { full_name: full, source, employee_number: found?.employee_number, position: found?.position, status: found?.status },
         { headers: { "Cache-Control": "no-store" } }
       );
     }
 
-    // 3. Users
-    if (email) {
-      const { data: usr } = await db
-        .from("Users")
-        .select("name, role")
-        .ilike("email", email)
-        .maybeSingle();
-      if (usr?.name) {
-        return NextResponse.json(
-          { full_name: usr.name, source: "users" },
-          { headers: { "Cache-Control": "no-store" } }
-        );
-      }
-    }
-
     if (debug) {
-      // Mostrar primeros 3 employees con columnas para discoverability
-      const { data: sample } = await db
-        .from("employees")
-        .select("*")
-        .ilike("full_name", `%${name || "deya"}%`)
-        .limit(3);
-      return NextResponse.json({ full_name: null, source: "none", debug_sample: sample });
+      // Listar primeras 3 de cada tabla
+      const samples: Record<string, unknown> = {};
+      for (const t of tables) {
+        try {
+          const { data, error } = await db.from(t).select("*").limit(2);
+          samples[t] = error ? { error: error.message } : data;
+        } catch (e) {
+          samples[t] = { exception: String(e) };
+        }
+      }
+      return NextResponse.json({ full_name: null, source: "none", samples });
     }
 
     return NextResponse.json({ full_name: null, source: "none" });
