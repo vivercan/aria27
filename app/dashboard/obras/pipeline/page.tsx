@@ -244,19 +244,6 @@ export default function PipelinePage() {
 
   const getStatusStyle = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.color || "bg-slate-500/20 text-[#7f93b0]";
   const getStatusLabel = (s: string) => STATUS_OPTIONS.find(o => o.value === s)?.label || s;
-
-  const Field = ({ label, field, type = "text", placeholder = "", options }: { label: string; field: keyof ObraForm; type?: string; placeholder?: string; options?: Array<{ value: string; label: string }> }) => (
-    <div>
-      <label className="block text-xs text-[#7f93b0] mb-1">{label}</label>
-      {options ? (
-        <select value={String(form[field]) || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none">
-          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      ) : (
-        <input type={type} value={String(form[field]) || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-aria-primary focus:outline-none placeholder-slate-600" />
-      )}
-    </div>
-  );
   const confirmDelete = async () => {
     try {
       await backupAndDelete({ table: "centros_trabajo", id: deleteModal.id, userEmail });
