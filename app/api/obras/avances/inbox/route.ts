@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { parseAvance, ObraSugerencia } from "@/lib/avances-parser";
-import { sendWhatsAppText } from "@/lib/whatsapp";
+import { sendWhatsAppText, sendWhatsAppLogged } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
 
 const log = logger("AVANCES-INBOX-API");
@@ -191,11 +191,22 @@ export async function POST(req: NextRequest) {
         const linkInbox = "https://aria.jjcrm27.com/dashboard/obras/avances/inbox";
 
         if (daisy.phone) {
-          sendWhatsAppText(
+          // Intenta template aprobado primero (funciona siempre, fuera de ventana 24h)
+          sendWhatsAppLogged(
+            "aria_avance_pendiente",
+            [arq.full_name, obraText, `${parsed.realizadas.length} actividades`, `${parsed.programadas.length} actividades`],
             daisy.phone,
-            `Nuevo avance pendiente de validar:\n\nArquitecto: ${arq.full_name}\nObra: ${obraText}\n${detallesText}\n\nAprobar en: ${linkInbox}`,
             { origen: "avance-inbox", enviadoPor: "system" }
-          ).catch((e: unknown) => log.error("WA Daisy fallo", { err: String(e) }));
+          ).then((r) => {
+            if (!r.success) {
+              // Fallback: texto libre (solo funciona si Daisy hablo con bot ultimas 24h)
+              return sendWhatsAppText(
+                daisy.phone!,
+                `Nuevo avance pendiente:\nArq: ${arq.full_name}\nObra: ${obraText}\n${detallesText}\n${linkInbox}`,
+                { origen: "avance-inbox-fallback", enviadoPor: "system" }
+              );
+            }
+          }).catch((e: unknown) => log.error("WA Daisy fallo", { err: String(e) }));
         }
         if (daisy.email) {
           sendEmailLogged({
