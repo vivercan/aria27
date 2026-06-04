@@ -520,6 +520,10 @@ export default function NewRequisitionPage() {
                 placeholder="Buscar proveedor..."
                 value={selectedProveedor ? selectedProveedor.name : proveedorSearch}
                 onChange={e => { setProveedorSearch(e.target.value); setSelectedProveedor(null); }}
+                onFocus={() => {
+                  // 03-Jun-2026 Daisy bug3: refresh on focus para detectar proveedores recien dados de alta
+                  supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
+                }}
               />
               {selectedProveedor && (
                 <button onClick={() => { setSelectedProveedor(null); setProveedorSearch(""); }} className="absolute right-2 top-2 text-white/40 hover:text-white/70">
