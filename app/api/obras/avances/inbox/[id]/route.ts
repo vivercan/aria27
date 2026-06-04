@@ -90,14 +90,14 @@ export async function PATCH(
         : Promise.resolve({ data: null }),
     ]);
 
-    const realizadas = body.realizadas || row.realizadas || [];
-    const programadas = body.programadas || row.programadas || [];
+    const realizadas: string[] = body.realizadas || row.realizadas || [];
+    const programadas: string[] = body.programadas || row.programadas || [];
     const fecha = body.reporte_fecha || row.reporte_fecha || new Date().toISOString().slice(0, 10);
 
     // Construir texto de actividades y observaciones para bitacora_obra
     const actividadesTxt = [
-      realizadas.length > 0 ? "REALIZADAS:\n" + realizadas.map((r) => `- ${r}`).join("\n") : "",
-      programadas.length > 0 ? "\nPROGRAMADAS:\n" + programadas.map((r) => `- ${r}`).join("\n") : "",
+      realizadas.length > 0 ? "REALIZADAS:\n" + realizadas.map((r: string) => `- ${r}`).join("\n") : "",
+      programadas.length > 0 ? "\nPROGRAMADAS:\n" + programadas.map((r: string) => `- ${r}`).join("\n") : "",
     ].filter(Boolean).join("\n");
 
     // Insert en bitacora_obra (tabla existente)
@@ -151,7 +151,3 @@ export async function PATCH(
     log.error("PATCH error", { e });
     return NextResponse.json(
       { error: (e as { message?: string })?.message || "Error" },
-      { status: 500 }
-    );
-  }
-}
