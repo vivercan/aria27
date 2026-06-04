@@ -135,18 +135,17 @@ export default function RequisicionesStatusPage() {
   }
 
   async function loadItemsForPrint(reqId: string): Promise<ReqItem[]> {
-    if (itemsCache[reqId]) return itemsCache[reqId];
+    // 04-Jun-2026 — NO cachear: si la req se edito en otra pestaña/modal,
+    // el cache devuelve items viejos sin precios nuevos. Siempre fresh desde BD.
     const { data } = await supabase
       .from("requisition_items")
       .select("id, product_name, unit, quantity, comments, selected_price")
       .eq("requisition_id", reqId);
-    // Mapear selected_price → precio_unitario / precio_total para el componente de impresión
     const items = (data || []).map((i: ReqItem) => ({
       ...i,
       precio_unitario: i.selected_price ?? undefined,
       precio_total: i.selected_price != null ? i.selected_price * i.quantity : undefined,
     })) as ReqItem[];
-    setItemsCache((prev) => ({ ...prev, [reqId]: items }));
     return items;
   }
 
