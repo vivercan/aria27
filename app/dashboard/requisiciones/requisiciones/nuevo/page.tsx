@@ -87,6 +87,7 @@ export default function NewRequisitionPage() {
 
   // ── Proveedor pre-seleccionado ───────────────────────────────────────────
   const [proveedores, setProveedores] = useState<ProveedorOption[]>([]);
+  const [proveedoresResults, setProveedoresResults] = useState<ProveedorOption[]>([]);
   const [proveedorSearch, setProveedorSearch] = useState<string>("");
   const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
 
@@ -114,6 +115,27 @@ export default function NewRequisitionPage() {
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     setRequiredDate(tomorrow.toISOString().split("T")[0]);
   }, []);
+
+  // 03-Jun-2026 Daisy bug3: search server-side de proveedores (BD tiene 1095 ACTIVO, default limit oculta algunos)
+  useEffect(() => {
+    if (proveedorSearch.length < 2) {
+      setProveedoresResults([]);
+      return;
+    }
+    const handle = setTimeout(() => {
+      supabase
+        .from("Proveedores")
+        .select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social")
+        .eq("status", "ACTIVO")
+        .ilike("name", `%${proveedorSearch}%`)
+        .order("name")
+        .limit(20)
+        .then(({ data }) => {
+          if (data) setProveedoresResults(data as ProveedorOption[]);
+        });
+    }, 200); // debounce
+    return () => clearTimeout(handle);
+  }, [proveedorSearch]);
 
   // Pre-fill desde URL params (generados por AI extractor via WhatsApp link)
   useEffect(() => {
@@ -539,7 +561,7 @@ export default function NewRequisitionPage() {
                     {(p.bank_name || p.bank_clabe) && <div className="text-xs text-white/40">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
                   </div>
                 ))}
-                {proveedores.filter(p => p.name.toLowerCase().includes(proveedorSearch.toLowerCase())).length === 0 && (
+                {proveedoresResults.length === 0 && (
                   <div className="px-3 py-2 text-xs text-white/40">Sin resultados</div>
                 )}
               </div>
