@@ -2,7 +2,7 @@
 
 import {
   FileText, Shield, ScrollText, Building2, Calculator, HardHat, ChevronRight,
-  Banknote, FilePlus2,
+  Banknote, FilePlus2, Fuel,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -36,6 +36,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
       { title: "Datos de Empresa",   description: "Información general de GCU Avante y centros de costo.", href: "/dashboard/administracion/empresa", icon: Building2,  accent: ROSE },
       { title: "SUA / Aportaciones", description: "Control de aportaciones IMSS, Infonavit y SUA.",         href: "/dashboard/administracion/sua",     icon: Calculator, accent: ROSE },
       { title: "SIROC",              description: "Registro de obras ante el IMSS vía SIROC.",              href: "/dashboard/administracion/siroc",   icon: HardHat,    accent: ROSE },
+      { title: "Equipos Combustible",description: "Catálogo de maquinaria que consume diesel/gasolina.",     href: "/dashboard/admin/equipo-combustible", icon: Fuel,       accent: ROSE },
     ],
   },
   {
