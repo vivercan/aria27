@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       user_email: body.user_email,
       created_by: body.solicitante_nombre_completo || body.user_email,
       status: "PENDIENTE",
-      urgency: body.prioridad || "NORMAL",
+      prioridad: body.prioridad || "NORMAL",
       categoria: "COMBUSTIBLES",
       subcategoria: "COMBUSTIBLES",
       canal_origen: "WEB",
