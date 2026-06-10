@@ -32,6 +32,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("REQ-COMBUSTIBLE");
 
@@ -156,6 +157,32 @@ export async function POST(req: NextRequest) {
     await db.from("requisition_items").insert(itemsRows);
 
     log.info("Req combustible creada", { folio, reqId, cargas: body.cargas.length, litros: litrosTotales });
+
+    // Notif a equipo Compras / Fernando: WA template + email con thumbnails
+    const resumenCargas = body.cargas.map((c) =>
+      `${c.equipo_alias} (${c.tipo_combustible}) ${c.litros_solicitados}L` +
+      (c.horometro_lectura ? ` horometro ${c.horometro_lectura}` : "")
+    ).join(" | ");
+
+    void notifyOps({
+      evento: "REQUISICION_CREADA",
+      resumen: `${folio} COMBUSTIBLE — ${maquinasCount} maq / ${litrosTotales}L`,
+      detalle: resumenCargas,
+      actor: body.solicitante_nombre_completo || body.user_email,
+      metadata: {
+        folio,
+        es_combustible: true,
+        proveedor: body.proveedor || null,
+        total_estimado: total,
+        cargas: body.cargas.map((c) => ({
+          maquina: c.equipo_alias,
+          tipo: c.tipo_combustible,
+          litros: c.litros_solicitados,
+          horometro: c.horometro_lectura,
+          horometro_foto: c.horometro_foto_url,
+        })),
+      },
+    }).catch((err) => log.warn("notifyOps falló", { err: String(err) }));
 
     return NextResponse.json({
       ok: true,
