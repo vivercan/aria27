@@ -411,6 +411,16 @@ export default function RequisicionesStatusPage() {
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-1">
+                        {/* Editar — solo si NO está bloqueada (AUTORIZADA / OC_GENERADA / CANCELADA) */}
+                        {!["AUTORIZADA","OC_GENERADA","CANCELADA"].includes(req.status) && (
+                          <button
+                            onClick={() => setEditReq(req)}
+                            className="p-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 transition-all"
+                            title="Editar requisición"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                        )}
                         {/* Imprimir */}
                         <button
                           onClick={() => handlePrintClick(req)}
