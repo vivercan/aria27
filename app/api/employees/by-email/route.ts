@@ -37,7 +37,7 @@ async function tryLookup(
       try {
         const { data } = await db
           .from(table)
-          .select("full_name, name, employee_number, position, email")
+          .select("*")
           .ilike(col, email)
           .limit(1)
           .maybeSingle();
@@ -52,7 +52,7 @@ async function tryLookup(
       try {
         const { data } = await db
           .from(table)
-          .select("full_name, name, employee_number, position, email")
+          .select("*")
           .ilike(col, `%${name}%`)
           .limit(1)
           .maybeSingle();
