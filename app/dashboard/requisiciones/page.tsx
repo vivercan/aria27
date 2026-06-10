@@ -2,7 +2,7 @@
 
 import {
   FileText, Package, Users, ShoppingCart,
-  CreditCard, Truck, Search, Receipt, ChevronRight,
+  CreditCard, Truck, Search, Receipt, ChevronRight, Fuel,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -27,6 +27,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
       { title: "Productos",     description: "Catálogo de materiales y control de stock.",         href: "/dashboard/requisiciones/productos",     icon: Package,      accent: BLUE },
       { title: "Proveedores",   description: "Directorio de proveedores y evaluaciones.",          href: "/dashboard/requisiciones/proveedores",   icon: Users,        accent: BLUE },
       { title: "Compras",       description: "Órdenes de compra y comparativas de cotización.",    href: "/dashboard/requisiciones/compras",       icon: ShoppingCart, accent: BLUE },
+      { title: "Combustible",   description: "Flujo dedicado: catálogo de maquinaria + horómetros.", href: "/dashboard/requisiciones/combustible/nueva", icon: Fuel,         accent: BLUE },
     ],
   },
   {
