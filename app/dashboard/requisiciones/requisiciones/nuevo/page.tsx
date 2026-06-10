@@ -810,16 +810,32 @@ export default function NewRequisitionPage() {
             <ShoppingCart className="h-5 w-5 text-aria-accent" />
             <h2 className="text-lg font-semibold">3. PARTIDAS ({getTotalPartidas()})</h2>
           </div>
-          {formMode === "libre" && freeRows.length > 0 && (
-            <span className="text-sm text-aria-accent font-medium">
-              Total: ${freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0).toLocaleString()}
-            </span>
-          )}
-          {formMode === "catalogo" && materials.length > 0 && (
-            <span className="text-sm text-aria-accent font-medium">
-              Total: ${materials.reduce((s,m) => s + ((m.price ?? 0) * m.qty), 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}
-            </span>
-          )}
+          {(() => {
+            const subtotalLibre = freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0);
+            const subtotalCat = materials.reduce((s,m) => s + ((m.price ?? 0) * m.qty), 0);
+            const subtotal = formMode === "libre" ? subtotalLibre : subtotalCat;
+            const tieneFilas = (formMode === "libre" && freeRows.length > 0) || (formMode === "catalogo" && materials.length > 0);
+            if (!tieneFilas) return null;
+            const ivaMonto = subtotal * (ivaPorcentaje / 100);
+            const totalConIva = subtotal + ivaMonto;
+            const fmt = (n: number) => n.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return (
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] uppercase text-white/50">Subtotal</span>
+                  <span className="text-white font-medium">${fmt(subtotal)}</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] uppercase text-white/50">IVA {ivaPorcentaje}%</span>
+                  <span className="text-white font-medium">${fmt(ivaMonto)}</span>
+                </div>
+                <div className="flex flex-col items-end rounded-lg bg-aria-accent/15 border border-aria-accent/40 px-3 py-1">
+                  <span className="text-[10px] uppercase text-aria-accent">Total</span>
+                  <span className="text-aria-accent font-bold text-base">${fmt(totalConIva)}</span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="flex-1 overflow-auto rounded-xl border border-white/[0.08] bg-black/20 max-h-60">
