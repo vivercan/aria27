@@ -303,7 +303,7 @@ export default function NuevaReqCombustiblePage() {
             <div className="text-xs text-[#7f93b0] flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Cargando equipos...</div>
           ) : equipos.length === 0 ? (
             <div className="text-xs text-[#7f93b0]">
-              Sin equipos asignados a esta obra. Da de alta el catalogo en <a href="/dashboard/admin/equipo-combustible" className="text-amber-300 underline">Admin → Equipos Combustible</a>.
+              Sin equipos asignados a esta obra. <a href="/dashboard/admin/equipo-combustible" className="text-amber-300 underline font-bold">Click aquí para dar de alta el catálogo</a> (o en menú Administración → Equipos Combustible).
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
