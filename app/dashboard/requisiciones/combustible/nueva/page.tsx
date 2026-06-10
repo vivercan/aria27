@@ -254,8 +254,12 @@ export default function NuevaReqCombustiblePage() {
               <span className="text-xs text-[#7f93b0]">IVA (%)</span>
               <select value={ivaPorcentaje} onChange={(e) => setIvaPorcentaje(Number(e.target.value))} className="w-full px-3 py-2 rounded bg-white/[0.04] border border-white/10">
                 <option value="0">0% (Sin IVA)</option>
-                <option value="16">16% (General)</option>
-                <option value="8">8% (Frontera)</option>
+                <option value="3">3%</option>
+                <option value="7">7%</option>
+                <option value="8">8% (Frontera Norte)</option>
+                <option value="10">10%</option>
+                <option value="11">11%</option>
+                <option value="16">16% (General Mexico)</option>
               </select>
             </label>
           </div>
