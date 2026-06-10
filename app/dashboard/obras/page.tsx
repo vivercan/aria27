@@ -3,7 +3,7 @@
 import {
   Kanban, Gavel, FolderOpen, Scale, Building, Calculator, PackageCheck,
   Layers, Map, ListChecks, Camera, BookOpen, Activity, TrendingUp,
-  ShieldCheck, Droplet, ChevronRight, FileText, BarChart2, BookMarked,
+  ShieldCheck, Droplet, ChevronRight, FileText, BarChart2, BookMarked, Fuel,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -12,6 +12,7 @@ const quickLinks = [
   { label: "Reporte Ejecutivo", href: "/dashboard/obras/reporte",  icon: BarChart2  },
   { label: "Bitácora de Obra",  href: "/dashboard/obras/bitacora", icon: BookMarked },
   { label: "Export Excel",      href: "/dashboard/obras/control",  icon: FileText   },
+  { label: "Combustible",       href: "/dashboard/obras/combustible", icon: Fuel       },
 ];
 
 type ModuleItem = {
