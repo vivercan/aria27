@@ -543,6 +543,7 @@ export default function NewRequisitionPage() {
               <label className="text-xs font-medium text-white/70">IVA</label>
               <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={ivaPorcentaje} onChange={e => setIvaPorcentaje(Number(e.target.value))}>
                 <option value={0}>0% (Sin IVA)</option>
+                <option value={3}>3%</option>
                 <option value={7}>7%</option>
                 <option value={8}>8% (Frontera Norte)</option>
                 <option value={10}>10%</option>
