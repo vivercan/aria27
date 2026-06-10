@@ -169,11 +169,48 @@ export async function notifyOps(input: NotifyOpsInput): Promise<void> {
     if (d.email) {
       try {
         const subject = `[${titulo}] ${resumen}`;
+        // Si es combustible, agregar grilla de cargas con thumbnails de horometros
+        const esCombustible = (metadata as { es_combustible?: boolean })?.es_combustible === true;
+        type Carga = { maquina: string; tipo: string; litros: number; horometro?: number; horometro_foto?: string };
+        const cargas = (metadata as { cargas?: Carga[] })?.cargas || [];
+        let bloqueCombustible = "";
+        if (esCombustible && cargas.length > 0) {
+          const rows = cargas.map((c) => `
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:600">${c.maquina}</td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center"><span style="background:#fef3c7;padding:2px 8px;border-radius:4px;font-size:11px">${c.tipo}</span></td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">${c.litros} L</td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;font-family:monospace">${c.horometro ?? "—"}</td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">${c.horometro_foto ? `<a href="${c.horometro_foto}" target="_blank"><img src="${c.horometro_foto}" style="max-width:80px;max-height:60px;border-radius:4px;border:1px solid #d4d4d8" alt="horometro"/></a>` : "<span style='color:#9ca3af;font-size:11px'>sin foto</span>"}</td>
+            </tr>
+          `).join("");
+          const proveedor = (metadata as { proveedor?: string })?.proveedor;
+          bloqueCombustible = `
+            <div style="margin:14px 0;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px">
+              <div style="font-weight:bold;color:#92400e;margin-bottom:8px">⛽ Cargas de combustible</div>
+              ${proveedor ? `<div style="font-size:12px;color:#78350f;margin-bottom:8px">Gasolinera: <strong>${proveedor}</strong></div>` : ""}
+              <table style="width:100%;border-collapse:collapse;font-size:12px;color:#374151">
+                <thead>
+                  <tr style="background:#fef3c7">
+                    <th style="padding:8px;text-align:left">Maquina</th>
+                    <th style="padding:8px;text-align:center">Tipo</th>
+                    <th style="padding:8px;text-align:right">Litros</th>
+                    <th style="padding:8px;text-align:center">Horometro</th>
+                    <th style="padding:8px;text-align:center">Foto</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          `;
+        }
+
         const html = ariaEmailWrapper(
           ariaEmailHeader(`${icono} ${titulo}`) +
           `<div style="padding:25px;font-size:13px;color:#1e293b;line-height:1.6">` +
           `<p style="margin:0 0 12px"><strong>${resumen}</strong></p>` +
           (detalle ? `<div style="background:#f8fafc;border-left:4px solid #1E3E7A;padding:14px;margin:14px 0;font-size:12px;color:#334155;white-space:pre-wrap">${detalle}</div>` : "") +
+          bloqueCombustible +
           (actor ? `<p style="margin:14px 0 0;color:#64748b;font-size:11px"><em>Disparado por: ${actor}</em></p>` : "") +
           `</div>` +
           ariaEmailFooter()
