@@ -501,6 +501,7 @@ function CapturarContent() {
               <select value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))}
                 className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/[0.08] text-white text-sm focus:border-aria-accent outline-none">
                 <option value={0}>0% (Sin IVA / Nota)</option>
+                <option value={3}>3%</option>
                 <option value={7}>7%</option>
                 <option value={8}>8% (Frontera Norte)</option>
                 <option value={10}>10%</option>
