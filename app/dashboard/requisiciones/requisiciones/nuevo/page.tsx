@@ -339,16 +339,16 @@ export default function NewRequisitionPage() {
 
     let materiales: Record<string, unknown>[] = [];
     if (formMode === "catalogo") {
-      const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty <= 0);
-      if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad > 0."); setSending(false); return; }
+      const invalidMats = materials.filter(m => !m.name?.trim() || isNaN(m.qty) || m.qty === 0);
+      if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad distinta de 0. (Usa cantidad negativa para descontar anticipos.)"); setSending(false); return; }
       materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations, price: m.price ?? 0 }));
     } else if (formMode === "combustible") {
       const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim());
       if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0 y destino."); setSending(false); return; }
       materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}` }));
     } else {
-      const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad <= 0 || isNaN(f.monto) || f.monto < 0);
-      if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción, cantidad > 0 y monto >= 0."); setSending(false); return; }
+      const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad === 0 || isNaN(f.monto) || f.monto < 0);
+      if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción, cantidad distinta de 0 y monto >= 0. (Usa cantidad negativa para descontar anticipos.)"); setSending(false); return; }
       materiales = freeRows.map(f => ({ id: null, name: f.descripcion, unit: f.unidad, qty: f.cantidad, comments: f.observaciones, price: f.monto }));
     }
 
@@ -763,7 +763,7 @@ export default function NewRequisitionPage() {
                 {freeRows.map((r, i) => (
                   <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
                     <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Descripción..." value={r.descripcion} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, descripcion: e.target.value} : x))} />
-                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} />
+                    <input type="number" required step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Cant" value={r.cantidad||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, cantidad: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
@@ -850,7 +850,7 @@ export default function NewRequisitionPage() {
                 <div key={m.id} className="grid grid-cols-[1.4fr_70px_70px_90px_100px_1.4fr_36px] gap-2 items-center px-3 py-2 text-xs">
                   <div className="truncate font-medium">{m.name}</div>
                   <div className="text-white/60">{m.unit}</div>
-                  <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" min={1} className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Math.max(1,Number(e.target.value))} : x))} />
+                  <input ref={el => { if(el) qtyInputRefs.current.set(m.id, el); }} type="number" className="w-full rounded-lg bg-black/40 px-2 py-1 text-center outline-none" value={m.qty} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, qty: Number(e.target.value)} : x))} title="Acepta negativos para anticipos descontados" />
                   <input type="number" min={0} step="0.01" placeholder="$" className="w-full rounded-lg bg-black/40 px-2 py-1 text-right outline-none" value={m.price ?? ""} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, price: Number(e.target.value)} : x))} />
                   <div className="text-right text-aria-accent font-medium">${(((m.price ?? 0) * m.qty) || 0).toLocaleString("es-MX", {minimumFractionDigits: 2})}</div>
                   <input type="text" className="w-full rounded-lg bg-black/40 px-2 py-1 outline-none" placeholder="Opcional..." value={m.observations} onChange={e => setMaterials(prev => prev.map(x => x.id===m.id ? {...x, observations: e.target.value} : x))} />
