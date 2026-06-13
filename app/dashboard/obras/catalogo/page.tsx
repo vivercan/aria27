@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save } from "lucide-react";
+import { Search, Pencil, Archive, Power, Loader2, FolderOpen, Plus, X, Save, MapPin} from "lucide-react";
 import AriaBackButton from "@/components/AriaBackButton";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
@@ -31,6 +31,9 @@ interface Obra {
   fecha_inicio: string | null;
   fecha_fin: string | null;
   descripcion: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
+  radio_metros?: number | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -43,7 +46,7 @@ const STATUS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "" };
+const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "", latitud: "", longitud: "", radio_metros: "150" };
 
 export default function CatalogoObrasPage() {
   const router = useRouter();
@@ -83,6 +86,21 @@ export default function CatalogoObrasPage() {
     if (form.presupuesto && isNaN(parseFloat(form.presupuesto))) {
       errors.presupuesto = "El presupuesto debe ser un número válido";
     }
+    if (form.latitud) {
+      const v = parseFloat(form.latitud);
+      if (isNaN(v) || v < -90 || v > 90) errors.latitud = "Latitud entre -90 y 90";
+    }
+    if (form.longitud) {
+      const v = parseFloat(form.longitud);
+      if (isNaN(v) || v < -180 || v > 180) errors.longitud = "Longitud entre -180 y 180";
+    }
+    if (form.radio_metros) {
+      const v = parseInt(form.radio_metros);
+      if (isNaN(v) || v < 1 || v > 5000) errors.radio_metros = "Radio entre 1 y 5000 m";
+    }
+    if ((form.latitud && !form.longitud) || (!form.latitud && form.longitud)) {
+      errors.latitud = errors.latitud || "Captura latitud y longitud juntas";
+    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -98,6 +116,9 @@ export default function CatalogoObrasPage() {
       fecha_inicio: o.fecha_inicio || "",
       fecha_fin: o.fecha_fin || "",
       descripcion: o.descripcion || "",
+      latitud: o.latitud != null ? String(o.latitud) : "",
+      longitud: o.longitud != null ? String(o.longitud) : "",
+      radio_metros: o.radio_metros != null ? String(o.radio_metros) : "150",
     });
     setShowForm(true);
   };
@@ -108,6 +129,9 @@ export default function CatalogoObrasPage() {
     const payload: Record<string, unknown> = { ...form };
     if (payload.presupuesto === "" || payload.presupuesto === null) payload.presupuesto = null;
     else payload.presupuesto = parseFloat(String(payload.presupuesto));
+    payload.latitud = form.latitud ? parseFloat(form.latitud) : null;
+    payload.longitud = form.longitud ? parseFloat(form.longitud) : null;
+    payload.radio_metros = form.radio_metros ? parseInt(form.radio_metros) : 150;
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
 
     if (editId) {
@@ -273,6 +297,29 @@ export default function CatalogoObrasPage() {
               <label className="text-xs text-[#7f93b0] mb-1 block">Fecha fin</label>
               <input type="date" value={form.fecha_fin} onChange={e => setForm({ ...form, fecha_fin: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
+            <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-lg">
+              <div className="md:col-span-12 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-aria-accent" />
+                <span className="text-sm font-medium text-white">Geocerca para asistencia</span>
+                <a href={`https://www.google.com/maps/search/${encodeURIComponent(form.nombre || form.direccion || "Aguascalientes")}`} target="_blank" rel="noreferrer" className="ml-auto text-xs text-aria-accent underline">Buscar en Google Maps</a>
+              </div>
+              <div className="md:col-span-4">
+                <label className="text-xs text-[#7f93b0] mb-1 block">Latitud</label>
+                <input type="text" inputMode="decimal" placeholder="21.88234" value={form.latitud} onChange={e => setForm({ ...form, latitud: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+                {formErrors.latitud && <p className="text-red-400 text-xs mt-1">{formErrors.latitud}</p>}
+              </div>
+              <div className="md:col-span-4">
+                <label className="text-xs text-[#7f93b0] mb-1 block">Longitud</label>
+                <input type="text" inputMode="decimal" placeholder="-102.29572" value={form.longitud} onChange={e => setForm({ ...form, longitud: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+                {formErrors.longitud && <p className="text-red-400 text-xs mt-1">{formErrors.longitud}</p>}
+              </div>
+              <div className="md:col-span-4">
+                <label className="text-xs text-[#7f93b0] mb-1 block">Radio (m)</label>
+                <input type="number" min="1" max="5000" placeholder="150" value={form.radio_metros} onChange={e => setForm({ ...form, radio_metros: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
+                {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
+              </div>
+              <p className="md:col-span-12 text-xs text-[#7f93b0]">Tip: clic-derecho en Google Maps -> "Que hay aqui" -> copia los 2 numeros (lat, lng).</p>
+            </div>
             <div className="md:col-span-3">
               <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>
               <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })} rows={2} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
@@ -307,12 +354,35 @@ export default function CatalogoObrasPage() {
                 <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-aria-accent mx-auto" /></td></tr>
               ) : filtradas.length === 0 ? (
                 <tr><td colSpan={7} className="p-8 text-center text-[#4a6080]">Sin obras para los filtros actuales.</td></tr>
-              ) : filtradas.map(o => {
+              ) : (() => {
+                // Detectar coords duplicadas para badge
+                const dup = new Set<string>();
+                const seen = new Map<string, number>();
+                filtradas.forEach(x => {
+                  if (x.latitud != null && x.longitud != null) {
+                    const k = `${x.latitud},${x.longitud}`;
+                    seen.set(k, (seen.get(k) || 0) + 1);
+                  }
+                });
+                seen.forEach((v, k) => { if (v > 1) dup.add(k); });
+                return filtradas.map(o => {
                 const archivada = ["TERMINADA", "CANCELADA"].includes(o.estado);
+                const coordKey = (o.latitud != null && o.longitud != null) ? `${o.latitud},${o.longitud}` : null;
+                const isDup = coordKey ? dup.has(coordKey) : false;
+                const sinCoord = o.latitud == null || o.longitud == null;
                 return (
                   <tr key={o.id} className={`border-t border-white/[0.05] hover:bg-white/[0.02] ${archivada ? "opacity-60" : ""}`}>
                     <td className="p-3">
-                      <p className="text-white font-medium">{o.nombre}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-white font-medium">{o.nombre}</p>
+                        {sinCoord ? (
+                          <span title="Sin geocerca configurada" className="px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold bg-amber-500/20 text-amber-400">Sin coord</span>
+                        ) : isDup ? (
+                          <span title="Coordenadas duplicadas con otras obras" className="px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold bg-red-500/20 text-red-400">Coord duplicada</span>
+                        ) : (
+                          <span title={`Geocerca ${o.latitud}, ${o.longitud} radio ${o.radio_metros}m`} className="px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold bg-emerald-500/20 text-aria-accent">Coord OK</span>
+                        )}
+                      </div>
                       {o.direccion && <p className="text-xs text-[#4a6080]">{o.direccion}</p>}
                     </td>
                     <td className="p-3 text-[#c9d8ed]">{o.cliente || "—"}</td>
@@ -347,7 +417,8 @@ export default function CatalogoObrasPage() {
                     </td>
                   </tr>
                 );
-              })}
+              });
+              })()}
             </tbody>
           </table>
         </div>
