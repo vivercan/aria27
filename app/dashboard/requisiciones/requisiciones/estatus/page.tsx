@@ -360,8 +360,8 @@ export default function RequisicionesStatusPage() {
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
         </div>
       ) : (
-        <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="rounded-xl bg-white/[0.04] border border-white/[0.08] overflow-hidden flex flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
+          <div className="overflow-auto flex-1">
             <table className="w-full">
               <thead className="bg-white/[0.04] sticky top-0">
                 <tr className="text-left text-[#7f93b0] text-xs">
