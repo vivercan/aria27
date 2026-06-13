@@ -8,32 +8,36 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "nope" }, { status: 403 });
   }
   const db = getSupabaseAdmin();
+  const phone10 = req.nextUrl.searchParams.get("phone") || "4951198249";
 
-  // 1. Todos los employees con whatsapp o whatsapp_phone
-  const { data: emps } = await db
+  // 1. Misma query que findEmpleado
+  const { data: emp1, error: e1 } = await db
     .from("employees")
-    .select("id, full_name, employee_number, position, whatsapp, whatsapp_phone, status")
+    .select("id, full_name, status, whatsapp, whatsapp_phone")
+    .or(`whatsapp.eq.${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
     .eq("status", "ACTIVO")
-    .order("full_name")
-    .limit(200);
+    .single();
 
-  // 2. Especificamente Daisy y Osita
-  const { data: daisyOsita } = await db
+  // 2. Misma query sin .single() (por si hay duplicados)
+  const { data: empAll, error: e2 } = await db
     .from("employees")
-    .select("*")
-    .or("full_name.ilike.%Daisy%,full_name.ilike.%Lizbeth%,full_name.ilike.%Osita%,full_name.ilike.%Montalvo%");
+    .select("id, full_name, status, whatsapp, whatsapp_phone")
+    .or(`whatsapp.eq.${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`);
 
-  // 3. Ultimas 10 entradas en asistencia_log o wa_log para ver el "from" que llegó
-  const { data: waLog } = await db
-    .from("wa_log")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(15);
+  // 3. Buscar exacto sin filtros
+  const { data: exact, error: e3 } = await db
+    .from("employees")
+    .select("id, full_name, status, whatsapp, whatsapp_phone")
+    .eq("whatsapp", phone10);
 
   return NextResponse.json({
-    employees_activos: emps?.length || 0,
-    employees: emps,
-    daisy_osita: daisyOsita,
-    wa_log_reciente: waLog,
+    phone10_probado: phone10,
+    findEmpleado_resultado: emp1,
+    findEmpleado_error: e1?.message,
+    findEmpleado_error_code: e1?.code,
+    sin_single_resultado: empAll,
+    sin_single_error: e2?.message,
+    exact_whatsapp_eq: exact,
+    exact_error: e3?.message,
   });
 }
