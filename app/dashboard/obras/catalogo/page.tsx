@@ -318,7 +318,7 @@ export default function CatalogoObrasPage() {
                 <input type="number" min="1" max="5000" placeholder="150" value={form.radio_metros} onChange={e => setForm({ ...form, radio_metros: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
-              <p className="md:col-span-12 text-xs text-[#7f93b0]">Tip: clic-derecho en Google Maps -> "Que hay aqui" -> copia los 2 numeros (lat, lng).</p>
+              <p className="md:col-span-12 text-xs text-[#7f93b0]">Tip: clic-derecho en Google Maps, luego "Que hay aqui", luego copia los 2 numeros (lat, lng).</p>
             </div>
             <div className="md:col-span-3">
               <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>
