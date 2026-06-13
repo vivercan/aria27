@@ -326,12 +326,14 @@ export default function ChecadasPage() {
     if (!formManual.employee_id) return;
     setSaving(true);
     const ctId = formManual.centro_trabajo_id || empCentroMap[formManual.employee_id] || (oficinaDefault as { id?: string } | null)?.id || null;
+    const ctRow = ctId ? centrosList.find(c => c.id === ctId) : null;
+    const ctNombre = ctRow?.nombre || null;
     const { error } = await supabase.from("asistencias").insert({
       employee_id: formManual.employee_id,
       fecha: formManual.fecha,
       hora_entrada: formManual.hora_entrada,
       hora_salida: formManual.hora_salida,
-      centro_trabajo_id: ctId,
+      centro_nombre: ctNombre,
       tipo_registro: "MANUAL",
       dentro_geocerca_entrada: true
     });
