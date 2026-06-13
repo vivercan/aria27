@@ -19,14 +19,14 @@ export async function GET(req: Request) {
   // Listar TODAS las obras
   const { data: obras, error: obrasErr } = await supabase
     .from("centros_trabajo")
-    .select("id, nombre, direccion, lat, lng, radio_metros, activo, estado, fecha_inicio, fecha_fin, created_at")
+    .select("id, nombre, direccion, latitud, longitud, radio_metros, activo, estado, fecha_inicio, fecha_fin, created_at, updated_at")
     .order("nombre");
 
   // Detectar duplicados por coordenadas
   const groups: Record<string, Array<{ id: string; nombre: string; activo: boolean; estado?: string }>> = {};
   (obras || []).forEach((o) => {
-    if (o.lat != null && o.lng != null) {
-      const k = `${o.lat},${o.lng}`;
+    if (o.latitud != null && o.longitud != null) {
+      const k = `${o.latitud},${o.longitud}`;
       if (!groups[k]) groups[k] = [];
       groups[k].push({ id: o.id, nombre: o.nombre, activo: o.activo, estado: o.estado });
     }
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     .map(([coord, arr]) => ({ coord, count: arr.length, obras: arr }));
 
   // Tambien obras sin coord
-  const sin_coord = (obras || []).filter(o => o.lat == null || o.lng == null).map(o => ({ id: o.id, nombre: o.nombre, activo: o.activo }));
+  const sin_coord = (obras || []).filter(o => o.latitud == null || o.longitud == null).map(o => ({ id: o.id, nombre: o.nombre, activo: o.activo }));
 
   return NextResponse.json({
     ok: true,
@@ -55,13 +55,13 @@ export async function POST(req: Request) {
   if (url.searchParams.get("k") !== KEY) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const supabase = getSupabaseAdmin();
-  const body = await req.json() as { updates: Array<{ id: string; lat?: number; lng?: number; radio_metros?: number; direccion?: string }> };
+  const body = await req.json() as { updates: Array<{ id: string; latitud?: number; longitud?: number; radio_metros?: number; direccion?: string }> };
 
   const results: Array<{ id: string; ok: boolean; error?: string }> = [];
   for (const u of body.updates) {
     const patch: Record<string, unknown> = {};
-    if (u.lat != null) patch.lat = u.lat;
-    if (u.lng != null) patch.lng = u.lng;
+    if (u.latitud != null) patch.latitud = u.latitud;
+    if (u.longitud != null) patch.longitud = u.longitud;
     if (u.radio_metros != null) patch.radio_metros = u.radio_metros;
     if (u.direccion != null) patch.direccion = u.direccion;
     if (Object.keys(patch).length === 0) { results.push({ id: u.id, ok: false, error: "empty patch" }); continue; }
