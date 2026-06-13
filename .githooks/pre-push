@@ -1,0 +1,12 @@
+#!/bin/sh
+# Pre-push hook ARIA27 (13-Jun-2026)
+# Causa raiz: TS1382 ('->'  literal en JSX) paso silencioso por CI con continue-on-error.
+# Este hook bloquea push si typecheck falla localmente.
+set -e
+echo "[pre-push] Validando typecheck..."
+if ! npm run typecheck 2>&1 | tail -50; then
+  echo "[pre-push] ERROR: typecheck fallo. Push abortado."
+  echo "[pre-push] Arreglar errores antes de pushear."
+  exit 1
+fi
+echo "[pre-push] OK typecheck."

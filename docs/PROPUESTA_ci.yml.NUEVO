@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: lint + typecheck + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Lint (informational)
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Typecheck — blocking (gate vs TS1382 / TS-anything)
+        # Antes era informational. 13-Jun-2026: TS1382 (->'  literal en JSX) rompio Vercel build 3 deploys consecutivos.
+        # Ahora bloquea merges con cualquier error TS. Si Vercel falla, CI tambien.
+        run: npm run typecheck
+
+      - name: Unit tests (Vitest) — blocking
+        run: npm test
+
+      - name: Build dry-run (parser + bundler check)
+        # Espejo lo mas cercano posible al build de Vercel. Si esto pasa, Vercel pasa.
+        run: npx next build || (echo "::error::Vercel build fallaria. Revisar errores arriba." && exit 1)
