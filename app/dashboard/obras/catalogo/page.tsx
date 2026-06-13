@@ -105,7 +105,7 @@ export default function CatalogoObrasPage() {
   const guardar = async () => {
     if (!validar()) { flash("err", "Por favor corrige los errores en el formulario"); return; }
     setSaving(true);
-    const payload: Record<string, unknown> = { ...form, updated_at: new Date().toISOString() };
+    const payload: Record<string, unknown> = { ...form };
     if (payload.presupuesto === "" || payload.presupuesto === null) payload.presupuesto = null;
     else payload.presupuesto = parseFloat(String(payload.presupuesto));
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
@@ -126,7 +126,7 @@ export default function CatalogoObrasPage() {
 
   const ejecutarCambioEstado = async (obraId: string, nuevoEstado: string, label: string) => {
     const { error } = await supabase.from("centros_trabajo")
-      .update({ estado: nuevoEstado, updated_at: new Date().toISOString() })
+      .update({ estado: nuevoEstado })
       .eq("id", obraId);
     if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     flash("ok", `Obra → ${label}`);
