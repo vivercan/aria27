@@ -25,9 +25,14 @@ jobs:
         continue-on-error: true
         run: npm run lint
 
-      - name: Typecheck (informational)
-        continue-on-error: true
+      - name: Typecheck — blocking (gate vs TS1382 / TS-anything)
+        # Antes era informational. 13-Jun-2026: TS1382 (->'  literal en JSX) rompio Vercel build 3 deploys consecutivos.
+        # Ahora bloquea merges con cualquier error TS. Si Vercel falla, CI tambien.
         run: npm run typecheck
 
       - name: Unit tests (Vitest) — blocking
         run: npm test
+
+      - name: Build dry-run (parser + bundler check)
+        # Espejo lo mas cercano posible al build de Vercel. Si esto pasa, Vercel pasa.
+        run: npx next build || (echo "::error::Vercel build fallaria. Revisar errores arriba." && exit 1)
