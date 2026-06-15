@@ -8,6 +8,9 @@
  *   3. CONTRACT     - Verifica que /api/health responde shape esperado (status, summary, checks[]).
  *   4. PEN_TEST     - Intenta SELECT anon a tablas sensibles. Si retorna data REAL, es CRITICAL.
  *   5. ENV          - Re-chequeo de env vars criticas (incluye RESEND_API_KEY, WHATSAPP_*).
+ *   6. RPC_HEALTH   - Invoca cada RPC SECURITY DEFINER con args seguros (UUID nulo o not_found).
+ *                     Si un RPC referencia una columna inexistente, el bug se detecta aqui en 2 min
+ *                     en lugar de vivir 2 meses oculto. Leccion del fix 15-Jun-2026 PL06.
  *
  * Persiste 1 fila por check en monitoring_log con run_id agrupando.
  * No bloquea la respuesta si Supabase esta lento; cada check tiene timeout corto.
@@ -24,7 +27,7 @@ const log = logger("MON-SYNTH");
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://aria.jjcrm27.com";
 
 interface Check {
-  category: "HEALTH" | "SMOKE_CRUD" | "CONTRACT" | "PEN_TEST" | "ENV";
+  category: "HEALTH" | "SMOKE_CRUD" | "CONTRACT" | "PEN_TEST" | "ENV" | "RPC_HEALTH";
   check_name: string;
   status: "ok" | "warn" | "error";
   message: string;
@@ -267,6 +270,55 @@ function runEnv(): Check[] {
 }
 
 // ============================================================================
+// RPC_HEALTH — inmunizador del fix 15-Jun-2026 (delete_requisition_cascade roto 2 meses)
+// Cada RPC SECURITY DEFINER se invoca con argumentos SEGUROS (UUID nulo o not_found).
+// Si el RPC contiene referencia a columna inexistente, falla aqui con SQLSTATE.
+// NO modifica datos: usa UUIDs nulos que producen rama not_found en cada RPC.
+// ============================================================================
+async function runRpcHealth(): Promise<Check[]> {
+  const checks: Check[] = [];
+  const supa = getSupabaseAdmin();
+  const NULL_UUID = "00000000-0000-0000-0000-000000000000";
+
+  // probes — { name, fn, args, expect: 'no_throw' | 'returns' }
+  const probes: Array<{ name: string; rpc: string; args: Record<string, unknown> }> = [
+    { name: "delete_requisition_cascade", rpc: "delete_requisition_cascade", args: { p_req_id: NULL_UUID, p_deleted_by: "rpc-health@aria27.local" } },
+    { name: "aplicar_entrega_inventario", rpc: "aplicar_entrega_inventario", args: { p_obra_id: NULL_UUID, p_obra_nombre: "RPC_HEALTH_PROBE", p_materiales: [] } },
+    { name: "get_user_zoho_creds", rpc: "get_user_zoho_creds", args: { p_email: "rpc-health@aria27.local", p_key: "probe" } },
+    { name: "decrypt_portal_password", rpc: "decrypt_portal_password", args: { p_id: NULL_UUID, p_key: "probe" } },
+    { name: "list_backup_tables", rpc: "list_backup_tables", args: {} },
+    { name: "title_case_es", rpc: "title_case_es", args: { input: "rpc health probe" } },
+  ];
+
+  for (const probe of probes) {
+    const { result, error, ms } = await timed(() => supa.rpc(probe.rpc, probe.args));
+    // result puede ser { data, error } envuelto por supabase-js
+    const supaErr = (result as { error?: { message?: string; code?: string } } | null)?.error;
+    if (error || supaErr) {
+      const msg = error?.message || supaErr?.message || "unknown";
+      checks.push({
+        category: "RPC_HEALTH",
+        check_name: `rpc:${probe.name}`,
+        status: "error",
+        message: `RPC fallo: ${msg}`,
+        duration_ms: ms,
+        details: { rpc: probe.rpc, code: supaErr?.code },
+      });
+    } else {
+      checks.push({
+        category: "RPC_HEALTH",
+        check_name: `rpc:${probe.name}`,
+        status: "ok",
+        message: `RPC ${probe.rpc} responde sin error`,
+        duration_ms: ms,
+      });
+    }
+  }
+
+  return checks;
+}
+
+// ============================================================================
 // HANDLER
 // ============================================================================
 export async function GET(req: NextRequest) {
@@ -284,15 +336,16 @@ export async function GET(req: NextRequest) {
   const t0 = Date.now();
 
   // Ejecutar todos los frentes en paralelo
-  const [health, smoke, contract, pen] = await Promise.all([
+  const [health, smoke, contract, pen, rpcHealth] = await Promise.all([
     runHealthCheck(),
     runSmokeCrud(),
     runContract(),
     runPenTest(),
+    runRpcHealth(),
   ]);
   const env = runEnv();
 
-  const allChecks: Check[] = [...health, ...smoke, ...contract, ...pen, ...env];
+  const allChecks: Check[] = [...health, ...smoke, ...contract, ...pen, ...rpcHealth, ...env];
   const elapsed = Date.now() - t0;
 
   // Persistir en monitoring_log
