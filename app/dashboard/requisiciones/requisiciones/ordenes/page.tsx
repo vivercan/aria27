@@ -114,6 +114,7 @@ export default function OrdenesCompraPage() {
             requisition_id: poReq.id,
             solicitante_email: poReq.user_email,
             solicitante_phone: userData?.phone || null,
+            user_email: localStorage.getItem("userEmail") || "", // FIX P0: endpoint requiere auth
           }),
         });
         if (!reRes.ok) {

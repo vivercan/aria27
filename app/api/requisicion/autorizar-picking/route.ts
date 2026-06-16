@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
       const { error: poError } = await supabase.from("purchase_orders").insert({
         folio: ocFolio,
-        requisition_id: Number(requisition_id),
+        requisition_id: String(requisition_id), // FIX P0: requisitions.id es UUID, no number
         supplier_name: supplierName,
         obra_nombre: obra || null,
         total: total,

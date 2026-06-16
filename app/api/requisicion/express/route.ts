@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         items_prices: c.precios || {},
         subtotal,
         iva,
-        tax_rate: 0.16,
+        tax_rate: 16, // FIX P0: tax_rate es porcentaje entero (16 = 16%), no decimal 0.16
         total: subtotal + iva,
       };
     });
