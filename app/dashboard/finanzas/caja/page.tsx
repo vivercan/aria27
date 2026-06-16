@@ -34,7 +34,7 @@ interface Corte {
   fondo_nombre?: string;
 }
 interface Obra { id: string; nombre: string; }
-interface Empleado { id: string; nombre: string; }
+interface Empleado { id: string; full_name: string; }
 
 /* ────────── constants ────────── */
 const TABS = ["Fondos", "Movimientos", "Cortes"] as const;
@@ -94,14 +94,14 @@ export default function CajaChicaPage() {
         supabase.from("caja_chica_movimientos").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }),
         supabase.from("caja_chica_cortes").select("*").order("created_at", { ascending: false }),
         supabase.from("centros_trabajo").select("id, nombre").order("nombre"),
-        supabase.from("employees").select("id, nombre").eq("estatus", "Activo").order("nombre"),
+        supabase.from("employees").select("id, full_name").eq("status", "ACTIVO").order("full_name"),
       ]);
       const fondosRaw = (fRes.data || []) as Fondo[];
       const obrasArr = (oRes.data || []) as Obra[];
       const empleadosArr = (eRes.data || []) as Empleado[];
 
       const obraMap = Object.fromEntries(obrasArr.map(o => [o.id, o.nombre]));
-      const empMap = Object.fromEntries(empleadosArr.map(e => [e.id, e.nombre]));
+      const empMap = Object.fromEntries(empleadosArr.map(e => [e.id, e.full_name]));
       const fondoMap = Object.fromEntries(fondosRaw.map(f => [f.id, f.nombre]));
       const fondoMapTyped = fondoMap as Record<string, string>;
       setFondos(fondosRaw.map(f => ({ ...f, obra_nombre: obraMap[f.obra_id || ""] || "—", responsable_nombre: empMap[f.responsable_id || ""] || "—" })));
@@ -384,7 +384,7 @@ export default function CajaChicaPage() {
                         <label className="text-xs text-[#7f93b0] mb-1 block">Responsable (opcional)</label>
                         <select value={fondoForm.responsable_id} onChange={e => setFondoForm({ ...fondoForm, responsable_id: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none">
                           <option value="">Sin asignar</option>
-                          {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+                          {empleados.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                         </select>
                       </div>
                       <div>

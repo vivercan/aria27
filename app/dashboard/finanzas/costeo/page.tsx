@@ -68,7 +68,7 @@ export default function CosteoPage() {
   async function loadData() {
     try {
       // Cargar centros de costo (obras)
-      const { data: centers } = await supabase.from("centros_trabajo").select("id, code:codigo, name:nombre, active:activo, budget:presupuesto, client:cliente, status:estado, start_date:fecha_inicio, end_date:fecha_fin, description:descripcion, location:direccion");
+      const { data: centers } = await supabase.from("centros_trabajo").select("id, codigo, nombre, activo, direccion");
 
       // Cargar OCs para calcular costos reales por obra
       const { data: ocs } = await supabase.from("purchase_orders").select("obra_nombre, total, categoria");
