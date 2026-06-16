@@ -60,8 +60,10 @@ export default function ContratosPage() {
     if (isNaN(form.anticipo_porcentaje) || form.anticipo_porcentaje < 0 || form.anticipo_porcentaje > 100) { flash("err", "% Anticipo debe estar entre 0 y 100"); return; }
     if (isNaN(form.retencion_porcentaje) || form.retencion_porcentaje < 0 || form.retencion_porcentaje > 100) { flash("err", "% Retención debe estar entre 0 y 100"); return; }
 
-    const { count } = await supabase.from("contratos").select("*", { count: "exact", head: true });
-    const numero = `CONT-${String((count || 0) + 1).padStart(4, "0")}`;
+    // FIX P1 17-Jun-2026: race condition - leer max+1 en lugar de count, evita duplicados bajo concurrencia
+    const { data: maxRow } = await supabase.from("contratos").select("numero").order("numero", { ascending: false }).limit(1).maybeSingle();
+    const lastNum = maxRow?.numero ? parseInt(String(maxRow.numero).split("-")[1] || "0", 10) || 0 : 0;
+    const numero = `CONT-${String(lastNum + 1).padStart(4, "0")}`;
     const anticipo = form.monto_contrato * (form.anticipo_porcentaje / 100);
     const inicio = new Date(form.fecha_inicio);
     const fin = new Date(form.fecha_fin);

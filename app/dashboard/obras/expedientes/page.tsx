@@ -534,7 +534,8 @@ export default function ExpedientesPage() {
     if (targets.length === 0) return;
     for (const a of targets) { await descargarArchivoForzado(a); }
     const ids = targets.map(a => a.id);
-    await supabase.from("expedientes_archivos").delete().in("id", ids);
+    const { error: delErr } = await supabase.from("expedientes_archivos").delete().in("id", ids);
+    if (delErr) { log.error("Error al eliminar archivos año", { error: (delErr as {message?: string})?.message }); return; }
     setDeleteArchivoAnioModal({ open: false, archivos: [] });
     setArchivosAnioSeleccionados(new Set());
     if (anioSeleccionado && anioSeleccionado !== "SIN_ANIO") loadCarpetasAnio(anioSeleccionado as number);

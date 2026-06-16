@@ -80,6 +80,7 @@ export default function PorPagarPage() {
           dias_credito: diasCredito,
           fecha_vencimiento: fechaVenc.toISOString(),
           vencida,
+          ultimo_pago_metodo: (oc.ultimo_pago_metodo as string) || "", // FIX P1: filtro metodo pago no matcheaba
         } as CuentaPorPagar;
       }).filter((oc: CuentaPorPagar) => oc.saldo > 0);
 

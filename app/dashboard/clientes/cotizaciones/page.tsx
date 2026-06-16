@@ -169,8 +169,10 @@ export default function CotizacionesClientesPage() {
     let folio = form.folio.trim();
     if (!folio) {
       const yr = new Date().getFullYear();
-      const { count } = await supabase.from("cotizaciones_clientes").select("id", { count: "exact", head: true });
-      folio = `COT-${yr}-${String((count || 0) + 1).padStart(4, "0")}`;
+      // FIX P1 17-Jun-2026: race condition + filtra por año actual
+      const { data: maxRow } = await supabase.from("cotizaciones_clientes").select("folio").like("folio", `COT-${yr}-%`).order("folio", { ascending: false }).limit(1).maybeSingle();
+      const lastNum = maxRow?.folio ? parseInt(String(maxRow.folio).split("-")[2] || "0", 10) || 0 : 0;
+      folio = `COT-${yr}-${String(lastNum + 1).padStart(4, "0")}`;
     }
 
     interface PayloadCotizacion {

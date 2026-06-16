@@ -74,6 +74,8 @@ export default function CobranzaManualPage() {
       if (c.error?.code === "42P01" || c.error?.code === "PGRST205") {
         flash("err", "Falta crear tabla cobros_manuales. Ver SQL aplicado en Supabase.");
       }
+      if (cli.error) log.error("Error cargando clientes", { error: cli.error.message });
+      if (ob.error) log.error("Error cargando centros_trabajo", { error: ob.error.message });
       setCobros((c.data as Cobro[]) || []);
       setClientes((cli.data as Cliente[]) || []);
       setObras((ob.data as Obra[]) || []);

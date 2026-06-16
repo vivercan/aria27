@@ -188,8 +188,9 @@ export default function EstimacionesPage() {
     const iva = (totalImportePeriodo - amortizacion - retencion) * (form.iva_pct / 100);
     const neto = totalImportePeriodo - amortizacion - retencion + iva;
 
-    const { count } = await supabase.from("obra_estimaciones").select("*", { count: "exact", head: true }).eq("obra_id", form.obra_id);
-    const numero = (count || 0) + 1;
+    // FIX P1 17-Jun-2026: race condition numero_estimacion
+    const { data: maxEst } = await supabase.from("obra_estimaciones").select("numero_estimacion").eq("obra_id", form.obra_id).order("numero_estimacion", { ascending: false }).limit(1).maybeSingle();
+    const numero = ((maxEst?.numero_estimacion as number | undefined) || 0) + 1;
 
     const { data: insEst, error: errEst } = await supabase.from("obra_estimaciones").insert({
       obra_id: form.obra_id,
