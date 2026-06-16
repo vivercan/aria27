@@ -88,9 +88,7 @@ export default function PropuestasPage() {
   };
 
   const eliminar = async (id: string) => {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
-    const { error } = await supabase.from("propuestas_licitacion").delete().eq("id", id);
-    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Propuesta eliminada"); cargar(); }
+    setDeleteModal({open:true,id,name:""}); // Protegido por DeleteModal
   };
 
   const filtered = propuestas.filter(p =>

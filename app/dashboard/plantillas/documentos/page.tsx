@@ -81,9 +81,7 @@ export default function DocumentosPage() {
   };
 
   const eliminar = async (id: string) => {
-    setDeleteModal({open:true,id,name:""}); return; // Protected by DeleteModal
-    const { error } = await supabase.from("documentos_plantilla").delete().eq("id", id);
-    if (error) msg("error", error?.message ?? "Error"); else { msg("success", "Documento eliminado"); cargar(); }
+    setDeleteModal({open:true,id,name:""}); // Protegido por DeleteModal
   };
 
   const filtered = documentos.filter(d =>

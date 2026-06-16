@@ -221,6 +221,8 @@ export default function FacturacionPage() {
     const errors: Record<string, string> = {};
     if (!form.cliente?.trim()) errors.cliente = "Cliente es obligatorio";
     if (form.subtotal <= 0) errors.subtotal = "Subtotal debe ser mayor a 0";
+    // FIX P2: RFC SAT mexicano (PF 13 chars o PM 12 chars, formato oficial)
+    if (form.rfc_cliente && !/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/.test(form.rfc_cliente.trim().toUpperCase())) errors.rfc_cliente = "RFC invalido (formato SAT)";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }

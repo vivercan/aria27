@@ -80,6 +80,8 @@ export default function BancosPage() {
     if (!form.banco?.trim()) { flash("err", "Banco es requerido"); return; }
     if (!form.cuenta?.trim()) { flash("err", "Número de cuenta es requerido"); return; }
     if (!form.titular?.trim()) { flash("err", "Titular es requerido"); return; }
+    // FIX P2: CLABE banxico = 18 digitos exactos
+    if (form.clabe && !/^\d{18}$/.test(form.clabe.trim())) { flash("err", "CLABE debe ser exactamente 18 digitos"); return; }
     if (isNaN(form.saldo) || form.saldo < 0) { flash("err", "Saldo debe ser >= 0"); return; }
     const payload = { ...form, updated_at: new Date().toISOString() } as Record<string, unknown>;
     if (editId) {
@@ -113,7 +115,7 @@ export default function BancosPage() {
       msg: `¿${accion} la cuenta ${c.banco} - ${c.cuenta}?`,
       onOk: async () => {
         const { error } = await supabase.from("cuentas_bancarias").update({ activa: nueva, updated_at: new Date().toISOString() }).eq("id", c.id);
-        if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+        if (error) { flash("err", "Error: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
         loadData();
       }
     });
