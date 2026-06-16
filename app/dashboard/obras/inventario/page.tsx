@@ -677,7 +677,7 @@ export default function InventarioObraPage() {
       const { data: existe } = await supabase
         .from("inventario_obra").select("*")
         .eq("obra_id", obraSeleccionada.id)
-        .eq("producto_nombre", mat.nombre || mat.product_name).single();
+        .eq("producto_nombre", mat.nombre || mat.product_name).maybeSingle();
 
       const cantMov = Number(mat.cantidad || mat.quantity || 0);
       const nombreMat = mat.nombre || mat.product_name;
@@ -719,7 +719,7 @@ export default function InventarioObraPage() {
       });
     }
     loadInventario(obraSeleccionada.id);
-    flash("err", "Materiales importados al inventario");
+    flash("ok", "Materiales importados al inventario");
   };
 
   // ====== AJUSTAR INVENTARIO (con foto opcional) ======

@@ -1,6 +1,6 @@
 "use client";
 import { clientLogger } from "@/lib/client-logger";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Activity, AlertTriangle, TrendingUp, Download, Search, Loader2, ChevronDown, ChevronRight, FileText } from "lucide-react";
@@ -284,8 +284,8 @@ export default function ControlObrasPage() {
               {filtradas.length === 0 ? (
                 <tr><td colSpan={13} className="p-8 text-center text-[#4a6080]">Sin obras con datos</td></tr>
               ) : filtradas.map(f => (
-                <>
-                  <tr key={f.nombre} className="border-b border-white/[0.05] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
+                <React.Fragment key={f.nombre}>
+                  <tr className="border-b border-white/[0.05] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandida(expandida === f.nombre ? null : f.nombre)}>
                     <td className="p-3 text-white font-medium flex items-center gap-2">
                       {expandida === f.nombre ? <ChevronDown className="w-4 h-4 text-[#4a6080]" /> : <ChevronRight className="w-4 h-4 text-[#4a6080]" />}
                       {f.nombre}
@@ -372,7 +372,7 @@ export default function ControlObrasPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
