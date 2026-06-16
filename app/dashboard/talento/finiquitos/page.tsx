@@ -169,8 +169,16 @@ export default function FiniquitosPage() {
     const años = Math.floor(días / 365);
     const salarioDiario = emp.salario_diario || 0;
 
-    // Cálculos según LFT
-    const diasAguinaldobrax = Math.min(días, 365); // solo proporcional del año
+    // Cálculos según LFT Art. 87
+    // FIX P0 16-Jun-2026: aguinaldo es proporcional al tiempo TRABAJADO EN EL AÑO DE BAJA,
+    // no a antigüedad total. Empleado con 5 años y baja en junio recibe (165/365)*15, no (5*365/365)*15.
+    const fechaBaja = new Date(form.fecha_baja);
+    const fechaIngreso = new Date(emp.fecha_ingreso);
+    const inicioAñoBaja = new Date(fechaBaja.getFullYear(), 0, 1);
+    // Si ingresó este año, contar desde ingreso; si ingresó antes, desde 1-enero del año de baja
+    const inicioPeriodo = fechaIngreso > inicioAñoBaja ? fechaIngreso : inicioAñoBaja;
+    const díasEnAñoActual = Math.floor((fechaBaja.getTime() - inicioPeriodo.getTime()) / (1000 * 60 * 60 * 24));
+    const diasAguinaldobrax = Math.max(0, Math.min(díasEnAñoActual, 365));
     const montoAguinaldo = calcularAguinaldoProporcional(
       salarioDiario,
       diasAguinaldobrax

@@ -43,15 +43,17 @@ async function checkAuth(req: NextRequest, body?: CheckAuthBody): Promise<{ auth
 // Misma función que usa nómina: Jueves a Miércoles
 function getWeekRange(date: Date): { inicio: string; fin: string } {
   const d = new Date(date);
+  // FIX P0: alinear con nomina/generar (V->J, mismo rango que cierre semanal)
+  // Semana nomina ARIA27 = Viernes a Jueves (confirmado JJ 16-Jun-2026)
   const day = d.getDay();
-  const diffToThursday = day >= 4 ? day - 4 : day + 3;
-  const jueves = new Date(d);
-  jueves.setDate(d.getDate() - diffToThursday);
-  const miercoles = new Date(jueves);
-  miercoles.setDate(jueves.getDate() + 6);
+  const diffToFriday = day >= 5 ? day - 5 : day + 2;
+  const viernes = new Date(d);
+  viernes.setDate(d.getDate() - diffToFriday);
+  const jueves = new Date(viernes);
+  jueves.setDate(viernes.getDate() + 6);
   return {
-    inicio: jueves.toISOString().split("T")[0],
-    fin: miercoles.toISOString().split("T")[0],
+    inicio: viernes.toISOString().split("T")[0],
+    fin: jueves.toISOString().split("T")[0],
   };
 }
 

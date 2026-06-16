@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
       // Obtener préstamos activos
       const { data: prestamos } = await supabase
         .from("prestamos")
-        .select("descuento_semanal")
+        .select("id, descuento_semanal, monto_pendiente")
         .eq("employee_id", emp.id)
         .eq("status", "ACTIVO");
 
@@ -227,6 +227,26 @@ export async function POST(req: NextRequest) {
       .insert(nominasGeneradas);
 
     if (insertError) throw insertError;
+
+    // FIX P0 16-Jun-2026: decrementar monto_pendiente de prestamos descontados esta semana
+    // Antes: prestamos.monto_pendiente nunca se actualizaba -> empleados pagaban infinito
+    for (const nom of nominasGeneradas) {
+      if (nom.prestamo_descuento > 0) {
+        const { data: prestamosEmp } = await supabase
+          .from("prestamos")
+          .select("id, descuento_semanal, monto_pendiente")
+          .eq("employee_id", nom.employee_id)
+          .eq("status", "ACTIVO");
+        for (const p of prestamosEmp || []) {
+          const nuevoPendiente = Math.max(0, (p.monto_pendiente || 0) - (p.descuento_semanal || 0));
+          const nuevoStatus = nuevoPendiente <= 0 ? "LIQUIDADO" : "ACTIVO";
+          await supabase
+            .from("prestamos")
+            .update({ monto_pendiente: nuevoPendiente, status: nuevoStatus })
+            .eq("id", p.id);
+        }
+      }
+    }
 
     const totales = {
       empleados: nominasGeneradas.length,
