@@ -40,12 +40,13 @@ function Content() {
 
   async function cargar() {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("nomina_historico")
       .select("nombre,puesto,obra,dias_trabajados,total_percepciones,total_deducciones,sueldo_neto,fecha_inicio,fecha_fin")
       .eq("anio", anio)
       .eq("semana", semana)
       .order("nombre", { ascending: true });
+    if (error) console.error("Error nomina_historico:", error);
     setRows((data || []).map((n: Record<string, unknown>) => ({
       nombre: (n.nombre as string) || "—",
       puesto: (n.puesto as string) || "—",

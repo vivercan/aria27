@@ -112,7 +112,7 @@ export default function VacacionesPage() {
 
   const rechazarSolicitud = async (id: string) => {
     const { error } = await supabase.from("solicitudes_vacaciones").update({ status: "RECHAZADA" }).eq("id", id);
-    if (error) { flash("err", "Error al rechazar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { flash("err", "Error al rechazar: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
     cargarDatos();
   };
 
@@ -146,7 +146,7 @@ export default function VacacionesPage() {
       motivo: form.motivo,
       status: "PENDIENTE"
     });
-    if (error) { flash("err", "Error al crear solicitud: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { flash("err", "Error al crear solicitud: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
     setShowModal(false);
     setForm({ employee_id: "", fecha_inicio: "", fecha_fin: "", motivo: "" });
     cargarDatos();

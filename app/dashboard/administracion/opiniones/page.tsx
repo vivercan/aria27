@@ -49,11 +49,12 @@ export default function OpinionesPage() {
 
   async function loadDocs() {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("expedientes_archivos")
         .select("*")
         .eq("carpeta_id", "opiniones_cumplimiento")
         .order("created_at", { ascending: false });
+      if (error) console.error("Error expedientes_archivos:", error);
       // vigencia se calcula client-side: created_at + 30 días (la columna no existe en BD)
       const enriched = (data || []).map((d: Record<string, unknown>) => ({
         ...d,

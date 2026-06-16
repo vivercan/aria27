@@ -61,7 +61,8 @@ export default function UsuariosPage() {
   useEffect(() => { loadUsers(); }, []);
 
   const loadUsers = async () => {
-    const { data } = await supabase.from("Users").select("*").order("name");
+    const { data, error } = await supabase.from("Users").select("*").order("name");
+    if (error) console.error("Error Users:", error);
     if (data) setUsers(data);
     setLoading(false);
   };

@@ -97,7 +97,8 @@ export default function PolizasPage() {
   }, []);
 
   const cargar = async () => {
-    const { data } = await supabase.from("polizas_seguro").select("*").order("fecha_vencimiento", { ascending: true });
+    const { data, error } = await supabase.from("polizas_seguro").select("*").order("fecha_vencimiento", { ascending: true });
+    if (error) console.error("Error polizas_seguro:", error);
     if (data) setPolizas(data);
     setLoading(false);
   };

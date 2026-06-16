@@ -34,13 +34,14 @@ function Content() {
     const desde = `${anio}-${String(mes).padStart(2, "0")}-01`;
     const hastaDate = new Date(anio, mes, 0);
     const hasta = `${anio}-${String(mes).padStart(2, "0")}-${String(hastaDate.getDate()).padStart(2, "0")}`;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("cobros_manuales")
       .select("cliente_nombre,obra_nombre,monto,saldo,estatus,created_at")
       .gte("created_at", desde)
       .lte("created_at", hasta + "T23:59:59")
       .neq("estatus", "CANCELADO")
       .order("created_at", { ascending: true });
+    if (error) console.error("Error cobros_manuales:", error);
     setRows((data || []).map((c: Record<string, unknown>) => ({
       cliente: (c.cliente_nombre as string) || "—",
       obra: (c.obra_nombre as string) || "—",

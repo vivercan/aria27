@@ -30,7 +30,8 @@ function Content() {
   useEffect(() => { if (proveedor) cargar(); else setLoading(false); }, [proveedor]);
 
   async function cargarProveedores() {
-    const { data } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
+    const { data, error } = await supabase.from("suppliers").select("name").order("name", { ascending: true });
+    if (error) console.error("Error proveedores:", error);
     setProveedores((data || []).map((p: { name: string }) => p.name).filter(Boolean));
   }
 

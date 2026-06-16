@@ -73,7 +73,8 @@ export default function SUAPage() {
   }, []);
 
   const cargar = async () => {
-    const { data } = await supabase.from("sua_aportaciones").select("*").order("periodo", { ascending: false });
+    const { data, error } = await supabase.from("sua_aportaciones").select("*").order("periodo", { ascending: false });
+    if (error) console.error("Error sua_aportaciones:", error);
     if (data) setAportaciones(data);
     setLoading(false);
   };
