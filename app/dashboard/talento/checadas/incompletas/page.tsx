@@ -38,7 +38,8 @@ export default function IncompletasPage() {
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/asistencias/incompletas");
+      const email = localStorage.getItem("userEmail") || "";
+      const res = await fetch(`/api/asistencias/incompletas?user_email=${encodeURIComponent(email)}`);
       const data = await res.json().catch(() => ({}));
       setIncompletas(data.incompletas || []);
       setSinRegistro(data.sinRegistro || []);
@@ -61,6 +62,7 @@ export default function IncompletasPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_email: localStorage.getItem("userEmail") || "",
           asistencia_id: item.id,
           hora_salida: "18:00",
           notas: "Salida completada manualmente"
@@ -88,6 +90,7 @@ export default function IncompletasPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_email: localStorage.getItem("userEmail") || "",
           employee_id: item.employee_id,
           fecha: item.fecha,
           hora_entrada: "08:00",
@@ -123,7 +126,8 @@ export default function IncompletasPage() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            employee_id: item.employee_id,
+          user_email: localStorage.getItem("userEmail") || "",
+          employee_id: item.employee_id,
             fecha: item.fecha,
             hora_entrada: "08:00",
             hora_salida: "18:00"
@@ -155,7 +159,8 @@ export default function IncompletasPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            asistencia_id: item.id,
+          user_email: localStorage.getItem("userEmail") || "",
+          asistencia_id: item.id,
             hora_salida: "18:00"
           })
         });
