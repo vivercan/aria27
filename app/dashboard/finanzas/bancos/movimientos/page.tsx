@@ -92,7 +92,7 @@ export default function MovimientosBancariosPage() {
       status_match: "PENDIENTE",
     };
     const { error } = await supabase.from("conciliacion_bancaria").insert(payload);
-    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { flash("err", "Error: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
     setForm({ ...FORM_INIT });
     setShowForm(false);
     loadAll();
@@ -136,7 +136,7 @@ export default function MovimientosBancariosPage() {
     if (tipo === "cobro") update.cobro_id = id;
     else update.oc_id = id;
     const { error } = await supabase.from("conciliacion_bancaria").update(update).eq("id", matchModal.id);
-    if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+    if (error) { flash("err", "Error: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
     setMatchModal(null);
     loadAll();
   }
@@ -149,7 +149,7 @@ export default function MovimientosBancariosPage() {
         const { error } = await supabase.from("conciliacion_bancaria")
           .update({ status_match: "PENDIENTE", cobro_id: null, oc_id: null })
           .eq("id", m.id);
-        if (error) { flash("err", "Error: " + (error as {message?: string})?.message || "Error desconocido"); return; }
+        if (error) { flash("err", "Error: " + ((error as {message?: string})?.message || "Error desconocido")); return; }
         loadAll();
       }
     });

@@ -78,7 +78,7 @@ export default function CobranzaPage() {
       fecha_presentacion: new Date().toISOString().split("T")[0],
     });
 
-    if (error) flash("err", "Error: " + (error as {message?: string})?.message || "Unknown error");
+    if (error) flash("err", "Error: " + ((error as {message?: string})?.message || "Unknown error"));
     else { setShowForm(false); setForm({ obra_nombre: "", cliente: "", periodo: "", monto_estimado: 0, retencion_fondo: 5 }); loadData(); }
   }
 

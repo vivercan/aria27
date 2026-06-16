@@ -47,7 +47,11 @@ export default function BancosPage() {
   async function loadData() {
     setLoading(true);
     const { data, error } = await supabase.from("cuentas_bancarias").select("*").order("activa", { ascending: false }).order("banco");
-    if (!error) setCuentas((data as CuentaBancaria[]) || []);
+    if (error) {
+      flash("err", "Error cargando cuentas bancarias: " + (error.message || "desconocido"));
+    } else {
+      setCuentas((data as CuentaBancaria[]) || []);
+    }
     setLoading(false);
   }
 
