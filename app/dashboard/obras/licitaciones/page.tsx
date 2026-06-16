@@ -101,6 +101,7 @@ export default function LicitacionesPage() {
       const { error } = await supabase.from("licitaciones").update(record).eq("id", editId);
       if (error) {
         log.error("Error updating licitacion:", { error: error?.message });
+        flash("err", "Error al actualizar licitacion: " + (error?.message || "desconocido"));
         setSaving(false);
         return;
       }
@@ -108,6 +109,7 @@ export default function LicitacionesPage() {
       const { error } = await supabase.from("licitaciones").insert(record);
       if (error) {
         log.error("Error creating licitacion:", { error: error?.message });
+        flash("err", "Error al guardar licitacion: " + (error?.message || "desconocido"));
         setSaving(false);
         return;
       }

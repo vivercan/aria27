@@ -17,7 +17,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import { getEntityColor } from "@/lib/entity-colors";
 
 interface Obra {
-  id: number;
+  id: string;
   nombre: string;
 }
 
@@ -116,13 +116,13 @@ export default function TareasPage() {
     if (!validar()) { msg("error", "Por favor corrige los errores en el formulario"); return; }
     setGuardando(true);
 
-    const obra = obras.find(o => o.id === Number(form.obra_id));
+    const obra = obras.find(o => o.id === form.obra_id); // FIX P0: centros_trabajo.id es UUID, no number
     const payload: Record<string, unknown> = {
       titulo: form.titulo.trim(),
       responsable: form.responsable?.trim() || null,
       fecha_limite: form.fecha_limite || null,
       prioridad: form.prioridad || "normal",
-      obra_id: Number(form.obra_id),
+      obra_id: form.obra_id, // FIX P0: UUID no Number
       obra_nombre: obra?.nombre || "",
     };
 
@@ -151,7 +151,7 @@ export default function TareasPage() {
               .ilike("full_name", form.responsable.trim())
               .maybeSingle();
             if (emp?.id) {
-              const obraSeleccionada = obras.find(o => o.id === Number(form.obra_id));
+              const obraSeleccionada = obras.find(o => o.id === form.obra_id);
               await fetch("/api/tareas/notificar", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

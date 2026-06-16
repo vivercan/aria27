@@ -10,7 +10,7 @@ import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
-interface Obra { id: number; nombre: string; }
+interface Obra { id: string; nombre: string; }
 interface Entrada {
   id: string;
   obra_id: number | null;
