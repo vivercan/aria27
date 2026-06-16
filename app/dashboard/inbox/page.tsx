@@ -400,7 +400,12 @@ export default function InboxPage() {
     setTranslating(true);
     try {
       const texto = cuerpo.body || cuerpo.html.replace(/<[^>]+>/g,"");
-      const r = await fetch("https://libretranslate.com/translate",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ q:texto.slice(0,2000), source:"auto", target:"es", format:"text" }) });
+      // FIX P1 SEGURIDAD 16-Jun-2026: deshabilitado fetch externo a libretranslate.com
+      // Antes: exponia contenido completo de correos corporativos a servicio publico de terceros
+      // sin consentimiento. Para reactivar: implementar /api/mail/translate server-side con politica.
+      throw new Error("Traduccion deshabilitada temporalmente (proteccion de datos)");
+      // eslint-disable-next-line @typescript-eslint/no-unreachable-code
+      const r = { ok: false, json: async () => ({ translatedText: "" }) } as Response;
       if (r.ok) { const d = await r.json(); setTranslated(d.translatedText||""); }
       else setTranslated("(Traducción no disponible sin API key de LibreTranslate)");
     } catch { setTranslated("(Servicio de traducción no disponible)"); }

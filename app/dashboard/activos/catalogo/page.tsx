@@ -332,7 +332,7 @@ export default function ActivosCatalogoPage() {
   });
   const confirmDelete = async () => {
     try {
-      await backupAndDelete({ table: "activos_empresa", id: deleteModal.id, userEmail });
+      await backupAndDelete({ table: "activos", id: deleteModal.id, userEmail }); // FIX P0: tabla real es "activos", no "activos_empresa"
     } catch (e: unknown) { log.error(String(e)); }
     setDeleteModal({open:false,id:"",name:""});
     cargarDatos();

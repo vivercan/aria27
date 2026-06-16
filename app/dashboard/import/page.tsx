@@ -78,17 +78,15 @@ const DEFS: Record<Entity, EntityDef> = {
     label: "Obras",
     table: "centros_trabajo",
     required: ["nombre"],
-    optional: ["estado", "direccion", "cliente", "presupuesto", "fecha_inicio", "fecha_fin", "descripcion"],
-    sample: "nombre,estado,direccion,cliente,presupuesto,fecha_inicio,fecha_fin,descripcion\nMIRAVALLE,ACTIVA,Av Miravalle 123,Constructora XYZ,5000000,2026-01-01,2026-12-31,Obra residencial",
+    // FIX P0 16-Jun-2026: schema real centros_trabajo solo tiene nombre/codigo/activo/direccion/lat/lng/radio
+    // Antes mapeaba columnas inexistentes (estado/cliente/presupuesto/fecha_inicio/fecha_fin/descripcion) -> silent fail import
+    optional: ["codigo", "direccion"],
+    sample: "nombre,codigo,direccion\nMIRAVALLE,OBRA-001,Av Miravalle 123",
     mapRow: (r) => ({
-      nombre: r.nombre?.trim(),
-      estado: r.estado?.trim() || "ACTIVA",
+      nombre: r.nombre?.trim()?.toUpperCase(),
+      codigo: r.codigo?.trim() || `OBRA-${Math.floor(Math.random() * 100000).toString().padStart(5, "0")}`,
       direccion: r.direccion?.trim() || null,
-      cliente: r.cliente?.trim() || null,
-      presupuesto: r.presupuesto ? parseFloat(r.presupuesto) || 0 : 0,
-      fecha_inicio: r.fecha_inicio?.trim() || null,
-      fecha_fin: r.fecha_fin?.trim() || null,
-      descripcion: r.descripcion?.trim() || null,
+      activo: true,
     }),
   },
 };
