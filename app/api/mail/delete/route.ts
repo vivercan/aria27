@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         host: "imappro.zoho.com",
         port: 993,
         tls: true,
-        tlsOptions: { rejectUnauthorized: false },
+        tlsOptions: { rejectUnauthorized: true }, // FIX seguridad: unificar TLS strict (antes false = MITM risk)
         connTimeout: 15000,
         authTimeout: 15000,
       });
