@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
+import { requireAdmin } from "@/lib/auth-api";
 
 function normalizePhone(raw: string): string {
     let p = (raw || "").replace(/\D/g, "");
@@ -10,7 +11,9 @@ function normalizePhone(raw: string): string {
     return p;
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return auth.res;
     const sb = getSupabaseAdmin();
     const message = `\u{1F680} *Bienvenido a ARIA27 — Grupo Constructor Urbano Avante*\n\nSoy el sistema operativo de la empresa. Desde aqui:\n\n✅ Checas entrada y salida con foto + ubicacion\n✅ Recibes tareas asignadas con fecha de compromiso\n✅ Reportas avance respondiendo: OK / 50 / LISTO / BLOQUEADO\n✅ Reciben notificaciones de requisiciones, OCs, pagos y comparativas en tiempo real\n\n\u{1F4CD} Para checar: manda foto + ubicacion al chat.\n\u{1F4DD} Para tareas: responde con palabra clave o numero de avance.\n\u{1F514} Notificaciones del sistema llegan instantaneo.\n\nSi recibes este mensaje, *responde RECIBIDO* para confirmar y abrir tu ventana de mensajes.\n\n— ARIA27 · 6-May-2026 11:33 AM CST`;
 

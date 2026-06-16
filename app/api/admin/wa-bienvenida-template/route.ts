@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/auth-api";
 
 const log = logger("WA-BIENV-TEMPLATE");
 
@@ -62,7 +63,9 @@ async function sendTemplate(phone: string, template: string, lang: string, token
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return auth.res;
   const url = new URL(req.url);
   const mode = url.searchParams.get("mode");
   const phonesParam = url.searchParams.get("phones") || "";

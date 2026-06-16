@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       const { data: userMatch } = await supabase
         .from("users")
         .select("email")
-        .ilike("full_name", empleado.full_name.trim())
+        .ilike("name", empleado.full_name.trim()) // FIX P0: users tiene columna name, no full_name
         .maybeSingle();
       if (userMatch?.email) {
         empleado.email = userMatch.email;
