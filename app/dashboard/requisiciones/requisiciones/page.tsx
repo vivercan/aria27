@@ -130,10 +130,10 @@ export default function RequisicionesPage() {
       {/* ── HEADER ── */}
       <div className="flex items-center justify-between rounded-xl px-5 py-3 mb-5 flex-shrink-0"
         style={{ background: "linear-gradient(180deg, #123E92 0%, #103A86 100%)", border: "1px solid rgba(150,180,230,0.10)" }}>
-        <div className="flex items-baseline gap-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3.5">
           <AriaBackButton href="/dashboard/requisiciones" />
           <h1 style={{ fontSize: "28px", fontWeight: 800, letterSpacing: "-0.035em", color: "#F4F8FF", lineHeight: 1 }}>Requisiciones</h1>
-          <span style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
+          <span className="hidden sm:inline" style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
           <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(214,228,255,0.65)" }}>Gestión de solicitudes de materiales</span>
         </div>
         <button

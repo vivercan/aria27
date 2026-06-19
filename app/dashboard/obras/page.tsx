@@ -79,7 +79,7 @@ const filas = [
 export default function ObrasPage() {
   return (
     <div
-      className="px-5 pt-4 pb-4 h-full flex flex-col overflow-hidden"
+      className="px-4 pt-4 pb-6 md:px-5 md:pb-4 min-h-full md:h-full flex flex-col md:overflow-hidden"
       style={{
         background: [
           "radial-gradient(circle at 50% 28%, rgba(72,128,230,0.07) 0%, rgba(72,128,230,0.03) 20%, rgba(72,128,230,0.00) 44%)",
@@ -96,7 +96,7 @@ export default function ObrasPage() {
           borderBottom: "1px solid rgba(150,180,230,0.10)",
         }}
       >
-        <div className="flex items-baseline gap-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3.5">
           <h1
             style={{
               fontSize: "30px",
@@ -108,7 +108,7 @@ export default function ObrasPage() {
           >
             Obras
           </h1>
-          <span style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
+          <span className="hidden sm:inline" style={{ color: "rgba(145,175,225,0.35)", fontSize: "15px" }}>·</span>
           <span style={{ fontSize: "14px", fontWeight: 500, color: "rgba(214,228,255,0.70)" }}>
             Gestión de proyectos y construcción
           </span>
