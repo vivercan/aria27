@@ -239,25 +239,62 @@ function generateHTML(props: RequisicionPrintProps, logoUrl?: string): string {
 </html>`;
 }
 
+// FIX 17-Jun-2026 (Daisy/Osita mobile): window.open("","_blank") bloqueado por
+// popup blocker en iOS Safari y algunos Android. Solucion universal: detectar
+// mobile y usar Blob URL + <a target="_blank"> que NO es popup, es navegacion.
+function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+function openHTMLMobile(html: string, filename: string, autoPrint: boolean): void {
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  if (!autoPrint) a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
 export function handlePrint(props: RequisicionPrintProps) {
   const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/logo-cuavante.png` : "/logo-cuavante.png";
   const html = generateHTML(props, logoUrl);
+  if (isMobileDevice()) {
+    // Mobile: abrir en nueva pestaña, usuario imprime con menu nativo Compartir→Imprimir
+    openHTMLMobile(html, `requisicion-${props.folio || "REQ"}.html`, true);
+    return;
+  }
   const printWindow = window.open("", "_blank", "width=900,height=700");
   if (printWindow) {
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(() => printWindow.print(), 500);
+  } else {
+    // Fallback si desktop bloquea popup tambien
+    openHTMLMobile(html, `requisicion-${props.folio || "REQ"}.html`, true);
   }
 }
 
 export function handleDownloadPDF(props: RequisicionPrintProps) {
   const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/logo-cuavante.png` : "/logo-cuavante.png";
   const html = generateHTML(props, logoUrl);
+  if (isMobileDevice()) {
+    // Mobile: descargar como HTML, usuario abre y "Guardar como PDF" desde navegador
+    openHTMLMobile(html, `requisicion-${props.folio || "REQ"}.html`, false);
+    return;
+  }
   const pdfWindow = window.open("", "_blank", "width=900,height=700");
   if (pdfWindow) {
     pdfWindow.document.write(html);
     pdfWindow.document.close();
     setTimeout(() => pdfWindow.print(), 500);
+  } else {
+    openHTMLMobile(html, `requisicion-${props.folio || "REQ"}.html`, false);
   }
 }
 

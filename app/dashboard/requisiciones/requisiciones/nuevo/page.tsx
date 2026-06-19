@@ -635,6 +635,7 @@ export default function NewRequisitionPage() {
                 <option value="PRESTAMOS">Prestamos</option>
                 <option value="SERVICIOS">Servicios</option>
                 <option value="HERRAMIENTAS">Herramientas</option>
+                <option value="REFACCIONES">Refacciones</option>
                 <option value="COMBUSTIBLE">Combustible</option>
                 <option value="RENTA MAQUINARIA">Renta Maquinaria</option>
                 <option value="OTROS">Otros</option>
