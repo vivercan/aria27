@@ -636,7 +636,7 @@ export default function InventarioObraPage() {
   };
 
   const guardarEditar = async () => {
-    if (!showEditar || !editarNombre.trim()) return;
+    if (!showEditar || !editarNombre.trim()) { flash("err","Escribe el nuevo nombre del producto"); return; }
     setGuardando(true);
     try {
       const { error } = await supabase

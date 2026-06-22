@@ -66,7 +66,7 @@ export default function FormatosPage() {
 
   async function crearNuevo() {
     const nombre = prompt("Nombre del formato:");
-    if (!nombre?.trim()) return;
+    if (!nombre?.trim()) { flash("err","Falta el nombre del formato"); return; }
     const descripcion = prompt("Descripcion breve:") || "";
     const categoria = prompt("Categoria (LABORAL, ADMINISTRATIVO, OBRA, GENERAL):", "LABORAL")?.toUpperCase() || "GENERAL";
     const { error } = await supabase.from("formatos_plantillas").insert({

@@ -316,7 +316,7 @@ export default function InboxPage() {
 
   /* ─── enviar ─── */
   const enviarCorreo = async () => {
-    if (!compTo.trim()||!compSubject.trim()) return;
+    if (!compTo.trim()||!compSubject.trim()) { flash("err","Faltan destinatario o asunto"); return; }
     if (scheduledDate){ flash("ok",`Envío programado para ${new Date(scheduledDate).toLocaleString("es-MX")}`); setComposeOpen(false); return; }
     setEnviando(true);
     try {
@@ -386,7 +386,7 @@ export default function InboxPage() {
 
   /* ─── respuesta inline ─── */
   const enviarInlineReply = async () => {
-    if (!emailActual||!inlineReply.trim()) return;
+    if (!emailActual||!inlineReply.trim()) { flash("err","Escribe una respuesta antes de enviar"); return; }
     try {
       const r = await fetch("/api/mail/send",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({ to:emailAddr(emailActual.from), subject:`Re: ${emailActual.subject||""}`, body:inlineReply }) });
       if (!r.ok) throw new Error();
