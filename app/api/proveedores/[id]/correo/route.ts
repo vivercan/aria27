@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireOriginOrUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendEmailLogged } from "@/lib/email-log";
@@ -22,6 +23,8 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const log = logger("API.PROVEEDORES.CORREO");
   try {
+    const __auth = await requireOriginOrUser(req);
+    if (!__auth.ok) return __auth.res;
     const { id } = await ctx.params;
     const supplierId = Number(id);
     if (!Number.isFinite(supplierId)) {

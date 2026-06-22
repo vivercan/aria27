@@ -204,3 +204,71 @@ export async function validateApiUser(
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// requireUser — gate para APIs que cualquier usuario LOGUEADO puede llamar
+// (no solo admin). Para endpoints donde Daisy/Jessica/Fernando/Lizbeth deben
+// poder acceder pero NO un anon de internet.
+// 19-Jun-2026 — agregado en sweep P0 SEC.
+// ---------------------------------------------------------------------------
+
+export type UserAuthOk = { ok: true; email: string; role: string };
+export type UserAuthFail = { ok: false; res: NextResponse };
+export type UserAuthResult = UserAuthOk | UserAuthFail;
+
+export async function requireUser(req: NextRequest): Promise<UserAuthResult> {
+  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  if (!email) {
+    return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
+  }
+
+  const user = await validateApiUser(email);
+  if (!user) {
+    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+  }
+
+  return { ok: true, email, role: user.role };
+}
+
+// ---------------------------------------------------------------------------
+// requireOriginOrUser — gate defensa en profundidad
+// Acepta peticion si:
+//   A) viene de origen permitido (browser legitimo del propio sitio), O
+//   B) tiene x-user-email valido en Users
+// Bloquea curl externo sin header, sin romper flujos browser actuales.
+// 19-Jun-2026 — sweep P0 SEC para endpoints que no mandan x-user-email
+// desde el frontend (proveedores, employees, combustible/historial).
+// ---------------------------------------------------------------------------
+
+const ALLOWED_ORIGINS = [
+  "https://aria.jjcrm27.com",
+  "https://aria-jjcrm27.vercel.app",
+];
+
+export type OriginAuthOk = { ok: true; via: "origin" | "user"; email?: string };
+export type OriginAuthFail = { ok: false; res: NextResponse };
+export type OriginAuthResult = OriginAuthOk | OriginAuthFail;
+
+export async function requireOriginOrUser(req: NextRequest): Promise<OriginAuthResult> {
+  // A) Path por user-email si esta presente
+  const emailHdr = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  if (emailHdr) {
+    const u = await validateApiUser(emailHdr);
+    if (u) return { ok: true, via: "user", email: emailHdr };
+    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+  }
+
+  // B) Path por origen permitido (browser legitimo)
+  const origin = req.headers.get("origin") || "";
+  const referer = req.headers.get("referer") || "";
+  const isAllowedOrigin = ALLOWED_ORIGINS.some(o => origin === o);
+  const isAllowedReferer = ALLOWED_ORIGINS.some(o => referer.startsWith(o + "/"));
+  // Permitir tambien deploys preview de Vercel
+  const isVercelPreview = origin.match(/^https:\/\/aria-[a-z0-9-]+\.vercel\.app$/);
+  if (isAllowedOrigin || isAllowedReferer || isVercelPreview) {
+    return { ok: true, via: "origin" };
+  }
+
+  return { ok: false, res: NextResponse.json({ error: "Forbidden — origen no permitido" }, { status: 403 }) };
+}
+
