@@ -716,11 +716,11 @@ export default function NewRequisitionPage() {
               {/* AGREGAR PRODUCTO MANUAL */}
               {!showManual ? (
                 <button onClick={() => setShowManual(true)} className="mt-3 flex items-center gap-2 text-xs text-aria-accent hover:text-aria-accent transition">
-                  <Plus className="w-3 h-3" /> ¿No encontraste el producto? Agregar manualmente
+                  <Plus className="w-3 h-3" /> ¿No encontraste el producto? Agregar al catálogo
                 </button>
               ) : (
                 <div className="mt-3 rounded-xl border border-aria-primary/30 bg-aria-primary/5 p-3 space-y-2">
-                  <p className="text-xs text-aria-accent font-medium">Agregar producto manual</p>
+                  <p className="text-xs text-aria-accent font-medium">Nuevo producto — se guardará en el catálogo</p>
                   <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
                     <div className="space-y-1">
                       <label className="text-[10px] text-white/50">Nombre del producto</label>
@@ -733,10 +733,33 @@ export default function NewRequisitionPage() {
                       </select>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => {
-                        if (!manualName.trim()) return;
-                        setMaterials(prev => [...prev, { id: manualTempId, name: manualName.trim(), unit: manualUnit || "PZA", qty: 1, observations: "" }]);
-                        setManualTempId(prev => prev - 1);
+                      <button onClick={async () => {
+                        const nm = manualName.trim();
+                        if (!nm) return;
+                        const un = manualUnit || "PZA";
+                        // FIX P0 19-Jun: ANTES solo agregaba en memoria a esta requi.
+                        // Jessica reportaba "ya van 8 concretos que capturo lo mismo".
+                        // Ahora persiste en catalogo permanente Y agrega a esta requi.
+                        try {
+                          const r = await fetch("/api/productos/upsert-manual", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ name: nm, unit: un, category: subcategoria || "OTROS" }),
+                          });
+                          const d = await r.json();
+                          if (d?.ok && d?.product?.id) {
+                            // Usar el ID real del producto persistido (para que aparezca en futuras busquedas)
+                            setMaterials(prev => [...prev, { id: d.product.id as number, name: d.product.name || nm, unit: d.product.unit || un, qty: 1, observations: "" }]);
+                          } else {
+                            // Fallback: agregar solo en memoria con ID temporal
+                            setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: 1, observations: "" }]);
+                            setManualTempId(prev => prev - 1);
+                          }
+                        } catch {
+                          // Sin red: agregar solo en memoria como antes
+                          setMaterials(prev => [...prev, { id: manualTempId, name: nm, unit: un, qty: 1, observations: "" }]);
+                          setManualTempId(prev => prev - 1);
+                        }
                         setManualName(""); setManualUnit("PZA");
                       }} disabled={!manualName.trim()} className="rounded-lg bg-aria-primary/30 px-3 py-1.5 text-xs text-aria-accent hover:bg-aria-primary-hover/40 disabled:opacity-40 transition">
                         <Plus className="w-3 h-3 inline mr-1" />Agregar
