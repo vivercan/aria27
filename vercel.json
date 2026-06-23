@@ -27,6 +27,10 @@
     {
       "path": "/api/backup/snapshot-heavy",
       "schedule": "0 10 * * 0"
+    },
+    {
+      "path": "/api/cron/combustibles-recordatorio",
+      "schedule": "0 0 * * *"
     }
   ]
 }
