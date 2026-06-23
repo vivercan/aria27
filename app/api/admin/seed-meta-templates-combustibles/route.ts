@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-const META_TOKEN = process.env.META_ACCESS_TOKEN || "";
-const WABA_ID = process.env.META_WABA_ID || "842930185269415";
+const META_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || "";
+const WABA_ID = process.env.WHATSAPP_WABA_ID || process.env.META_WABA_ID || "842930185269415";
 
 const TEMPLATES = [
   {
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
 
   if (!META_TOKEN) {
     return NextResponse.json(
-      { ok: false, error: "META_ACCESS_TOKEN no configurado en env" },
+      { ok: false, error: "WHATSAPP_ACCESS_TOKEN no configurado en env" },
       { status: 500 }
     );
   }
