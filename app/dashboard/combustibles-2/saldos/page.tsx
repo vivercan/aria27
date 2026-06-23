@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { RefreshCw, Fuel } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
@@ -35,7 +35,8 @@ export default function SaldosPage() {
     setRows(Array.from(map.values()).sort((a, b) => b.litros_pendientes - a.litros_pendientes));
     setLoading(false);
   }
-  useEffect(() => { cargar(); }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void cargar(); }, []);
 
   return (
     <div className="min-h-screen bg-[#04081A] text-white">

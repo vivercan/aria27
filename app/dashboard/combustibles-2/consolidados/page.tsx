@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Send, RefreshCw, FileText } from "lucide-react";
+import { Send, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
@@ -42,7 +42,8 @@ export default function ConsolidadosPage() {
     setRows((data || []) as Cons[]);
     setLoading(false);
   }
-  useEffect(() => { cargar(); }, []);
+   
+  useEffect(() => { void cargar(); }, []);
 
   async function enviar(consId: string) {
     if (!confirm("¿Enviar este consolidado a Dirección (Fernando) para autorización?")) return;

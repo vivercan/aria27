@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Fuel, Plus, RefreshCw, FileCheck, Send, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { RefreshCw, Send } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import CanonPageHeader from "@/components/ui/CanonPageHeader";
 
@@ -47,7 +47,8 @@ export default function CombustiblesV2Page() {
     setLoading(false);
   }
 
-  useEffect(() => { cargar(); }, []);
+   
+  useEffect(() => { void cargar(); }, []);
 
   async function consolidarTodas() {
     if (!confirm("¿Consolidar todas las solicitudes SOLICITADAS de hoy?")) return;

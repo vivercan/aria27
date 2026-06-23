@@ -30,7 +30,10 @@ export default function NormalizacionPage() {
     setRows((data || []) as NormRow[]);
     setLoading(false);
   }
-  useEffect(() => { cargar(); }, []);
+  useEffect(() => {
+    void cargar();
+     
+  }, []);
 
   async function decidir(id: string, status: "APROBADA" | "RECHAZADA") {
     const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
