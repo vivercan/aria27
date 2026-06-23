@@ -38,7 +38,7 @@ const TEMPLATES = [
     ],
   },
   {
-    name: "aria_comb_para_autorizar",
+    name: "aria_comb_autorizar_v2",
     language: "es_MX",
     category: "UTILITY",
     components: [
