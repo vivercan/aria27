@@ -17,6 +17,18 @@ const CHUNK_MAX_BYTES = 20 * 1024 * 1024; // 20 MB max por archivo en Storage
 const SKIP_BUCKETS = ["backups"]; // No respaldar el propio bucket de backups
 const SKIP_TABLES = ["schema_migrations", "supabase_migrations"]; // Sistema
 
+export const runtime = "nodejs";
+export const maxDuration = 300; // Vercel Pro max — necesario para >100 tablas
+export const dynamic = "force-dynamic";
+
+// 19-Jun-2026 FIX P0: cron se atascaba en audit_log (353 MB) y monitoring_log
+// (200 MB), solo respaldaba ~10/128 tablas/día. Fix:
+// 1. maxDuration 300s (Vercel Pro max)
+// 2. Procesar ASC por tamaño (chicas primero, grandes al final)
+// 3. Skip de las 2 monsters al snapshot diario (van a cron semanal aparte)
+// 4. Log estructurado por tabla
+const SKIP_FROM_DAILY = new Set(["audit_log", "monitoring_log"]);
+
 export async function GET(req: NextRequest) {
   const rl = checkRateLimit(getClientIdentifier(req), { key: "backup:snapshot", ...RATE_LIMITS.EXPENSIVE });
   if (!rl.allowed) return rateLimitResponse(rl);
@@ -102,9 +114,27 @@ export async function GET(req: NextRequest) {
       .filter((t) => !SKIP_TABLES.includes(t));
   }
 
-  log.info("tablas a respaldar", { count: tableNames.length });
+  // FIX P0 19-Jun-2026: skip monsters al cron diario (van a snapshot-heavy semanal)
+  // Param ?include=all  → respaldar TODAS (uso manual)
+  // Param ?only=A,B     → respaldar SOLO esas tablas (snapshot-heavy)
+  // Param ?skip=X,Y     → agregar skips adicionales
+  // Default cron diario → skip audit_log + monitoring_log
+  const includeAll = req.nextUrl.searchParams.get("include") === "all";
+  const onlyParam = req.nextUrl.searchParams.get("only") || "";
+  const onlySet = onlyParam ? new Set(onlyParam.split(",").filter(Boolean)) : null;
+  const skipParam = req.nextUrl.searchParams.get("skip") || "";
+  const skipSet = includeAll
+    ? new Set<string>()
+    : new Set([...SKIP_FROM_DAILY, ...skipParam.split(",").filter(Boolean)]);
+  const tablesToBackup = tableNames.filter(t => {
+    if (onlySet && !onlySet.has(t)) return false;
+    if (!onlySet && skipSet.has(t)) return false;
+    return true;
+  });
 
-  for (const tabla of tableNames) {
+  log.info("tablas a respaldar", { count: tablesToBackup.length, skipped: Array.from(skipSet), includeAll });
+
+  for (const tabla of tablesToBackup) {
     try {
       // Primera página para detectar si la tabla tiene datos
       const { data: firstPage, error, count } = await supabase

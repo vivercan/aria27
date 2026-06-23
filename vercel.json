@@ -23,6 +23,10 @@
     {
       "path": "/api/monitoring/synthetic",
       "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/backup/snapshot-heavy",
+      "schedule": "0 10 * * 0"
     }
   ]
 }
