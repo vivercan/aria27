@@ -50,8 +50,8 @@ const TEMPLATES = [
       {
         type: "BUTTONS",
         buttons: [
-          { type: "QUICK_REPLY", text: "✅ Autorizar" },
-          { type: "QUICK_REPLY", text: "❌ Rechazar" },
+          { type: "QUICK_REPLY", text: "Autorizar" },
+          { type: "QUICK_REPLY", text: "Rechazar" },
         ],
       },
     ],
@@ -115,8 +115,10 @@ export async function POST(req: NextRequest) {
         typeof data === "object" &&
         data !== null &&
         "error" in data &&
-        typeof (data as { error?: { message?: string } }).error?.message === "string" &&
-        (data as { error: { message: string } }).error.message.includes("already exists")
+        (
+          ((data as { error?: { error_subcode?: number } }).error?.error_subcode === 2388024) ||
+          ((data as { error?: { message?: string } }).error?.message?.includes("already exists"))
+        )
       ) {
         results.push({ name: tmpl.name, status: "EXISTS" });
       } else {
