@@ -13,7 +13,7 @@
  * 04-Jun-2026
  */
 import { NextRequest, NextResponse } from "next/server";
-import { requireOriginOrUser } from "@/lib/auth-api";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +68,7 @@ async function tryLookup(
 
 export async function GET(req: NextRequest) {
   try {
-    const __auth = await requireOriginOrUser(req);
+    const __auth = await requireUser(req);
     if (!__auth.ok) return __auth.res;
     const email = (req.nextUrl.searchParams.get("email") || "").trim().toLowerCase();
     const name = (req.nextUrl.searchParams.get("name") || "").trim();

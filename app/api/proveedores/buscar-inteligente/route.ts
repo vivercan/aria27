@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOriginOrUser } from "@/lib/auth-api";
+import { requireUser } from "@/lib/auth-api";
 import Anthropic from "@anthropic-ai/sdk";
 
 // Ampliar timeout Vercel a 60s — esta ruta llama Claude con web_search (lento por diseño)
@@ -38,7 +38,7 @@ interface ProveedorWeb {
 
 export async function POST(req: NextRequest) {
   try {
-    const __auth = await requireOriginOrUser(req);
+    const __auth = await requireUser(req);
     if (!__auth.ok) return __auth.res;
     const rl = checkRateLimit(getClientIdentifier(req), { key: "prov:buscar-ai", ...RATE_LIMITS.EXPENSIVE });
     if (!rl.allowed) return rateLimitResponse(rl);

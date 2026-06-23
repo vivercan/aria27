@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOriginOrUser } from "@/lib/auth-api";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const __auth = await requireOriginOrUser(req);
+    const __auth = await requireUser(req);
     if (!__auth.ok) return __auth.res;
     const body = (await req.json().catch(() => ({}))) as { emails?: string[] };
     const emails = Array.from(

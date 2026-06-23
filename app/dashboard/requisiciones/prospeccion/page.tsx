@@ -60,7 +60,7 @@ export default function ProspeccionPage() {
       // 2. Buscar con IA - adaptar término libre a formato de productos
       const res = await fetch("/api/proveedores/buscar-inteligente", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") },
         body: JSON.stringify({
           productos: [
             { nombre: term, cantidad: 1, unidad: "global", categoria: term }

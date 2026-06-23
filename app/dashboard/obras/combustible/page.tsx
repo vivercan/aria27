@@ -48,7 +48,7 @@ export default function DashboardCombustiblePage() {
     if (filtros.tipo) params.set("tipo", filtros.tipo);
     if (filtros.desde) params.set("desde", filtros.desde);
     if (filtros.hasta) params.set("hasta", filtros.hasta);
-    const r = await fetch(`/api/combustible/historial?${params}`, { cache: "no-store" });
+    const r = await fetch(`/api/combustible/historial?${params}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } });
     const d = await r.json();
     setResumen(d.resumen || { total_litros: 0, total_monto: 0, total_cargas: 0, maquinas_distintas: 0 });
     setPivote(d.pivote || []);

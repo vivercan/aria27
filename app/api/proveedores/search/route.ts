@@ -9,7 +9,7 @@
  *   - Anti-cache: no-store en respuesta y dynamic en route.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { requireOriginOrUser } from "@/lib/auth-api";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 
@@ -20,7 +20,7 @@ const log = logger("PROVEEDORES-SEARCH");
 
 export async function GET(req: NextRequest) {
   try {
-    const __auth = await requireOriginOrUser(req);
+    const __auth = await requireUser(req);
     if (!__auth.ok) return __auth.res;
     const q = (req.nextUrl.searchParams.get("q") || "").trim();
     if (q.length < 2) {

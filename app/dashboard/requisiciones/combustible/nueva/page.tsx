@@ -72,7 +72,7 @@ export default function NuevaReqCombustiblePage() {
     });
     const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
     if (userEmail) {
-      fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" })
+      fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } })
         .then((r) => r.json())
         .then((d) => { if (d?.full_name) setSolicitanteVisible(d.full_name); })
         .catch(() => {});
@@ -93,7 +93,7 @@ export default function NuevaReqCombustiblePage() {
   useEffect(() => {
     if (proveedorSearch.length < 2) { setProveedoresResults([]); return; }
     const h = setTimeout(() => {
-      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { cache: "no-store" })
+      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } })
         .then((r) => r.json())
         .then((d) => { if (d?.proveedores) setProveedoresResults(d.proveedores); })
         .catch(() => {});

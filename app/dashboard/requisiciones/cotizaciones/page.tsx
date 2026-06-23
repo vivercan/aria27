@@ -111,7 +111,7 @@ export default function CotizacionesIAPage() {
 
       const res = await fetch("/api/proveedores/buscar-inteligente", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") },
         body: JSON.stringify({
           productos,
           requisicion_id: req.id,

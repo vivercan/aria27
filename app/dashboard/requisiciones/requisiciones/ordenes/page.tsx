@@ -140,7 +140,7 @@ export default function OrdenesCompraPage() {
   async function resolverNombreLegal(email: string | null | undefined): Promise<string> {
     if (!email) return "";
     try {
-      const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(email)}`, { cache: "no-store" });
+      const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(email)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } });
       const d = await r.json();
       return (d?.full_name as string) || "";
     } catch {
