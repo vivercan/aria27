@@ -275,3 +275,51 @@ export async function requireOriginOrUser(req: NextRequest): Promise<OriginAuthR
   return { ok: false, res: NextResponse.json({ error: "Forbidden — origen no permitido" }, { status: 403 }) };
 }
 
+// ---------------------------------------------------------------------------
+// CSRF · FIX 541.1 24-Jun-2026
+// Defensa adicional para escrituras (POST/PUT/PATCH/DELETE).
+// La cookie es SameSite=Strict pero validacion explicita de Origin/Referer
+// agrega una capa contra ataques cross-site con flags relajadas.
+// ---------------------------------------------------------------------------
+
+const CSRF_ALLOWED_ORIGINS = new Set([
+  "https://aria.jjcrm27.com",
+  "https://aria-jjcrm27.vercel.app",
+]);
+
+function isPreviewOrigin(origin: string): boolean {
+  // aria-jjcrm27-<hash>-<team>.vercel.app
+  return /^https:\/\/aria-jjcrm27[\w-]*\.vercel\.app$/.test(origin);
+}
+
+/**
+ * Valida Origin (o Referer fallback) para escrituras. Devuelve null si OK,
+ * o NextResponse 403 si Origin no permitido.
+ * Localhost siempre permitido (dev).
+ */
+export function checkCsrfOrigin(req: NextRequest): NextResponse | null {
+  const method = req.method.toUpperCase();
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return null;
+  const origin = req.headers.get("origin") || "";
+  const referer = req.headers.get("referer") || "";
+  // Localhost dev
+  if (origin.startsWith("http://localhost") || referer.startsWith("http://localhost")) return null;
+  if (origin && (CSRF_ALLOWED_ORIGINS.has(origin) || isPreviewOrigin(origin))) return null;
+  if (!origin && referer) {
+    try {
+      const refOrigin = new URL(referer).origin;
+      if (CSRF_ALLOWED_ORIGINS.has(refOrigin) || isPreviewOrigin(refOrigin)) return null;
+    } catch { /* invalid url */ }
+  }
+  return NextResponse.json({ error: "Origin no permitido (CSRF)" }, { status: 403 });
+}
+
+/**
+ * Helper combinado: aplica CSRF + requireUser. Para endpoints de escritura.
+ * Devuelve { ok: true, email, role } o { ok: false, res } como requireUser.
+ */
+export async function requireUserCsrf(req: NextRequest): Promise<UserAuthResult> {
+  const csrf = checkCsrfOrigin(req);
+  if (csrf) return { ok: false, res: csrf };
+  return requireUser(req);
+}
