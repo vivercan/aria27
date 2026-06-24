@@ -23,10 +23,29 @@ export default function LoginPage() {
           const { e, p } = JSON.parse(atob(saved))
           if (e && p) {
             const emailLower = e.toLowerCase()
+            // FIX 541.1 25-Jun-2026: auto-login debe crear sesion server-side via /api/mail/validate
+            // (antes solo escribia localStorage, causaba loop infinito post FIX 541.1).
+            const validateRes = await fetch('/api/mail/validate', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: e, password: p }),
+            }).catch(() => null)
+            const ok = validateRes?.ok ?? false
+            if (!ok) {
+              // Sesion guardada YA NO valida en server (password Zoho cambio, rate limit, etc).
+              // Limpiar y mostrar login normal — NO redirigir o entramos en loop.
+              localStorage.removeItem('ariaSession')
+              localStorage.removeItem('userEmail')
+              localStorage.removeItem('userRole')
+              localStorage.removeItem('userPermissions')
+              try { sessionStorage.removeItem('zohoCreds') } catch {}
+              setCheckingSession(false)
+              return
+            }
             localStorage.setItem('userEmail', emailLower)
-            sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p })))
-
-            // FIX: Precargar role y permisos antes de redirigir
+            try { sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p }))) } catch {}
+            // Precargar role y permisos antes de redirigir
             try {
               const { data: userData } = await supabase
                 .from('users')
@@ -42,7 +61,7 @@ export default function LoginPage() {
             router.push('/dashboard/requisiciones')
             return
           }
-        } catch { /* sesión corrupta, continuar al login */ }
+        } catch { /* sesion corrupta, continuar al login */ }
       }
       setCheckingSession(false)
     }
