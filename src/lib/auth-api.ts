@@ -9,6 +9,7 @@
 // - Contador de fallos por email para detección de brute-force
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifySession, getSessionTokenFromCookies } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -56,6 +57,7 @@ export interface AuthResult {
  * @param allowedRoles - Array de roles permitidos. Si vacío, cualquier usuario autenticado pasa.
  * @returns AuthResult con usuario validado o error
  */
+/** @deprecated FIX 541.1 — usar requireUser. NO autoriza solo por header. */
 export async function validateApiAuth(
   userEmail: string | null | undefined,
   allowedRoles: string[] = []
@@ -118,6 +120,7 @@ export async function validateApiAuth(
 /**
  * Helper para extraer user_email de body JSON o query params
  */
+/** @deprecated FIX 541.1 — usar requireUser/verifySession. NO usar para autorizar. */
 export function extractUserEmail(req: NextRequest, body?: Record<string, unknown> | null): string | null {
   // 1. Intentar del body
   if (body && typeof body.user_email === "string") return body.user_email;
@@ -217,17 +220,19 @@ export type UserAuthFail = { ok: false; res: NextResponse };
 export type UserAuthResult = UserAuthOk | UserAuthFail;
 
 export async function requireUser(req: NextRequest): Promise<UserAuthResult> {
-  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!email) {
-    return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
+  // FIX 541.1 24-Jun-2026 — strict mode: identidad SOLO via cookie de sesion opaca server-side.
+  // El header x-user-email YA NO autoriza. Si llega, se ignora (logged como header legacy).
+  const cookie = req.headers.get("cookie");
+  const token = getSessionTokenFromCookies(cookie);
+  const session = await verifySession(token);
+  if (!session) {
+    return { ok: false, res: NextResponse.json({ error: "Sesion invalida o expirada" }, { status: 401 }) };
   }
-
-  const user = await validateApiUser(email);
+  const user = await validateApiUser(session.email);
   if (!user) {
-    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+    return { ok: false, res: NextResponse.json({ error: "Usuario inactivo o no encontrado" }, { status: 403 }) };
   }
-
-  return { ok: true, email, role: user.role };
+  return { ok: true, email: session.email, role: user.role };
 }
 
 // ---------------------------------------------------------------------------
@@ -249,6 +254,7 @@ export type OriginAuthOk = { ok: true; via: "origin" | "user"; email?: string };
 export type OriginAuthFail = { ok: false; res: NextResponse };
 export type OriginAuthResult = OriginAuthOk | OriginAuthFail;
 
+/** @deprecated FIX 541.1 — usar requireUser strict. CSRF check via checkCsrfOrigin. */
 export async function requireOriginOrUser(req: NextRequest): Promise<OriginAuthResult> {
   // A) Path por user-email si esta presente
   const emailHdr = (req.headers.get("x-user-email") || "").toLowerCase().trim();
@@ -272,3 +278,51 @@ export async function requireOriginOrUser(req: NextRequest): Promise<OriginAuthR
   return { ok: false, res: NextResponse.json({ error: "Forbidden — origen no permitido" }, { status: 403 }) };
 }
 
+// ---------------------------------------------------------------------------
+// CSRF · FIX 541.1 24-Jun-2026
+// Defensa adicional para escrituras (POST/PUT/PATCH/DELETE).
+// La cookie es SameSite=Strict pero validacion explicita de Origin/Referer
+// agrega una capa contra ataques cross-site con flags relajadas.
+// ---------------------------------------------------------------------------
+
+const CSRF_ALLOWED_ORIGINS = new Set([
+  "https://aria.jjcrm27.com",
+  "https://aria-jjcrm27.vercel.app",
+]);
+
+function isPreviewOrigin(origin: string): boolean {
+  // aria-jjcrm27-<hash>-<team>.vercel.app
+  return /^https:\/\/aria-jjcrm27[\w-]*\.vercel\.app$/.test(origin);
+}
+
+/**
+ * Valida Origin (o Referer fallback) para escrituras. Devuelve null si OK,
+ * o NextResponse 403 si Origin no permitido.
+ * Localhost siempre permitido (dev).
+ */
+export function checkCsrfOrigin(req: NextRequest): NextResponse | null {
+  const method = req.method.toUpperCase();
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return null;
+  const origin = req.headers.get("origin") || "";
+  const referer = req.headers.get("referer") || "";
+  // Localhost dev
+  if (origin.startsWith("http://localhost") || referer.startsWith("http://localhost")) return null;
+  if (origin && (CSRF_ALLOWED_ORIGINS.has(origin) || isPreviewOrigin(origin))) return null;
+  if (!origin && referer) {
+    try {
+      const refOrigin = new URL(referer).origin;
+      if (CSRF_ALLOWED_ORIGINS.has(refOrigin) || isPreviewOrigin(refOrigin)) return null;
+    } catch { /* invalid url */ }
+  }
+  return NextResponse.json({ error: "Origin no permitido (CSRF)" }, { status: 403 });
+}
+
+/**
+ * Helper combinado: aplica CSRF + requireUser. Para endpoints de escritura.
+ * Devuelve { ok: true, email, role } o { ok: false, res } como requireUser.
+ */
+export async function requireUserCsrf(req: NextRequest): Promise<UserAuthResult> {
+  const csrf = checkCsrfOrigin(req);
+  if (csrf) return { ok: false, res: csrf };
+  return requireUser(req);
+}

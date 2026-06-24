@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendEmailLogged } from "@/lib/email-log";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
@@ -26,7 +27,9 @@ export async function POST(req: NextRequest) {
   const sb = getSupabaseAdmin();
   try {
     const body = await req.json();
-    const userEmail = req.headers.get("x-user-email") || body.actor || "compras@gcuavante.com";
+    // FIX 541.1: identidad via cookie session
+    const __auth = await requireUser(req);
+    const userEmail = (__auth.ok ? __auth.email : null) || body.actor || "compras@gcuavante.com";
     const obra = String(body.obra_nombre || "").trim();
     const motivo = String(body.motivo || "").trim();
     const items: Item[] = Array.isArray(body.items) ? body.items : [];

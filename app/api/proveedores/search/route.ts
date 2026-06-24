@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const pattern = `%${q.replace(/[%_]/g, "")}%`;
     const { data, error } = await db
       .from("suppliers")
-      .select("*")
+      .select("id, name, razon_social, payment_method, status")
       .eq("status", "ACTIVO")
       .or(`name.ilike.${pattern},razon_social.ilike.${pattern}`)
       .order("name")
@@ -44,17 +44,15 @@ export async function GET(req: NextRequest) {
       log.error("query error", { err: error.message });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+    // FIX 541.1 24-Jun-2026: MINIMIZAR payload — solo lo necesario para selector.
+    // CLABE / banco / cuenta NO viajan en el dropdown.
+    // Para datos bancarios usar /api/proveedores/[id]/banking con auth + rol explicito.
     type Row = {
       id: string;
       name: string;
       razon_social?: string | null;
       payment_method?: string | null;
-      bank_name?: string | null;
-      bank_clabe?: string | null;
-      bank_account_number?: string | null;
-      bank_account?: string | null;
-      account_number?: string | null;
-      cuenta?: string | null;
+      status?: string | null;
       [k: string]: unknown;
     };
     const proveedores = ((data || []) as Row[]).map((r) => ({
@@ -62,10 +60,7 @@ export async function GET(req: NextRequest) {
       name: r.name,
       razon_social: r.razon_social || null,
       payment_method: r.payment_method || null,
-      bank_name: r.bank_name || null,
-      bank_clabe: r.bank_clabe || null,
-      bank_account_number:
-        r.bank_account_number || r.bank_account || r.account_number || r.cuenta || null,
+      status: r.status || null,
     }));
     return NextResponse.json(
       { proveedores },

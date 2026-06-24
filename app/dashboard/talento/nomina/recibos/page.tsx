@@ -235,8 +235,8 @@ export default function RecibosNominaPage() {
     try {
       const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const res = await fetch("/api/nomina/export", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ semana: semanaInfo.semana, anio: semanaInfo.anio }),
       });
       if (!res.ok) {

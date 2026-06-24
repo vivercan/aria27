@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -10,8 +11,10 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:save-creds", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-    if (!userEmail) return NextResponse.json({ error: "x-user-email requerido" }, { status: 401 });
+    // FIX 541.1: cookie session opaca (x-user-email YA NO autoriza)
+    const auth = await requireUser(req);
+    if (!auth.ok) return auth.res;
+    const userEmail = auth.email;
 
     const { zoho_email, zoho_password } = await req.json().catch(() => ({}));
     if (!zoho_email || !zoho_password) return NextResponse.json({ error: "zoho_email y zoho_password requeridos" }, { status: 400 });
@@ -48,8 +51,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!userEmail) return NextResponse.json({ error: "x-user-email requerido" }, { status: 401 });
+  // FIX 541.1: cookie session opaca
+  const auth = await requireUser(req);
+  if (!auth.ok) return auth.res;
+  const userEmail = auth.email;
   const sb = getSupabaseAdmin();
   const { data, error } = await sb.from("users").select("zoho_email, zoho_password_encrypted, zoho_creds_updated_at").ilike("email", userEmail).maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

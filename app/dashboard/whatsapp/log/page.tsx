@@ -62,8 +62,8 @@ export default function WhatsAppLogPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const res = await fetch("/api/whatsapp/test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({
           template: tplTest,
           phone: phoneTest,

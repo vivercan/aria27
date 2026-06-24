@@ -20,7 +20,7 @@ export default function InboxCredsPage() {
     const e = (typeof window !== "undefined" ? localStorage.getItem("userEmail") : "") || "";
     setUserEmail(e);
     if (!e) { setLoading(false); return; }
-    fetch("/api/mail/save-zoho-creds", { headers: { "x-user-email": e } })
+    fetch("/api/mail/save-zoho-creds", { credentials: "include", })
       .then(r => r.json())
       .then((d: ConfigState) => { setState(d); if (d.zoho_email) setZohoEmail(d.zoho_email); })
       .catch(() => {})
@@ -39,8 +39,8 @@ export default function InboxCredsPage() {
     setSaving(true);
     try {
       const r = await fetch("/api/mail/save-zoho-creds", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ zoho_email: zohoEmail.trim(), zoho_password: zohoPassword }),
       });
       const data = await r.json();

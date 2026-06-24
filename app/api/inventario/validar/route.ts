@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
@@ -59,7 +60,9 @@ export async function POST(req: Request) {
     const rl = checkRateLimit(getClientIdentifier(nextReq), { key: "inv:validar", ...RATE_LIMITS.EXPENSIVE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const email = req.headers.get("x-user-email");
+    // FIX 541.1: identidad via cookie session
+    const __auth = await requireUser(nextReq);
+    const email = __auth.ok ? __auth.email : null;
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const { nombre, obraId } = await req.json().catch(() => ({}));

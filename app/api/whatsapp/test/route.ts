@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -17,7 +18,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const enviadoPor = req.headers.get("x-user-email") || "test";
+    // FIX 541.1: identidad via cookie session
+    const __auth = await requireUser(req);
+    const enviadoPor = (__auth.ok ? __auth.email : null) || "test";
     const result = await sendWhatsAppLogged(template, params, phone, {
       origen: "test",
       enviadoPor,

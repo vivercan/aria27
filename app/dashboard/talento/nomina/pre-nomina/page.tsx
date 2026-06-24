@@ -194,8 +194,8 @@ export default function PreNominaPage() {
     try {
       const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const res = await fetch("/api/nomina/generar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ fechaReferencia: semanaInfo.inicio, forzar }),
       });
       const data = await res.json().catch(() => ({}));

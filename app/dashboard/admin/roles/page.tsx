@@ -55,7 +55,7 @@ export default function RolesAdminPage() {
   const cargar = async () => {
     setLoading(true);
     try {
-      const r = await fetch("/api/admin/roles", { headers: { "x-user-email": authEmail() } });
+      const r = await fetch("/api/admin/roles", { credentials: "include", });
       if (r.status === 401 || r.status === 403) {
         setAuthorized(false);
         setLoading(false);
@@ -92,8 +92,8 @@ export default function RolesAdminPage() {
     setGuardando(u.id);
     try {
       const r = await fetch("/api/admin/roles", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-user-email": authEmail() },
+        credentials: "include", method: "PATCH",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ id: u.id, role: u.role, permissions: u.permissions || {} }),
       });
       const j = await r.json().catch(() => ({}));

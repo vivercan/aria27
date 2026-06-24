@@ -221,7 +221,7 @@ export default function InventarioObraPage() {
       formData.append("file", file);
       formData.append("bucket", "inventario");
       formData.append("path", path);
-      const res = await fetch("/api/inventario/watermark", { method: "POST", body: formData });
+      const res = await fetch("/api/inventario/watermark", { credentials: "include", method: "POST", body: formData });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
         flash("err", "Error al subir foto: " + (data.error || "desconocido"));
@@ -297,7 +297,7 @@ export default function InventarioObraPage() {
     try {
       const email = typeof window !== "undefined" ? (localStorage.getItem("userEmail") || "") : "";
       const res = await fetch("/api/inventario/tipo", {
-        method: "POST",
+        credentials: "include", method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: item.id, tipo: tipoNuevo, user_email: email }),
       });
@@ -344,8 +344,8 @@ export default function InventarioObraPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const res = await fetch("/api/inventario/validar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ nombre: nuevoNombre.trim(), obraId: obraSeleccionada.id }),
       });
       const data = await res.json().catch(() => ({}));
@@ -806,7 +806,7 @@ export default function InventarioObraPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=excel`;
-      const res = await fetch(url, { headers: { "x-user-email": email } });
+      const res = await fetch(url, { credentials: "include" });
       if (!res.ok) { flash("err", "Error al generar Excel"); return; }
       const blob = await res.blob();
       const link = document.createElement("a");
@@ -826,7 +826,7 @@ export default function InventarioObraPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const url = `/api/inventario/export?obra_id=${encodeURIComponent(obraSeleccionada.id)}&obra_nombre=${encodeURIComponent(obraSeleccionada.name)}&format=pdf`;
-      const res = await fetch(url, { headers: { "x-user-email": email } });
+      const res = await fetch(url, { credentials: "include" });
       if (!res.ok) { flash("err", "Error al generar PDF"); return; }
       const html = await res.text();
       // Descarga directa como archivo HTML — cero diálogos, cero ventanas emergentes.

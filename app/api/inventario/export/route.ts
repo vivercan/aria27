@@ -2,9 +2,10 @@
  * GET /api/inventario/export?obra_id=X&format=excel|pdf&obra_nombre=...
  *
  * Exporta el inventario de una obra en formato Excel (XLSX) o PDF (HTML print-ready).
- * Requiere x-user-email o userEmail cookie para autenticación.
+ * AUTH: cookie session opaca __Host-aria_session (FIX 541.1).
  */
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import ExcelJS from "exceljs";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -39,7 +40,8 @@ export async function GET(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   const email =
-    req.headers.get("x-user-email") ||
+    // FIX 541.1: cookie session (x-user-email LEGACY)
+    (await (async () => { const a = await requireUser(req); return a.ok ? a.email : null; })()) ||
     req.cookies.get("userEmail")?.value;
   if (!email) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

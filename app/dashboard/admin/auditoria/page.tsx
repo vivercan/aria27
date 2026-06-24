@@ -110,8 +110,8 @@ export default function AuditoriaPage() {
         clear();
         try {
           const resp = await fetch("/api/admin/auditoria/restore", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+            credentials: "include", method: "POST",
+            headers: { "Content-Type": "application/json"},
             body: JSON.stringify({ deleted_id: row.id }),
           });
           const j = await resp.json().catch(() => ({}));
@@ -140,8 +140,8 @@ export default function AuditoriaPage() {
         clear();
         try {
           const resp = await fetch("/api/admin/auditoria/revert", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+            credentials: "include", method: "POST",
+            headers: { "Content-Type": "application/json"},
             body: JSON.stringify({ audit_id: row.id }),
           });
           const j = await resp.json().catch(() => ({}));

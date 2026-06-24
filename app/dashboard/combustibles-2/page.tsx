@@ -56,8 +56,8 @@ export default function CombustiblesV2Page() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const r = await fetch("/api/combustibles/consolidar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ armado_por_email: email }),
       });
       const d = await r.json();

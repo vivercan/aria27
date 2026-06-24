@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "nomina:export", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  // AUTH CHECK FIX 541.1: cookie session (Bearer Supabase legacy soportado)
   let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
   if (authHeader) {
@@ -25,7 +26,10 @@ export async function POST(req: NextRequest) {
     if (user?.email) userEmail = user.email;
   }
   if (!userEmail) {
-    const hdrEmail = req.headers.get("x-user-email");
+    // FIX 541.1: cookie session
+    const __auth = await requireUser(req);
+    if (!__auth.ok) return __auth.res;
+    const hdrEmail = __auth.email;
     if (hdrEmail) {
       const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
       if (u && u.active !== false) userEmail = u.email;

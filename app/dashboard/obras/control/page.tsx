@@ -336,7 +336,7 @@ export default function ControlObrasPage() {
                           const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
                           if (!email) return;
                           e.preventDefault();
-                          fetch(`/api/obras/export-excel?obra=${encodeURIComponent(f.nombre)}`, { headers: { "x-user-email": email } })
+                          fetch(`/api/obras/export-excel?obra=${encodeURIComponent(f.nombre)}`, { credentials: "include", })
                             .then(r => r.blob())
                             .then(b => {
                               const url = URL.createObjectURL(b);

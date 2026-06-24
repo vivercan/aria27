@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -55,7 +56,9 @@ export async function POST(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   // EXP-001 FIX: Verificar autenticación
-  const userEmail = req.headers.get("x-user-email");
+  // FIX 541.1: identidad via cookie session
+  const __auth = await requireUser(req);
+  const userEmail = __auth.ok ? __auth.email : null;
   if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

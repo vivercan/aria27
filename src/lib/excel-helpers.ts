@@ -76,7 +76,8 @@ export interface ObraKPIs {
 }
 
 /**
- * Authenticates request using auth header (Bearer token) or x-user-email fallback
+ * Authenticates request using cookie session (__Host-aria_session) or Bearer token.
+ * FIX 541.1: x-user-email fallback ELIMINADO — era vector de suplantacion.
  * Returns userEmail or null if unauthorized
  */
 export async function authenticateRequest(
@@ -98,17 +99,14 @@ export async function authenticateRequest(
     if (user?.email) userEmail = user.email;
   }
 
-  // Fallback to x-user-email header
+  // FIX 541.1: cookie __Host-aria_session (NO header x-user-email)
   if (!userEmail) {
-    const hdrEmail = req.headers.get("x-user-email");
-    if (hdrEmail) {
-      const { data: u } = await supabase
-        .from("users")
-        .select("email,active")
-        .eq("email", hdrEmail)
-        .maybeSingle();
-      if (u && u.active !== false) userEmail = u.email;
-    }
+    try {
+      const { verifySession, getSessionTokenFromCookies } = await import("@/lib/session");
+      const token = getSessionTokenFromCookies(req.headers.get("cookie"));
+      const session = await verifySession(token);
+      if (session?.email) userEmail = session.email;
+    } catch { /* silencioso: si session.ts no disponible (build) sigue sin auth */ }
   }
 
   return userEmail;

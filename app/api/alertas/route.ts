@@ -88,11 +88,22 @@ export async function GET(req: NextRequest) {
       const { data: { user } } = await auth.auth.getUser(authHeader.replace("Bearer ", ""));
       if (user?.email) userEmail = user.email;
     }
+    // FIX 541.1: cookie session opaca PRIMARY
     if (!userEmail) {
-      const hdr = req.headers.get("x-user-email");
-      if (hdr) {
-        const { data: u } = await supabase.from("users").select("email,active").eq("email", hdr).maybeSingle();
-        if (u && u.active !== false) userEmail = u.email;
+      const { requireUser } = await import("@/lib/auth-api");
+      const auth_ = await requireUser(req);
+      if (auth_.ok) userEmail = auth_.email;
+    }
+    // FIX 541.1: internal token (digest cron) — autoriza con ?for=email
+    if (!userEmail) {
+      const internalTok = req.headers.get("x-internal-token") || "";
+      const expected = process.env.DIGEST_TOKEN || process.env.CRON_SECRET || "";
+      if (expected && internalTok === expected) {
+        const forEmail = (req.nextUrl.searchParams.get("for") || "").toLowerCase().trim();
+        if (forEmail) {
+          const { data: u } = await supabase.from("users").select("email,active").eq("email", forEmail).maybeSingle();
+          if (u && u.active !== false) userEmail = u.email;
+        }
       }
     }
     if (!userEmail) return NextResponse.json({ error: "No autorizado" }, { status: 401 });

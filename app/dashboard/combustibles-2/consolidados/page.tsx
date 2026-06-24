@@ -51,8 +51,8 @@ export default function ConsolidadosPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const r = await fetch("/api/combustibles/enviar-director", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ consolidado_id: consId }),
       });
       const d = await r.json();

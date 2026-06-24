@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { ADMIN_EMAILS } from "@/lib/admin-emails";
 import { logger } from "@/lib/logger";
@@ -6,7 +7,10 @@ import { logger } from "@/lib/logger";
 const log = logger("SEED-FORMATOS-DOCX");
 
 export async function POST(req: NextRequest) {
-  const userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  // FIX 541.1: cookie session + admin check
+  const __auth = await requireAdmin(req);
+  if (!__auth.ok) return __auth.res;
+  const userEmail = __auth.email;
   if (!ADMIN_EMAILS.includes(userEmail) && userEmail !== "recursos.humanos@gcuavante.com") {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

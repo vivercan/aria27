@@ -7,6 +7,7 @@
  * Returns: { extracted: ExtractedRequisicion, duplicado: {...} | null, ok: true }
  */
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import {
   extractRequisicionFromText,
@@ -89,7 +90,9 @@ export async function POST(req: NextRequest) {
   });
   if (!rl.allowed) return rateLimitResponse(rl);
 
-  const email = req.headers.get("x-user-email");
+  // FIX 541.1: identidad via cookie session
+  const __auth = await requireUser(req);
+  const email = __auth.ok ? __auth.email : null;
   if (!email)
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 

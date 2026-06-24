@@ -9,6 +9,7 @@ import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import SeasonEffects from "@/components/SeasonEffects";
 import PulsoMessenger from "@/components/pulso/PulsoMessenger";
 import { canAccessModule, type UserPermissions } from "@/lib/permissions";
+import { apiGet, apiPost, ApiError } from "@/lib/api-fetch";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
   ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
@@ -181,10 +182,25 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const lastImapCountRef = useRef<number>(-1);
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail");
-    if (!email) { router.push("/"); return; }
-    setUserEmail(email);
-    loadUser(email);
+    let cancelled = false;
+    (async () => {
+      try {
+        const me = await apiGet<{ email: string; name?: string; role?: string; permissions?: UserPermissions }>("/api/auth/me");
+        if (cancelled || !me?.email) return;
+        setUserEmail(me.email);
+        setUserName(me.name || me.email);
+        if (me.role) setUserRole(me.role);
+        if (me.permissions) setUserPermissions(me.permissions);
+        try { localStorage.setItem("userEmail", me.email); } catch {}
+        if (me.role) { try { localStorage.setItem("userRole", me.role); } catch {} }
+        if (me.permissions) { try { localStorage.setItem("userPermissions", JSON.stringify(me.permissions)); } catch {} }
+      } catch (e) {
+        if (e instanceof ApiError && (e.isUnauthorized || e.isForbidden)) {
+          router.push("/");
+        }
+      }
+    })();
+    return () => { cancelled = true; };
   }, [router]);
 
   /* ── Polling no-leídos Inbox (cada 30s) — PAUSA si inbox/page está activo ── */
@@ -192,7 +208,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const fetchUnread = async () => {
       if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
       try {
-        const r = await fetch("/api/mail/unread-count", { headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "") } });
+        const r = await fetch("/api/mail/unread-count", { credentials: "include" });
         if (r.ok) {
           const d = await r.json().catch(() => ({}));
           const serverCount = d.count || 0;
@@ -298,12 +314,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userPermissions");
-    localStorage.removeItem("ariaSession");
-    sessionStorage.removeItem("zohoCreds");
+  const handleLogout = async () => {
+    try { await apiPost("/api/auth/logout", {}); } catch { /* silencioso: cookie igual se borra server-side */ }
+    try {
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userPermissions");
+      localStorage.removeItem("ariaSession");
+      sessionStorage.removeItem("zohoCreds");
+    } catch {}
     router.push("/");
   };
 

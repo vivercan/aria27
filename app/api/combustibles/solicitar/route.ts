@@ -1,6 +1,6 @@
 // 23-Jun-2026 — Combustibles 2.0 F3
 // POST /api/combustibles/solicitar
-// Crea una solicitud de combustible. Llamable desde UI (con x-user-email) o
+// Crea una solicitud de combustible. Llamable desde UI (cookie session) o
 // desde webhook WA (con secret interno).
 //
 // Body:
