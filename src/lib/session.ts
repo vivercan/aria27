@@ -19,19 +19,26 @@ function hashHeader(header: string | null | undefined): string | null {
   return createHash("sha256").update(header).digest("hex");
 }
 
-/** Crea sesión nueva en BD y devuelve el token raw (para set-cookie). */
+/** Crea sesión nueva en BD y devuelve el token raw (para set-cookie).
+ *  Resuelve users.id BIGINT como snapshot estable (email puede cambiar).
+ */
 export async function createSession(opts: {
   userEmail: string;
   userAgent?: string | null;
   ip?: string | null;
 }): Promise<{ token: string; expiresAt: Date } | null> {
+  const email = opts.userEmail.toLowerCase().trim();
   const token = randomBytes(32).toString("hex");
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
   const db = getSupabaseAdmin();
+  // Resolver user_id estable (no bloquea si no existe)
+  const { data: u } = await db.from("users").select("id").eq("email", email).maybeSingle();
+  const userId = (u?.id as number | undefined) ?? null;
   const { error } = await db.from("auth_sessions").insert({
     token_hash: tokenHash,
-    user_email: opts.userEmail.toLowerCase().trim(),
+    user_id: userId,
+    user_email: email,
     expires_at: expiresAt.toISOString(),
     user_agent_hash: hashHeader(opts.userAgent || null),
     created_ip_hash: hashHeader(opts.ip || null),
@@ -40,9 +47,10 @@ export async function createSession(opts: {
   return { token, expiresAt };
 }
 
-/** Valida cookie. Devuelve user_email o null. NO confía en el token sin verificar BD. */
+/** Valida cookie. Devuelve identidad o null. NO confía en el token sin verificar BD. */
 export async function verifySession(token: string | undefined | null): Promise<{
   email: string;
+  userId: number | null;
   sessionId: string;
 } | null> {
   if (!token || token.length < 32) return null;
@@ -50,7 +58,7 @@ export async function verifySession(token: string | undefined | null): Promise<{
   const db = getSupabaseAdmin();
   const { data, error } = await db
     .from("auth_sessions")
-    .select("id, user_email, expires_at, revoked_at")
+    .select("id, user_id, user_email, expires_at, revoked_at")
     .eq("token_hash", tokenHash)
     .maybeSingle();
   if (error || !data) return null;
@@ -58,7 +66,11 @@ export async function verifySession(token: string | undefined | null): Promise<{
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
   // Update last_seen_at (fire-and-forget)
   void db.from("auth_sessions").update({ last_seen_at: new Date().toISOString() }).eq("id", data.id);
-  return { email: (data.user_email as string).toLowerCase().trim(), sessionId: data.id as string };
+  return {
+    email: (data.user_email as string).toLowerCase().trim(),
+    userId: (data.user_id as number | null) ?? null,
+    sessionId: data.id as string,
+  };
 }
 
 /** Revoca una sesión específica por token. Para logout. */
