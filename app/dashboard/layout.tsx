@@ -181,7 +181,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const inboxVisitedRef = useRef(false);
   const lastImapCountRef = useRef<number>(-1);
 
+  // HOTFIX4 25-Jun-2026: una sola llamada a /api/auth/me por montaje.
+  // hasCheckedRef bloquea re-ejecucion (StrictMode, re-renders).
+  // router.replace en lugar de push (no apila history, no causa ping-pong).
+  // unauthorizedRef bloquea futuras llamadas (polling unread-count etc) tras 401.
+  const hasCheckedRef = useRef(false);
+  const unauthorizedRef = useRef(false);
   useEffect(() => {
+    if (hasCheckedRef.current) return;
+    hasCheckedRef.current = true;
     let cancelled = false;
     (async () => {
       try {
@@ -196,17 +204,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         if (me.permissions) { try { localStorage.setItem("userPermissions", JSON.stringify(me.permissions)); } catch {} }
       } catch (e) {
         if (e instanceof ApiError && (e.isUnauthorized || e.isForbidden)) {
-          router.push("/");
+          unauthorizedRef.current = true; // detiene future polls
+          router.replace("/"); // replace, no push — no loop
         }
       }
     })();
     return () => { cancelled = true; };
-  }, [router]);
+    // deps vacias: ejecutar UNA vez al montaje. router es estable en Next/app.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ── Polling no-leídos Inbox (cada 30s) — PAUSA si inbox/page está activo ── */
   useEffect(() => {
     const fetchUnread = async () => {
       if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
+      if (unauthorizedRef.current) return; /* HOTFIX4: detener polling tras 401 */
       try {
         const r = await fetch("/api/mail/unread-count", { credentials: "include" });
         if (r.ok) {

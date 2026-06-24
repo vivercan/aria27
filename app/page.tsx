@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff } from 'lucide-react'
@@ -14,58 +14,93 @@ export default function LoginPage() {
   const [checkingSession, setCheckingSession] = useState(true)
   const router = useRouter()
 
-  // Auto-login si hay sesión guardada
+  // HOTFIX4 25-Jun-2026: flujo determinista anti-loop
+  //   1. useRef hasCheckedRef evita doble ejecucion (StrictMode dev / re-render)
+  //   2. PRIMERO /api/auth/me — si 200 → router.replace al dashboard (cookie ya valida)
+  //   3. Si 401 y existe ariaSession legacy → UNA SOLA llamada a /api/mail/validate
+  //   4. Si validate OK → replace al dashboard. Si NO → limpiar ariaSession + mostrar login
+  //   5. router.replace en lugar de push (NO duplica history, NO causa ping-pong)
+  const hasCheckedRef = useRef(false)
   useEffect(() => {
-    const autoLogin = async () => {
-      const saved = localStorage.getItem('ariaSession')
-      if (saved) {
-        try {
-          const { e, p } = JSON.parse(atob(saved))
-          if (e && p) {
-            const emailLower = e.toLowerCase()
-            // FIX 541.1 25-Jun-2026: auto-login debe crear sesion server-side via /api/mail/validate
-            // (antes solo escribia localStorage, causaba loop infinito post FIX 541.1).
-            const validateRes = await fetch('/api/mail/validate', {
-              method: 'POST',
-              credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: e, password: p }),
-            }).catch(() => null)
-            const ok = validateRes?.ok ?? false
-            if (!ok) {
-              // Sesion guardada YA NO valida en server (password Zoho cambio, rate limit, etc).
-              // Limpiar y mostrar login normal — NO redirigir o entramos en loop.
-              localStorage.removeItem('ariaSession')
-              localStorage.removeItem('userEmail')
-              localStorage.removeItem('userRole')
-              localStorage.removeItem('userPermissions')
-              try { sessionStorage.removeItem('zohoCreds') } catch {}
-              setCheckingSession(false)
-              return
-            }
-            localStorage.setItem('userEmail', emailLower)
-            try { sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e, p }))) } catch {}
-            // Precargar role y permisos antes de redirigir
-            try {
-              const { data: userData } = await supabase
-                .from('users')
-                .select('role, permissions')
-                .eq('email', emailLower)
-                .single()
-              if (userData) {
-                localStorage.setItem('userRole', userData.role || 'user')
-                localStorage.setItem('userPermissions', JSON.stringify(userData.permissions || {}))
-              }
-            } catch { /* fallback: layout.tsx los carga */ }
-
-            router.push('/dashboard/requisiciones')
-            return
-          }
-        } catch { /* sesion corrupta, continuar al login */ }
-      }
-      setCheckingSession(false)
+    if (hasCheckedRef.current) return
+    hasCheckedRef.current = true
+    let cancelled = false
+    const cleanLegacy = () => {
+      try {
+        localStorage.removeItem('ariaSession')
+        localStorage.removeItem('userEmail')
+        localStorage.removeItem('userRole')
+        localStorage.removeItem('userPermissions')
+        sessionStorage.removeItem('zohoCreds')
+      } catch { /* ignore */ }
     }
-    autoLogin()
+    const run = async () => {
+      // PASO A: probar /api/auth/me — si cookie viva, ya tenemos sesion
+      let meStatus = 0
+      try {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
+        meStatus = meRes.status
+        if (meStatus === 200) {
+          if (cancelled) return
+          router.replace('/dashboard/requisiciones')
+          return
+        }
+      } catch { /* network falla, seguir al paso B */ }
+
+      // PASO B: si 401 y hay ariaSession legacy, intentar validar UNA vez
+      const saved = (() => { try { return localStorage.getItem('ariaSession') } catch { return null } })()
+      if (meStatus !== 401 || !saved) {
+        if (cancelled) return
+        setCheckingSession(false)
+        return
+      }
+      let creds: { e: string; p: string } | null = null
+      try {
+        const parsed = JSON.parse(atob(saved))
+        if (parsed?.e && parsed?.p) creds = { e: parsed.e, p: parsed.p }
+      } catch { /* corrupta */ }
+      if (!creds) {
+        cleanLegacy()
+        if (cancelled) return
+        setCheckingSession(false)
+        return
+      }
+      let validateOk = false
+      try {
+        const v = await fetch('/api/mail/validate', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: creds.e, password: creds.p }),
+          cache: 'no-store',
+        })
+        validateOk = v.ok
+      } catch { /* network fail */ }
+      if (!validateOk) {
+        cleanLegacy()
+        if (cancelled) return
+        setCheckingSession(false)
+        return
+      }
+      // Validate OK -> hidratar cache UI minimo y redirigir
+      try { localStorage.setItem('userEmail', creds.e.toLowerCase()) } catch {}
+      try {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role, permissions')
+          .eq('email', creds.e.toLowerCase())
+          .single()
+        if (userData) {
+          try { localStorage.setItem('userRole', userData.role || 'user') } catch {}
+          try { localStorage.setItem('userPermissions', JSON.stringify(userData.permissions || {})) } catch {}
+        }
+      } catch { /* layout.tsx fallback */ }
+      if (cancelled) return
+      router.replace('/dashboard/requisiciones')
+    }
+    run()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
