@@ -102,7 +102,7 @@ export default function OrdenesCompraPage() {
       // Crear entrega y notificar
       try {
         const reRes = await fetch("/api/requisicion/registrar-entrega", {
-          method: "POST",
+          credentials: "include", method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             purchase_order_id: selectedPO.id,
@@ -140,7 +140,7 @@ export default function OrdenesCompraPage() {
   async function resolverNombreLegal(email: string | null | undefined): Promise<string> {
     if (!email) return "";
     try {
-      const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(email)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } });
+      const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(email)}`, { credentials: "include", cache: "no-store", });
       const d = await r.json();
       return (d?.full_name as string) || "";
     } catch {

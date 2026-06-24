@@ -13,8 +13,8 @@ export default function CombTemplatesPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       const r = await fetch("/api/admin/seed-meta-templates-combustibles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
       });
       const d = await r.json();
       if (d.results) setResults(d.results);

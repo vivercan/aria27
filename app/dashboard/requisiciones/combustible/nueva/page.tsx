@@ -72,7 +72,7 @@ export default function NuevaReqCombustiblePage() {
     });
     const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
     if (userEmail) {
-      fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } })
+      fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { credentials: "include", cache: "no-store", })
         .then((r) => r.json())
         .then((d) => { if (d?.full_name) setSolicitanteVisible(d.full_name); })
         .catch(() => {});
@@ -83,7 +83,7 @@ export default function NuevaReqCombustiblePage() {
   useEffect(() => {
     if (!obraId) { setEquipos([]); return; }
     setLoadingEquipos(true);
-    fetch(`/api/equipo-combustible?obra_id=${obraId}`, { cache: "no-store" })
+    fetch(`/api/equipo-combustible?obra_id=${obraId}`, { credentials: "include", cache: "no-store" })
       .then((r) => r.json())
       .then((d) => { setEquipos(d.equipos || []); setLoadingEquipos(false); })
       .catch(() => setLoadingEquipos(false));
@@ -93,7 +93,7 @@ export default function NuevaReqCombustiblePage() {
   useEffect(() => {
     if (proveedorSearch.length < 2) { setProveedoresResults([]); return; }
     const h = setTimeout(() => {
-      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { cache: "no-store", headers: { "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") } })
+      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { credentials: "include", cache: "no-store", })
         .then((r) => r.json())
         .then((d) => { if (d?.proveedores) setProveedoresResults(d.proveedores); })
         .catch(() => {});
@@ -179,7 +179,7 @@ export default function NuevaReqCombustiblePage() {
     };
 
     const r = await fetch("/api/requisicion/combustible", {
-      method: "POST",
+      credentials: "include", method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });

@@ -88,7 +88,7 @@ export default function NewRequisitionPage() {
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail") || "";
     if (!userEmail) return;
-    fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store", headers: { "x-user-email": userEmail } })
+    fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store", credentials: "include" })
       .then((r) => r.json())
       .then((d) => {
         const full = (d?.full_name as string) || "";
@@ -136,7 +136,7 @@ export default function NewRequisitionPage() {
 
   // 04-Jun-2026 Daisy bug3 FIX DEFINITIVO: endpoint server-side con service_role
   // (elimina problemas con anon client, paginacion, RLS, ordering case-sensitive)
-  // 24-Jun-2026 P0 BUG Daisy+Jessica: agregar x-user-email header (endpoint usa requireUser estricto).
+  // FIX 541.1 24-Jun-2026: cookie HttpOnly viaja sola (credentials include).
   // Side effect del sweep SEC T10 19-Jun: endpoints migrados a requireUser sin auditar callers frontend.
   useEffect(() => {
     if (proveedorSearch.length < 2) {
@@ -144,10 +144,9 @@ export default function NewRequisitionPage() {
       return;
     }
     const handle = setTimeout(() => {
-      const userEmail = localStorage.getItem("userEmail") || "";
       fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, {
         cache: "no-store",
-        headers: { "x-user-email": userEmail },
+        credentials: "include",
       })
         .then((r) => r.json())
         .then((d) => {
@@ -262,7 +261,8 @@ export default function NewRequisitionPage() {
     try {
       const res = await fetch("/api/requisicion/extraer", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ texto: aiTexto }),
       });
       const data = await res.json().catch(() => ({}));
@@ -373,7 +373,8 @@ export default function NewRequisitionPage() {
         } catch (e) { console.warn("upload ticket fallo", e); }
       }
       const res = await fetch("/api/requisicion", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        credentials: "include", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           usuario: { nombre: userName, email: userEmail },
           obra: center.name, comentarios: generalComments, materiales,
@@ -750,6 +751,7 @@ export default function NewRequisitionPage() {
                         try {
                           const r = await fetch("/api/productos/upsert-manual", {
                             method: "POST",
+                            credentials: "include",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ name: nm, unit: un, category: subcategoria || "OTROS" }),
                           });

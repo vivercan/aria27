@@ -408,8 +408,8 @@ export default function ExpedientesPage() {
     try {
       const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
       await fetch("/api/expedientes/analizar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": email },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ archivoId }),
       }).catch((err) => log.error("Error fetch análisis:", { data: err }));
       if (carpetaAnioSeleccionada) loadArchivos(carpetaAnioSeleccionada.id);

@@ -68,8 +68,8 @@ export default function ComparativaExpressPage() {
     setEnviando(true);
     try {
       const r = await fetch("/api/requisicion/express", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-email": userEmail },
+        credentials: "include", method: "POST",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({
           obra_nombre: obra,
           motivo: motivo.trim(),

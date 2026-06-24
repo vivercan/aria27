@@ -122,7 +122,7 @@ export default function RequisicionesStatusPage() {
     if (emailsUnicos.length > 0) {
       try {
         const rNombres = await fetch("/api/employees/by-emails", {
-          method: "POST",
+          credentials: "include", method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ emails: emailsUnicos }),
           cache: "no-store",
@@ -164,7 +164,7 @@ export default function RequisicionesStatusPage() {
     }
     if (req.user_email) {
       try {
-        const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(req.user_email)}`, { cache: "no-store" });
+        const r = await fetch(`/api/employees/by-email?email=${encodeURIComponent(req.user_email)}`, { credentials: "include", cache: "no-store" });
         const d = await r.json();
         if (d?.full_name) return d.full_name as string;
       } catch {}
@@ -279,7 +279,7 @@ export default function RequisicionesStatusPage() {
 
     try {
       const res = await fetch("/api/requisicion/delete", {
-        method: "POST",
+        credentials: "include", method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requisitionIds: idsToDelete, userEmail, confirmation: "Borrar" }),
       });
@@ -652,8 +652,8 @@ ${avisarPago.clabe_interbancaria || avisarPago.numero_cuenta || ""}`}</pre>
                   setEnviandoPago(true);
                   try {
                     const r = await fetch("/api/requisicion/avisar-pago", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json", "x-user-email": (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "") },
+                      credentials: "include", method: "POST",
+                      headers: { "Content-Type": "application/json"},
                       body: JSON.stringify({ folio: avisarPago.folio, phone: pagoPhone, email: pagoEmail }),
                     });
                     const j = await r.json();

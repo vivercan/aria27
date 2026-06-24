@@ -90,10 +90,9 @@ export default function UsuariosPage() {
     // (whitelist + verificacion de rol admin en BD, service role key).
     try {
       const r = await fetch("/api/admin/roles", {
-        method: "PATCH",
+        credentials: "include", method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-user-email": userEmail || (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : ""),
         },
         body: JSON.stringify({
           id,

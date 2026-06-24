@@ -236,7 +236,7 @@ export default function InboxPage() {
     if (!silencioso) setLoading(true); else setRefreshing(true);
     setError("");
     try {
-      const r    = await fetch("/api/mail/inbox",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({ folder:carpeta, limit:lim }) });
+      const r    = await fetch("/api/mail/inbox",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ folder:carpeta, limit:lim }) });
       const data = await r.json().catch(()=>({}));
       if (r.status===401){ setError("Inbox no configurado. Ve a Configuracion > Mi Inbox personal para guardar tus credenciales Zoho."); }
       else if (!r.ok){ throw new Error(data.error||"Error al conectar"); }
@@ -279,7 +279,7 @@ export default function InboxPage() {
     setCargandoCuerpo(true);
     setEmails(prev => prev.map(e => e.uid===em.uid ? {...e,seen:true} : e));
     try {
-      const r    = await fetch("/api/mail/fetch",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({uid:em.uid,folder:carpeta}) });
+      const r    = await fetch("/api/mail/fetch",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({uid:em.uid,folder:carpeta}) });
       const data = await r.json().catch(()=>({}));
       setCuerpo({ body:data.body||"", html:data.html||"" });
     } catch { setCuerpo({body:"Error al cargar contenido",html:""}); }
@@ -292,14 +292,14 @@ export default function InboxPage() {
     setConfirmState({ open:true, msg:`¿Eliminar ${seleccionados.size} correo(s)?`, onOk:async()=>{
       try {
         const uids = emails.filter(e=>seleccionados.has(e.seqno)).map(e=>e.seqno);
-        await fetch("/api/mail/delete",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({uids,folder:carpeta}) });
+        await fetch("/api/mail/delete",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({uids,folder:carpeta}) });
         cargarEmails(false);
       } catch(e:unknown){ setError((e as Error).message); }
     }});
   };
   const eliminarEmail = (em: EmailHeader) => {
     setConfirmState({ open:true, msg:"¿Eliminar este correo?", onOk:async()=>{
-      await fetch("/api/mail/delete",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({uids:[em.seqno],folder:carpeta}) });
+      await fetch("/api/mail/delete",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({uids:[em.seqno],folder:carpeta}) });
       if (!splitView) setVista("lista");
       setEmailActual(null); cargarEmails(false);
     }});
@@ -308,7 +308,7 @@ export default function InboxPage() {
   /* ─── spam ─── */
   const marcarSpam = (em: EmailHeader) => {
     setConfirmState({ open:true, msg:`¿Mover "${em.subject||"(sin asunto)"}" a Spam?`, onOk:async()=>{
-      await fetch("/api/mail/delete",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({uids:[em.seqno],folder:carpeta}) });
+      await fetch("/api/mail/delete",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({uids:[em.seqno],folder:carpeta}) });
       flash("ok","Movido a Spam"); cargarEmails(false);
       if (emailActual?.uid===em.uid){ setEmailActual(null); if(!splitView) setVista("lista"); }
     }});
@@ -326,7 +326,7 @@ export default function InboxPage() {
       if (compCc.trim())  fd.append("cc",  compCc.trim());
       if (compBcc.trim()) fd.append("bcc", compBcc.trim());
       compFiles.forEach(f => fd.append("attachments", f));
-      const r = await fetch("/api/mail/send",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({ to:compTo.trim(), cc:compCc.trim()||undefined, bcc:compBcc.trim()||undefined, subject:compSubject.trim(), body:bodyFinal, readReceipt }) });
+      const r = await fetch("/api/mail/send",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ to:compTo.trim(), cc:compCc.trim()||undefined, bcc:compBcc.trim()||undefined, subject:compSubject.trim(), body:bodyFinal, readReceipt }) });
       const data = await r.json().catch(()=>({}));
       if (!r.ok) throw new Error(data.error||"Error al enviar");
       setCompTo(""); setCompCc(""); setCompBcc(""); setCompSubject(""); setCompBody("");
@@ -388,7 +388,7 @@ export default function InboxPage() {
   const enviarInlineReply = async () => {
     if (!emailActual||!inlineReply.trim()) { flash("err","Escribe una respuesta antes de enviar"); return; }
     try {
-      const r = await fetch("/api/mail/send",{ method:"POST", headers:{"Content-Type":"application/json","x-user-email":(typeof window !== "undefined" ? localStorage.getItem("userEmail")||"" : "")}, body:JSON.stringify({ to:emailAddr(emailActual.from), subject:`Re: ${emailActual.subject||""}`, body:inlineReply }) });
+      const r = await fetch("/api/mail/send",{ credentials: "include", method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ to:emailAddr(emailActual.from), subject:`Re: ${emailActual.subject||""}`, body:inlineReply }) });
       if (!r.ok) throw new Error();
       flash("ok","Respuesta enviada"); setInlineReply(""); setShowInlineReply(false);
     } catch { flash("err","Error al responder"); }

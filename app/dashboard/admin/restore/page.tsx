@@ -65,8 +65,8 @@ export default function RestorePage() {
     setLoadingDates(true);
     try {
       const res = await fetch("/api/backup/restore", {
-        headers: { "x-user-email": userEmail },
-      });
+        
+      credentials: "include", });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setAvailableDates(data.dates || []);
@@ -91,10 +91,9 @@ export default function RestorePage() {
 
     try {
       const res = await fetch("/api/backup/restore", {
-        method: "POST",
+        credentials: "include", method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-email": userEmail,
         },
         body: JSON.stringify({ date: selectedDate, includeStorage }),
       });
