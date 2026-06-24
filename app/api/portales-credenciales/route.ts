@@ -12,7 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { validateApiUser } from "@/lib/auth-api";
+import { requireUser, validateApiUser } from "@/lib/auth-api";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -20,12 +20,13 @@ const log = logger("PORTALES-CRED");
 const ROLES_PERMITIDOS = new Set(["admin", "Administrador", "compras", "direccion"]);
 
 async function assertAccess(req: NextRequest): Promise<{ ok: true; email: string } | { ok: false; res: NextResponse }> {
-  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!email) return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
-  const u = await validateApiUser(email);
-  if (!u) return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
-  if (!ROLES_PERMITIDOS.has(u.role)) return { ok: false, res: NextResponse.json({ error: "Forbidden: rol insuficiente" }, { status: 403 }) };
-  return { ok: true, email };
+  // FIX 541.1: identidad SOLO via cookie session opaca. x-user-email YA NO autoriza.
+  const auth = await requireUser(req);
+  if (!auth.ok) return auth;
+  if (!ROLES_PERMITIDOS.has(auth.role)) {
+    return { ok: false, res: NextResponse.json({ error: "Forbidden: rol insuficiente" }, { status: 403 }) };
+  }
+  return { ok: true, email: auth.email };
 }
 
 async function logAcceso(params: {

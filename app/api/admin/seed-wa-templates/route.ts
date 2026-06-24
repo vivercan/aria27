@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-api";
 import { logger } from "@/lib/logger";
 
 const log = logger("SEED-WA-TEMPLATES");
@@ -45,7 +46,10 @@ const TEMPLATES: Template[] = [
 
 export async function POST(req: NextRequest) {
   // PR 30-Abr-2026: aceptar tambien auth via x-user-email admin (mas conveniente para invocar)
-  const adminEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  // FIX 541.1: cookie session
+  const __auth = await requireAdmin(req);
+  if (!__auth.ok) return __auth.res;
+  const adminEmail = __auth.email;
   const ADMIN_LIST = (process.env.ADMIN_EMAIL || "juanviverosv@gmail.com").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
   ADMIN_LIST.push("recursos.humanos@gcuavante.com");
   const isAdmin = ADMIN_LIST.includes(adminEmail);

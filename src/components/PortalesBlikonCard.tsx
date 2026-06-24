@@ -54,8 +54,8 @@ export default function PortalesBlikonCard() {
       try {
         const email = getEmail();
         const res = await fetch("/api/portales-credenciales?portal=blikon", {
-          headers: { "x-user-email": email },
-        });
+          
+        credentials: "include", });
         const j = await res.json();
         if (!res.ok) setError(j?.error || `HTTP ${res.status}`);
         else setLista(j.credenciales || []);
@@ -70,8 +70,8 @@ export default function PortalesBlikonCard() {
   const auditCopy = (credencialId: string, empresa: string, campo: string) => {
     const email = getEmail();
     fetch("/api/portales-credenciales", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-user-email": email },
+      credentials: "include", method: "POST",
+      headers: { "Content-Type": "application/json"},
       body: JSON.stringify({
         credencial_id: credencialId,
         portal_key: "blikon",
@@ -97,7 +97,7 @@ export default function PortalesBlikonCard() {
       const email = getEmail();
       const res = await fetch(
         `/api/portales-credenciales?portal=blikon&empresa=${encodeURIComponent(empresa)}`,
-        { headers: { "x-user-email": email } }
+        { credentials: "include", }
       );
       const j = await res.json();
       if (!res.ok) {

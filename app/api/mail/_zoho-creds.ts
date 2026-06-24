@@ -29,7 +29,11 @@ export async function getZohoCreds(req?: NextRequest): Promise<{ email: string; 
 
   // 2. Credenciales del usuario en BD (cifradas)
   if (!req) return null;
-  const userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  // FIX 541.1: cookie session opaca
+  const { verifySession, getSessionTokenFromCookies } = await import("@/lib/session");
+  const token = getSessionTokenFromCookies(req.headers.get("cookie"));
+  const session = await verifySession(token);
+  const userEmail = (session?.email || "").toLowerCase().trim();
   if (!userEmail) {
     log.warn("getZohoCreds: x-user-email ausente — no se puede leer creds personales");
     return null;

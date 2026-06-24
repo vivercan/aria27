@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { logger } from "@/lib/logger";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
@@ -33,13 +34,13 @@ async function resolveUserEmail(req: NextRequest): Promise<string | null> {
     if (user?.email) return user.email;
   }
 
-  // Opción 2: x-user-email validado contra tabla users
-  const hdrEmail = req.headers.get("x-user-email");
-  if (hdrEmail) {
+  // FIX 541.1: cookie session opaca (x-user-email YA NO autoriza)
+  const __auth = await requireUser(req);
+  if (__auth.ok && __auth.email) {
     const { data: u } = await supabase
       .from("users")
       .select("email,active")
-      .eq("email", hdrEmail)
+      .eq("email", __auth.email)
       .maybeSingle();
     if (u && u.active !== false) return u.email;
   }

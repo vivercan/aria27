@@ -5,6 +5,7 @@
  * Requiere x-user-email o userEmail cookie para autenticación.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import ExcelJS from "exceljs";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -39,7 +40,8 @@ export async function GET(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl);
 
   const email =
-    req.headers.get("x-user-email") ||
+    // FIX 541.1: cookie session (x-user-email LEGACY)
+    (await (async () => { const a = await requireUser(req); return a.ok ? a.email : null; })()) ||
     req.cookies.get("userEmail")?.value;
   if (!email) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

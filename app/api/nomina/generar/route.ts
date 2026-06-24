@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { requireUser } from "@/lib/auth-api";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 const log = logger("NOMINA-GENERAR");
 
@@ -51,7 +52,10 @@ export async function POST(req: NextRequest) {
     if (user?.email) userEmail = user.email;
   }
   if (!userEmail) {
-    const hdrEmail = req.headers.get("x-user-email");
+    // FIX 541.1: cookie session (x-user-email YA NO autoriza)
+    const __auth = await requireUser(req);
+    if (!__auth.ok) return __auth.res;
+    const hdrEmail = __auth.email;
     if (hdrEmail) {
       const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
       if (u && u.active !== false) userEmail = u.email;
