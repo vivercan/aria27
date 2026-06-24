@@ -63,7 +63,8 @@ export default function NewRequisitionPage() {
   const [nextTempId, setNextTempId] = useState(1);
 
   // COMBUSTIBLE
-  const [combRows, setCombRows] = useState<Array<{tempId:number; tipo:string; litros:number; unidad_destino:string; tipo_unidad:string}>>([]);
+  // 24-Jun-2026 P0 fix: agregar precio_unitario (usuarios reportaban no poder capturar monto)
+  const [combRows, setCombRows] = useState<Array<{tempId:number; tipo:string; litros:number; precio_unitario:number; unidad_destino:string; tipo_unidad:string}>>([]);
 
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export default function NewRequisitionPage() {
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail") || "";
     if (!userEmail) return;
-    fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store" })
+    fetch(`/api/employees/by-email?email=${encodeURIComponent(userEmail)}`, { cache: "no-store", headers: { "x-user-email": userEmail } })
       .then((r) => r.json())
       .then((d) => {
         const full = (d?.full_name as string) || "";
@@ -135,13 +136,19 @@ export default function NewRequisitionPage() {
 
   // 04-Jun-2026 Daisy bug3 FIX DEFINITIVO: endpoint server-side con service_role
   // (elimina problemas con anon client, paginacion, RLS, ordering case-sensitive)
+  // 24-Jun-2026 P0 BUG Daisy+Jessica: agregar x-user-email header (endpoint usa requireUser estricto).
+  // Side effect del sweep SEC T10 19-Jun: endpoints migrados a requireUser sin auditar callers frontend.
   useEffect(() => {
     if (proveedorSearch.length < 2) {
       setProveedoresResults([]);
       return;
     }
     const handle = setTimeout(() => {
-      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, { cache: "no-store" })
+      const userEmail = localStorage.getItem("userEmail") || "";
+      fetch(`/api/proveedores/search?q=${encodeURIComponent(proveedorSearch)}`, {
+        cache: "no-store",
+        headers: { "x-user-email": userEmail },
+      })
         .then((r) => r.json())
         .then((d) => {
           if (d?.proveedores) setProveedoresResults(d.proveedores as ProveedorOption[]);
@@ -231,7 +238,7 @@ export default function NewRequisitionPage() {
   };
 
   const addCombRow = () => {
-    setCombRows(prev => [...prev, { tempId: nextTempId, tipo: "DIESEL", litros: 0, unidad_destino: "", tipo_unidad: "CAMION" }]);
+    setCombRows(prev => [...prev, { tempId: nextTempId, tipo: "DIESEL", litros: 0, precio_unitario: 0, unidad_destino: "", tipo_unidad: "CAMION" }]);
     setNextTempId(prev => prev + 1);
   };
 
@@ -343,9 +350,9 @@ export default function NewRequisitionPage() {
       if (invalidMats.length > 0) { setErrorMsg("Todos los materiales deben tener nombre y cantidad distinta de 0. (Usa cantidad negativa para descontar anticipos.)"); setSending(false); return; }
       materiales = materials.map(m => ({ id: m.id > 0 ? m.id : null, name: m.name, unit: m.unit, qty: m.qty, comments: m.observations, price: m.price ?? 0 }));
     } else if (formMode === "combustible") {
-      const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim());
-      if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0 y destino."); setSending(false); return; }
-      materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}` }));
+      const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim() || isNaN(c.precio_unitario) || c.precio_unitario <= 0);
+      if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0, precio unitario > 0 y destino."); setSending(false); return; }
+      materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, precio_unitario: c.precio_unitario, price: c.precio_unitario, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}, P.U. $${c.precio_unitario.toFixed(2)}` }));
     } else {
       const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad === 0 || isNaN(f.monto) || f.monto < 0);
       if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción, cantidad distinta de 0 y monto >= 0. (Usa cantidad negativa para descontar anticipos.)"); setSending(false); return; }
@@ -808,11 +815,13 @@ export default function NewRequisitionPage() {
               </button>
               <div className="max-h-96 overflow-auto space-y-2">
                 {combRows.map(r => (
-                  <div key={r.tempId} className="grid grid-cols-[100px_80px_1fr_100px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
+                  <div key={r.tempId} className="grid grid-cols-[90px_70px_90px_90px_1fr_110px_30px] gap-2 items-center bg-black/20 rounded-xl px-3 py-2">
                     <select required className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo: e.target.value} : x))}>
                       <option>DIESEL</option><option>MAGNA</option><option>PREMIUM</option><option>GAS LP</option>
                     </select>
                     <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="Litros" value={r.litros||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, litros: Number(e.target.value)} : x))} />
+                    <input type="number" required min="0.01" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$ / Litro" value={r.precio_unitario||""} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, precio_unitario: Number(e.target.value)} : x))} />
+                    <div className="text-right text-xs text-amber-300 font-medium pr-1">${((r.litros||0) * (r.precio_unitario||0)).toLocaleString("es-MX", {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
                     <input required className="bg-transparent text-sm outline-none border-b border-white/[0.08] pb-1" placeholder="Unidad destino (ej: Retroexcavadora CAT 420F)" value={r.unidad_destino} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad_destino: e.target.value} : x))} />
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-sm" value={r.tipo_unidad} onChange={e => setCombRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, tipo_unidad: e.target.value} : x))}>
                       <option>CAMION</option><option>RETROEXCAVADORA</option><option>CARGADOR</option><option>COMPACTADOR</option><option>CAMIONETA</option><option>PIPA</option><option>OTRO</option>
@@ -837,8 +846,10 @@ export default function NewRequisitionPage() {
           {(() => {
             const subtotalLibre = freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0);
             const subtotalCat = materials.reduce((s,m) => s + ((m.price ?? 0) * m.qty), 0);
-            const subtotal = formMode === "libre" ? subtotalLibre : subtotalCat;
-            const tieneFilas = (formMode === "libre" && freeRows.length > 0) || (formMode === "catalogo" && materials.length > 0);
+            // 24-Jun-2026 P0 fix: subtotal combustible = litros * precio_unitario
+            const subtotalComb = combRows.reduce((s,c) => s + (c.litros * c.precio_unitario), 0);
+            const subtotal = formMode === "libre" ? subtotalLibre : formMode === "combustible" ? subtotalComb : subtotalCat;
+            const tieneFilas = (formMode === "libre" && freeRows.length > 0) || (formMode === "catalogo" && materials.length > 0) || (formMode === "combustible" && combRows.length > 0);
             if (!tieneFilas) return null;
             const ivaMonto = subtotal * (ivaPorcentaje / 100);
             const totalConIva = subtotal + ivaMonto;
