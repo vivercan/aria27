@@ -11,7 +11,7 @@ const COOKIE_NAME = "zoho_creds";
  * Prioridad:
  *   1. Cookie httpOnly de sesion personal (set por POST /api/mail/auth)
  *   2. Tabla public.users.zoho_password_encrypted del usuario identificado
- *      por la cookie session opaca (cifrado con pgcrypto, descifrado por RPC). FIX 541.1.
+ *      por el header `x-user-email` (cifrado con pgcrypto, descifrado por RPC).
  * Sin fallback a env vars compartidas (eliminado 27-Abr-2026 para evitar cruce de inboxes
  * entre administracion@ y recursos.humanos@).
  */
@@ -28,14 +28,23 @@ export async function getZohoCreds(req?: NextRequest): Promise<{ email: string; 
   } catch { /* continuar */ }
 
   // 2. Credenciales del usuario en BD (cifradas)
+  //    HOTFIX 24-Jun-2026 PM: aceptar AMBOS cookie session (FIX 541.1) Y header x-user-email
+  //    para no romper flujo de correos del equipo que ya funcionaba. Defense in depth.
   if (!req) return null;
-  // FIX 541.1: cookie session opaca
-  const { verifySession, getSessionTokenFromCookies } = await import("@/lib/session");
-  const token = getSessionTokenFromCookies(req.headers.get("cookie"));
-  const session = await verifySession(token);
-  const userEmail = (session?.email || "").toLowerCase().trim();
+  let userEmail = "";
+  // a) Cookie session opaca (FIX 541.1)
+  try {
+    const { verifySession, getSessionTokenFromCookies } = await import("@/lib/session");
+    const token = getSessionTokenFromCookies(req.headers.get("cookie"));
+    const session = await verifySession(token);
+    if (session?.email) userEmail = session.email.toLowerCase().trim();
+  } catch { /* silencioso: si session.ts falla, intentar header */ }
+  // b) Header x-user-email (legacy, sigue aceptado para no romper correos)
   if (!userEmail) {
-    log.warn("getZohoCreds: sin sesion valida — no se puede leer creds personales");
+    userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  }
+  if (!userEmail) {
+    log.warn("getZohoCreds: sin cookie session ni x-user-email — no se puede leer creds personales");
     return null;
   }
 
