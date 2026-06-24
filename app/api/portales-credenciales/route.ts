@@ -6,7 +6,7 @@
  * POST (body: { credencial_id, accion })  -> Registra acceso (COPY_PASSWORD) en audit.
  *
  * Acceso: solo roles admin, compras, direccion.
- * Hader requerido: x-user-email.
+ * AUTH: cookie session opaca (__Host-aria_session). FIX 541.1.
  *
  * 24-Abr-2026 PR feat/portales-facturacion.
  */

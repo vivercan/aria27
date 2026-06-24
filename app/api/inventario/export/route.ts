@@ -2,7 +2,7 @@
  * GET /api/inventario/export?obra_id=X&format=excel|pdf&obra_nombre=...
  *
  * Exporta el inventario de una obra en formato Excel (XLSX) o PDF (HTML print-ready).
- * Requiere x-user-email o userEmail cookie para autenticación.
+ * AUTH: cookie session opaca __Host-aria_session (FIX 541.1).
  */
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";

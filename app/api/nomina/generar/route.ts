@@ -40,7 +40,7 @@ function getWeekRange(date: Date): { inicio: string; fin: string } {
 
 export async function POST(req: NextRequest) {
   try {
-  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  // AUTH CHECK FIX 541.1: cookie session (Bearer Supabase legacy soportado)
   let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
   if (authHeader) {
@@ -284,7 +284,7 @@ export async function POST(req: NextRequest) {
 // GET para consultar incidencias sin generar
 export async function GET(req: NextRequest) {
   try {
-  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  // AUTH CHECK FIX 541.1: cookie session (Bearer Supabase legacy soportado)
   let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
   if (authHeader) {
@@ -295,12 +295,10 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
     if (user?.email) userEmail = user.email;
   }
+  // FIX 541.1: cookie session opaca (x-user-email YA NO autoriza)
   if (!userEmail) {
-    const hdrEmail = req.headers.get("x-user-email");
-    if (hdrEmail) {
-      const { data: u } = await supabase.from("users").select("email,active").eq("email", hdrEmail).maybeSingle();
-      if (u && u.active !== false) userEmail = u.email;
-    }
+    const __auth = await requireUser(req);
+    if (__auth.ok) userEmail = __auth.email;
   }
   if (!userEmail) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

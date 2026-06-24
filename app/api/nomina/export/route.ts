@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "nomina:export", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-  // AUTH CHECK - acepta Bearer (legacy) o x-user-email validado contra public.users
+  // AUTH CHECK FIX 541.1: cookie session (Bearer Supabase legacy soportado)
   let userEmail: string | null = null;
   const authHeader = req.headers.get("authorization");
   if (authHeader) {

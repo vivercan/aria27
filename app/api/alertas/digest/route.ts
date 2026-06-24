@@ -35,8 +35,10 @@ export async function GET(req: NextRequest) {
   try {
     // Llamada interna al endpoint /api/alertas para reusar la lógica existente
     const base = process.env.NEXT_PUBLIC_BASE_URL || "https://aria.jjcrm27.com";
-    const r = await fetch(`${base}/api/alertas`, {
-      headers: { "x-user-email": to, "x-digest": "1" },
+    // FIX 541.1: usar token interno + query param en lugar de x-user-email (que ya no autoriza)
+    const internalTok = process.env.DIGEST_TOKEN || process.env.CRON_SECRET || "";
+    const r = await fetch(`${base}/api/alertas?for=${encodeURIComponent(to)}&digest=1`, {
+      headers: { "x-internal-token": internalTok },
       cache: "no-store",
     });
     const data = await r.json().catch(() => ({}));

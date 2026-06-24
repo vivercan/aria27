@@ -56,7 +56,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ error: "Proveedor sin correo registrado" }, { status: 400 });
     }
 
-    const sender = req.headers.get("x-user-email") || "compras@aria27.com";
+    // FIX 541.1: sender = email del auth ya validado al inicio del handler
+    const sender = __auth.email || "compras@aria27.com";
 
     const productLine = productSku && productName
       ? `<div style="background:#f5f7fa;padding:10px 14px;border-left:3px solid #1E3E7A;margin:14px 0;font-size:12px;color:#334155"><strong>Producto referenciado:</strong> ${escapeHtml(productSku)} &mdash; ${escapeHtml(productName)}</div>`

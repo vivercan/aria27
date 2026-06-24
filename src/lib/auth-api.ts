@@ -57,6 +57,7 @@ export interface AuthResult {
  * @param allowedRoles - Array de roles permitidos. Si vacío, cualquier usuario autenticado pasa.
  * @returns AuthResult con usuario validado o error
  */
+/** @deprecated FIX 541.1 — usar requireUser. NO autoriza solo por header. */
 export async function validateApiAuth(
   userEmail: string | null | undefined,
   allowedRoles: string[] = []
@@ -119,6 +120,7 @@ export async function validateApiAuth(
 /**
  * Helper para extraer user_email de body JSON o query params
  */
+/** @deprecated FIX 541.1 — usar requireUser/verifySession. NO usar para autorizar. */
 export function extractUserEmail(req: NextRequest, body?: Record<string, unknown> | null): string | null {
   // 1. Intentar del body
   if (body && typeof body.user_email === "string") return body.user_email;
@@ -252,6 +254,7 @@ export type OriginAuthOk = { ok: true; via: "origin" | "user"; email?: string };
 export type OriginAuthFail = { ok: false; res: NextResponse };
 export type OriginAuthResult = OriginAuthOk | OriginAuthFail;
 
+/** @deprecated FIX 541.1 — usar requireUser strict. CSRF check via checkCsrfOrigin. */
 export async function requireOriginOrUser(req: NextRequest): Promise<OriginAuthResult> {
   // A) Path por user-email si esta presente
   const emailHdr = (req.headers.get("x-user-email") || "").toLowerCase().trim();

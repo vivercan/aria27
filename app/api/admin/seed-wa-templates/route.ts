@@ -45,7 +45,7 @@ const TEMPLATES: Template[] = [
 ];
 
 export async function POST(req: NextRequest) {
-  // PR 30-Abr-2026: aceptar tambien auth via x-user-email admin (mas conveniente para invocar)
+  // FIX 541.1: auth via cookie session opaca (admin)
   // FIX 541.1: cookie session
   const __auth = await requireAdmin(req);
   if (!__auth.ok) return __auth.res;

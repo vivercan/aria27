@@ -11,7 +11,7 @@ const COOKIE_NAME = "zoho_creds";
  * Prioridad:
  *   1. Cookie httpOnly de sesion personal (set por POST /api/mail/auth)
  *   2. Tabla public.users.zoho_password_encrypted del usuario identificado
- *      por el header `x-user-email` (cifrado con pgcrypto, descifrado por RPC).
+ *      por la cookie session opaca (cifrado con pgcrypto, descifrado por RPC). FIX 541.1.
  * Sin fallback a env vars compartidas (eliminado 27-Abr-2026 para evitar cruce de inboxes
  * entre administracion@ y recursos.humanos@).
  */
@@ -35,7 +35,7 @@ export async function getZohoCreds(req?: NextRequest): Promise<{ email: string; 
   const session = await verifySession(token);
   const userEmail = (session?.email || "").toLowerCase().trim();
   if (!userEmail) {
-    log.warn("getZohoCreds: x-user-email ausente — no se puede leer creds personales");
+    log.warn("getZohoCreds: sin sesion valida — no se puede leer creds personales");
     return null;
   }
 

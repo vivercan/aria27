@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -8,7 +9,9 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "wa:send", ...RATE_LIMITS.WRITE });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const email = req.headers.get("x-user-email");
+    // FIX 541.1: identidad via cookie session
+    const __auth = await requireUser(req);
+    const email = __auth.ok ? __auth.email : null;
     if (!email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const { phone, message } = await req.json().catch(() => ({}));

@@ -1,5 +1,5 @@
 // 19-Jun-2026 — Endpoint admin para disparar snapshot manual sin CRON_SECRET.
-// Solo accesible para usuarios admin via x-user-email. Llama al snapshot principal
+// FIX 541.1: solo accesible para usuarios admin via cookie session opaca. Llama al snapshot principal
 // con ?include=all internamente con CRON_SECRET de env.
 
 import { NextRequest, NextResponse } from "next/server";

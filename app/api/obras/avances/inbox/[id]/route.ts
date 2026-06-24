@@ -9,6 +9,7 @@
  * 03-Jun-2026
  */
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 
@@ -48,7 +49,9 @@ export async function PATCH(
       );
     }
 
-    const aprobadoPor = req.headers.get("x-user-email") || "system";
+    // FIX 541.1: identidad via cookie session
+    const __auth = await requireUser(req);
+    const aprobadoPor = (__auth.ok ? __auth.email : null) || "system";
 
     if (body.action === "REJECT") {
       const { error } = await db
