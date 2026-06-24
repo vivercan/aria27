@@ -9,6 +9,7 @@
 // - Contador de fallos por email para detección de brute-force
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifySession, getSessionTokenFromCookies } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
@@ -217,17 +218,19 @@ export type UserAuthFail = { ok: false; res: NextResponse };
 export type UserAuthResult = UserAuthOk | UserAuthFail;
 
 export async function requireUser(req: NextRequest): Promise<UserAuthResult> {
-  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!email) {
-    return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
+  // FIX 541.1 24-Jun-2026 — strict mode: identidad SOLO via cookie de sesion opaca server-side.
+  // El header x-user-email YA NO autoriza. Si llega, se ignora (logged como header legacy).
+  const cookie = req.headers.get("cookie");
+  const token = getSessionTokenFromCookies(cookie);
+  const session = await verifySession(token);
+  if (!session) {
+    return { ok: false, res: NextResponse.json({ error: "Sesion invalida o expirada" }, { status: 401 }) };
   }
-
-  const user = await validateApiUser(email);
+  const user = await validateApiUser(session.email);
   if (!user) {
-    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+    return { ok: false, res: NextResponse.json({ error: "Usuario inactivo o no encontrado" }, { status: 403 }) };
   }
-
-  return { ok: true, email, role: user.role };
+  return { ok: true, email: session.email, role: user.role };
 }
 
 // ---------------------------------------------------------------------------
