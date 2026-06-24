@@ -28,25 +28,29 @@ export async function getZohoCreds(req?: NextRequest): Promise<{ email: string; 
   } catch { /* continuar */ }
 
   // 2. Credenciales del usuario en BD (cifradas)
-  //    HOTFIX 24-Jun-2026 PM: aceptar AMBOS cookie session (FIX 541.1) Y header x-user-email
-  //    para no romper flujo de correos del equipo que ya funcionaba. Defense in depth.
+  //    HOTFIX2 24-Jun-2026 PM: la cookie session ES OBLIGATORIA.
+  //    El header x-user-email NO autoriza por si solo. Solo puede usarse como dato auxiliar
+  //    SI coincide exactamente con el email de la sesion validada.
   if (!req) return null;
-  let userEmail = "";
-  // a) Cookie session opaca (FIX 541.1)
+  // a) Cookie session opaca (FIX 541.1) — OBLIGATORIA
+  let sessionEmail = "";
   try {
     const { verifySession, getSessionTokenFromCookies } = await import("@/lib/session");
     const token = getSessionTokenFromCookies(req.headers.get("cookie"));
     const session = await verifySession(token);
-    if (session?.email) userEmail = session.email.toLowerCase().trim();
-  } catch { /* silencioso: si session.ts falla, intentar header */ }
-  // b) Header x-user-email (legacy, sigue aceptado para no romper correos)
-  if (!userEmail) {
-    userEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  }
-  if (!userEmail) {
-    log.warn("getZohoCreds: sin cookie session ni x-user-email — no se puede leer creds personales");
+    if (session?.email) sessionEmail = session.email.toLowerCase().trim();
+  } catch { /* silencioso: si session.ts falla, NO autorizar */ }
+  if (!sessionEmail) {
+    log.warn("getZohoCreds: sin cookie session valida — no se puede leer creds personales");
     return null;
   }
+  // b) Header x-user-email opcional, solo OK si coincide con la cookie session
+  const hdrEmail = (req.headers.get("x-user-email") || "").toLowerCase().trim();
+  if (hdrEmail && hdrEmail !== sessionEmail) {
+    log.warn("getZohoCreds: x-user-email no coincide con cookie session — rechazado", { hdrEmail, sessionEmail });
+    return null;
+  }
+  const userEmail = sessionEmail;
 
   const cryptoKey = process.env.PORTALES_CRYPTO_KEY;
   if (!cryptoKey) {
