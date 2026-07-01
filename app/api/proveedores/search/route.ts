@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const pattern = `%${q.replace(/[%_]/g, "")}%`;
     const { data, error } = await db
       .from("suppliers")
-      .select("id, name, razon_social, payment_method, status")
+      .select("id, name, razon_social, payment_method, status, bank_name, bank_clabe, bank_account_number, bank_account, account_number, cuenta")
       .eq("status", "ACTIVO")
       .or(`name.ilike.${pattern},razon_social.ilike.${pattern}`)
       .order("name")
@@ -44,24 +44,45 @@ export async function GET(req: NextRequest) {
       log.error("query error", { err: error.message });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // FIX 541.1 24-Jun-2026: MINIMIZAR payload — solo lo necesario para selector.
-    // CLABE / banco / cuenta NO viajan en el dropdown.
-    // Para datos bancarios usar /api/proveedores/[id]/banking con auth + rol explicito.
+    // FIX 542 25-Jun-2026 Opción B: payload minimizado por defecto, campos bancarios
+    // solo si el rol del solicitante está en allowlist. Compras/caja/finanzas necesitan
+    // bank_* para pagar por transferencia. Rol rh y similares NO ven CLABE.
+    // Backend enforcement, no confiar en frontend.
+    const ALLOWED_BANKING_ROLES = new Set([
+      "admin", "compras", "caja", "finanzas", "director", "owner"
+    ]);
+    const canSeeBanking = ALLOWED_BANKING_ROLES.has((__auth.role || "").toLowerCase().trim());
     type Row = {
       id: string;
       name: string;
       razon_social?: string | null;
       payment_method?: string | null;
       status?: string | null;
+      bank_name?: string | null;
+      bank_clabe?: string | null;
+      bank_account_number?: string | null;
+      bank_account?: string | null;
+      account_number?: string | null;
+      cuenta?: string | null;
       [k: string]: unknown;
     };
-    const proveedores = ((data || []) as Row[]).map((r) => ({
-      id: r.id,
-      name: r.name,
-      razon_social: r.razon_social || null,
-      payment_method: r.payment_method || null,
-      status: r.status || null,
-    }));
+    const proveedores = ((data || []) as Row[]).map((r) => {
+      const base = {
+        id: r.id,
+        name: r.name,
+        razon_social: r.razon_social || null,
+        payment_method: r.payment_method || null,
+        status: r.status || null,
+      };
+      if (!canSeeBanking) return base;
+      return {
+        ...base,
+        bank_name: r.bank_name || null,
+        bank_clabe: r.bank_clabe || null,
+        bank_account_number:
+          r.bank_account_number || r.bank_account || r.account_number || r.cuenta || null,
+      };
+    });
     return NextResponse.json(
       { proveedores },
       { headers: { "Cache-Control": "no-store, max-age=0" } }
