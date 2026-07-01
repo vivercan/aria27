@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const pattern = `%${q.replace(/[%_]/g, "")}%`;
     const { data, error } = await db
       .from("suppliers")
-      .select("id, name, razon_social, payment_method, status, bank_name, bank_clabe, bank_account_number, bank_account, account_number, cuenta")
+      .select("id, name, razon_social, payment_method, status, bank_name, bank_clabe, bank_account_number")
       .eq("status", "ACTIVO")
       .or(`name.ilike.${pattern},razon_social.ilike.${pattern}`)
       .order("name")
@@ -79,8 +79,7 @@ export async function GET(req: NextRequest) {
         ...base,
         bank_name: r.bank_name || null,
         bank_clabe: r.bank_clabe || null,
-        bank_account_number:
-          r.bank_account_number || r.bank_account || r.account_number || r.cuenta || null,
+        bank_account_number: r.bank_account_number || null,
       };
     });
     return NextResponse.json(
