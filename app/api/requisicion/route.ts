@@ -7,6 +7,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendEmailLogged } from "@/lib/email-log";
 import { notifyOps } from "@/lib/notify-ops";
+import { hydrateSupplierBanking } from "@/lib/hydrate-supplier-banking";
 
 const log = logger("REQUISICION");
 
@@ -181,6 +182,11 @@ export async function POST(request: NextRequest) {
 
     const initialStatus = flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE";
 
+    // FIX 543: hidratar bank_* desde suppliers server-side (autoritativo)
+    const bankSnap = body.proveedor_nombre
+      ? await hydrateSupplierBanking({ id: body.proveedor_id, name: body.proveedor_nombre })
+      : null;
+
     const { data: req, error: reqErr } = await getDb().from("requisitions").insert({
       folio,
       cost_center_name: obra,
@@ -208,10 +214,19 @@ export async function POST(request: NextRequest) {
       ...(body.solicitante_nombre_completo ? { solicitante_nombre_completo: body.solicitante_nombre_completo } : {}),
       // Datos de proveedor pre-seleccionado
       ...(body.proveedor_nombre ? { proveedor: body.proveedor_nombre } : {}),
-      ...(body.proveedor_banco ? { banco: body.proveedor_banco } : {}),
-      ...(body.proveedor_clabe ? { clabe_interbancaria: body.proveedor_clabe } : {}),
-      ...(body.proveedor_cuenta ? { numero_cuenta: body.proveedor_cuenta } : {}),
-      ...(body.proveedor_razon_social ? { nombre_cuenta: body.proveedor_razon_social } : {}),
+      // FIX 543: bank_* AUTORITATIVOS desde suppliers (service_role), no del body
+      ...(bankSnap ? {
+        banco: bankSnap.banco,
+        clabe_interbancaria: bankSnap.clabe_interbancaria,
+        numero_cuenta: bankSnap.numero_cuenta,
+        nombre_cuenta: bankSnap.nombre_cuenta,
+      } : {
+        // Fallback: si supplier no matchea, respetar lo que envio el body (backward compat)
+        ...(body.proveedor_banco ? { banco: body.proveedor_banco } : {}),
+        ...(body.proveedor_clabe ? { clabe_interbancaria: body.proveedor_clabe } : {}),
+        ...(body.proveedor_cuenta ? { numero_cuenta: body.proveedor_cuenta } : {}),
+        ...(body.proveedor_razon_social ? { nombre_cuenta: body.proveedor_razon_social } : {}),
+      }),
     }).select().single();
 
     if (reqErr) throw reqErr;

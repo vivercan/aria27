@@ -33,6 +33,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
 import { notifyOps } from "@/lib/notify-ops";
+import { hydrateSupplierBanking } from "@/lib/hydrate-supplier-banking";
 
 const log = logger("REQ-COMBUSTIBLE");
 
@@ -88,6 +89,11 @@ export async function POST(req: NextRequest) {
     const motivoAuto = body.motivo_solicitud ||
       `${body.cargas[0]?.tipo_combustible} ${litrosTotales}L para ${maquinasCount} ${maquinasCount === 1 ? "maquina" : "maquinas"}`;
 
+    // FIX 543: hidratar bank_* desde suppliers server-side (autoritativo)
+    const bankSnap = body.proveedor
+      ? await hydrateSupplierBanking({ name: body.proveedor })
+      : null;
+
     const { data: reqRow, error: e1 } = await db.from("requisitions").insert({
       cost_center_id: body.centro_trabajo_id || null,
       cost_center_name: body.centro_trabajo_name,
@@ -109,10 +115,11 @@ export async function POST(req: NextRequest) {
       motivo_solicitud: motivoAuto,
       solicitante_nombre_completo: body.solicitante_nombre_completo || null,
       proveedor: body.proveedor || null,
-      banco: body.proveedor_banco || null,
-      clabe_interbancaria: body.proveedor_clabe || null,
-      numero_cuenta: body.proveedor_cuenta || null,
-      nombre_cuenta: body.proveedor_razon_social || null,
+      // FIX 543: bank_* AUTORITATIVOS desde suppliers (service_role), fallback a body
+      banco: bankSnap?.banco ?? body.proveedor_banco ?? null,
+      clabe_interbancaria: bankSnap?.clabe_interbancaria ?? body.proveedor_clabe ?? null,
+      numero_cuenta: bankSnap?.numero_cuenta ?? body.proveedor_cuenta ?? null,
+      nombre_cuenta: bankSnap?.nombre_cuenta ?? body.proveedor_razon_social ?? null,
       required_date: body.fecha_pago || new Date().toISOString().slice(0, 10),
     }).select("id, folio").single();
 
