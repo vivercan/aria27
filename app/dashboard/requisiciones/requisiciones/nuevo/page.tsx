@@ -108,6 +108,11 @@ export default function NewRequisitionPage() {
   const [proveedoresResults, setProveedoresResults] = useState<ProveedorOption[]>([]);
   const [proveedorSearch, setProveedorSearch] = useState<string>("");
   const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
+  // FIX 544: modal captura CLABE al vuelo
+  const [showClabeModal, setShowClabeModal] = useState(false);
+  const [clabeForm, setClabeForm] = useState({ bank_name: "", bank_clabe: "", bank_account_number: "", nombre_cuenta: "" });
+  const [clabeSaving, setClabeSaving] = useState(false);
+  const [clabeError, setClabeError] = useState<string | null>(null);
 
   // ── AI Assist: extracción de texto/WA ────────────────────────────────────
   const [showAI, setShowAI] = useState(false);
@@ -117,6 +122,46 @@ export default function NewRequisitionPage() {
 
   // ── Duplicate warning ────────────────────────────────────────────────────
   const [duplicadoWarning, setDuplicadoWarning] = useState<{folio:string; obra:string; material:string} | null>(null);
+
+  // FIX 544 · Guardar CLABE al vuelo en suppliers via PATCH
+  async function guardarClabeSupplier() {
+    if (!selectedProveedor) return;
+    const clabeClean = clabeForm.bank_clabe.replace(/\s+/g, "");
+    if (!/^\d{18}$/.test(clabeClean)) {
+      setClabeError("CLABE debe tener exactamente 18 dígitos numéricos");
+      return;
+    }
+    setClabeSaving(true);
+    setClabeError(null);
+    try {
+      const res = await fetch(`/api/proveedores/${selectedProveedor.id}/banking`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bank_name: clabeForm.bank_name || null,
+          bank_clabe: clabeClean,
+          bank_account_number: clabeForm.bank_account_number || null,
+          nombre_cuenta: clabeForm.nombre_cuenta || null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+      // Actualizar el selectedProveedor local con los nuevos datos
+      setSelectedProveedor({
+        ...selectedProveedor,
+        bank_name: clabeForm.bank_name || null,
+        bank_clabe: clabeClean,
+        bank_account_number: clabeForm.bank_account_number || null,
+        razon_social: clabeForm.nombre_cuenta || selectedProveedor.razon_social,
+      });
+      setShowClabeModal(false);
+    } catch (e: unknown) {
+      setClabeError((e as Error).message || "Error al guardar");
+    } finally {
+      setClabeSaving(false);
+    }
+  }
 
   const searchParams = useSearchParams();
   const formMode = TIPO_MAP[subcategoria] || "catalogo";
@@ -585,7 +630,19 @@ export default function NewRequisitionPage() {
             {!selectedProveedor && proveedorSearch.length >= 2 && (
               <div className="max-h-40 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c1d38]">
                 {proveedoresResults.slice(0, 20).map(p => (
-                  <div key={p.id} onClick={() => { setSelectedProveedor(p); setProveedorSearch(""); if (p.payment_method) setFormaPago(p.payment_method); }} className="cursor-pointer px-3 py-2 text-sm hover:bg-white/[0.06] transition-colors">
+                  <div key={p.id} onClick={() => {
+                    setSelectedProveedor(p);
+                    setProveedorSearch("");
+                    if (p.payment_method) setFormaPago(p.payment_method);
+                    // FIX 544: si es TRANSFERENCIA/CHEQUE sin CLABE → abrir modal captura
+                    const m = (p.payment_method || "").toUpperCase();
+                    const necesitaClabe = (m.includes("TRANSFER") || m.includes("CHEQUE")) && !p.bank_clabe;
+                    if (necesitaClabe) {
+                      setClabeForm({ bank_name: p.bank_name || "", bank_clabe: "", bank_account_number: p.bank_account_number || "", nombre_cuenta: p.razon_social || "" });
+                      setClabeError(null);
+                      setShowClabeModal(true);
+                    }
+                  }} className="cursor-pointer px-3 py-2 text-sm hover:bg-white/[0.06] transition-colors">
                     <div className="text-white">{p.name}</div>
                     {(p.bank_name || p.bank_clabe) && <div className="text-xs text-white/40">{p.bank_name}{p.bank_clabe ? ` · CLABE: ${p.bank_clabe.slice(0,6)}…` : ""}</div>}
                   </div>
@@ -941,6 +998,84 @@ export default function NewRequisitionPage() {
           </button>
         </div>
       </section>
+
+      {/* FIX 544 · Modal captura CLABE al vuelo */}
+      {showClabeModal && selectedProveedor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c1d38] p-6 shadow-2xl">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-white">Datos bancarios pendientes</h3>
+              <p className="mt-1 text-xs text-white/60">
+                <span className="font-semibold text-amber-300">{selectedProveedor.name}</span> aún no tiene CLABE registrada. Captúrala una sola vez: quedará guardada para las siguientes requisiciones.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-white/70">Banco</label>
+                <input
+                  type="text"
+                  value={clabeForm.bank_name}
+                  onChange={e => setClabeForm(f => ({ ...f, bank_name: e.target.value.toUpperCase() }))}
+                  placeholder="BBVA / BANORTE / BANAMEX ..."
+                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/70">CLABE (18 dígitos) *</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={18}
+                  value={clabeForm.bank_clabe}
+                  onChange={e => setClabeForm(f => ({ ...f, bank_clabe: e.target.value.replace(/\D/g, "").slice(0, 18) }))}
+                  placeholder="012914001234567890"
+                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm font-mono outline-none focus:border-aria-accent"
+                />
+                <p className="mt-1 text-[10px] text-white/40">{clabeForm.bank_clabe.length}/18</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/70">Número de cuenta (opcional)</label>
+                <input
+                  type="text"
+                  value={clabeForm.bank_account_number}
+                  onChange={e => setClabeForm(f => ({ ...f, bank_account_number: e.target.value }))}
+                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/70">Titular / Razón social (opcional)</label>
+                <input
+                  type="text"
+                  value={clabeForm.nombre_cuenta}
+                  onChange={e => setClabeForm(f => ({ ...f, nombre_cuenta: e.target.value }))}
+                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent"
+                />
+              </div>
+              {clabeError && (
+                <div className="rounded-lg bg-red-500/15 border border-red-500/30 px-3 py-2 text-xs text-red-300">
+                  {clabeError}
+                </div>
+              )}
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => { setShowClabeModal(false); setSelectedProveedor(null); setProveedorSearch(""); }}
+                disabled={clabeSaving}
+                className="rounded-full border border-white/15 bg-transparent px-4 py-2 text-sm text-white/70 hover:bg-white/[0.06] disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={guardarClabeSupplier}
+                disabled={clabeSaving || clabeForm.bank_clabe.length !== 18}
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {clabeSaving ? <><Loader2 className="h-4 w-4 animate-spin" />Guardando...</> : "Guardar y continuar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
