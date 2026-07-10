@@ -22,6 +22,7 @@ interface Requisition {
   notas?: string;
   required_date?: string;
   subcategoria?: string;
+  iva_porcentaje?: number | null;
 }
 
 interface ReqItem {
@@ -43,7 +44,7 @@ export default function RequisicionEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState<Requisition>(req);
+  const [form, setForm] = useState<Requisition>({ ...req, iva_porcentaje: req.iva_porcentaje ?? 16 });
   const [items, setItems] = useState<ReqItem[]>([]);
   const [deletedIds, setDeletedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +87,12 @@ export default function RequisicionEditModal({
     setItems(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const total = items.reduce((s, it) => s + Number(it.quantity || 0) * Number(it.selected_price || 0), 0);
+  // FIX 545: totales vivos en tiempo real (bug Compras 25-Jun REQ-00239)
+  const subtotal = items.reduce((s, it) => s + Number(it.quantity || 0) * Number(it.selected_price || 0), 0);
+  const ivaPorc = Number(form.iva_porcentaje ?? 0);
+  const ivaMonto = subtotal * (ivaPorc / 100);
+  const total = subtotal + ivaMonto;
+  const itemsConNombreSinPrecio = items.filter(it => it.product_name?.trim() && (!it.selected_price || Number(it.selected_price) === 0));
 
   const handleSave = async () => {
     if (isBloqueada) { setError("Status bloqueado, no se puede editar."); return; }
@@ -98,7 +104,7 @@ export default function RequisicionEditModal({
         "cost_center_name", "instructions", "motivo_solicitud", "descripcion_compra",
         "forma_pago", "fecha_pago", "forma_entrega", "fecha_entrega",
         "foto_ticket_url", "monto", "total", "proveedor", "notas",
-        "required_date", "subcategoria",
+        "required_date", "subcategoria", "iva_porcentaje",
       ];
       for (const k of editableKeys) {
         const v = form[k];
@@ -207,14 +213,42 @@ export default function RequisicionEditModal({
                   </div>
                 );
               })}
-              {total > 0 && (
-                <div className="grid grid-cols-[2fr_70px_60px_100px_100px_1fr_30px] gap-2 px-3 py-2 text-sm font-bold border-t border-white/10 bg-white/[0.04]">
-                  <div></div><div></div><div></div>
-                  <div className="text-right text-white/70">TOTAL</div>
-                  <div className="text-right text-emerald-400">${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div>
-                  <div></div><div></div>
+              {/* FIX 545: totales vivos (subtotal + IVA editable + total) + warning items sin precio */}
+              {itemsConNombreSinPrecio.length > 0 && (
+                <div className="mx-3 my-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200">
+                  ⚠️ {itemsConNombreSinPrecio.length} {itemsConNombreSinPrecio.length === 1 ? "concepto tiene" : "conceptos tienen"} precio en 0 — no sumarán al total ni al IVA. Captura el precio antes de guardar.
                 </div>
               )}
+              <div className="border-t border-white/10 bg-white/[0.02] px-3 py-3 space-y-1.5 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-[#7f93b0]">Subtotal:</span>
+                  <span className="text-white font-medium">${subtotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-[#7f93b0]">IVA:</span>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={ivaPorc}
+                      onChange={(e) => setF("iva_porcentaje", Number(e.target.value))}
+                      disabled={isBloqueada}
+                      className="px-2 py-1 rounded bg-black/40 border border-white/15 text-white text-xs outline-none focus:border-aria-accent disabled:opacity-50"
+                    >
+                      <option value={0}>0%</option>
+                      <option value={3}>3%</option>
+                      <option value={7}>7%</option>
+                      <option value={8}>8%</option>
+                      <option value={10}>10%</option>
+                      <option value={11}>11%</option>
+                      <option value={16}>16%</option>
+                    </select>
+                    <span className="text-white font-medium w-24 text-right">${ivaMonto.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center border-t border-white/[0.08] pt-2 mt-1">
+                  <span className="text-white font-bold">TOTAL:</span>
+                  <span className="text-emerald-400 font-bold text-base">${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
