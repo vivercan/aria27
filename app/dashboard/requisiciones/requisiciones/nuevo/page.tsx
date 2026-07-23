@@ -399,8 +399,10 @@ export default function NewRequisitionPage() {
       if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0, precio unitario > 0 y destino."); setSending(false); return; }
       materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, precio_unitario: c.precio_unitario, price: c.precio_unitario, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}, P.U. $${c.precio_unitario.toFixed(2)}` }));
     } else {
-      const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad === 0 || isNaN(f.monto) || f.monto < 0);
-      if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción, cantidad distinta de 0 y monto >= 0. (Usa cantidad negativa para descontar anticipos.)"); setSending(false); return; }
+      const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad === 0 || isNaN(f.monto));
+      if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción y cantidad distinta de 0. Usa monto en negativo para descontar (anticipos, descuentos)."); setSending(false); return; }
+      const sumFree = freeRows.reduce((s, f) => s + (Number(f.monto || 0) * Number(f.cantidad || 0)), 0);
+      if (sumFree < 0) { setErrorMsg("El total no puede quedar negativo. Revisa los descuentos."); setSending(false); return; }
       materiales = freeRows.map(f => ({ id: null, name: f.descripcion, unit: f.unidad, qty: f.cantidad, comments: f.observaciones, price: f.monto }));
     }
 
@@ -857,7 +859,7 @@ export default function NewRequisitionPage() {
                     <select className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" value={r.unidad || "PZA"} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, unidad: e.target.value} : x))}>
                       {["PZA","METRO","M2","M3","ML","CUBETA","SERVICIO","HORA","DIA","SEMANA","MES","GALON","LITRO","TRAMO","PRUEBA","EQUIPO","KG","TON","CAMION","LOTE","CAJA","ROLLO","SACO","BOLSA","JGO"].map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
-                    <input type="number" required min="0" step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
+                    <input type="number" required step="0.01" className="bg-black/40 rounded-lg px-2 py-1 text-center text-sm" placeholder="$" value={r.monto||""} onChange={e => setFreeRows(prev => prev.map(x => x.tempId===r.tempId ? {...x, monto: Number(e.target.value)} : x))} />
                     <button onClick={() => setFreeRows(prev => prev.filter(x => x.tempId !== r.tempId))} className="rounded-full bg-red-500/70 p-1 hover:bg-red-500"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 ))}
