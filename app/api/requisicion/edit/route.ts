@@ -170,7 +170,7 @@ export async function PATCH(req: NextRequest) {
       const total = subtotal + ivaMonto;
 
       await sb.from("requisitions").update({
-        monto: subtotal,
+        monto: total, // FIX 546: monto = total CON IVA
         subtotal,
         iva_monto: ivaMonto,
         total,
