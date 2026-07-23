@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       iva_monto: ivaMonto,
       subtotal,
       total,
-      monto: subtotal,
+      monto: total, // FIX 546: monto = total CON IVA
       instructions: body.instructions || null,
       motivo_solicitud: motivoAuto,
       solicitante_nombre_completo: body.solicitante_nombre_completo || null,
