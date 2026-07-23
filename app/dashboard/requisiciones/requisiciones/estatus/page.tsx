@@ -58,15 +58,17 @@ interface ReqItem {
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
   const [duplicando, setDuplicando] = useState(false);
-  async function handleDuplicar(req: Requisition) {
+  const [dupModal, setDupModal] = useState<Requisition | null>(null);
+  async function handleDuplicar(req: Requisition, notify: boolean) {
     if (duplicando) return;
     setDuplicando(true);
     try {
-      const res = await fetch(`/api/requisicion/${req.id}/duplicar`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      const actor = (typeof window !== "undefined" && (localStorage.getItem("userDisplayName") || localStorage.getItem("userEmail"))) || "sistema";
+      const res = await fetch(`/api/requisicion/${req.id}/duplicar`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ notify, actor }) });
       const data = await res.json();
       if (!res.ok || !data.success) { flash("err", "No se pudo duplicar: " + (data.error || "")); return; }
-      flash("ok", `Duplicada como ${data.folio}`);
-      setDetailReq(null);
+      flash("ok", `Duplicada como ${data.folio}` + (notify ? " - avisada a Direccion y Compras" : ""));
+      setDupModal(null);
       if (userEmail) loadData(userEmail);
     } catch {
       flash("err", "Error al duplicar");
@@ -542,9 +544,30 @@ export default function RequisicionesStatusPage() {
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
               )}
-              <button onClick={() => { handleDuplicar(detailReq); }} disabled={duplicando} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-indigo-500/30 ring-1 ring-indigo-300/30 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
+              <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-indigo-500/30 ring-1 ring-indigo-300/30 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
               <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-white/10"><Printer className="w-4 h-4" />Imprimir</button>
               <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-emerald-500/30 ring-1 ring-emerald-300/30"><FileDown className="w-4 h-4" />PDF</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Duplicar — pregunta si avisar o no (23-Jul-2026) */}
+      {dupModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => { if (!duplicando) setDupModal(null); }}>
+          <div className="bg-aria-bg rounded-2xl border border-white/[0.08] w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-indigo-500/20"><Copy className="w-5 h-5 text-indigo-300" /></div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Duplicar {dupModal.folio}</h3>
+                <p className="text-[#7f93b0] text-xs mt-0.5">Se crea una requisicion nueva con folio nuevo, en PENDIENTE, copiando obra, proveedor e items.</p>
+              </div>
+            </div>
+            <p className="text-sm text-[#c9d8ed] mb-4">Al crearla, ¿quieres avisar a Direccion y Compras (WhatsApp + correo)?</p>
+            <div className="flex flex-col gap-2">
+              <button disabled={duplicando} onClick={() => handleDuplicar(dupModal, true)} className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Duplicar y avisar</button>
+              <button disabled={duplicando} onClick={() => handleDuplicar(dupModal, false)} className="w-full py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Solo duplicar (sin avisar)</button>
+              <button disabled={duplicando} onClick={() => setDupModal(null)} className="w-full py-2 rounded-lg text-[#7f93b0] text-sm hover:text-white disabled:opacity-50">Cancelar</button>
             </div>
           </div>
         </div>
