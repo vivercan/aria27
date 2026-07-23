@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
+import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("REQ-DUPLICAR");
 
@@ -58,8 +59,10 @@ async function getNextFolio(db: Db): Promise<string> {
   return `${prefix}${String(next).padStart(5, "0")}`;
 }
 
-export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
+  const body = (await req.json().catch(() => ({}))) as { notify?: boolean; actor?: string };
+  const notify = body?.notify === true;
   const db = getSupabaseAdmin();
   try {
     // 1. Leer requisicion origen (solo contenido)
@@ -140,6 +143,21 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
         await db.from("requisitions").delete().eq("id", newId);
         log.error("Error copiando items, rollback aplicado", { error: e3.message });
         return NextResponse.json({ success: false, error: "Error copiando items: " + e3.message }, { status: 500 });
+      }
+    }
+
+    // 7. Notificar a Direccion + Compras SOLO si el usuario lo pidio (opcion en el modal)
+    if (notify) {
+      try {
+        await notifyOps({
+          evento: "REQUISICION_CREADA",
+          resumen: `${newFolio} ${(nuevaCabecera.cost_center_name as string) || ""} $${Number(total).toLocaleString("es-MX", { minimumFractionDigits: 2 })} (duplicada de ${srcFolio})`,
+          detalle: `Requisicion duplicada de ${srcFolio}. ${items.length} concepto(s).`,
+          actor: body?.actor || "sistema",
+          metadata: { folio: newFolio, duplicado_de: srcFolio, monto: total },
+        });
+      } catch (e: unknown) {
+        log.warn("notifyOps fallo en duplicado (no bloquea)", { error: (e as { message?: string })?.message });
       }
     }
 
