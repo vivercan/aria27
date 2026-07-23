@@ -47,11 +47,11 @@ async function getNextFolio(db: Db): Promise<string> {
     .order("folio", { ascending: false }).limit(1);
   let maxNum = 0;
   if (maxFolioData && maxFolioData.length > 0) {
-    const parts = (maxFolioData[0] as { folio: string }).folio.split("-");
+    const parts = (maxFolioData[0] as unknown as { folio: string }).folio.split("-");
     maxNum = parseInt(parts[2], 10) || 0;
   }
   const { data: seqData } = await db.from("sequences").select("current_value").eq("id", "requisitions").single();
-  const seqNum = (seqData as { current_value?: number } | null)?.current_value || 0;
+  const seqNum = (seqData as unknown as { current_value?: number } | null)?.current_value || 0;
   const next = Math.max(maxNum, seqNum) + 1;
   await db.from("sequences").upsert({ id: "requisitions", current_value: next }, { onConflict: "id", ignoreDuplicates: false });
   log.warn("Folio via fallback Strategy 2", { next });
@@ -71,7 +71,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     if (e1 || !src) {
       return NextResponse.json({ success: false, error: "Requisicion origen no encontrada" }, { status: 404 });
     }
-    const source = src as Record<string, unknown>;
+    const source = src as unknown as Record<string, unknown>;
     const srcFolio = source.folio as string;
 
     // 2. Leer items origen
@@ -79,7 +79,7 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
       .from("requisition_items")
       .select("product_name, sku, unit, quantity, comments, category, subcategory, short_description, long_description, commercial_presentation, type, selected_price, precio_unitario, precio_total, product_id")
       .eq("requisition_id", id);
-    const items = (srcItems || []) as Array<Record<string, unknown>>;
+    const items = (srcItems || []) as unknown as Array<Record<string, unknown>>;
 
     // 3. Recalcular totales (monto = total CON IVA, canon FIX 546)
     const subtotal = items.reduce((s, it) => s + Number(it.quantity || 0) * Number(it.selected_price || 0), 0);
@@ -107,8 +107,8 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
       log.error("Error insertando cabecera duplicada", { srcFolio, error: e2?.message });
       return NextResponse.json({ success: false, error: e2?.message || "Error creando duplicado" }, { status: 500 });
     }
-    const newId = (nueva as { id: string }).id;
-    const newFolio = (nueva as { folio: string }).folio;
+    const newId = (nueva as unknown as { id: string }).id;
+    const newFolio = (nueva as unknown as { folio: string }).folio;
 
     // 6. Copiar items (reset de estado de cotizacion)
     if (items.length > 0) {
