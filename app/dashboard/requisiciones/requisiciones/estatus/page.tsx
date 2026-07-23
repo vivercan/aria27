@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Printer, FileDown, Send, Loader2, Trash2, Pencil } from "lucide-react";
+import { Printer, FileDown, Send, Loader2, Trash2, Pencil, Copy } from "lucide-react";
 import RequisicionEditModal from "@/components/RequisicionEditModal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -57,6 +57,23 @@ interface ReqItem {
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
+  const [duplicando, setDuplicando] = useState(false);
+  async function handleDuplicar(req: Requisition) {
+    if (duplicando) return;
+    setDuplicando(true);
+    try {
+      const res = await fetch(`/api/requisicion/${req.id}/duplicar`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+      if (!res.ok || !data.success) { flash("err", "No se pudo duplicar: " + (data.error || "")); return; }
+      flash("ok", `Duplicada como ${data.folio}`);
+      setDetailReq(null);
+      if (userEmail) loadData(userEmail);
+    } catch {
+      flash("err", "Error al duplicar");
+    } finally {
+      setDuplicando(false);
+    }
+  }
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
@@ -525,6 +542,7 @@ export default function RequisicionesStatusPage() {
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
               )}
+              <button onClick={() => { handleDuplicar(detailReq); }} disabled={duplicando} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-indigo-500/30 ring-1 ring-indigo-300/30 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
               <button onClick={() => { handlePrintClick(detailReq); }} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-black/20 ring-1 ring-white/10"><Printer className="w-4 h-4" />Imprimir</button>
               <button onClick={() => { handlePDFClick(detailReq); }} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition flex items-center gap-2 shadow-md shadow-emerald-500/30 ring-1 ring-emerald-300/30"><FileDown className="w-4 h-4" />PDF</button>
             </div>
