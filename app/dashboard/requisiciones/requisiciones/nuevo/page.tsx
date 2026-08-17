@@ -100,7 +100,7 @@ export default function NewRequisitionPage() {
       .catch(() => {});
   }, []);
   const [fotoTicket, setFotoTicket] = useState<File | null>(null);
-  const TIPOS_GASTO_REQ = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA"];
+  const TIPOS_GASTO_REQ = ["GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","PRESTAMOS","MANO DE OBRA","DESTAJOS","COMBUSTIBLE","SERVICIOS","RENTA MAQUINARIA","MANTENIMIENTO","INDIRECTOS"];
   const esGastoTipo = TIPOS_GASTO_REQ.includes(descripcionCompra);
 
   // ── Proveedor pre-seleccionado ───────────────────────────────────────────
@@ -705,6 +705,8 @@ export default function NewRequisitionPage() {
                 <option value="REFACCIONES">Refacciones</option>
                 <option value="COMBUSTIBLE">Combustible</option>
                 <option value="RENTA MAQUINARIA">Renta Maquinaria</option>
+                <option value="MANTENIMIENTO">Mantenimiento</option>
+                <option value="INDIRECTOS">Indirectos</option>
                 <option value="OTROS">Otros</option>
               </select>
             </div>
