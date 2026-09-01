@@ -208,7 +208,7 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 18-Abr-2026 PM: login background — eliminado azul eléctrico #0066FF, paleta slate corporate */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0b57d3 0%, #0a3f9e 28%, #072a63 55%, #061a3a 78%, #0a1628 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1f6be3 0%, #0d47b0 28%, #072a63 55%, #051633 78%, #040b17 100%)' }} />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(78,107,135,0.26) 0%, rgba(61,85,108,0.13) 30%, transparent 62%)' }} />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(78,107,135,0.20) 0%, transparent 42%)' }} />
       <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(78,107,135,0.18) 0%, transparent 60%)', filter: 'blur(60px)' }} />
