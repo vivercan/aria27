@@ -208,10 +208,10 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 18-Abr-2026 PM: login background — eliminado azul eléctrico #0066FF, paleta slate corporate */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #020617 0%, #020617 40%, #0a1628 70%, #2e4a6b 100%)' }} />
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(78,107,135,0.42) 0%, rgba(61,85,108,0.22) 30%, transparent 60%)' }} />
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(78,107,135,0.35) 0%, transparent 40%)' }} />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(78,107,135,0.30) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #020617 0%, #030814 45%, #0a1420 75%, #1b2b3d 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(78,107,135,0.26) 0%, rgba(61,85,108,0.13) 30%, transparent 62%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(78,107,135,0.20) 0%, transparent 42%)' }} />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(78,107,135,0.18) 0%, transparent 60%)', filter: 'blur(60px)' }} />
 
       <div className="absolute top-6 right-8 z-20">
         <p className="text-[10px] text-[#4a6080] tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
@@ -231,7 +231,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
         <div className="relative flex-shrink-0">
-          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'rgba(15,23,42,0.65)', border: '1px solid rgba(148,163,184,0.18)', boxShadow: '0 30px 80px rgba(15,23,42,0.9)', width: '300px' }}>
+          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'rgba(20,30,48,0.94)', border: '1px solid rgba(122,149,174,0.5)', boxShadow: '0 30px 80px rgba(0,0,0,0.78), 0 0 0 1px rgba(122,149,174,0.12), 0 0 40px rgba(34,211,238,0.06)', width: '300px' }}>
             {/* 18-Abr-2026 PM: barra decorativa — slate sólido sin azul brillante */}
             <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #4e6b87 0%, #7a95ae 50%, #4e6b87 100%)' }} />
             
@@ -244,7 +244,7 @@ export default function LoginPage() {
                   disabled={loading}
                   required
                   className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
-                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)' }}
+                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.3)' }}
                   placeholder="usuario@gcuavante.com"
                 />
 
@@ -256,7 +256,7 @@ export default function LoginPage() {
                     disabled={loading}
                     required
                     className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
-                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.12)', letterSpacing: showPass ? 'normal' : '0.25em' }}
+                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.3)', letterSpacing: showPass ? 'normal' : '0.25em' }}
                     placeholder="••••••••"
                   />
                   <button
