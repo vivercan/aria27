@@ -208,7 +208,7 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 18-Abr-2026 PM: login background — eliminado azul eléctrico #0066FF, paleta slate corporate */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #020617 0%, #030814 45%, #0a1420 75%, #1b2b3d 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0b57d3 0%, #0a3f9e 28%, #072a63 55%, #061a3a 78%, #0a1628 100%)' }} />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 80% at 75% 70%, rgba(78,107,135,0.26) 0%, rgba(61,85,108,0.13) 30%, transparent 62%)' }} />
       <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 70% 65%, rgba(78,107,135,0.20) 0%, transparent 42%)' }} />
       <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(78,107,135,0.18) 0%, transparent 60%)', filter: 'blur(60px)' }} />
@@ -222,18 +222,18 @@ export default function LoginPage() {
         href="https://104.248.119.60.nip.io/checador.html"
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute top-6 left-8 z-20 flex items-center gap-2.5 rounded-full transition-all hover:brightness-110 hover:scale-[1.03]"
-        style={{ padding: '10px 18px', background: 'linear-gradient(135deg, rgba(34,211,238,0.14) 0%, rgba(30,45,70,0.92) 55%)', border: '1.5px solid rgba(34,211,238,0.55)', backdropFilter: 'blur(10px)', textDecoration: 'none', boxShadow: '0 10px 32px rgba(0,0,0,0.5), 0 0 20px rgba(34,211,238,0.18)' }}
+        className="absolute top-6 left-8 z-20 flex items-center gap-2.5 rounded-full transition-all hover:brightness-95 hover:scale-[1.03]"
+        style={{ padding: '10px 18px', background: '#ffffff', border: '1px solid rgba(255,255,255,0.9)', textDecoration: 'none', boxShadow: '0 12px 30px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)' }}
       >
-        <ScanFace size={24} strokeWidth={2} style={{ color: '#22d3ee' }} />
-        <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.03em' }}>ARIA27 FaceID</span>
+        <ScanFace size={24} strokeWidth={2.2} style={{ color: '#0b57d3' }} />
+        <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0b1f3a', letterSpacing: '0.03em' }}>ARIA27 FaceID</span>
       </a>
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
         <div className="relative flex-shrink-0">
-          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'rgba(20,30,48,0.94)', border: '1px solid rgba(122,149,174,0.5)', boxShadow: '0 30px 80px rgba(0,0,0,0.78), 0 0 0 1px rgba(122,149,174,0.12), 0 0 40px rgba(34,211,238,0.06)', width: '300px' }}>
+          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(40,58,92,0.98) 0%, rgba(24,36,62,0.98) 100%)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 45px 100px rgba(0,0,0,0.6), 0 18px 40px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14)', width: '300px' }}>
             {/* 18-Abr-2026 PM: barra decorativa — slate sólido sin azul brillante */}
-            <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #4e6b87 0%, #7a95ae 50%, #4e6b87 100%)' }} />
+            <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #0b57d3 0%, #5b9dff 50%, #0b57d3 100%)' }} />
             
             <div style={{ padding: '22px 18px 18px 18px' }}>
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -244,7 +244,7 @@ export default function LoginPage() {
                   disabled={loading}
                   required
                   className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
-                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.3)' }}
+                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(10,18,34,0.85)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)' }}
                   placeholder="usuario@gcuavante.com"
                 />
 
@@ -256,7 +256,7 @@ export default function LoginPage() {
                     disabled={loading}
                     required
                     className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
-                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.3)', letterSpacing: showPass ? 'normal' : '0.25em' }}
+                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(10,18,34,0.85)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)', letterSpacing: showPass ? 'normal' : '0.25em' }}
                     placeholder="••••••••"
                   />
                   <button
