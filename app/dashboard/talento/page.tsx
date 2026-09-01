@@ -31,7 +31,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
       { title: "Personal",          description: "Expedientes y perfil de cada colaborador.",    href: "/dashboard/talento/personal",    icon: Users,       accent: INDIGO, hero: true },
       { title: "Usuarios",          description: "Accesos y roles del sistema ARIA.",             href: "/dashboard/talento/usuarios",    icon: UserCog,     accent: INDIGO },
       { title: "Asistencias",       description: "Control de entradas y salidas.",                href: "/dashboard/talento/checadas",    icon: Clock,       accent: INDIGO },
-      { title: "ARIA27 FaceID",     description: "Dar de alta rostros para checado facial.",     href: "https://104.248.119.60.nip.io/enroll.html", icon: ScanFace,    accent: INDIGO },
+      { title: "ARIA27 FaceID",     description: "Alta para checado facial.",     href: "https://104.248.119.60.nip.io/enroll.html", icon: ScanFace,    accent: INDIGO },
       { title: "Nómina",            description: "Pre-nómina, histórico y recibos.",             href: "/dashboard/talento/nomina",      icon: DollarSign,  accent: INDIGO },
     ],
   },
