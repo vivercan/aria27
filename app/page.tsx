@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, ScanFace } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -216,6 +216,18 @@ export default function LoginPage() {
       <div className="absolute top-6 right-8 z-20">
         <p className="text-[10px] text-[#4a6080] tracking-widest uppercase">ARIA v2026.1 · Secure Access</p>
       </div>
+
+      {/* ARIA27 FaceID — checado por reconocimiento facial (rama independiente, NO entra al sistema) */}
+      <a
+        href="https://104.248.119.60.nip.io/checador.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute top-6 left-8 z-20 flex items-center gap-2 rounded-full transition-all hover:brightness-125"
+        style={{ padding: '8px 15px', background: 'rgba(15,23,42,0.65)', border: '1px solid rgba(148,163,184,0.18)', backdropFilter: 'blur(8px)', textDecoration: 'none', boxShadow: '0 10px 30px rgba(15,23,42,0.4)' }}
+      >
+        <ScanFace size={16} strokeWidth={1.75} style={{ color: '#7a95ae' }} />
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.02em' }}>ARIA27 FaceID</span>
+      </a>
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
         <div className="relative flex-shrink-0">
