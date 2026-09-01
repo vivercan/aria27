@@ -222,11 +222,11 @@ export default function LoginPage() {
         href="https://104.248.119.60.nip.io/checador.html"
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute top-6 left-8 z-20 flex items-center gap-2 rounded-full transition-all hover:brightness-125"
-        style={{ padding: '8px 15px', background: 'rgba(15,23,42,0.65)', border: '1px solid rgba(148,163,184,0.18)', backdropFilter: 'blur(8px)', textDecoration: 'none', boxShadow: '0 10px 30px rgba(15,23,42,0.4)' }}
+        className="absolute top-6 left-8 z-20 flex items-center gap-2.5 rounded-full transition-all hover:brightness-110 hover:scale-[1.03]"
+        style={{ padding: '10px 18px', background: 'linear-gradient(135deg, rgba(34,211,238,0.14) 0%, rgba(30,45,70,0.92) 55%)', border: '1.5px solid rgba(34,211,238,0.55)', backdropFilter: 'blur(10px)', textDecoration: 'none', boxShadow: '0 10px 32px rgba(0,0,0,0.5), 0 0 20px rgba(34,211,238,0.18)' }}
       >
-        <ScanFace size={16} strokeWidth={1.75} style={{ color: '#7a95ae' }} />
-        <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.02em' }}>ARIA27 FaceID</span>
+        <ScanFace size={24} strokeWidth={2} style={{ color: '#22d3ee' }} />
+        <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.03em' }}>ARIA27 FaceID</span>
       </a>
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
