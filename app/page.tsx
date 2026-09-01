@@ -231,7 +231,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 min-h-screen w-full flex items-end justify-between px-10 lg:px-16 pb-16 lg:pb-24">
         <div className="relative flex-shrink-0">
-          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'linear-gradient(180deg, rgba(40,58,92,0.98) 0%, rgba(24,36,62,0.98) 100%)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 45px 100px rgba(0,0,0,0.6), 0 18px 40px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14)', width: '300px' }}>
+          <div className="relative overflow-hidden backdrop-blur-2xl rounded-2xl" style={{ background: 'rgba(255,255,255,0.96)', border: '1px solid rgba(255,255,255,0.9)', boxShadow: '0 45px 100px rgba(0,0,0,0.45), 0 18px 40px rgba(0,0,0,0.30), 0 4px 10px rgba(0,0,0,0.20)', width: '300px' }}>
             {/* 18-Abr-2026 PM: barra decorativa — slate sólido sin azul brillante */}
             <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, #0b57d3 0%, #5b9dff 50%, #0b57d3 100%)' }} />
             
@@ -243,8 +243,8 @@ export default function LoginPage() {
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   disabled={loading}
                   required
-                  className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#4a6080] disabled:opacity-50"
-                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: 'rgba(10,18,34,0.85)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)' }}
+                  className="w-full text-[#0b1f3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b57d3]/40 placeholder:text-[#8593ab] disabled:opacity-50"
+                  style={{ padding: '8px 12px', fontSize: '13px', height: '36px', background: '#f3f6fb', boxShadow: 'inset 0 1px 3px rgba(11,31,58,0.10)', border: '1px solid #d3dbe8' }}
                   placeholder="usuario@gcuavante.com"
                 />
 
@@ -255,8 +255,8 @@ export default function LoginPage() {
                     onChange={(e) => { setPass(e.target.value); setError(''); }}
                     disabled={loading}
                     required
-                    className="w-full text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-aria-primary/50 placeholder:text-[#7f93b0] disabled:opacity-50"
-                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: 'rgba(10,18,34,0.85)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)', letterSpacing: showPass ? 'normal' : '0.25em' }}
+                    className="w-full text-[#0b1f3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b57d3]/40 placeholder:text-[#8593ab] disabled:opacity-50"
+                    style={{ padding: '8px 40px 8px 12px', fontSize: showPass ? '13px' : '16px', height: '36px', background: '#f3f6fb', boxShadow: 'inset 0 1px 3px rgba(11,31,58,0.10)', border: '1px solid #d3dbe8', letterSpacing: showPass ? 'normal' : '0.25em' }}
                     placeholder="••••••••"
                   />
                   <button
@@ -264,7 +264,7 @@ export default function LoginPage() {
                     onClick={() => setShowPass(s => !s)}
                     aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     tabIndex={-1}
-                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#ffffff', display: 'flex', alignItems: 'center' }}
+                    style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#4b5b73', display: 'flex', alignItems: 'center' }}
                   >
                     {showPass ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
                   </button>
@@ -275,10 +275,10 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-white/[0.07] bg-[#0c1d38] text-aria-primary focus:ring-aria-primary/30 focus:ring-offset-0 cursor-pointer"
-                    style={{ accentColor: '#64748b' }}
+                    className="w-3.5 h-3.5 rounded border-[#c9d3e3] bg-white cursor-pointer"
+                    style={{ accentColor: '#0b57d3' }}
                   />
-                  <span className="text-[11px] text-[#4a6080]">Mantener sesión iniciada</span>
+                  <span className="text-[11.5px] text-[#3d4f6b] font-medium">Mantener sesión iniciada</span>
                 </label>
 
                 {error && (
@@ -292,7 +292,7 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full text-white font-semibold rounded-xl uppercase tracking-wider disabled:opacity-70"
                   /* 18-Abr-2026 PM: botón login — glow eléctrico eliminado, slate sólido */
-                  style={{ height: '36px', fontSize: '13px', background: 'linear-gradient(135deg, #4e6b87 0%, #5a7a99 50%, #4e6b87 100%)', boxShadow: '0 10px 30px rgba(15,23,42,0.50)' }}
+                  style={{ height: '36px', fontSize: '13px', background: 'linear-gradient(135deg, #0b57d3 0%, #2f7cf0 100%)', boxShadow: '0 10px 26px rgba(11,87,211,0.40)' }}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -307,14 +307,14 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-3 text-center">
-                <p className="text-[8px] text-[#4a6080]">Contraseña de Zoho Mail o App Password</p>
+                <p className="text-[9.5px] text-[#5b6b85]">Contraseña de Zoho Mail o App Password</p>
               </div>
 
               <div className="mt-3 text-center">
-                <p className="text-[9px] text-[#4a6080] tracking-wider uppercase flex items-center justify-center gap-1">
+                <p className="text-[9.5px] text-[#5b6b85] tracking-wider uppercase flex items-center justify-center gap-1 font-medium">
                   <span>Acceso exclusivo · GCUAVANTE</span>
-                  <span style={{ color: '#22C55E', fontSize: '8px' }}>●</span>
-                  <span style={{ color: '#22C55E' }}>PROD</span>
+                  <span style={{ color: '#16a34a', fontSize: '8px' }}>●</span>
+                  <span style={{ color: '#16a34a', fontWeight: 700 }}>PROD</span>
                 </p>
               </div>
             </div>
