@@ -397,6 +397,7 @@ export default function RequisicionesStatusPage() {
                   <th className="p-3">Folio</th>
                   <th className="p-3">Obra</th>
                   <th className="p-3">Solicitante</th>
+                  <th className="p-3">Proveedor</th>
                   <th className="p-3">F. Requerida</th>
                   <th className="p-3">Total</th>
                   <th className="p-3">Estado</th>
@@ -421,6 +422,7 @@ export default function RequisicionesStatusPage() {
                     </td>
                     <td className="p-3 text-white text-sm">{req.cost_center_name}</td>
                     <td className="p-3 text-[#c9d8ed] text-sm">{nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by}</td>
+                    <td className="p-3 text-[#c9d8ed] text-sm" title={req.proveedor || ""}>{req.proveedor ? <span className="block max-w-[220px] truncate">{req.proveedor}</span> : <span className="text-[#4a6080]">—</span>}</td>
                     <td className="p-3 text-[#c9d8ed] text-sm">{formatDate(req.required_date)}</td>
                     <td className="p-3 text-aria-accent text-sm font-medium">{formatCurrency(req.monto || req.total)}</td>
                     <td className="p-3">
