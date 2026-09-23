@@ -484,7 +484,7 @@ async function handleTransferenciaInventario(from: string, phone10: string, invD
 async function findEmpleado(phone10: string, from: string) {
   const { data: emp, error: findErr } = await db
     .from("employees")
-    .select("id, full_name, centro_trabajo:centros_trabajo(id, nombre, latitud, longitud, radio_metros)")
+    .select("id, full_name, centro_trabajo:centros_trabajo!employees_centro_trabajo_id_fkey(id, nombre, latitud, longitud, radio_metros)")
     .or(`whatsapp.eq.${phone10},whatsapp.eq.52${phone10},whatsapp.eq.521${phone10}`)
     .eq("status", "ACTIVO")
     .single();
