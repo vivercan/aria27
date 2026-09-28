@@ -74,6 +74,14 @@
 
   /* Selects */
   select {
+    /* FIX 548 iOS: sin appearance:none, Safari iOS pinta el select blanco con
+       su estilo nativo e ignora el fondo -> texto blanco sobre blanco. */
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238aa0bf'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.55rem center;
+    background-size: 14px 14px;
     background-color: rgba(255,255,255,0.04);
     color: var(--aria-text);
     border: 1px solid var(--aria-card-border);
@@ -1248,4 +1256,20 @@ html, body {
   .overflow-auto, .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
   }
+}
+
+
+/* ═══ FIX 548 · iPhone / Safari iOS ═══════════════════════════════════
+   1) 100vh en Safari iOS incluye la zona detrás de la barra inferior del
+      navegador -> botones de abajo quedaban tapados. dvh = alto visible real.
+   2) Espacio para flecha del select nativo (appearance:none arriba).
+   3) Safe-area (notch / barra de inicio) en contenido scrolleable. */
+@supports (height: 100dvh) {
+  .h-screen { height: 100dvh; }
+  .max-h-screen { max-height: 100dvh; }
+  .min-h-screen { min-height: 100dvh; }
+}
+select:not([multiple]):not([size]) { padding-right: 1.9rem !important; }
+@media (max-width: 767px) {
+  .aria-shell-scroll { padding-bottom: env(safe-area-inset-bottom); }
 }

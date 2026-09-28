@@ -745,7 +745,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 overflow-hidden">{children}</div>
+        <div className="flex-1 overflow-hidden aria-shell-scroll">{children}</div>
       </main>
 
       <AlertasGlobales />

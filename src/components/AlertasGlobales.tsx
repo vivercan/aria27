@@ -18,7 +18,8 @@ export default function AlertasGlobales() {
   const log = clientLogger("ALERTASGLOBALES");
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
-  const [minimizado, setMinimizado] = useState(false);
+  // FIX 548: en celular arranca minimizado (el panel de 380px tapaba el formulario)
+  const [minimizado, setMinimizado] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
@@ -111,7 +112,8 @@ export default function AlertasGlobales() {
     return (
       <button
         onClick={() => setMinimizado(false)}
-        className="fixed bottom-4 left-[200px] z-50 flex items-center gap-2 px-4 py-2 bg-amber-500/90 hover:bg-amber-500 text-white rounded-full shadow-lg transition-all"
+        style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        className="fixed left-3 md:left-[236px] z-50 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-amber-500/90 hover:bg-amber-500 text-white rounded-full shadow-lg transition-all"
       >
         <AlertTriangle className="w-4 h-4" />
         <span className="font-medium">{totalAlertas} Alertas Pendientes</span>
@@ -120,7 +122,7 @@ export default function AlertasGlobales() {
   }
 
   return (
-    <div className="fixed bottom-4 left-[200px] z-50 w-[380px] bg-[rgba(4,8,16,0.98)]  rounded-xl shadow-2xl border border-amber-500/30 overflow-hidden">
+    <div style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }} className="fixed left-3 right-3 md:left-[236px] md:right-auto z-50 md:w-[380px] max-h-[70vh] overflow-y-auto bg-[rgba(4,8,16,0.98)] rounded-xl shadow-2xl border border-amber-500/30">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-amber-500/10 border-b border-amber-500/20">
         <div className="flex items-center gap-2">
