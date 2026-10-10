@@ -17,7 +17,7 @@ export default function CampoNav() {
     <nav aria-label="Navegación Campo" className="md:hidden fixed left-0 right-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#071122]/95 backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
       <ul className="grid grid-cols-4">
         {TABS.map(t => { const active = t.match(path); const Icon = t.icon; return (
-          <li key={t.href}><Link href={t.href} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${active ? "text-white" : "text-[#7f93b0]"}`} aria-current={active ? "page" : undefined}>
+          <li key={t.href}><Link href={t.href} onClick={() => { try { sessionStorage.setItem("aria:entro", "1"); } catch {} }} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${active ? "text-white" : "text-[#7f93b0]"}`} aria-current={active ? "page" : undefined}>
             <Icon className={`w-5 h-5 ${active ? "text-aria-accent" : ""}`} />{t.label}</Link></li>); })}
       </ul>
     </nav>

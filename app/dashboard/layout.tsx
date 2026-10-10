@@ -12,15 +12,14 @@ import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import { apiGet, apiPost, ApiError } from "@/lib/api-fetch";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu, Smartphone
+  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
 } from "lucide-react";
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
+import { isMobileDevice, DESKTOP_LANDINGS } from "@/lib/device";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
-  // ARIA27 Campo 10-Oct-2026: acceso directo al modo celular (visible para todos los roles; cada pantalla interna respeta sus permisos)
-  { name: "Modo Campo", icon: Smartphone, href: "/dashboard/campo" },
   { name: "Obras", icon: HardHat, href: "/dashboard/obras" },
   { name: "Talento", icon: Users, href: "/dashboard/talento" },
   { name: "Requisiciones", icon: Package, href: "/dashboard/requisiciones" },
@@ -181,6 +180,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   // ARIA27 Campo F4: barra inferior en celular cuando el usuario entro por Modo Campo
   const [modoCampo, setModoCampo] = useState(false);
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
+  // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Campo.
+  // Solo la PRIMERA llegada de la pestaña a una ruta de escritorio se redirige; deep links (estatus?open=, entrega/[id]) y el boton "Mas" no se tocan.
+  useEffect(() => {
+    try {
+      if (!isMobileDevice()) return;
+      if (localStorage.getItem("aria:modo") !== "campo") { localStorage.setItem("aria:modo", "campo"); setModoCampo(true); }
+      if (sessionStorage.getItem("aria:entro") === "1") return;
+      sessionStorage.setItem("aria:entro", "1");
+      if (DESKTOP_LANDINGS.has((pathname || "").replace(/\/$/, ""))) router.replace("/dashboard/campo");
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
   // Búsqueda global: resultados de datos (obras, requisiciones, clientes, etc.)
@@ -439,7 +450,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
           <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
-              if (item.href === "#pulso" || item.href === "/dashboard/campo") return true;
+              if (item.href === "#pulso") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
               return canAccessModule(userRole, userPermissions, moduleKey);
             }).map((item) => {

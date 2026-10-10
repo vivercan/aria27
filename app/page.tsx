@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { landingPath } from '@/lib/device'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff, ScanFace } from 'lucide-react'
@@ -42,7 +43,7 @@ export default function LoginPage() {
         meStatus = meRes.status
         if (meStatus === 200) {
           if (cancelled) return
-          router.replace('/dashboard/requisiciones')
+          router.replace(landingPath())
           return
         }
       } catch { /* network falla, seguir al paso B */ }
@@ -96,7 +97,7 @@ export default function LoginPage() {
         }
       } catch { /* layout.tsx fallback */ }
       if (cancelled) return
-      router.replace('/dashboard/requisiciones')
+      router.replace(landingPath())
     }
     run()
     return () => { cancelled = true }
@@ -191,7 +192,7 @@ export default function LoginPage() {
       }
     } catch { /* si falla, layout.tsx los cargará como fallback */ }
 
-    router.push('/dashboard/requisiciones')
+    router.push(landingPath())
   }
 
   if (checkingSession) {
