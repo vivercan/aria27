@@ -88,6 +88,8 @@ export default function CatalogoObrasPage() {
   };
 
   useEffect(() => { cargar(); }, []);
+  // ?nueva=1 abre el formulario (viene de Pipeline o de un link directo)
+  useEffect(() => { try { if (new URLSearchParams(window.location.search).get("nueva") === "1") { setForm({ ...FORM_INIT }); setEditId(null); setShowForm(true); } } catch {} }, []);
 
   const cargar = async () => {
     setLoading(true);

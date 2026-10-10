@@ -260,9 +260,10 @@ export default function PipelinePage() {
             <p className="text-xs text-[#7f93b0]">{obras.length} obras registradas</p>
           </div>
         </div>
-        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ ...EMPTY }); setModo("manual"); }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover">
+        {/* 10-Oct-2026 B1-Obras: el alta vive solo en Catalogo (fuente unica: codigo automatico + ubicacion obligatoria). Aqui las 3 modalidades (manual/grupo/excel) nunca pudieron insertar. */}
+        <Link href="/dashboard/obras/catalogo?nueva=1" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover">
           <Plus className="w-4 h-4" /> Nueva Obra
-        </button>
+        </Link>
       </div>
 
       <FlashBanner msg={mensaje} />
@@ -313,7 +314,7 @@ export default function PipelinePage() {
             </div>
 
             {/* Selector de modo */}
-            {!editId && (
+            {!editId && false && (
               <div className="flex border-b border-white/[0.08]">
                 {[
                   { key: "manual", label: "Manual", icon: Plus },
