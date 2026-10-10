@@ -226,6 +226,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         try { localStorage.setItem("userEmail", me.email); } catch {}
         if (me.role) { try { localStorage.setItem("userRole", me.role); } catch {} }
         if (me.permissions) { try { localStorage.setItem("userPermissions", JSON.stringify(me.permissions)); } catch {} }
+        try { window.dispatchEvent(new Event("aria:perms")); } catch {}
       } catch (e) {
         if (e instanceof ApiError && (e.isUnauthorized || e.isForbidden)) {
           unauthorizedRef.current = true; // detiene future polls

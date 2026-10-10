@@ -15,12 +15,16 @@ export default function AccessGuard({ moduleKey, subKey, children }: AccessGuard
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const { role, permissions } = getPermissionsFromStorage();
-    if (subKey) {
-      setAllowed(canAccessSub(role, permissions, moduleKey, subKey));
-    } else {
-      setAllowed(canAccessModule(role, permissions, moduleKey));
-    }
+    // 10-Oct-2026: los permisos se refrescan desde /api/auth/me en el layout DESPUES del primer render.
+    // Antes el guard evaluaba solo una vez con lo viejo de localStorage -> "Acceso Restringido" a quien ya tenia acceso.
+    const evaluar = () => {
+      const { role, permissions } = getPermissionsFromStorage();
+      setAllowed(subKey ? canAccessSub(role, permissions, moduleKey, subKey) : canAccessModule(role, permissions, moduleKey));
+    };
+    evaluar();
+    window.addEventListener("aria:perms", evaluar);
+    window.addEventListener("storage", evaluar);
+    return () => { window.removeEventListener("aria:perms", evaluar); window.removeEventListener("storage", evaluar); };
   }, [moduleKey, subKey]);
 
   if (allowed === null) return null; // loading

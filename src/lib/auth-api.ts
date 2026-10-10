@@ -156,19 +156,13 @@ export type AdminAuthFail = { ok: false; res: NextResponse };
 export type AdminAuthResult = AdminAuthOk | AdminAuthFail;
 
 export async function requireAdmin(req: NextRequest): Promise<AdminAuthResult> {
-  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!email) {
-    return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
-  }
-
-  const user = await validateApiUser(email);
-  if (!user) {
-    return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
-  }
-
+  // 10-Oct-2026: FIX 541.1 dejo requireAdmin leyendo x-user-email, header que el frontend ya NO manda
+  // (api-fetch lo borra) -> los 14 endpoints admin respondian 401 a todos. Ahora identidad por cookie de sesion.
+  const u = await requireUser(req);
+  if (!u.ok) return { ok: false, res: u.res };
+  const email = u.email.toLowerCase();
   if (ADMIN_EMAILS.includes(email)) return { ok: true, email };
-  if (user.role === "admin" || user.role === "Administrador") return { ok: true, email };
-
+  if (u.role === "admin" || u.role === "Administrador") return { ok: true, email };
   return { ok: false, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
 }
 
@@ -178,12 +172,11 @@ export async function requireAdmin(req: NextRequest): Promise<AdminAuthResult> {
  * Devuelve tambien el rol para que la ruta aplique guardas (RH no puede crear/promover admins).
  */
 export async function requireAdminOrRh(req: NextRequest): Promise<(AdminAuthOk & { role: string }) | AdminAuthFail> {
-  const email = (req.headers.get("x-user-email") || "").toLowerCase().trim();
-  if (!email) return { ok: false, res: NextResponse.json({ error: "x-user-email requerido" }, { status: 401 }) };
-  const user = await validateApiUser(email);
-  if (!user) return { ok: false, res: NextResponse.json({ error: "Usuario no encontrado" }, { status: 403 }) };
+  const u = await requireUser(req);
+  if (!u.ok) return { ok: false, res: u.res };
+  const email = u.email.toLowerCase();
   if (ADMIN_EMAILS.includes(email)) return { ok: true, email, role: "admin" };
-  const role = String(user.role || "");
+  const role = String(u.role || "");
   if (role === "admin" || role === "Administrador" || role === "rh") return { ok: true, email, role };
   return { ok: false, res: NextResponse.json({ error: "Solo Administración o Recursos Humanos" }, { status: 403 }) };
 }
