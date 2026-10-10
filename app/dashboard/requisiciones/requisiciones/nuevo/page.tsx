@@ -1069,7 +1069,15 @@ export default function NewRequisitionPage() {
               <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 border-b border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase text-white/70 sticky top-0">
                 <div>Descripción</div><div>Cant</div><div>Unidad</div><div className="text-right">Monto</div>
               </div>
-              {freeRows.length === 0 ? (
+              {tipoSolicitud === "DESTAJO" ? (
+                Number(destajoMonto) > 0 && destajoConcepto.trim() ? (
+                  <div className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center px-3 py-2 text-xs">
+                    <div className="truncate text-white">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} destajo: {destajoConcepto.trim()}{selectedProveedor ? ` · ${selectedProveedor.name}` : ""}</div>
+                    <div className="text-center">1</div><div className="text-center">PAGO</div>
+                    <div className="text-right text-emerald-400">${Number(destajoMonto).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</div>
+                  </div>
+                ) : <div className="px-3 py-8 text-center text-sm text-white/40">Captura concepto y monto del destajo en la sección 2.</div>
+              ) : freeRows.length === 0 ? (
                 <div className="px-3 py-8 text-center text-sm text-white/40">Agrega partidas en la sección 2.</div>
               ) : freeRows.map(r => (
                 <div key={r.tempId} className="grid grid-cols-[1fr_80px_80px_90px] gap-2 items-center px-3 py-2 text-xs">
