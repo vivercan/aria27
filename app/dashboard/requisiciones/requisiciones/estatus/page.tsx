@@ -653,7 +653,10 @@ export default function RequisicionesStatusPage() {
                 )}
               </div>
             )}
-            <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
+            <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2 flex-wrap">
+              {accionPara(detailReq, userRole, userEmail) === "REGISTRAR_ENTREGA" && (
+                <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="px-4 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-sm font-semibold transition flex items-center gap-2 shadow-md">📦 Registrar entrega</Link>
+              )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>
               )}
