@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
       tipo_solicitud: body.tipo_solicitud === "DESTAJO" ? "DESTAJO" : "MATERIALES",
       ...(body.tipo_solicitud === "DESTAJO" && body.destajo_tipo_pago ? { destajo_tipo_pago: String(body.destajo_tipo_pago) } : {}),
       ...(body.tipo_solicitud === "DESTAJO" && body.destajo_concepto ? { destajo_concepto: String(body.destajo_concepto).slice(0, 200) } : {}),
-      ...(body.costCenterId ? { cost_center_id: body.costCenterId } : {}),
+      // (cost_center_id es INTEGER legacy; el uuid de centros_trabajo NO se guarda aqui — hotfix 10-Oct)
       // Datos de pago e IVA para PDF
       ...(body.forma_pago ? { forma_pago: body.forma_pago } : {}),
       ...(body.fecha_pago ? { fecha_pago: body.fecha_pago } : {}),
