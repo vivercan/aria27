@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Printer, FileDown, Send, Loader2, Trash2, Pencil, Copy } from "lucide-react";
 import RequisicionEditModal from "@/components/RequisicionEditModal";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import ListToolbar from "@/components/ListToolbar";
 import { useListFilter } from "@/hooks/useListFilter";
 import RequiStepper from "@/components/RequiStepper";
@@ -160,6 +161,17 @@ export default function RequisicionesStatusPage() {
     searchFields, chips: chipsDef, chipOf, chipPredicates, selects: selectsDef,
   });
   const visibles = lf.filtered;
+  // F4: llegar desde Campo con ?chip=mis_pendientes o ?open=<id>
+  const sp = useSearchParams();
+  useEffect(() => {
+    const chip = sp.get("chip"); if (chip) lf.setChip(chip);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp]);
+  useEffect(() => {
+    const open = sp.get("open"); if (!open || loading) return;
+    const r = requisiciones.find(x => x.id === open); if (r) openDetail(r);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp, loading, requisiciones]);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "";

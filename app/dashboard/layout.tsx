@@ -15,6 +15,7 @@ import {
   ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
 } from "lucide-react";
 import React from "react";
+import CampoNav from "@/components/campo/CampoNav";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
@@ -169,6 +170,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [userPermissions, setUserPermissions] = useState<UserPermissions>({});
   const [showPulso, setShowPulso] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // ARIA27 Campo F4: barra inferior en celular cuando el usuario entro por Modo Campo
+  const [modoCampo, setModoCampo] = useState(false);
+  useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
   // Búsqueda global: resultados de datos (obras, requisiciones, clientes, etc.)
@@ -745,7 +749,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 overflow-hidden aria-shell-scroll">{children}</div>
+        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{children}</div>
+        {modoCampo && <CampoNav />}
       </main>
 
       <AlertasGlobales />
