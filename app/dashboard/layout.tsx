@@ -180,6 +180,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   // ARIA27 Campo F4: barra inferior en celular cuando el usuario entro por Modo Campo
   const [modoCampo, setModoCampo] = useState(false);
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
+  useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
   // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Campo.
   // Solo la PRIMERA llegada de la pestaña a una ruta de escritorio se redirige; deep links (estatus?open=, entrega/[id]) y el boton "Mas" no se tocan.
   useEffect(() => {
@@ -718,7 +719,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/[0.06]"
+              className="md:hidden p-2 rounded-lg hover:bg-white/[0.06] min-w-[40px] min-h-[40px] flex items-center justify-center"
               style={{ color: navMuted }}
               aria-label="Abrir menú"
             >

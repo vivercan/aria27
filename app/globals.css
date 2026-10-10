@@ -1268,6 +1268,29 @@ html, body {
   .h-screen { height: 100dvh; }
   .max-h-screen { max-height: 100dvh; }
   .min-h-screen { min-height: 100dvh; }
+  /* 10-Oct-2026 (pasada movil): modales con vh arbitrario se salian del viewport en iOS (85vh = 648px con 664 visibles) */
+  .max-h-\[90vh\] { max-height: 90dvh; }
+  .max-h-\[85vh\] { max-height: 85dvh; }
+  .max-h-\[80vh\] { max-height: 80dvh; }
+  .max-h-\[70vh\] { max-height: 70dvh; }
+  .max-h-\[65vh\] { max-height: 65dvh; }
+  .max-h-\[60vh\] { max-height: 60dvh; }
+  .max-h-\[55vh\] { max-height: 55dvh; }
+  .h-\[60vh\] { height: 60dvh; }
+  .min-h-\[60vh\] { min-height: 60dvh; }
+  .max-h-\[calc\(85vh-140px\)\] { max-height: calc(85dvh - 140px); }
+  .max-h-\[calc\(100vh-300px\)\] { max-height: calc(100dvh - 300px); }
+  .h-\[calc\(100vh-64px\)\] { height: calc(100dvh - 64px); }
+}
+/* 10-Oct-2026 Campo automatico en celular: la barra inferior (56px + safe-area) no debe tapar modales ni botones fijos */
+@media (max-width: 767px) {
+  body.aria-campo .fixed.inset-0 { bottom: calc(56px + env(safe-area-inset-bottom)); }
+  body.aria-campo .campo-bottom-bar { bottom: calc(56px + env(safe-area-inset-bottom)); }
+  /* iOS hace zoom al enfocar inputs con fuente < 16px */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
+  /* dedo: minimo 36px de alto en controles tocables */
+  button, [role="button"], a.btn { min-height: 36px; }
+  input[type="checkbox"], input[type="radio"] { min-width: 20px; min-height: 20px; }
 }
 select:not([multiple]):not([size]) { padding-right: 1.9rem !important; }
 @media (max-width: 767px) {

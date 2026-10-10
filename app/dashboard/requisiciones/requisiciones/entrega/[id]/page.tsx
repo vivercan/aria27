@@ -129,7 +129,7 @@ export default function EntregaPage() {
         <div><label className="text-xs text-[#7f93b0]">Nota (opcional)</label><textarea value={nota} onChange={e => setNota(e.target.value)} rows={2} className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm" placeholder="Faltó algo, llegó dañado, quién entregó…" /></div>
       </section>
 
-      <div className="fixed left-0 right-0 bottom-0 md:left-[220px] p-3 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/95 to-transparent" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+      <div className="campo-bottom-bar fixed left-0 right-0 bottom-0 md:left-[220px] p-3 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/95 to-transparent" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
         <button onClick={enviar} disabled={sending || bloqueada || !!done || items.length === 0} className="w-full max-w-2xl mx-auto block rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
           {sending ? <span className="inline-flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" />Guardando…</span> : items.every(i => i.recibida >= i.quantity) ? "Registrar entrega completa" : "Registrar entrega parcial"}
         </button>
