@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { sendWhatsAppLogged, sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
 import { emailAllowed } from "@/lib/notif-policy";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
@@ -55,7 +55,13 @@ export async function POST(req: NextRequest) {
     if (action === "RECHAZAR") {
       await db.from("requisitions").update({ status: "RECHAZADA_RESPONSABLE", responsable_comentario: comentario, responsable_autorizo_at: new Date().toISOString(), responsable_autorizo_by: me }).eq("id", id);
       const cu = creadorU as U | null;
-      if (cu?.phone) await sendWhatsAppLogged("aria_tarea_status", [(cu.display_name || cu.name || creador || "Equipo").slice(0, 60), "0", `❌ ${folio} ${obra} fue rechazada por ${me}: ${comentario}`.slice(0, 700)], cu.phone, { origen: "responsable-rechazo", enviadoPor: me });
+      if (cu?.phone) {
+        const nom = (cu.display_name || cu.name || creador || "Equipo").slice(0, 60);
+        await sendWhatsAppTemplateOrFallback(
+          { template: "aria_solicitud_estado", params: [nom, folio, obra, `rechazada en obra: ${comentario}`.slice(0, 200)], buttonToken: id },
+          { template: "aria_tarea_status", params: [nom, "0", `❌ ${folio} ${obra} fue rechazada por ${me}: ${comentario}`.slice(0, 700)] },
+          cu.phone, { origen: "responsable-rechazo", enviadoPor: me });
+      }
       await db.from("event_log").insert({ tipo: "REQUISICION_RECHAZADA_RESPONSABLE", resumen: `${folio} ${obra} rechazada por responsable`, detalle: comentario, actor: me, metadata: { folio, id } }).then(() => {}, () => {});
       log.info("rechazada", { folio, by: me });
       return NextResponse.json({ success: true, status: "RECHAZADA_RESPONSABLE" });
@@ -104,7 +110,13 @@ export async function POST(req: NextRequest) {
     void notifyOps({ evento: "REQUISICION_CREADA", resumen: `${folio} ${obra} - ${creador} (autorizó ${me})`, detalle: `Folio: ${folio}\nObra: ${obra}\nSolicitante: ${creador}\nFlujo: ${flujo}\nUrgencia: ${urg}`, actor: me, metadata: { folio, obra, flujo, urgency: urg, nivel1: true } }).catch(() => {});
     // Creador: WA de avance
     const cu = creadorU as U | null;
-    if (cu?.phone && cu.email.toLowerCase() !== me) await sendWhatsAppLogged("aria_tarea_status", [(cu.display_name || cu.name || creador || "Equipo").slice(0, 60), "0", `✅ ${folio} ${obra} autorizada en obra por ${me}. Sigue: ${flujo === "direccion" ? "Dirección" : "Compras"}.`.slice(0, 700)], cu.phone, { origen: "responsable-ok-creador", enviadoPor: me });
+    if (cu?.phone && cu.email.toLowerCase() !== me) {
+      const nom = (cu.display_name || cu.name || creador || "Equipo").slice(0, 60);
+      await sendWhatsAppTemplateOrFallback(
+        { template: "aria_solicitud_estado", params: [nom, folio, obra, `autorizada en obra; sigue ${flujo === "direccion" ? "Dirección" : "Compras"}`], buttonToken: id },
+        { template: "aria_tarea_status", params: [nom, "0", `✅ ${folio} ${obra} autorizada en obra por ${me}. Sigue: ${flujo === "direccion" ? "Dirección" : "Compras"}.`.slice(0, 700)] },
+        cu.phone, { origen: "responsable-ok-creador", enviadoPor: me });
+    }
 
     log.info("autorizada", { folio, by: me, flujo, nuevoStatus });
     return NextResponse.json({ success: true, status: nuevoStatus, flujo, notificados });

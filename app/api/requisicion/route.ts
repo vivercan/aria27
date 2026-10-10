@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { sendWhatsAppLogged, sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
@@ -358,7 +358,12 @@ export async function POST(request: NextRequest) {
     if (esperaResponsable) {
       const respPhone = (responsableUser?.phone as string | undefined) || null;
       if (respPhone) {
-        await sendWhatsAppLogged("requisicion_creada", [`[AUTORIZAR] ${folio}`, displayName, obra, fechaReq], respPhone, { origen: "req-creada-responsable", enviadoPor: usuario.email });
+        const respNombre = String(responsableUser?.display_name || responsableUser?.name || "Responsable").slice(0, 60);
+        const queSePide = String(materialesResumen || body.motivo_solicitud || body.descripcion_compra || "materiales").slice(0, 120);
+        await sendWhatsAppTemplateOrFallback(
+          { template: "aria_autorizar_responsable", params: [respNombre, displayName, queSePide, obra, folio], buttonToken: String(req.id) },
+          { template: "requisicion_creada", params: [`[AUTORIZAR] ${folio}`, displayName, obra, fechaReq] },
+          respPhone, { origen: "req-creada-responsable", enviadoPor: usuario.email });
         notificados.push(`Responsable: ${responsableEmail}`);
       } else {
         logs.push(`AVISO: responsable ${responsableEmail} sin teléfono en Users; no se pudo avisar por WA`);

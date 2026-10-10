@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { logger } from "@/lib/logger";
-import { sendWhatsAppLogged } from "@/lib/whatsapp";
+import { sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 const log = logger("REQ-ENTREGA");
@@ -61,7 +61,13 @@ export async function POST(req: NextRequest) {
     if ((r.user_email || "").toLowerCase() !== me) {
       const { data: cu } = await db.from("Users").select("phone, name, display_name").eq("email", r.user_email).maybeSingle();
       const u = cu as { phone?: string | null; name?: string | null; display_name?: string | null } | null;
-      if (u?.phone) await sendWhatsAppLogged("aria_tarea_status", [(u.display_name || u.name || "Equipo").slice(0, 60), "0", `📦 ${r.folio} ${r.cost_center_name}: entrega ${completa ? "completa" : "parcial"} registrada por ${me}${b.foto_url ? " con foto" : ""}.`.slice(0, 700)], u.phone, { origen: "entrega-registrada", enviadoPor: me });
+      if (u?.phone) {
+        const nom = (u.display_name || u.name || "Equipo").slice(0, 60);
+        await sendWhatsAppTemplateOrFallback(
+          { template: "aria_solicitud_estado", params: [nom, String(r.folio), String(r.cost_center_name), `entrega ${completa ? "completa" : "parcial"} registrada por ${me}${b.foto_url ? " con foto" : ""}`.slice(0, 200)], buttonToken: id },
+          { template: "aria_tarea_status", params: [nom, "0", `📦 ${r.folio} ${r.cost_center_name}: entrega ${completa ? "completa" : "parcial"} registrada por ${me}${b.foto_url ? " con foto" : ""}.`.slice(0, 700)] },
+          u.phone, { origen: "entrega-registrada", enviadoPor: me });
+      }
     }
     log.info("entrega", { folio: r.folio, entrega: folio, completa, by: me });
     return NextResponse.json({ success: true, entrega: ent, status: completa ? "ENTREGADA" : "ENTREGA_PARCIAL" });

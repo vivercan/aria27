@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { sendWhatsAppText } from "@/lib/whatsapp";
+import { sendWhatsAppLogged, sendWhatsAppText } from "@/lib/whatsapp";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 import { notifyOps } from "@/lib/notify-ops";
@@ -68,7 +68,9 @@ export async function POST(req: NextRequest) {
     // ── WhatsApp (texto libre — best effort) ─────────────────────────────
     if (empleado.whatsapp) {
       const mensaje = `*📋 Nueva tarea asignada — ARIA27*\n\nHola *${empleado.full_name}*, se te asignó una tarea:\n\n*${titulo}*${descripcion ? `\n${descripcion}` : ""}\n\n📅 Fecha compromiso: ${fechaFmt}${obraStr}\n✍️ Asignado por: ${asignado_por || "Administrador"}\n\n_Revisa el sistema para marcar tu avance._`;
-      const waResult = await sendWhatsAppText(
+      // ARIA27 Campo F6: plantilla con boton (fuera de ventana 24h) → si no esta aprobada, texto libre
+      const tplRes = await sendWhatsAppLogged("aria_actividad_asignada", [String(empleado.full_name || "").split(" ")[0] || "Hola", String(titulo).slice(0, 80), String(obra || "obra").slice(0, 60), fechaFmt], empleado.whatsapp, { origen: "tarea-asignada", enviadoPor: asignado_por || "sistema", buttonToken: String(body.tarea_id || "") });
+      const waResult = tplRes.success ? tplRes : await sendWhatsAppText(
         empleado.whatsapp,
         mensaje,
         { origen: "tarea-asignada", enviadoPor: asignado_por || "sistema" }

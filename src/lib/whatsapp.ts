@@ -186,6 +186,12 @@ const TEMPLATE_CONFIG: Record<string, {
     description: "Solicitar cotizacion a proveedor"
     // {{1}}=Folio, {{2}}=Obra, {{3}}=Urgencia
   },
+  // ── ARIA27 Campo F6 (10-Oct-2026): plantillas con botón de liga directa ──
+  // Boton URL dinamico: la base va en Meta, {{1}} = id/sufijo que mandamos en buttonToken.
+  aria_autorizar_responsable: { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 5, description: "Responsable de obra: autorizar requi (boton abre la requi)" },
+  aria_solicitud_estado:      { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 4, description: "Avance de estado al creador (boton abre la requi)" },
+  aria_actividad_asignada:    { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 4, description: "Actividad asignada (boton abre actividades)" },
+  aria_entrega_pendiente:     { language: "es_MX", hasButton: true, buttonCount: 1, paramCount: 3, description: "Registrar entrega (boton abre la pantalla de entrega)" },
   aria_tarea_status: {
     language: "es_MX",
     paramCount: 3,
@@ -405,3 +411,27 @@ export async function sendWhatsAppToMultiple(
 }
 
  
+
+
+// ── ARIA27 Campo F6: template nueva → si falla (no aprobada aún) usa template vieja ──
+// Cache en memoria: si una plantilla falló por "no existe/no aprobada", no se reintenta por 6 h
+// en esta instancia (evita 1 fila fallida en wa_log por cada envío, como pasó con aria_requisicion_gasto).
+const _tplUnavailableUntil = new Map<string, number>();
+export async function sendWhatsAppTemplateOrFallback(
+  primary: { template: string; params: string[]; buttonToken?: string },
+  fallback: { template: string; params: string[]; buttonToken?: string },
+  phone: string,
+  opts: { origen?: string; enviadoPor?: string } = {}
+): Promise<{ success: boolean; usedFallback: boolean; messageId?: string; error?: string }> {
+  const until = _tplUnavailableUntil.get(primary.template) || 0;
+  if (Date.now() > until) {
+    const r = await sendWhatsAppLogged(primary.template, primary.params, phone, { ...opts, buttonToken: primary.buttonToken });
+    if (r.success) return { success: true, usedFallback: false, messageId: r.messageId };
+    if (/no existe|not exist|does not exist|132001|template|plantilla/i.test(r.error || "")) {
+      _tplUnavailableUntil.set(primary.template, Date.now() + 6 * 60 * 60 * 1000);
+      log.warn("Template primaria no disponible, usando fallback 6h", { template: primary.template, error: r.error });
+    }
+  }
+  const f = await sendWhatsAppLogged(fallback.template, fallback.params, phone, { ...opts, origen: opts.origen ? `${opts.origen}:fb` : "fallback", buttonToken: fallback.buttonToken });
+  return { success: f.success, usedFallback: true, messageId: f.messageId, error: f.error };
+}

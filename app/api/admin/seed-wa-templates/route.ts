@@ -9,11 +9,24 @@ const GRAPH_VERSION = "v22.0";
 
 interface ComponentBody { type: "BODY"; text: string; example?: { body_text: string[][] }; }
 interface ComponentFooter { type: "FOOTER"; text: string; }
+interface ComponentButtons { type: "BUTTONS"; buttons: Array<{ type: "URL"; text: string; url: string; example: string[] }>; }
 interface Template {
   name: string;
   language: "es_MX";
   category: "UTILITY";
-  components: Array<ComponentBody | ComponentFooter>;
+  components: Array<ComponentBody | ComponentFooter | ComponentButtons>;
+}
+
+/** ARIA27 Campo F6: plantilla con boton URL dinamico ({{1}} = sufijo que manda el sistema). */
+function tplBtn(name: string, body: string, examples: string[], btnText: string, urlBase: string, urlExample: string): Template {
+  return {
+    name, language: "es_MX", category: "UTILITY",
+    components: [
+      { type: "BODY", text: body, example: { body_text: [examples] } },
+      { type: "FOOTER", text: "ARIA27 - Grupo Avante" },
+      { type: "BUTTONS", buttons: [{ type: "URL", text: btnText, url: `${urlBase}{{1}}`, example: [`${urlBase}${urlExample}`] }] },
+    ],
+  };
 }
 
 function tpl(name: string, body: string, examples: string[]): Template {
@@ -41,6 +54,11 @@ const TEMPLATES: Template[] = [
   tpl("aria_tarea_status", "Hola {{1}}, tienes {{2}} tareas pendientes. {{3}}. Responde con 1 LISTO o AVANCE 50 para actualizar.", ["Samuel", "2", "1. Revisar cimentacion 28-abr. 2. Inspeccionar acero 30-abr"]),
   tpl("aria_requisicion_gasto", "Nueva requisicion de GASTO por pagar. Folio: {{1}}. Obra: {{2}}. Tipo: {{3}}. Concepto: {{4}}. Ingresa al sistema para registrar el pago.", ["REQ-2026-00010", "OFICINA", "GASTOS ADMINISTRATIVOS", "Pago renta mensual"]),
   tpl("aria_requisicion_cotizar", "Nueva requisicion para cotizar. Folio: {{1}}. Obra: {{2}}. Urgencia: {{3}}. Materiales: {{4}}. Ingresa al sistema para cotizar.", ["REQ-2026-00010", "MIRAVALLE", "MANANA", "Cemento Portland 50kg, Varilla 3/8 (10 productos)"]),
+  // ── ARIA27 Campo F6 (10-Oct-2026) ──
+  tplBtn("aria_autorizar_responsable", "Hola {{1}}, {{2}} pide {{3}} para {{4}}. Folio {{5}}. Toca el boton para revisar y autorizar o rechazar.", ["Betzabe", "Daisy Sanchez", "cemento y varilla", "DIF ESTATAL EL COBANO", "REQ-2026-00780"], "Revisar solicitud", "https://aria.jjcrm27.com/dashboard/requisiciones/requisiciones/estatus?open=", "b2ce1167-479c-447e-a3b8-7ac9cacf2ebd"),
+  tplBtn("aria_solicitud_estado", "{{1}}: tu solicitud {{2}} de {{3}} paso a {{4}}.", ["Daisy", "REQ-2026-00780", "DIF ESTATAL EL COBANO", "autorizada en obra"], "Ver solicitud", "https://aria.jjcrm27.com/dashboard/requisiciones/requisiciones/estatus?open=", "b2ce1167-479c-447e-a3b8-7ac9cacf2ebd"),
+  tplBtn("aria_actividad_asignada", "{{1}}, te asignaron una actividad: {{2}} en {{3}}. Termino: {{4}}. Toca el boton para verla y marcar tu avance.", ["Heriberto", "Colado de losa", "PERIODISTAS", "15 oct 2026"], "Ver actividades", "https://aria.jjcrm27.com/dashboard/obras/tareas?id=", "123"),
+  tplBtn("aria_entrega_pendiente", "{{1}}, llego el material de {{2}} ({{3}}). Registra la entrega con foto y ubicacion desde tu celular.", ["Betzabe", "REQ-2026-00780", "DIF ESTATAL EL COBANO"], "Registrar entrega", "https://aria.jjcrm27.com/dashboard/requisiciones/requisiciones/entrega/", "b2ce1167-479c-447e-a3b8-7ac9cacf2ebd"),
   tpl("aria_avance_pendiente", "Nuevo avance de obra pendiente de validar. Arquitecto: {{1}}. Obra: {{2}}. Realizadas: {{3}}. Programadas: {{4}}. Aprueba en /dashboard/obras/avances/inbox", ["Gustavo Garibay Oceguera", "PERIODISTAS", "2 actividades", "1 actividad"]),
 ];
 
