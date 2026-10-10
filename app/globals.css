@@ -1290,6 +1290,8 @@ html, body {
   body.aria-campo .fixed.inset-0.aria-sheet { bottom: 0; }
   /* la burbuja de alertas flota arriba de la barra inferior */
   body.aria-campo { --aria-bottom-nav: 56px; }
+  /* modales centrados: nunca mas altos que el espacio libre arriba de la barra */
+  body.aria-campo .fixed.inset-0:not(.aria-sheet) > * { max-height: calc(100% - 1rem); }
   /* un select con opciones largas no debe ensanchar la pantalla */
   select { max-width: 100%; }
   .grid > * { min-width: 0; }
