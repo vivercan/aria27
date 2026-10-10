@@ -201,11 +201,8 @@ export default function CatalogoObrasPage() {
         `Esta obra puede tener OC activas, cobranza pendiente, personal/nómina activa o requisiciones abiertas. ` +
         `El sistema NO bloquea el archivado, pero quedará registrado en el historial. ` +
         `¿Confirmas que esta obra debe pasar a "${label}"?`;
-      setConfirmState({ open: true, msg: aviso, onOk: () => {
-        setConfirmState({ open: true, msg: `Confirmación final: archivar "${o.nombre}" como ${label}. ¿Continuar?`, onOk: () => {
-          ejecutarCambioEstado(o.id, nuevoEstado, label);
-        }});
-      }});
+      // 10-Oct-2026 B1-Obras: la doble confirmacion anidada nunca ejecutaba (onConfirm corria onOk y luego cerraba el modal, pisando la 2a apertura). Una sola confirmacion con el aviso completo.
+      setConfirmState({ open: true, msg: aviso, onOk: () => { ejecutarCambioEstado(o.id, nuevoEstado, label); } });
     } else {
       setConfirmState({ open: true, msg: `¿Mover la obra "${o.nombre}" al estado "${label}"?`, onOk: () => {
         ejecutarCambioEstado(o.id, nuevoEstado, label);
