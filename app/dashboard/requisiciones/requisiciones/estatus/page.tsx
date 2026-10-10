@@ -417,7 +417,7 @@ export default function RequisicionesStatusPage() {
       {!loading && (
         <ListToolbar
           search={lf.search} onSearch={lf.setSearch}
-          placeholder="Buscar por folio, obra, solicitante, proveedor o concepto…"
+          placeholder="Buscar folio, obra, proveedor, concepto…"
           chips={chipsDef} chip={lf.chip} onChip={lf.setChip} counts={lf.counts}
           selects={[{ key: "obra", label: "Obra", options: lf.selectOptions.obra || [], value: lf.selects.obra || "" }]}
           onSelect={lf.setSelect}

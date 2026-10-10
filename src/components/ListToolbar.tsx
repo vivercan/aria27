@@ -56,8 +56,9 @@ export default function ListToolbar(p: Props) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0] pointer-events-none" />
           <input
             ref={inputRef}
-            type="search"
+            type="text"
             inputMode="search"
+            enterKeyHint="search"
             autoComplete="off"
             value={p.search}
             onChange={(e) => p.onSearch(e.target.value)}
@@ -91,8 +92,8 @@ export default function ListToolbar(p: Props) {
         ))}
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 flex-1" style={{ WebkitOverflowScrolling: "touch" }}>
+      <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-2">
+        <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 md:flex-1" style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {p.chips.map((c) => {
             const active = p.chip === c.key;
             const n = p.counts[c.key] ?? 0;
@@ -114,7 +115,7 @@ export default function ListToolbar(p: Props) {
             );
           })}
         </div>
-        <div className="shrink-0 flex items-center gap-2 text-xs text-[#7f93b0]">
+        <div className="shrink-0 flex items-center justify-end gap-2 text-xs text-[#7f93b0]">
           <span>Mostrando <span className="text-white font-semibold">{p.shown}</span> de {p.total}</span>
           {p.isActive && (
             <button type="button" onClick={p.onClear} className="btn-flat aria-no-min-tap underline hover:text-white">Limpiar</button>
