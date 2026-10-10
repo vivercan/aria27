@@ -108,7 +108,7 @@ export function accionPara(r: RequiLike & { user_email?: string | null }, role: 
   if ((st === "PENDIENTE" || st === "EN_COTIZACION") && (r.purchase_status || "") !== "GASTO_EFECTIVO_PENDIENTE" && (role === "compras" || esAdmin)) return "COTIZAR";
   if (st === "EN_AUTORIZACION" && (esDir || esAdmin)) return "APROBAR_DIRECCION";
   if ((r.purchase_status || "") === "GASTO_EFECTIVO_PENDIENTE" && (st === "APROBADA" || st === "EN_AUTORIZACION" || st === "PENDIENTE") && (role === "usuario" || esAdmin)) return "PAGAR";
-  const cerrada = ["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION"].includes(st);
+  const cerrada = ["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION", "PENDIENTE_RESPONSABLE"].includes(st);
   if (!cerrada && (r.tipo_solicitud || "MATERIALES") !== "DESTAJO" && ((r.user_email || "").toLowerCase() === me || role === "compras" || role === "validador" || role === "residente" || esAdmin)) return "REGISTRAR_ENTREGA";
   return null;
 }
