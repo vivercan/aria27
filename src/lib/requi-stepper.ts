@@ -105,7 +105,8 @@ export function accionPara(r: RequiLike & { user_email?: string | null }, role: 
   const me = (email || "").toLowerCase();
   const esAdmin = role === "admin";
   const esDir = role === "direccion";
-  if (st === "PENDIENTE_RESPONSABLE" && (esAdmin || esDir || (r.responsable_email || "").toLowerCase() === me)) return "AUTORIZAR_RESPONSABLE";
+  // validador (superintendencia) es respaldo del responsable de obra
+  if (st === "PENDIENTE_RESPONSABLE" && (esAdmin || esDir || role === "validador" || (r.responsable_email || "").toLowerCase() === me)) return "AUTORIZAR_RESPONSABLE";
   if ((st === "PENDIENTE" || st === "EN_COTIZACION") && (r.purchase_status || "") !== "GASTO_EFECTIVO_PENDIENTE" && (role === "compras" || esAdmin)) return "COTIZAR";
   if (st === "EN_AUTORIZACION" && (esDir || esAdmin)) return "APROBAR_DIRECCION";
   if ((r.purchase_status || "") === "GASTO_EFECTIVO_PENDIENTE" && (st === "APROBADA" || st === "EN_AUTORIZACION" || st === "PENDIENTE") && (role === "usuario" || esAdmin)) return "PAGAR";

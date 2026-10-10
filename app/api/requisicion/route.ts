@@ -193,7 +193,8 @@ export async function POST(request: NextRequest) {
     }
     const creadorEs = (usuario.email || "").toLowerCase();
     const creadorRol = (creatorUser?.role || "").toLowerCase();
-    const autoAprueba = !responsableEmail || responsableEmail === creadorEs || creadorRol === "direccion" || creadorRol === "admin";
+    // 10-Oct: validador (superintendencia) esta por encima del residente -> no espera su autorizacion
+    const autoAprueba = !responsableEmail || responsableEmail === creadorEs || creadorRol === "direccion" || creadorRol === "admin" || creadorRol === "validador";
     const esperaResponsable = nivel1On && !!responsableEmail && !autoAprueba;
     const responsableUser = esperaResponsable ? await getUserByEmail(responsableEmail!) : null;
     logs.push(esperaResponsable ? `Nivel 1: espera a responsable ${responsableEmail}` : `Nivel 1: ${responsableEmail ? "auto-aprobado (" + (responsableEmail === creadorEs ? "creador es responsable" : creadorRol) + ")" : "obra sin responsable"}`);

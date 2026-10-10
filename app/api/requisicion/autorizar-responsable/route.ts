@@ -6,7 +6,7 @@
  * Dirección o admin. Al AUTORIZAR la requi sigue su flujo normal (Compras o Dirección) y se
  * disparan los avisos que antes salían al crearla. Al RECHAZAR se avisa al creador.
  *
- * AUTH: requireUser (cookie). Permiso: email == responsable_email || rol admin|direccion.
+ * AUTH: requireUser (cookie). Permiso: email == responsable_email || rol admin|direccion|validador (superintendencia como respaldo).
  */
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
 
     const me = auth.email.toLowerCase(); const role = (auth.role || "").toLowerCase();
     const esResp = (r.responsable_email || "").toLowerCase() === me;
-    if (!esResp && role !== "admin" && role !== "direccion") return NextResponse.json({ error: "Solo el responsable de la obra, Dirección o admin pueden autorizar" }, { status: 403 });
+    // 10-Oct: validador (superintendencia) es respaldo del residente (residente sin telefono, ausente o de vacaciones)
+    if (!esResp && role !== "admin" && role !== "direccion" && role !== "validador") return NextResponse.json({ error: "Solo el responsable de la obra, Superintendencia, Dirección o admin pueden autorizar" }, { status: 403 });
 
     const folio = r.folio as string; const obra = r.cost_center_name as string; const fechaReq = r.required_date ? new Date(r.required_date).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }) : "";
     const creador = r.created_by as string; const creadorEmail = r.user_email as string;

@@ -12,13 +12,15 @@ import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import { apiGet, apiPost, ApiError } from "@/lib/api-fetch";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
+  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu, Smartphone
 } from "lucide-react";
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
+  // ARIA27 Campo 10-Oct-2026: acceso directo al modo celular (visible para todos los roles; cada pantalla interna respeta sus permisos)
+  { name: "Modo Campo", icon: Smartphone, href: "/dashboard/campo" },
   { name: "Obras", icon: HardHat, href: "/dashboard/obras" },
   { name: "Talento", icon: Users, href: "/dashboard/talento" },
   { name: "Requisiciones", icon: Package, href: "/dashboard/requisiciones" },
@@ -34,6 +36,12 @@ const menuItems = [
 
 const searchableItems = [
   ...menuItems,
+  { name: "Modo Campo (celular)", icon: ChevronRight, href: "/dashboard/campo" },
+  { name: "Evidencia de obra", icon: ChevronRight, href: "/dashboard/campo/evidencia" },
+  { name: "Calendario de obra", icon: ChevronRight, href: "/dashboard/campo/calendario" },
+  { name: "Nueva Solicitud", icon: ChevronRight, href: "/dashboard/requisiciones/requisiciones/nuevo" },
+  { name: "Estatus de Solicitudes", icon: ChevronRight, href: "/dashboard/requisiciones/requisiciones/estatus" },
+  { name: "Catalogos de Requisiciones", icon: ChevronRight, href: "/dashboard/configuracion/maestros/catalogos" },
   { name: "Pipeline", icon: ChevronRight, href: "/dashboard/obras/pipeline" },
   { name: "Expedientes", icon: ChevronRight, href: "/dashboard/obras/expedientes" },
   { name: "Contratos", icon: ChevronRight, href: "/dashboard/obras/contratos" },
@@ -431,7 +439,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
           <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
-              if (item.href === "#pulso") return true;
+              if (item.href === "#pulso" || item.href === "/dashboard/campo") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
               return canAccessModule(userRole, userPermissions, moduleKey);
             }).map((item) => {

@@ -34,6 +34,8 @@ describe("F1 requi-stepper", () => {
     expect(accionPara(r, "residente", "betzabe.lopez@gcuavante.com")).toBe("AUTORIZAR_RESPONSABLE");
     expect(accionPara(r, "residente", "otro@x")).toBe(null);
     expect(accionPara(r, "direccion", "f@x")).toBe("AUTORIZAR_RESPONSABLE");
+    expect(accionPara(r, "validador", "superintendencia@gcuavante.com")).toBe("AUTORIZAR_RESPONSABLE"); // respaldo superintendencia
+    expect(accionPara(r, "compras", "j@x")).toBe(null);
     expect(accionPara({ status: "PENDIENTE", purchase_status: "PENDIENTE" }, "compras", "j@x")).toBe("COTIZAR");
     expect(accionPara({ status: "EN_AUTORIZACION" }, "direccion", "f@x")).toBe("APROBAR_DIRECCION");
     expect(accionPara({ status: "APROBADA", purchase_status: "GASTO_EFECTIVO_PENDIENTE" }, "usuario", "l@x")).toBe("PAGAR");
