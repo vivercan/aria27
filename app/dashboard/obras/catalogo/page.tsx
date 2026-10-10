@@ -31,6 +31,7 @@ interface Obra {
   fecha_inicio: string | null;
   fecha_fin: string | null;
   descripcion: string | null;
+  codigo?: string | null;
   latitud?: number | null;
   longitud?: number | null;
   radio_metros?: number | null;
@@ -47,7 +48,17 @@ const STATUS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "", latitud: "", longitud: "", radio_metros: "150", responsable_email: "" };
+const FORM_INIT = { codigo: "", nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "", latitud: "", longitud: "", radio_metros: "150", responsable_email: "" };
+
+/** Acepta "21.88, -102.29", un link de Google Maps (@21.88,-102.29 / q=21.88,-102.29) o un solo numero. */
+function parseCoords(text: string): { lat: string; lng: string } | null {
+  const t = (text || "").trim();
+  const m = t.match(/(-?\d{1,2}\.\d{3,})\s*[, ]\s*(-?\d{1,3}\.\d{3,})/);
+  if (!m) return null;
+  const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+  if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat: String(lat), lng: String(lng) };
+}
 
 export default function CatalogoObrasPage() {
   const router = useRouter();
@@ -65,6 +76,16 @@ export default function CatalogoObrasPage() {
   // EX-3 18-Abr-2026: flash canónico via useFlashMessage
   const { msg, flash } = useFlashMessage(2500);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [geoBusy, setGeoBusy] = useState(false);
+  const usarMiUbicacion = () => {
+    if (!("geolocation" in navigator)) { flash("err", "Este dispositivo no tiene GPS disponible"); return; }
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      pos => { setForm((f: typeof FORM_INIT) => ({ ...f, latitud: pos.coords.latitude.toFixed(6), longitud: pos.coords.longitude.toFixed(6) })); setFormErrors(fe => ({ ...fe, latitud: "", longitud: "" })); setGeoBusy(false); flash("ok", `Ubicación tomada (±${Math.round(pos.coords.accuracy)} m)`); },
+      err => { setGeoBusy(false); flash("err", err.code === 1 ? "Permiso de ubicación denegado. Actívalo en el navegador." : "No se pudo obtener la ubicación. Intenta al aire libre."); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
 
   useEffect(() => { cargar(); }, []);
 
@@ -102,6 +123,9 @@ export default function CatalogoObrasPage() {
       const v = parseInt(form.radio_metros);
       if (isNaN(v) || v < 1 || v > 5000) errors.radio_metros = "Radio entre 1 y 5000 m";
     }
+    if (!form.latitud || !form.longitud) {
+      errors.latitud = errors.latitud || "La obra necesita ubicación (latitud y longitud) para la geocerca de asistencia. Usa \"Mi ubicación\" desde la obra o pega las coordenadas de Google Maps.";
+    }
     if ((form.latitud && !form.longitud) || (!form.latitud && form.longitud)) {
       errors.latitud = errors.latitud || "Captura latitud y longitud juntas";
     }
@@ -120,6 +144,7 @@ export default function CatalogoObrasPage() {
       fecha_inicio: o.fecha_inicio || "",
       fecha_fin: o.fecha_fin || "",
       descripcion: o.descripcion || "",
+      codigo: o.codigo || "",
       latitud: o.latitud != null ? String(o.latitud) : "",
       longitud: o.longitud != null ? String(o.longitud) : "",
       radio_metros: o.radio_metros != null ? String(o.radio_metros) : "150",
@@ -138,6 +163,9 @@ export default function CatalogoObrasPage() {
     payload.longitud = form.longitud ? parseFloat(form.longitud) : null;
     payload.radio_metros = form.radio_metros ? parseInt(form.radio_metros) : 150;
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
+    // 10-Oct-2026 B1-Obras: codigo es NOT NULL; si viene vacio lo genera la BD (default OBRA-NNN). Nunca mandar null.
+    if (!payload.codigo) delete payload.codigo;
+    else payload.codigo = String(payload.codigo).trim().toUpperCase();
 
     if (editId) {
       const { error } = await supabase.from("centros_trabajo").update(payload).eq("id", editId);
@@ -276,6 +304,10 @@ export default function CatalogoObrasPage() {
               {formErrors.nombre && <p className="text-red-400 text-xs mt-1">{formErrors.nombre}</p>}
             </div>
             <div>
+              <label className="text-xs text-[#7f93b0] mb-1 block">Código <span className="text-[#5f7390]">(vacío = automático OBRA-NNN)</span></label>
+              <input value={form.codigo || ""} onChange={e => setForm({ ...form, codigo: e.target.value })} placeholder="OBRA-019" className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm uppercase" />
+            </div>
+            <div>
               <label className="text-xs text-[#7f93b0] mb-1 block">Estado</label>
               <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm">
                 {STATUS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -303,10 +335,17 @@ export default function CatalogoObrasPage() {
               <input type="date" value={form.fecha_fin} onChange={e => setForm({ ...form, fecha_fin: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
             </div>
             <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-lg">
-              <div className="md:col-span-12 flex items-center gap-2">
+              <div className="md:col-span-12 flex flex-wrap items-center gap-2">
                 <MapPin className="w-4 h-4 text-aria-accent" />
-                <span className="text-sm font-medium text-white">Geocerca para asistencia</span>
-                <a href={`https://www.google.com/maps/search/${encodeURIComponent(form.nombre || form.direccion || "Aguascalientes")}`} target="_blank" rel="noreferrer" className="ml-auto text-xs text-aria-accent underline">Buscar en Google Maps</a>
+                <span className="text-sm font-medium text-white">Ubicación de la obra *</span>
+                <span className="text-xs text-[#7f93b0]">(geocerca de asistencia)</span>
+                <div className="ml-auto flex items-center gap-2">
+                  <button type="button" onClick={usarMiUbicacion} disabled={geoBusy} className="px-3 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-xs font-semibold disabled:opacity-60">{geoBusy ? "Buscando GPS…" : "📍 Mi ubicación"}</button>
+                  <a href={`https://www.google.com/maps/search/${encodeURIComponent(form.nombre || form.direccion || "Aguascalientes")}`} target="_blank" rel="noreferrer" className="text-xs text-aria-accent underline">Buscar en Google Maps</a>
+                </div>
+              </div>
+              <div className="md:col-span-12">
+                <input type="text" placeholder="Pega aquí las coordenadas o el link de Google Maps (ej. 21.88234, -102.29572)" onPaste={e => { const c = parseCoords(e.clipboardData.getData("text")); if (c) { e.preventDefault(); setForm({ ...form, latitud: c.lat, longitud: c.lng }); setFormErrors(fe => ({ ...fe, latitud: "", longitud: "" })); flash("ok", "Coordenadas tomadas"); } }} onChange={e => { const c = parseCoords(e.target.value); if (c) { setForm({ ...form, latitud: c.lat, longitud: c.lng }); e.target.value = ""; } }} className="w-full px-3 py-2 bg-white/[0.04] border border-dashed border-white/[0.15] rounded-lg text-white text-sm" />
               </div>
               <div className="md:col-span-4">
                 <label className="text-xs text-[#7f93b0] mb-1 block">Latitud</label>
@@ -323,7 +362,7 @@ export default function CatalogoObrasPage() {
                 <input type="number" min="1" max="5000" placeholder="150" value={form.radio_metros} onChange={e => setForm({ ...form, radio_metros: e.target.value })} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm" />
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
-              <p className="md:col-span-12 text-xs text-[#7f93b0]">Tip: clic-derecho en Google Maps, luego "Que hay aqui", luego copia los 2 numeros (lat, lng).</p>
+              <p className="md:col-span-12 text-xs text-[#7f93b0]">Desde la obra: toca &quot;Mi ubicación&quot;. Desde la oficina: en Google Maps clic-derecho en el punto, copia los dos números y pégalos arriba.{form.latitud && form.longitud ? <> · <a className="text-aria-accent underline" href={`https://www.google.com/maps?q=${form.latitud},${form.longitud}`} target="_blank" rel="noreferrer">Ver en el mapa</a></> : null}</p>
               <div className="md:col-span-6">
                 <label className="block text-xs text-[#7f93b0] mb-1">Responsable de obra (autoriza primero las requis)</label>
                 <select value={form.responsable_email || ""} onChange={e => setForm({ ...form, responsable_email: e.target.value })} className="w-full px-3 py-2 rounded-lg text-sm">
