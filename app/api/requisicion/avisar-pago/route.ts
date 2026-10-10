@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { requireAdmin } from "@/lib/auth-api";
+import { requireAdminOrRh } from "@/lib/auth-api";
 import { sendEmailLogged } from "@/lib/email-log";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
@@ -10,7 +10,7 @@ import { notifyOps } from "@/lib/notify-ops";
 const log = logger("AVISAR-PAGO");
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req);
+  const auth = await requireAdminOrRh(req);
   if (!auth.ok) return auth.res;
 
   const body = await req.json().catch(() => ({}));

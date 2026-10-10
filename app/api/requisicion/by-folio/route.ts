@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { requireAdmin } from "@/lib/auth-api";
+import { requireAdminOrRh } from "@/lib/auth-api";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+  const auth = await requireAdminOrRh(req);
   if (!auth.ok) return auth.res;
 
   const folio = req.nextUrl.searchParams.get("folio");

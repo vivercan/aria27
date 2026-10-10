@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { requireAdmin } from "@/lib/auth-api";
+import { requireAdminOrRh } from "@/lib/auth-api";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "admin:revert", ...RATE_LIMITS.ADMIN });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const auth = await requireAdmin(req);
+    const auth = await requireAdminOrRh(req);
     if (!auth.ok) return auth.res;
 
     const { audit_id } = await req.json().catch(() => ({}));

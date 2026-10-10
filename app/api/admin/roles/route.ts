@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { requireAdmin } from "@/lib/auth-api";
+import { requireAdminOrRh } from "@/lib/auth-api";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "admin:roles", ...RATE_LIMITS.ADMIN });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const auth = await requireAdmin(req);
+    const auth = await requireAdminOrRh(req);
     if (!auth.ok) return auth.res;
 
     const sb = getSupabaseAdmin();
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "admin:roles", ...RATE_LIMITS.ADMIN });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const auth = await requireAdmin(req);
+    const auth = await requireAdminOrRh(req);
     if (!auth.ok) return auth.res;
 
     let body: RolePatchBody;
@@ -71,6 +71,13 @@ export async function PATCH(req: NextRequest) {
     }
 
     const sb = getSupabaseAdmin();
+    // RH administra a todos excepto cuentas admin, y no puede otorgar rol admin
+    if (auth.role === "rh") {
+      if (role === "admin" || role === "Administrador") return NextResponse.json({ error: "Recursos Humanos no puede asignar el rol Administrador" }, { status: 403 });
+      const { data: target } = await sb.from("Users").select("role").eq("id", id).maybeSingle();
+      const tr = String((target as { role?: string } | null)?.role || "");
+      if (tr === "admin" || tr === "Administrador") return NextResponse.json({ error: "Recursos Humanos no puede modificar una cuenta Administrador" }, { status: 403 });
+    }
     const patch: RoleUpdate = {};
     if (typeof role === "string") patch.role = role;
     if (permissions !== undefined) patch.permissions = permissions as Record<string, unknown>;
@@ -110,7 +117,7 @@ export async function POST(req: NextRequest) {
     const rl = checkRateLimit(getClientIdentifier(req), { key: "admin:roles", ...RATE_LIMITS.ADMIN });
     if (!rl.allowed) return rateLimitResponse(rl);
 
-    const auth = await requireAdmin(req);
+    const auth = await requireAdminOrRh(req);
     if (!auth.ok) return auth.res;
 
     let body: UserCreateBody;
@@ -133,6 +140,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "phone debe ser string" }, { status: 400 });
     }
 
+    if (auth.role === "rh" && (role === "admin" || role === "Administrador")) return NextResponse.json({ error: "Recursos Humanos no puede crear usuarios Administrador" }, { status: 403 });
     const sb = getSupabaseAdmin();
     const emailLower = email.trim().toLowerCase();
 
