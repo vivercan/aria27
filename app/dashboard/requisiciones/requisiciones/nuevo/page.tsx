@@ -589,7 +589,7 @@ export default function NewRequisitionPage() {
               const active = tipoSolicitud === k;
               return (
                 <button key={k} type="button"
-                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/obras/tareas?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
+                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
                   className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-white/[0.10] bg-white/[0.03] hover:bg-white/[0.07]"}`}
                   aria-pressed={active}>
                   <Icon className={`w-6 h-6 mb-2 ${active ? "text-white" : "text-aria-accent"}`} />

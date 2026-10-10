@@ -7,7 +7,7 @@ import { Home, FileText, ClipboardList, MoreHorizontal } from "lucide-react";
 const TABS = [
   { href: "/dashboard/campo", label: "Inicio", icon: Home, match: (p: string) => p === "/dashboard/campo" },
   { href: "/dashboard/requisiciones/requisiciones/estatus", label: "Solicitudes", icon: FileText, match: (p: string) => p.startsWith("/dashboard/requisiciones/requisiciones") },
-  { href: "/dashboard/obras/tareas", label: "Actividades", icon: ClipboardList, match: (p: string) => p.startsWith("/dashboard/obras/tareas") || p.startsWith("/dashboard/campo/calendario") },
+  { href: "/dashboard/actividades", label: "Actividades", icon: ClipboardList, match: (p: string) => p.startsWith("/dashboard/actividades") || p.startsWith("/dashboard/campo/calendario") },
   { href: "/dashboard", label: "Más", icon: MoreHorizontal, match: () => false },
 ];
 

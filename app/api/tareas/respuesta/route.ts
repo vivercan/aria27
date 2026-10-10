@@ -439,6 +439,10 @@ async function procesarRespuesta(
       return NextResponse.json({ ok: false, reason: "update-fallo", error: updErr.message });
     }
     log.info(`[UPDATE OK] tarea=${tarea.id} estatus=${nuevoEstatus} avance=${nuevoAvance}`);
+    // 10-Oct-2026: lo que contestan por WhatsApp aparece en el historial de la actividad (tablero tipo Monday)
+    try {
+      await supabase.from("tarea_actualizaciones").insert({ tarea_id: tarea.id, autor_email: null, autor_nombre: tarea.asignado_nombre || "WhatsApp", tipo: "whatsapp", texto: `Por WhatsApp: "${text.slice(0, 280)}" → ${parsed.intent === "LISTO" ? "terminada" : parsed.intent === "BLOQUEADO" ? `atorada (${motivoBloqueo})` : parsed.intent === "CANCELAR" ? "cancelada" : `avance ${nuevoAvance}%`}` });
+    } catch { /* historial best effort */ }
     tarea.avance = nuevoAvance;
     tarea.estatus = nuevoEstatus;
   }

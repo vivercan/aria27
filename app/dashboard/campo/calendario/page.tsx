@@ -28,12 +28,14 @@ export default function CalendarioPage() {
     (async () => {
       const out: Ev[] = [];
       const amplio = ["admin", "compras", "rh", "direccion"].includes(me.role);
-      let tq = supabase.from("tareas_obra").select("id, titulo, obra_nombre, fecha_inicio, fecha_limite, status, prioridad, asignado_a, responsable, created_by");
-      if (!amplio) tq = tq.or(`asignado_a.eq.${me.email},created_by.eq.${me.email}`);
+      // 10-Oct-2026: actividades = tareas_asignadas (tablero tipo Monday)
+      let tq = supabase.from("tareas_asignadas").select("id, titulo, obra, fecha_inicio, fecha_compromiso, estatus, prioridad, asignado_email, asignado_por_email, asignado_por").neq("estatus", "CANCELADA");
+      if (!amplio) tq = tq.or(`asignado_email.eq.${me.email},asignado_por_email.eq.${me.email},asignado_por.eq.${me.email}`);
       const { data: ts } = await tq;
-      for (const t of (ts || []) as Array<{ id: string; titulo: string; obra_nombre?: string; fecha_inicio?: string | null; fecha_limite?: string | null; status: string; prioridad?: string }>) {
-        if (t.fecha_limite) out.push({ kind: "tarea", date: t.fecha_limite, title: t.titulo, sub: `${t.obra_nombre || ""} · límite`, href: "/dashboard/obras/tareas", done: t.status === "completada", urgent: ["alta", "urgente"].includes(t.prioridad || "") });
-        if (t.fecha_inicio && t.fecha_inicio !== t.fecha_limite) out.push({ kind: "tarea", date: t.fecha_inicio, title: t.titulo, sub: `${t.obra_nombre || ""} · inicio`, href: "/dashboard/obras/tareas", done: t.status === "completada" });
+      for (const t of (ts || []) as Array<{ id: string; titulo: string; obra?: string | null; fecha_inicio?: string | null; fecha_compromiso?: string | null; estatus: string; prioridad?: string | null }>) {
+        const href = `/dashboard/actividades?abrir=${t.id}`; const done = t.estatus === "COMPLETADA";
+        if (t.fecha_compromiso) out.push({ kind: "tarea", date: t.fecha_compromiso.slice(0, 10), title: t.titulo, sub: `${t.obra || "Oficina"} · entrega`, href, done, urgent: ["alta", "urgente"].includes(t.prioridad || "") });
+        if (t.fecha_inicio && t.fecha_inicio !== t.fecha_compromiso) out.push({ kind: "tarea", date: t.fecha_inicio.slice(0, 10), title: t.titulo, sub: `${t.obra || "Oficina"} · inicio`, href, done });
       }
       let rq = supabase.from("Requisiciones").select("id, folio, cost_center_name, required_date, status, fecha_entrega, user_email, responsable_email").gte("required_date", ini).lte("required_date", fin);
       if (!amplio) rq = rq.or(`user_email.eq.${me.email},responsable_email.eq.${me.email}`);

@@ -12,7 +12,7 @@ import { canAccessModule, type UserPermissions } from "@/lib/permissions";
 import { apiGet, apiPost, ApiError } from "@/lib/api-fetch";
 import {
   HardHat, Users, Package, Wallet, Warehouse, FileText, Settings, Search,
-  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu
+  ChevronRight, LogOut, Power, MessageCircle, Moon, Sun, X, Briefcase, Bell, Menu, ListChecks
 } from "lucide-react";
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
@@ -20,6 +20,8 @@ import { isMobileDevice, DESKTOP_LANDINGS } from "@/lib/device";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
+  // 10-Oct-2026: tablero de actividades tipo Monday (para todos; cada quien ve las suyas)
+  { name: "Actividades", icon: ListChecks, href: "/dashboard/actividades" },
   { name: "Obras", icon: HardHat, href: "/dashboard/obras" },
   { name: "Talento", icon: Users, href: "/dashboard/talento" },
   { name: "Requisiciones", icon: Package, href: "/dashboard/requisiciones" },
@@ -50,7 +52,7 @@ const searchableItems = [
   { name: "Inventario", icon: ChevronRight, href: "/dashboard/obras/inventario" },
   { name: "Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto" },
   { name: "Planos", icon: ChevronRight, href: "/dashboard/obras/planos" },
-  { name: "Tareas Residentes", icon: ChevronRight, href: "/dashboard/obras/tareas" },
+  { name: "Actividades (tablero)", icon: ChevronRight, href: "/dashboard/actividades" },
   { name: "Fotos de Avance", icon: ChevronRight, href: "/dashboard/obras/fotos" },
   { name: "Personal", icon: ChevronRight, href: "/dashboard/talento/personal" },
   { name: "Usuarios", icon: ChevronRight, href: "/dashboard/talento/usuarios" },
@@ -80,7 +82,7 @@ const searchableItems = [
   { name: "Catalogo Maestro Obras", icon: ChevronRight, href: "/dashboard/obras/catalogo" },
   { name: "SIROC IMSS", icon: ChevronRight, href: "/dashboard/obras/siroc/registros" },
   { name: "Control de Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto/remisiones" },
-  { name: "Tareas Asignadas", icon: ChevronRight, href: "/dashboard/talento/tareas" },
+  { name: "Tareas Asignadas", icon: ChevronRight, href: "/dashboard/actividades" },
   { name: "Gastos de Obra", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra" },
   // 21-Abr-2026: atajos filtrados por metodo de pago (solicitud Osita Montalvo RH)
   { name: "Gastos Efectivo", icon: ChevronRight, href: "/dashboard/finanzas/gastos-obra?metodo=EFECTIVO" },
@@ -452,7 +454,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
           <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
-              if (item.href === "#pulso") return true;
+              if (item.href === "#pulso" || item.href === "/dashboard/actividades") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
               return canAccessModule(userRole, userPermissions, moduleKey);
             }).map((item) => {

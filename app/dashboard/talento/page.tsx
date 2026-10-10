@@ -40,7 +40,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
     modulos: [
       { title: "Incidencias",        description: "Faltas, permisos y ajustes.",                  href: "/dashboard/talento/incidencias",  icon: AlertCircle, accent: TEAL },
       { title: "Prestaciones",       description: "Préstamos y vacaciones.",                      href: "/dashboard/talento/prestaciones", icon: Gift,        accent: TEAL },
-      { title: "Tareas Asignadas",   description: "Tareas asignadas al personal.",                href: "/dashboard/talento/tareas",       icon: ListChecks,  accent: TEAL },
+      { title: "Actividades",   description: "Tablero de actividades del equipo (tipo Monday).",                href: "/dashboard/actividades",       icon: ListChecks,  accent: TEAL },
       { title: "Documentos Legales", description: "Contratos y documentos por empleado.",        href: "/dashboard/talento/legales",      icon: FileText,    accent: TEAL },
     ],
   },

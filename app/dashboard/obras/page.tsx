@@ -64,7 +64,7 @@ const grupos: { label: string; modulos: ModuleItem[] }[] = [
     modulos: [
       { title: "Expedientes",    description: "Expedientes digitales de obra.",              href: "/dashboard/obras/expedientes", icon: FolderOpen, accent: EMERALD },
       { title: "Planos",         description: "Visor de planos y documentos técnicos.",      href: "/dashboard/obras/planos",      icon: Map,        accent: EMERALD },
-      { title: "Tareas",         description: "Asignación y seguimiento de tareas.",         href: "/dashboard/obras/tareas",      icon: ListChecks, accent: EMERALD },
+      { title: "Actividades",         description: "Tablero: por hacer, en proceso, atoradas, terminadas.",         href: "/dashboard/actividades",      icon: ListChecks, accent: EMERALD },
       { title: "Fotos de Avance",description: "Registro fotográfico por obra.",              href: "/dashboard/obras/fotos",       icon: Camera,     accent: EMERALD },
     ],
   },
