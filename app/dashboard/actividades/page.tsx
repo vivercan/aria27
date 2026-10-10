@@ -202,8 +202,10 @@ export default function ActividadesPage() {
               <span role="button" tabIndex={0} aria-label={col === "TERMINADA" ? "Terminada" : "Marcar como terminada"} title={col === "TERMINADA" ? "Terminada" : "Toca para terminarla"}
                 onClick={e => { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
-                className={`mt-0.5 shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00c875] border-[#00c875] text-[#06281a]" : "border-[#5f7390] hover:border-[#00c875] hover:bg-[#00c875]/15"}`}>
-                {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
+                className="-m-2 p-2 shrink-0 inline-flex">
+                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00c875] border-[#00c875] text-[#06281a]" : "border-[#5f7390] hover:border-[#00c875] hover:bg-[#00c875]/15"}`}>
+                  {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
+                </span>
               </span>
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[#7f93b0] line-through" : "text-white"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
@@ -318,7 +320,7 @@ export default function ActividadesPage() {
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-t-2xl" style={{ background: c.soft, borderTop: `3px solid ${c.color}` }}>
                   <span className="text-sm font-bold" style={{ color: c.text }}>{c.label}</span>
                   <span className="text-xs font-semibold text-white/70 bg-white/10 rounded-full px-2">{list.length}</span>
-                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-1 rounded-md hover:bg-white/10 text-white/80" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
+                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md hover:bg-white/10 text-white/80" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
                   {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[10.5px] text-white/70 underline">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
@@ -350,7 +352,7 @@ export default function ActividadesPage() {
 
       {/* Motivo de atorada */}
       {motivoPara && (
-        <div className="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setMotivoPara(null)}>
+        <div className="aria-sheet fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setMotivoPara(null)}>
           <div className="w-full md:max-w-md rounded-t-3xl md:rounded-2xl bg-[#0f1f3a] border border-white/[0.1] p-5 space-y-3" onClick={e => e.stopPropagation()} style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
             <div className="flex items-center gap-2 text-white font-semibold"><AlertTriangle className="w-5 h-5 text-[#e2445c]" />¿Qué la tiene atorada?</div>
             <textarea autoFocus value={motivoTxt} onChange={e => setMotivoTxt(e.target.value)} rows={3} placeholder="Ej. no ha llegado el material, falta autorización…" className="w-full rounded-xl bg-white/[0.05] border border-white/[0.1] p-3 text-white text-sm" />
@@ -438,7 +440,7 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
   const hechos = checklist.filter(c => c.hecho).length;
 
   return (
-    <div className="fixed inset-0 z-[60] flex md:justify-end bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="aria-sheet fixed inset-0 z-[60] flex md:justify-end bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="mt-auto md:mt-0 w-full md:w-[520px] h-[94dvh] md:h-full rounded-t-3xl md:rounded-none bg-[#0b1830] border-t md:border-t-0 md:border-l border-white/[0.1] flex flex-col shadow-2xl">
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-white/20" />
         {/* Cabecera */}
@@ -562,7 +564,7 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
     } catch (e) { flash("err", (e as Error).message); setBusy(false); }
   };
   return (
-    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="aria-sheet fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="w-full md:max-w-xl max-h-[94dvh] rounded-t-3xl md:rounded-3xl bg-[#0b1830] border border-white/[0.1] flex flex-col shadow-2xl">
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-white/20" />
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-white">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-white/[0.08] text-[#c9d8ed]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>

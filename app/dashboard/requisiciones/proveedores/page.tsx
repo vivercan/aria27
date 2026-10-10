@@ -238,13 +238,13 @@ export default function ProveedoresPage() {
       <FlashBanner msg={msg} className="mx-0 mb-2" />
       {/* HEADER */}
       <div className="flex-none px-4 pt-3 pb-2 border-b border-white/[0.06]">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex-wrap flex items-center gap-2 mb-2">
           <AriaBackButton href="/dashboard/requisiciones" />
           <h1 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-aria-accent"/>Proveedores</h1>
           <span className="text-xs text-[#4a6080] ml-1">{loading?"...": `${filtered.length} de ${suppliers.length} · ${categories.length} categorías`}</span>
         </div>
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-          <div className="flex items-center gap-1.5 mr-3">
+          <div className="flex flex-wrap items-center gap-1.5 mr-3">
           {(["ACTIVOS","CATALOGO","TODOS"] as const).map(t => {
             const active = tabFilter === t;
             const count = t === "ACTIVOS" ? countActivos : t === "CATALOGO" ? countCatalogo : suppliers.length;

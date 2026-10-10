@@ -37,10 +37,11 @@ export default function AriaBackButton({
         if (href) { router.push(href); return; }
         router.back();
       }}
-      className={`inline-flex items-center justify-center rounded-lg transition-all duration-150 ${className}`}
+      className={`shrink-0 inline-flex items-center justify-center rounded-lg transition-all duration-150 ${className}`}
       style={{
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
+        minWidth: 40,
         ...baseStyle,
       }}
       onMouseEnter={e => {

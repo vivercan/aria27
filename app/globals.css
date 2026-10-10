@@ -1286,6 +1286,13 @@ html, body {
 @media (max-width: 767px) {
   body.aria-campo .fixed.inset-0 { bottom: calc(56px + env(safe-area-inset-bottom)); }
   body.aria-campo .campo-bottom-bar { bottom: calc(56px + env(safe-area-inset-bottom)); }
+  /* hojas de pantalla completa (ficha/nueva actividad) cubren la barra inferior */
+  body.aria-campo .fixed.inset-0.aria-sheet { bottom: 0; }
+  /* la burbuja de alertas flota arriba de la barra inferior */
+  body.aria-campo { --aria-bottom-nav: 56px; }
+  /* un select con opciones largas no debe ensanchar la pantalla */
+  select { max-width: 100%; }
+  .grid > * { min-width: 0; }
   /* iOS hace zoom al enfocar inputs con fuente < 16px */
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
   /* dedo: minimo 36px de alto en controles tocables */

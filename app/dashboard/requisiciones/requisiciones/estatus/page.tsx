@@ -627,8 +627,8 @@ export default function RequisicionesStatusPage() {
                 {loadingDetail ? (
                   <div className="text-center py-4"><Loader2 className="w-5 h-5 mx-auto animate-spin text-aria-accent" /></div>
                 ) : (
-                  <div className="rounded-xl border border-white/[0.08] overflow-hidden">
-                    <table className="w-full">
+                  <div className="rounded-xl border border-white/[0.08] overflow-x-auto">
+                    <table className="w-full min-w-[460px]">
                       <thead className="bg-white/[0.04]"><tr className="text-left text-[11px] text-[#4a6080]"><th className="p-2.5">Material</th><th className="p-2.5 w-20">Unidad</th><th className="p-2.5 w-16 text-center">Cant.</th><th className="p-2.5 w-24 text-right">P. Unit.</th><th className="p-2.5 w-24 text-right">Total</th></tr></thead>
                       <tbody>
                         {detailItems.map((item) => (

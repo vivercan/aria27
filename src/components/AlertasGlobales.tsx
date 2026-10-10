@@ -112,7 +112,7 @@ export default function AlertasGlobales() {
     return (
       <button
         onClick={() => setMinimizado(false)}
-        style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        style={{ bottom: "calc(var(--aria-bottom-nav, 0px) + 1rem + env(safe-area-inset-bottom))" }}
         className="fixed left-3 md:left-[236px] z-50 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-amber-500/90 hover:bg-amber-500 text-white rounded-full shadow-lg transition-all"
       >
         <AlertTriangle className="w-4 h-4" />
@@ -122,7 +122,7 @@ export default function AlertasGlobales() {
   }
 
   return (
-    <div style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }} className="fixed left-3 right-3 md:left-[236px] md:right-auto z-50 md:w-[380px] max-h-[70vh] overflow-y-auto bg-[rgba(4,8,16,0.98)] rounded-xl shadow-2xl border border-amber-500/30">
+    <div style={{ bottom: "calc(var(--aria-bottom-nav, 0px) + 1rem + env(safe-area-inset-bottom))" }} className="fixed left-3 right-3 md:left-[236px] md:right-auto z-50 md:w-[380px] max-h-[70vh] overflow-y-auto bg-[rgba(4,8,16,0.98)] rounded-xl shadow-2xl border border-amber-500/30">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-amber-500/10 border-b border-amber-500/20">
         <div className="flex items-center gap-2">

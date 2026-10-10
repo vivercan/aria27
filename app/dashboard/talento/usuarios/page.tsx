@@ -271,7 +271,7 @@ export default function UsuariosPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3 md:gap-4">
         <AriaBackButton href="/dashboard/talento" />
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
