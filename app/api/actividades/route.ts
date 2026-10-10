@@ -11,7 +11,7 @@ import { fechaCorta } from "@/lib/actividades";
 import { logger } from "@/lib/logger";
 
 const log = logger("ACTIVIDADES-CREAR");
-const PRIOS = ["urgente", "alta", "normal", "baja"];
+const PRIOS = ["URGENTE", "ALTA", "MEDIA", "BAJA"];
 
 export async function POST(req: NextRequest) {
   const auth = await requireUser(req);
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       const { data: o } = await db.from("centros_trabajo").select("id, nombre").eq("id", String(b.obra_id)).maybeSingle();
       if (o) { obraId = (o as { id: string }).id; obra = (o as { nombre: string }).nombre; }
     }
-    const prioridad = PRIOS.includes(String(b.prioridad)) ? String(b.prioridad) : "normal";
+    const prioridad = PRIOS.includes(String(b.prioridad).toUpperCase()) ? String(b.prioridad).toUpperCase() : "MEDIA";
     const fechaInicio = /^\d{4}-\d{2}-\d{2}$/.test(String(b.fecha_inicio || "")) ? String(b.fecha_inicio) : null;
 
     const { data: ins, error } = await db.from("tareas_asignadas").insert({

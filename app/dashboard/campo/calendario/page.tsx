@@ -34,7 +34,7 @@ export default function CalendarioPage() {
       const { data: ts } = await tq;
       for (const t of (ts || []) as Array<{ id: string; titulo: string; obra?: string | null; fecha_inicio?: string | null; fecha_compromiso?: string | null; estatus: string; prioridad?: string | null }>) {
         const href = `/dashboard/actividades?abrir=${t.id}`; const done = t.estatus === "COMPLETADA";
-        if (t.fecha_compromiso) out.push({ kind: "tarea", date: t.fecha_compromiso.slice(0, 10), title: t.titulo, sub: `${t.obra || "Oficina"} · entrega`, href, done, urgent: ["alta", "urgente"].includes(t.prioridad || "") });
+        if (t.fecha_compromiso) out.push({ kind: "tarea", date: t.fecha_compromiso.slice(0, 10), title: t.titulo, sub: `${t.obra || "Oficina"} · entrega`, href, done, urgent: ["ALTA", "URGENTE"].includes(String(t.prioridad || "").toUpperCase()) });
         if (t.fecha_inicio && t.fecha_inicio !== t.fecha_compromiso) out.push({ kind: "tarea", date: t.fecha_inicio.slice(0, 10), title: t.titulo, sub: `${t.obra || "Oficina"} · inicio`, href, done });
       }
       let rq = supabase.from("Requisiciones").select("id, folio, cost_center_name, required_date, status, fecha_entrega, user_email, responsable_email").gte("required_date", ini).lte("required_date", fin);

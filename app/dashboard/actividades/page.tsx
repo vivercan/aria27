@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
-  COLUMNAS, PRIORIDADES, columnaDe, diasAtraso, venceHoy, esMia, laAsigneYo, iniciales, colorPersona, fechaCorta, haceCuanto, resumen,
+  COLUMNAS, PRIORIDADES, prioridadDe, columnaDe, diasAtraso, venceHoy, esMia, laAsigneYo, iniciales, colorPersona, fechaCorta, haceCuanto, resumen,
   type Actividad, type ColumnaId,
 } from "@/lib/actividades";
 import {
@@ -191,7 +191,7 @@ export default function ActividadesPage() {
   // ── Tarjeta ──
   const tarjeta = (a: Actividad, compacta?: boolean) => {
     const col = columnaDe(a); const cl = chkDe(a.id); const hechos = cl.filter(c => c.hecho).length; const nUpd = updCount[a.id] || 0;
-    const prio = PRIORIDADES.find(p => p.id === (a.prioridad || "normal"));
+    const prio = PRIORIDADES.find(p => p.id === prioridadDe(a.prioridad));
     return (
       <button key={a.id} type="button" draggable onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => setAbierta(a.id)}
         className={`group w-full text-left rounded-xl border border-white/[0.08] bg-[#0f1f3a] hover:bg-[#13274a] hover:border-white/[0.16] active:scale-[0.99] transition shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
@@ -206,7 +206,7 @@ export default function ActividadesPage() {
                 {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
               </span>
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[#7f93b0] line-through" : "text-white"} line-clamp-2`}>{a.titulo}</div>
-              {prio && prio.id !== "normal" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
+              {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[#ff8a9c] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[#9fb4d4] bg-white/[0.05] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
@@ -486,7 +486,7 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
               <select disabled={!puedeEditar} value={a.obra_id || ""} onChange={e => onPatch({ obra_id: e.target.value })} className="mt-1 w-full rounded-xl px-3 py-2 text-sm"><option value="">{a.obra && !a.obra_id ? a.obra : "Sin obra (oficina)"}</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>
             <div className="col-span-2"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Prioridad</span>
               <div className="mt-1 grid grid-cols-4 gap-1.5">{PRIORIDADES.map(p => (
-                <button key={p.id} disabled={!puedeEditar} onClick={() => onPatch({ prioridad: p.id }, { prioridad: p.id })} className={`rounded-lg py-2 text-xs font-semibold ${(a.prioridad || "normal") === p.id ? "text-white" : "text-white/60 bg-white/[0.05]"}`} style={(a.prioridad || "normal") === p.id ? { background: p.color } : undefined}>{p.label}</button>))}</div></div>
+                <button key={p.id} disabled={!puedeEditar} onClick={() => onPatch({ prioridad: p.id }, { prioridad: p.id })} className={`rounded-lg py-2 text-xs font-semibold ${prioridadDe(a.prioridad) === p.id ? "text-white" : "text-white/60 bg-white/[0.05]"}`} style={prioridadDe(a.prioridad) === p.id ? { background: p.color } : undefined}>{p.label}</button>))}</div></div>
           </div>
 
           <label className="block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Descripción</span>
@@ -548,7 +548,7 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
   const hoy = new Date();
   const dia = (n: number) => { const d = new Date(hoy); d.setDate(hoy.getDate() + n); return ymd(d); };
   const viernes = (() => { const d = new Date(hoy); const k = (5 - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate() + k); return ymd(d); })();
-  const [f, setF] = useState({ titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: "", prioridad: "normal", descripcion: "", pasos: "" });
+  const [f, setF] = useState({ titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: "", prioridad: "MEDIA", descripcion: "", pasos: "" });
   const [busy, setBusy] = useState(false);
   const [buscaP, setBuscaP] = useState("");
   const personas = useMemo(() => { const n = norm(buscaP); return emps.filter(e => !n || norm(e.full_name).includes(n)); }, [emps, buscaP]);

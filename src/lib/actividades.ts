@@ -40,11 +40,18 @@ export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: stri
 ];
 
 export const PRIORIDADES: { id: string; label: string; color: string }[] = [
-  { id: "urgente", label: "Urgente", color: "#e2445c" },
-  { id: "alta", label: "Alta", color: "#fdab3d" },
-  { id: "normal", label: "Normal", color: "#579bfc" },
-  { id: "baja", label: "Baja", color: "#7f93b0" },
+  // valores reales de la BD (check constraint tareas_asignadas_prioridad_check)
+  { id: "URGENTE", label: "Urgente", color: "#e2445c" },
+  { id: "ALTA", label: "Alta", color: "#fdab3d" },
+  { id: "MEDIA", label: "Normal", color: "#579bfc" },
+  { id: "BAJA", label: "Baja", color: "#7f93b0" },
 ];
+
+/** Normaliza prioridad (acepta minusculas o "normal" heredados). */
+export function prioridadDe(p?: string | null): string {
+  const u = String(p || "").toUpperCase();
+  return u === "NORMAL" || !u ? "MEDIA" : ["URGENTE", "ALTA", "MEDIA", "BAJA"].includes(u) ? u : "MEDIA";
+}
 
 export function columnaDe(a: Pick<Actividad, "estatus" | "motivo_bloqueo">): ColumnaId {
   const st = String(a.estatus || "").toUpperCase();

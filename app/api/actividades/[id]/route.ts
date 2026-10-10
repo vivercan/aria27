@@ -12,7 +12,7 @@ import { logger } from "@/lib/logger";
 
 const log = logger("ACTIVIDADES-PATCH");
 const SUPER = ["admin", "Administrador", "rh", "direccion", "validador"];
-const PRIOS = ["urgente", "alta", "normal", "baja"];
+const PRIOS = ["URGENTE", "ALTA", "MEDIA", "BAJA"];
 const COLS: ColumnaId[] = ["POR_HACER", "EN_PROCESO", "BLOQUEADA", "TERMINADA"];
 
 async function cargar(id: string) {
@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     }
     if (typeof b.titulo === "string" && b.titulo.trim() && b.titulo.trim() !== t.titulo) { cambios.titulo = b.titulo.trim().slice(0, 200); notas.push("Cambió el título"); }
     if (typeof b.descripcion === "string" && b.descripcion !== (t.descripcion || "")) { cambios.descripcion = b.descripcion.slice(0, 2000) || null; notas.push("Editó la descripción"); }
-    if (typeof b.prioridad === "string" && PRIOS.includes(b.prioridad) && b.prioridad !== t.prioridad) { cambios.prioridad = b.prioridad; notas.push(`Prioridad ${b.prioridad}`); }
+    if (typeof b.prioridad === "string" && PRIOS.includes(b.prioridad.toUpperCase()) && b.prioridad.toUpperCase() !== t.prioridad) { cambios.prioridad = b.prioridad.toUpperCase(); notas.push(`Prioridad ${b.prioridad.toLowerCase()}`); }
     for (const k of ["fecha_inicio", "fecha_compromiso"] as const) {
       if (b[k] !== undefined) {
         const v = String(b[k] || "").slice(0, 10);
