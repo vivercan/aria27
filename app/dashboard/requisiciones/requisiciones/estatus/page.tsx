@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { Printer, FileDown, Send, Loader2, Trash2, Pencil, Copy } from "lucide-react";
 import RequisicionEditModal from "@/components/RequisicionEditModal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import ListToolbar from "@/components/ListToolbar";
+import { useListFilter } from "@/hooks/useListFilter";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
@@ -42,6 +44,7 @@ interface Requisition {
   monto?: number;
   motivo_solicitud?: string;
   descripcion_compra?: string;
+  purchase_status?: string;
 }
 
 interface ReqItem {
@@ -104,6 +107,43 @@ export default function RequisicionesStatusPage() {
   const canDelete = userRole === "rh" || userRole === "admin";
   const isAdmin = userRole === "admin" || userRole === "rh";
   const isCompras = userRole === "compras";
+
+  // ── FASE 0 ARIA27 Campo: busqueda + chips + obra + "Mis pendientes" (10-Oct-2026) ──
+  const STATUS_LABEL: Record<string, string> = {
+    PENDIENTE: "Pendiente", EN_AUTORIZACION: "En autorización", APROBADA: "Aprobada",
+    OC_GENERADA: "OC generada", RECHAZADA_DIRECCION: "Rechazada", CANCELADA: "Cancelada",
+  };
+  const esMiPendiente = useCallback((r: Requisition): boolean => {
+    const st = r.status, ps = r.purchase_status || "";
+    const abierta = st === "PENDIENTE" || st === "EN_AUTORIZACION" || st === "EN_COTIZACION";
+    switch (userRole) {
+      case "compras":   return st === "PENDIENTE" && ps !== "GASTO_EFECTIVO_PENDIENTE";
+      case "direccion": return st === "EN_AUTORIZACION";
+      case "usuario":   return ps === "GASTO_EFECTIVO_PENDIENTE" && abierta;   // caja / administración paga
+      case "admin":
+      case "rh":        return abierta;
+      default:          return abierta && (r.user_email || "").toLowerCase() === userEmail.toLowerCase(); // creador esperando respuesta
+    }
+  }, [userRole, userEmail]);
+  const chipsDef = useMemo(() => [
+    { key: "", label: "Todas" },
+    { key: "mis_pendientes", label: "Mis pendientes" },
+    { key: "PENDIENTE", label: "Pendiente" },
+    { key: "EN_AUTORIZACION", label: "En autorización" },
+    { key: "APROBADA", label: "Aprobada" },
+  ], []);
+  const chipPredicates = useMemo(() => ({ mis_pendientes: esMiPendiente }), [esMiPendiente]);
+  const searchFields = useCallback((r: Requisition) => [
+    r.folio, r.cost_center_name, r.created_by, r.solicitante_nombre_completo, nombresPorEmail[(r.user_email || "").toLowerCase()],
+    r.proveedor, r.motivo_solicitud, r.descripcion_compra, r.subcategoria, r.categoria, STATUS_LABEL[r.status] || r.status,
+  ], [nombresPorEmail]); // eslint-disable-line react-hooks/exhaustive-deps
+  const chipOf = useCallback((r: Requisition) => r.status || null, []);
+  const selectsDef = useMemo(() => ({ obra: { label: "Obra", pick: (r: Requisition) => r.cost_center_name || null } }), []);
+  const lf = useListFilter<Requisition>({
+    items: requisiciones, storageKey: "aria:filtro:requis-estatus",
+    searchFields, chips: chipsDef, chipOf, chipPredicates, selects: selectsDef,
+  });
+  const visibles = lf.filtered;
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "";
@@ -268,7 +308,7 @@ export default function RequisicionesStatusPage() {
   }
 
   function handleSelectAll(checked: boolean) {
-    setSelectedIds(checked ? requisiciones.map((r) => r.id) : []);
+    setSelectedIds(checked ? visibles.map((r) => r.id) : []);
   }
 
   function handleSelect(id: string, checked: boolean) {
@@ -338,12 +378,12 @@ export default function RequisicionesStatusPage() {
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
             <h1 className="text-2xl font-bold text-white">Estatus de Requisiciones</h1>
-            <p className="text-[#4a6080] text-sm">{requisiciones.length} requisiciones</p>
+            <p className="text-[#4a6080] text-sm">{lf.isActive ? `${visibles.length} de ${requisiciones.length}` : requisiciones.length} requisiciones</p>
           </div>
         </div>
 
         {/* Botón eliminar todas — solo RH */}
-        {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && (
+        {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && !lf.isActive && (
           <button
             onClick={() => openDeleteModal("all")}
             className="aria-btn aria-btn-danger"
@@ -374,6 +414,18 @@ export default function RequisicionesStatusPage() {
         </div>
       )}
 
+      {!loading && (
+        <ListToolbar
+          search={lf.search} onSearch={lf.setSearch}
+          placeholder="Buscar por folio, obra, solicitante, proveedor o concepto…"
+          chips={chipsDef} chip={lf.chip} onChip={lf.setChip} counts={lf.counts}
+          selects={[{ key: "obra", label: "Obra", options: lf.selectOptions.obra || [], value: lf.selects.obra || "" }]}
+          onSelect={lf.setSelect}
+          shown={visibles.length} total={requisiciones.length}
+          isActive={lf.isActive} onClear={lf.clear}
+        />
+      )}
+
       {loading ? (
         <div className="text-center py-10">
           <Loader2 className="w-8 h-8 mx-auto animate-spin text-aria-accent" />
@@ -389,7 +441,7 @@ export default function RequisicionesStatusPage() {
                       <input
                         type="checkbox"
                         onChange={(e) => handleSelectAll(e.target.checked)}
-                        checked={selectedIds.length === requisiciones.length && requisiciones.length > 0}
+                        checked={selectedIds.length === visibles.length && visibles.length > 0}
                         className="rounded"
                       />
                     </th>
@@ -405,7 +457,7 @@ export default function RequisicionesStatusPage() {
                 </tr>
               </thead>
               <tbody>
-                {requisiciones.map((req) => (
+                {visibles.map((req) => (
                   <tr key={req.id} className="border-t border-white/[0.05] hover:bg-white/[0.04]">
                     {canDelete && (
                       <td className="p-3">
@@ -490,6 +542,13 @@ export default function RequisicionesStatusPage() {
                 ))}
               </tbody>
             </table>
+            {visibles.length === 0 && (
+              <div className="py-12 text-center text-sm text-[#7f93b0]">
+                {requisiciones.length === 0 ? "No hay requisiciones." : (
+                  <>Nada coincide{lf.search ? <> con <span className="text-white">“{lf.search}”</span></> : ""}. <button type="button" onClick={lf.clear} className="btn-flat aria-no-min-tap underline text-aria-accent hover:text-white">Limpiar filtros</button></>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
