@@ -7,6 +7,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { sendEmailLogged } from "@/lib/email-log";
 import { notifyOps } from "@/lib/notify-ops";
+import { emailAllowed } from "@/lib/notif-policy";
 import { hydrateSupplierBanking } from "@/lib/hydrate-supplier-banking";
 
 const log = logger("REQUISICION");
@@ -309,8 +310,8 @@ export async function POST(request: NextRequest) {
 
     const destinoTexto = flujo === "direccion" ? "Dirección para autorización" : "Compras";
 
-    // 1. EMAIL + WA AL CREADOR
-    {
+    // 1. EMAIL + WA AL CREADOR  (FIX 549: respeta users.notif_email)
+    if (emailAllowed("creador", creatorUser?.notif_email as boolean | null | undefined)) {
       const r = await sendEmailLogged({
         template: "requisicion_creada_creador",
         to: usuario.email,
@@ -365,7 +366,7 @@ export async function POST(request: NextRequest) {
 
     // 2. EMAIL + WA A COMPRAS (solo flujo compras Y NO gasto efectivo)
     if (flujo === "compras" && comprasUser && !esGastoEfectivo) {
-      {
+      if (emailAllowed("compras", comprasUser.notif_email as boolean | null | undefined)) {
         const r = await sendEmailLogged({
           template: "requisicion_creada_compras",
           to: comprasUser.email,
@@ -381,12 +382,10 @@ export async function POST(request: NextRequest) {
       if (comprasUser.phone) {
         // PR 30-Abr: usar template aria_requisicion_gasto si es gasto, sino el clasico
         if (esGastoPorPagar) {
-          const conceptoCorto = (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0, 60) : materialesResumen.slice(0, 60)) || "(sin concepto)";
-          const wa1 = await sendWhatsAppLogged("aria_requisicion_gasto", [folio, obra, String(body.descripcion_compra || "GASTO"), conceptoCorto], comprasUser.phone, { origen: "req-creada-compras-gasto", enviadoPor: usuario.email });
-          if (!wa1.success) {
-            // Fallback: si template nuevo no esta aprobado aun, usar el clasico con prefijo en folio
-            await sendWhatsAppLogged("requisicion_compras", [`[GASTO POR PAGAR] ${folio}`, obra, urgencyText, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : materialesResumen)], comprasUser.phone, { origen: "req-creada-compras-gasto-fallback", enviadoPor: usuario.email });
-          }
+          // FIX 549: 'aria_requisicion_gasto' nunca se creo/aprobo en Meta (20 fallos/mes en wa_log).
+          // Se usa directo la plantilla aprobada con prefijo en el folio. Si algun dia se aprueba
+          // la de gasto, volver a intentarla aqui primero.
+          await sendWhatsAppLogged("requisicion_compras", [`[GASTO POR PAGAR] ${folio}`, obra, urgencyText, (body.motivo_solicitud ? String(body.motivo_solicitud).slice(0,60) : materialesResumen)], comprasUser.phone, { origen: "req-creada-compras-gasto", enviadoPor: usuario.email });
         } else {
           await sendWhatsAppLogged("requisicion_compras", [folio, obra, urgencyText, materialesResumen], comprasUser.phone, { origen: "req-creada-compras", enviadoPor: usuario.email });
         }
@@ -399,7 +398,7 @@ export async function POST(request: NextRequest) {
       const approveUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=AUTORIZADA`;
       const rejectUrl = `${BASE_URL}/api/requisicion/approve-purchase?token=${token}&action=RECHAZADA`;
 
-      {
+      if (emailAllowed("direccion_accion", direccionUser.notif_email as boolean | null | undefined)) {
         const r = await sendEmailLogged({
           template: "requisicion_creada_direccion",
           to: direccionUser.email,
@@ -420,7 +419,7 @@ export async function POST(request: NextRequest) {
 
     // 3. EMAIL AL ADMIN (informativo)
     if (!isAdmin && adminUser) {
-      {
+      if (emailAllowed("admin", adminUser.notif_email as boolean | null | undefined)) {
         const r = await sendEmailLogged({
           template: "requisicion_creada_admin",
           to: adminUser.email,

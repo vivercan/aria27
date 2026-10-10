@@ -13,6 +13,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppLogged } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
+import { emailAllowed } from "@/lib/notif-policy";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
 import { logger } from "@/lib/logger";
 
@@ -53,6 +54,7 @@ interface DestinatarioOps {
   phone: string | null;
   nombre: string | null;
   role: string;
+  notif_email?: boolean | null;
 }
 
 /**
@@ -64,7 +66,7 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
   // Leer Users — los nombres de columna varian segun proyecto, intentamos lo mas comun
   const { data, error } = await supabase
     .from("Users")
-    .select("email, phone, name, display_name, role, active")
+    .select("email, phone, name, display_name, role, active, notif_email")
     .in("role", ["direccion", "rh"]);
   if (error) {
     log.warn("[NOTIFY-OPS] Users query fallo", { err: error.message });
@@ -84,6 +86,7 @@ async function loadDestinatarios(): Promise<DestinatarioOps[]> {
     .map(u => ({
       email: u.email as string,
       phone: u.phone || null,
+      notif_email: (u as { notif_email?: boolean | null }).notif_email ?? null,
       nombre: u.name || u.display_name || null,
       role: (u.role as string) || "",
     }));
@@ -165,8 +168,9 @@ export async function notifyOps(input: NotifyOpsInput): Promise<void> {
         log.error("[NOTIFY-OPS] WA throw", { err: (e as Error)?.message });
       }
     }
-    // -- Email --
-    if (d.email) {
+    // -- Email -- (FIX 549: Direccion/RH ya reciben WA; correo solo con override explicito)
+    const ctx = d.role === "rh" ? "ops_rh" : "ops_direccion";
+    if (d.email && emailAllowed(ctx, d.notif_email)) {
       try {
         const subject = `[${titulo}] ${resumen}`;
         // Si es combustible, agregar grilla de cargas con thumbnails de horometros
