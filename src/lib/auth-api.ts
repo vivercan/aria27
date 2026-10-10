@@ -202,13 +202,15 @@ export async function validateApiUser(
     const sb = getSupabaseAdmin();
     const { data: user, error } = await sb
       .from("Users")
-      .select("email,role")
+      .select("email,role,active")
       .eq("email", userEmail)
       .maybeSingle();
 
     if (error || !user) {
       return null;
     }
+    // 10-Oct-2026: usuario dado de baja (active=false) ya no pasa ninguna validacion de API
+    if ((user as { active?: boolean | null }).active === false) return null;
 
     return { email: user.email, role: user.role };
   } catch (err: unknown) {

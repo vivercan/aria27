@@ -5,7 +5,7 @@ import { backupAndDelete } from "@/lib/backup-delete";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import { Users, Mail, Phone, Edit2, Save, X, Shield, ChevronDown, ChevronUp, Trash2, AlertTriangle, UserPlus, UserX, UserCheck } from "lucide-react";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
@@ -39,7 +39,20 @@ const MODULOS = [
   { id: "whatsapp", nombre: "WhatsApp", subs: ["log"] },
   { id: "import", nombre: "Importar CSV", subs: [] },
   { id: "configuracion", nombre: "Configuración", subs: ["maestros", "general", "alertas", "recordatorios", "correo"] },
+  { id: "campo", nombre: "Campo (celular)", subs: ["evidencia", "calendario"] },
   { id: "admin", nombre: "Admin (solo sistema)", subs: ["roles", "auditoria", "restore"] },
+];
+
+const ROLES = [
+  { v: "residente", l: "Residente de obra" },
+  { v: "validador", l: "Superintendencia" },
+  { v: "compras", l: "Compras" },
+  { v: "rh", l: "Recursos Humanos" },
+  { v: "direccion", l: "Dirección" },
+  { v: "usuario", l: "Usuario (caja/pagos)" },
+  { v: "almacen", l: "Almacén" },
+  { v: "operador", l: "Operador" },
+  { v: "admin", l: "Administrador" },
 ];
 
 export default function UsuariosPage() {
@@ -57,6 +70,33 @@ export default function UsuariosPage() {
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const { msg, flash, clear } = useFlashMessage();
+  // 10-Oct-2026: alta y baja de usuarios desde aqui (antes no habia pantalla; los creaba soporte por base de datos)
+  const [showNuevo, setShowNuevo] = useState(false);
+  const [nuevo, setNuevo] = useState({ name: "", email: "", role: "residente", phone: "" });
+  const [savingNuevo, setSavingNuevo] = useState(false);
+  const crearUsuario = async () => {
+    const email = nuevo.email.trim().toLowerCase();
+    if (!nuevo.name.trim()) { flash("err", "Escribe el nombre"); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { flash("err", "Correo inválido"); return; }
+    setSavingNuevo(true);
+    try {
+      const r = await fetch("/api/admin/roles", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, display_name: nuevo.name.trim(), role: nuevo.role, phone: nuevo.phone.replace(/\D/g, "") }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { flash("err", "No se pudo dar de alta: " + (j.error || r.status)); return; }
+      flash("ok", j.mode === "updated" ? "Ese correo ya existía; se actualizaron sus datos" : `Usuario ${email} dado de alta`);
+      setNuevo({ name: "", email: "", role: "residente", phone: "" }); setShowNuevo(false); loadUsers();
+    } catch (e: unknown) { flash("err", "Error de red: " + ((e as { message?: string })?.message || "")); }
+    finally { setSavingNuevo(false); }
+  };
+  const cambiarActivo = async (u: User, active: boolean) => {
+    try {
+      const r = await fetch("/api/admin/roles", { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: u.id, active }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { flash("err", (active ? "No se pudo reactivar: " : "No se pudo dar de baja: ") + (j.error || r.status)); return; }
+      flash("ok", active ? `${u.name || u.email} reactivado` : `${u.name || u.email} dado de baja (ya no puede entrar)`);
+      loadUsers();
+    } catch (e: unknown) { flash("err", "Error de red: " + ((e as { message?: string })?.message || "")); }
+  };
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -240,7 +280,21 @@ export default function UsuariosPage() {
           </h1>
           <p className="text-[#7f93b0] mt-1">{users.length} usuarios registrados</p>
         </div>
+        <button onClick={() => setShowNuevo(v => !v)} className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-aria-primary text-white text-sm hover:bg-aria-primary-hover">
+          <UserPlus className="w-4 h-4" /> {showNuevo ? "Cancelar" : "Nuevo usuario"}
+        </button>
       </div>
+
+      {showNuevo && (
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+          <div className="md:col-span-1"><label className="text-xs text-[#7f93b0] mb-1 block">Nombre *</label><input value={nuevo.name} onChange={e => setNuevo({ ...nuevo, name: e.target.value })} placeholder="Nombre y apellido" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm" /></div>
+          <div className="md:col-span-1"><label className="text-xs text-[#7f93b0] mb-1 block">Correo (Zoho) *</label><input type="email" value={nuevo.email} onChange={e => setNuevo({ ...nuevo, email: e.target.value })} placeholder="nombre@gcuavante.com" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm" /></div>
+          <div><label className="text-xs text-[#7f93b0] mb-1 block">Rol</label><select value={nuevo.role} onChange={e => setNuevo({ ...nuevo, role: e.target.value })} className="w-full px-3 py-2 rounded-lg text-sm">{ROLES.map(r => <option key={r.v} value={r.v}>{r.l}</option>)}</select></div>
+          <div><label className="text-xs text-[#7f93b0] mb-1 block">Celular (WhatsApp)</label><input type="tel" inputMode="numeric" value={nuevo.phone} onChange={e => setNuevo({ ...nuevo, phone: e.target.value })} placeholder="10 dígitos" className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white text-sm" /></div>
+          <button onClick={crearUsuario} disabled={savingNuevo} className="px-4 py-2 rounded-lg bg-aria-accent/90 hover:bg-aria-accent text-slate-900 text-sm font-semibold disabled:opacity-60">{savingNuevo ? "Guardando…" : "Dar de alta"}</button>
+          <p className="md:col-span-5 text-xs text-[#7f93b0]">Recibe los mismos accesos que otro usuario de su rol (los ajustas con Editar). Para entrar necesita su buzón Zoho activo.</p>
+        </div>
+      )}
 
       <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
         {loading ? (
@@ -294,11 +348,7 @@ export default function UsuariosPage() {
                       <td className="px-4 py-3 text-center">
                         {editingId === u.id ? (
                           <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="bg-[#0f2448] text-white text-xs rounded px-2 py-1">
-                            <option value="admin">admin</option>
-                            <option value="validador">validador</option>
-                            <option value="compras">compras</option>
-                            <option value="operador">operador</option>
-                            <option value="viewer">viewer</option>
+                            {ROLES.map(r => <option key={r.v} value={r.v}>{r.l}</option>)}
                           </select>
                         ) : (
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(u.role)}`}>{u.role}</span>
@@ -329,6 +379,11 @@ export default function UsuariosPage() {
                             <button onClick={() => startEdit(u)} className="p-1.5 rounded hover:bg-white/[0.06] text-[#7f93b0] hover:text-white" title="Editar">
                               <Edit2 className="w-4 h-4" />
                             </button>
+                            {u.active ? (
+                              <button onClick={() => cambiarActivo(u, false)} className="p-1.5 rounded hover:bg-amber-500/20 text-[#7f93b0] hover:text-amber-300" title="Dar de baja"><UserX className="w-4 h-4" /></button>
+                            ) : (
+                              <button onClick={() => cambiarActivo(u, true)} className="p-1.5 rounded hover:bg-emerald-500/20 text-[#7f93b0] hover:text-emerald-300" title="Reactivar"><UserCheck className="w-4 h-4" /></button>
+                            )}
                             {canDelete && (<button onClick={() => openDeleteModal(u)} className="p-1.5 rounded hover:bg-red-500/20 text-[#7f93b0] hover:text-red-400" title="Eliminar">
                               <Trash2 className="w-4 h-4" />
                             </button>)}

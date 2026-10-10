@@ -29,6 +29,8 @@ export async function GET(req: NextRequest) {
 
 interface RolePatchBody {
   id?: unknown;
+  active?: unknown;
+  name?: unknown;
   role?: unknown;
   permissions?: unknown;
   email?: unknown;
@@ -36,6 +38,9 @@ interface RolePatchBody {
 }
 
 interface RoleUpdate {
+  active?: boolean;
+  name?: string;
+  display_name?: string;
   role?: string;
   permissions?: Record<string, unknown>;
   email?: string;
@@ -53,7 +58,7 @@ export async function PATCH(req: NextRequest) {
     let body: RolePatchBody;
     try { body = await req.json().catch(() => ({})); } catch { return NextResponse.json({ error: "JSON invalido" }, { status: 400 }); }
 
-    const { id, role, permissions, email: newEmail, phone } = body || {};
+    const { id, role, permissions, email: newEmail, phone, active, name } = body || {};
     if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
     const ALLOWED_ROLES = ["admin", "Administrador", "rh", "compras", "almacen", "operador", "residente", "direccion", "user", "usuario", "validador"];
@@ -83,9 +88,23 @@ export async function PATCH(req: NextRequest) {
     if (permissions !== undefined) patch.permissions = permissions as Record<string, unknown>;
     if (typeof newEmail === "string" && newEmail.trim()) patch.email = newEmail.trim();
     if (typeof phone === "string") patch.phone = phone.trim();
+    if (typeof active === "boolean") patch.active = active; // baja / reactivacion (no borra historial)
+    if (typeof name === "string" && name.trim()) { patch.name = name.trim(); patch.display_name = name.trim(); }
+    if (auth.email && typeof active === "boolean" && active === false) {
+      const { data: self } = await sb.from("Users").select("email").eq("id", id).maybeSingle();
+      if (String((self as { email?: string } | null)?.email || "").toLowerCase() === auth.email.toLowerCase()) return NextResponse.json({ error: "No puedes darte de baja a ti mismo" }, { status: 400 });
+    }
 
     const { error } = await sb.from("Users").update(patch).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (patch.active === false) {
+      // baja: cerrar todas sus sesiones abiertas
+      try {
+        const { data: who } = await sb.from("Users").select("email").eq("id", id).maybeSingle();
+        const em = (who as { email?: string } | null)?.email;
+        if (em) { const { revokeAllSessionsFor } = await import("@/lib/session"); await revokeAllSessionsFor(em, "baja_usuario"); }
+      } catch { /* best effort */ }
+    }
 
     // Log de auditoria best-effort
     try {
@@ -169,11 +188,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Insert
-    const insRow: Record<string, unknown> = { email: emailLower };
-    if (typeof display_name === "string") insRow.display_name = display_name.trim();
+    const insRow: Record<string, unknown> = { email: emailLower, active: true };
+    if (typeof display_name === "string" && display_name.trim()) { insRow.display_name = display_name.trim(); insRow.name = display_name.trim(); }
     if (typeof role === "string") insRow.role = role;
     if (typeof phone === "string") insRow.phone = phone.trim();
     if (permissions !== undefined) insRow.permissions = permissions;
+    else if (typeof role === "string") {
+      // 10-Oct-2026: sin permisos explicitos, copia los de un usuario activo del mismo rol (plantilla).
+      // Evita que un alta nueva quede con {} (que para roles de sistema equivale a acceso total).
+      const { data: tpl } = await sb.from("Users").select("permissions").eq("role", role).eq("active", true).not("permissions", "is", null).limit(1).maybeSingle();
+      const tp = (tpl as { permissions?: Record<string, unknown> } | null)?.permissions;
+      if (tp && Object.keys(tp).length > 0) insRow.permissions = tp;
+    }
 
     const { data, error } = await sb.from("Users").insert(insRow).select("id").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -66,6 +66,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (isValid) {
+      // 10-Oct-2026: baja en ARIA27 bloquea el acceso aunque el buzon Zoho siga activo
+      try {
+        const { getSupabaseAdmin } = await import("@/lib/supabase-server");
+        const { data: u } = await getSupabaseAdmin().from("Users").select("active").ilike("email", email).maybeSingle();
+        if (u && (u as { active?: boolean | null }).active === false) {
+          return NextResponse.json({ valid: false, error: "Tu usuario fue dado de baja en ARIA27. Contacta a Recursos Humanos." }, { status: 403 });
+        }
+      } catch { /* si falla la consulta no bloqueamos el login */ }
       // FIX 541.1 24-Jun-2026: crear sesión opaca server-side. Cookie HttpOnly.
       const ua = req.headers.get("user-agent");
       const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip");
