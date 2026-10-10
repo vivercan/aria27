@@ -19,9 +19,11 @@ export default function CampoHome() {
   const [me, setMe] = useState<{ email: string; role: string; name: string } | null>(null);
   const [reqs, setReqs] = useState<R[]>([]); const [tareas, setTareas] = useState<number>(0);
   const [loading, setLoading] = useState(true); const [isIos, setIsIos] = useState(false); const [standalone, setStandalone] = useState(true);
+  const [saludo, setSaludo] = useState("Hola");
 
   useEffect(() => {
     const ua = navigator.userAgent; setIsIos(/iPhone|iPad|iPod/i.test(ua));
+    const h = new Date().getHours(); setSaludo(h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches");
     setStandalone(window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true);
     try { localStorage.setItem("aria:modo", "campo"); } catch {}
     let alive = true;
@@ -44,8 +46,8 @@ export default function CampoHome() {
 
   const pendientes = useMemo(() => me ? reqs.filter(r => accionPara(r, me.role, me.email) !== null && accionPara(r, me.role, me.email) !== "REGISTRAR_ENTREGA") : [], [reqs, me]);
   const porEntregar = useMemo(() => me ? reqs.filter(r => accionPara(r, me.role, me.email) === "REGISTRAR_ENTREGA").slice(0, 50) : [], [reqs, me]);
-  const hora = new Date().getHours(); const saludo = hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches";
   const n = pendientes.length + tareas;
+  const enCurso = useMemo(() => me ? reqs.filter(r => (r.user_email || "").toLowerCase() === me.email && !["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION"].includes(r.status)).length : 0, [reqs, me]);
 
   const tiles = [
     { href: "/dashboard/requisiciones/requisiciones/nuevo", icon: PlusCircle, t: "Nueva solicitud", d: "Materiales, destajo o actividad", accent: true },
@@ -64,8 +66,9 @@ export default function CampoHome() {
       </div>
 
       <Link href="/dashboard/requisiciones/requisiciones/estatus?chip=mis_pendientes" className={`mt-4 block rounded-2xl border p-4 ${n > 0 ? "border-amber-400/40 bg-amber-500/10" : "border-emerald-500/30 bg-emerald-500/[0.06]"}`}>
-        <div className="flex items-center justify-between"><div><div className={`text-3xl font-bold ${n > 0 ? "text-amber-300" : "text-emerald-300"}`}>{loading ? "–" : n}</div><div className="text-sm text-white">{n === 1 ? "pendiente te espera" : "pendientes te esperan"}</div>
-          {!loading && n > 0 && <div className="text-[11px] text-[#c9d8ed] mt-1">{pendientes.length} solicitud{pendientes.length === 1 ? "" : "es"} · {tareas} actividad{tareas === 1 ? "" : "es"}</div>}</div><ChevronRight className="w-5 h-5 text-[#7f93b0]" /></div>
+        <div className="flex items-center justify-between"><div><div className={`text-3xl font-bold ${n > 0 ? "text-amber-300" : "text-emerald-300"}`}>{loading ? "–" : n}</div><div className="text-sm text-white">{n === 1 ? "pendiente te espera" : n === 0 ? "nada pendiente de tu parte" : "pendientes te esperan"}</div>
+          {!loading && n > 0 && <div className="text-[11px] text-[#c9d8ed] mt-1">{pendientes.length} solicitud{pendientes.length === 1 ? "" : "es"} · {tareas} actividad{tareas === 1 ? "" : "es"}</div>}
+          {!loading && n === 0 && <div className="text-[11px] text-[#c9d8ed] mt-1">{enCurso} solicitud{enCurso === 1 ? "" : "es"} tuya{enCurso === 1 ? "" : "s"} en curso</div>}</div><ChevronRight className="w-5 h-5 text-[#7f93b0]" /></div>
       </Link>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
