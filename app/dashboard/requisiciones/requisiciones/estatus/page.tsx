@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import ListToolbar from "@/components/ListToolbar";
 import { useListFilter } from "@/hooks/useListFilter";
 import RequiStepper from "@/components/RequiStepper";
-import { statusLabel } from "@/lib/requi-stepper";
+import { statusLabel, accionPara } from "@/lib/requi-stepper";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
@@ -109,6 +109,10 @@ export default function RequisicionesStatusPage() {
   const [enviandoPago, setEnviandoPago] = useState(false);
   const [detailReq, setDetailReq] = useState<Requisition | null>(null);
   const [editReq, setEditReq] = useState<Requisition | null>(null);
+  // F2: autorizar/rechazar como responsable desde el detalle
+  const [respAccion, setRespAccion] = useState<"" | "RECHAZAR">("");
+  const [respComentario, setRespComentario] = useState("");
+  const [respSaving, setRespSaving] = useState(false);
   const STATUS_BLOQUEADOS_EDIT = ["AUTORIZADA", "OC_GENERADA", "CANCELADA"];
   const [detailItems, setDetailItems] = useState<ReqItem[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -379,6 +383,20 @@ export default function RequisicionesStatusPage() {
     return "bg-slate-500/20 text-[#7f93b0]";
   };
 
+  async function resolverResponsable(action: "AUTORIZAR" | "RECHAZAR") {
+    if (!detailReq) return;
+    setRespSaving(true);
+    try {
+      const res = await fetch("/api/requisicion/autorizar-responsable", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: detailReq.id, action, comentario: respComentario }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) { flash("err", j.error || `Error ${res.status}`); return; }
+      flash("ok", action === "AUTORIZAR" ? `${detailReq.folio} autorizada. Sigue a ${j.flujo === "direccion" ? "Dirección" : "Compras"}.` : `${detailReq.folio} rechazada.`);
+      setDetailReq(null); setRespAccion(""); setRespComentario("");
+      if (userEmail) loadData(userEmail);
+    } catch (e) { flash("err", (e as Error).message); }
+    finally { setRespSaving(false); }
+  }
+
   // CV 18-Abr: formatDate/formatCurrency migrados a fmtDate/fmtMoney canon
   const formatDate = (date: string) => fmtDate(date);
 
@@ -616,6 +634,25 @@ export default function RequisicionesStatusPage() {
                 )}
               </div>
             </div>
+            {accionPara(detailReq, userRole, userEmail) === "AUTORIZAR_RESPONSABLE" && (
+              <div className="px-4 pt-3 border-t border-amber-500/30 bg-amber-500/[0.06]">
+                <p className="text-xs text-amber-200 mb-2">Esta requisición espera tu autorización como responsable de la obra.</p>
+                {respAccion === "RECHAZAR" ? (
+                  <div className="space-y-2 pb-3">
+                    <textarea value={respComentario} onChange={e => setRespComentario(e.target.value)} placeholder="Motivo del rechazo (obligatorio)" rows={2} className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-red-400" />
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={() => setRespAccion("")} className="btn-flat px-3 py-2 rounded-lg bg-white/[0.06] text-sm text-[#c9d8ed]">Cancelar</button>
+                      <button disabled={respSaving || !respComentario.trim()} onClick={() => resolverResponsable("RECHAZAR")} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold disabled:opacity-50">{respSaving ? "Enviando…" : "Confirmar rechazo"}</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 justify-end pb-3">
+                    <button onClick={() => setRespAccion("RECHAZAR")} className="btn-flat px-4 py-2 rounded-lg border border-red-500/40 text-red-300 text-sm hover:bg-red-500/10">Rechazar</button>
+                    <button disabled={respSaving} onClick={() => resolverResponsable("AUTORIZAR")} className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-sm font-bold disabled:opacity-50">{respSaving ? "Autorizando…" : "Autorizar"}</button>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="p-4 border-t border-white/[0.08] flex justify-end gap-2">
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
                 <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-medium transition flex items-center gap-2 shadow-md shadow-amber-500/30 ring-1 ring-amber-300/30"><Pencil className="w-4 h-4" />Editar</button>

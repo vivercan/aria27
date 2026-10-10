@@ -34,6 +34,7 @@ interface Obra {
   latitud?: number | null;
   longitud?: number | null;
   radio_metros?: number | null;
+  responsable_email?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -46,11 +47,14 @@ const STATUS = [
   { value: "CANCELADA", label: "Cancelada", color: "bg-red-500/20 text-red-400" },
 ];
 
-const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "", latitud: "", longitud: "", radio_metros: "150" };
+const FORM_INIT = { nombre: "", direccion: "", cliente: "", estado: "ACTIVA", presupuesto: "", fecha_inicio: "", fecha_fin: "", descripcion: "", latitud: "", longitud: "", radio_metros: "150", responsable_email: "" };
 
 export default function CatalogoObrasPage() {
   const router = useRouter();
   const [obras, setObras] = useState<Obra[]>([]);
+  // ARIA27 Campo F2: responsable que autoriza primero las requis de la obra
+  const [usuarios, setUsuarios] = useState<Array<{ email: string; name: string; role: string }>>([]);
+  useEffect(() => { supabase.from("Users").select("email, name, role").eq("active", true).order("name").then(({ data }) => { if (data) setUsuarios(data as Array<{ email: string; name: string; role: string }>); }); }, []);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filtroEstado, setFiltroEstado] = useState<string>("ACTIVAS");
@@ -119,6 +123,7 @@ export default function CatalogoObrasPage() {
       latitud: o.latitud != null ? String(o.latitud) : "",
       longitud: o.longitud != null ? String(o.longitud) : "",
       radio_metros: o.radio_metros != null ? String(o.radio_metros) : "150",
+      responsable_email: o.responsable_email || "",
     });
     setShowForm(true);
   };
@@ -319,6 +324,13 @@ export default function CatalogoObrasPage() {
                 {formErrors.radio_metros && <p className="text-red-400 text-xs mt-1">{formErrors.radio_metros}</p>}
               </div>
               <p className="md:col-span-12 text-xs text-[#7f93b0]">Tip: clic-derecho en Google Maps, luego "Que hay aqui", luego copia los 2 numeros (lat, lng).</p>
+              <div className="md:col-span-6">
+                <label className="block text-xs text-[#7f93b0] mb-1">Responsable de obra (autoriza primero las requis)</label>
+                <select value={form.responsable_email || ""} onChange={e => setForm({ ...form, responsable_email: e.target.value })} className="w-full px-3 py-2 rounded-lg text-sm">
+                  <option value="">Sin responsable (va directo a Compras / Dirección)</option>
+                  {usuarios.filter(u => ["residente", "validador", "direccion", "admin", "compras"].includes(u.role)).map(u => <option key={u.email} value={u.email}>{u.name} · {u.role}</option>)}
+                </select>
+              </div>
             </div>
             <div className="md:col-span-3">
               <label className="text-xs text-[#7f93b0] mb-1 block">Descripción</label>

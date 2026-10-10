@@ -181,7 +181,24 @@ export async function POST(request: NextRequest) {
     const displayName = creatorUser?.display_name || creatorUser?.name || usuario.nombre;
     const isAdmin = creatorUser?.role === "admin";
 
-    const initialStatus = flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE";
+    // ── ARIA27 Campo F2: responsable de obra = primer nivel de autorización ──
+    // Flag de rollback: RESPONSABLE_NIVEL1_ENABLED=false desactiva (comportamiento anterior).
+    const nivel1On = process.env.RESPONSABLE_NIVEL1_ENABLED !== "false";
+    let responsableEmail: string | null = null;
+    if (nivel1On) {
+      let q = getDb().from("centros_trabajo").select("responsable_email").limit(1);
+      q = body.costCenterId ? q.eq("id", body.costCenterId) : q.ilike("nombre", String(obra || "").trim());
+      const { data: ctRow } = await q.maybeSingle();
+      responsableEmail = ((ctRow as { responsable_email?: string | null } | null)?.responsable_email || "").toLowerCase() || null;
+    }
+    const creadorEs = (usuario.email || "").toLowerCase();
+    const creadorRol = (creatorUser?.role || "").toLowerCase();
+    const autoAprueba = !responsableEmail || responsableEmail === creadorEs || creadorRol === "direccion" || creadorRol === "admin";
+    const esperaResponsable = nivel1On && !!responsableEmail && !autoAprueba;
+    const responsableUser = esperaResponsable ? await getUserByEmail(responsableEmail!) : null;
+    logs.push(esperaResponsable ? `Nivel 1: espera a responsable ${responsableEmail}` : `Nivel 1: ${responsableEmail ? "auto-aprobado (" + (responsableEmail === creadorEs ? "creador es responsable" : creadorRol) + ")" : "obra sin responsable"}`);
+
+    const initialStatus = esperaResponsable ? "PENDIENTE_RESPONSABLE" : (flujo === "direccion" ? "EN_AUTORIZACION" : "PENDIENTE");
 
     // FIX 543: hidratar bank_* desde suppliers server-side (autoritativo)
     const bankSnap = body.proveedor_nombre
@@ -204,6 +221,9 @@ export async function POST(request: NextRequest) {
       canal_origen: body.canal_origen || "WEB",
       ...(body.duplicado_de ? { duplicado_de: body.duplicado_de } : {}),
       ...(body.foto_ticket_url ? { foto_ticket_url: body.foto_ticket_url } : {}),
+      // ARIA27 Campo F2: responsable
+      ...(responsableEmail ? { responsable_email: responsableEmail } : {}),
+      ...(responsableEmail && !esperaResponsable ? { responsable_autorizo_at: new Date().toISOString(), responsable_autorizo_by: responsableEmail === creadorEs ? creadorEs : `auto:${creadorRol}` } : {}),
       // ARIA27 Campo F1: tipo de solicitud + destajo + obra por id
       tipo_solicitud: body.tipo_solicitud === "DESTAJO" ? "DESTAJO" : "MATERIALES",
       ...(body.tipo_solicitud === "DESTAJO" && body.destajo_tipo_pago ? { destajo_tipo_pago: String(body.destajo_tipo_pago) } : {}),
@@ -333,6 +353,19 @@ export async function POST(request: NextRequest) {
       await sendWhatsAppLogged("requisicion_creada", [folio, displayName, obra, fechaReq], creatorUser.phone, { origen: "req-creada-creador", enviadoPor: usuario.email });
     }
     notificados.push(`Creador: ${usuario.email}`);
+
+    // ── F2: espera responsable → WA al responsable y fin (Compras/Dirección se avisan al autorizar) ──
+    if (esperaResponsable) {
+      const respPhone = (responsableUser?.phone as string | undefined) || null;
+      if (respPhone) {
+        await sendWhatsAppLogged("requisicion_creada", [`[AUTORIZAR] ${folio}`, displayName, obra, fechaReq], respPhone, { origen: "req-creada-responsable", enviadoPor: usuario.email });
+        notificados.push(`Responsable: ${responsableEmail}`);
+      } else {
+        logs.push(`AVISO: responsable ${responsableEmail} sin teléfono en Users; no se pudo avisar por WA`);
+        logger("REQUISICION").warn(`[REQUISICION] responsable sin phone`, { responsableEmail, folio });
+      }
+      return NextResponse.json({ success: true, folio, flujo, status: initialStatus, responsable: responsableEmail, notificados, logs, posibleDuplicado: logs.some(l => l.includes("POSIBLE DUPLICADO")) });
+    }
 
     // 27-Abr-2026: Fallback si flujo='compras' pero no hay usuario con ese role
     if (flujo === "compras" && !comprasUser) {
