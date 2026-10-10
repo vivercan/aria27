@@ -43,6 +43,8 @@ export default function NewRequisitionPage() {
   const [subcategoria, setSubcategoria] = useState("");
   const [solicitantes, setSolicitantes] = useState<string[]>([]);
   const [subcategorias, setSubcategorias] = useState<string[]>([]);
+  // F7: tipos de compra editables en Configuración > Maestros > Catálogos (fallback a la lista historica)
+  const [tiposCompra, setTiposCompra] = useState<string[]>(["MATERIALES","GASTOS ADMINISTRATIVOS","GASTOS OPERATIVOS","DESTAJOS","MANO DE OBRA","PRESTAMOS","SERVICIOS","HERRAMIENTAS","REFACCIONES","COMBUSTIBLE","RENTA MAQUINARIA","MANTENIMIENTO","INDIRECTOS","OTROS"]);
 
   // CATALOGO (materiales)
   const [searchTerm, setSearchTerm] = useState("");
@@ -210,6 +212,7 @@ export default function NewRequisitionPage() {
       if(data) {
         setSolicitantes(data.filter(d => d.tipo === "SOLICITANTE").map(d => d.valor));
         setSubcategorias(data.filter(d => d.tipo === "SUBCATEGORIA").map(d => d.valor));
+        const tc = data.filter(d => d.tipo === "TIPO_COMPRA").map(d => d.valor); if (tc.length) setTiposCompra(tc);
       }
     });
     supabase.from("Proveedores").select("id, name, bank_name, bank_clabe, bank_account_number, payment_method, razon_social").eq("status", "ACTIVO").order("name").range(0, 1999).then(({data}) => { if(data) setProveedores(data as ProveedorOption[]); });
@@ -770,20 +773,7 @@ export default function NewRequisitionPage() {
               <label className="text-xs font-medium text-white/70">Tipo de compra *</label>
               <select required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
                 <option value="">Selecciona tipo...</option>
-                <option value="MATERIALES">Materiales</option>
-                <option value="GASTOS ADMINISTRATIVOS">Gastos Administrativos</option>
-                <option value="GASTOS OPERATIVOS">Gastos Operativos</option>
-                <option value="DESTAJOS">Destajos</option>
-                <option value="MANO DE OBRA">Mano de Obra</option>
-                <option value="PRESTAMOS">Prestamos</option>
-                <option value="SERVICIOS">Servicios</option>
-                <option value="HERRAMIENTAS">Herramientas</option>
-                <option value="REFACCIONES">Refacciones</option>
-                <option value="COMBUSTIBLE">Combustible</option>
-                <option value="RENTA MAQUINARIA">Renta Maquinaria</option>
-                <option value="MANTENIMIENTO">Mantenimiento</option>
-                <option value="INDIRECTOS">Indirectos</option>
-                <option value="OTROS">Otros</option>
+                {tiposCompra.map(t => <option key={t} value={t}>{t.charAt(0) + t.slice(1).toLowerCase()}</option>)}
               </select>
             </div>
             <div className="space-y-1">

@@ -1,9 +1,16 @@
 "use client";
-import { Building2, DollarSign } from "lucide-react";
+import { Building2, DollarSign, ListChecks } from "lucide-react";
 import Link from "next/link";
 import AriaBackButton from "@/components/AriaBackButton";
 
 const items = [
+  {
+    title: "Catálogos de requisiciones",
+    description: "Subcategorías (flujo Compras/Dirección) y tipos de compra. Editable por Compras y admin.",
+    href: "/dashboard/configuracion/maestros/catalogos",
+    icon: ListChecks,
+    iconColor: "#3b82f6",
+  },
   {
     title: "Centros de Trabajo",
     description: "Obras, oficinas y ubicaciones GPS",

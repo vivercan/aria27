@@ -319,6 +319,18 @@ export async function POST(request: NextRequest) {
     const { error: itemsErr } = await getDb().from("requisition_items").insert(items);
     if (itemsErr) throw itemsErr;
 
+    // ARIA27 Campo F7 (Solicitud 3 Compras 10-Oct): totales al CREAR, no solo al editar.
+    // Antes 540/774 requis quedaban con total NULL aunque las partidas tenian precio.
+    {
+      const subtotal = items.reduce((a: number, it: { quantity?: unknown; selected_price?: unknown }) => a + Number(it.quantity || 0) * Number(it.selected_price || 0), 0);
+      const ivaPorc = Number(body.iva_porcentaje ?? 0) || 0;
+      const ivaMonto = Math.round(subtotal * (ivaPorc / 100) * 100) / 100;
+      const total = Math.round((subtotal + ivaMonto) * 100) / 100;
+      if (subtotal !== 0) {
+        await getDb().from("requisitions").update({ subtotal: Math.round(subtotal * 100) / 100, iva_monto: ivaMonto, total, monto: total }).eq("id", req.id);
+      }
+    }
+
     const daysUntil = Math.ceil((new Date(requiredDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     const urgencyText = daysUntil <= 0 ? "HOY" : daysUntil === 1 ? "MAÑANA" : `${daysUntil} días`;
     const urgencyColor = daysUntil <= 2 ? "#ef4444" : daysUntil <= 5 ? "#f59e0b" : "#10b981";
