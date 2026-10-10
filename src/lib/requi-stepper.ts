@@ -71,8 +71,9 @@ export function buildStepper(r: RequiLike): Paso[] {
   }
 
   // Pago
-  const pagado = !!r.fecha_pago || !!r.comprobante_pago_url || rk >= rank("PAGADA");
-  pasos.push({ key: "pago", label: "Pago", estado: pagado ? "hecho" : (rk >= rank("OC_GENERADA") || (esEfectivo && rk >= rank("APROBADA")) ? "actual" : "pendiente"), fecha: r.fecha_pago });
+  // fecha_pago es la fecha PROGRAMADA de pago (la pone el solicitante), no evidencia de pago.
+  const pagado = !!r.comprobante_pago_url || rk >= rank("PAGADA");
+  pasos.push({ key: "pago", label: "Pago", estado: pagado ? "hecho" : (rk >= rank("OC_GENERADA") || (esEfectivo && rk >= rank("APROBADA")) ? "actual" : "pendiente"), fecha: pagado ? r.fecha_pago : null });
 
   // Entrega / evidencia (destajo: recibo firmado)
   const entregada = !!r.tiene_entrega || !!r.fecha_entrega || st === "ENTREGADA";

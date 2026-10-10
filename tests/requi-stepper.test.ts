@@ -21,6 +21,10 @@ describe("F1 requi-stepper", () => {
     const e = est(buildStepper({ status: "RECHAZADA_DIRECCION", purchase_status: "PENDIENTE" }));
     expect(e.direccion).toBe("rechazado"); expect(e.oc).toBe("omitido"); expect(e.pago).toBe("omitido");
   });
+  it("fecha_pago programada NO cuenta como pagado", () => {
+    const e = est(buildStepper({ status: "EN_AUTORIZACION", purchase_status: "GASTO_EFECTIVO_PENDIENTE", tipo_solicitud: "DESTAJO", fecha_pago: "2026-10-08" }));
+    expect(e.pago).toBe("pendiente"); expect(e.entrega).toBe("pendiente");
+  });
   it("entregada: todo hecho", () => {
     const e = est(buildStepper({ status: "ENTREGADA", purchase_status: "PENDIENTE", responsable_autorizo_at: "2026-10-01", authorized_at: "2026-10-02", fecha_pago: "2026-10-03", fecha_entrega: "2026-10-04" }));
     expect(Object.values(e).every(v => v === "hecho")).toBe(true);
