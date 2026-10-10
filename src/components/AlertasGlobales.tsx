@@ -56,12 +56,12 @@ export default function AlertasGlobales() {
       if (rol === "compras") {
         const { data: proveedores } = await supabase
           .from("Proveedores")
-          .select("id, name, banco, numero_cuenta, clabe, rfc")
+          .select("id, name, bank_name, bank_account, bank_clabe, rfc")
           .eq("active", true);
 
         if (proveedores) {
           const proveedoresIncompletos = proveedores.filter(
-            (p) => !p.banco || !p.numero_cuenta || !p.clabe || !p.rfc
+            (p) => !p.bank_name || !p.bank_clabe || !p.rfc
           );
           if (proveedoresIncompletos.length > 0) {
             alertasTemp.push({

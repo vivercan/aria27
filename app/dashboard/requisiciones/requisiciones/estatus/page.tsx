@@ -5,6 +5,8 @@ import RequisicionEditModal from "@/components/RequisicionEditModal";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ListToolbar from "@/components/ListToolbar";
 import { useListFilter } from "@/hooks/useListFilter";
+import RequiStepper from "@/components/RequiStepper";
+import { statusLabel } from "@/lib/requi-stepper";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
@@ -45,6 +47,14 @@ interface Requisition {
   motivo_solicitud?: string;
   descripcion_compra?: string;
   purchase_status?: string;
+  tipo_solicitud?: string;
+  responsable_email?: string;
+  responsable_autorizo_at?: string;
+  responsable_autorizo_by?: string;
+  authorized_at?: string;
+  authorized_by?: string;
+  comprobante_pago_url?: string;
+  recibio?: string;
 }
 
 interface ReqItem {
@@ -115,7 +125,8 @@ export default function RequisicionesStatusPage() {
   };
   const esMiPendiente = useCallback((r: Requisition): boolean => {
     const st = r.status, ps = r.purchase_status || "";
-    const abierta = st === "PENDIENTE" || st === "EN_AUTORIZACION" || st === "EN_COTIZACION";
+    const abierta = st === "PENDIENTE" || st === "EN_AUTORIZACION" || st === "EN_COTIZACION" || st === "PENDIENTE_RESPONSABLE";
+    if (st === "PENDIENTE_RESPONSABLE" && (r.responsable_email || "").toLowerCase() === userEmail.toLowerCase()) return true;
     switch (userRole) {
       case "compras":   return st === "PENDIENTE" && ps !== "GASTO_EFECTIVO_PENDIENTE";
       case "direccion": return st === "EN_AUTORIZACION";
@@ -130,6 +141,7 @@ export default function RequisicionesStatusPage() {
     { key: "mis_pendientes", label: "Mis pendientes" },
     { key: "PENDIENTE", label: "Pendiente" },
     { key: "EN_AUTORIZACION", label: "En autorización" },
+    { key: "PENDIENTE_RESPONSABLE", label: "Esperando responsable" },
     { key: "APROBADA", label: "Aprobada" },
   ], []);
   const chipPredicates = useMemo(() => ({ mis_pendientes: esMiPendiente }), [esMiPendiente]);
@@ -359,6 +371,8 @@ export default function RequisicionesStatusPage() {
   const getStatusColor = (status: string) => {
     if (status?.includes("FINALIZADA")) return "aria-badge aria-badge-oc";
     if (status?.includes("APROBADA") || status?.includes("AUTORIZADA")) return "aria-badge aria-badge-autorizada";
+    if (status === "PENDIENTE_RESPONSABLE") return "aria-badge aria-badge-en-autorizacion";
+    if (status === "ENTREGADA" || status === "PAGADA") return "aria-badge aria-badge-oc";
     if (status?.includes("PENDIENTE")) return "aria-badge aria-badge-pendiente";
     if (status?.includes("RECHAZADA") || status?.includes("CANCELADA")) return "aria-badge aria-badge-rechazada";
     if (status?.includes("COTIZA")) return "aria-badge aria-badge-en-autorizacion";
@@ -563,11 +577,12 @@ export default function RequisicionesStatusPage() {
                 <p className="text-[#7f93b0] text-sm">{detailReq.cost_center_name}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{detailReq.status}</span>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(detailReq.status)}`}>{statusLabel(detailReq.status).toUpperCase()}</span>
                 <button onClick={() => setDetailReq(null)} className="p-2 rounded-lg hover:bg-white/[0.06] text-[#7f93b0] hover:text-white transition">✕</button>
               </div>
             </div>
             <div className="p-5 overflow-y-auto max-h-[calc(85vh-140px)] space-y-4">
+              <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] px-2 py-2"><RequiStepper req={detailReq} /></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Solicitante</p><p className="text-sm text-white">{nombresPorEmail[(detailReq.user_email || "").toLowerCase()] || detailReq.created_by}</p></div>
                 <div className="p-3 rounded-xl bg-white/[0.04]"><p className="text-[10px] uppercase text-[#4a6080] mb-1">Fecha Requerida</p><p className="text-sm text-white">{formatDate(detailReq.required_date)}</p></div>

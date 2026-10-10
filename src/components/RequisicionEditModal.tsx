@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Save, Loader2, Plus, Trash2 } from "lucide-react";
+import RequiStepper from "@/components/RequiStepper";
 
 interface Requisition {
   id: string;
@@ -163,6 +164,7 @@ export default function RequisicionEditModal({
           <div>
             <h3 className="text-lg font-bold text-white">Editar requisicion {form.folio}</h3>
             <p className="text-xs text-[#7f93b0]">Status: <span className="font-mono">{form.status}</span> {isBloqueada && <span className="text-red-400">- BLOQUEADA</span>}</p>
+            <div className="mt-2 -mb-1"><RequiStepper req={form as unknown as import("@/lib/requi-stepper").RequiLike} compact /></div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/[0.06] text-[#7f93b0] hover:text-white">
             <X className="w-5 h-5" />

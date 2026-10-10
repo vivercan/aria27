@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt, Sparkles, AlertTriangle, Bot, X } from "lucide-react";
+import { Search, Plus, Trash2, Check, Loader2, ShoppingCart, Fuel, Hammer, Users2, Receipt, Sparkles, AlertTriangle, Bot, X, Package, HardHat, ClipboardList } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import AriaBackButton from "@/components/AriaBackButton";
@@ -110,6 +110,13 @@ export default function NewRequisitionPage() {
   const [selectedProveedor, setSelectedProveedor] = useState<ProveedorOption | null>(null);
   // FIX 544: modal captura CLABE al vuelo
   const [showClabeModal, setShowClabeModal] = useState(false);
+  // ── ARIA27 Campo F1: tipo de solicitud (3 vias) + destajo ───────────────
+  type TipoSolicitud = "MATERIALES" | "DESTAJO" | null;
+  const [tipoSolicitud, setTipoSolicitud] = useState<TipoSolicitud>(null);
+  const [destajoTipoPago, setDestajoTipoPago] = useState<"ANTICIPO" | "SEMANA" | "FINIQUITO">("SEMANA");
+  const [destajoConcepto, setDestajoConcepto] = useState<string>("");
+  const [destajoMonto, setDestajoMonto] = useState<string>("");
+  const [saldoDestajista, setSaldoDestajista] = useState<{ total: number; n: number } | null>(null);
   const [clabeForm, setClabeForm] = useState({ bank_name: "", bank_clabe: "", bank_account_number: "", nombre_cuenta: "" });
   const [clabeSaving, setClabeSaving] = useState(false);
   const [clabeError, setClabeError] = useState<string | null>(null);
@@ -166,6 +173,37 @@ export default function NewRequisitionPage() {
   const searchParams = useSearchParams();
   const formMode = TIPO_MAP[subcategoria] || "catalogo";
 
+  // F1: al elegir Destajo, fijar subcategoria y pre-tipo
+  useEffect(() => {
+    if (tipoSolicitud === "DESTAJO") { setSubcategoria("DESTAJOS"); setDescripcionCompra("DESTAJOS"); }
+  }, [tipoSolicitud]);
+
+  // F1: saldo acumulado del destajista en la obra (suma de requis DESTAJO previas)
+  useEffect(() => {
+    if (tipoSolicitud !== "DESTAJO" || !selectedProveedor || !selectedCostCenterId) { setSaldoDestajista(null); return; }
+    const center = costCenters.find(c => c.id === selectedCostCenterId);
+    if (!center) return;
+    let alive = true;
+    supabase.from("Requisiciones").select("total, monto, status")
+      .eq("tipo_solicitud", "DESTAJO").eq("proveedor", selectedProveedor.name).eq("cost_center_name", center.name)
+      .not("status", "in", "(CANCELADA,RECHAZADA_DIRECCION,RECHAZADA_RESPONSABLE)")
+      .then(({ data }) => {
+        if (!alive) return;
+        const rows = (data || []) as Array<{ total: number | null; monto: number | null }>;
+        setSaldoDestajista({ total: rows.reduce((a, r) => a + Number(r.total ?? r.monto ?? 0), 0), n: rows.length });
+      });
+    return () => { alive = false; };
+  }, [tipoSolicitud, selectedProveedor, selectedCostCenterId, costCenters]);
+
+  // FIX 544 gap: si la forma de pago es TRANSFERENCIA y el proveedor elegido no tiene CLABE, pedirla
+  useEffect(() => {
+    if (!selectedProveedor || showClabeModal) return;
+    if (/TRANSFER/i.test(formaPago) && !selectedProveedor.bank_clabe) {
+      setClabeForm({ bank_name: selectedProveedor.bank_name || "", bank_clabe: "", bank_account_number: selectedProveedor.bank_account_number || "", nombre_cuenta: selectedProveedor.razon_social || "" });
+      setClabeError(null); setShowClabeModal(true);
+    }
+  }, [formaPago, selectedProveedor]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     supabase.from("centros_trabajo").select("id, code:codigo, name:nombre").order("nombre").then(({data}) => { if(data) setCostCenters(data); });
     supabase.from("catalogos_requisiciones").select("tipo, valor").eq("activo", true).order("valor").then(({data}) => {
@@ -210,6 +248,8 @@ export default function NewRequisitionPage() {
     const fechaParam = searchParams.get("fecha");
     const comentariosParam = searchParams.get("comentarios");
     const matsParam = searchParams.get("mats");
+    const tipoParam = searchParams.get("tipo");
+    if (tipoParam === "DESTAJO") setTipoSolicitud("DESTAJO"); else if (matsParam || tipoParam === "MATERIALES" || searchParams.get("obra")) setTipoSolicitud("MATERIALES");
 
     if (obra) {
       const match = costCenters.find(c =>
@@ -293,6 +333,7 @@ export default function NewRequisitionPage() {
   };
 
   const getTotalPartidas = () => {
+    if (tipoSolicitud === "DESTAJO") return Number(destajoMonto) > 0 && destajoConcepto.trim() ? 1 : 0;
     if (formMode === "catalogo") return materials.length;
     if (formMode === "combustible") return combRows.length;
     return freeRows.length;
@@ -398,6 +439,13 @@ export default function NewRequisitionPage() {
       const invalidCombs = combRows.filter(c => !c.tipo?.trim() || isNaN(c.litros) || c.litros <= 0 || !c.unidad_destino?.trim() || isNaN(c.precio_unitario) || c.precio_unitario <= 0);
       if (invalidCombs.length > 0) { setErrorMsg("Todos los combustibles deben tener tipo, litros > 0, precio unitario > 0 y destino."); setSending(false); return; }
       materiales = combRows.map(c => ({ id: null, name: `${c.tipo} - ${c.litros}L → ${c.unidad_destino} (${c.tipo_unidad})`, unit: "LITRO", qty: c.litros, precio_unitario: c.precio_unitario, price: c.precio_unitario, comments: `Tipo: ${c.tipo}, Destino: ${c.unidad_destino}, Unidad: ${c.tipo_unidad}, P.U. $${c.precio_unitario.toFixed(2)}` }));
+    } else if (tipoSolicitud === "DESTAJO") {
+      const monto = Number(destajoMonto);
+      if (!selectedProveedor) { setErrorMsg("Elige al destajista."); setSending(false); return; }
+      if (!destajoConcepto.trim()) { setErrorMsg("Escribe el concepto del destajo (ej. Muros PB, Redes hidráulicas)."); setSending(false); return; }
+      if (!(monto > 0)) { setErrorMsg("El monto del destajo debe ser mayor a 0."); setSending(false); return; }
+      const etiqueta = destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal";
+      materiales = [{ id: null, name: `${etiqueta} destajo: ${destajoConcepto.trim()}`, unit: "PAGO", qty: 1, comments: generalComments || "", price: monto }];
     } else {
       const invalidFree = freeRows.filter(f => !f.descripcion?.trim() || isNaN(f.cantidad) || f.cantidad === 0 || isNaN(f.monto));
       if (invalidFree.length > 0) { setErrorMsg("Todos los conceptos deben tener descripción y cantidad distinta de 0. Usa monto en negativo para descontar (anticipos, descuentos)."); setSending(false); return; }
@@ -438,6 +486,9 @@ export default function NewRequisitionPage() {
           motivo_solicitud: motivoSolicitud || null,
           solicitante_nombre_completo: solicitanteCompleto || null,
           foto_ticket_url: fotoTicketUrl || null,
+          // ARIA27 Campo F1
+          tipo_solicitud: tipoSolicitud || "MATERIALES",
+          ...(tipoSolicitud === "DESTAJO" ? { destajo_tipo_pago: destajoTipoPago, destajo_concepto: destajoConcepto || null } : {}),
           // Proveedor pre-seleccionado
           ...(selectedProveedor ? {
             proveedor_nombre: selectedProveedor.name,
@@ -523,6 +574,31 @@ export default function NewRequisitionPage() {
       )}
 
       <div className="grid gap-5 lg:grid-cols-1 xl:grid-cols-2">
+        {/* ARIA27 Campo F1: ¿Qué vas a solicitar? */}
+        <section className="rounded-2xl bg-white/[0.04] p-4 shadow-lg backdrop-blur">
+          <h2 className="mb-3 text-lg font-semibold">¿Qué vas a solicitar?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {([
+              { k: "MATERIALES", icon: Package, t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
+              { k: "DESTAJO", icon: HardHat, t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
+              { k: "ACTIVIDAD", icon: ClipboardList, t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
+            ] as const).map(({ k, icon: Icon, t, d }) => {
+              const active = tipoSolicitud === k;
+              return (
+                <button key={k} type="button"
+                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/obras/tareas?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
+                  className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] ${active ? "border-aria-accent bg-aria-accent/15 ring-2 ring-aria-accent/40" : "border-white/[0.10] bg-white/[0.03] hover:bg-white/[0.07]"}`}
+                  aria-pressed={active}>
+                  <Icon className={`w-6 h-6 mb-2 ${active ? "text-white" : "text-aria-accent"}`} />
+                  <div className="text-sm font-semibold text-white">{t}</div>
+                  <div className="text-[11px] text-white/60 mt-0.5">{d}</div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {tipoSolicitud && (<>
         {/* SECCION 1: CONFIGURACION */}
         <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
           <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
@@ -538,13 +614,13 @@ export default function NewRequisitionPage() {
               <label className="text-xs font-medium text-white/70">Fecha Requerida *</label>
               <input type="date" required className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
-            <div className="space-y-1">
+            {tipoSolicitud !== "DESTAJO" && <div className="space-y-1">
               <label className="text-xs font-medium text-white/70">Tipo / Subcategoría</label>
               <select className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
                 <option value="">MATERIALES (por defecto)</option>
                 {subcategorias.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-            </div>
+            </div>}
           </div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -754,8 +830,47 @@ export default function NewRequisitionPage() {
           )}
         </section>
 
+        {/* ARIA27 Campo F1: DESTAJO — un solo pago por requi, con saldo del destajista */}
+        {tipoSolicitud === "DESTAJO" && (
+          <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
+            <h2 className="mb-1 text-lg font-semibold flex items-center gap-2"><Hammer className="w-5 h-5 text-aria-accent" /> 2. DESTAJO</h2>
+            <p className="text-xs text-white/50 mb-4">Elige al destajista arriba en “Proveedor”. Aquí capturas qué se paga y cuánto.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1 md:col-span-3">
+                <label className="text-xs font-medium text-white/70">Concepto del destajo *</label>
+                <input type="text" value={destajoConcepto} onChange={e => setDestajoConcepto(e.target.value)} placeholder="Ej. Muros planta baja, Redes hidráulica y sanitaria" className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm outline-none focus:border-aria-accent" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-white/70">Tipo de pago *</label>
+                <div className="grid grid-cols-3 gap-1">
+                  {([["ANTICIPO","Anticipo"],["SEMANA","Semana"],["FINIQUITO","Finiquito"]] as const).map(([k,l]) => (
+                    <button key={k} type="button" onClick={() => setDestajoTipoPago(k)} aria-pressed={destajoTipoPago===k}
+                      className={`btn-flat rounded-xl border px-2 py-2 text-xs font-semibold ${destajoTipoPago===k ? "border-aria-accent bg-aria-accent/20 text-white" : "border-white/15 bg-black/30 text-white/70"}`}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-white/70">Monto *</label>
+                <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
+                  <input type="number" inputMode="decimal" min="0" step="0.01" value={destajoMonto} onChange={e => setDestajoMonto(e.target.value)} placeholder="0.00" className="w-full rounded-xl border border-white/15 bg-black/30 pl-7 pr-3 py-2 text-sm outline-none focus:border-aria-accent" /></div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-white/70">Saldo con este destajista en esta obra</label>
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm">
+                  {!selectedProveedor ? <span className="text-white/40">Elige destajista</span>
+                   : saldoDestajista === null ? <span className="text-white/40">Calculando…</span>
+                   : <><span className="text-amber-300 font-semibold">${saldoDestajista.total.toLocaleString("es-MX",{minimumFractionDigits:2})}</span><span className="text-white/50 text-xs"> en {saldoDestajista.n} pago{saldoDestajista.n===1?"":"s"} previo{saldoDestajista.n===1?"":"s"}</span></>}
+                </div>
+              </div>
+            </div>
+            {Number(destajoMonto) > 0 && destajoConcepto.trim() && (
+              <div className="mt-3 text-xs text-white/60">Se registrará: <span className="text-white">{destajoTipoPago === "ANTICIPO" ? "Anticipo" : destajoTipoPago === "FINIQUITO" ? "Finiquito" : "Pago semanal"} · {destajoConcepto.trim()} · ${Number(destajoMonto).toLocaleString("es-MX",{minimumFractionDigits:2})}</span>. Va a Dirección para autorizar y a Caja para pagar.</div>
+            )}
+          </section>
+        )}
+
         {/* SECCION 2: BUSQUEDA O CAPTURA */}
-        <section className="rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur">
+        <section className={`rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : ""}`}>
           {formMode === "catalogo" && (
             <>
               <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
@@ -897,10 +1012,11 @@ export default function NewRequisitionPage() {
             </>
           )}
         </section>
+        </>)}
       </div>
 
       {/* SECCION 3: RESUMEN */}
-      <section className="flex-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col">
+      {tipoSolicitud && (<section className="flex-1 rounded-2xl bg-white/[0.04] p-5 shadow-lg backdrop-blur flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-aria-accent" />
@@ -1001,7 +1117,7 @@ export default function NewRequisitionPage() {
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" />Generar Requisición</>}
           </button>
         </div>
-      </section>
+      </section>)}
 
       {/* FIX 544 · Modal captura CLABE al vuelo */}
       {showClabeModal && selectedProveedor && (
