@@ -36,7 +36,7 @@ export default function CanonPageHeader({
     <div
       className={`sticky top-0 z-10 bg-[#040810]/80 backdrop-blur pb-3 border-b border-white/[0.08] ${className}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
         {backHref || onBack ? (
           <AriaBackButton href={backHref} onClick={onBack} />
         ) : null}
@@ -49,7 +49,7 @@ export default function CanonPageHeader({
             <p className="text-sm text-[#7f93b0] mt-0.5 truncate">{subtitle}</p>
           ) : null}
         </div>
-        {right ? <div className="shrink-0 flex items-center gap-2">{right}</div> : null}
+        {right ? <div className="shrink-0 flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">{right}</div> : null}
       </div>
     </div>
   );
