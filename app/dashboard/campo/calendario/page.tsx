@@ -1,0 +1,82 @@
+"use client";
+/**
+ * /dashboard/campo/calendario — ARIA27 Campo F5
+ * Calendario mensual sin librerías: puntos por día con actividades (inicio/límite),
+ * fechas requeridas de requis y entregas. Tocar un día lista lo de ese día.
+ */
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, ClipboardList, FileText, Package } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import AriaBackButton from "@/components/AriaBackButton";
+import CampoNav from "@/components/campo/CampoNav";
+
+type Ev = { kind: "tarea" | "requi" | "entrega"; date: string; title: string; sub?: string; href: string; done?: boolean; urgent?: boolean };
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+export default function CalendarioPage() {
+  const hoy = new Date(); const [cur, setCur] = useState(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+  const [sel, setSel] = useState<string>(iso(hoy)); const [evs, setEvs] = useState<Ev[]>([]); const [me, setMe] = useState<{ email: string; role: string } | null>(null);
+
+  useEffect(() => { (async () => { try { const r = await fetch("/api/auth/me", { credentials: "include", cache: "no-store" }); if (r.ok) { const u = await r.json(); setMe({ email: String(u.email || "").toLowerCase(), role: String(u.role || "").toLowerCase() }); } } catch {} })(); }, []);
+
+  useEffect(() => {
+    if (!me) return; let alive = true;
+    const ini = iso(new Date(cur.getFullYear(), cur.getMonth() - 1, 1)); const fin = iso(new Date(cur.getFullYear(), cur.getMonth() + 2, 0));
+    (async () => {
+      const out: Ev[] = [];
+      const amplio = ["admin", "compras", "rh", "direccion"].includes(me.role);
+      let tq = supabase.from("tareas_obra").select("id, titulo, obra_nombre, fecha_inicio, fecha_limite, status, prioridad, asignado_a, responsable, created_by");
+      if (!amplio) tq = tq.or(`asignado_a.eq.${me.email},created_by.eq.${me.email}`);
+      const { data: ts } = await tq;
+      for (const t of (ts || []) as Array<{ id: string; titulo: string; obra_nombre?: string; fecha_inicio?: string | null; fecha_limite?: string | null; status: string; prioridad?: string }>) {
+        if (t.fecha_limite) out.push({ kind: "tarea", date: t.fecha_limite, title: t.titulo, sub: `${t.obra_nombre || ""} · límite`, href: "/dashboard/obras/tareas", done: t.status === "completada", urgent: ["alta", "urgente"].includes(t.prioridad || "") });
+        if (t.fecha_inicio && t.fecha_inicio !== t.fecha_limite) out.push({ kind: "tarea", date: t.fecha_inicio, title: t.titulo, sub: `${t.obra_nombre || ""} · inicio`, href: "/dashboard/obras/tareas", done: t.status === "completada" });
+      }
+      let rq = supabase.from("Requisiciones").select("id, folio, cost_center_name, required_date, status, fecha_entrega, user_email, responsable_email").gte("required_date", ini).lte("required_date", fin);
+      if (!amplio) rq = rq.or(`user_email.eq.${me.email},responsable_email.eq.${me.email}`);
+      const { data: rs } = await rq;
+      for (const r of (rs || []) as Array<{ id: string; folio: string; cost_center_name: string; required_date?: string | null; status: string; fecha_entrega?: string | null }>) {
+        if (r.required_date) out.push({ kind: "requi", date: r.required_date, title: `${r.folio}`, sub: `${r.cost_center_name} · requerida`, href: `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, done: ["ENTREGADA", "CANCELADA"].includes(r.status) });
+        if (r.fecha_entrega) out.push({ kind: "entrega", date: r.fecha_entrega, title: `${r.folio}`, sub: `${r.cost_center_name} · entregada`, href: `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, done: true });
+      }
+      if (alive) setEvs(out);
+    })();
+    return () => { alive = false; };
+  }, [me, cur]);
+
+  const byDay = useMemo(() => { const m: Record<string, Ev[]> = {}; for (const e of evs) (m[e.date] ||= []).push(e); return m; }, [evs]);
+  const first = new Date(cur.getFullYear(), cur.getMonth(), 1); const offset = (first.getDay() + 6) % 7; const nDays = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
+  const cells: Array<string | null> = [...Array(offset).fill(null), ...Array.from({ length: nDays }, (_, i) => iso(new Date(cur.getFullYear(), cur.getMonth(), i + 1)))];
+  const list = byDay[sel] || [];
+  const Icon = ({ k }: { k: Ev["kind"] }) => k === "tarea" ? <ClipboardList className="w-4 h-4 text-aria-accent" /> : k === "entrega" ? <Package className="w-4 h-4 text-emerald-400" /> : <FileText className="w-4 h-4 text-amber-300" />;
+
+  return (
+    <div className="aria-page-canon pb-24 max-w-2xl mx-auto">
+      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><h1 className="text-xl font-bold text-white">Calendario</h1></div>
+      <div className="mt-3 flex items-center justify-between">
+        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() - 1, 1))} className="btn-flat p-2 rounded-lg bg-white/[0.05]" aria-label="Mes anterior"><ChevronLeft className="w-5 h-5" /></button>
+        <div className="text-white font-semibold capitalize">{MESES[cur.getMonth()]} {cur.getFullYear()}</div>
+        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() + 1, 1))} className="btn-flat p-2 rounded-lg bg-white/[0.05]" aria-label="Mes siguiente"><ChevronRight className="w-5 h-5" /></button>
+      </div>
+      <div className="mt-2 grid grid-cols-7 text-center text-[10px] text-[#7f93b0]">{DIAS.map(d => <div key={d} className="py-1">{d}</div>)}</div>
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((d, i) => d === null ? <div key={`e${i}`} /> : (() => { const l = byDay[d] || []; const isSel = d === sel; const isHoy = d === iso(hoy); const pend = l.filter(e => !e.done); return (
+          <button key={d} onClick={() => setSel(d)} className={`btn-flat aspect-square rounded-xl border text-sm flex flex-col items-center justify-center gap-0.5 ${isSel ? "border-aria-accent bg-aria-accent/20 text-white" : isHoy ? "border-white/30 text-white" : "border-white/[0.06] text-[#c9d8ed]"}`} aria-label={`${d}, ${l.length} eventos`}>
+            <span className={isHoy ? "font-bold" : ""}>{Number(d.slice(-2))}</span>
+            <span className="flex gap-0.5 h-1.5">{l.slice(0, 3).map((e, j) => <span key={j} className={`w-1.5 h-1.5 rounded-full ${e.done ? "bg-white/20" : e.kind === "tarea" ? "bg-aria-accent" : e.kind === "entrega" ? "bg-emerald-400" : (e.urgent ? "bg-red-400" : "bg-amber-300")}`} />)}</span>
+            {pend.length > 3 && <span className="text-[8px] text-[#7f93b0] -mt-0.5">+{pend.length - 3}</span>}
+          </button>); })())}
+      </div>
+      <section className="mt-4">
+        <h2 className="text-xs font-semibold tracking-wider text-[#7f93b0] uppercase mb-2">{new Date(sel + "T12:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</h2>
+        {list.length === 0 ? <p className="text-sm text-[#7f93b0]">Nada programado este día.</p> : (
+          <ul className="space-y-2">{list.map((e, i) => (<li key={i}><Link href={e.href} className={`flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 ${e.done ? "opacity-60" : ""}`}><Icon k={e.kind} /><div className="flex-1 min-w-0"><div className={`text-sm text-white ${e.done ? "line-through" : ""}`}>{e.title}</div><div className="text-[11px] text-[#7f93b0] truncate">{e.sub}</div></div></Link></li>))}</ul>
+        )}
+      </section>
+      <CampoNav />
+    </div>
+  );
+}

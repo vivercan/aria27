@@ -4,6 +4,7 @@ import DeleteModal from "@/components/DeleteModal";
 import { useDeletePermission } from "@/lib/use-delete-permission";
 import { backupAndDelete } from "@/lib/backup-delete";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
@@ -32,6 +33,10 @@ interface Tarea {
   status: string;
   completed_at: string | null;
   created_at: string;
+  fecha_inicio?: string | null;
+  avance_pct?: number | null;
+  centro_trabajo_id?: string | null;
+  asignado_a?: string | null;
 }
 
 const PRIORIDAD_OPTIONS = [
@@ -47,7 +52,7 @@ const STATUS_OPTIONS = [
   { value: "completada", label: "Completada" },
 ];
 
-const EMPTY_FORM = { titulo: "", responsable: "", fecha_limite: "", prioridad: "normal", obra_id: "", status: "pendiente" };
+const EMPTY_FORM = { titulo: "", responsable: "", fecha_limite: "", prioridad: "normal", obra_id: "", status: "pendiente", fecha_inicio: "", avance_pct: 0 };
 
 // MOVED OUT OF TareasPage to avoid input losing focus on each keystroke
 // (re-creating component on every render unmounted inputs). 03-Jun-2026 fix Daisy.
@@ -69,6 +74,8 @@ export default function TareasPage() {
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const sp = useSearchParams();
+  useEffect(() => { if (sp.get("nueva") === "1") { setShowForm(true); } }, [sp]);
   const [form, setForm] = useState<any>({ ...EMPTY_FORM });
   const [editId, setEditId] = useState<string | null>(null);
   // EX-3 18-Abr-2026: flash canónico via useFlashMessage (wrapper mantiene success/error)
@@ -124,7 +131,12 @@ export default function TareasPage() {
       prioridad: form.prioridad || "normal",
       obra_id: form.obra_id, // FIX P0: UUID no Number
       obra_nombre: obra?.nombre || "",
+      // ARIA27 Campo F5
+      centro_trabajo_id: form.obra_id || null,
+      fecha_inicio: form.fecha_inicio || null,
+      avance_pct: Math.max(0, Math.min(100, Number(form.avance_pct) || 0)),
     };
+    if (Number(form.avance_pct) >= 100) { payload.status = "completada"; payload.completed_at = new Date().toISOString(); }
 
     if (editId) {
       payload.status = form.status || "pendiente";
@@ -173,6 +185,15 @@ export default function TareasPage() {
     setGuardando(false);
   };
 
+  // F5: +25% rapido desde la lista; al llegar a 100 se completa
+  const avanzar = async (t: Tarea) => {
+    const nuevo = Math.min(100, (t.avance_pct ?? 0) + 25);
+    const payload: Record<string, unknown> = { avance_pct: nuevo };
+    if (nuevo >= 100) { payload.status = "completada"; payload.completed_at = new Date().toISOString(); } else if (t.status === "pendiente") payload.status = "en_progreso";
+    const { error } = await supabase.from("tareas_obra").update(payload).eq("id", t.id);
+    if (!error) cargarTareas();
+  };
+
   const toggleStatus = async (tarea: Tarea) => {
     const newStatus = tarea.status === "completada" ? "pendiente" : "completada";
     const { error } = await supabase.from("tareas_obra").update({
@@ -189,6 +210,8 @@ export default function TareasPage() {
       titulo: t.titulo || "",
       responsable: t.responsable || "",
       fecha_limite: t.fecha_limite || "",
+      fecha_inicio: t.fecha_inicio || "",
+      avance_pct: t.avance_pct ?? (t.status === "completada" ? 100 : 0),
       prioridad: t.prioridad || "normal",
       obra_id: String(t.obra_id),
       status: t.status || "pendiente",
@@ -356,6 +379,11 @@ export default function TareasPage() {
                     <p className={`text-sm font-medium ${t.status === "completada" ? "line-through text-[#4a6080]" : "text-white"}`}>
                       {t.titulo}
                     </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="h-1.5 w-24 rounded-full bg-white/[0.08] overflow-hidden"><div className={`h-full ${t.status === "completada" || (t.avance_pct ?? 0) >= 100 ? "bg-emerald-500" : "bg-aria-accent"}`} style={{ width: `${t.status === "completada" ? 100 : (t.avance_pct ?? 0)}%` }} /></div>
+                      <span className="text-[10px] text-[#7f93b0]">{t.status === "completada" ? 100 : (t.avance_pct ?? 0)}%{t.fecha_inicio ? ` · desde ${new Date(t.fecha_inicio + "T12:00:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}` : ""}</span>
+                      {t.status !== "completada" && <button type="button" onClick={() => avanzar(t)} className="btn-flat aria-no-min-tap text-[10px] px-1.5 py-0.5 rounded border border-white/15 text-[#c9d8ed] hover:bg-white/[0.08]">+25</button>}
+                    </div>
                   </td>
                   <td className="p-3">{t.obra_nombre ? <span className={`px-2 py-1 rounded-lg text-xs ${getEntityColor(t.obra_nombre)}`}>{t.obra_nombre}</span> : <span className="text-[#7f93b0]">—</span>}</td>
                   <td className="p-3 text-[#7f93b0] text-sm">{t.responsable || "—"}</td>
@@ -447,6 +475,17 @@ export default function TareasPage() {
                     onChange={e => setForm({ ...form, fecha_limite: e.target.value })}
                     className={inputClass}
                   />
+                </Field>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Field label="Fecha de inicio">
+                  <input type="date" value={form.fecha_inicio} onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} className={inputClass} />
+                </Field>
+                <Field label={`Avance: ${form.avance_pct}%`}>
+                  <div className="flex items-center gap-2">
+                    <input type="range" min={0} max={100} step={5} value={form.avance_pct} onChange={e => setForm({ ...form, avance_pct: Number(e.target.value) })} className="flex-1 accent-[#3b82f6]" aria-label="Avance en porciento" />
+                    <div className="flex gap-1">{[25, 50, 75, 100].map(v => <button key={v} type="button" onClick={() => setForm({ ...form, avance_pct: v })} className={`btn-flat aria-no-min-tap px-2 py-1 rounded-md text-[11px] border ${Number(form.avance_pct) === v ? "border-aria-accent bg-aria-accent/20 text-white" : "border-white/15 text-[#c9d8ed]"}`}>{v}</button>)}</div>
+                  </div>
                 </Field>
               </div>
 
