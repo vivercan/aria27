@@ -1,3 +1,4 @@
+import { telefonoPrueba } from "@/lib/modo-prueba";
 import { createHmac, timingSafeEqual } from "crypto";
 import { logger } from "@/lib/logger";
 import { overridePhoneIfTest } from "@/lib/e2e-test-override";
@@ -78,6 +79,8 @@ export async function sendWhatsAppText(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
   if (!token || !phoneId) return { success: false, error: "WhatsApp credentials missing" };
 
+  // 11-Oct-2026: modo prueba de JJ — lo que él dispara le llega solo a él
+  { const pr = await telefonoPrueba(phone); if (pr.iba) { phone = pr.phone; message = `[PRUEBA · iba a ${pr.iba}]\n${message}`; } }
   // 26-Abr-2026 (JJ): respeta E2E override igual que sendWhatsAppLogged.
   // Sin esto, WA de tareas / texto libre no llegaba al numero override en prueba E2E.
   phone = overridePhoneIfTest(phone);
@@ -208,10 +211,13 @@ export async function sendWhatsAppTemplate(
   params: string[],
   phone: string,
   buttonToken?: string
-): Promise<{ success: boolean; messageId?: string; error?: string }> {
+): Promise<{ success: boolean; messageId?: string; error?: string; prueba?: string }> {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
+  // 11-Oct-2026: modo prueba de JJ — lo que él dispara le llega solo a él
+  let _prueba: string | undefined;
+  { const pr = await telefonoPrueba(phone); if (pr.iba) { _prueba = pr.iba; phone = pr.phone; if (templateName === "aria_tarea_status" && params[2] !== undefined) params = [...params.slice(0, 2), `[PRUEBA · iba a ${pr.iba}] ${params[2]}`, ...params.slice(3)]; } }
   // 21-Abr-2026: E2E override - si activo, redirige WhatsApp a JJ.
   // Ver src/lib/e2e-test-override.ts.
   phone = overridePhoneIfTest(phone);
@@ -301,7 +307,7 @@ export async function sendWhatsAppTemplate(
 
     const messageId = data.messages?.[0]?.id;
     log.info("Enviado OK", { messageId, template: templateName, phone: formattedPhone });
-    return { success: true, messageId };
+    return { success: true, messageId, prueba: _prueba };
 
   } catch (error: unknown) {
     log.error("Exception", { error: (error as Error).message, template: templateName, phone: formattedPhone });
@@ -325,12 +331,12 @@ export async function sendWhatsAppLogged(
     const supa = getSupabaseAdmin();
     await supa.from("wa_log").insert({
       template: templateName,
-      phone,
+      phone: (result as { prueba?: string }).prueba ? `PRUEBA(iba ${phone})` : phone,
       params,
       success: result.success,
       message_id: result.messageId || null,
       error: result.error || null,
-      origen: opts.origen || null,
+      origen: (result as { prueba?: string }).prueba ? `${opts.origen || ""}:prueba` : (opts.origen || null),
       enviado_por: opts.enviadoPor || null,
     });
   } catch (e: unknown) {

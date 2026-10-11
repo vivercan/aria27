@@ -34,8 +34,8 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
   ] },
   { titulo: "Equipo", icon: IcoEquipo, color: "#c62f5e", items: [
     { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog as unknown as Ico, color: "#c62f5e", roles: ["admin", "rh"] },
-    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion"] },
-    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
+    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
+    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "validador"] },
   ] },
   { titulo: "Organizar el trabajo", icon: IcoOrganizar, color: "#7e3bdd", items: [
     { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
@@ -54,6 +54,9 @@ export default function MasPage() {
   useEffect(() => { try { setAbiertas(JSON.parse(localStorage.getItem("dom:mas-abiertas") || "{}")); } catch { /* */ } }, []);
   const alternar = (k: string) => setAbiertas(a => { const n = { ...a, [k]: !a[k] }; try { localStorage.setItem("dom:mas-abiertas", JSON.stringify(n)); } catch { /* */ } return n; });
   const [push, setPush] = useState(""); const [pushMsg, setPushMsg] = useState("");
+  const [prueba, setPrueba] = useState<{ disponible: boolean; activo?: boolean }>({ disponible: false });
+  useEffect(() => { fetch("/api/auth/modo-prueba", { credentials: "include" }).then(r => r.ok ? r.json() : { disponible: false }).then(setPrueba).catch(() => {}); }, []);
+  const tocarPrueba = async () => { const r = await fetch("/api/auth/modo-prueba", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activo: !prueba.activo }) }).then(x => x.json()).catch(() => null); if (r?.ok) setPrueba({ disponible: true, activo: r.activo }); };
   const [huella, setHuella] = useState<"no" | "si" | "off">("off"); const [huellaMsg, setHuellaMsg] = useState("");
   useEffect(() => { huellaDisponible().then(d => setHuella(!d ? "no" : huellaActivada() ? "si" : "off")); }, []);
   const tocarHuella = async () => {
@@ -118,6 +121,11 @@ export default function MasPage() {
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Notificaciones del teléfono</div><div className="text-[12px] text-[var(--d-muted)]">{pushMsg || (push === "activo" ? "Activas" : push === "instalar-primero" ? "En iPhone, primero agrega la app a tu pantalla de inicio" : push === "bloqueado" ? "Bloqueadas en el navegador" : "Toca para activarlas")}</div></div>
               {push === "activo" ? <span className="text-[11px] font-bold text-[var(--d-ok)]">● Activas</span> : <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />}
             </button>
+            {prueba.disponible && <button onClick={tocarPrueba} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
+              <span className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${prueba.activo ? "bg-[#b85507]" : "bg-[#55657c]"}`}><svg viewBox="0 0 24 24" className="w-5 h-5" fill="#fff"><path d="M9 3h6v2h-1v4.2l5.2 8.6A2.1 2.1 0 0 1 17.4 21H6.6a2.1 2.1 0 0 1-1.8-3.2L10 9.2V5H9V3Zm3 9.5L8.6 18h6.8L12 12.5Z" /></svg></span>
+              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Modo prueba</div><div className="text-[12px] text-[var(--d-muted)]">{prueba.activo ? "Activo: lo que hagas le avisa solo a ti (WhatsApp, correo y notificación)" : "Apagado: tus acciones avisan a las personas reales"}</div></div>
+              <span className={`text-[11px] font-bold ${prueba.activo ? "text-[var(--d-warn)]" : "text-[var(--d-muted)]"}`}>{prueba.activo ? "Activo" : "Apagado"}</span>
+            </button>}
             <button onClick={tocarHuella} disabled={huella === "no"} className="w-full flex items-center gap-3 px-4 py-3.5 text-left disabled:opacity-60">
               <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0060c7]"><Fingerprint className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Entrar con huella o rostro</div><div className="text-[12px] text-[var(--d-muted)]">{huellaMsg || (huella === "si" ? "Activo en este teléfono · toca para quitarlo" : huella === "no" ? "Este teléfono no tiene huella ni rostro configurados" : "Toca para activarlo y no escribir la contraseña")}</div></div>

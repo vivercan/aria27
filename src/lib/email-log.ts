@@ -61,6 +61,8 @@ type ResendSendResponse = { data?: { id?: string } | null; error?: { message?: s
  * No lanza: cualquier error se captura, se loguea y se retorna {success:false, error}.
  */
 export async function sendEmailLogged(opts: SendEmailLoggedOpts): Promise<SendEmailLoggedResult> {
+  // 11-Oct-2026: modo prueba de JJ — lo que él dispara le llega solo a él
+  { const { correoPrueba } = await import("@/lib/modo-prueba"); const pr = await correoPrueba(opts.to); if (pr.iba) opts = { ...opts, to: pr.to, subject: `[PRUEBA · iba a ${pr.iba}] ${opts.subject}`, bcc: undefined, replyTo: undefined, sinCopiaAdmin: true }; }
   const payload: Record<string, unknown> = {
     from: opts.from || RESEND_FROM,
     to: opts.to,

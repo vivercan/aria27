@@ -19,8 +19,10 @@ export type PushMsg = { title: string; body: string; url?: string; tag?: string 
 
 /** Manda la notificacion a todos los telefonos de ese usuario. Devuelve cuantos la recibieron. */
 export async function pushAEmail(email: string | null | undefined, msg: PushMsg): Promise<number> {
-  const em = String(email || "").toLowerCase().trim();
+  let em = String(email || "").toLowerCase().trim();
   if (!em || !config()) return 0;
+  // 11-Oct-2026: modo prueba de JJ — lo que él dispara le llega solo a él
+  try { const { correoPrueba } = await import("@/lib/modo-prueba"); const pr = await correoPrueba(em); if (pr.iba) { em = String(pr.to); msg = { ...msg, title: `PRUEBA · ${msg.title}`, body: `Iba a ${pr.iba}: ${msg.body}` }; } } catch { /* */ }
   const db = getSupabaseAdmin();
   const { data } = await db.from("push_subscriptions").select("id, endpoint, p256dh, auth, fallos").ilike("user_email", em);
   let ok = 0;
