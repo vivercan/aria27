@@ -37,7 +37,7 @@ export default function RevisionesPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
-        <DomHeader icon={ShieldCheck} from="#0f766e" to="#00c875" titulo="Revisiones" desc="Calidad y seguridad con foto y firma. Si algo sale mal, se vuelve una actividad para corregirlo."
+        <DomHeader icon={ShieldCheck} from="#0f766e" to="#00c875" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
           accion={<button onClick={() => setNueva(true)} className={boton}><Plus className="w-4 h-4" />Revisar</button>} />
         {!d ? <div className="mt-5"><Esqueleto filas={4} /></div> : d.revisiones.length === 0 ? (
           <div className="mt-6 dom-card rounded-3xl"><Vacio dibujo="lista" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>
