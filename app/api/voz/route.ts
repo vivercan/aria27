@@ -44,14 +44,21 @@ Dictado: """${texto}"""`;
 export async function POST(req: NextRequest) {
   const auth = await requireUser(req); if (!auth.ok) return auth.res;
   const rl = checkRateLimit(`u:${auth.email}`, { key: "voz", max: 20, windowMs: 10 * 60_000 }); if (!rl.allowed) return rateLimitResponse(rl);
-  if (!process.env.OPENAI_API_KEY || !process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "La voz no está configurada" }, { status: 503 });
+  if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "La voz no está configurada" }, { status: 503 });
   const fd = await req.formData().catch(() => null);
+  const dictado = String(fd?.get("texto") || "").trim().slice(0, 2000); // el teléfono ya lo transcribió (reconocimiento de voz del sistema)
   const audio = fd?.get("audio");
-  if (!(audio instanceof File) || audio.size < 1000) return NextResponse.json({ error: "No se escuchó nada. Mantén presionado y habla." }, { status: 400 });
-  if (audio.size > 12 * 1024 * 1024) return NextResponse.json({ error: "La nota es muy larga (máximo 2 minutos)" }, { status: 400 });
+  if (!dictado) {
+    if (!(audio instanceof File) || audio.size < 1000) return NextResponse.json({ error: "No se escuchó nada. Toca el micrófono y habla." }, { status: 400 });
+    if (audio.size > 12 * 1024 * 1024) return NextResponse.json({ error: "La nota es muy larga (máximo 2 minutos)" }, { status: 400 });
+  }
   const forzar = String(fd?.get("tipo") || "");
   try {
-    const texto = await transcribir(audio);
+    let texto = dictado;
+    if (!texto) {
+      try { texto = await transcribir(audio as File); }
+      catch (e) { log.error("whisper", { error: (e as Error).message }); return NextResponse.json({ error: "Este teléfono no permite dictado directo. Escribe lo que necesitas y lo armamos igual.", sinAudio: true }, { status: 503 }); }
+    }
     if (!texto) return NextResponse.json({ error: "No se entendió. Intenta de nuevo con menos ruido." }, { status: 422 });
     const hoy = new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10);
     const esMaterial = forzar ? forzar === "material" : suenaAMaterial(texto);
