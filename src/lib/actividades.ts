@@ -116,7 +116,7 @@ export function iniciales(nombre?: string | null): string {
 
 /** Color estable por persona para el avatar. */
 export function colorPersona(nombre?: string | null): string {
-  const pal = ["#579bfc", "#a25ddc", "#00c875", "#fdab3d", "#e2445c", "#0086c0", "#9d50dd", "#ff642e", "#037f4c", "#bb3354"];
+  const pal = ["#0073ea", "#7e3bdd", "#00a35c", "#d9531e", "#e2445c", "#0086c0", "#9d50dd", "#c2410c", "#037f4c", "#bb3354"]; // todos con contraste para texto blanco
   let h = 0; for (const c of String(nombre || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return pal[h % pal.length];
 }
