@@ -20,6 +20,8 @@ type Entrega = { id: string; fecha_entrega: string | null; proveedor_nombre: str
 export default function ObraDomPage() {
   const { id } = useParams<{ id: string }>();
   const [d, setD] = useState<{ o: ObraDom | null; acts: Actividad[]; requis: RequiDom[]; entregas: Entrega[] } | null>(null);
+  const [respNombre, setRespNombre] = useState<string | null>(null);
+  useEffect(() => { const e = d?.o?.responsable_email; if (!e) return; supabase.from("users").select("name").eq("email", e.toLowerCase()).maybeSingle().then(({ data }) => setRespNombre((data as { name?: string } | null)?.name || null)); }, [d?.o?.responsable_email]);
   useEffect(() => {
     (async () => {
       const { data: o } = await supabase.from("centros_trabajo").select("id, nombre, cliente, presupuesto, presupuesto_contratado, presupuesto_ampliaciones, fecha_inicio, fecha_fin, responsable_email, estado, direccion").eq("id", id).maybeSingle();
@@ -50,7 +52,7 @@ export default function ObraDomPage() {
             <span className="shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center"><Building2 className="w-6 h-6" /></span>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold leading-tight">{o.nombre}</h1>
-              <div className="text-[13px] text-white/90">{o.cliente || "Sin cliente"}{o.responsable_email ? ` · Responsable: ${o.responsable_email.split("@")[0]}` : ""}</div>
+              <div className="text-[13px] text-white/90">{o.cliente || "Sin cliente"}{o.responsable_email ? ` · Responsable: ${respNombre || o.responsable_email.split("@")[0]}` : ""}</div>
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[12px] font-bold"><span className="w-2 h-2 rounded-full" style={{ background: s.c }} />{s.t}</div>
             </div>
           </div>
