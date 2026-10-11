@@ -95,7 +95,7 @@ export default function AutorizarPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[15px] font-bold text-[var(--d-text)] truncate">{p.obra || "Sin obra"}</span>
-                      <span className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white ${tarde ? "bg-[#e2445c]" : "bg-[#64748b]"}`}>{p.dias === 0 ? "hoy" : `${p.dias} día${p.dias === 1 ? "" : "s"}`}</span>
+                      <span className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white ${tarde ? "bg-[#d0304a]" : "bg-[#64748b]"}`}>{p.dias === 0 ? "hoy" : `${p.dias} día${p.dias === 1 ? "" : "s"}`}</span>
                     </div>
                     <div className="text-[12px] text-[var(--d-muted)] truncate">{p.folio} · pidió {p.quien || "—"}{p.tipo === "DESTAJO" ? " · Destajo" : ""}</div>
                   </div>
@@ -112,7 +112,7 @@ export default function AutorizarPage() {
                   <a href={p.comparativa} className="mt-3 w-full inline-flex items-center justify-center gap-1 rounded-2xl bg-[#0073ea] py-3 text-[15px] font-bold text-white">Ver comparativa y elegir<ChevronRight className="w-4 h-4" /></a>
                 ) : (
                   <div className="mt-3 grid grid-cols-[1fr_2fr] gap-2">
-                    <button onClick={() => setRechazo([p])} className="rounded-2xl border-2 border-[#e2445c] py-3 text-[15px] font-bold text-[#e2445c] active:scale-[0.98]">Rechazar</button>
+                    <button onClick={() => setRechazo([p])} className="rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[#d0304a] active:scale-[0.98]">Rechazar</button>
                     <button disabled={!!busy} onClick={() => confirmar === p.id ? autorizar([p]) : setConfirmar(p.id)} className={`rounded-2xl py-3 text-[15px] font-bold text-white active:scale-[0.98] inline-flex items-center justify-center gap-1.5 ${confirmar === p.id ? "bg-[#2fb800]" : "bg-[#3cde01]"} sobre-verde`}>
                       {busy === p.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}{confirmar === p.id ? "Toca para confirmar" : "Autorizar"}
                     </button>
@@ -126,7 +126,7 @@ export default function AutorizarPage() {
       {varias && selLista.length > 0 && (
         <div className="fixed left-0 right-0 z-30 px-3" style={{ bottom: "calc(5.4rem + env(safe-area-inset-bottom))" }}>
           <div className="max-w-2xl mx-auto grid grid-cols-[1fr_2fr] gap-2 rounded-2xl bg-[var(--d-card)] p-2 shadow-[0_10px_30px_-10px_rgba(15,23,42,.45)] border border-[var(--d-border)]">
-            <button onClick={() => setRechazo(selLista)} className="rounded-xl border-2 border-[#e2445c] py-3 text-[14px] font-bold text-[#e2445c]">Rechazar {selLista.length}</button>
+            <button onClick={() => setRechazo(selLista)} className="rounded-xl border-2 border-[#d0304a] py-3 text-[14px] font-bold text-[#d0304a]">Rechazar {selLista.length}</button>
             <button disabled={!!busy} onClick={() => { if (window.confirm(`¿Autorizar ${selLista.length} solicitudes por ${$(selLista.reduce((s, x) => s + x.total, 0))}?`)) autorizar(selLista); }} className="rounded-xl bg-[#3cde01] py-3 text-[14px] font-bold text-white inline-flex items-center justify-center gap-1.5 sobre-verde">{busy === "lote" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Autorizar {selLista.length} · {$(selLista.reduce((s, x) => s + x.total, 0))}</button>
           </div>
         </div>
@@ -142,9 +142,9 @@ function Rechazo({ items, busy, onClose, onOk }: { items: P[]; busy: boolean; on
   const [m, setM] = useState("");
   return (
     <Hoja titulo={items.length === 1 ? "Rechazar solicitud" : `Rechazar ${items.length} solicitudes`} onClose={onClose}
-      pie={<button disabled={busy || m.trim().length < 3} onClick={() => onOk(m.trim())} className="w-full rounded-2xl bg-[#e2445c] py-3.5 text-[15px] font-bold text-white disabled:opacity-50 inline-flex items-center justify-center gap-1.5">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />}Rechazar y avisar</button>}>
+      pie={<button disabled={busy || m.trim().length < 3} onClick={() => onOk(m.trim())} className="w-full rounded-2xl bg-[#d0304a] py-3.5 text-[15px] font-bold text-white disabled:opacity-50 inline-flex items-center justify-center gap-1.5">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />}Rechazar y avisar</button>}>
       <p className="text-[14px] text-[var(--d-text-2)]">¿Por qué? Se lo avisamos a quien lo pidió.</p>
-      <div className="mt-3 flex flex-wrap gap-2">{MOTIVOS.map(x => <button key={x} type="button" onClick={() => setM(x)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${m === x ? "bg-[#e2445c] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{x}</button>)}</div>
+      <div className="mt-3 flex flex-wrap gap-2">{MOTIVOS.map(x => <button key={x} type="button" onClick={() => setM(x)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${m === x ? "bg-[#d0304a] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{x}</button>)}</div>
       <textarea value={m} onChange={e => setM(e.target.value)} rows={3} placeholder="O escríbelo aquí" className="mt-3 w-full rounded-2xl border border-[var(--d-border)] bg-[var(--d-input)] px-4 py-3 text-[16px] text-[var(--d-text)] outline-none" />
     </Hoja>
   );

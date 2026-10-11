@@ -228,7 +228,7 @@ export default function LoginPage() {
               <button type="button" onClick={() => setShowPass(v => !v)} aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-500">{showPass ? <EyeOff size={20} /> : <Eye size={20} />}</button>
             </div></label>
           <label className="flex items-center gap-2.5 py-1 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
-          {error && <div className="rounded-xl bg-[#e2445c] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
+          {error && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
           <button type="submit" disabled={loading} className="w-full h-13 py-3.5 rounded-2xl bg-[#0073ea] text-white text-[17px] font-bold disabled:opacity-70">{loading ? 'Entrando…' : 'Entrar'}</button>
         </form>
         <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 shadow-[0_10px_30px_-20px_rgba(15,23,42,.5)]">

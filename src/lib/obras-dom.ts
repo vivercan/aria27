@@ -35,7 +35,7 @@ export function numerosObra(o: ObraDom, acts: Actividad[], requis: RequiDom[]) {
 
 /** Semáforo de la obra: rojo si hay atoradas o gasto > 100 %, ámbar si hay atrasadas o gasto > 85 %, verde si no */
 export function semaforoObra(x: { atoradas: number; atrasadas: number; pctGasto: number | null; detenidas?: unknown[] }): { c: string; t: string } {
-  if (x.atoradas > 0 || (x.pctGasto !== null && x.pctGasto > 100)) return { c: "#e2445c", t: "Atención" };
+  if (x.atoradas > 0 || (x.pctGasto !== null && x.pctGasto > 100)) return { c: "#d0304a", t: "Atención" };
   if (x.atrasadas > 0 || (x.detenidas?.length || 0) > 0 || (x.pctGasto !== null && x.pctGasto > 85)) return { c: "#fdab3d", t: "Vigilar" };
   return { c: "#3cde01", t: "En orden" };
 }

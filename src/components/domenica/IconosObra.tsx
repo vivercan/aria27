@@ -1,8 +1,8 @@
 /**
  * Doménica 27 · íconos de obra propios, estilo "glifo relleno" (11-Oct-2026 v2)
  * Silueta sólida + detalles calados (no son contornos de librería). Hechos para construcción.
- * - Suelto: <IcoCasco className="w-6 h-6" color="#ff642e" />  (silueta del color, calados blancos)
- * - En ficha: <Ficha ico={IcoCasco} color="#ff642e" />        (cuadro de color, silueta blanca, calados del color)
+ * - Suelto: <IcoCasco className="w-6 h-6" color="#d94a14" />  (silueta del color, calados blancos)
+ * - En ficha: <Ficha ico={IcoCasco} color="#d94a14" />        (cuadro de color, silueta blanca, calados del color)
  */
 import type { ComponentType } from "react";
 

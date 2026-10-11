@@ -38,13 +38,13 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
           <span className="w-10 h-10 rounded-xl bg-[#3cde01] flex items-center justify-center"><IcoSello className="w-6 h-6" color="#fff" fondo="#3cde01" /></span>
           <div><div className="font-bold leading-tight">Autorizar solicitud</div><div className="text-[12px] text-slate-500">Grupo Constructor Urbano Avante</div></div>
         </div>
-        <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#e2445c 78%,#fdab3d)" }} />
+        <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#d0304a 78%,#fdab3d)" }} />
       </header>
 
       <main className="max-w-xl mx-auto px-4 py-5">
         {paso === "listo" ? (
           <div className="rounded-3xl bg-white p-8 text-center shadow-sm">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#3cde01]" : "bg-[#e2445c]"} sobre-verde`}>{final === "APROBADA" ? "✓" : "✕"}</div>
+            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl font-bold ${final === "APROBADA" ? "bg-[#3cde01]" : "bg-[#d0304a]"} sobre-verde`}>{final === "APROBADA" ? "✓" : "✕"}</div>
             <h1 className="mt-4 text-2xl font-bold">{final === "APROBADA" ? "Autorizada" : "Rechazada"}</h1>
             <p className="mt-1 text-slate-600">{d.folio} · {d.obra}. Ya le avisamos a {d.quien || "quien la pidió"}{final === "APROBADA" && d.efectivo ? " y a Administración para el pago" : ""}.</p>
           </div>
@@ -52,7 +52,7 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
           <div className="rounded-3xl bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2">
               <span className="text-[13px] font-semibold text-slate-500">{d.folio}</span>
-              <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[12px] font-bold text-white ${dias > 7 ? "bg-[#e2445c]" : "bg-slate-500"}`}>{dias === 0 ? "pedida hoy" : `espera hace ${dias} día${dias === 1 ? "" : "s"}`}</span>
+              <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[12px] font-bold text-white ${dias > 7 ? "bg-[#d0304a]" : "bg-slate-500"}`}>{dias === 0 ? "pedida hoy" : `espera hace ${dias} día${dias === 1 ? "" : "s"}`}</span>
             </div>
             <h1 className="mt-1 text-[22px] font-bold leading-tight">{d.obra || "Sin obra"}</h1>
             <p className="text-[14px] text-slate-600">Pidió <b className="text-slate-800">{d.quien || "—"}</b>{d.para ? ` · para el ${f(d.para)}` : ""}{d.tipo === "DESTAJO" ? " · Destajo" : ""}</p>
@@ -71,19 +71,19 @@ export default function AutorizarDirecta({ d }: { d: DatosDirecta }) {
           {paso === "rechazar" ? (
             <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
               <div className="font-bold">¿Por qué la rechazas?</div>
-              <div className="mt-3 flex flex-wrap gap-2">{MOTIVOS.map(m => <button key={m} type="button" onClick={() => setMotivo(m)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${motivo === m ? "bg-[#e2445c] text-white" : "bg-slate-100 text-slate-700"}`}>{m}</button>)}</div>
-              <textarea value={motivo} onChange={e => setMotivo(e.target.value)} rows={3} placeholder="O escríbelo aquí" className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[16px] outline-none focus:border-[#e2445c]" />
+              <div className="mt-3 flex flex-wrap gap-2">{MOTIVOS.map(m => <button key={m} type="button" onClick={() => setMotivo(m)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${motivo === m ? "bg-[#d0304a] text-white" : "bg-slate-100 text-slate-700"}`}>{m}</button>)}</div>
+              <textarea value={motivo} onChange={e => setMotivo(e.target.value)} rows={3} placeholder="O escríbelo aquí" className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[16px] outline-none focus:border-[#d0304a]" />
               {err && <div className="mt-2 text-sm font-semibold text-red-700">{err}</div>}
               <div className="mt-3 grid grid-cols-[1fr_2fr] gap-2">
                 <button onClick={() => { setPaso("ver"); setErr(""); }} className="rounded-2xl bg-slate-100 py-3.5 font-bold text-slate-700">Volver</button>
-                <button disabled={busy || motivo.trim().length < 3} onClick={() => enviar("RECHAZAR")} className="rounded-2xl bg-[#e2445c] py-3.5 font-bold text-white disabled:opacity-50">{busy ? "Enviando…" : "Rechazar y avisar"}</button>
+                <button disabled={busy || motivo.trim().length < 3} onClick={() => enviar("RECHAZAR")} className="rounded-2xl bg-[#d0304a] py-3.5 font-bold text-white disabled:opacity-50">{busy ? "Enviando…" : "Rechazar y avisar"}</button>
               </div>
             </div>
           ) : (
             <div className="mt-4">
               {err && <div className="mb-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{err}</div>}
               <div className="grid grid-cols-[1fr_2fr] gap-2">
-                <button onClick={() => setPaso("rechazar")} className="rounded-2xl border-2 border-[#e2445c] bg-white py-4 text-[16px] font-bold text-[#e2445c]">Rechazar</button>
+                <button onClick={() => setPaso("rechazar")} className="rounded-2xl border-2 border-[#d0304a] bg-white py-4 text-[16px] font-bold text-[#d0304a]">Rechazar</button>
                 <button disabled={busy} onClick={() => paso === "confirmar" ? enviar("AUTORIZAR") : setPaso("confirmar")} className={`rounded-2xl py-4 text-[16px] font-bold text-white ${paso === "confirmar" ? "bg-[#2fb800]" : "bg-[#3cde01]"} sobre-verde`}>{busy ? "Autorizando…" : paso === "confirmar" ? `Confirmar ${$(d.total)}` : "Autorizar"}</button>
               </div>
               {paso === "confirmar" && <p className="mt-2 text-center text-[13px] text-slate-500">Toca otra vez para confirmar.</p>}

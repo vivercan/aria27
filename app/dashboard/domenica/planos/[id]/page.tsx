@@ -15,7 +15,7 @@ import { IcoCamara, IcoComparar } from "@/components/domenica/IconosObra";
 
 type Marca = { id: string; x: number; y: number; titulo: string; tipo: string; nota: string | null; foto_url: string | null; tarea_id: string | null; estado: string; creado_nombre: string | null; created_at: string };
 type Plano = { id: string; obra_id: string | null; obra_nombre: string | null; nombre: string; url: string; tipo_archivo: string | null };
-const COLOR: Record<string, string> = { PENDIENTE: "#e2445c", NOTA: "#0073ea", FOTO: "#a25ddc" };
+const COLOR: Record<string, string> = { PENDIENTE: "#d0304a", NOTA: "#0073ea", FOTO: "#a25ddc" };
 
 
 export default function PlanoVisor() {
@@ -50,23 +50,23 @@ export default function PlanoVisor() {
             <img src={img} alt={plano?.nombre || "Plano"} className={`block w-full select-none ${marcando ? "cursor-crosshair" : ""}`} draggable={false} />
             {visibles.map(m => (
               <button key={m.id} onClick={e => { e.stopPropagation(); setVer(m); }} className="absolute -translate-x-1/2 -translate-y-full" style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%` }} aria-label={m.titulo}>
-                <span className="block w-8 h-8 rounded-full rounded-br-none rotate-45 border-2 border-white shadow-lg flex items-center justify-center" style={{ background: m.estado === "RESUELTA" ? "#3cde01" : COLOR[m.tipo] || "#e2445c" }}>
+                <span className="block w-8 h-8 rounded-full rounded-br-none rotate-45 border-2 border-white shadow-lg flex items-center justify-center" style={{ background: m.estado === "RESUELTA" ? "#3cde01" : COLOR[m.tipo] || "#d0304a" }}>
                   <span className="-rotate-45 text-white text-[13px] font-extrabold">{m.estado === "RESUELTA" ? "✓" : m.tipo === "FOTO" ? <IcoCamara className="w-4 h-4" color="#fff" fondo="#7e3bdd" /> : m.tipo === "NOTA" ? "i" : "!"}</span></span>
               </button>))}
-            {nueva && <span className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e2445c] ring-4 ring-[#e2445c]/30 animate-pulse" style={{ left: `${nueva.x * 100}%`, top: `${nueva.y * 100}%` }} />}
+            {nueva && <span className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d0304a] ring-4 ring-[#d0304a]/30 animate-pulse" style={{ left: `${nueva.x * 100}%`, top: `${nueva.y * 100}%` }} />}
           </div>)}
         {marcando && <div className="sticky bottom-4 left-0 right-0 mx-auto w-fit rounded-full bg-[#0f172a] px-4 py-2 text-[13px] font-semibold text-white shadow-lg">Toca el punto del plano</div>}
       </div>
       <div className="px-4 py-3 flex items-center gap-2 border-t border-[var(--d-border)] bg-[var(--d-surface)] mb-[calc(64px+env(safe-area-inset-bottom))] md:mb-0">
         <button onClick={() => setZoom(z => Math.max(1, z - 0.5))} className="w-11 h-11 rounded-xl bg-[var(--d-card-2)] flex items-center justify-center text-[var(--d-text)]" aria-label="Alejar"><Minus className="w-5 h-5" /></button>
         <button onClick={() => setZoom(z => Math.min(4, z + 0.5))} className="w-11 h-11 rounded-xl bg-[var(--d-card-2)] flex items-center justify-center text-[var(--d-text)]" aria-label="Acercar"><Plus className="w-5 h-5" /></button>
-        <button onClick={() => setMarcando(m => !m)} className={`flex-1 h-11 rounded-xl inline-flex items-center justify-center gap-1.5 text-[15px] font-bold ${marcando ? "bg-[#0f172a] text-white" : "bg-[#e2445c] text-white"}`}><MapPin className="w-5 h-5" />{marcando ? "Cancelar" : "Marcar un punto"}</button>
+        <button onClick={() => setMarcando(m => !m)} className={`flex-1 h-11 rounded-xl inline-flex items-center justify-center gap-1.5 text-[15px] font-bold ${marcando ? "bg-[#0f172a] text-white" : "bg-[#d0304a] text-white"}`}><MapPin className="w-5 h-5" />{marcando ? "Cancelar" : "Marcar un punto"}</button>
       </div>
       {versiones && <Versiones planoId={id} onClose={() => setVersiones(false)} flash={flash} />}
       {nueva && <NuevaMarca planoId={id} pos={nueva} emps={base.emps} onClose={() => setNueva(null)} onSaved={m => { setNueva(null); setMarcas(x => [...x, m]); flash("ok", m.tarea_id ? "Marcado y asignado" : "Marcado"); }} flash={flash} />}
       {ver && <Hoja titulo={ver.titulo} onClose={() => setVer(null)} pie={<div className="flex gap-2">
         <button onClick={async () => { try { const r = await api<{ marca: Marca }>(`/api/planos/marcas/${ver.id}`, "PATCH", { estado: ver.estado === "ABIERTA" ? "RESUELTA" : "ABIERTA" }); setMarcas(x => x.map(m => m.id === ver.id ? r.marca : m)); setVer(null); } catch (e) { flash("err", (e as Error).message); } }} className={`${boton} flex-1 py-3`}>{ver.estado === "ABIERTA" ? <><Check className="w-4 h-4" />Ya quedó</> : <><RotateCcw className="w-4 h-4" />Reabrir</>}</button>
-        <button onClick={async () => { if (!window.confirm("¿Quitar esta marca?")) return; try { await api(`/api/planos/marcas/${ver.id}`, "DELETE"); setMarcas(x => x.filter(m => m.id !== ver.id)); setVer(null); } catch (e) { flash("err", (e as Error).message); } }} className="rounded-xl bg-[#e2445c]/10 px-4 text-[var(--d-danger)]" aria-label="Quitar"><Trash2 className="w-5 h-5" /></button></div>}>
+        <button onClick={async () => { if (!window.confirm("¿Quitar esta marca?")) return; try { await api(`/api/planos/marcas/${ver.id}`, "DELETE"); setMarcas(x => x.filter(m => m.id !== ver.id)); setVer(null); } catch (e) { flash("err", (e as Error).message); } }} className="rounded-xl bg-[#d0304a]/10 px-4 text-[var(--d-danger)]" aria-label="Quitar"><Trash2 className="w-5 h-5" /></button></div>}>
         <div className="text-[12.5px] text-[var(--d-muted)]">{ver.tipo === "PENDIENTE" ? "Pendiente" : ver.tipo === "NOTA" ? "Nota" : "Foto"} · {ver.creado_nombre} · {new Date(ver.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}</div>
         {ver.nota && <p className="mt-2 text-[15px] text-[var(--d-text)]">{ver.nota}</p>}
         {ver.foto_url && <img src={ver.foto_url} alt="" className="mt-3 w-full rounded-2xl" />}

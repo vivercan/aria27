@@ -94,7 +94,7 @@ function Pregunta() {
       {/* Barra para escribir o hablar (arriba de la barra de abajo) */}
       <div className="fixed left-0 right-0 z-30 px-3" style={{ bottom: "calc(5.4rem + env(safe-area-inset-bottom))" }}>
         <form onSubmit={e => { e.preventDefault(); preguntar(texto); }} className="max-w-2xl mx-auto flex items-center gap-2 rounded-2xl bg-[var(--d-card)] p-1.5 shadow-[0_8px_24px_-10px_rgba(15,23,42,.35)] border border-[var(--d-border)]">
-          <button type="button" onClick={hablar} aria-label={oyendo ? "Terminar" : "Hablar"} className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-white ${oyendo ? "bg-[#e2445c]" : "bg-[#6d35c9]"}`}>{oyendo ? <Square className="w-5 h-5" fill="white" /> : <Mic className="w-5 h-5" />}</button>
+          <button type="button" onClick={hablar} aria-label={oyendo ? "Terminar" : "Hablar"} className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-white ${oyendo ? "bg-[#d0304a]" : "bg-[#6d35c9]"}`}>{oyendo ? <Square className="w-5 h-5" fill="white" /> : <Mic className="w-5 h-5" />}</button>
           <input value={texto} onChange={e => setTexto(e.target.value)} placeholder={oyendo ? "Te escucho…" : "Escribe tu pregunta"} className="flex-1 min-w-0 bg-transparent px-1 text-[16px] text-[var(--d-text)] outline-none" />
           <button type="submit" disabled={!texto.trim() || busy} aria-label="Preguntar" className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-[#0073ea] text-white disabled:bg-[var(--d-card-2)] disabled:text-[var(--d-faint)]"><Send className="w-5 h-5" /></button>
         </form>

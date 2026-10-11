@@ -257,7 +257,7 @@ export default function ActividadesPage() {
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
                 className="-m-2 p-2 shrink-0 inline-flex">
                 <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#3cde01] border-[#3cde01] text-white" : "border-[var(--d-faint)] hover:border-[#3cde01] hover:bg-[#3cde01]/15"} sobre-verde`}>
-                  {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
+                  {col === "TERMINADA" ? <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 dom-pop" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg> : null}
                 </span>
               </span>
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
@@ -265,12 +265,13 @@ export default function ActividadesPage() {
             </div>
             {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Riesgo:</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
             {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0 font-bold">Espera:</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
-            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
-            {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
+            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#d0304a]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
+            {!compacta && a.obra && <div className="hidden md:inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
             <div className="flex items-center gap-2">
               <Avatar nombre={a.asignado_nombre} size={24} />
               <Fecha a={a} />
+              {!compacta && a.obra && <span className="md:hidden min-w-0 truncate text-[11px] text-[var(--d-muted)]">· {a.obra}</span>}
               <span className="ml-auto flex items-center gap-2 text-[11px] text-[var(--d-muted)]">
                 {cl.length > 0 && <span className={`inline-flex items-center gap-0.5 ${hechos === cl.length ? "text-[var(--d-ok)]" : ""}`}><CheckSquare className="w-3 h-3" />{hechos}/{cl.length}</span>}
                 {nUpd > 0 && <span className="inline-flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{nUpd}</span>}
@@ -301,8 +302,8 @@ export default function ActividadesPage() {
       }}
       onPointerCancel={() => { const sw = swipe.current; swipe.current = null; if (sw?.el) { sw.el.style.transition = "transform .22s ease"; sw.el.style.transform = "translateX(0)"; } }}>
       <div data-fondo className="absolute inset-0 flex items-center justify-between px-4 text-sm font-bold opacity-0">
-        <span className="text-white bg-[#3cde01] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4 sobre-verde">✓ Terminar</span>
-        <span className="text-white bg-[#e2445c] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada</span>
+        <span className="text-white bg-[#3cde01] absolute inset-y-0 left-0 w-1/2 flex items-center pl-4 sobre-verde">Terminar</span>
+        <span className="text-white bg-[#d0304a] absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-4">Atorada</span>
       </div>
       <div className="relative">{tarjeta(a)}</div>
     </div>
@@ -344,11 +345,11 @@ export default function ActividadesPage() {
                 <div className="relative">
                 {/* Flechas "espera a" (dependencias) dentro de la obra */}
                 <svg className="absolute top-0 pointer-events-none z-[4]" style={{ left: LBL }} width={nDias * W} height={list.length * 44}>
-                  <defs><marker id={`fl-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--d-muted)" /></marker><marker id={`flc-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#e2445c" /></marker></defs>
+                  <defs><marker id={`fl-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--d-muted)" /></marker><marker id={`flc-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#d0304a" /></marker></defs>
                   {list.map((a, ia) => { const ip = a.depende_de ? list.findIndex(p => p.id === a.depende_de) : -1; if (ip < 0) return null; const p = list[ip];
                     const x1 = x(fin(p)) + W - 2, y1 = ip * 44 + 22, x2 = x(ini(a)) + 1, y2 = ia * 44 + 22; const crit = critica.has(a.id) && critica.has(p.id);
                     const xm = Math.max(x1 + 6, Math.min(x2 - 6, x1 + 10));
-                    return <path key={a.id} d={`M${x1},${y1} H${xm} V${y2} H${x2 - 1}`} fill="none" stroke={crit ? "#e2445c" : "var(--d-muted)"} strokeWidth={crit ? 2 : 1.4} strokeDasharray={crit ? "" : "4 3"} markerEnd={`url(#${crit ? "flc" : "fl"}-${obra.length})`} />; })}
+                    return <path key={a.id} d={`M${x1},${y1} H${xm} V${y2} H${x2 - 1}`} fill="none" stroke={crit ? "#d0304a" : "var(--d-muted)"} strokeWidth={crit ? 2 : 1.4} strokeDasharray={crit ? "" : "4 3"} markerEnd={`url(#${crit ? "flc" : "fl"}-${obra.length})`} />; })}
                 </svg>
                 {list.map(a => { const col = columnaDe(a); const c = COLUMNAS.find(k => k.id === col)!; const l = x(ini(a)); const w = Math.max(W, x(fin(a)) - l + W); const atr = diasAtraso(a) > 0; const crit = critica.has(a.id);
                   return (
@@ -359,7 +360,7 @@ export default function ActividadesPage() {
                       <div className="relative h-full" style={{ width: nDias * W }}>
                         {atr && col !== "TERMINADA" && <div className="absolute top-3 h-5 rounded-r-md" style={{ left: l + w - 2, width: Math.max(0, x(hoyT) - (l + w) + W), background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 6px, rgba(226,68,92,.25) 6px 12px)" }} />}
                         <button onClick={() => setAbierta(a.id)} title={`${a.titulo} · ${fechaCorta(a.fecha_inicio || a.fecha_compromiso)} → ${fechaCorta(a.fecha_compromiso)}`}
-                          className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}`, boxShadow: crit && col !== "TERMINADA" ? "0 0 0 2px #e2445c" : undefined }}>
+                          className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}`, boxShadow: crit && col !== "TERMINADA" ? "0 0 0 2px #d0304a" : undefined }}>
                           <div className="h-full" style={{ width: `${Number(a.avance) || 0}%`, background: c.color, opacity: 0.85 }} />
                           <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-[var(--d-text)] truncate">{Number(a.avance) || 0}%</span>
                         </button>
@@ -370,7 +371,7 @@ export default function ActividadesPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 text-[11px] text-[var(--d-muted)] border-t border-[var(--d-border)]">
-          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 h-3 rounded-sm" style={{ boxShadow: "0 0 0 2px #e2445c" }} />Ruta crítica: si se atrasa, se atrasa la obra</span>
+          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 h-3 rounded-sm" style={{ boxShadow: "0 0 0 2px #d0304a" }} />Ruta crítica: si se atrasa, se atrasa la obra</span>
           <span className="inline-flex items-center gap-1.5"><svg width="22" height="8"><path d="M0,4 H18" stroke="var(--d-muted)" strokeDasharray="4 3" /><path d="M16,1 L21,4 L16,7 z" fill="var(--d-muted)" /></svg>Espera a</span>
           <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 h-3 rounded-sm" style={{ background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 4px, rgba(226,68,92,.25) 4px 8px)" }} />Atraso</span>
         </div>
@@ -417,13 +418,13 @@ export default function ActividadesPage() {
         {/* KPIs */}
         {/* Celular: solo lo que urge, en chips de color sólido (si es 0 no aparece) */}
         <div className="md:hidden mt-3 flex flex-wrap gap-1.5">
-          {([["Atrasadas", kpi.atrasadas, "#e2445c"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#e8760a"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
+          {([["Atrasadas", kpi.atrasadas, "#d0304a"], ["Atoradas", kpi.atoradas, "#c2410c"], ["Vencen hoy", kpi.hoy, "#c85f08"], ["En proceso", kpi.enProceso, "#0073ea"]] as const).filter(([, n]) => n > 0).map(([l, n, c]) => (
             <button key={l} onClick={() => setVista("mi")} className="rounded-full px-3 py-1.5 text-[12.5px] font-bold text-white" style={{ background: c }}>{n} {l.toLowerCase()}</button>))}
         </div>
         <div className="hidden md:flex mt-4 gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                     {kpiBtn("En proceso", kpi.enProceso, "#fdab3d", () => setVista("tablero"))}
-          {kpiBtn("Atoradas", kpi.atoradas, "#e2445c", () => setVista("tablero"))}
-          {kpiBtn("Atrasadas", kpi.atrasadas, "#ff642e", () => setVista("mi"))}
+          {kpiBtn("Atoradas", kpi.atoradas, "#d0304a", () => setVista("tablero"))}
+          {kpiBtn("Atrasadas", kpi.atrasadas, "#d94a14", () => setVista("mi"))}
           {kpiBtn("Vencen hoy", kpi.hoy, "#ffcb00", () => setVista("mi"))}
           {kpiBtn("En riesgo", visibles.filter(x => enRiesgo(x, ymd(new Date()))).length, "#fdab3d", () => setVista("mi"))}
         </div>
@@ -473,15 +474,18 @@ export default function ActividadesPage() {
         ) : vista === "linea" ? (
           lineaDeTiempo()
         ) : vista === "tablero" ? (
-          <div className="mt-5 -mx-4 md:mx-0 px-4 md:px-0 flex md:grid md:grid-cols-4 gap-3 overflow-x-auto snap-x snap-mandatory pb-4">
+          <>
+          {/* Celular: brincar a una columna (una columna por pantalla) */}
+          <div className="md:hidden mt-4 flex gap-1.5 overflow-x-auto -mx-4 px-4">{COLUMNAS.map(c => <button key={c.id} type="button" onClick={() => document.getElementById(`col-${c.id}`)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" })} className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--d-text)]"><i className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />{c.label} {porColumna(c.id).length}</button>)}</div>
+          <div className="mt-3 md:mt-5 -mx-4 md:mx-0 px-4 md:px-0 flex md:grid md:grid-cols-4 gap-3 overflow-x-auto snap-x snap-mandatory pb-4">
             {COLUMNAS.map(c => { const list = porColumna(c.id); return (
-              <div key={c.id} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragId) mover(dragId, c.id); setDragId(null); }}
+              <div key={c.id} id={`col-${c.id}`} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragId) mover(dragId, c.id); setDragId(null); }}
                 className={`snap-start shrink-0 w-[84vw] sm:w-[340px] md:w-auto rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] flex flex-col max-h-[calc(100dvh-300px)] min-h-[260px] ${dragId ? "ring-1 ring-[var(--d-border)]" : ""}`}>
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-t-2xl" style={{ background: c.soft, borderTop: `3px solid ${c.color}` }}>
-                  <span className="text-sm font-bold" style={{ color: c.text }}>{c.label}</span>
-                  <span className="text-xs font-semibold text-[var(--d-muted)] bg-[var(--d-card-2)] rounded-full px-2">{list.length}</span>
-                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md hover:bg-[var(--d-hover)] text-[var(--d-muted)]" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
-                  {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[10.5px] text-[var(--d-muted)] underline">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-t-2xl" style={{ background: c.color }}>
+                  <span className={`text-sm font-bold text-white ${c.id === "TERMINADA" ? "sobre-verde" : ""}`}>{c.label}</span>
+                  <span className="text-xs font-bold text-[var(--d-text)] bg-white rounded-full px-2">{list.length}</span>
+                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md text-white" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
+                  {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[11px] font-semibold text-white underline sobre-verde">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
                   {list.map(a => tarjeta(a))}
@@ -489,6 +493,7 @@ export default function ActividadesPage() {
                 </div>
               </div>); })}
           </div>
+          </>
         ) : (
           <div className="mt-5 space-y-4">
             {COLUMNAS.map(c => { const list = porColumna(c.id); if (!list.length) return null; const cerrado = !!colapsados["l" + c.id]; return (
@@ -514,10 +519,10 @@ export default function ActividadesPage() {
       {motivoPara && (
         <div className="aria-sheet fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setMotivoPara(null)}>
           <div className="w-full md:max-w-md rounded-t-3xl md:rounded-2xl bg-[var(--d-surface)] border border-[var(--d-border)] p-5 space-y-3" onClick={e => e.stopPropagation()} style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
-            <div className="flex items-center gap-2 text-[var(--d-text)] font-semibold"><AlertTriangle className="w-5 h-5 text-[#e2445c]" />¿Qué la tiene atorada?</div>
+            <div className="flex items-center gap-2 text-[var(--d-text)] font-semibold"><AlertTriangle className="w-5 h-5 text-[#d0304a]" />¿Qué la tiene atorada?</div>
             <textarea autoFocus value={motivoTxt} onChange={e => setMotivoTxt(e.target.value)} rows={3} placeholder="Ej. no ha llegado el material, falta autorización…" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-[var(--d-text)] text-sm" />
             <div className="flex gap-2 justify-end"><button onClick={() => setMotivoPara(null)} className="px-4 py-2 rounded-xl text-sm text-[var(--d-text-2)] bg-[var(--d-card)]">Cancelar</button>
-              <button disabled={!motivoTxt.trim()} onClick={async () => { const id = motivoPara.id; setMotivoPara(null); await mover(id, "BLOQUEADA", motivoTxt.trim()); }} className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#e2445c] disabled:opacity-50">Marcar atorada y avisar</button></div>
+              <button disabled={!motivoTxt.trim()} onClick={async () => { const id = motivoPara.id; setMotivoPara(null); await mover(id, "BLOQUEADA", motivoTxt.trim()); }} className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#d0304a] disabled:opacity-50">Marcar atorada y avisar</button></div>
           </div>
         </div>
       )}
@@ -532,7 +537,7 @@ export default function ActividadesPage() {
 
       {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} carga={carga} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
 
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"} sobre-verde`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
     </div>
   );
 }
@@ -640,6 +645,13 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
             </div>
           </div>
           <div className={tabF === "resumen" ? "space-y-5" : "hidden md:block space-y-5"}>
+          {/* Resumen a golpe de vista (celular): quién, cuándo, dónde, qué tan urgente y lo último que pasó */}
+          <div className="md:hidden grid grid-cols-2 gap-2">
+            <div className="col-span-2 flex items-center gap-2.5 rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><Avatar nombre={a.asignado_nombre} size={34} /><div className="min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Responsable</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.asignado_nombre || "Sin asignar"}</div></div></div>
+            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{diasAtraso(a) > 0 ? ` · ${diasAtraso(a)} d tarde` : ""}</div></div>
+            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Obra</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.obra || "Oficina"}</div></div>
+            {(() => { const u = upds.find(x => x.tipo !== "sistema" && x.texto); return u ? <button type="button" onClick={() => setTabF("charla")} className="col-span-2 text-left rounded-2xl border border-[var(--d-border)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Lo último</div><div className="text-[14px] text-[var(--d-text)] line-clamp-2">{u.texto}</div></button> : null; })()}
+          </div>
           {/* Estado */}
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Estado</div>
@@ -648,7 +660,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
                 <button key={c.id} disabled={!puedeEditar} onClick={() => onMover(c.id)} className={`rounded-lg py-2.5 text-[12px] font-bold transition ${col === c.id ? "text-white shadow-lg scale-[1.03]" : "text-[var(--d-muted)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`} style={col === c.id ? { background: c.color } : undefined}>{c.label}</button>
               ))}
             </div>
-            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#e2445c]/10 border border-[#e2445c]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
+            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#d0304a]/10 border border-[#d0304a]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
           </div>
 
           {/* Avance */}
@@ -685,7 +697,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
               {espera && !opcionesEspera.some(x => x.id === espera.id) && <option value={espera.id}>{espera.titulo} (terminada)</option>}
               {opcionesEspera.map(x => <option key={x.id} value={x.id}>{x.titulo}{x.obra ? ` · ${x.obra}` : ""}</option>)}
             </select>
-            {espera && <div className={`mt-1.5 text-xs ${columnaDe(espera) === "TERMINADA" ? "text-[var(--d-ok)]" : "text-[var(--d-warn)]"}`}>{columnaDe(espera) === "TERMINADA" ? "✓ Ya se terminó, puedes avanzar" : `⏳ ${espera.asignado_nombre || "Alguien"} todavía no la termina. Te avisamos cuando quede.`}</div>}
+            {espera && <div className={`mt-1.5 text-xs ${columnaDe(espera) === "TERMINADA" ? "text-[var(--d-ok)]" : "text-[var(--d-warn)]"}`}>{columnaDe(espera) === "TERMINADA" ? "✓ Ya se terminó, puedes avanzar" : `${espera.asignado_nombre || "Alguien"} todavía no la termina. Te avisamos cuando quede.`}</div>}
           </label>
 
           <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Descripción</span>
@@ -740,8 +752,8 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
         </div>
 
         <div className="px-5 py-3 border-t border-[var(--d-border)] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-          {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#e2445c]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
-          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#3cde01] px-5 py-2.5 text-sm font-bold text-white active:scale-95 sobre-verde">✓ Terminada</button>}
+          {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#d0304a]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
+          {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#3cde01] px-5 py-2.5 text-sm font-bold text-white active:scale-95 sobre-verde"><svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>Terminada</button>}
         </div>
       </div>
     </div>
@@ -770,7 +782,14 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
       setDeVoz(true);
     } catch { /* */ }
   }, [emps, obras]);
-  const personas = useMemo(() => { const n = norm(buscaP); return emps.filter(e => !n || norm(e.full_name).includes(n)); }, [emps, buscaP]);
+  // Solo las 5 personas que más usas (y "Yo"); el resto aparece al buscar o con "Ver todas"
+  const [frec, setFrec] = useState<Record<string, number>>({}); const [todas, setTodas] = useState(false);
+  useEffect(() => { try { setFrec(JSON.parse(localStorage.getItem("dom:personas-frec") || "{}")); } catch { /* */ } }, []);
+  const personas = useMemo(() => {
+    const n = norm(buscaP); if (n) return emps.filter(e => norm(e.full_name).includes(n));
+    const orden = [...emps].sort((x, y) => (frec[y.id] || 0) - (frec[x.id] || 0) || (carga[y.id] || 0) - (carga[x.id] || 0));
+    return todas ? orden : orden.filter(e => e.id !== miEmp).slice(0, 5);
+  }, [emps, buscaP, frec, carga, todas, miEmp]);
   const crear = async () => {
     if (!f.titulo.trim()) { flash("err", "Escribe qué hay que hacer"); return; }
     if (!f.asignado_id) { flash("err", "Elige quién la hace"); return; }
@@ -778,6 +797,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
     try {
       const r = await api<{ id: string; notificado: boolean; encolado?: boolean }>("/api/actividades", "POST", { ...f, checklist: f.pasos.split("\n").map(s => s.trim()).filter(Boolean) });
       if (r.encolado) { flash("ok", "Sin señal: la actividad se creará sola al volver la conexión"); onClose(); return; }
+      try { const m = { ...frec, [f.asignado_id]: (frec[f.asignado_id] || 0) + 1 }; localStorage.setItem("dom:personas-frec", JSON.stringify(m)); } catch { /* */ }
       onCreated(r.id, r.notificado);
     } catch (e) { flash("err", (e as Error).message); setBusy(false); }
   };
@@ -791,11 +811,12 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>
-            {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
-            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+            {emps.length > 6 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
+            <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
               {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
-                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${carga[p.id] >= 15 ? "bg-[#e2445c] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
+                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${carga[p.id] >= 15 ? "bg-[#d0304a] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
+              {!buscaP && !todas && emps.length > 6 && <button type="button" onClick={() => setTodas(true)} className="inline-flex items-center rounded-full border border-dashed border-[var(--d-border)] px-3 py-1 text-xs font-semibold text-[var(--d-link)]">Ver todas ({emps.length})</button>}
             </div>
           </div>
           <div>

@@ -74,7 +74,7 @@ interface ReqItem {
 }
 
 /** 11-Oct-2026: color del punto de estado en la lista del celular */
-const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#e8760a", EN_COTIZACION: "#e8760a", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0086c0", ENTREGA_PARCIAL: "#0086c0", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#e2445c", RECHAZADA_DIRECCION: "#e2445c", CANCELADA: "#64748b" };
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#c85f08", EN_COTIZACION: "#c85f08", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();
@@ -512,20 +512,20 @@ export default function RequisicionesStatusPage() {
           <div className="grid gap-1 rounded-2xl bg-[var(--d-card-2)] p-1" style={{ gridTemplateColumns: `repeat(${puedeVerTodas ? 3 : 2}, minmax(0, 1fr))` }}>
             {([["toca", "Me toca", cuentaMovil.toca], ["mias", "Las mías", cuentaMovil.mias], ...(puedeVerTodas ? [["todas", "Todas", cuentaMovil.todas]] : [])] as [string, string, number][]).map(([k, l, n]) => (
               <button key={k} type="button" onClick={() => { setTabMovil(k as "toca"); setNMovil(40); }} className={`rounded-xl py-2.5 text-[13px] font-bold transition ${tabActiva === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>
-                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#e8760a] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
+                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#c85f08] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
           <div className="mt-3 space-y-2">
             {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
-              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#e8760a]" : ""}`}>
+              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#c85f08]" : ""}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
                     <div className="text-[12px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div></div>
                   <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="text-[11px] font-semibold text-[var(--d-faint)]">{String(req.folio || "").replace(/^REQ-\d{4}-/, "#")}</div></div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#e8760a] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#c85f08] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
                     : <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--d-text-2)] truncate"><i className="shrink-0 inline-block w-2.5 h-2.5 rounded-full" style={{ background: COLOR_ESTADO[req.status] || "#64748b" }} />{queSigue(req.status)}</span>}
                 </div>
               </button>); })}
@@ -743,7 +743,7 @@ export default function RequisicionesStatusPage() {
                 <Link href={`/dashboard/requisiciones/requisiciones/entrega/${detailReq.id}`} className="w-full md:w-auto justify-center px-4 py-3 md:py-2 rounded-xl md:rounded-lg bg-[#3cde01] text-white sobre-verde text-[15px] md:text-sm font-bold transition flex items-center gap-2"><IcoCamion className="w-5 h-5" color="#fff" fondo="#3cde01" />Registrar entrega</Link>
               )}
               {!STATUS_BLOQUEADOS_EDIT.includes(detailReq.status) && (
-                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#e8760a] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
+                <button onClick={() => { setEditReq(detailReq); setDetailReq(null); }} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#c85f08] text-white text-sm font-semibold transition flex items-center gap-2"><Pencil className="w-4 h-4" />Editar</button>
               )}
               <button onClick={() => { setDupModal(detailReq); setDetailReq(null); }} disabled={duplicando} className="flex-1 md:flex-none justify-center px-4 py-2.5 md:py-2 rounded-xl md:rounded-lg bg-[#7e3bdd] text-white text-sm font-semibold transition flex items-center gap-2 disabled:opacity-50">{duplicando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}Duplicar</button>
               <button onClick={() => { handlePrintClick(detailReq); }} className="hidden md:flex px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium transition items-center gap-2"><Printer className="w-4 h-4" />Imprimir</button>

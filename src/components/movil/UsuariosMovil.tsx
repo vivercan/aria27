@@ -30,7 +30,7 @@ export default function UsuariosMovil() {
 
   return (
     <Pagina>
-      <Encabezado ico={IcoEquipo} color="#d83a6b" titulo="Usuarios" sub={lista ? `${n(true)} con acceso al sistema` : "Cargando…"}
+      <Encabezado ico={IcoEquipo} color="#c62f5e" titulo="Usuarios" sub={lista ? `${n(true)} con acceso al sistema` : "Cargando…"}
         accion={<button onClick={() => setNuevo(true)} className="shrink-0 inline-flex items-center gap-1 rounded-xl bg-[#0073ea] px-3 py-2.5 text-[14px] font-bold text-white"><Plus className="w-4 h-4" />Nuevo</button>} />
       <Buscador valor={q} cambiar={setQ} texto="Buscar nombre, correo o puesto" />
       <Pestanas valor={tab} cambiar={setTab} opciones={[{ v: "activos", l: "Activos", n: n(true) }, { v: "baja", l: "De baja", n: n(false) }]} />
@@ -65,7 +65,7 @@ function Editar({ u, onClose, onOk, flash }: { u: U; onClose: () => void; onOk: 
       <label className="block mt-4"><span className={etiqueta}>Teléfono (WhatsApp)</span><input value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel" placeholder="10 dígitos" className={campo} /></label>
       {u.active === false
         ? <button onClick={() => activo(true)} disabled={busy} className="mt-5 w-full rounded-2xl bg-[#3cde01] py-3 text-[15px] font-bold text-white sobre-verde">Reactivar acceso</button>
-        : <button onClick={() => activo(false)} disabled={busy} className="mt-5 w-full rounded-2xl border-2 border-[#e2445c] py-3 text-[15px] font-bold text-[#e2445c]">Dar de baja</button>}
+        : <button onClick={() => activo(false)} disabled={busy} className="mt-5 w-full rounded-2xl border-2 border-[#d0304a] py-3 text-[15px] font-bold text-[#d0304a]">Dar de baja</button>}
     </Hoja>
   );
 }

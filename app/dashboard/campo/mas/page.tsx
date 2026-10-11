@@ -17,29 +17,29 @@ const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[]
   { titulo: "Mi día", items: [
     { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#3cde01", roles: ["admin", "direccion", "validador", "residente"] },
     { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado en Tanque?”", icon: IcoPregunta, color: "#7e3bdd" },
-    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#e8760a" },
-    { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0086c0" },
+    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#c85f08" },
+    { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0077ad" },
   ] },
-  { titulo: "Obras", icon: IcoCasco, color: "#ff642e", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#ff642e" },
+  { titulo: "Obras", icon: IcoCasco, color: "#d94a14", items: [
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#d94a14" },
     { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#3cde01" },
     { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: IcoPlano, color: "#0073ea" },
-    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: IcoCasco, color: "#d9531e" },
+    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: IcoCasco, color: "#c2461a" },
   ] },
-  { titulo: "Compras", icon: IcoBodega, color: "#0086c0", items: [
-    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: IcoBodega, color: "#0086c0", roles: ["admin", "compras", "direccion", "rh", "validador"] },
+  { titulo: "Compras", icon: IcoBodega, color: "#0077ad", items: [
+    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
     { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Catálogo de materiales", icon: Package as unknown as Ico, color: "#0073ea", roles: ["admin", "compras", "direccion", "rh"] },
   ] },
-  { titulo: "Equipo", icon: IcoEquipo, color: "#d83a6b", items: [
-    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog as unknown as Ico, color: "#d83a6b", roles: ["admin", "rh"] },
-    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#d83a6b", roles: ["admin", "rh", "direccion"] },
-    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#d83a6b", roles: ["admin", "rh", "direccion", "validador"] },
+  { titulo: "Equipo", icon: IcoEquipo, color: "#c62f5e", items: [
+    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog as unknown as Ico, color: "#c62f5e", roles: ["admin", "rh"] },
+    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion"] },
+    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
   ] },
   { titulo: "Organizar el trabajo", icon: IcoOrganizar, color: "#7e3bdd", items: [
     { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
     { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat as unknown as Ico, color: "#0073ea" },
     { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#3cde01", roles: ["admin", "rh", "direccion", "validador", "compras"] },
-    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#e8760a", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#c85f08", roles: ["admin", "rh", "direccion", "validador", "compras"] },
   ] },
 ];
 
@@ -109,7 +109,7 @@ export default function MasPage() {
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Tener Doménica 27 como app</div><div className="text-[12px] text-[var(--d-muted)]">iPhone: Compartir › Agregar a inicio · Android: ⋮ › Instalar app</div></div>
             </div>
             <button onClick={salir} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#e2445c]"><LogOut className="w-5 h-5 text-white" /></span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#d0304a]"><LogOut className="w-5 h-5 text-white" /></span>
               <div className="flex-1 text-[15px] font-semibold text-[var(--d-danger)]">Cerrar sesión</div>
             </button>
           </div>

@@ -56,13 +56,13 @@ export default function FotosObra() {
       <div className="px-4 pt-4 pb-32 max-w-3xl mx-auto">
         <Link href={`/dashboard/domenica/obras/${id}`} className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--d-link)]"><ArrowLeft className="w-4 h-4" />{d?.obra.nombre || "Obra"}</Link>
         <div className="mt-2 flex items-center gap-3">
-          <Ficha ico={IcoCamara} color="#e8760a" size="lg" />
+          <Ficha ico={IcoCamara} color="#c85f08" size="lg" />
           <div className="flex-1 min-w-0"><h1 className="text-[22px] font-bold text-[var(--d-text)] leading-tight">Avance en fotos</h1><p className="text-[13px] text-[var(--d-muted)]">{d ? `${d.fotos.length} fotos` : "Cargando…"}</p></div>
         </div>
 
         <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { const f = e.target.files?.[0] || null; e.target.value = ""; if (f) setNueva(f); }} />
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#e8760a] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2"><IcoCamara className="w-5 h-5" color="#fff" fondo="#e8760a" />Tomar foto</button>
+          <button onClick={() => camRef.current?.click()} className="rounded-2xl bg-[#c85f08] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2"><IcoCamara className="w-5 h-5" color="#fff" fondo="#c85f08" />Tomar foto</button>
           <button onClick={() => { setElegir(e => !e); setSel([]); }} disabled={(d?.fotos.length || 0) < 2} className={`rounded-2xl py-3.5 text-[15px] font-bold inline-flex items-center justify-center gap-2 disabled:opacity-40 ${elegir ? "bg-[#0f172a] text-white" : "bg-[var(--d-card)] text-[var(--d-text)] border border-[var(--d-border)]"}`}><IcoComparar className="w-5 h-5" color={elegir ? "#fff" : "#0073ea"} />{elegir ? `Elige ${2 - sel.length} foto${2 - sel.length === 1 ? "" : "s"}` : "Comparar"}</button>
         </div>
 
@@ -81,7 +81,7 @@ export default function FotosObra() {
 
         <div className="mt-5 space-y-5">
           {d === null ? <Esqueleto filas={2} alto={140} /> : !d.fotos.length ? (
-            <div className="dom-card rounded-3xl"><Vacio ico={IcoCamara} color="#e8760a" titulo="Aún no hay fotos" texto="Toma la primera del avance. Si le pones el punto (ej. “Fachada norte”), luego comparas el antes y el ahora." accion={{ label: "Tomar foto", onClick: () => camRef.current?.click() }} /></div>
+            <div className="dom-card rounded-3xl"><Vacio ico={IcoCamara} color="#c85f08" titulo="Aún no hay fotos" texto="Toma la primera del avance. Si le pones el punto (ej. “Fachada norte”), luego comparas el antes y el ahora." accion={{ label: "Tomar foto", onClick: () => camRef.current?.click() }} /></div>
           ) : porDia.map(([k, fs]) => (
             <section key={k}>
               <h2 className="mb-2 text-[13px] font-bold text-[var(--d-text-2)] first-letter:uppercase">{k}</h2>
@@ -135,10 +135,10 @@ function NuevaFoto({ archivo, obraId, puntos, onClose, onOk, flash }: { archivo:
   };
   const sugeridos = [...new Set([...puntos, "Fachada", "Losa", "Interior", "Acceso"])].slice(0, 8);
   return (
-    <Hoja titulo="Foto de avance" onClose={onClose} pie={<button onClick={guardar} disabled={busy} className="w-full rounded-2xl bg-[#e8760a] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2 disabled:opacity-60">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : null}Guardar foto</button>}>
+    <Hoja titulo="Foto de avance" onClose={onClose} pie={<button onClick={guardar} disabled={busy} className="w-full rounded-2xl bg-[#c85f08] py-3.5 text-[15px] font-bold text-white inline-flex items-center justify-center gap-2 disabled:opacity-60">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : null}Guardar foto</button>}>
       <img src={prev} alt="Vista previa" className="w-full max-h-64 object-cover rounded-2xl" />
       <div className="mt-4 text-[13px] font-semibold text-[var(--d-text-2)]">¿De qué punto? <span className="font-normal text-[var(--d-muted)]">(para comparar el antes y el ahora)</span></div>
-      <div className="mt-2 flex flex-wrap gap-2">{sugeridos.map(p => <button key={p} type="button" onClick={() => setPunto(punto === p ? "" : p)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${punto === p ? "bg-[#e8760a] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{p}</button>)}</div>
+      <div className="mt-2 flex flex-wrap gap-2">{sugeridos.map(p => <button key={p} type="button" onClick={() => setPunto(punto === p ? "" : p)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${punto === p ? "bg-[#c85f08] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{p}</button>)}</div>
       <input value={punto} onChange={e => setPunto(e.target.value)} placeholder="O escribe el punto (ej. Fachada norte)" className="mt-2 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-3 text-[16px] text-[var(--d-text)] outline-none" />
       <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Nota (opcional)" className="mt-2 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-3 text-[16px] text-[var(--d-text)] outline-none" />
     </Hoja>

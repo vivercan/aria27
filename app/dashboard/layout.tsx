@@ -209,6 +209,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
   // 11-Oct-2026: al publicar una versión nueva, se actualiza sola al cambiar de pantalla (nunca a media captura)
   useEffect(() => { revisarVersion(); }, [pathname]);
+  // Doménica: vibración cortita al tocar un botón principal (fondo sólido) en el celular · 11-Oct-2026
+  useEffect(() => {
+    const h = (e: PointerEvent) => {
+      if (!document.body.classList.contains("dom-ruta")) return;
+      const b = (e.target as HTMLElement | null)?.closest?.("button, a[role=button], a.boton") as HTMLElement | null; if (!b) return;
+      const bg = getComputedStyle(b).backgroundColor; const m = bg.match(/rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?/);
+      if (!m || (m[4] !== undefined && Number(m[4]) < 0.9)) return; const [r, g, bl] = [+m[1], +m[2], +m[3]];
+      if (r + g + bl > 640) return; // fondos blancos/grises claros no vibran
+      try { navigator.vibrate?.(8); } catch { /* */ }
+    };
+    document.addEventListener("pointerdown", h, { passive: true });
+    return () => document.removeEventListener("pointerdown", h);
+  }, []);
   // 10-Oct-2026: service worker (notificaciones del telefono + abrir sin senal) y aviso de "Sin senal"
   const [sinSenal, setSinSenal] = useState(false);
   useEffect(() => {

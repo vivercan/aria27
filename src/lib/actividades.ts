@@ -36,15 +36,15 @@ export type ColumnaId = "POR_HACER" | "EN_PROCESO" | "BLOQUEADA" | "TERMINADA";
 
 export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: string; text: string }[] = [
   { id: "POR_HACER", label: "Por hacer", color: "#0073ea", soft: "rgba(87,155,252,0.14)", text: "var(--d-link)" },
-  { id: "EN_PROCESO", label: "En proceso", color: "#e8760a", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
-  { id: "BLOQUEADA", label: "Atorada", color: "#e2445c", soft: "rgba(226,68,92,0.14)", text: "var(--d-danger)" },
+  { id: "EN_PROCESO", label: "En proceso", color: "#c85f08", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
+  { id: "BLOQUEADA", label: "Atorada", color: "#d0304a", soft: "rgba(226,68,92,0.14)", text: "var(--d-danger)" },
   { id: "TERMINADA", label: "Terminada", color: "#3cde01", soft: "rgba(60,222,1,0.14)", text: "var(--d-ok)" },
 ];
 
 export const PRIORIDADES: { id: string; label: string; color: string }[] = [
   // valores reales de la BD (check constraint tareas_asignadas_prioridad_check)
-  { id: "URGENTE", label: "Urgente", color: "#e2445c" },
-  { id: "ALTA", label: "Alta", color: "#e8760a" },
+  { id: "URGENTE", label: "Urgente", color: "#d0304a" },
+  { id: "ALTA", label: "Alta", color: "#c85f08" },
   { id: "MEDIA", label: "Normal", color: "#0073ea" },
   { id: "BAJA", label: "Baja", color: "#64748b" },
 ];
@@ -116,7 +116,7 @@ export function iniciales(nombre?: string | null): string {
 
 /** Color estable por persona para el avatar. */
 export function colorPersona(nombre?: string | null): string {
-  const pal = ["#0073ea", "#7e3bdd", "#00a35c", "#d9531e", "#e2445c", "#0086c0", "#9d50dd", "#c2410c", "#037f4c", "#bb3354"]; // todos con contraste para texto blanco
+  const pal = ["#0073ea", "#7e3bdd", "#00a35c", "#c2461a", "#d0304a", "#0077ad", "#9d50dd", "#c2410c", "#037f4c", "#bb3354"]; // todos con contraste para texto blanco
   let h = 0; for (const c of String(nombre || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return pal[h % pal.length];
 }

@@ -596,7 +596,7 @@ export default function NewRequisitionPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {([
               { k: "MATERIALES", icon: IcoSaco, c: "#0073ea", t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
-              { k: "DESTAJO", icon: IcoCasco, c: "#ff642e", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
+              { k: "DESTAJO", icon: IcoCasco, c: "#d94a14", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
               { k: "ACTIVIDAD", icon: IcoTarea, c: "#7e3bdd", t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
             ] as const).map(({ k, icon: Icon, c, t, d }) => {
               const active = tipoSolicitud === k;

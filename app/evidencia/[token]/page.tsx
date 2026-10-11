@@ -33,7 +33,7 @@ export default function EvidenciaPublica() {
           <div className="w-10 h-10 rounded-xl bg-[#3cde01] text-white font-extrabold italic flex items-center justify-center sobre-verde">GA</div>
           <div><div className="font-bold leading-tight">Grupo Constructor Urbano Avante</div><div className="text-[12px] text-slate-500">Fotos de avance</div></div>
         </div>
-        <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#e2445c 78%,#fdab3d)" }} />
+        <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#d0304a 78%,#fdab3d)" }} />
       </header>
       <main className="max-w-xl mx-auto px-4 py-6">
         {err ? <div className="rounded-2xl bg-white p-6 text-center shadow-sm"><div className="text-4xl">🔗</div><div className="mt-2 font-semibold">{err}</div></div>

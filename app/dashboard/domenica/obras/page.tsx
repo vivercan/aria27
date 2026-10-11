@@ -38,7 +38,7 @@ export default function ObrasDomPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
-        <DomHeader icon={IcoObra} from="#ff642e" titulo="Obras" desc="Todo de cada obra en un lugar: actividades, atrasos, avance y lo gastado contra el presupuesto." />
+        <DomHeader icon={IcoObra} from="#d94a14" titulo="Obras" desc="Todo de cada obra en un lugar: actividades, atrasos, avance y lo gastado contra el presupuesto." />
         <div className="mt-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--d-muted)]" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar obra o cliente…" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-field)] pl-9 pr-3 py-2.5 text-sm text-[var(--d-text)]" /></div>
         {!datos ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -57,7 +57,7 @@ export default function ObrasDomPage() {
                 {x.detenidas.length > 0 && <div className="mt-2 inline-flex rounded-full bg-[#7e3bdd] px-3 py-1.5 text-[12px] font-bold text-white">{x.detenidas.length} solicitud{x.detenidas.length === 1 ? "" : "es"} esperando +3 días</div>}
                 <div className="mt-3">
                   <div className="flex justify-between text-[11.5px]"><span className="text-[var(--d-muted)]">Gastado {fmtMoney(x.gastado)}</span><span className="text-[var(--d-text-2)] font-semibold">{x.presupuesto ? `${x.pctGasto}% de ${fmtMoney(x.presupuesto)}` : ""}</span></div>
-                  {!!x.presupuesto && <div className="mt-1 h-2 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#e2445c" : (x.pctGasto ?? 0) > 85 ? "#e8760a" : "#3cde01" }} /></div>}
+                  {!!x.presupuesto && <div className="mt-1 h-2 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(100, x.pctGasto ?? 0)}%`, background: (x.pctGasto ?? 0) > 100 ? "#d0304a" : (x.pctGasto ?? 0) > 85 ? "#c85f08" : "#3cde01" }} /></div>}
                 </div>
               </Link>); })}
             {filas.length === 0 && <div className="md:col-span-2 rounded-2xl border border-dashed border-[var(--d-border)] p-8 text-center text-sm text-[var(--d-muted)]">No hay obras con ese nombre.</div>}

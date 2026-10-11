@@ -75,7 +75,7 @@ export default function RecurrentesPage() {
                       </div>
                     </div>
                     <button onClick={() => setForm({ id: r.id, titulo: r.titulo, descripcion: r.descripcion || "", asignado_id: r.asignado_id, obra_id: r.obra_id || "", prioridad: r.prioridad, frecuencia: r.frecuencia, dia: r.dia || 1, dias_para_entregar: String(r.dias_para_entregar || 0), pasos: (r.checklist || []).join("\n") })} className="p-2 rounded-lg text-[var(--d-text-2)] hover:bg-[var(--d-hover)]" aria-label="Editar"><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => borrar(r)} className="p-2 rounded-lg text-[var(--d-danger)] hover:bg-[#e2445c]/10" aria-label="Borrar"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => borrar(r)} className="p-2 rounded-lg text-[var(--d-danger)] hover:bg-[#d0304a]/10" aria-label="Borrar"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>))}
             </div>

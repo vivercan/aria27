@@ -60,7 +60,7 @@ export default function PlantillasPage() {
                 <div className="mt-auto flex items-center gap-2">
                   <button onClick={() => setUsar(p)} className={boton}><Play className="w-4 h-4" />Usar</button>
                   <button onClick={() => setEditar({ id: p.id, nombre: p.nombre, descripcion: p.descripcion || "", filas: p.items.map(aFila) })} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--d-text-2)] bg-[var(--d-card-2)]"><Pencil className="w-4 h-4" />Editar</button>
-                  <button onClick={() => borrar(p)} className="ml-auto p-2.5 rounded-xl text-[var(--d-danger)] hover:bg-[#e2445c]/10" aria-label="Borrar plantilla"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => borrar(p)} className="ml-auto p-2.5 rounded-xl text-[var(--d-danger)] hover:bg-[#d0304a]/10" aria-label="Borrar plantilla"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             ))}

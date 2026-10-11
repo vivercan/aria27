@@ -65,7 +65,7 @@ export default function CargaPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2"><span className="text-[14.5px] font-semibold text-[var(--d-text)] truncate">{f.nombre}</span><span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={{ background: nv.c }}>{nv.t}</span></div>
                     <div className="mt-1.5 h-2.5 rounded-full bg-[var(--d-card-2)] overflow-hidden flex">
-                      <div style={{ width: `${(f.atrasadas / max) * 100}%`, background: "#e2445c" }} />
+                      <div style={{ width: `${(f.atrasadas / max) * 100}%`, background: "#d0304a" }} />
                       <div style={{ width: `${(f.semana / max) * 100}%`, background: "#fdab3d" }} />
                       <div style={{ width: `${((f.abiertas - f.atrasadas - f.semana) / max) * 100}%`, background: "#579bfc" }} />
                     </div>
@@ -81,7 +81,7 @@ export default function CargaPage() {
                 </Link>); })}
               {conTrabajo.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--d-border)] p-8 text-center text-sm text-[var(--d-muted)]">Nadie tiene actividades abiertas.</div>}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[var(--d-muted)]"><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#e2445c]" />Atrasadas</span><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#fdab3d]" />Vencen en 7 días</span><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#579bfc]" />Más adelante</span></div>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[var(--d-muted)]"><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#d0304a]" />Atrasadas</span><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#fdab3d]" />Vencen en 7 días</span><span className="inline-flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-full bg-[#579bfc]" />Más adelante</span></div>
             {libres.length > 0 && <div className="mt-6">
               <button onClick={() => setVerLibres(v => !v)} className="text-sm font-semibold text-[var(--d-link)]">{verLibres ? "Ocultar" : "Ver"} {libres.length} persona{libres.length === 1 ? "" : "s"} sin actividades</button>
               {verLibres && <div className="mt-2 flex flex-wrap gap-1.5">{libres.map(f => <span key={f.id} className="rounded-full bg-[var(--d-card)] border border-[var(--d-border)] px-2.5 py-1 text-[12px] text-[var(--d-text-2)]">{f.nombre}</span>)}</div>}

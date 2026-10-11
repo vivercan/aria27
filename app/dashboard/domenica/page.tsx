@@ -29,10 +29,10 @@ const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
     { t: "Formularios públicos", d: "Links sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#3cde01", estado: "listo" },
   ] },
   { titulo: "En la obra", piezas: [
-    { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0086c0", estado: "listo" },
-    { t: "Revisiones con firma", d: "Calidad y seguridad punto por punto, con foto y firma", href: "/dashboard/domenica/revisiones", icon: ShieldCheck, color: "#0086c0", estado: "listo" },
-    { t: "Planos con marcas", d: "Pendientes, notas y fotos encima del plano", href: "/dashboard/domenica/planos", icon: MapIcon, color: "#0086c0", estado: "listo" },
-    { t: "Dictar por voz", d: "Botón + del celular: dilo y se arma la actividad o el pedido", icon: Mic, color: "#0086c0", estado: "listo" },
+    { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0077ad", estado: "listo" },
+    { t: "Revisiones con firma", d: "Calidad y seguridad punto por punto, con foto y firma", href: "/dashboard/domenica/revisiones", icon: ShieldCheck, color: "#0077ad", estado: "listo" },
+    { t: "Planos con marcas", d: "Pendientes, notas y fotos encima del plano", href: "/dashboard/domenica/planos", icon: MapIcon, color: "#0077ad", estado: "listo" },
+    { t: "Dictar por voz", d: "Botón + del celular: dilo y se arma la actividad o el pedido", icon: Mic, color: "#0077ad", estado: "listo" },
   ] },
   { titulo: "Controlar", piezas: [
     { t: "Automatizaciones", d: "Si pasa esto, haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },
@@ -57,7 +57,7 @@ export default function DomenicaHub() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
-          <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#e8760a] flex items-center justify-center"><Sun className="w-7 h-7 text-white" /></span>
+          <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#c85f08] flex items-center justify-center"><Sun className="w-7 h-7 text-white" /></span>
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Lo que Monday promete, conectado a tus obras, requisiciones y personal.</p></div>
         </div>
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">

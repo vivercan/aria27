@@ -1395,3 +1395,11 @@ body.dom-ruta .aria-sheet [style*="background"]::after { content: none !importan
 
 /* 11-Oct-2026: con una hoja abierta en el celular, la barra de abajo se esconde (el + ya no "muerde" la hoja) */
 @media (max-width: 767px) { body:has(.aria-sheet) nav[aria-label="Navegación"] { display: none; } }
+
+/* Doménica · micro-animaciones (11-Oct-2026): botones se "hunden" al tocarlos, palomita que se llena */
+@media (prefers-reduced-motion: no-preference) {
+  body.dom-ruta button:not(:disabled), body.dom-ruta a[role="button"] { transition: transform .12s ease, background-color .15s ease, color .15s ease; }
+  body.dom-ruta button:not(:disabled):active, body.dom-ruta a[role="button"]:active { transform: scale(.96); }
+  @keyframes dom-pop { 0% { transform: scale(.6); opacity: .4 } 60% { transform: scale(1.18); opacity: 1 } 100% { transform: scale(1) } }
+  body.dom-ruta .dom-pop { animation: dom-pop .32s cubic-bezier(.2,.9,.3,1.3); }
+}

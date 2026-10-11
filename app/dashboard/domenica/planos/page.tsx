@@ -30,7 +30,7 @@ export default function PlanosPage() {
             <Link key={p.id} href={`/dashboard/domenica/planos/${p.id}`} className="dom-card dom-in rounded-2xl overflow-hidden" style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}>
               <div className="h-32 bg-[var(--d-card-2)] flex items-center justify-center overflow-hidden">{p.tipo_archivo === "PDF" ? <FileText className="w-10 h-10 text-[var(--d-muted)]" /> : <img src={p.url} alt="" className="w-full h-full object-cover" loading="lazy" />}</div>
               <div className="p-3 flex items-center gap-2"><div className="flex-1 min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{p.nombre}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{p.obra_nombre}{p.disciplina ? ` · ${p.disciplina}` : ""}</div></div>
-                {p.abiertas > 0 && <span className="shrink-0 rounded-full bg-[#e2445c] px-2.5 py-1 text-[11px] font-bold text-white">{p.abiertas}</span>}<ChevronRight className="w-4 h-4 text-[var(--d-faint)]" /></div>
+                {p.abiertas > 0 && <span className="shrink-0 rounded-full bg-[#d0304a] px-2.5 py-1 text-[11px] font-bold text-white">{p.abiertas}</span>}<ChevronRight className="w-4 h-4 text-[var(--d-faint)]" /></div>
             </Link>))}</div>)}
       </div>
       {subir && <Subir obras={base.obras} obraInicial={obra} onClose={() => setSubir(false)} onSaved={() => { setSubir(false); cargar(); flash("ok", "Plano listo para marcar"); }} flash={flash} />}

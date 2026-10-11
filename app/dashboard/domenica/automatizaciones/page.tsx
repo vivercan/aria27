@@ -77,7 +77,7 @@ export default function AutomatizacionesPage() {
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <Link href="/dashboard/domenica" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-11 h-11 rounded-2xl bg-[#e8760a] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
+          <span className="shrink-0 w-11 h-11 rounded-2xl bg-[#c85f08] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">Automatizaciones</h1>
             <p className="text-[13px] text-[var(--d-muted)]">Reglas que vigilan por ti: cuando pasa algo, avisan por WhatsApp y al teléfono, o crean una actividad. Se revisan cada 30 minutos, de 7:00 a 20:00.</p>
@@ -123,7 +123,7 @@ export default function AutomatizacionesPage() {
                       <button onClick={() => probar(r)} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-1.5 text-xs font-semibold text-[var(--d-text)]"><Play className="w-3.5 h-3.5" />Probar ahora</button>
                       {puede && <button onClick={() => toggle(r, "modo_prueba")} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-1.5 text-xs font-semibold text-[var(--d-text)]"><FlaskConical className="w-3.5 h-3.5" />{r.modo_prueba ? "Pasar a real" : "Volver a prueba"}</button>}
                       {puede && <button onClick={() => setEdit({ ...r })} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-1.5 text-xs font-semibold text-[var(--d-text)]"><Pencil className="w-3.5 h-3.5" />Editar</button>}
-                      {puede && <button onClick={() => borrar(r)} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--d-danger)] hover:bg-[#e2445c]/10"><Trash2 className="w-3.5 h-3.5" />Borrar</button>}
+                      {puede && <button onClick={() => borrar(r)} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--d-danger)] hover:bg-[#d0304a]/10"><Trash2 className="w-3.5 h-3.5" />Borrar</button>}
                     </div>
                   </div>))}
               </div>}
@@ -210,7 +210,7 @@ export default function AutomatizacionesPage() {
           </div>
         </div>
       )}
-      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"} sobre-verde`}>{toast.m}</div>}
+      {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{toast.m}</div>}
     </div>
   );
 }

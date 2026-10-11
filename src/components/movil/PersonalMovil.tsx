@@ -28,7 +28,7 @@ export default function PersonalMovil() {
 
   return (
     <Pagina>
-      <Encabezado ico={IcoEquipo} color="#d83a6b" titulo="Personal" sub={lista ? `${n(true)} trabajando` : "Cargando…"}
+      <Encabezado ico={IcoEquipo} color="#c62f5e" titulo="Personal" sub={lista ? `${n(true)} trabajando` : "Cargando…"}
         accion={<a href="/dashboard/talento/personal?web=1" className="shrink-0 inline-flex items-center gap-1 rounded-xl bg-[#0073ea] px-3 py-2.5 text-[14px] font-bold text-white"><Plus className="w-4 h-4" />Alta</a>} />
       <Buscador valor={q} cambiar={setQ} texto="Buscar nombre, puesto o número" />
       <Pestanas valor={tab} cambiar={setTab} opciones={[{ v: "activos", l: "Activos", n: n(true) }, { v: "baja", l: "De baja", n: n(false) }]} />

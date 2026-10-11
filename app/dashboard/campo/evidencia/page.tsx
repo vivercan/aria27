@@ -28,7 +28,7 @@ export default function EvidenciaPage() {
   const vis = useMemo(() => { const t = q.trim().toLowerCase(); return (items || []).filter(r => (!obra || r.cost_center_name === obra) && (!t || `${r.folio} ${r.cost_center_name} ${r.proveedor || ""}`.toLowerCase().includes(t))); }, [items, q, obra]);
   return (
     <Pagina>
-      <Encabezado ico={IcoCamion} color="#0086c0" titulo="Registrar entrega" sub={items ? `${items.length} esperan llegar` : "Cargando…"} atras="/dashboard/campo" />
+      <Encabezado ico={IcoCamion} color="#0077ad" titulo="Registrar entrega" sub={items ? `${items.length} esperan llegar` : "Cargando…"} atras="/dashboard/campo" />
       <Buscador valor={q} cambiar={setQ} texto="Buscar folio, obra o proveedor" />
       {obras.length > 1 && <select value={obra} onChange={e => setObra(e.target.value)} className="mt-2 w-full rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] px-3.5 h-11 text-[15px] text-[var(--d-text)]"><option value="">Todas las obras</option>{obras.map(o => <option key={o} value={o}>{o}</option>)}</select>}
       <div className="mt-3">

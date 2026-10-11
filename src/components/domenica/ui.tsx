@@ -45,7 +45,7 @@ export function useBase() {
 export function useAviso() {
   const [t, setT] = useState<{ t: "ok" | "err"; m: string } | null>(null);
   const flash = useCallback((tipo: "ok" | "err", m: string) => { setT({ t: tipo, m }); setTimeout(() => setT(null), 3500); }, []);
-  const nodo = t ? <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[90] rounded-xl px-4 py-2.5 text-sm font-semibold shadow-2xl ${t.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#e2445c] text-white"} sobre-verde`}>{t.m}</div> : null;
+  const nodo = t ? <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[90] rounded-xl px-4 py-2.5 text-sm font-semibold shadow-2xl ${t.t === "ok" ? "bg-[#3cde01] text-white" : "bg-[#d0304a] text-white"} sobre-verde`}>{t.m}</div> : null;
   return { flash, nodo };
 }
 

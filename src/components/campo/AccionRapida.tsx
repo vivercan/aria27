@@ -127,20 +127,20 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
               <span><span className="block text-[17px] font-bold">Habla con Doménica</span><span className="block text-[12.5px] text-white/90">Pide, asigna o pregunta. Ella lo arma.</span></span>
             </button>
             <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo")} className={tile} style={{ background: "#0073ea" }}><IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[15px] font-bold leading-tight">Pedir material</span></button>
-            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#e8760a" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#e8760a" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
+            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#c85f08" }}><IcoTarea className="w-8 h-8" color="#fff" fondo="#c85f08" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
             <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#3cde01" }}><IcoCamion className="w-8 h-8" color="#fff" fondo="#3cde01" /><span className="text-[15px] font-bold sobre-verde">Registrar una entrega</span></button>
           </div>)}
 
         {(fase === "lista" || fase === "grabando") && (
           <div className="flex flex-col items-center py-4">
             <button onClick={fase === "grabando" ? parar : grabar} aria-label={fase === "grabando" ? "Terminar" : "Empezar a hablar"}
-              className={`relative w-32 h-32 rounded-full flex items-center justify-center text-white transition ${fase === "grabando" ? "bg-[#e2445c]" : "bg-[#6d35c9]"}`} style={{ boxShadow: fase === "grabando" ? "0 0 0 14px rgba(226,68,92,.15), 0 0 0 28px rgba(226,68,92,.07)" : "0 14px 26px -16px #6d35c9" }}>
+              className={`relative w-32 h-32 rounded-full flex items-center justify-center text-white transition ${fase === "grabando" ? "bg-[#d0304a]" : "bg-[#6d35c9]"}`} style={{ boxShadow: fase === "grabando" ? "0 0 0 14px rgba(226,68,92,.15), 0 0 0 28px rgba(226,68,92,.07)" : "0 14px 26px -16px #6d35c9" }}>
               {fase === "grabando" ? <Square className="w-12 h-12" fill="white" /> : <Mic className="w-14 h-14" />}
             </button>
             <div className="mt-6 text-[17px] font-bold text-[var(--d-text)]">{fase === "grabando" ? `Te escucho… ${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}` : "Toca y habla"}</div>
             {fase === "grabando" && vivo && <div className="mt-3 w-full rounded-2xl bg-[var(--d-card-2)] px-4 py-3 text-[15px] text-[var(--d-text)]">“{vivo}”</div>}
             <div className="mt-1 text-center text-[13px] text-[var(--d-muted)] max-w-[300px]">{fase === "grabando" ? "Toca otra vez cuando termines" : modoPend ? "Ej.: “Mañana a las 10 llamo a Miguel, el viernes reviso los planos de Tanque y pago la renta el lunes”" : "Ej.: “Ayúdame a hacer una requisición”, “Anota mis pendientes”, “Abre mi agenda” o “¿Qué está atrasado en Tanque?”"}</div>
-            {err && <div className="mt-4 rounded-xl bg-[#e2445c]/10 px-3 py-2 text-sm font-semibold text-[var(--d-danger)]">{err}</div>}
+            {err && <div className="mt-4 rounded-xl bg-[#d0304a]/10 px-3 py-2 text-sm font-semibold text-[var(--d-danger)]">{err}</div>}
             {fase === "lista" && <button type="button" onClick={() => setFase("escribir")} className="mt-5 text-[14px] font-semibold text-[var(--d-link)]">Prefiero escribirlo</button>}
           </div>)}
 
@@ -164,12 +164,12 @@ export default function AccionRapida({ onClose, auto = false }: { onClose: () =>
                     <div className="mt-1 flex flex-wrap gap-1.5 text-[12px] font-semibold">
                       <span className="rounded-md bg-[#0073ea] px-2 py-0.5 text-white">{diaCorto(p.fecha)}{p.hora ? ` · ${p.hora}` : ""}</span>
                       {p.obra && <span className="rounded-md bg-[var(--d-card-2)] px-2 py-0.5 text-[var(--d-text-2)]">{p.obra}</span>}
-                      {(p.prioridad === "URGENTE" || p.prioridad === "ALTA") && <span className="rounded-md bg-[#e2445c] px-2 py-0.5 text-white">{p.prioridad === "URGENTE" ? "Urgente" : "Alta"}</span>}
+                      {(p.prioridad === "URGENTE" || p.prioridad === "ALTA") && <span className="rounded-md bg-[#d0304a] px-2 py-0.5 text-white">{p.prioridad === "URGENTE" ? "Urgente" : "Alta"}</span>}
                     </div>
                   </div>
                 </li>))}
             </ul>
-            {err && <div className="mt-3 rounded-xl bg-[#e2445c] px-3 py-2 text-sm font-semibold text-white">{err}</div>}
+            {err && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2 text-sm font-semibold text-white">{err}</div>}
             <button onClick={guardarPendientes} disabled={guardando || !pends.some(p => !p.quitar)} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#3cde01] py-4 text-[16px] font-bold text-white disabled:opacity-50 sobre-verde">{guardando ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" strokeWidth={3} />}Guardar {pends.filter(p => !p.quitar).length} en mi agenda</button>
             <button onClick={() => { setFase("lista"); setTimeout(() => grabarRef.current?.(), 200); }} className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--d-card-2)] py-3 text-[14px] font-semibold text-[var(--d-text-2)]"><Mic className="w-4 h-4" />Agregar más por voz</button>
           </div>)}

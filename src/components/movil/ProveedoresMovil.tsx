@@ -21,7 +21,7 @@ export default function ProveedoresMovil() {
 
   return (
     <Pagina>
-      <Encabezado ico={IcoBodega} color="#0086c0" titulo="Proveedores" sub={lista ? `${lista.filter(s => s.active).length} activos` : "Cargando…"}
+      <Encabezado ico={IcoBodega} color="#0077ad" titulo="Proveedores" sub={lista ? `${lista.filter(s => s.active).length} activos` : "Cargando…"}
         accion={<a href="/dashboard/requisiciones/proveedores?web=1" className="shrink-0 inline-flex items-center gap-1 rounded-xl bg-[#0073ea] px-3 py-2.5 text-[14px] font-bold text-white"><Plus className="w-4 h-4" />Nuevo</a>} />
       <Buscador valor={q} cambiar={setQ} texto="Buscar nombre, contacto, RFC o rubro" />
       <Pestanas valor={tab} cambiar={setTab} opciones={[{ v: "activos", l: "Activos" }, { v: "todos", l: "Todos" }]} />
