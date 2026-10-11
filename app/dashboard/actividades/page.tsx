@@ -96,7 +96,7 @@ function Fecha({ a }: { a: Actividad }) {
   if (!a.fecha_compromiso) return <span className="text-[11px] text-[var(--d-faint)]">Sin fecha</span>;
   const d = diasAtraso(a); const h = venceHoy(a); const term = columnaDe(a) === "TERMINADA";
   const cls = term ? "text-[var(--d-muted)]" : d > 0 ? "text-[var(--d-danger)] font-semibold" : h ? "text-[var(--d-warn)] font-semibold" : "text-[var(--d-text-2)]";
-  return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{d > 0 && !term ? ` · ${d}d tarde` : ""}</span>;
+  return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{a.hora_compromiso ? ` ${String(a.hora_compromiso).slice(0, 5)}` : ""}{d > 0 && !term ? ` · ${d}d tarde` : ""}</span>;
 }
 
 function Barra({ pct, col }: { pct: number; col: ColumnaId }) {
@@ -648,7 +648,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           {/* Resumen a golpe de vista (celular): quién, cuándo, dónde, qué tan urgente y lo último que pasó */}
           <div className="md:hidden grid grid-cols-2 gap-2">
             <div className="col-span-2 flex items-center gap-2.5 rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><Avatar nombre={a.asignado_nombre} size={34} /><div className="min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Responsable</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.asignado_nombre || "Sin asignar"}</div></div></div>
-            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{diasAtraso(a) > 0 ? ` · ${diasAtraso(a)} d tarde` : ""}</div></div>
+            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{a.hora_compromiso ? ` · ${String(a.hora_compromiso).slice(0, 5)}` : ""}{diasAtraso(a) > 0 ? ` · ${diasAtraso(a)} d tarde` : ""}</div></div>
             <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Obra</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.obra || "Oficina"}</div></div>
             {(() => { const u = upds.find(x => x.tipo !== "sistema" && x.texto); return u ? <button type="button" onClick={() => setTabF("charla")} className="col-span-2 text-left rounded-2xl border border-[var(--d-border)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Lo último</div><div className="text-[14px] text-[var(--d-text)] line-clamp-2">{u.texto}</div></button> : <button type="button" onClick={() => setTabF("charla")} className="col-span-2 flex items-center gap-3 text-left rounded-2xl border border-dashed border-[var(--d-border)] px-3 py-3"><span className="shrink-0 w-9 h-9 rounded-xl bg-[#0073ea] text-white inline-flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6A.5.5 0 0 1 5 19.2V16a2.5 2.5 0 0 1-1-2V5.5Z" /></svg></span><span className="min-w-0"><span className="block text-[14px] font-semibold text-[var(--d-text)]">Nadie ha comentado</span><span className="block text-[12.5px] text-[var(--d-muted)]">Escribe cómo va o sube una foto</span></span></button>; })()}
           </div>
@@ -684,6 +684,8 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
               <input type="date" disabled={!puedeEditar} value={(a.fecha_compromiso || "").slice(0, 10)} onChange={e => onPatch({ fecha_compromiso: e.target.value }, { fecha_compromiso: e.target.value })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
             <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Inicio</span>
               <input type="date" disabled={!puedeEditar} value={(a.fecha_inicio || "").slice(0, 10)} onChange={e => onPatch({ fecha_inicio: e.target.value }, { fecha_inicio: e.target.value })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
+            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Hora de entrega</span>
+              <input type="time" disabled={!puedeEditar} value={(a.hora_compromiso || "").slice(0, 5)} onChange={e => onPatch({ hora_compromiso: e.target.value || null }, { hora_compromiso: e.target.value || null })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
             <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><MapPin className="w-3 h-3" />Obra</span>
               <select disabled={!puedeEditar} value={a.obra_id || ""} onChange={e => onPatch({ obra_id: e.target.value })} className="mt-1 w-full rounded-xl px-3 py-2 text-sm"><option value="">{a.obra && !a.obra_id ? a.obra : "Sin obra (oficina)"}</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>
             <div className="col-span-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Prioridad</span>
@@ -765,7 +767,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
   const hoy = new Date();
   const dia = (n: number) => { const d = new Date(hoy); d.setDate(hoy.getDate() + n); return ymd(d); };
   const viernes = (() => { const d = new Date(hoy); const k = (5 - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate() + k); return ymd(d); })();
-  const [f, setF] = useState(() => { let obra = ""; try { obra = new URLSearchParams(window.location.search).get("obra") || ""; } catch { /* */ } return { titulo: "", asignado_id: "", fecha_compromiso: dia(1), obra_id: obra, prioridad: "MEDIA", descripcion: "", pasos: "" }; });
+  const [f, setF] = useState(() => { let obra = ""; try { obra = new URLSearchParams(window.location.search).get("obra") || ""; } catch { /* */ } return { titulo: "", asignado_id: "", fecha_compromiso: dia(1), hora: "", obra_id: obra, prioridad: "MEDIA", descripcion: "", pasos: "" }; });
   const [busy, setBusy] = useState(false);
   const [buscaP, setBuscaP] = useState("");
   const [deVoz, setDeVoz] = useState(false);
@@ -825,6 +827,12 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
               {[["Hoy", dia(0)], ["Mañana", dia(1)], ["Viernes", viernes], ["En una semana", dia(7)]].map(([l, v]) => (
                 <button key={l} onClick={() => setF({ ...f, fecha_compromiso: v })} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${f.fecha_compromiso === v ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{l}</button>))}
               <input type="date" value={f.fecha_compromiso} onChange={e => setF({ ...f, fecha_compromiso: e.target.value })} className="rounded-full bg-[var(--d-card-2)] border border-[var(--d-border)] px-3 py-1 text-xs text-[var(--d-text)]" />
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="text-[12px] font-semibold text-[var(--d-muted)]">Hora:</span>
+              {[["Sin hora", ""], ["9:00", "09:00"], ["12:00", "12:00"], ["16:00", "16:00"]].map(([l, v]) => (
+                <button key={l} type="button" onClick={() => setF({ ...f, hora: v })} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${f.hora === v ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{l}</button>))}
+              <input type="time" value={f.hora} onChange={e => setF({ ...f, hora: e.target.value })} aria-label="Otra hora" className="rounded-full bg-[var(--d-card-2)] border border-[var(--d-border)] px-3 py-1 text-xs text-[var(--d-text)]" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

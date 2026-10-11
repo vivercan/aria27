@@ -91,7 +91,7 @@ export function buildStepper(r: RequiLike): Paso[] {
 export function statusLabel(st: string | null | undefined): string {
   const m: Record<string, string> = {
     PENDIENTE_RESPONSABLE: "Esperando responsable", PENDIENTE: "Pendiente", EN_COTIZACION: "En cotización",
-    EN_AUTORIZACION: "En autorización", APROBADA: "Aprobada", OC_GENERADA: "OC generada", PAGADA: "Pagada",
+    EN_AUTORIZACION: "En autorización", APROBADA: "Aprobada", AUTORIZADA_HISTORICO: "Autorizada (histórico)", OC_GENERADA: "OC generada", PAGADA: "Pagada",
     ENTREGA_PARCIAL: "Entrega parcial", ENTREGADA: "Entregada", RECHAZADA_RESPONSABLE: "Rechazada (obra)",
     RECHAZADA_DIRECCION: "Rechazada (Dirección)", CANCELADA: "Cancelada",
   };
@@ -110,7 +110,7 @@ export function accionPara(r: RequiLike & { user_email?: string | null }, role: 
   if ((st === "PENDIENTE" || st === "EN_COTIZACION") && (r.purchase_status || "") !== "GASTO_EFECTIVO_PENDIENTE" && (role === "compras" || esAdmin)) return "COTIZAR";
   if (st === "EN_AUTORIZACION" && (esDir || esAdmin)) return "APROBAR_DIRECCION";
   if ((r.purchase_status || "") === "GASTO_EFECTIVO_PENDIENTE" && (st === "APROBADA" || st === "EN_AUTORIZACION" || st === "PENDIENTE") && (role === "usuario" || esAdmin)) return "PAGAR";
-  const cerrada = ["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION", "PENDIENTE_RESPONSABLE"].includes(st);
+  const cerrada = ["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION", "PENDIENTE_RESPONSABLE", "AUTORIZADA_HISTORICO"].includes(st);
   if (!cerrada && (r.tipo_solicitud || "MATERIALES") !== "DESTAJO" && ((r.user_email || "").toLowerCase() === me || role === "compras" || role === "validador" || role === "residente" || esAdmin)) return "REGISTRAR_ENTREGA";
   return null;
 }
@@ -127,6 +127,7 @@ export function queSigue(st: string | null | undefined): string {
     case "ENTREGADA": return "Entregada ✓";
     case "RECHAZADA_RESPONSABLE": case "RECHAZADA_DIRECCION": return "Rechazada";
     case "CANCELADA": return "Cancelada";
+    case "AUTORIZADA_HISTORICO": return "Autorizada · cierre histórico";
     default: return statusLabel(st);
   }
 }

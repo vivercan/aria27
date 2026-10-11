@@ -76,7 +76,7 @@ export async function evaluar(db: SupabaseClient, r: Regla, ahora: Date = new Da
     let q = db.from("requisitions").select("id, folio, cost_center_name, status, created_at, total, user_email, responsable_email, created_by").gte("created_at", r.disparador === "REQUI_MONTO_ALTO" ? new Date(ahora.getTime() - 2 * DAY).toISOString() : desde).limit(500);
     if (obraFiltro) q = q.ilike("cost_center_name", obraFiltro);
     if (r.disparador === "REQUI_ESTANCADA") q = q.eq("status", String(p.estado || "EN_AUTORIZACION"));
-    if (r.disparador === "REQUI_SIN_PRECIO") q = q.not("status", "in", "(CANCELADA,RECHAZADA_DIRECCION,RECHAZADA_RESPONSABLE,ENTREGADA)");
+    if (r.disparador === "REQUI_SIN_PRECIO") q = q.not("status", "in", "(CANCELADA,RECHAZADA_DIRECCION,RECHAZADA_RESPONSABLE,ENTREGADA,AUTORIZADA_HISTORICO)");
     if (r.disparador === "REQUI_MONTO_ALTO") q = q.gte("total", n(p.monto, 50000));
     const { data } = await q;
     const out: Caso[] = [];

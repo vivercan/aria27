@@ -20,6 +20,7 @@ export type Actividad = {
   avance?: number | null;
   fecha_inicio?: string | null;
   fecha_compromiso?: string | null;
+  hora_compromiso?: string | null;
   estatus: string;
   prioridad?: string | null;
   motivo_bloqueo?: string | null;

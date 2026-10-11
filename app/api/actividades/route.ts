@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       fecha_compromiso: String(b.fecha_compromiso || "").slice(0, 10), fecha_inicio: b.fecha_inicio ? String(b.fecha_inicio) : null,
       obra_id: b.obra_id ? String(b.obra_id) : null, obra: b.obra ? String(b.obra) : null, prioridad: b.prioridad ? String(b.prioridad) : null,
       checklist: Array.isArray(b.checklist) ? (b.checklist as unknown[]).map(String) : [], depende_de: b.depende_de ? String(b.depende_de) : null,
+      hora: b.hora ? String(b.hora) : null,
     }, auth.email, "todo");
     if (!r.ok) return NextResponse.json({ error: r.error }, { status: r.status });
     const { id, notificado } = r;

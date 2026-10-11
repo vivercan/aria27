@@ -43,6 +43,8 @@ export interface SendEmailLoggedOpts {
   origen?: string;
   /** Email del user que disparo el envio (para trazabilidad). */
   enviadoPor?: string;
+  /** 11-Oct-2026: no mandar la copia oculta global al admin (avisos personales como actividades). */
+  sinCopiaAdmin?: boolean;
 }
 
 export interface SendEmailLoggedResult {
@@ -69,7 +71,7 @@ export async function sendEmailLogged(opts: SendEmailLoggedOpts): Promise<SendEm
   // BCC: combinar bcc explicito + ADMIN_BCC_EMAIL global (26-Abr-2026 JJ).
   // Admin (Deya/RH) recibe copia automatica de TODO el flujo del ERP.
   // Se evita auto-BCC si el destinatario ya es el admin.
-  const adminBcc = process.env.ADMIN_BCC_EMAIL || "";
+  const adminBcc = opts.sinCopiaAdmin ? "" : (process.env.ADMIN_BCC_EMAIL || "");
   const toList = Array.isArray(opts.to) ? opts.to : [opts.to];
   const explicitBcc: string[] = opts.bcc
     ? (Array.isArray(opts.bcc) ? opts.bcc : [opts.bcc])

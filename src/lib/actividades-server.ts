@@ -60,6 +60,7 @@ const PRIOS_CREAR = ["URGENTE", "ALTA", "MEDIA", "BAJA"];
 export type NuevaActividad = {
   titulo: string; descripcion?: string | null; asignado_id: string; fecha_compromiso: string; fecha_inicio?: string | null;
   obra_id?: string | null; obra?: string | null; prioridad?: string | null; checklist?: string[]; depende_de?: string | null; origen?: string | null;
+  hora?: string | null;
 };
 /** Crea una actividad. avisar: "todo" = push + WhatsApp al responsable; "push" = solo notificación; "nada" = sin avisos. */
 export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porEmail: string, avisar: "todo" | "push" | "nada" = "todo"):
@@ -79,12 +80,13 @@ export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porE
   }
   const prioridad = PRIOS_CREAR.includes(String(a.prioridad || "").toUpperCase()) ? String(a.prioridad).toUpperCase() : "MEDIA";
   const fechaInicio = /^\d{4}-\d{2}-\d{2}$/.test(String(a.fecha_inicio || "")) ? String(a.fecha_inicio) : null;
+  const hora = normHora(a.hora);
   const { data: ins, error } = await db.from("tareas_asignadas").insert({
     titulo, descripcion: String(a.descripcion || "").trim().slice(0, 2000) || null,
     asignado_id: a.asignado_id, asignado_nombre: asignado.nombre, asignado_email: asignado.email,
     asignado_por: por, asignado_por_email: por,
     obra: obra || (String(a.obra || "").trim() || null), obra_id: obraId,
-    fecha_inicio: fechaInicio, fecha_compromiso: a.fecha_compromiso,
+    fecha_inicio: fechaInicio, fecha_compromiso: a.fecha_compromiso, hora_compromiso: hora,
     prioridad, estatus: "PENDIENTE", avance: 0, depende_de: a.depende_de || null, origen: a.origen || null,
   }).select("id").single();
   if (error || !ins) return { ok: false, error: error?.message || "No se pudo crear", status: 500 };
@@ -96,17 +98,22 @@ export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porE
   let notificado = false;
   const esOtro = (asignado.email || "") !== por;
   if (avisar !== "nada" && esOtro && asignado.email) {
-    try { await pushAEmail(asignado.email, { title: "📋 Nueva actividad", body: limpiar(`${yo?.nombre || por}: ${titulo}${obra ? ` · ${obra}` : ""} · entrega ${fechaCorta(a.fecha_compromiso)}`).slice(0, 220), url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` }); } catch { /* push best effort */ }
+    try { await pushAEmail(asignado.email, { title: "📋 Nueva actividad", body: limpiar(`${yo?.nombre || por}: ${titulo}${obra ? ` · ${obra}` : ""} · entrega ${cuando(a.fecha_compromiso, hora)}`).slice(0, 220), url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` }); } catch { /* push best effort */ }
   }
   if (avisar === "todo" && esOtro && asignado.phone) {
     const nombre = (asignado.nombre || "").split(" ")[0] || "Hola";
-    const fecha = fechaCorta(a.fecha_compromiso);
+    const fecha = cuando(a.fecha_compromiso, hora);
     const r = await sendWhatsAppTemplateOrFallback(
       { template: "aria_actividad_asignada", params: [nombre, titulo.slice(0, 80), (obra || "oficina").slice(0, 60), fecha], buttonToken: id },
       { template: "aria_tarea_status", params: [nombre, "1", limpiar(`Nueva actividad de ${yo?.nombre || por}: ${titulo.slice(0, 120)}${obra ? ` en ${obra}` : ""}. Entrega: ${fecha}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`)] },
       asignado.phone, { origen: "actividad-asignada", enviadoPor: por },
     );
     notificado = !!r.success;
+  }
+  // 11-Oct-2026 (JJ): también por correo (Resend) a quien se la asignaron, con fecha y hora
+  if (avisar === "todo" && esOtro && asignado.email) {
+    const ok = await correoActividad(db, asignado, { id, titulo, obra, cuando: cuando(a.fecha_compromiso, hora), de: yo?.nombre || por, prioridad, descripcion: a.descripcion || null }, por);
+    notificado = notificado || ok;
   }
   return { ok: true, id, notificado, asignado };
 }
@@ -142,4 +149,42 @@ export async function aplicarRecorrido(db: SupabaseClient, id: string, nuevoFin:
     }
   }
   return cambios.length;
+}
+
+// ── 11-Oct-2026: hora de entrega + correo de actividad asignada ──
+import { sendEmailLogged } from "@/lib/email-log";
+/** "9", "9:5", "09:30", "9:30 am" → "09:30"; inválida → null */
+export function normHora(h?: string | null): string | null {
+  const m = String(h || "").trim().toLowerCase().match(/^(\d{1,2})(?::(\d{1,2}))?\s*(am|pm)?$/);
+  if (!m) return null;
+  let H = Number(m[1]); const M = Number(m[2] || 0);
+  if (m[3] === "pm" && H < 12) H += 12; if (m[3] === "am" && H === 12) H = 0;
+  if (H > 23 || M > 59) return null;
+  return `${String(H).padStart(2, "0")}:${String(M).padStart(2, "0")}`;
+}
+/** "vie 17 oct, 10:00" (o solo la fecha si no hay hora) */
+export function cuando(fecha?: string | null, hora?: string | null): string {
+  const f = fecha ? fechaCorta(fecha) : "sin fecha"; const h = normHora(hora);
+  return h ? `${f}, ${h} h` : f;
+}
+const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+async function correoActividad(db: SupabaseClient, p: Persona, a: { id: string; titulo: string; obra: string | null; cuando: string; de: string; prioridad: string; descripcion: string | null }, por: string): Promise<boolean> {
+  try {
+    // Respeta users.notif_email = false (la persona pidió no recibir correos)
+    const { data: u } = await db.from("users").select("notif_email").eq("email", p.email).maybeSingle();
+    if ((u as { notif_email?: boolean | null } | null)?.notif_email === false) return false;
+    const url = urlActividad(a.id); const nombre = esc((p.nombre || "").split(" ")[0] || "Hola");
+    const urgente = a.prioridad === "URGENTE" || a.prioridad === "ALTA";
+    const fila = (k: string, v: string) => `<tr><td style="padding:6px 0;color:#55657c;font-size:13px;width:110px">${k}</td><td style="padding:6px 0;color:#0f172a;font-size:15px;font-weight:600">${esc(v)}</td></tr>`;
+    const html = `<div style="background:#f6f7fa;padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif">
+<div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e5e8ee;border-radius:18px;overflow:hidden">
+<div style="background:#0060c7;padding:18px 22px;color:#ffffff"><div style="font-size:13px;opacity:.85">Doménica 27 · Nueva actividad</div><div style="font-size:20px;font-weight:800;margin-top:4px">${esc(a.titulo)}</div></div>
+<div style="padding:20px 22px"><p style="margin:0 0 12px;color:#0f172a;font-size:15px">${nombre}, ${esc(a.de)} te asignó esta actividad.</p>
+<table style="width:100%;border-collapse:collapse">${fila("Entrega", a.cuando)}${fila("Obra", a.obra || "Oficina")}${fila("Prioridad", urgente ? (a.prioridad === "URGENTE" ? "Urgente" : "Alta") : "Normal")}</table>
+${a.descripcion ? `<p style="margin:14px 0 0;color:#334155;font-size:14px;line-height:1.45">${esc(a.descripcion.slice(0, 600))}</p>` : ""}
+<a href="${url}" style="display:block;margin-top:20px;background:#0073ea;color:#ffffff;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:14px;border-radius:12px">Abrir la actividad</a>
+<p style="margin:14px 0 0;color:#55657c;font-size:12px">También puedes contestar por WhatsApp: LISTO, AVANCE 50 o BLOQUEADO y el motivo.</p></div></div></div>`;
+    const r = await sendEmailLogged({ template: "actividad_asignada", to: p.email as string, subject: `Nueva actividad: ${a.titulo.slice(0, 80)} · entrega ${a.cuando}`, html, origen: "actividad-asignada", enviadoPor: por, sinCopiaAdmin: true });
+    return r.success;
+  } catch { return false; }
 }

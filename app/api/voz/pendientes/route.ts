@@ -35,9 +35,9 @@ export async function POST(req: NextRequest) {
     if (!empId) return NextResponse.json({ error: "No estás dado de alta en Personal. Pide a RH que te den de alta para guardar pendientes." }, { status: 400 });
     const ids: string[] = []; const errores: string[] = [];
     for (const p of lista) {
-      const titulo = `${p.hora ? `${p.hora} · ` : ""}${String(p.titulo || "").trim()}`.slice(0, 200);
+      const titulo = String(p.titulo || "").trim().slice(0, 200);
       const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(p.fecha || "")) ? String(p.fecha) : hoy;
-      const r = await crearActividad(db, { titulo, asignado_id: empId, fecha_compromiso: fecha, obra_id: p.obra_id || null, prioridad: p.prioridad || "MEDIA", origen: "voz-pendientes" }, me, "nada");
+      const r = await crearActividad(db, { titulo, asignado_id: empId, fecha_compromiso: fecha, obra_id: p.obra_id || null, prioridad: p.prioridad || "MEDIA", origen: "voz-pendientes", hora: p.hora ? String(p.hora) : null }, me, "nada");
       if (r.ok) ids.push(r.id); else errores.push(r.error);
     }
     return NextResponse.json({ ok: true, creados: ids.length, ids, errores });

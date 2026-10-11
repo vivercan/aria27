@@ -74,7 +74,7 @@ interface ReqItem {
 }
 
 /** 11-Oct-2026: color del punto de estado en la lista del celular */
-const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#b85507", EN_COTIZACION: "#b85507", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b" };
+const COLOR_ESTADO: Record<string, string> = { PENDIENTE_RESPONSABLE: "#7e3bdd", PENDIENTE: "#b85507", EN_COTIZACION: "#b85507", EN_AUTORIZACION: "#7e3bdd", APROBADA: "#0073ea", OC_GENERADA: "#0073ea", PAGADA: "#0077ad", ENTREGA_PARCIAL: "#0077ad", ENTREGADA: "#3cde01", RECHAZADA_RESPONSABLE: "#d0304a", RECHAZADA_DIRECCION: "#d0304a", CANCELADA: "#64748b", AUTORIZADA_HISTORICO: "#55657c" };
 
 export default function RequisicionesStatusPage() {
   const { msg, flash, clear } = useFlashMessage();

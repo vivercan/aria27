@@ -3,6 +3,7 @@
  * DELETE /api/actividades/[id] — borrar (quien la asigno, admin o RH)
  * Cada cambio queda en tarea_actualizaciones y avisa por WhatsApp a quien corresponde (aria_tarea_status).
  */
+import { normHora } from "@/lib/actividades-server";
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
@@ -71,6 +72,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return NextResponse.json({ error: "Fecha inválida" }, { status: 400 });
         if ((v || null) !== (t[k] || null)) { cambios[k] = v || null; notas.push(`${k === "fecha_inicio" ? "Inicio" : "Entrega"}: ${v ? fechaCorta(v) : "sin fecha"}`); }
       }
+    }
+    if (b.hora_compromiso !== undefined) {
+      const h = b.hora_compromiso ? normHora(String(b.hora_compromiso)) : null;
+      if (b.hora_compromiso && !h) return NextResponse.json({ error: "Hora inválida" }, { status: 400 });
+      if ((h || null) !== (t.hora_compromiso ? String(t.hora_compromiso).slice(0, 5) : null)) { cambios.hora_compromiso = h; notas.push(h ? `Hora de entrega: ${h}` : "Sin hora de entrega"); }
     }
     if (b.obra_id !== undefined) {
       const oid = String(b.obra_id || "");
