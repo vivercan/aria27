@@ -45,8 +45,7 @@ export default function ObraDomPage() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <Link href="/dashboard/domenica/obras" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obras</Link>
-        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "linear-gradient(135deg,#ff642e,#fdab3d 55%,#ffcb00)", boxShadow: "0 14px 30px -14px #ff642e" }}>
-          <span aria-hidden className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/15" />
+        <div className="relative overflow-hidden rounded-3xl p-5 text-white dom-in" style={{ background: "#ff642e", boxShadow: "0 14px 30px -14px #ff642e" }}>
           <div className="relative flex items-start gap-3">
             <span className="shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center"><Building2 className="w-6 h-6" /></span>
             <div className="flex-1 min-w-0">

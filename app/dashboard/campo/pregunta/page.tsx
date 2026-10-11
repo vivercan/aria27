@@ -47,7 +47,7 @@ function Pregunta() {
 
   const hablar = () => {
     if (oyendo) { reco.current?.stop(); return; }
-    const rc = crearReco(); if (!rc) { setMsgs(m => [...m, { q: "🎤", err: "Este teléfono no deja dictar aquí. Escríbelo abajo." }]); return; }
+    const rc = crearReco(); if (!rc) { setMsgs(m => [...m, { q: "Hablar", err: "Este teléfono no deja dictar aquí. Escríbelo abajo." }]); return; }
     let final = ""; rc.lang = "es-MX"; rc.continuous = false; rc.interimResults = true;
     rc.onresult = e => { let t = ""; final = ""; for (let i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript; if (e.results[i].isFinal) final += e.results[i][0].transcript; } setTexto(t); };
     rc.onerror = () => setOyendo(false);

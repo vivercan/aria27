@@ -116,7 +116,7 @@ export default function CampoHome() {
             <div className="flex-1 min-w-0">
               <p className="text-[12px] text-white/85">{hoyTxt}</p>
               <h1 className="text-[21px] font-bold text-white leading-tight truncate">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
-              <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente 🎉" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
+              <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
             </div>
             {me && <span className="shrink-0 w-10 h-10 text-base rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>

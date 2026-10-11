@@ -57,7 +57,7 @@ export default function DomenicaHub() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
-          <span className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ffcb00] to-[#ff642e] flex items-center justify-center shadow-[0_8px_24px_rgba(255,100,46,0.35)]"><Sun className="w-7 h-7 text-white" /></span>
+          <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#e8760a] flex items-center justify-center shadow-[0_8px_24px_rgba(255,100,46,0.35)]"><Sun className="w-7 h-7 text-white" /></span>
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Lo que Monday promete, conectado a tus obras, requisiciones y personal.</p></div>
         </div>
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">

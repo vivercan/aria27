@@ -29,7 +29,7 @@ const DIBUJOS = {
 };
 
 export function Vacio({ dibujo = "listo", titulo, texto, accion }: { dibujo?: keyof typeof DIBUJOS; titulo: string; texto?: string; accion?: { label: string; href?: string; onClick?: () => void } }) {
-  const btn = "mt-4 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]";
+  const btn = "mt-4 inline-flex items-center justify-center rounded-xl bg-[#0073ea] px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]";
   return (
     <div className="dom-in flex flex-col items-center text-center px-6 py-10">
       {DIBUJOS[dibujo]}

@@ -47,8 +47,7 @@ export default function BitacoraPage() {
     <div className="dom-page h-full overflow-y-auto print:overflow-visible">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
         <Link href={`/dashboard/domenica/obras/${id}`} className="print:hidden inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />Obra</Link>
-        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "linear-gradient(135deg,#0f766e,#0073ea)", boxShadow: "0 14px 30px -14px #0f766e" }}>
-          <span aria-hidden className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10" />
+        <div className="dom-in rounded-3xl p-5 text-white relative overflow-hidden" style={{ background: "#0f766e", boxShadow: "0 14px 30px -14px #0f766e" }}>
           <div className="relative text-[12px] font-bold uppercase tracking-wider text-white/80">Bitácora de obra</div>
           <h1 className="relative text-2xl font-bold leading-tight">{b?.obra.nombre || "…"}</h1>
           <div className="relative mt-3 flex items-center gap-2 print:hidden">
@@ -74,7 +73,7 @@ export default function BitacoraPage() {
             </div>)}
           {(b.registro?.actividades || b.terminadas.length || b.avances.length || b.fotos.length) ? (
             <div className="mt-4 rounded-2xl border border-[#a25ddc]/30 bg-[#a25ddc]/8 p-4">
-              <div className="flex items-center justify-between"><span className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-purple)]">✨ Resumen del día</span>
+              <div className="flex items-center justify-between"><span className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-purple)]">Resumen del día</span>
                 <button onClick={redactar} disabled={redactando} className="print:hidden rounded-lg bg-[var(--d-surface)] px-2.5 py-1 text-[12px] font-semibold text-[var(--d-purple)] disabled:opacity-60">{redactando ? "Redactando…" : b.registro?.actividades ? "Rehacer" : "Redactar con IA"}</button></div>
               {b.registro?.actividades ? <p className="mt-2 text-[14.5px] leading-relaxed text-[var(--d-text)] whitespace-pre-wrap">{b.registro.actividades}</p> : <p className="mt-1 text-[13px] text-[var(--d-muted)]">Toca “Redactar con IA” y se escribe solo con lo que pasó hoy, listo para mandarlo al cliente.</p>}
             </div>) : null}

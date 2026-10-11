@@ -37,7 +37,7 @@ export default function CotizarPublico() {
     <div className="min-h-screen bg-[#eceff4] text-slate-900" style={{ fontFamily: "var(--font-dom), system-ui, sans-serif" }}>
       <header className="bg-white shadow-[0_8px_24px_-16px_rgba(15,23,42,.5)] relative">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0073ea] to-[#7e3bdd] text-white font-extrabold italic flex items-center justify-center">GA</div>
+          <div className="w-10 h-10 rounded-xl bg-[#0073ea] text-white font-extrabold italic flex items-center justify-center">GA</div>
           <div><div className="font-bold leading-tight">Grupo Constructor Urbano Avante</div><div className="text-[12px] text-slate-500">Solicitud de cotización</div></div>
         </div>
         <div className="absolute left-0 right-0 bottom-0 h-[2px]" style={{ background: "linear-gradient(90deg,#0073ea,#7e3bdd 45%,#e2445c 78%,#fdab3d)" }} />
@@ -84,7 +84,7 @@ export default function CotizarPublico() {
               <div className="mt-1 grid grid-cols-2 gap-2">{[["si", "Sí"], ["no", "No"]].map(([v, l]) => <button key={v} type="button" onClick={() => setFactura(v)} className={`rounded-xl py-2.5 font-semibold ${factura === v ? "bg-[#0073ea] text-white" : "bg-slate-100 text-slate-700"}`}>{l}</button>)}</div></div>
             <label className="mt-3 block"><span className="text-[13px] font-semibold text-slate-700">Comentarios (opcional)</span><textarea value={notas} onChange={e => setNotas(e.target.value)} rows={3} className={campo} /></label>
             {msg && <div className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{msg}</div>}
-            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-4 text-base font-bold text-white shadow-[0_12px_28px_-12px_#0073ea] disabled:opacity-60">{enviando ? "Enviando…" : "Enviar cotización"}</button>
+            <button type="button" onClick={enviar} disabled={enviando} className="mt-4 w-full rounded-2xl bg-[#0073ea] py-4 text-base font-bold text-white shadow-[0_12px_28px_-12px_#0073ea] disabled:opacity-60">{enviando ? "Enviando…" : "Enviar cotización"}</button>
             {d.enviadas > 0 && <div className="mt-2 text-center text-[12px] text-slate-500">Ya enviaste {d.enviadas} vez{d.enviadas === 1 ? "" : "es"}; si mandas otra, Compras verá ambas.</div>}
           </div>
           <p className="mt-6 text-center text-[11px] text-slate-400">Este formulario es solo para cotizar esta solicitud. No compartas el link.</p>

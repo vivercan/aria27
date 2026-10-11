@@ -77,12 +77,12 @@ export default function AutomatizacionesPage() {
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
         <Link href="/dashboard/domenica" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
         <div className="flex items-start gap-3">
-          <span className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-[#fdab3d] to-[#ff642e] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
+          <span className="shrink-0 w-11 h-11 rounded-2xl bg-[#e8760a] flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></span>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">Automatizaciones</h1>
             <p className="text-[13px] text-[var(--d-muted)]">Reglas que vigilan por ti: cuando pasa algo, avisan por WhatsApp y al teléfono, o crean una actividad. Se revisan cada 30 minutos, de 7:00 a 20:00.</p>
           </div>
-          {puede && <button onClick={() => setEdit(VACIA())} className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-4 py-2.5 text-sm font-semibold text-white"><Plus className="w-4 h-4" />Nueva</button>}
+          {puede && <button onClick={() => setEdit(VACIA())} className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#0073ea] px-4 py-2.5 text-sm font-semibold text-white"><Plus className="w-4 h-4" />Nueva</button>}
         </div>
 
         {puede && (
@@ -184,7 +184,7 @@ export default function AutomatizacionesPage() {
               <div className="rounded-xl bg-[var(--d-card)] p-3 text-[13px] text-[var(--d-text-2)]"><span className="text-[var(--d-muted)]">Así queda: </span>{describir(edit)}</div>
             </div>
             <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-              <button onClick={guardar} disabled={guardando} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white disabled:opacity-60">{guardando ? "Guardando…" : "Guardar"}</button>
+              <button onClick={guardar} disabled={guardando} className="w-full rounded-xl bg-[#0073ea] py-3 text-sm font-bold text-white disabled:opacity-60">{guardando ? "Guardando…" : "Guardar"}</button>
             </div>
           </div>
         </div>
