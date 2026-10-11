@@ -25,14 +25,15 @@ export default function CampoHome() {
   const [saludo, setSaludo] = useState("Hola"); const [hoyTxt, setHoyTxt] = useState("");
   const [isIos, setIsIos] = useState(false); const [verInstalar, setVerInstalar] = useState(false);
   const [push, setPush] = useState<string>(""); const [pushBusy, setPushBusy] = useState(false); const [pushMsg, setPushMsg] = useState("");
-  useEffect(() => { estadoPush().then(setPush).catch(() => setPush("no-soportado")); }, []);
+  const [pushOculto, setPushOculto] = useState(true);
+  useEffect(() => { estadoPush().then(setPush).catch(() => setPush("no-soportado")); try { const t = Number(localStorage.getItem("dom:push-oculto") || 0); setPushOculto(Date.now() - t < 7 * 864e5); } catch { setPushOculto(false); } }, []);
   const onActivarPush = async () => { setPushBusy(true); setPushMsg(""); const r = await activarPush(); setPushBusy(false); if (r.ok) { setPush("activo"); setPushMsg("¡Listo! Te mandamos una notificación de prueba."); } else setPushMsg(r.error || "No se pudo activar"); };
 
   useEffect(() => {
     const ua = navigator.userAgent; setIsIos(/iPhone|iPad|iPod/i.test(ua));
     const d = new Date(); const h = d.getHours();
     setSaludo(h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches");
-    setHoyTxt(d.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" }));
+    const fx = d.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" }); setHoyTxt(fx.charAt(0).toUpperCase() + fx.slice(1));
     const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
     let oculto = false; try { oculto = localStorage.getItem("aria:instalar-oculto") === "1"; localStorage.setItem("aria:modo", "campo"); } catch {}
     setVerInstalar(!standalone && !oculto);
@@ -94,7 +95,7 @@ export default function CampoHome() {
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[#579bfc]/20 blur-2xl" />
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] text-white/85 capitalize">{hoyTxt}</p>
+              <p className="text-[13px] text-white/85">{hoyTxt}</p>
               <h1 className="text-[26px] font-bold text-white leading-tight">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
               <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente 🎉" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
             </div>
@@ -103,7 +104,7 @@ export default function CampoHome() {
         </div>
 
         {/* Notificaciones del telefono */}
-        {(push === "pendiente" || push === "instalar-primero" || push === "bloqueado" || pushMsg) && (
+        {(push === "pendiente" || ((push === "instalar-primero" || push === "bloqueado") && !pushOculto) || pushMsg) && (
           <div className="mt-3 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
             <div className="flex items-center gap-3">
               <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
@@ -111,6 +112,7 @@ export default function CampoHome() {
                 <div className="text-sm font-bold text-white">{push === "activo" ? "Notificaciones activas" : "Que te avise el teléfono"}</div>
                 <div className="text-[12px] text-white/85">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega Doménica 27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
               </div>
+              {(push === "bloqueado" || push === "instalar-primero") && <button onClick={() => { setPushOculto(true); try { localStorage.setItem("dom:push-oculto", String(Date.now())); } catch { /* */ } }} className="shrink-0 self-start -m-1 p-1.5 rounded-lg text-white/80" aria-label="Ocultar aviso"><X className="w-4 h-4" /></button>}
               {push === "pendiente" && <button onClick={onActivarPush} disabled={pushBusy} className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#3b1d6e] active:scale-95 disabled:opacity-60">{pushBusy ? "…" : "Activar"}</button>}
             </div>
           </div>
@@ -133,7 +135,8 @@ export default function CampoHome() {
         {/* Acciones grandes */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           {acciones.map(({ href, t, d, icon: Icon, from, to }) => (
-            <Link key={href} href={href} className="rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition shadow-[0_6px_18px_rgba(15,23,42,0.18)]" style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
+            <Link key={href} href={href} className="relative overflow-hidden rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition" style={{ background: `linear-gradient(135deg, ${from}, ${to})`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.28), 0 12px 24px -12px ${from}` }}>
+              <span aria-hidden className="pointer-events-none absolute -right-8 -bottom-10 w-28 h-28 rounded-full bg-white/[0.12]" />
               <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center"><Icon className="w-6 h-6 text-white" /></span>
               <div><div className="text-[15px] font-bold text-white">{t}</div><div className="text-[11.5px] text-white/80">{d}</div></div>
             </Link>

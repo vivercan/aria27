@@ -2,7 +2,7 @@
  * - Notificaciones del telefono (Web Push)
  * - Sin senal: abre las pantallas y muestra lo ultimo que se cargo
  * Nunca guarda respuestas de /api (sesion, escrituras). */
-const VERSION = "aria27-v1";
+const VERSION = "aria27-v2"; // subir en cada cambio visual grande: borra lo guardado de la version anterior
 const PAGES = `${VERSION}-pages`, ASSETS = `${VERSION}-assets`, DATA = `${VERSION}-data`;
 const PRECACHE = ["/dashboard/campo", "/dashboard/actividades", "/manifest.webmanifest", "/icons/icon-192.png"];
 
@@ -35,7 +35,7 @@ self.addEventListener("fetch", (e) => {
   }
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then((r) => { if (r.ok && url.pathname.startsWith("/dashboard")) { const cp = r.clone(); caches.open(PAGES).then((c) => c.put(req, cp)); } return r; })
-      .catch(() => caches.match(req).then((m) => m || caches.match("/dashboard/campo")).then((m) => m || offlineHtml())));
+      .catch(() => caches.match(req, { ignoreSearch: true }).then((m) => m || caches.match("/dashboard/campo")).then((m) => m || offlineHtml())));
   }
 });
 
