@@ -37,5 +37,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const que = texto ? `"${texto.slice(0, 200)}"` : foto ? "una foto" : "un archivo";
     notificado = await avisarWA(destino, `${yo?.nombre || me} comentó en "${t.titulo}": ${que}${foto && texto ? " (con foto)" : ""}. Revísalo en ARIA27 › Actividades.`, "actividad-comentario", me, { title: `💬 ${yo?.nombre || "Comentario"} · ${t.titulo.slice(0, 40)}`, url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
   }
-  return NextResponse.json({ ok: true, notificado });
+  // 11-Oct-2026 · Menciones (@Nombre): avisa a cada persona mencionada (push + WhatsApp)
+  const menciones = Array.isArray(b.menciones) ? [...new Set((b.menciones as unknown[]).map(String))].slice(0, 10) : [];
+  let mencionados = 0;
+  for (const empId of menciones) {
+    const p = await personaPorEmpleado(db, empId);
+    if (!p || !p.email || p.email === me || (destino && destino.email === p.email && notificado)) continue;
+    const ok = await avisarWA(p, `${yo?.nombre || me} te mencionó en "${t.titulo}"${t.obra ? ` (${t.obra})` : ""}: "${(texto || "una foto").slice(0, 200)}". Revísalo en Doménica 27 › Actividades.`, "actividad-mencion", me, { title: `💬 ${yo?.nombre || "Te mencionaron"}`, url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
+    if (ok || p.email) mencionados++;
+  }
+  return NextResponse.json({ ok: true, notificado, mencionados });
 }

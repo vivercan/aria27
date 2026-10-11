@@ -15,6 +15,8 @@ export type Actividad = {
   asignado_por_email?: string | null;
   obra?: string | null;
   obra_id?: string | null;
+  depende_de?: string | null;
+  origen?: string | null;
   avance?: number | null;
   fecha_inicio?: string | null;
   fecha_compromiso?: string | null;

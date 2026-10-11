@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { avisarWA, personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
+import { avisarWA, avisarDependientes, personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
 import { COLUMNAS, cambiosPorAvance, cambiosPorColumna, columnaDe, fechaCorta, type Actividad, type ColumnaId } from "@/lib/actividades";
 import { logger } from "@/lib/logger";
 
@@ -72,6 +72,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       }
       notas.push(`Obra: ${cambios.obra || "sin obra"}`);
     }
+    if (b.depende_de !== undefined) {
+      const dep = String(b.depende_de || "");
+      if (!dep) { if (t.depende_de) { cambios.depende_de = null; notas.push("Ya no espera a otra actividad"); } }
+      else if (dep !== t.depende_de) {
+        if (dep === id) return NextResponse.json({ error: "No puede esperarse a sí misma" }, { status: 400 });
+        const { data: p } = await db.from("tareas_asignadas").select("id, titulo, depende_de").eq("id", dep).maybeSingle();
+        if (!p) return NextResponse.json({ error: "Esa actividad ya no existe" }, { status: 400 });
+        if ((p as { depende_de?: string }).depende_de === id) return NextResponse.json({ error: "Esa actividad ya está esperando a esta; se harían un círculo" }, { status: 400 });
+        cambios.depende_de = dep; notas.push(`Espera a "${(p as { titulo: string }).titulo}"`);
+      }
+    }
     let nuevoAsignado = null as Awaited<ReturnType<typeof personaPorEmpleado>>;
     if (typeof b.asignado_id === "string" && b.asignado_id && b.asignado_id !== t.asignado_id) {
       nuevoAsignado = await personaPorEmpleado(db, b.asignado_id);
@@ -98,6 +109,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me, { title: "✅ Actividad terminada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
       else if (colDespues === "BLOQUEADA") await avisarWA(asignador, `La actividad "${nueva.titulo}"${obraTxt} está atorada: ${nueva.motivo_bloqueo}. Avisó ${quien}.`, "actividad-atorada", me, { title: "⚠️ Actividad atorada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }
+    if (colDespues === "TERMINADA" && colAntes !== "TERMINADA") { try { await avisarDependientes(db, nueva, me); } catch (e) { log.warn("dependientes", { error: (e as Error)?.message }); } }
     if (nuevoAsignado && nuevoAsignado.email !== me) {
       await avisarWA(nuevoAsignado, `${quien} te pasó la actividad "${nueva.titulo}"${obraTxt}. Entrega: ${fechaCorta(nueva.fecha_compromiso) || "sin fecha"}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`, "actividad-reasignada", me, { title: "📋 Te pasaron una actividad", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }

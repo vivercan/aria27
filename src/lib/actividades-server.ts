@@ -51,3 +51,75 @@ export function urlActividad(id: string): string {
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://aria.jjcrm27.com";
   return `${base.replace(/\/$/, "")}/dashboard/actividades?abrir=${id}`;
 }
+
+// ── 11-Oct-2026: creación compartida (botón Nueva, plantillas, recurrentes, automatizaciones) ──
+import { sendWhatsAppTemplateOrFallback } from "@/lib/whatsapp";
+import { fechaCorta } from "@/lib/actividades";
+
+const PRIOS_CREAR = ["URGENTE", "ALTA", "MEDIA", "BAJA"];
+export type NuevaActividad = {
+  titulo: string; descripcion?: string | null; asignado_id: string; fecha_compromiso: string; fecha_inicio?: string | null;
+  obra_id?: string | null; obra?: string | null; prioridad?: string | null; checklist?: string[]; depende_de?: string | null; origen?: string | null;
+};
+/** Crea una actividad. avisar: "todo" = push + WhatsApp al responsable; "push" = solo notificación; "nada" = sin avisos. */
+export async function crearActividad(db: SupabaseClient, a: NuevaActividad, porEmail: string, avisar: "todo" | "push" | "nada" = "todo"):
+  Promise<{ ok: true; id: string; notificado: boolean; asignado: Persona } | { ok: false; error: string; status: number }> {
+  const titulo = String(a.titulo || "").trim().slice(0, 200);
+  if (!titulo) return { ok: false, error: "Escribe qué hay que hacer", status: 400 };
+  if (!a.asignado_id) return { ok: false, error: "Elige quién la hace", status: 400 };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(a.fecha_compromiso || "")) return { ok: false, error: "Elige la fecha de entrega", status: 400 };
+  const asignado = await personaPorEmpleado(db, a.asignado_id);
+  if (!asignado) return { ok: false, error: "Esa persona no está en el personal", status: 400 };
+  const por = porEmail.toLowerCase();
+  const yo = await personaPorEmail(db, por);
+  let obra: string | null = null; let obraId: string | null = null;
+  if (a.obra_id) {
+    const { data: o } = await db.from("centros_trabajo").select("id, nombre").eq("id", a.obra_id).maybeSingle();
+    if (o) { obraId = (o as { id: string }).id; obra = (o as { nombre: string }).nombre; }
+  }
+  const prioridad = PRIOS_CREAR.includes(String(a.prioridad || "").toUpperCase()) ? String(a.prioridad).toUpperCase() : "MEDIA";
+  const fechaInicio = /^\d{4}-\d{2}-\d{2}$/.test(String(a.fecha_inicio || "")) ? String(a.fecha_inicio) : null;
+  const { data: ins, error } = await db.from("tareas_asignadas").insert({
+    titulo, descripcion: String(a.descripcion || "").trim().slice(0, 2000) || null,
+    asignado_id: a.asignado_id, asignado_nombre: asignado.nombre, asignado_email: asignado.email,
+    asignado_por: por, asignado_por_email: por,
+    obra: obra || (String(a.obra || "").trim() || null), obra_id: obraId,
+    fecha_inicio: fechaInicio, fecha_compromiso: a.fecha_compromiso,
+    prioridad, estatus: "PENDIENTE", avance: 0, depende_de: a.depende_de || null, origen: a.origen || null,
+  }).select("id").single();
+  if (error || !ins) return { ok: false, error: error?.message || "No se pudo crear", status: 500 };
+  const id = (ins as { id: string }).id;
+  const checklist = (a.checklist || []).map(x => String(x || "").trim()).filter(Boolean).slice(0, 30);
+  if (checklist.length) await db.from("tarea_checklist").insert(checklist.map((texto, i) => ({ tarea_id: id, texto: texto.slice(0, 200), orden: i })));
+  await registrarActualizacion(db, { tarea_id: id, autor_email: por, autor_nombre: yo?.nombre, tipo: "sistema", texto: `Creó la actividad y se la asignó a ${asignado.nombre}${a.origen ? ` (${a.origen})` : ""}` });
+
+  let notificado = false;
+  const esOtro = (asignado.email || "") !== por;
+  if (avisar !== "nada" && esOtro && asignado.email) {
+    try { await pushAEmail(asignado.email, { title: "📋 Nueva actividad", body: limpiar(`${yo?.nombre || por}: ${titulo}${obra ? ` · ${obra}` : ""} · entrega ${fechaCorta(a.fecha_compromiso)}`).slice(0, 220), url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` }); } catch { /* push best effort */ }
+  }
+  if (avisar === "todo" && esOtro && asignado.phone) {
+    const nombre = (asignado.nombre || "").split(" ")[0] || "Hola";
+    const fecha = fechaCorta(a.fecha_compromiso);
+    const r = await sendWhatsAppTemplateOrFallback(
+      { template: "aria_actividad_asignada", params: [nombre, titulo.slice(0, 80), (obra || "oficina").slice(0, 60), fecha], buttonToken: id },
+      { template: "aria_tarea_status", params: [nombre, "1", limpiar(`Nueva actividad de ${yo?.nombre || por}: ${titulo.slice(0, 120)}${obra ? ` en ${obra}` : ""}. Entrega: ${fecha}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`)] },
+      asignado.phone, { origen: "actividad-asignada", enviadoPor: por },
+    );
+    notificado = !!r.success;
+  }
+  return { ok: true, id, notificado, asignado };
+}
+
+/** Cuando una actividad se termina, avisa a quienes la estaban esperando (dependencias). */
+export async function avisarDependientes(db: SupabaseClient, terminada: { id: string; titulo: string; obra?: string | null }, porEmail: string): Promise<number> {
+  const { data } = await db.from("tareas_asignadas").select("id, titulo, asignado_id, estatus").eq("depende_de", terminada.id).in("estatus", ["PENDIENTE", "EN_PROGRESO"]);
+  let n = 0;
+  for (const s of (data || []) as { id: string; titulo: string; asignado_id: string }[]) {
+    const p = await personaPorEmpleado(db, s.asignado_id);
+    if (!p || p.email === porEmail.toLowerCase()) continue;
+    await registrarActualizacion(db, { tarea_id: s.id, autor_email: porEmail, tipo: "sistema", texto: `Ya puedes empezar: se terminó "${terminada.titulo}"` });
+    if (await avisarWA(p, `Ya puedes empezar "${s.titulo}"${terminada.obra ? ` (${terminada.obra})` : ""}: se terminó "${terminada.titulo}".`, "actividad-dependencia", porEmail, { title: "▶️ Ya puedes empezar", url: `/dashboard/actividades?abrir=${s.id}`, tag: `act-${s.id}` })) n++;
+  }
+  return n;
+}

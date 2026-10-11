@@ -22,7 +22,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { sendEmailLogged } from "@/lib/email-log";
 import { ariaEmailHeader, ariaEmailFooter, ariaEmailWrapper } from "@/lib/email-templates";
-import { logger } from "@/lib/logger"; import { notifyOps } from "@/lib/notify-ops";
+import { logger } from "@/lib/logger"; import { avisarDependientes } from "@/lib/actividades-server"; import { notifyOps } from "@/lib/notify-ops";
 
 const log = logger("TAREAS-RESPUESTA");
 
@@ -476,7 +476,9 @@ async function procesarRespuesta(
     await notificarAsignador(supabase, tarea, "INICIADA", `${nombre} comenzo la tarea.`);
   }
   if (parsed.intent === "LISTO") {
-    await notificarAsignador(supabase, tarea, "COMPLETADA", `${nombre} marco la tarea como terminada.`); await notifyOps({ evento: "TAREA_COMPLETADA", resumen: nombre + " completo: " + tarea.titulo, actor: emailEmpleado || nombre }).catch(() => {});
+    await notificarAsignador(supabase, tarea, "COMPLETADA", `${nombre} marco la tarea como terminada.`);
+    try { await avisarDependientes(supabase, { id: tarea.id, titulo: tarea.titulo, obra: (tarea as { obra?: string | null }).obra }, emailEmpleado || "whatsapp"); } catch { /* best effort */ }
+    await notifyOps({ evento: "TAREA_COMPLETADA", resumen: nombre + " completo: " + tarea.titulo, actor: emailEmpleado || nombre }).catch(() => {});
   }
   if (parsed.intent === "BLOQUEADO") {
     await notificarAsignador(supabase, tarea, "BLOQUEADO", `${nombre} reporta bloqueo: ${motivoBloqueo}`);

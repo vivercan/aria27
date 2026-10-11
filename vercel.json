@@ -39,6 +39,10 @@
     {
       "path": "/api/cron/automatizaciones",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/actividades-recurrentes",
+      "schedule": "0 12 * * *"
     }
   ]
 }

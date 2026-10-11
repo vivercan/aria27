@@ -15,8 +15,9 @@ import {
 } from "@/lib/actividades";
 import {
   Plus, X, Search, LayoutGrid, List, Sun, Camera, Send, Trash2, CheckSquare, Square, MessageSquare, CalendarDays, Loader2,
-  ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon, GanttChart,
+  ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon, GanttChart, Hourglass,
 } from "lucide-react";
+import { mencionesEnTexto } from "@/lib/plantillas";
 
 type Emp = { id: string; full_name: string; whatsapp?: string | null };
 type Obra = { id: string; nombre: string };
@@ -28,6 +29,13 @@ type Ambito = "mias" | "asigne" | "todas";
 const SUPER = ["admin", "administrador", "rh", "direccion", "validador"];
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+/** Pinta en azul los @Nombre de un comentario */
+function resaltarMenciones(texto: string, personas: { id: string; nombre: string }[]): React.ReactNode {
+  const nombres = personas.map(p => p.nombre).filter(n => n && texto.toLowerCase().includes("@" + n.toLowerCase())).sort((a, b) => b.length - a.length);
+  if (!nombres.length) return texto;
+  const re = new RegExp("(" + nombres.map(n => "@" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+  return texto.split(re).map((parte, i) => i % 2 === 1 ? <span key={i} className="font-semibold text-[var(--d-link)] bg-[#0073ea]/10 rounded px-0.5">{parte}</span> : parte);
+}
 
 // ── Cola sin señal (10-Oct-2026): si no hay conexión, el cambio se guarda en el teléfono y se envía al volver la señal ──
 const COLA = "aria:cola-actividades";
@@ -143,6 +151,8 @@ export default function ActividadesPage() {
         setVista((sp.get("vista") as Vista) || (movil ? "mi" : "tablero"));
         setAmbito(SUPER.includes(role) ? "todas" : "mias");
         if (sp.get("nueva") === "1") setNueva(true);
+        if (sp.get("persona")) { setFPersona(sp.get("persona") || ""); setAmbito("todas"); }
+        if (sp.get("obra")) setFObra(sp.get("obra") || "");
         if (sp.get("abrir") || sp.get("id")) setAbierta(sp.get("abrir") || sp.get("id"));
         const [{ data: e }, { data: o }, { data: mine }] = await Promise.all([
           supabase.from("employees").select("id, full_name, whatsapp").eq("status", "ACTIVO").order("full_name"),
@@ -224,7 +234,7 @@ export default function ActividadesPage() {
     const prio = PRIORIDADES.find(p => p.id === prioridadDe(a.prioridad));
     return (
       <button key={a.id} data-card type="button" draggable={vista === "tablero"} onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => { if (suprimirClick.current) { suprimirClick.current = false; return; } setAbierta(a.id); }}
-        className={`group w-full text-left rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] hover:bg-[var(--d-surface)] hover:border-[var(--d-border)] active:scale-[0.99] transition shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
+        className={`group w-full text-left rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] hover:bg-[var(--d-surface)] hover:border-[var(--d-border)] active:scale-[0.99] transition shadow-[var(--d-shadow)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
         <div className="flex">
           <span className="w-1 shrink-0" style={{ background: COLUMNAS.find(c => c.id === col)!.color }} />
           <div className="flex-1 min-w-0 p-3 space-y-2">
@@ -233,13 +243,14 @@ export default function ActividadesPage() {
                 onClick={e => { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); if (col !== "TERMINADA") mover(a.id, "TERMINADA"); } }}
                 className="-m-2 p-2 shrink-0 inline-flex">
-                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00c875] border-[#00c875] text-[#06281a]" : "border-[#5f7390] hover:border-[#00c875] hover:bg-[#00c875]/15"}`}>
+                <span className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${col === "TERMINADA" ? "bg-[#00c875] border-[#00c875] text-[#06281a]" : "border-[var(--d-faint)] hover:border-[#00c875] hover:bg-[#00c875]/15"}`}>
                   {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
                 </span>
               </span>
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
+            {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><Hourglass className="w-3 h-3 shrink-0" /><span className="truncate">Espera a: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
@@ -247,7 +258,7 @@ export default function ActividadesPage() {
               <Avatar nombre={a.asignado_nombre} size={24} />
               <Fecha a={a} />
               <span className="ml-auto flex items-center gap-2 text-[11px] text-[var(--d-muted)]">
-                {cl.length > 0 && <span className={`inline-flex items-center gap-0.5 ${hechos === cl.length ? "text-[#5be3a8]" : ""}`}><CheckSquare className="w-3 h-3" />{hechos}/{cl.length}</span>}
+                {cl.length > 0 && <span className={`inline-flex items-center gap-0.5 ${hechos === cl.length ? "text-[var(--d-ok)]" : ""}`}><CheckSquare className="w-3 h-3" />{hechos}/{cl.length}</span>}
                 {nUpd > 0 && <span className="inline-flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{nUpd}</span>}
                 <span className="font-semibold text-[var(--d-text-2)]">{Number(a.avance) || 0}%</span>
               </span>
@@ -394,7 +405,7 @@ export default function ActividadesPage() {
           <div className={`${verFiltros ? "flex" : "hidden"} md:flex w-full md:w-auto flex-wrap gap-2 md:flex-1`}>
           <div className="relative flex-1 min-w-[160px]">
             <Search className="w-4 h-4 text-[var(--d-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar actividad, obra o persona" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] pl-9 pr-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar actividad, obra o persona" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] pl-9 pr-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           </div>
           <select value={fObra} onChange={e => setFObra(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
           {esSuper && <select value={fPersona} onChange={e => setFPersona(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las personas</option>{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select>}
@@ -473,7 +484,7 @@ export default function ActividadesPage() {
       )}
 
       {actual && me && (
-        <Ficha key={actual.id} a={actual} me={me} emps={emps} obras={obras} checklist={chkDe(actual.id)} esSuper={esSuper}
+        <Ficha key={actual.id} a={actual} todas={acts} me={me} emps={emps} obras={obras} checklist={chkDe(actual.id)} esSuper={esSuper}
           onClose={() => { setAbierta(null); try { const u = new URL(window.location.href); u.searchParams.delete("abrir"); u.searchParams.delete("id"); window.history.replaceState(null, "", u.toString()); } catch {} }}
           onPatch={(body, opt) => patch(actual.id, body, opt)} onMover={(col) => mover(actual.id, col)}
           onChk={setChk} onUpd={() => setUpdCount(c => ({ ...c, [actual.id]: (c[actual.id] || 0) + 1 }))}
@@ -488,8 +499,8 @@ export default function ActividadesPage() {
 }
 
 /* ───────────────────────── Ficha de la actividad ───────────────────────── */
-function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMover, onChk, onUpd, onDeleted, flash }: {
-  a: Actividad; me: { email: string; role: string; name: string }; emps: Emp[]; obras: Obra[]; checklist: Chk[]; esSuper: boolean;
+function Ficha({ a, todas, me, emps, obras, checklist, esSuper, onClose, onPatch, onMover, onChk, onUpd, onDeleted, flash }: {
+  a: Actividad; todas: Actividad[]; me: { email: string; role: string; name: string }; emps: Emp[]; obras: Obra[]; checklist: Chk[]; esSuper: boolean;
   onClose: () => void; onPatch: (b: Record<string, unknown>, opt?: Partial<Actividad>) => Promise<boolean>; onMover: (c: ColumnaId) => void;
   onChk: React.Dispatch<React.SetStateAction<Chk[]>>; onUpd: () => void; onDeleted: () => void; flash: (t: "ok" | "err", m: string) => void;
 }) {
@@ -498,6 +509,23 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
   const [avance, setAvance] = useState(Number(a.avance) || 0);
   const [upds, setUpds] = useState<Upd[]>([]); const [txt, setTxt] = useState(""); const [enviando, setEnviando] = useState(false);
   const [nuevoChk, setNuevoChk] = useState("");
+  const [sugMencion, setSugMencion] = useState<{ q: string; desde: number } | null>(null);
+  const txtRef = useRef<HTMLTextAreaElement>(null);
+  const candidatos = useMemo(() => emps.map(e => ({ id: e.id, nombre: e.full_name })), [emps]);
+  const onTxt = (v: string, caret: number) => {
+    setTxt(v);
+    const antes = v.slice(0, caret); const m = antes.match(/(^|\s)@([^\s@]{0,20})$/);
+    setSugMencion(m ? { q: m[2], desde: caret - m[2].length - 1 } : null);
+  };
+  const elegirMencion = (nombre: string) => {
+    if (!sugMencion) return;
+    const caret = txtRef.current?.selectionStart ?? txt.length;
+    const nuevo = txt.slice(0, sugMencion.desde) + "@" + nombre + " " + txt.slice(caret);
+    setTxt(nuevo); setSugMencion(null); setTimeout(() => txtRef.current?.focus(), 0);
+  };
+  const sugeridas = sugMencion ? emps.filter(e => norm(e.full_name).includes(norm(sugMencion.q))).slice(0, 6) : [];
+  const espera = a.depende_de ? todas.find(x => x.id === a.depende_de) || null : null;
+  const opcionesEspera = useMemo(() => todas.filter(x => x.id !== a.id && x.depende_de !== a.id && columnaDe(x) !== "TERMINADA").sort((x, y) => (x.obra_id === a.obra_id ? 0 : 1) - (y.obra_id === a.obra_id ? 0 : 1)).slice(0, 200), [todas, a.id, a.obra_id]);
   const fileRef = useRef<HTMLInputElement>(null);
   const puedeBorrar = laAsigneYo(a, me.email) || ["admin", "administrador", "rh"].includes(me.role);
   const puedeEditar = esSuper || esMia(a, me.email) || laAsigneYo(a, me.email);
@@ -514,7 +542,7 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
     if (!txt.trim() && !fotoUrl && !archivo) return;
     setEnviando(true);
     try {
-      const r = await api<{ encolado?: boolean }>(`/api/actividades/${a.id}/actualizacion`, "POST", { texto: txt.trim(), foto_url: fotoUrl, archivo_url: archivo?.url, archivo_nombre: archivo?.nombre });
+      const r = await api<{ encolado?: boolean }>(`/api/actividades/${a.id}/actualizacion`, "POST", { texto: txt.trim(), foto_url: fotoUrl, archivo_url: archivo?.url, archivo_nombre: archivo?.nombre, menciones: mencionesEnTexto(txt, candidatos) });
       if (r.encolado) { setUpds(p => [{ id: "local-" + Date.now(), tarea_id: a.id, autor_nombre: me.name, tipo: "comentario", texto: `${txt.trim()} (se enviará al volver la señal)`, created_at: new Date().toISOString() }, ...p]); setTxt(""); return; }
       setTxt(""); onUpd(); await cargarUpds();
     } catch (e) { flash("err", (e as Error).message); } finally { setEnviando(false); }
@@ -602,8 +630,17 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
                 <button key={p.id} disabled={!puedeEditar} onClick={() => onPatch({ prioridad: p.id }, { prioridad: p.id })} className={`rounded-lg py-2 text-xs font-semibold ${prioridadDe(a.prioridad) === p.id ? "text-white" : "text-[var(--d-muted)] bg-[var(--d-card)]"}`} style={prioridadDe(a.prioridad) === p.id ? { background: p.color } : undefined}>{p.label}</button>))}</div></div>
           </div>
 
+          <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><Hourglass className="w-3 h-3" />Espera a (no se puede empezar antes)</span>
+            <select disabled={!puedeEditar} value={a.depende_de || ""} onChange={e => onPatch({ depende_de: e.target.value || null }, { depende_de: e.target.value || null })} className="mt-1 w-full rounded-xl px-3 py-2 text-sm">
+              <option value="">No espera a ninguna</option>
+              {espera && !opcionesEspera.some(x => x.id === espera.id) && <option value={espera.id}>{espera.titulo} (terminada)</option>}
+              {opcionesEspera.map(x => <option key={x.id} value={x.id}>{x.titulo}{x.obra ? ` · ${x.obra}` : ""}</option>)}
+            </select>
+            {espera && <div className={`mt-1.5 text-xs ${columnaDe(espera) === "TERMINADA" ? "text-[var(--d-ok)]" : "text-[var(--d-warn)]"}`}>{columnaDe(espera) === "TERMINADA" ? "✓ Ya se terminó, puedes avanzar" : `⏳ ${espera.asignado_nombre || "Alguien"} todavía no la termina. Te avisamos cuando quede.`}</div>}
+          </label>
+
           <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Descripción</span>
-            <textarea value={desc} disabled={!puedeEditar} onChange={e => setDesc(e.target.value)} onBlur={() => { if (desc !== (a.descripcion || "")) onPatch({ descripcion: desc }, { descripcion: desc }); }} rows={3} placeholder="Detalles, medidas, a quién buscar…" className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" /></label>
+            <textarea value={desc} disabled={!puedeEditar} onChange={e => setDesc(e.target.value)} onBlur={() => { if (desc !== (a.descripcion || "")) onPatch({ descripcion: desc }, { descripcion: desc }); }} rows={3} placeholder="Detalles, medidas, a quién buscar…" className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" /></label>
 
           {/* Checklist */}
           <div>
@@ -615,7 +652,7 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
                 <span className={`flex-1 text-sm ${c.hecho ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{c.texto}</span>
                 <button onClick={() => delChk(c)} className="opacity-60 md:opacity-0 group-hover:opacity-100 p-1 text-[var(--d-muted)] hover:text-[var(--d-danger)]" aria-label="Quitar paso"><X className="w-3.5 h-3.5" /></button>
               </div>))}</div>
-            <div className="mt-1 flex gap-2"><input value={nuevoChk} onChange={e => setNuevoChk(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addChk(); }} placeholder="Agregar paso…" className="flex-1 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
+            <div className="mt-1 flex gap-2"><input value={nuevoChk} onChange={e => setNuevoChk(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addChk(); }} placeholder="Agregar paso…" className="flex-1 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
               <button onClick={addChk} className="rounded-xl bg-[var(--d-card-2)] px-3 text-[var(--d-text)]" aria-label="Agregar paso"><Plus className="w-4 h-4" /></button></div>
           </div>
 
@@ -623,7 +660,9 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Actualizaciones</div>
             <div className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-2">
-              <textarea value={txt} onChange={e => setTxt(e.target.value)} rows={2} placeholder="Escribe una actualización o pregunta…" className="w-full bg-transparent p-2 text-sm text-[var(--d-text)] placeholder-[#5f7390] focus:outline-none" />
+              {sugeridas.length > 0 && <div className="mb-1 rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] shadow-[var(--d-shadow)] overflow-hidden">{sugeridas.map(e => (
+                <button key={e.id} type="button" onMouseDown={ev => ev.preventDefault()} onClick={() => elegirMencion(e.full_name)} className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-[var(--d-text)] hover:bg-[var(--d-hover)]"><Avatar nombre={e.full_name} size={24} />{e.full_name}</button>))}</div>}
+              <textarea ref={txtRef} value={txt} onChange={e => onTxt(e.target.value, e.target.selectionStart ?? e.target.value.length)} rows={2} placeholder="Escribe una actualización… usa @ para avisarle a alguien" className="w-full bg-transparent p-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)] focus:outline-none" />
               <div className="flex items-center gap-2 px-1 pb-1">
                 <input ref={fileRef} type="file" accept="image/*,application/pdf" capture="environment" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) subir(f); e.target.value = ""; }} />
                 <button onClick={() => fileRef.current?.click()} disabled={enviando} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-2 text-xs text-[var(--d-text-2)]"><Camera className="w-4 h-4" />Foto</button>
@@ -637,7 +676,7 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
                   <Avatar nombre={u.autor_nombre || u.autor_email} size={30} />
                   <div className="flex-1 min-w-0">
                     <div className="text-xs"><span className="font-semibold text-[var(--d-text)]">{u.autor_nombre || u.autor_email || "Sistema"}</span> <span className="text-[var(--d-faint)]">· {haceCuanto(u.created_at)}</span></div>
-                    {u.texto && <div className={`mt-0.5 text-sm whitespace-pre-wrap break-words ${u.tipo === "estado" || u.tipo === "sistema" ? "text-[var(--d-muted)] italic" : u.tipo === "whatsapp" ? "text-[#5be3a8]" : "text-[#e6eefa]"}`}>{u.texto}</div>}
+                    {u.texto && <div className={`mt-0.5 text-sm whitespace-pre-wrap break-words ${u.tipo === "estado" || u.tipo === "sistema" ? "text-[var(--d-muted)] italic" : u.tipo === "whatsapp" ? "text-[var(--d-ok)]" : "text-[var(--d-text)]"}`}>{resaltarMenciones(u.texto, candidatos)}</div>}
                     {u.foto_url && <a href={u.foto_url} target="_blank" rel="noreferrer" className="mt-1.5 block"><img src={u.foto_url} alt="Foto de avance" className="rounded-xl max-h-60 border border-[var(--d-border)]" /></a>}
                     {u.archivo_url && <a href={u.archivo_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-sm text-[var(--d-link)] underline"><Paperclip className="w-3.5 h-3.5" />{u.archivo_nombre || "Archivo"}</a>}
                   </div>
@@ -681,10 +720,10 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[#5f7390]" />
+          <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace?</div>
-            {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />}
+            {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
               {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
@@ -705,8 +744,8 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
             <div><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Prioridad</span>
               <div className="mt-1 grid grid-cols-4 gap-1">{PRIORIDADES.map(p => <button key={p.id} onClick={() => setF({ ...f, prioridad: p.id })} className={`rounded-lg py-2 text-[11px] font-semibold ${f.prioridad === p.id ? "text-white" : "text-[var(--d-muted)] bg-[var(--d-card)]"}`} style={f.prioridad === p.id ? { background: p.color } : undefined}>{p.label}</button>)}</div></div>
           </div>
-          <textarea value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} rows={2} placeholder="Detalles (opcional)" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
-          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
+          <textarea value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} rows={2} placeholder="Detalles (opcional)" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
+          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
         </div>
         <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] disabled:opacity-60">{busy ? "Creando…" : "Crear y avisar por WhatsApp"}</button>
