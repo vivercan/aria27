@@ -6,37 +6,40 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Map as MapIcon, FileText, CalendarDays, PackageCheck, HardHat, Truck, Package, Users, UserCog, Fingerprint, Zap, Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, Building2, LayoutTemplate, Repeat, BarChart3 } from "lucide-react";
+import { Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, UserCog, LayoutTemplate, Repeat, BarChart3, Zap, Package } from "lucide-react";
+import { Ficha, IcoCalendario, IcoCamion, IcoObra, IcoRevision, IcoPlano, IcoCasco, IcoBodega, IcoEquipo, IcoChecada, IcoOrganizar, IcoSello, IcoPregunta, type Ico } from "@/components/domenica/IconosObra";
 import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
 
-type Item = { href: string; t: string; d: string; icon: typeof FileText; color: string; roles?: string[] };
-const SECCIONES: { titulo: string; items: Item[] }[] = [
+type Item = { href: string; t: string; d: string; icon: Ico; color: string; roles?: string[] };
+const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[] = [
   { titulo: "Mi día", items: [
-    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: CalendarDays, color: "#fdab3d" },
-    { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: PackageCheck, color: "#00c875" },
+    { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#00a35c", roles: ["admin", "direccion", "validador", "residente"] },
+    { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado en Tanque?”", icon: IcoPregunta, color: "#7e3bdd" },
+    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#e8760a" },
+    { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0086c0" },
   ] },
-  { titulo: "Obras", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: Building2, color: "#ff642e" },
-    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: ShieldCheck, color: "#0f766e" },
-    { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: MapIcon, color: "#0073ea" },
-    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: HardHat, color: "#ff642e" },
+  { titulo: "Obras", icon: IcoCasco, color: "#ff642e", items: [
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#ff642e" },
+    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#0f8a7e" },
+    { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: IcoPlano, color: "#0073ea" },
+    { href: "/dashboard/obras/catalogo", t: "Dar de alta una obra", d: "Con su ubicación GPS", icon: IcoCasco, color: "#d9531e" },
   ] },
-  { titulo: "Compras", items: [
-    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: Truck, color: "#0086c0", roles: ["admin", "compras", "direccion", "rh", "validador"] },
-    { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Catálogo de materiales", icon: Package, color: "#0086c0", roles: ["admin", "compras", "direccion", "rh"] },
+  { titulo: "Compras", icon: IcoBodega, color: "#0086c0", items: [
+    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: IcoBodega, color: "#0086c0", roles: ["admin", "compras", "direccion", "rh", "validador"] },
+    { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Catálogo de materiales", icon: Package as unknown as Ico, color: "#0073ea", roles: ["admin", "compras", "direccion", "rh"] },
   ] },
-  { titulo: "Equipo", items: [
-    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog, color: "#bb3354", roles: ["admin", "rh"] },
-    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: Users, color: "#bb3354", roles: ["admin", "rh", "direccion"] },
-    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: Fingerprint, color: "#bb3354", roles: ["admin", "rh", "direccion", "validador"] },
+  { titulo: "Equipo", icon: IcoEquipo, color: "#d83a6b", items: [
+    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog as unknown as Ico, color: "#d83a6b", roles: ["admin", "rh"] },
+    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#d83a6b", roles: ["admin", "rh", "direccion"] },
+    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#d83a6b", roles: ["admin", "rh", "direccion", "validador"] },
   ] },
-  { titulo: "Organizar el trabajo", items: [
-    { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate, color: "#a25ddc" },
-    { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat, color: "#579bfc" },
-    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3, color: "#00c875", roles: ["admin", "rh", "direccion", "validador", "compras"] },
-    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap, color: "#fdab3d", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+  { titulo: "Organizar el trabajo", icon: IcoOrganizar, color: "#7e3bdd", items: [
+    { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
+    { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat as unknown as Ico, color: "#0073ea" },
+    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#00a35c", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#e8760a", roles: ["admin", "rh", "direccion", "validador", "compras"] },
   ] },
 ];
 
@@ -72,14 +75,14 @@ export default function MasPage() {
           <section key={sec.titulo} className="mt-5">
             {fijo ? <h2 className="px-1 mb-2 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">{sec.titulo}</h2> : (
               <button type="button" onClick={() => alternar(sec.titulo)} aria-expanded={open} className="dom-card w-full rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left">
-                <span className="flex -space-x-1.5">{items.slice(0, 3).map(({ icon: Icon, color, href }) => <span key={href} className="w-8 h-8 rounded-full flex items-center justify-center ring-2 ring-[var(--d-card)]" style={{ background: `${color}26` }}><Icon className="w-4 h-4" style={{ color }} /></span>)}</span>
+                {sec.icon ? <Ficha ico={sec.icon} color={sec.color || "#0073ea"} /> : null}
                 <span className="flex-1"><span className="block text-[15px] font-bold text-[var(--d-text)]">{sec.titulo}</span><span className="block text-[12px] text-[var(--d-muted)]">{items.length} opci{items.length === 1 ? "ón" : "ones"}</span></span>
                 <ChevronRight className={`w-5 h-5 text-[var(--d-faint)] transition-transform ${open ? "rotate-90" : ""}`} />
               </button>)}
             {open && <div className={`dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)] ${fijo ? "" : "mt-2 dom-in"}`}>
               {items.map(({ href, t, d, icon: Icon, color }) => (
                 <Link key={href} href={href} className="flex items-center gap-3 px-4 py-3.5 active:bg-[var(--d-hover)]">
-                  <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}1f` }}><Icon className="w-5 h-5" style={{ color }} /></span>
+                  <Ficha ico={Icon} color={color} />
                   <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">{t}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{d}</div></div>
                   <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
                 </Link>))}
@@ -90,23 +93,23 @@ export default function MasPage() {
           <h2 className="px-1 mb-2 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Ajustes</h2>
           <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--d-card-2)]">{tema === "claro" ? <Sun className="w-5 h-5 text-[#fdab3d]" /> : <Moon className="w-5 h-5 text-[#a25ddc]" />}</span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: tema === "claro" ? "#e8890c" : "#5b4bc4" }}>{tema === "claro" ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}</span>
               <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--d-text)]">Apariencia</div><div className="text-[12px] text-[var(--d-muted)]">{tema === "claro" ? "Claro" : "Oscuro"}</div></div>
               <div className="inline-flex rounded-xl bg-[var(--d-card-2)] p-1">
                 {(["claro", "oscuro"] as const).map(t => <button key={t} onClick={() => cambiarTema(t)} className={`rounded-lg px-3 py-1.5 text-xs font-bold capitalize ${tema === t ? "bg-[#0073ea] text-white" : "text-[var(--d-muted)]"}`}>{t}</button>)}
               </div>
             </div>
             <button onClick={async () => { if (push === "activo") return; const r = await activarPush(); if (r.ok) { setPush("activo"); setPushMsg("Activas. Te mandamos una de prueba."); } else setPushMsg(r.error || ""); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#a25ddc1f]"><BellRing className="w-5 h-5 text-[#a25ddc]" /></span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#7e3bdd]"><BellRing className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Notificaciones del teléfono</div><div className="text-[12px] text-[var(--d-muted)]">{pushMsg || (push === "activo" ? "Activas" : push === "instalar-primero" ? "En iPhone, primero agrega la app a tu pantalla de inicio" : push === "bloqueado" ? "Bloqueadas en el navegador" : "Toca para activarlas")}</div></div>
               {push === "activo" ? <span className="text-[11px] font-bold text-[var(--d-ok)]">● Activas</span> : <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />}
             </button>
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0073ea1f]"><Smartphone className="w-5 h-5 text-[#0073ea]" /></span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0073ea]"><Smartphone className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Tener Doménica 27 como app</div><div className="text-[12px] text-[var(--d-muted)]">iPhone: Compartir › Agregar a inicio · Android: ⋮ › Instalar app</div></div>
             </div>
             <button onClick={salir} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#e2445c1f]"><LogOut className="w-5 h-5 text-[#e2445c]" /></span>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#e2445c]"><LogOut className="w-5 h-5 text-white" /></span>
               <div className="flex-1 text-[15px] font-semibold text-[var(--d-danger)]">Cerrar sesión</div>
             </button>
           </div>

@@ -5,7 +5,8 @@
  * Lo que salió mal se puede convertir en actividades para corregir.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ShieldCheck, Plus, Check, X, Minus, Camera, ChevronLeft, Loader2, Eraser } from "lucide-react";
+import { Plus, Check, X, Minus, Camera, ChevronLeft, Loader2, Eraser } from "lucide-react";
+import { IcoRevision } from "@/components/domenica/IconosObra";
 import { DomHeader, Hoja, api, useAviso, useBase, etiqueta, campo, boton } from "@/components/domenica/ui";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
@@ -37,7 +38,7 @@ export default function RevisionesPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-3xl mx-auto">
-        <DomHeader icon={ShieldCheck} from="#0f766e" to="#00c875" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
+        <DomHeader icon={IcoRevision} from="#0f8a7e" titulo="Revisiones" desc="Calidad y seguridad, punto por punto, con firma."
           accion={<button onClick={() => setNueva(true)} className={boton}><Plus className="w-4 h-4" />Revisar</button>} />
         {!d ? <div className="mt-5"><Esqueleto filas={4} /></div> : d.revisiones.length === 0 ? (
           <div className="mt-6 dom-card rounded-3xl"><Vacio dibujo="lista" titulo="Aún no hay revisiones" texto="Elige una lista (antes del colado, seguridad semanal o entrega de área), revisa punto por punto y firma." accion={{ label: "Hacer la primera revisión", onClick: () => setNueva(true) }} /></div>

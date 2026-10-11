@@ -280,6 +280,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const fetchUnread = async () => {
       if (inboxActiveRef.current) return; /* inbox/page lo gestiona via custom event */
       if (unauthorizedRef.current) return; /* HOTFIX4: detener polling tras 401 */
+      if (typeof document !== "undefined" && document.hidden) return; /* 11-Oct: pestaña en segundo plano: no gastar datos ni batería */
       try {
         const r = await fetch("/api/mail/unread-count", { credentials: "include" });
         if (r.ok) {
@@ -361,6 +362,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!userEmail) return;
     const actualizarPresencia = async () => {
+      if (typeof document !== "undefined" && document.hidden) return;
       try {
         await fetch("/api/pulso/estado", {
           method: "POST",

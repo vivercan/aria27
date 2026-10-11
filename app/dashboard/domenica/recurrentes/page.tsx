@@ -43,7 +43,7 @@ export default function RecurrentesPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-4xl mx-auto">
-        <DomHeader icon={Repeat} from="#579bfc" to="#a25ddc" titulo="Recurrentes" desc="Lo que se repite se crea solo: cada día, cada semana o cada mes, a las 6:00, y le avisa al responsable."
+        <DomHeader icon={Repeat} from="#0073ea" titulo="Recurrentes" desc="Lo que se repite se crea solo: cada día, cada semana o cada mes, a las 6:00, y le avisa al responsable."
           accion={<button onClick={() => setForm(VACIO(base.miEmp))} className={boton}><Plus className="w-4 h-4" />Nueva</button>} />
 
         {lista === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (

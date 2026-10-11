@@ -5,8 +5,9 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Building2, Loader2, ChevronRight, Search } from "lucide-react";
+import { Loader2, ChevronRight, Search } from "lucide-react";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
+import { IcoObra } from "@/components/domenica/IconosObra";
 import { DomHeader } from "@/components/domenica/ui";
 import { supabase } from "@/lib/supabase";
 import type { Actividad } from "@/lib/actividades";
@@ -37,7 +38,7 @@ export default function ObrasDomPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
-        <DomHeader icon={Building2} from="#ff642e" to="#fdab3d" titulo="Obras" desc="Todo de cada obra en un lugar: actividades, atrasos, avance y lo gastado contra el presupuesto." />
+        <DomHeader icon={IcoObra} from="#ff642e" titulo="Obras" desc="Todo de cada obra en un lugar: actividades, atrasos, avance y lo gastado contra el presupuesto." />
         <div className="mt-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--d-muted)]" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar obra o cliente…" className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-field)] pl-9 pr-3 py-2.5 text-sm text-[var(--d-text)]" /></div>
         {!datos ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (
           <div className="mt-4 grid gap-3 md:grid-cols-2">

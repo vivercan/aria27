@@ -10,6 +10,7 @@ import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } f
 // B9 fix: lazy-init para evitar throw en module-level (mismo patrón que B8 en route.ts principal)
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendEmailLogged } from "@/lib/email-log";
+import { tieneComparativa } from "@/lib/autorizar-direccion";
 let _db: SupabaseClient | undefined;
 function getDb(): SupabaseClient {
   if (!_db) _db = getSupabaseAdmin();
@@ -220,6 +221,12 @@ export async function GET(request: NextRequest) {
       .select("*")
       .eq("requisition_id", req.id);
     const reqItems = (reqItemsData as RequisitionItem[]) || [];
+
+    // 11-Oct-2026: sin comparativa de Compras (gasto/efectivo/destajo/directa) no hay OC que generar:
+    // antes se bloqueaba con "OC con total $0" y la solicitud quedaba atorada. Se autoriza en la pantalla directa.
+    if ((action === "aprobar" || action === "AUTORIZADA") && !tieneComparativa(req.cotizacion_data)) {
+      return NextResponse.redirect(`${BASE_URL}/autorizar/${token}`);
+    }
 
     if (action === "aprobar" || action === "AUTORIZADA") {
       const ocFolio = await getNextOCFolio();

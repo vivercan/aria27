@@ -2,7 +2,8 @@
 /** /dashboard/domenica/planos — Planos de cada obra para marcar pendientes encima (Doménica 27 · 11-Oct-2026) */
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Map as MapIcon, Upload, Loader2, ChevronRight, FileText } from "lucide-react";
+import { Upload, Loader2, ChevronRight, FileText } from "lucide-react";
+import { IcoPlano } from "@/components/domenica/IconosObra";
 import { DomHeader, Hoja, api, useAviso, useBase, etiqueta, campo, boton } from "@/components/domenica/ui";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
@@ -18,7 +19,7 @@ export default function PlanosPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-4xl mx-auto">
-        <DomHeader icon={MapIcon} from="#0073ea" to="#0f766e" titulo="Planos" desc="Toca un punto del plano para dejar un pendiente, una nota o una foto justo donde está."
+        <DomHeader icon={IcoPlano} from="#0073ea" titulo="Planos" desc="Toca un punto del plano para dejar un pendiente, una nota o una foto justo donde está."
           accion={<button onClick={() => setSubir(true)} className={boton}><Upload className="w-4 h-4" />Subir</button>} />
         <select value={obra} onChange={e => setObra(e.target.value)} className={`${campo} mt-4`}><option value="">Todas las obras</option>{base.obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
         {lista === null ? <div className="mt-4"><Esqueleto filas={3} alto={84} /></div> : lista.length === 0 ? (

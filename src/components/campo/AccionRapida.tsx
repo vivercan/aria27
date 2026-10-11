@@ -5,8 +5,10 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, Package, ClipboardCheck, Camera, X, Square, RotateCcw, Check, Loader2 } from "lucide-react";
+import { Mic, X, Square, RotateCcw, Check, Loader2 } from "lucide-react";
 import type { VozResultado } from "@/lib/voz";
+import { pareceRegunta } from "@/lib/asistente";
+import { IcoMicro, IcoSaco, IcoTarea, IcoCamion } from "@/components/domenica/IconosObra";
 
 type Fase = "menu" | "lista" | "grabando" | "procesando" | "resultado" | "escribir";
 // Reconocimiento de voz del propio teléfono (gratis, ve las palabras mientras hablas). Si no existe, se graba audio.
@@ -24,6 +26,7 @@ export default function AccionRapida({ onClose }: { onClose: () => void }) {
   const ir = (href: string) => { onClose(); router.push(href); };
   const enviarTexto = async (texto: string, tipo?: "actividad" | "material") => {
     if (!texto.trim()) { setErr("No se escuchó nada. Intenta otra vez."); setFase("lista"); return; }
+    if (!tipo && pareceRegunta(texto)) { ir(`/dashboard/campo/pregunta?q=${encodeURIComponent(texto.slice(0, 400))}`); return; }
     setFase("procesando"); setErr(""); textoRef.current = texto;
     const fd = new FormData(); fd.append("texto", texto); if (tipo) fd.append("tipo", tipo);
     try { const r = await fetch("/api/voz", { method: "POST", body: fd, credentials: "include" }); const j = await r.json(); if (!r.ok) { setErr(j.error || "No se pudo"); setFase("lista"); return; } setRes(j); setFase("resultado"); }
@@ -79,36 +82,36 @@ export default function AccionRapida({ onClose }: { onClose: () => void }) {
     <div className="aria-sheet fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] p-5 shadow-2xl" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
-        <div className="flex items-center mb-4"><h2 className="flex-1 text-[19px] font-bold text-[var(--d-text)]">{fase === "menu" ? "¿Qué quieres hacer?" : fase === "escribir" ? "Escríbelo" : fase === "resultado" ? "¿Así está bien?" : "Dictar"}</h2><button onClick={onClose} className="p-2 -m-2 rounded-xl text-[var(--d-muted)]" aria-label="Cerrar"><X className="w-6 h-6" /></button></div>
+        <div className="flex items-center mb-4"><h2 className="flex-1 text-[19px] font-bold text-[var(--d-text)]">{fase === "menu" ? "¿Qué quieres hacer?" : fase === "escribir" ? "Escríbelo" : fase === "resultado" ? "¿Así está bien?" : "Habla con Doménica"}</h2><button onClick={onClose} className="p-2 -m-2 rounded-xl text-[var(--d-muted)]" aria-label="Cerrar"><X className="w-6 h-6" /></button></div>
 
         {fase === "menu" && (
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => setFase("lista")} className={`${tile} col-span-2 min-h-[92px] flex-row items-center gap-4`} style={{ background: "linear-gradient(135deg,#7e3bdd,#a25ddc)", boxShadow: "0 14px 26px -14px #7e3bdd" }}>
-              <span className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center"><Mic className="w-7 h-7" /></span>
-              <span><span className="block text-[17px] font-bold">Dictar por voz</span><span className="block text-[12.5px] text-white/85">Dilo y lo armamos por ti</span></span>
+            <button onClick={() => setFase("lista")} className={`${tile} col-span-2 min-h-[92px] flex-row items-center gap-4`} style={{ background: "#6d35c9" }}>
+              <span className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-7 h-7" color="#fff" /></span>
+              <span><span className="block text-[17px] font-bold">Habla con Doménica</span><span className="block text-[12.5px] text-white/90">Pide, asigna o pregunta. Ella lo arma.</span></span>
             </button>
-            <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo")} className={tile} style={{ background: "linear-gradient(135deg,#0073ea,#579bfc)", boxShadow: "0 14px 26px -14px #0073ea" }}><Package className="w-7 h-7" /><span className="text-[15px] font-bold leading-tight">Pedir material</span></button>
-            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "linear-gradient(135deg,#e8760a,#fdab3d)", boxShadow: "0 14px 26px -14px #e8760a" }}><ClipboardCheck className="w-7 h-7" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
-            <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "linear-gradient(135deg,#00a35c,#00c875)", boxShadow: "0 14px 26px -14px #00a35c" }}><Camera className="w-7 h-7" /><span className="text-[15px] font-bold">Registrar una entrega</span></button>
+            <button onClick={() => ir("/dashboard/requisiciones/requisiciones/nuevo")} className={tile} style={{ background: "#0073ea" }}><IcoSaco className="w-8 h-8" color="#fff" /><span className="text-[15px] font-bold leading-tight">Pedir material</span></button>
+            <button onClick={() => ir("/dashboard/actividades?nueva=1")} className={tile} style={{ background: "#e8760a" }}><IcoTarea className="w-8 h-8" color="#fff" /><span className="text-[15px] font-bold leading-tight">Nueva actividad</span></button>
+            <button onClick={() => ir("/dashboard/campo/evidencia")} className={`${tile} col-span-2 min-h-[72px] flex-row items-center gap-3`} style={{ background: "#00a35c" }}><IcoCamion className="w-8 h-8" color="#fff" /><span className="text-[15px] font-bold">Registrar una entrega</span></button>
           </div>)}
 
         {(fase === "lista" || fase === "grabando") && (
           <div className="flex flex-col items-center py-4">
             <button onClick={fase === "grabando" ? parar : grabar} aria-label={fase === "grabando" ? "Terminar" : "Empezar a hablar"}
-              className={`relative w-32 h-32 rounded-full flex items-center justify-center text-white transition ${fase === "grabando" ? "bg-[#e2445c]" : "bg-gradient-to-br from-[#7e3bdd] to-[#a25ddc]"}`} style={{ boxShadow: fase === "grabando" ? "0 0 0 14px rgba(226,68,92,.15), 0 0 0 28px rgba(226,68,92,.07)" : "0 18px 34px -14px #7e3bdd" }}>
+              className={`relative w-32 h-32 rounded-full flex items-center justify-center text-white transition ${fase === "grabando" ? "bg-[#e2445c]" : "bg-[#6d35c9]"}`} style={{ boxShadow: fase === "grabando" ? "0 0 0 14px rgba(226,68,92,.15), 0 0 0 28px rgba(226,68,92,.07)" : "0 14px 26px -16px #6d35c9" }}>
               {fase === "grabando" ? <Square className="w-12 h-12" fill="white" /> : <Mic className="w-14 h-14" />}
             </button>
             <div className="mt-6 text-[17px] font-bold text-[var(--d-text)]">{fase === "grabando" ? `Te escucho… ${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}` : "Toca y habla"}</div>
             {fase === "grabando" && vivo && <div className="mt-3 w-full rounded-2xl bg-[var(--d-card-2)] px-4 py-3 text-[15px] text-[var(--d-text)]">“{vivo}”</div>}
-            <div className="mt-1 text-center text-[13px] text-[var(--d-muted)] max-w-[290px]">{fase === "grabando" ? "Toca otra vez cuando termines" : "Ej.: “Que Miguel revise la cimbra del nivel 2 el viernes” o “Necesito 20 sacos de cemento para mañana en Ruiz Cortines”"}</div>
+            <div className="mt-1 text-center text-[13px] text-[var(--d-muted)] max-w-[290px]">{fase === "grabando" ? "Toca otra vez cuando termines" : "Ej.: “Que Miguel revise la cimbra el viernes”, “Necesito 20 sacos de cemento para Ruiz Cortines” o “¿Qué está atrasado en Tanque?”"}</div>
             {err && <div className="mt-4 rounded-xl bg-[#e2445c]/10 px-3 py-2 text-sm font-semibold text-[var(--d-danger)]">{err}</div>}
             {fase === "lista" && <button type="button" onClick={() => setFase("escribir")} className="mt-5 text-[14px] font-semibold text-[var(--d-link)]">Prefiero escribirlo</button>}
           </div>)}
 
         {fase === "escribir" && (
           <div>
-            <textarea autoFocus value={escrito} onChange={e => setEscrito(e.target.value)} rows={4} placeholder="Ej.: Necesito 20 sacos de cemento para mañana en Ruiz Cortines" className="w-full rounded-2xl border border-[var(--d-border)] bg-[var(--d-input)] px-4 py-3 text-[16px] text-[var(--d-text)] outline-none" />
-            <button type="button" onClick={() => enviarTexto(escrito)} className="mt-3 w-full rounded-2xl bg-gradient-to-r from-[#7e3bdd] to-[#a25ddc] py-4 text-[16px] font-bold text-white">Armarlo por mí</button>
+            <textarea autoFocus value={escrito} onChange={e => setEscrito(e.target.value)} rows={4} placeholder="Ej.: Necesito 20 sacos de cemento para Ruiz Cortines · ¿Qué me toca hoy?" className="w-full rounded-2xl border border-[var(--d-border)] bg-[var(--d-input)] px-4 py-3 text-[16px] text-[var(--d-text)] outline-none" />
+            <button type="button" onClick={() => enviarTexto(escrito)} className="mt-3 w-full rounded-2xl bg-[#6d35c9] py-4 text-[16px] font-bold text-white">Listo, que lo arme</button>
             <button type="button" onClick={() => setFase("lista")} className="mt-2 w-full py-2 text-[13px] font-semibold text-[var(--d-muted)]">Mejor dictarlo</button>
           </div>)}
 
@@ -127,7 +130,7 @@ export default function AccionRapida({ onClose }: { onClose: () => void }) {
                 <div className="mt-1 text-[12.5px] text-[var(--d-muted)]">{[res.actividad?.persona ? `Para ${res.actividad.persona}` : null, res.actividad?.obra, res.actividad?.fecha ? `entrega ${res.actividad.fecha.split("-").reverse().join("/")}` : null].filter(Boolean).join(" · ") || "Completa quién y cuándo en el siguiente paso"}</div>
               </>)}
             </div>
-            <button onClick={continuar} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-4 text-[16px] font-bold text-white shadow-[0_12px_26px_-12px_#0073ea]"><Check className="w-5 h-5" />Sí, revisar y enviar</button>
+            <button onClick={continuar} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0073ea] py-4 text-[16px] font-bold text-white"><Check className="w-5 h-5" />Sí, revisar y enviar</button>
             <div className="mt-2 grid grid-cols-2 gap-2">
               <button onClick={() => { const otro = res.tipo === "material" ? "actividad" : "material"; if (res.texto) enviarTexto(res.texto, otro); else if (blobRef.current) enviarAudio(blobRef.current, otro); }} className="rounded-xl bg-[var(--d-card-2)] py-3 text-[13px] font-semibold text-[var(--d-text-2)]">{res.tipo === "material" ? "Era una actividad" : "Era pedir material"}</button>
               <button onClick={() => { setRes(null); setFase("lista"); }} className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--d-card-2)] py-3 text-[13px] font-semibold text-[var(--d-text-2)]"><RotateCcw className="w-4 h-4" />Repetir</button>

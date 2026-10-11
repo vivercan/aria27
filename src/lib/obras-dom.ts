@@ -5,7 +5,8 @@ export type ObraDom = { id: string; nombre: string; cliente?: string | null; pre
 export type RequiDom = { id: string; folio: string; cost_center_name: string | null; status: string | null; total: number | null; monto: number | null; proveedor?: string | null; created_at?: string | null };
 export const ESTADOS_ABIERTOS = ["PENDIENTE_RESPONSABLE", "PENDIENTE", "EN_COTIZACION", "EN_AUTORIZACION"];
 /** Detenida: sigue sin avanzar a autorizada después de 3 días */
-export const estaDetenida = (r: RequiDom, ahora = Date.now()) => ESTADOS_ABIERTOS.includes(String(r.status || "")) && !!r.created_at && ahora - Date.parse(r.created_at) > 3 * 864e5;
+/** Detenida = abierta, con más de 3 días y de los últimos 45 días (las más viejas son históricas que nunca se cerraron en el sistema, no "detenidas") */
+export const estaDetenida = (r: RequiDom, ahora = Date.now()) => { if (!ESTADOS_ABIERTOS.includes(String(r.status || "")) || !r.created_at) return false; const e = ahora - Date.parse(r.created_at); return e > 3 * 864e5 && e < 45 * 864e5; };
 
 export const normObra = (s?: string | null) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
 const NO_CUENTA = ["CANCELADA", "RECHAZADA", "RECHAZADA_RESPONSABLE"];

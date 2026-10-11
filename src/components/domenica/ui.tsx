@@ -49,12 +49,12 @@ export function useAviso() {
   return { flash, nodo };
 }
 
-export function DomHeader({ icon: Icon, from, to, titulo, desc, accion }: { icon: LucideIcon; from: string; to: string; titulo: string; desc: string; accion?: React.ReactNode }) {
+export function DomHeader({ icon: Icon, from, titulo, desc, accion }: { icon: LucideIcon | React.ComponentType<{ className?: string; color?: string }>; from: string; to?: string; titulo: string; desc: string; accion?: React.ReactNode }) {
   return (
     <>
-      <Link href="/dashboard/domenica" className="inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
+      <Link href="/dashboard/domenica" className="hidden md:inline-flex items-center gap-1 text-xs text-[var(--d-link)] mb-2"><ArrowLeft className="w-3.5 h-3.5" />ARIA Doménica</Link>
       <div className="flex items-start gap-3 dom-in">
-        <span className="shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center shadow-[0_8px_18px_-8px_rgba(15,23,42,.45)]" style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}><Icon className="w-6 h-6 text-white" /></span>
+        <span className="shrink-0 w-11 h-11 rounded-[14px] flex items-center justify-center" style={{ background: from }}><Icon className="w-6 h-6 text-white" color="#fff" /></span>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-[var(--d-text)] tracking-tight">{titulo}</h1>
           <p className="text-[13px] text-[var(--d-muted)]">{desc}</p>
@@ -85,7 +85,7 @@ export function Hoja({ titulo, onClose, children, pie }: { titulo: string; onClo
 
 export const etiqueta = "text-[11px] uppercase tracking-wide text-[var(--d-muted)] font-semibold";
 export const campo = "mt-1 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-field)] px-3 py-2.5 text-sm text-[var(--d-text)]";
-export const boton = "inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_-8px_#0073ea] active:scale-95 disabled:opacity-50";
+export const boton = "inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0073ea] px-4 py-2.5 text-sm font-semibold text-white active:scale-95 disabled:opacity-50";
 export const ymdLocal = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 /** Número que cuenta hacia arriba al aparecer (respeta "reducir movimiento") */

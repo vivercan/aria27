@@ -37,7 +37,7 @@ export default function PlantillasPage() {
   return (
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-10 max-w-5xl mx-auto">
-        <DomHeader icon={LayoutTemplate} from="#a25ddc" to="#7e3bdd" titulo="Plantillas" desc="Arma una obra en un clic: cada plantilla crea sus actividades con fechas, responsables, pasos y el orden en que van."
+        <DomHeader icon={LayoutTemplate} from="#7e3bdd" titulo="Plantillas" desc="Arma una obra en un clic: cada plantilla crea sus actividades con fechas, responsables, pasos y el orden en que van."
           accion={<button onClick={() => setEditar({ nombre: "", descripcion: "", filas: [{ ...FILA_VACIA }] })} className={boton}><Plus className="w-4 h-4" />Nueva</button>} />
 
         {lista === null ? <div className="mt-5"><Esqueleto filas={4} alto={110} /></div> : (

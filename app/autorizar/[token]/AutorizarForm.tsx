@@ -180,7 +180,7 @@ export default function AutorizarForm({
         const key = modalDesc.item.product_name + "::" + modalDesc.quote.supplier;
         setDescsSolicitados((p) => ({ ...p, [key]: { price: sugerido, notas: descNotas } }));
         setModalDesc(null); setDescSugerido(""); setDescNotas("");
-        alert("✅ Solicitud enviada a Compras");
+        alert("Solicitud enviada a Compras");
       } else alert("Error: " + r.status);
     } catch { alert("Error de red"); }
   };
@@ -212,7 +212,7 @@ export default function AutorizarForm({
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {/* Tabs de vistas */}
       <div style={{ display: "flex", gap: 6, padding: 4, background: "rgba(0,0,0,0.30)", borderRadius: 12, border: "1px solid rgba(124,148,180,0.20)" }}>
-        {[{ k: "resumen", label: "💡 Recomendación" }, { k: "categorias", label: "🎛️ Por categoría" }, { k: "detalle", label: "📋 Matriz completa" }].map((t) => (
+        {[{ k: "resumen", label: "Recomendación" }, { k: "categorias", label: "Por categoría" }, { k: "detalle", label: "Matriz completa" }].map((t) => (
           <button key={t.k} onClick={() => setVista(t.k as Vista)}
             style={{ flex: 1, padding: "10px 8px", borderRadius: 8, border: "none", background: vista === t.k ? "linear-gradient(135deg,#1F8A60 0%,#16704D 100%)" : "transparent", color: vista === t.k ? "#F4F8FF" : "rgba(214,228,255,0.65)", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{t.label}</button>
         ))}
@@ -221,7 +221,7 @@ export default function AutorizarForm({
       {/* ============ VISTA: RESUMEN/RECOMENDACION ============ */}
       {vista === "resumen" && (
         <div style={{ background: "linear-gradient(135deg,#0F1A2E 0%,#091525 100%)", border: "1px solid rgba(124,148,180,0.20)", borderRadius: 14, padding: 20 }}>
-          <div style={{ color: "#86efac", fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>💡 Recomendación Aria</div>
+          <div style={{ color: "#86efac", fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>Recomendación de Doménica</div>
           <div style={{ color: "#F4F8FF", fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Distribución óptima para {items_detail.length} productos</div>
           <div style={{ color: "rgba(214,228,255,0.55)", fontSize: 12, marginBottom: 18 }}>{folio} · {obra}</div>
 
@@ -253,7 +253,7 @@ export default function AutorizarForm({
           )}
 
           <div style={{ marginTop: 14, padding: 10, background: "rgba(255,255,255,0.04)", borderRadius: 8, color: "rgba(214,228,255,0.65)", fontSize: 11, lineHeight: 1.5 }}>
-            🎛️ Si quieres ajustar: <strong style={{ color: "#F4F8FF" }}>"Por categoría"</strong> para revisar bloques · <strong style={{ color: "#F4F8FF" }}>"Matriz completa"</strong> para detalle por celda
+            Si quieres ajustar: <strong style={{ color: "#F4F8FF" }}>"Por categoría"</strong> para revisar bloques · <strong style={{ color: "#F4F8FF" }}>"Matriz completa"</strong> para detalle por celda
           </div>
         </div>
       )}
@@ -364,10 +364,10 @@ export default function AutorizarForm({
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <button onClick={() => submit("AUTORIZADA")} disabled={submitting || itemsAsignados === 0}
             style={{ flex: "1 1 240px", padding: "16px 20px", borderRadius: 999, background: (submitting || itemsAsignados === 0) ? "rgba(124,148,180,0.20)" : "linear-gradient(135deg,#1F8A60 0%,#16704D 100%)", color: "#F4F8FF", fontWeight: 800, fontSize: 14, border: "none", cursor: submitting ? "not-allowed" : "pointer", boxShadow: (submitting || itemsAsignados === 0) ? "none" : "0 6px 18px rgba(22,112,77,0.40)" }}>
-            {submitting ? "Procesando..." : `✅ Aprobar y generar ${proveedoresElegidos.length} OC${proveedoresElegidos.length === 1 ? "" : "s"}`}
+            {submitting ? "Procesando..." : `Aprobar y generar ${proveedoresElegidos.length} OC${proveedoresElegidos.length === 1 ? "" : "s"}`}
           </button>
-          <button onClick={() => setModo("volver")} disabled={submitting} style={{ flex: "1 1 180px", padding: "14px", borderRadius: 999, background: "rgba(245,158,11,0.18)", color: "#FCD34D", fontWeight: 700, fontSize: 13, border: "1px solid rgba(245,158,11,0.35)", cursor: "pointer" }}>🔄 Volver a cotizar</button>
-          <button onClick={() => setModo("rechazar")} disabled={submitting} style={{ flex: "1 1 140px", padding: "14px", borderRadius: 999, background: "transparent", color: "#FCA5A5", fontWeight: 700, fontSize: 13, border: "1px solid rgba(220,38,38,0.35)", cursor: "pointer" }}>❌ Rechazar</button>
+          <button onClick={() => setModo("volver")} disabled={submitting} style={{ flex: "1 1 180px", padding: "14px", borderRadius: 999, background: "rgba(245,158,11,0.18)", color: "#FCD34D", fontWeight: 700, fontSize: 13, border: "1px solid rgba(245,158,11,0.35)", cursor: "pointer" }}>Volver a cotizar</button>
+          <button onClick={() => setModo("rechazar")} disabled={submitting} style={{ flex: "1 1 140px", padding: "14px", borderRadius: 999, background: "transparent", color: "#FCA5A5", fontWeight: 700, fontSize: 13, border: "1px solid rgba(220,38,38,0.35)", cursor: "pointer" }}>Rechazar</button>
         </div>
       )}
 

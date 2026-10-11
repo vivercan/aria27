@@ -7,7 +7,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PackageCheck, CalendarDays, FileText, ChevronRight, X, Share, ListTodo, BellRing, Building2, MapPin } from "lucide-react";
+import { ChevronRight, X, Share, BellRing, MapPin } from "lucide-react";
+import { Ficha, IcoCalendario, IcoObra, IcoCamion, IcoSello, IcoTarea, IcoSaco, type Ico } from "@/components/domenica/IconosObra";
 import { obraAqui, type ObraGeo } from "@/lib/geo";
 import { enRiesgo } from "@/lib/riesgo";
 import { normObra } from "@/lib/obras-dom";
@@ -82,6 +83,7 @@ export default function CampoHome() {
   const pendReq = useMemo(() => me ? reqs.filter(r => { const a = accionPara(r, me.role, me.email); return a !== null && a !== "REGISTRAR_ENTREGA"; }) : [], [reqs, me]);
   const porEntregar = useMemo(() => me ? reqs.filter(r => accionPara(r, me.role, me.email) === "REGISTRAR_ENTREGA") : [], [reqs, me]);
   const atrasadas = useMemo(() => acts.filter(a => diasAtraso(a) > 0), [acts]);
+  const porAutorizar = useMemo(() => me ? reqs.filter(r => { const a = accionPara(r, me.role, me.email); return a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION"; }).length : 0, [reqs, me]);
   const enCurso = useMemo(() => me ? reqs.filter(r => (r.user_email || "").toLowerCase() === me.email && !["ENTREGADA", "CANCELADA", "RECHAZADA_RESPONSABLE", "RECHAZADA_DIRECCION"].includes(r.status)).length : 0, [reqs, me]);
 
   const hoyIso = useMemo(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }, []);
@@ -91,11 +93,12 @@ export default function CampoHome() {
     for (const r of pendReq) {
       const a = accionPara(r, me.role, me.email);
       const boton = a === "AUTORIZAR_RESPONSABLE" ? "Autorizar" : a === "COTIZAR" ? "Cotizar" : a === "APROBAR_DIRECCION" ? "Aprobar" : a === "PAGAR" ? "Pagar" : "Ver";
-      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: "#fdab3d", icon: "req", urg: 2 });
+      const autoriza = a === "AUTORIZAR_RESPONSABLE" || a === "APROBAR_DIRECCION";
+      out.push({ obra: r.cost_center_name, key: "r" + r.id, href: autoriza ? "/dashboard/campo/autorizar" : `/dashboard/requisiciones/requisiciones/estatus?open=${r.id}`, titulo: `${r.folio} · ${r.cost_center_name || ""}`, sub: statusLabel(r.status) + (r.proveedor ? ` · ${r.proveedor}` : ""), boton, color: autoriza ? "#00a35c" : "#e8760a", icon: "req", urg: 2 });
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
-      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `⚠ ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#e2445c" : h ? "#ffcb00" : rg ? "#fdab3d" : col === "BLOQUEADA" ? "#e2445c" : "#579bfc", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
+      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `⚠ ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#e2445c" : h ? "#e8760a" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#e2445c" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
@@ -108,8 +111,7 @@ export default function CampoHome() {
     <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-28 max-w-2xl mx-auto">
         {/* Saludo */}
-        <div className="dom-in relative overflow-hidden rounded-3xl px-4 py-3.5 bg-gradient-to-br from-[#0073ea] via-[#4f46e5] to-[#7e3bdd] shadow-[0_14px_34px_rgba(79,70,229,0.35)]">
-          <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[#579bfc]/20 blur-2xl" />
+        <div className="dom-in relative overflow-hidden rounded-3xl px-4 py-3.5 bg-[#0060c7] shadow-[0_10px_24px_-12px_rgba(0,70,160,0.7)]">
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-[12px] text-white/85">{hoyTxt}</p>
@@ -122,7 +124,7 @@ export default function CampoHome() {
 
         {/* Estás en una obra (geocerca): lo de esa obra primero */}
         {aqui ? (
-          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3" style={{ background: "linear-gradient(135deg,#0f766e,#00a35c)", boxShadow: "0 10px 22px -12px #0f766e" }}>
+          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3" style={{ background: "#0f8a7e" }}>
             <MapPin className="w-6 h-6 text-white shrink-0" />
             <div className="flex-1 min-w-0 text-white"><div className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Estás en</div><div className="text-[15px] font-bold truncate">{aqui.nombre}</div></div>
             <Link href={`/dashboard/domenica/obras/${aqui.id}/bitacora`} className="shrink-0 rounded-xl bg-white/20 px-3 py-2 text-[12.5px] font-bold text-white">Bitácora</Link>
@@ -154,9 +156,8 @@ export default function CampoHome() {
             <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="¡Todo al día!" texto={enCurso ? `No te toca nada. Tienes ${enCurso} solicitud${enCurso === 1 ? "" : "es"} en camino.` : "No te toca nada por ahora. Usa el botón + para pedir o asignar algo."} /></div>
           ) : (() => { const it = items[0]; return (
             <Link href={it.href} className="dom-in block rounded-3xl p-4 active:scale-[0.99] transition relative overflow-hidden" style={{ background: "var(--d-card)", boxShadow: "var(--d-shadow)", border: `2px solid ${it.color}` }}>
-              <span aria-hidden className="absolute -right-6 -top-6 w-24 h-24 rounded-full" style={{ background: `${it.color}1f` }} />
-              <div className="relative flex items-start gap-3">
-                <span className="shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `${it.color}26` }}>{it.icon === "req" ? <FileText className="w-6 h-6" style={{ color: it.color }} /> : <ListTodo className="w-6 h-6" style={{ color: it.color }} />}</span>
+                            <div className="relative flex items-start gap-3">
+                <Ficha ico={it.icon === "req" ? (it.boton === "Autorizar" || it.boton === "Aprobar" ? IcoSello : IcoSaco) : IcoTarea} color={it.color} size="lg" />
                 <div className="flex-1 min-w-0"><div className="text-[18px] font-bold leading-snug text-[var(--d-text)] line-clamp-2">{it.titulo}</div><div className="mt-0.5 text-[13px] text-[var(--d-muted)] line-clamp-2">{it.sub}</div></div>
               </div>
               <div className="relative mt-3 flex items-center justify-between">
@@ -175,9 +176,7 @@ export default function CampoHome() {
               {items.slice(1, 3).map((it, ii) => (
               <li key={it.key} className="dom-in" style={{ animationDelay: `${120 + ii * 60}ms` }}>
                 <Link href={it.href} className="dom-card flex items-center gap-3 rounded-2xl p-3 active:scale-[0.99] transition">
-                  <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${it.color}26` }}>
-                    {it.icon === "req" ? <FileText className="w-5 h-5" style={{ color: it.color }} /> : <ListTodo className="w-5 h-5" style={{ color: it.color }} />}
-                  </span>
+                  <Ficha ico={it.icon === "req" ? (it.boton === "Autorizar" || it.boton === "Aprobar" ? IcoSello : IcoSaco) : IcoTarea} color={it.color} />
                   <div className="flex-1 min-w-0">
                     <div className="text-[14px] font-semibold text-[var(--d-text)] truncate">{it.titulo}</div>
                     <div className="text-[11.5px] text-[var(--d-muted)] truncate">{it.sub}</div>
@@ -192,19 +191,23 @@ export default function CampoHome() {
 
         {/* Atajos discretos (lo demás está en el botón +) */}
         <div className="mt-4 grid grid-cols-3 gap-2">
-          {[
-            { href: "/dashboard/campo/calendario", t: "Calendario", icon: CalendarDays, c: "var(--c-ambar)" },
-            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: Building2, c: "var(--c-naranja)" },
-            { href: "/dashboard/campo/evidencia", t: porEntregar.length ? `Por recibir (${porEntregar.length})` : "Entregas", icon: PackageCheck, c: "var(--c-verde)" },
-          ].map(x => (
+          {(porAutorizar > 0 ? [
+            { href: "/dashboard/campo/autorizar", t: `Por autorizar (${porAutorizar})`, icon: IcoSello, c: "#00a35c" },
+            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#ff642e" },
+            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#e8760a" },
+          ] : [
+            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#e8760a" },
+            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#ff642e" },
+            { href: "/dashboard/campo/evidencia", t: porEntregar.length ? `Por recibir (${porEntregar.length})` : "Entregas", icon: IcoCamion, c: "#0086c0" },
+          ] as { href: string; t: string; icon: Ico; c: string }[]).map(x => (
             <Link key={x.href} href={x.href} className="dom-card rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.97] transition">
-              <x.icon className="w-6 h-6" style={{ color: x.c }} /><span className="text-[12px] font-semibold text-[var(--d-text-2)] text-center leading-tight">{x.t}</span>
+              <Ficha ico={x.icon} color={x.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text-2)] text-center leading-tight">{x.t}</span>
             </Link>))}
         </div>
 
         {/* Notificaciones del telefono */}
         {(push === "pendiente" || pushMsg) && (
-          <div className="dom-in mt-5 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
+          <div className="dom-in mt-5 rounded-2xl bg-[#6d35c9] p-4">
             <div className="flex items-center gap-3">
               <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0">
@@ -218,9 +221,9 @@ export default function CampoHome() {
         )}
 
         {verInstalar && (
-          <div className="mt-5 relative rounded-2xl border border-[#579bfc]/30 bg-[#579bfc]/10 p-4 pr-10 text-[13px] text-[var(--d-text-2)]">
+          <div className="mt-5 relative dom-card rounded-2xl p-4 pr-10 text-[13px] text-[var(--d-text-2)]">
             <button onClick={() => { setVerInstalar(false); try { localStorage.setItem("aria:instalar-oculto", "1"); } catch {} }} className="absolute right-2 top-2 p-1.5 rounded-lg text-[var(--d-muted)]" aria-label="Ocultar"><X className="w-4 h-4" /></button>
-            <div className="flex items-center gap-2 font-semibold text-[var(--d-text)] mb-1"><Share className="w-4 h-4 text-[#579bfc]" />Ponla como app en tu celular</div>
+            <div className="flex items-center gap-2 font-semibold text-[var(--d-text)] mb-1"><span className="w-6 h-6 rounded-md bg-[#0073ea] flex items-center justify-center"><Share className="w-3.5 h-3.5 text-white" /></span>Ponla como app en tu celular</div>
             {isIos ? <p>En Safari toca <b className="text-[var(--d-text)]">Compartir</b> y luego <b className="text-[var(--d-text)]">Agregar a pantalla de inicio</b>.</p> : <p>En Chrome toca <b className="text-[var(--d-text)]">⋮</b> y luego <b className="text-[var(--d-text)]">Instalar app</b>.</p>}
           </div>
         )}

@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import AutorizarForm from "./AutorizarForm";
+import AutorizarDirecta from "./AutorizarDirecta";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { tieneComparativa } from "@/lib/autorizar-direccion";
 
 export default async function AutorizarPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -50,6 +53,21 @@ export default async function AutorizarPage({ params }: { params: Promise<{ toke
         </body>
       </html>
     );
+  }
+
+  // 11-Oct-2026: sin comparativa de Compras → autorización directa (antes mostraba $0.00 y no dejaba aprobar)
+  if (!tieneComparativa((req as Record<string, unknown>).cotizacion_data)) {
+    const r = req as Record<string, unknown>;
+    const { data: its } = await getSupabaseAdmin().from("requisition_items").select("product_name, quantity, unit, precio_total, selected_price, precio_unitario").eq("requisition_id", String(r.id));
+    const partidas = ((its || []) as { product_name: string | null; quantity: number | null; unit: string | null; precio_total: number | null; selected_price: number | null; precio_unitario: number | null }[])
+      .map(x => ({ n: x.product_name || "", c: x.quantity, u: x.unit, p: Number(x.precio_total) || (Number(x.selected_price || x.precio_unitario) || 0) * (Number(x.quantity) || 0) || null }));
+    const total = Number(r.total) || Number(r.monto) || partidas.reduce((s, x) => s + (x.p || 0), 0);
+    return <AutorizarDirecta d={{
+      token, folio: String(r.folio), obra: (r.cost_center_name as string) || null, quien: (r.solicitante_nombre_completo as string) || (r.created_by as string) || null,
+      creada: String(r.created_at), para: (r.required_date as string) || null, motivo: (r.motivo_solicitud as string) || (r.descripcion_corta as string) || null,
+      tipo: (r.tipo_solicitud as string) || null, efectivo: r.purchase_status === "GASTO_EFECTIVO_PENDIENTE" || /EFECTIVO|CAJA/i.test(String(r.forma_pago || "")),
+      proveedor: (r.proveedor_nombre as string) || (r.proveedor as string) || null, banco: (r.banco as string) || null, total, partidas,
+    }} />;
   }
 
   interface Quote {

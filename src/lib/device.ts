@@ -13,7 +13,10 @@ export function isMobileDevice(): boolean {
   if (ipadOs) return true;
   try {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    return coarse && (navigator.maxTouchPoints || 0) > 0 && window.innerWidth < 900;
+    if (coarse && (navigator.maxTouchPoints || 0) > 0 && window.innerWidth < 900) return true;
+    // 11-Oct-2026: ventana del tamaño de un teléfono (aunque el navegador diga "computadora") = modo teléfono.
+    // Evita la mezcla de menú web + barra de Doménica que vio JJ en el teléfono virtual.
+    return window.innerWidth < 600;
   } catch { return false; }
 }
 
