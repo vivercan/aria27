@@ -82,6 +82,9 @@ export default function NewRequisitionPage() {
   const [ivaPorcentaje, setIvaPorcentaje] = useState<number>(0);
   const [descripcionCompra, setDescripcionCompra] = useState<string>("");
   const [motivoSolicitud, setMotivoSolicitud] = useState<string>("");
+  // 11-Oct-2026 Doménica 27: en celular solo lo esencial; lo de pago/proveedor/IVA va en "Más detalles" (Compras lo completa)
+  const [masDetalles, setMasDetalles] = useState(false);
+  const avz = masDetalles ? "" : "hidden md:block";
   // 30-Abr PR gastos: solicitante nombre completo + foto ticket
   const [solicitanteCompleto, setSolicitanteCompleto] = useState<string>("");
   const [solicitanteVisible, setSolicitanteVisible] = useState<string>("");
@@ -604,7 +607,7 @@ export default function NewRequisitionPage() {
         {tipoSolicitud && (<>
         {/* SECCION 1: CONFIGURACION */}
         <section className="rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur">
-          <h2 className="mb-4 text-lg font-semibold">1. CONFIGURACIÓN</h2>
+          <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">1. ¿Para qué obra y para cuándo?</span><span className="hidden md:inline">1. CONFIGURACIÓN</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Obra / Centro</label>
@@ -617,7 +620,7 @@ export default function NewRequisitionPage() {
               <label className="text-xs font-medium text-[var(--d-text-2)]">Fecha Requerida *</label>
               <input type="date" required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={requiredDate} onChange={e => setRequiredDate(e.target.value)} min={new Date().toISOString().split("T")[0]} />
             </div>
-            {tipoSolicitud !== "DESTAJO" && <div className="space-y-1">
+            {tipoSolicitud !== "DESTAJO" && <div className={`space-y-1 ${avz}`}>
               <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo / Subcategoría</label>
               <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={subcategoria} onChange={e => setSubcategoria(e.target.value)}>
                 <option value="">MATERIALES (por defecto)</option>
@@ -644,7 +647,7 @@ export default function NewRequisitionPage() {
                 <option value="PLANIFICADO">🟢 PLANIFICADO — +7 días</option>
               </select>
             </div>
-            <div className="space-y-1">
+            <div className={`space-y-1 ${avz}`}>
               <label className="text-xs font-medium text-[var(--d-text-2)]">Presupuesto estimado (opcional)</label>
               <div className="flex items-center gap-1 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2">
                 <span className="text-sm text-[var(--d-faint)]">$</span>
@@ -660,7 +663,7 @@ export default function NewRequisitionPage() {
           </div>
 
           {/* ── DATOS DE PAGO E IVA ─────────────────────────────────────────── */}
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className={`mt-3 grid-cols-1 md:grid-cols-3 gap-3 ${masDetalles ? "grid" : "hidden md:grid"}`}>
             <div className="space-y-1">
               <label className="text-xs font-medium text-[var(--d-text-2)]">Forma de pago</label>
               <select className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={formaPago} onChange={e => setFormaPago(e.target.value)}>
@@ -688,7 +691,7 @@ export default function NewRequisitionPage() {
           </div>
 
           {/* ── PROVEEDOR PRE-SELECCIONADO ─────────────────────────────────── */}
-          <div className="mt-3 space-y-1">
+          <div className={`mt-3 space-y-1 ${avz}`}>
             <label className="text-xs font-medium text-[var(--d-text-2)]">Proveedor (opcional — auto-llena datos de pago)</label>
             <div className="relative">
               <input
@@ -769,7 +772,7 @@ export default function NewRequisitionPage() {
 
           {/* DESCRIPCION DE LA COMPRA + MOTIVO - 28-Abr-2026 PR #108 */}
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
+            <div className={`space-y-1 ${avz}`}>
               <label className="text-xs font-medium text-[var(--d-text-2)]">Tipo de compra *</label>
               <select required className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" value={descripcionCompra} onChange={e => setDescripcionCompra(e.target.value)}>
                 <option value="">Selecciona tipo...</option>
@@ -777,7 +780,7 @@ export default function NewRequisitionPage() {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-[var(--d-text-2)]">Motivo de la solicitud *</label>
+              <label className="text-xs font-medium text-[var(--d-text-2)]"><span className="md:hidden">¿Para qué es?</span><span className="hidden md:inline">Motivo de la solicitud *</span></label>
               <textarea required className="h-[42px] w-full resize-none rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Razon o motivo..." value={motivoSolicitud} onChange={e => setMotivoSolicitud(e.target.value)} />
             </div>
           </div>
@@ -801,7 +804,10 @@ export default function NewRequisitionPage() {
             </div>
           )}
 
-          <div className="mt-3 space-y-1">
+          <button type="button" onClick={() => setMasDetalles(v => !v)} className="md:hidden mt-3 w-full rounded-xl border border-dashed border-[var(--d-border)] px-3 py-2.5 text-left text-[13px] text-[var(--d-link)] font-semibold">
+            {masDetalles ? "▲ Ocultar detalles" : "▼ Más detalles (opcional): proveedor, pago, IVA, presupuesto"}<span className="block text-[11px] font-normal text-[var(--d-muted)]">Si no los sabes, déjalos: Compras los completa.</span>
+          </button>
+          <div className={`mt-3 space-y-1 ${avz}`}>
             <label className="text-xs font-medium text-[var(--d-text-2)]">Instrucciones generales</label>
             <textarea className="h-16 w-full resize-none rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 text-sm outline-none focus:border-aria-accent" placeholder="Instrucciones de entrega, horarios, etc." value={generalComments} onChange={e => setGeneralComments(e.target.value)} />
           </div>
@@ -863,7 +869,7 @@ export default function NewRequisitionPage() {
         <section className={`rounded-2xl bg-[var(--d-card)] p-5 shadow-lg backdrop-blur ${tipoSolicitud === "DESTAJO" ? "hidden" : ""}`}>
           {formMode === "catalogo" && (
             <>
-              <h2 className="mb-4 text-lg font-semibold">2. BUSCAR EN CATÁLOGO</h2>
+              <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">2. ¿Qué necesitas? Búscalo o escríbelo</span><span className="hidden md:inline">2. BUSCAR EN CATÁLOGO</span></h2>
               <div className="flex items-center gap-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 mb-3">
                 <Search className="h-4 w-4 opacity-70" />
                 <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={e => handleSearch(e.target.value)} />
@@ -1010,7 +1016,7 @@ export default function NewRequisitionPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5 text-aria-accent" />
-            <h2 className="text-lg font-semibold">3. PARTIDAS ({getTotalPartidas()})</h2>
+            <h2 className="text-lg font-semibold"><span className="md:hidden">3. Tu lista ({getTotalPartidas()})</span><span className="hidden md:inline">3. PARTIDAS ({getTotalPartidas()})</span></h2>
           </div>
           {(() => {
             const subtotalLibre = freeRows.reduce((s,r) => s + (r.monto * r.cantidad), 0);
