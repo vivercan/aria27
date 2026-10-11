@@ -593,16 +593,15 @@ export default function NewRequisitionPage() {
         {/* ARIA27 Campo F1: ¿Qué vas a solicitar? */}
         <section className={`rounded-2xl bg-[var(--d-card)] p-4 shadow-lg backdrop-blur ${vis(1)}`}>
           <h2 className="mb-3 text-lg font-semibold">¿Qué vas a solicitar?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {([
               { k: "MATERIALES", icon: IcoSaco, c: "#0073ea", t: "Materiales o servicios", d: "Compra con cotización. Crédito o contado." },
               { k: "DESTAJO", icon: IcoCasco, c: "#c9410f", t: "Destajo", d: "Anticipo, pago semanal o finiquito a destajista." },
-              { k: "ACTIVIDAD", icon: IcoTarea, c: "#7e3bdd", t: "Actividad", d: "Una tarea para alguien. No genera gasto." },
             ] as const).map(({ k, icon: Icon, c, t, d }) => {
               const active = tipoSolicitud === k;
               return (
                 <button key={k} type="button"
-                  onClick={() => { if (k === "ACTIVIDAD") { router.push("/dashboard/actividades?nueva=1"); return; } setTipoSolicitud(k as TipoSolicitud); setPasoM(2); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
+                  onClick={() => { setTipoSolicitud(k as TipoSolicitud); setPasoM(2); if (k === "MATERIALES") { setSubcategoria(""); setDescripcionCompra(""); } }}
                   className={`btn-flat text-left rounded-2xl border p-4 transition min-h-[88px] flex sm:block items-center gap-3 ${active ? "border-[#0073ea] ring-2 ring-[#0073ea]/40 bg-[var(--d-card)]" : "border-[var(--d-border)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`}
                   aria-pressed={active}>
                   <span className="shrink-0 sm:mb-2 w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: c }}><Icon className="w-6 h-6" color="#fff" /></span>

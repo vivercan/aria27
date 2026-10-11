@@ -515,7 +515,7 @@ export default function RequisicionesStatusPage() {
                 {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#b85507] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
-          <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
+          <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar por número, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 h-12 text-[16px] text-[var(--d-text)]" />
           <div className="mt-3 space-y-2">
             {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
               <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#b85507]" : ""}`}>

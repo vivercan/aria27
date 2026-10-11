@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, Building2, Loader2, LayoutGrid, AlertTriangle, ChevronRight, MapPin } from "lucide-react";
 import { Ficha, IcoBitacora, IcoCamara, IcoPlano, IcoTarea, IcoSaco, IcoCalendario, type Ico } from "@/components/domenica/IconosObra";
 import { supabase } from "@/lib/supabase";
-import { columnaDe, diasAtraso, fechaCorta, iniciales, colorPersona, COLUMNAS, type Actividad } from "@/lib/actividades";
+import { atrasoTexto, columnaDe, diasAtraso, fechaCorta, iniciales, colorPersona, COLUMNAS, type Actividad } from "@/lib/actividades";
 import { statusLabel } from "@/lib/requi-stepper";
 import { fmtMoney } from "@/lib/formatters";
 import { numerosObra, semaforoObra, normObra, type ObraDom, type RequiDom } from "@/lib/obras-dom";
@@ -92,7 +92,7 @@ export default function ObraDomPage() {
               <Link key={a.id} href={`/dashboard/actividades?abrir=${a.id}`} className="dom-card rounded-xl p-3 flex items-center gap-3">
                 <span className="shrink-0 w-1 self-stretch rounded-full" style={{ background: COLUMNAS.find(c => c.id === col)?.color }} />
                 <div className="flex-1 min-w-0"><div className="text-[14px] font-semibold text-[var(--d-text)] truncate">{a.titulo}</div>
-                  <div className="text-[11.5px] flex flex-wrap gap-x-2"><span className={atr > 0 ? "text-[var(--d-danger)] font-semibold" : "text-[var(--d-muted)]"}>{a.fecha_compromiso ? (atr > 0 ? `${atr} d tarde` : `Entrega ${fechaCorta(a.fecha_compromiso)}`) : "Sin fecha"}</span>{col === "BLOQUEADA" && <span className="inline-flex items-center gap-0.5 text-[var(--d-danger)]"><AlertTriangle className="w-3 h-3" />Atorada</span>}<span className="text-[var(--d-muted)]">{Number(a.avance) || 0}%</span></div></div>
+                  <div className="text-[11.5px] flex flex-wrap gap-x-2"><span className={atr > 0 ? "text-[var(--d-danger)] font-semibold" : "text-[var(--d-muted)]"}>{a.fecha_compromiso ? (atr > 0 ? atrasoTexto(atr) : `Entrega ${fechaCorta(a.fecha_compromiso)}`) : "Sin fecha"}</span>{col === "BLOQUEADA" && <span className="inline-flex items-center gap-0.5 text-[var(--d-danger)]"><AlertTriangle className="w-3 h-3" />Atorada</span>}<span className="text-[var(--d-muted)]">{Number(a.avance) || 0}%</span></div></div>
                 <span className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: colorPersona(a.asignado_nombre) }} title={a.asignado_nombre || ""}>{iniciales(a.asignado_nombre)}</span>
               </Link>); })}
             {x.abiertas.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--d-border)] p-6 text-center text-sm text-[var(--d-muted)]">No hay actividades abiertas. <Link href={`/dashboard/domenica/plantillas?obra=${o.id}`} className="text-[var(--d-link)] font-semibold">Usa una plantilla</Link> para arrancar.</div>}

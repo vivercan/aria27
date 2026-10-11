@@ -32,7 +32,7 @@ const MODO_TELEFONO = `(function(){try{var n=navigator,u=n.userAgent||"",t=n.max
 var m=(n.userAgentData&&n.userAgentData.mobile)||/Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(u)||(/Macintosh/i.test(u)&&t>1)||(matchMedia("(pointer: coarse)").matches&&t>0&&w<900)||w<600;
 var p=location.pathname,d=document.documentElement,b=document.body;if(p.length>1&&p.charAt(p.length-1)==="/")p=p.slice(0,-1);
 if(!m){return}
-d.classList.add("es-tel");
+d.classList.add("es-tel");try{if(localStorage.getItem("dom:letra")==="grande")d.classList.add("dom-letra-grande")}catch(e){}
 var hubs=["/dashboard","/dashboard/requisiciones","/dashboard/obras","/dashboard/talento","/dashboard/finanzas","/dashboard/activos","/dashboard/administracion","/dashboard/configuracion","/dashboard/comunicacion","/dashboard/reportes","/dashboard/clientes","/dashboard/admin","/dashboard/plantillas"];
 if(hubs.indexOf(p)>=0){location.replace("/dashboard/campo");return}
 var eq=${JSON.stringify(EQUIV_TEL)};if(eq[p]&&!/[?&]web=1(&|$)/.test(location.search)){location.replace(eq[p]+location.search);return}

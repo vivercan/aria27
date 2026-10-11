@@ -1,13 +1,14 @@
 "use client";
 /** Piezas comunes de las pantallas de teléfono (Doménica 27 · 11-Oct-2026) */
 import Link from "next/link";
-import { ArrowLeft, Search, Phone, MessageCircle } from "lucide-react";
+import { Search, Phone, MessageCircle } from "lucide-react";
 import { Ficha, type Ico } from "@/components/domenica/IconosObra";
 
 export function Encabezado({ ico, color, titulo, sub, accion, atras = "/dashboard/campo/mas" }: { ico: Ico; color: string; titulo: string; sub?: string; accion?: React.ReactNode; atras?: string }) {
   return (
     <div className="flex items-center gap-3">
-      <Link href={atras} aria-label="Regresar" className="shrink-0 -ml-2 w-10 h-10 inline-flex items-center justify-center rounded-xl text-[var(--d-text-2)]"><ArrowLeft className="w-5 h-5" /></Link>
+      {/* 11-Oct-2026: "Regresar" va siempre arriba en el encabezado del teléfono (RegresarTel) */}
+      <span hidden data-atras={atras} />
       <Ficha ico={ico} color={color} size="md" />
       <div className="flex-1 min-w-0"><h1 className="text-[21px] font-bold leading-tight text-[var(--d-text)] truncate">{titulo}</h1>{sub && <p className="text-[12.5px] text-[var(--d-muted)] truncate">{sub}</p>}</div>
       {accion}

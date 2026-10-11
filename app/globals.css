@@ -1415,3 +1415,15 @@ body.dom-ruta.dom-oscuro .aria-page-canon, body.dom-ruta.dom-oscuro .aria-bg-can
 body.dom-ruta.dom-oscuro .aria-back-btn { background: var(--d-card) !important; border: 1px solid var(--d-border) !important; box-shadow: none !important; }
 /* Celular: mientras React decide, no mostrar la pantalla de computadora (11-Oct-2026) */
 html.pantalla-compu .aria-shell-scroll > :not(.aviso-compu) { display: none !important; }
+
+/* ── 11-Oct-2026 · Doménica más fácil (niño de 10 años / persona mayor) ── */
+/* Regresar: en el teléfono va SIEMPRE arriba a la izquierda (RegresarTel). Se ocultan los botones sueltos de cada pantalla */
+html.es-tel:not(.ver-web) .aria-back-btn { display: none !important; }
+/* Letra mínima legible en el teléfono: nada por debajo de 13 px dentro de las pantallas */
+html.es-tel .aria-shell-scroll .text-\[9px\], html.es-tel .aria-shell-scroll .text-\[10px\], html.es-tel .aria-shell-scroll .text-\[10\.5px\] { font-size: 12.5px !important; }
+html.es-tel .aria-shell-scroll .text-\[11px\], html.es-tel .aria-shell-scroll .text-\[11\.5px\] { font-size: 13px !important; }
+html.es-tel .aria-shell-scroll .text-xs, html.es-tel .aria-shell-scroll .text-\[12px\] { font-size: 13.5px !important; }
+html.es-tel .aria-shell-scroll .text-\[12\.5px\], html.es-tel .aria-shell-scroll .text-\[13px\] { font-size: 14px !important; }
+/* "Letra grande" (Más › Ajustes): todo el contenido 15 % más grande; la barra de abajo se queda igual */
+html.es-tel.dom-letra-grande .aria-shell-scroll .dom-page > *, html.es-tel.dom-letra-grande .aria-shell-scroll .aria-page-canon { zoom: 1.15; }
+body.dom-oscuro .dark-nuevo { color: #6fb2ff !important; }

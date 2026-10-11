@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { celebrar } from "@/lib/celebrar";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import {
+import { atrasoTexto,
   COLUMNAS, PRIORIDADES, prioridadDe, columnaDe, diasAtraso, venceHoy, esMia, laAsigneYo, iniciales, colorPersona, fechaCorta, haceCuanto, resumen,
   type Actividad, type ColumnaId,
 } from "@/lib/actividades";
@@ -96,7 +96,7 @@ function Fecha({ a }: { a: Actividad }) {
   if (!a.fecha_compromiso) return <span className="text-[11px] text-[var(--d-faint)]">Sin fecha</span>;
   const d = diasAtraso(a); const h = venceHoy(a); const term = columnaDe(a) === "TERMINADA";
   const cls = term ? "text-[var(--d-muted)]" : d > 0 ? "text-[var(--d-danger)] font-semibold" : h ? "text-[var(--d-warn)] font-semibold" : "text-[var(--d-text-2)]";
-  return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{a.hora_compromiso ? ` ${String(a.hora_compromiso).slice(0, 5)}` : ""}{d > 0 && !term ? ` · ${d}d tarde` : ""}</span>;
+  return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{a.hora_compromiso ? ` ${String(a.hora_compromiso).slice(0, 5)}` : ""}{d > 0 && !term ? ` · ${atrasoTexto(d)}` : ""}</span>;
 }
 
 function Barra({ pct, col }: { pct: number; col: ColumnaId }) {
@@ -432,14 +432,14 @@ export default function ActividadesPage() {
         {/* Vistas + filtros */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
-            {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
+            {([["mi", "Mi trabajo", Sun], ["tablero", "Por estado", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
               <button key={v} onClick={() => setVista(v)} className={`${v === "lista" || v === "linea" ? "hidden md:inline-flex" : ""} shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-[#0073ea] text-white" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
             ))}
           </div>
           {/* Celular: el ámbito es un selector compacto (una sola fila de controles) */}
-          <select value={ambito} onChange={e => setAmbito(e.target.value as Ambito)} aria-label="Cuáles ver" className="md:hidden rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-[13px] font-semibold text-[var(--d-text)]"><option value="mias">Mías</option><option value="asigne">Que pedí</option><option value="todas">Todas</option></select>
+          <select value={ambito} onChange={e => setAmbito(e.target.value as Ambito)} aria-label="Cuáles ver" className="md:hidden rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-[13px] font-semibold text-[var(--d-text)]"><option value="mias">Mías</option><option value="asigne">Las que encargué</option><option value="todas">Todas</option></select>
           <div className="hidden md:inline-flex rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
-            {([["mias", "Mías"], ["asigne", "Que pedí"], ["todas", "Todas"]] as const).map(([v, l]) => (
+            {([["mias", "Mías"], ["asigne", "Las que encargué"], ["todas", "Todas"]] as const).map(([v, l]) => (
               <button key={v} onClick={() => setAmbito(v)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${ambito === v ? "bg-[#0073ea] text-white" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}>{l}</button>
             ))}
           </div>
@@ -454,7 +454,7 @@ export default function ActividadesPage() {
           </div>
         </div>
 
-        {!loading && visibles.length > 0 && !pistaVista && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]" onClick={() => { setPistaVista(true); try { localStorage.setItem("dom:pista-act", "1"); } catch { /* */ } }}>{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
+        {!loading && visibles.length > 0 && !pistaVista && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]" onClick={() => { setPistaVista(true); try { localStorage.setItem("dom:pista-act", "1"); } catch { /* */ } }}>{vista === "mi" ? "Toca el círculo para terminarla. Toca la tarjeta para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
 
         {loading ? (
           <div className="mt-5"><Esqueleto filas={5} alto={96} /></div>
@@ -648,7 +648,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           {/* Resumen a golpe de vista (celular): quién, cuándo, dónde, qué tan urgente y lo último que pasó */}
           <div className="md:hidden grid grid-cols-2 gap-2">
             <div className="col-span-2 flex items-center gap-2.5 rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><Avatar nombre={a.asignado_nombre} size={34} /><div className="min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Responsable</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.asignado_nombre || "Sin asignar"}</div></div></div>
-            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{a.hora_compromiso ? ` · ${String(a.hora_compromiso).slice(0, 5)}` : ""}{diasAtraso(a) > 0 ? ` · ${diasAtraso(a)} d tarde` : ""}</div></div>
+            <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Entrega</div><div className={`text-[15px] font-semibold ${diasAtraso(a) > 0 ? "text-[var(--d-danger)]" : "text-[var(--d-text)]"}`}>{a.fecha_compromiso ? fechaCorta(a.fecha_compromiso) : "Sin fecha"}{a.hora_compromiso ? ` · ${String(a.hora_compromiso).slice(0, 5)}` : ""}{diasAtraso(a) > 0 ? ` · ${atrasoTexto(diasAtraso(a))}` : ""}</div></div>
             <div className="rounded-2xl bg-[var(--d-card-2)] px-3 py-2.5 min-w-0"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Obra</div><div className="text-[15px] font-semibold text-[var(--d-text)] truncate">{a.obra || "Oficina"}</div></div>
             {(() => { const u = upds.find(x => x.tipo !== "sistema" && x.texto); return u ? <button type="button" onClick={() => setTabF("charla")} className="col-span-2 text-left rounded-2xl border border-[var(--d-border)] px-3 py-2.5"><div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">Lo último</div><div className="text-[14px] text-[var(--d-text)] line-clamp-2">{u.texto}</div></button> : <button type="button" onClick={() => setTabF("charla")} className="col-span-2 flex items-center gap-3 text-left rounded-2xl border border-dashed border-[var(--d-border)] px-3 py-3"><span className="shrink-0 w-9 h-9 rounded-xl bg-[#0073ea] text-white inline-flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6A.5.5 0 0 1 5 19.2V16a2.5 2.5 0 0 1-1-2V5.5Z" /></svg></span><span className="min-w-0"><span className="block text-[14px] font-semibold text-[var(--d-text)]">Nadie ha comentado</span><span className="block text-[12.5px] text-[var(--d-muted)]">Escribe cómo va o sube una foto</span></span></button>; })()}
           </div>

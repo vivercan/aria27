@@ -8,17 +8,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, X, Share, BellRing, MapPin } from "lucide-react";
-import { Ficha, IcoCalendario, IcoObra, IcoCamion, IcoSello, IcoTarea, IcoSaco, IcoMicro, type Ico } from "@/components/domenica/IconosObra";
+import { Ficha, IcoCamion, IcoSello, IcoTarea, IcoSaco, IcoMicro } from "@/components/domenica/IconosObra";
 import { obraAqui, type ObraGeo } from "@/lib/geo";
 import { enRiesgo } from "@/lib/riesgo";
 import { normObra } from "@/lib/obras-dom";
 import { estadoPush, activarPush } from "@/lib/push-client";
-import { Contador } from "@/components/domenica/ui";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
-import { columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
+import { atrasoTexto, columnaDe, diasAtraso, venceHoy, esMia, fechaCorta, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type R = { id: string; folio: string; cost_center_name: string; status: string; purchase_status?: string | null; user_email?: string; responsable_email?: string | null; tipo_solicitud?: string | null; created_at: string; required_date?: string | null; proveedor?: string | null };
 type Item = { key: string; href: string; titulo: string; sub: string; boton: string; color: string; icon: "req" | "act"; urg: number; obra?: string | null };
@@ -36,6 +35,8 @@ export default function CampoHome() {
   // ¿En qué obra estás? (si ya diste permiso de ubicación, se detecta solo)
   const [aqui, setAqui] = useState<{ id: string; nombre: string; metros: number } | null>(null);
   const [geoEstado, setGeoEstado] = useState<"" | "preguntar" | "buscando" | "fuera">("");
+  const [geoOculto, setGeoOculto] = useState(true);
+  useEffect(() => { try { setGeoOculto(localStorage.getItem("dom:geo-oculto") === "1"); } catch { /* */ } }, []);
   const detectarObra = useCallback(() => {
     if (!navigator.geolocation) return; setGeoEstado("buscando");
     navigator.geolocation.getCurrentPosition(async p => {
@@ -98,7 +99,7 @@ export default function CampoHome() {
     }
     for (const a of acts) {
       const d = diasAtraso(a); const h = venceHoy(a); const col = columnaDe(a); const rg = enRiesgo(a, hoyIso);
-      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? `${d} día${d === 1 ? "" : "s"} tarde` : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#b85507" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
+      out.push({ obra: a.obra, key: "a" + a.id, href: `/dashboard/actividades?abrir=${a.id}`, titulo: a.titulo, sub: rg && d <= 0 ? `Riesgo: ${rg.motivo} · ${a.obra || "Oficina"}` : `${a.obra || "Oficina"} · ${d > 0 ? atrasoTexto(d) : h ? "vence hoy" : a.fecha_compromiso ? `entrega ${fechaCorta(a.fecha_compromiso)}` : "sin fecha"} · ${Number(a.avance) || 0}%`, boton: col === "BLOQUEADA" ? "Atorada" : "Abrir", color: d > 0 ? "#d0304a" : h ? "#b85507" : rg ? "#c2570c" : col === "BLOQUEADA" ? "#d0304a" : "#0073ea", icon: "act", urg: d > 0 ? 0 : h ? 1 : rg ? 2 : 3 });
     }
     // Si estás en una obra, lo de esa obra va primero
     const enAqui = (x: Item) => (aqui && normObra(x.obra) === normObra(aqui.nombre) ? 0 : 1);
@@ -114,102 +115,93 @@ export default function CampoHome() {
         <div className="dom-in relative overflow-hidden rounded-3xl px-4 py-3.5 bg-[#0060c7]">
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] text-white/85">{hoyTxt}</p>
-              <h1 className="text-[21px] font-bold text-white leading-tight truncate">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
-              <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
+              <p className="text-[14px] text-white/90">{hoyTxt}</p>
+              <h1 className="text-[23px] font-bold text-white leading-tight truncate">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
+              <p className="mt-1 text-[15px] text-white/90">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
             </div>
             {me && <span className="shrink-0 w-10 h-10 text-base rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>
         </div>
 
-        {/* Voz primero: un toque y le dices lo que necesitas */}
-        <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:hablar")); } catch { /* */ } }} className="dom-in mt-3 w-full flex items-center gap-3 rounded-2xl bg-[#6d35c9] px-3.5 py-3 text-left text-white active:scale-[0.99] transition">
-          <span className="shrink-0 w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-6 h-6" color="#fff" fondo="#6d35c9" /></span>
-          <span className="flex-1 min-w-0"><span className="block text-[16px] font-bold leading-tight">Toca y dime qué necesitas</span><span className="block text-[12.5px] text-white/85 truncate">“Haz una requisición” · “Anota mis pendientes”</span></span>
-        </button>
+        {/* 11-Oct-2026 · De lo general a lo particular: 1) lo que te toca  2) ¿qué quieres hacer?  3) lo demás está en Más */}
 
         {/* Estás en una obra (geocerca): lo de esa obra primero */}
-        {aqui ? (
-          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3" style={{ background: "#3cde01" }}>
+        {aqui && (
+          <div className="dom-in mt-3 flex items-center gap-3 rounded-2xl px-3.5 py-3 bg-[#2aa300]">
             <MapPin className="w-6 h-6 text-white shrink-0" />
-            <div className="flex-1 min-w-0 text-white sobre-verde"><div className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Estás en</div><div className="text-[15px] font-bold truncate">{aqui.nombre}</div></div>
-            <Link href={`/dashboard/domenica/obras/${aqui.id}/bitacora`} className="shrink-0 rounded-xl bg-white/20 px-3 py-2 text-[12.5px] font-bold text-white">Bitácora</Link>
-            <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-3 py-2 text-[12.5px] font-bold text-[#1f8f00]">Obra</Link>
+            <div className="flex-1 min-w-0 text-white"><div className="text-[13px] font-semibold text-white/90">Estás en</div><div className="text-[16px] font-bold truncate">{aqui.nombre}</div></div>
+            <Link href={`/dashboard/domenica/obras/${aqui.id}`} className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-[15px] font-bold text-[#1f7a00]">Ver obra</Link>
           </div>
-        ) : geoEstado === "preguntar" ? (
-          <button onClick={detectarObra} className="mt-3 w-full flex items-center gap-2 rounded-2xl border border-dashed border-[var(--d-border)] px-3.5 py-2.5 text-left text-[13px] font-semibold text-[var(--d-link)]"><MapPin className="w-4 h-4" />¿Estás en una obra? Toca para que te muestre lo de ahí</button>
-        ) : geoEstado === "buscando" ? <div className="mt-3 text-[12.5px] text-[var(--d-muted)] flex items-center gap-1.5"><MapPin className="w-4 h-4" />Buscando en qué obra estás…</div> : null}
+        )}
 
-        {/* 3 numeros */}
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {[
-            { n: pendReq.length, l: "Solicitudes por atender", c: "var(--c-ambar)", href: "/dashboard/requisiciones/requisiciones/estatus?tab=toca" },
-            { n: acts.length, l: "Mis actividades", c: "var(--c-azul)", href: "/dashboard/actividades?vista=mi" },
-            { n: atrasadas.length, l: "Atrasadas", c: "var(--c-rojo)", href: "/dashboard/actividades?vista=mi" },
-          ].map((k, ki) => (
-            <Link key={k.l} href={k.href} style={{ animationDelay: `${80 + ki * 60}ms` }} className="dom-card dom-in rounded-2xl px-3 py-2.5 active:scale-[0.97] transition">
-              <div className="text-[22px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "var(--d-faint)" }}>{loading ? "–" : <Contador n={k.n} />}</div>
-              <div className="mt-1.5 text-[11px] leading-tight text-[var(--d-muted)]">{k.l}</div>
-            </Link>
-          ))}
-        </div>
-
-
-        {/* AHORA: una sola cosa grande (enfoque) */}
+        {/* 1) LO QUE TE TOCA AHORA: una sola cosa grande */}
         <section className="mt-4">
-          <h2 className="mb-1.5 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Ahora</h2>
+          <h2 className="mb-2 text-[15px] font-bold text-[var(--d-text)]">Lo que te toca ahora</h2>
           {loading ? <Esqueleto filas={1} alto={132} /> : items.length === 0 ? (
-            <div className="dom-card rounded-3xl"><Vacio dibujo="listo" titulo="¡Todo al día!" texto={enCurso ? `No te toca nada. Tienes ${enCurso} solicitud${enCurso === 1 ? "" : "es"} en camino.` : "No te toca nada por ahora. Usa el botón + para pedir o asignar algo."} /></div>
+            <div className="dom-card rounded-3xl px-4 py-4 flex items-center gap-3">
+              <span className="shrink-0 w-12 h-12 rounded-2xl bg-[#2aa300] flex items-center justify-center"><svg viewBox="0 0 24 24" className="w-7 h-7"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+              <div className="flex-1 min-w-0"><div className="text-[18px] font-bold text-[var(--d-text)]">¡Todo al día!</div><div className="text-[15px] text-[var(--d-muted)]">{enCurso ? `No te toca nada. Tienes ${enCurso} solicitud${enCurso === 1 ? "" : "es"} en camino.` : "No te toca nada por ahora."}</div></div>
+            </div>
           ) : (() => { const it = items[0]; return (
             <Link href={it.href} className="dom-in block rounded-3xl p-4 active:scale-[0.99] transition relative overflow-hidden" style={{ background: "var(--d-card)", boxShadow: "var(--d-shadow)", border: `2px solid ${it.color}` }}>
-                            <div className="relative flex items-start gap-3">
+              <div className="relative flex items-start gap-3">
                 <Ficha ico={it.icon === "req" ? (it.boton === "Autorizar" || it.boton === "Aprobar" ? IcoSello : IcoSaco) : IcoTarea} color={it.color} size="lg" />
-                <div className="flex-1 min-w-0"><div className="text-[18px] font-bold leading-snug text-[var(--d-text)] line-clamp-2">{it.titulo}</div><div className="mt-0.5 text-[13px] text-[var(--d-muted)] line-clamp-2">{it.sub}</div></div>
+                <div className="flex-1 min-w-0"><div className="text-[18px] font-bold leading-snug text-[var(--d-text)] line-clamp-2">{it.titulo}</div><div className="mt-0.5 text-[15px] text-[var(--d-muted)] line-clamp-2">{it.sub}</div></div>
               </div>
-              <div className="relative mt-3 flex items-center justify-between">
-                <span className="text-[12px] text-[var(--d-faint)]">{items.length > 1 ? `y ${items.length - 1} más después` : "Es lo único pendiente"}</span>
-                <span className="rounded-2xl px-5 py-2.5 text-[15px] font-bold shadow" style={{ background: it.color, color: it.color === "#ffcb00" || it.color === "#fdab3d" ? "#2a1a00" : "#fff" }}>{it.boton} →</span>
+              <div className="relative mt-3 flex items-center justify-between gap-2">
+                <span className="text-[14px] text-[var(--d-muted)]">{items.length > 1 ? `Después: ${items.length - 1} más` : "Es lo único pendiente"}</span>
+                <span className="rounded-2xl px-5 py-3 text-[17px] font-bold" style={{ background: it.color === "#3cde01" ? "#2aa300" : it.color, color: "#fff" }}>{it.boton} →</span>
               </div>
             </Link>); })()}
         </section>
 
-        {/* DESPUÉS: máximo 3, sin saturar */}
+        {/* Después: máximo 2, y un botón claro para ver todo */}
         {!loading && items.length > 1 && (
-          <section className="mt-4">
-            <div className="mb-1.5 flex items-center justify-between"><h2 className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Después</h2>
-              {items.length > 3 && <Link href="/dashboard/actividades?vista=mi" className="inline-flex items-center gap-0.5 py-2.5 -my-2.5 pl-3 text-[13px] font-semibold text-[var(--d-link)]">Ver las {items.length} <ChevronRight className="w-4 h-4" /></Link>}</div>
+          <section className="mt-3">
             <ul className="space-y-2">
               {items.slice(1, 3).map((it, ii) => (
               <li key={it.key} className="dom-in" style={{ animationDelay: `${120 + ii * 60}ms` }}>
                 <Link href={it.href} className="dom-card flex items-center gap-3 rounded-2xl p-3 active:scale-[0.99] transition">
                   <Ficha ico={it.icon === "req" ? (it.boton === "Autorizar" || it.boton === "Aprobar" ? IcoSello : IcoSaco) : IcoTarea} color={it.color} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-semibold text-[var(--d-text)] truncate">{it.titulo}</div>
-                    <div className="text-[11.5px] text-[var(--d-muted)] truncate">{it.sub}</div>
+                    <div className="text-[16px] font-semibold text-[var(--d-text)] truncate">{it.titulo}</div>
+                    <div className="text-[14px] text-[var(--d-muted)] truncate">{it.sub}</div>
                   </div>
-                  <span className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold" style={{ background: it.color, color: it.color === "#ffcb00" || it.color === "#fdab3d" ? "#2a1a00" : "#fff" }}>{it.boton}</span>
+                  <span className="shrink-0 rounded-xl px-3 py-2 text-[14px] font-bold text-white" style={{ background: it.color === "#3cde01" ? "#2aa300" : it.color }}>{it.boton}</span>
                 </Link>
               </li>
               ))}
             </ul>
+            {items.length > 3 && <Link href={porAutorizar > 0 ? "/dashboard/campo/autorizar" : "/dashboard/actividades?vista=mi"} className="mt-2 flex items-center justify-center gap-1 h-12 rounded-2xl border border-[var(--d-border)] text-[16px] font-bold text-[var(--d-link)]">Ver todo lo que te toca ({items.length}) <ChevronRight className="w-5 h-5" /></Link>}
           </section>
         )}
 
-        {/* Atajos discretos (lo demás está en el botón +) */}
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {(porAutorizar > 0 ? [
-            { href: "/dashboard/campo/autorizar", t: `Por autorizar (${porAutorizar})`, icon: IcoSello, c: "#3cde01" },
-            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#c9410f" },
-            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#b85507" },
-          ] : [
-            { href: "/dashboard/campo/calendario", t: "Calendario", icon: IcoCalendario, c: "#b85507" },
-            { href: "/dashboard/domenica/obras", t: "Mis obras", icon: IcoObra, c: "#c9410f" },
-            { href: "/dashboard/campo/evidencia", t: porEntregar.length ? `Por recibir (${porEntregar.length})` : "Entregas", icon: IcoCamion, c: "#0077ad" },
-          ] as { href: string; t: string; icon: Ico; c: string }[]).map(x => (
-            <Link key={x.href} href={x.href} className="dom-card rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.97] transition">
-              <Ficha ico={x.icon} color={x.c} size="sm" /><span className="text-[12px] font-semibold text-[var(--d-text-2)] text-center leading-tight">{x.t}</span>
-            </Link>))}
-        </div>
+        {/* 2) ¿QUÉ QUIERES HACER? — las mismas 4 opciones, colores y nombres que el botón + Nuevo */}
+        <section className="mt-6">
+          <h2 className="mb-2 text-[15px] font-bold text-[var(--d-text)]">¿Qué quieres hacer?</h2>
+          <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:hablar")); } catch { /* */ } }} className="w-full flex items-center gap-3 rounded-2xl bg-[#6d35c9] px-4 py-3.5 text-left text-white active:scale-[0.99] transition">
+            <span className="shrink-0 w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center"><IcoMicro className="w-7 h-7" color="#fff" fondo="#6d35c9" /></span>
+            <span className="flex-1 min-w-0"><span className="block text-[17px] font-bold leading-tight">Habla con Doménica</span><span className="block text-[14px] text-white/90">Dile lo que necesitas y ella lo arma</span></span>
+          </button>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Link href="/dashboard/requisiciones/requisiciones/nuevo" className="rounded-2xl bg-[#0073ea] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
+              <IcoSaco className="w-8 h-8" color="#fff" fondo="#0073ea" /><span className="text-[16px] font-bold leading-tight">Pedir material</span><span className="text-[13.5px] leading-tight text-white/90">Cemento, varilla, un servicio…</span></Link>
+            <Link href="/dashboard/actividades?nueva=1" className="rounded-2xl bg-[#b85507] p-3.5 text-white flex flex-col gap-1.5 min-h-[112px] active:scale-[0.98] transition">
+              <IcoTarea className="w-8 h-8" color="#fff" fondo="#b85507" /><span className="text-[16px] font-bold leading-tight">Encargar algo</span><span className="text-[13.5px] leading-tight text-white/90">Una tarea para alguien</span></Link>
+          </div>
+          <Link href="/dashboard/campo/evidencia" className="mt-2 flex items-center gap-3 rounded-2xl bg-[#2aa300] px-4 py-3.5 text-white active:scale-[0.99] transition">
+            <IcoCamion className="w-8 h-8 shrink-0" color="#fff" fondo="#2aa300" /><span className="flex-1"><span className="block text-[16px] font-bold leading-tight">Registrar una entrega{porEntregar.length ? ` (${porEntregar.length})` : ""}</span><span className="block text-[13.5px] text-white/90">Llegó material: foto y quién recibió</span></span></Link>
+          {porAutorizar > 0 && <Link href="/dashboard/campo/autorizar" className="mt-2 flex items-center gap-3 rounded-2xl dom-card px-4 py-3.5 active:scale-[0.99] transition"><Ficha ico={IcoSello} color="#2aa300" /><span className="flex-1 text-[16px] font-bold text-[var(--d-text)]">Autorizar ({porAutorizar})</span><ChevronRight className="w-5 h-5 text-[var(--d-faint)]" /></Link>}
+          <p className="mt-3 text-center text-[14px] text-[var(--d-muted)]">Obras, calendario, equipo y ajustes están en <b className="text-[var(--d-text)]">Más</b>, abajo a la derecha.</p>
+        </section>
+
+        {geoEstado === "preguntar" && !geoOculto && (
+          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-dashed border-[var(--d-border)] pl-3.5 pr-1">
+            <MapPin className="w-5 h-5 shrink-0 text-[var(--d-link)]" />
+            <button onClick={detectarObra} className="flex-1 py-3 text-left text-[14.5px] font-semibold text-[var(--d-link)]">¿Estás en una obra? Toca y te muestro lo de ahí</button>
+            <button onClick={() => { setGeoOculto(true); try { localStorage.setItem("dom:geo-oculto", "1"); } catch { /* */ } }} className="w-11 h-11 flex items-center justify-center text-[var(--d-muted)]" aria-label="Ocultar"><X className="w-5 h-5" /></button>
+          </div>
+        )}
 
         {/* Notificaciones del telefono */}
         {(push === "pendiente" || pushMsg) && (

@@ -17,6 +17,7 @@ import {
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
+import RegresarTel, { esRaizTel } from "@/components/campo/RegresarTel";
 import { revisarVersion } from "@/lib/version-check";
 import PantallaCompu from "@/components/campo/PantallaCompu";
 import { esPantallaCompu } from "@/lib/rutas-tel";
@@ -178,16 +179,6 @@ function ThemeToggle() {
       {theme === "dark"
         ? <Sun className="w-4 h-4" style={{ color: "#f59e0b" }} />
         : <Moon className="w-4 h-4" style={{ color: "#4a6080" }} />}
-    </button>
-  );
-}
-
-/** Doménica 27: en celular el sol/luna del encabezado cambia el tema claro/oscuro de Doménica */
-function DomTemaToggle() {
-  const t = useTemaDom();
-  return (
-    <button onClick={() => { const n = t === "claro" ? "oscuro" : "claro"; guardarTema(n); }} className="p-2 rounded-lg" aria-label={t === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
-      {t === "claro" ? <Moon className="w-5 h-5" style={{ color: "#334155" }} /> : <Sun className="w-5 h-5" style={{ color: "#fdab3d" }} />}
     </button>
   );
 }
@@ -794,7 +785,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         >
           <div className="flex items-center h-full px-5 gap-4">
             {/* Mobile menu button */}
-            {esMovil && <DomenicaLogo />}
+            {/* 11-Oct-2026: en el teléfono, en las 4 pantallas principales va el logo; en todas las demás "← Regresar", siempre en el mismo lugar */}
+            {esMovil && (esRaizTel(pathname || "") || compu ? <DomenicaLogo /> : <RegresarTel />)}
             <button
               onClick={() => setMobileOpen(true)}
               className={`${esMovil ? "hidden" : "md:hidden"} p-2 rounded-lg hover:bg-white/[0.06] min-w-[40px] min-h-[40px] flex items-center justify-center`}
@@ -819,7 +811,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
             {/* Right group */}
             <div className="flex items-center gap-3 ml-auto">
-              {esMovil ? <DomTemaToggle /> : <ThemeToggle />}
+              {esMovil ? (
+                <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:guia")); } catch { /* */ } }} className="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-full bg-[var(--d-card-2)] text-[15px] font-bold text-[var(--d-text)]" aria-label="Ayuda: cómo se usa">
+                  <span className="w-[22px] h-[22px] rounded-full bg-[#0073ea] text-white text-[14px] font-black flex items-center justify-center">?</span>Ayuda
+                </button>
+              ) : <ThemeToggle />}
 
               {/* Date + Avatar — grouped pill container */}
               <div
@@ -838,7 +834,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
               {/* Mobile avatar only */}
               <div
-                className="w-8 h-8 rounded-full md:hidden flex items-center justify-center text-[12px] font-bold"
+                className={`w-8 h-8 rounded-full md:hidden ${esMovil ? "!hidden" : "flex"} items-center justify-center text-[12px] font-bold`}
                 style={{ backgroundColor: "rgba(37,99,235,0.18)", color: "#5b9bf8" }}
               >
                 {userName.charAt(0).toUpperCase() || "U"}

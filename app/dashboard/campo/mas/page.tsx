@@ -15,33 +15,35 @@ import { estadoPush, activarPush } from "@/lib/push-client";
 import { iniciales, colorPersona } from "@/lib/actividades";
 
 type Item = { href: string; t: string; d: string; icon: Ico; color: string; roles?: string[] };
-const SECCIONES: { titulo: string; icon?: Ico; color?: string; items: Item[] }[] = [
-  { titulo: "Mi día", items: [
-    { href: "/dashboard/campo/autorizar", t: "Por autorizar", d: "Autoriza o rechaza en un toque", icon: IcoSello, color: "#3cde01", roles: ["admin", "direccion", "validador", "residente"] },
-    { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado en Tanque?”", icon: IcoPregunta, color: "#7e3bdd" },
-    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Entregas y actividades", icon: IcoCalendario, color: "#b85507" },
-    { href: "/dashboard/campo/evidencia", t: "Registrar entregas", d: "Foto, ubicación y quién recibió", icon: IcoCamion, color: "#0077ad" },
+// 11-Oct-2026: sin carpetas ("N opciones"). Todo a la vista, de lo general (lo de todos los días) a lo particular.
+const SECCIONES: { titulo: string; items: Item[] }[] = [
+  { titulo: "Lo de todos los días", items: [
+    { href: "/dashboard/campo/autorizar", t: "Autorizar", d: "Lo que espera tu visto bueno", icon: IcoSello, color: "#2aa300", roles: ["admin", "direccion", "validador", "residente"] },
+    { href: "/dashboard/campo/calendario", t: "Calendario", d: "Qué hay cada día: entregas y pendientes", icon: IcoCalendario, color: "#b85507" },
+    { href: "/dashboard/campo/evidencia", t: "Registrar una entrega", d: "Llegó material: foto y quién recibió", icon: IcoCamion, color: "#0077ad" },
+    { href: "/dashboard/campo/pregunta", t: "Pregúntale a Doménica", d: "“¿Qué está atrasado?”", icon: IcoPregunta, color: "#7e3bdd" },
   ] },
-  { titulo: "Obras", icon: IcoCasco, color: "#c9410f", items: [
-    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gasto y bitácora del día", icon: IcoObra, color: "#c9410f" },
-    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Calidad y seguridad con foto y firma", icon: IcoRevision, color: "#3cde01" },
-    { href: "/dashboard/domenica/planos", t: "Planos", d: "Marca pendientes encima del plano", icon: IcoPlano, color: "#0073ea" },
-    { href: "/dashboard/obras/catalogo", t: "Catálogo de obras", d: "Ver, ubicar y dar de alta", icon: IcoCasco, color: "#c2461a" },
+  { titulo: "Mis obras", items: [
+    { href: "/dashboard/domenica/obras", t: "Mis obras", d: "Avance, gastos y bitácora del día", icon: IcoObra, color: "#c9410f" },
+    { href: "/dashboard/domenica/revisiones", t: "Revisiones", d: "Revisar calidad y seguridad con foto y firma", icon: IcoRevision, color: "#2aa300" },
+    { href: "/dashboard/domenica/planos", t: "Planos", d: "Ver planos y marcar pendientes", icon: IcoPlano, color: "#0073ea" },
+    { href: "/dashboard/obras/catalogo", t: "Lista de obras", d: "Datos y ubicación de cada obra", icon: IcoCasco, color: "#c2461a" },
   ] },
-  { titulo: "Compras", icon: IcoBodega, color: "#0077ad", items: [
-    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Directorio y datos bancarios", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
-    { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Catálogo de materiales", icon: Package as unknown as Ico, color: "#0073ea", roles: ["admin", "compras", "direccion", "rh"] },
+  { titulo: "Mi equipo", items: [
+    { href: "/dashboard/talento/checadas", t: "Asistencias", d: "Quién llegó hoy", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "validador"] },
+    { href: "/dashboard/talento/personal", t: "Personal", d: "Datos de cada empleado", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
+    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Quién entra al sistema y qué ve", icon: UserCog as unknown as Ico, color: "#c62f5e", roles: ["admin", "rh"] },
   ] },
-  { titulo: "Equipo", icon: IcoEquipo, color: "#c62f5e", items: [
-    { href: "/dashboard/talento/usuarios", t: "Usuarios", d: "Altas, bajas y permisos", icon: UserCog as unknown as Ico, color: "#c62f5e", roles: ["admin", "rh"] },
-    { href: "/dashboard/talento/personal", t: "Personal", d: "Empleados", icon: IcoEquipo, color: "#c62f5e", roles: ["admin", "rh", "direccion", "validador"] },
-    { href: "/dashboard/talento/checadas", t: "Checadas", d: "Asistencias del día", icon: IcoChecada, color: "#c62f5e", roles: ["admin", "rh", "validador"] },
+  { titulo: "Compras", items: [
+    { href: "/dashboard/requisiciones/proveedores", t: "Proveedores", d: "Teléfonos y datos de pago", icon: IcoBodega, color: "#0077ad", roles: ["admin", "compras", "direccion", "rh", "validador"] },
+    { href: "/dashboard/requisiciones/productos", t: "Productos", d: "Lista de materiales", icon: Package as unknown as Ico, color: "#0073ea", roles: ["admin", "compras", "direccion", "rh"] },
   ] },
-  { titulo: "Organizar el trabajo", icon: IcoOrganizar, color: "#7e3bdd", items: [
-    { href: "/dashboard/domenica/plantillas", t: "Plantillas", d: "Arranque de obra en un clic", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
-    { href: "/dashboard/domenica/recurrentes", t: "Recurrentes", d: "Lo que se repite se crea solo", icon: Repeat as unknown as Ico, color: "#0073ea" },
-    { href: "/dashboard/domenica/carga", t: "Carga de trabajo", d: "Quién está saturado", icon: BarChart3 as unknown as Ico, color: "#3cde01", roles: ["admin", "rh", "direccion", "validador", "compras"] },
-    { href: "/dashboard/domenica/automatizaciones", t: "Automatizaciones", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#b85507", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+  { titulo: "Para organizar el trabajo", items: [
+    { href: "/dashboard/domenica/plantillas", t: "Listas de pasos", d: "Ej. arranque de obra: crea todas las tareas de un jalón", icon: LayoutTemplate as unknown as Ico, color: "#7e3bdd" },
+    { href: "/dashboard/domenica/recurrentes", t: "Lo que se repite", d: "Tareas que se crean solas cada semana o mes", icon: Repeat as unknown as Ico, color: "#0073ea" },
+    { href: "/dashboard/domenica/carga", t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos", icon: BarChart3 as unknown as Ico, color: "#2aa300", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica/automatizaciones", t: "Avisos automáticos", d: "Si pasa esto, avisa a…", icon: Zap as unknown as Ico, color: "#b85507", roles: ["admin", "rh", "direccion", "validador", "compras"] },
+    { href: "/dashboard/domenica", t: "Todas las herramientas", d: "Línea de tiempo, qué va primero y más", icon: IcoOrganizar, color: "#55657c" },
   ] },
 ];
 
@@ -49,10 +51,10 @@ export default function MasPage() {
   const router = useRouter();
   const [me, setMe] = useState<{ email: string; role: string; name: string } | null>(null);
   const tema = useTemaDom();
-  // Secciones plegables: solo "Mi día" abierta; las demás se abren al tocarlas (y se recuerda)
-  const [abiertas, setAbiertas] = useState<Record<string, boolean>>({});
-  useEffect(() => { try { setAbiertas(JSON.parse(localStorage.getItem("dom:mas-abiertas") || "{}")); } catch { /* */ } }, []);
-  const alternar = (k: string) => setAbiertas(a => { const n = { ...a, [k]: !a[k] }; try { localStorage.setItem("dom:mas-abiertas", JSON.stringify(n)); } catch { /* */ } return n; });
+  // Tamaño de letra (para quien ve mejor con letra grande)
+  const [letra, setLetra] = useState<"normal" | "grande">("normal");
+  useEffect(() => { try { setLetra(localStorage.getItem("dom:letra") === "grande" ? "grande" : "normal"); } catch { /* */ } }, []);
+  const cambiarLetra = (l: "normal" | "grande") => { setLetra(l); try { localStorage.setItem("dom:letra", l); } catch { /* */ } document.documentElement.classList.toggle("dom-letra-grande", l === "grande"); };
   const [push, setPush] = useState(""); const [pushMsg, setPushMsg] = useState("");
   const [prueba, setPrueba] = useState<{ disponible: boolean; activo?: boolean }>({ disponible: false });
   useEffect(() => { fetch("/api/auth/modo-prueba", { credentials: "include" }).then(r => r.ok ? r.json() : { disponible: false }).then(setPrueba).catch(() => {}); }, []);
@@ -88,32 +90,45 @@ export default function MasPage() {
           </div>
         </div>
 
-        {SECCIONES.map((sec, si) => { const items = sec.items.filter(visible); if (!items.length) return null; const fijo = si === 0; const open = fijo || !!abiertas[sec.titulo]; return (
-          <section key={sec.titulo} className="mt-5">
-            {fijo ? <h2 className="px-1 mb-2 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">{sec.titulo}</h2> : (
-              <button type="button" onClick={() => alternar(sec.titulo)} aria-expanded={open} className="dom-card w-full rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left">
-                {sec.icon ? <Ficha ico={sec.icon} color={sec.color || "#0073ea"} /> : null}
-                <span className="flex-1"><span className="block text-[15px] font-bold text-[var(--d-text)]">{sec.titulo}</span><span className="block text-[12px] text-[var(--d-muted)]">{items.length} opci{items.length === 1 ? "ón" : "ones"}</span></span>
-                <ChevronRight className={`w-5 h-5 text-[var(--d-faint)] transition-transform ${open ? "rotate-90" : ""}`} />
-              </button>)}
-            {open && <div className={`dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)] ${fijo ? "" : "mt-2 dom-in"}`}>
+        {SECCIONES.map(sec => { const items = sec.items.filter(visible); if (!items.length) return null; return (
+          <section key={sec.titulo} className="mt-6">
+            <h2 className="px-1 mb-2 text-[16px] font-bold text-[var(--d-text)]">{sec.titulo}</h2>
+            <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
               {items.map(({ href, t, d, icon: Icon, color }) => (
-                <Link key={href} href={href} className="flex items-center gap-3 px-4 py-3.5 active:bg-[var(--d-hover)]">
+                <Link key={href} href={href} className="flex items-center gap-3 px-4 py-3.5 min-h-[64px] active:bg-[var(--d-hover)]">
                   <Ficha ico={Icon} color={color} />
-                  <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">{t}</div><div className="text-[12px] text-[var(--d-muted)] truncate">{d}</div></div>
-                  <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
+                  <div className="flex-1 min-w-0"><div className="text-[16px] font-semibold text-[var(--d-text)]">{t}</div><div className="text-[14px] text-[var(--d-muted)] leading-snug">{d}</div></div>
+                  <ChevronRight className="w-5 h-5 text-[var(--d-faint)]" />
                 </Link>))}
-            </div>}
+            </div>
           </section>); })}
 
         <section className="mt-6">
-          <h2 className="px-1 mb-2 text-[12px] font-bold uppercase tracking-wider text-[var(--d-faint)]">Ajustes</h2>
+          <h2 className="px-1 mb-2 text-[16px] font-bold text-[var(--d-text)]">Ayuda</h2>
+          <div className="dom-card rounded-2xl overflow-hidden">
+            <button type="button" onClick={() => { try { window.dispatchEvent(new Event("dom:guia")); } catch { /* */ } }} className="w-full flex items-center gap-3 px-4 py-3.5 min-h-[64px] text-left">
+              <span className="shrink-0 w-10 h-10 rounded-xl bg-[#0073ea] text-white text-[20px] font-black flex items-center justify-center">?</span>
+              <div className="flex-1"><div className="text-[16px] font-semibold text-[var(--d-text)]">Cómo se usa Doménica</div><div className="text-[14px] text-[var(--d-muted)]">Una guía de 4 pasos, con letra grande</div></div>
+              <ChevronRight className="w-5 h-5 text-[var(--d-faint)]" />
+            </button>
+          </div>
+        </section>
+
+        <section className="mt-6">
+          <h2 className="px-1 mb-2 text-[16px] font-bold text-[var(--d-text)]">Ajustes</h2>
           <div className="dom-card rounded-2xl overflow-hidden divide-y divide-[var(--d-border)]">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: tema === "claro" ? "#e8890c" : "#5b4bc4" }}>{tema === "claro" ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}</span>
-              <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--d-text)]">Apariencia</div><div className="text-[12px] text-[var(--d-muted)]">{tema === "claro" ? "Claro" : "Oscuro"}</div></div>
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0b1830] text-white font-black text-[18px]">Aa</span>
+              <div className="flex-1"><div className="text-[16px] font-semibold text-[var(--d-text)]">Tamaño de letra</div><div className="text-[14px] text-[var(--d-muted)]">{letra === "grande" ? "Grande" : "Normal"}</div></div>
               <div className="inline-flex rounded-xl bg-[var(--d-card-2)] p-1">
-                {(["claro", "oscuro"] as const).map(t => <button key={t} onClick={() => cambiarTema(t)} className={`rounded-lg px-3 py-1.5 text-xs font-bold capitalize ${tema === t ? "bg-[#0073ea] text-white" : "text-[var(--d-muted)]"}`}>{t}</button>)}
+                {(["normal", "grande"] as const).map(l => <button key={l} onClick={() => cambiarLetra(l)} className={`rounded-lg px-3.5 h-10 font-bold capitalize ${l === "grande" ? "text-[16px]" : "text-[13px]"} ${letra === l ? "bg-[#0073ea] text-white" : "text-[var(--d-muted)]"}`}>{l}</button>)}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3.5">
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: tema === "claro" ? "#e8890c" : "#5b4bc4" }}>{tema === "claro" ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}</span>
+              <div className="flex-1"><div className="text-[16px] font-semibold text-[var(--d-text)]">Colores</div><div className="text-[14px] text-[var(--d-muted)]">{tema === "claro" ? "Fondo claro" : "Fondo oscuro"}</div></div>
+              <div className="inline-flex rounded-xl bg-[var(--d-card-2)] p-1">
+                {(["claro", "oscuro"] as const).map(t => <button key={t} onClick={() => cambiarTema(t)} className={`rounded-lg px-3.5 h-10 text-[14px] font-bold capitalize ${tema === t ? "bg-[#0073ea] text-white" : "text-[var(--d-muted)]"}`}>{t}</button>)}
               </div>
             </div>
             <button onClick={async () => { if (push === "activo") return; const r = await activarPush(); if (r.ok) { setPush("activo"); setPushMsg("Activas. Te mandamos una de prueba."); } else setPushMsg(r.error || ""); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">

@@ -152,3 +152,12 @@ export function resumen(list: Actividad[], hoy: Date = new Date()) {
     terminadas: list.filter(a => columnaDe(a) === "TERMINADA").length,
   };
 }
+
+/** 11-Oct-2026 · Atraso en palabras de casa: "3 días tarde", "2 semanas tarde", "5 meses tarde" (antes "164d tarde") */
+export function atrasoTexto(d: number): string {
+  if (!d || d <= 0) return "";
+  if (d === 1) return "1 día tarde";
+  if (d < 14) return `${d} días tarde`;
+  if (d < 60) return `${Math.round(d / 7)} semanas tarde`;
+  const m = Math.round(d / 30); return m <= 1 ? "1 mes tarde" : `${m} meses tarde`;
+}

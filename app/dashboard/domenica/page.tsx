@@ -17,26 +17,26 @@ const NOMBRE_MODULO = "ARIA Doménica";
 type Pieza = { t: string; d: string; href?: string; icon: typeof Sun; color: string; estado: "listo" | "parcial" | "pronto" };
 const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
   { titulo: "Planear", piezas: [
-    { t: "Línea de tiempo", d: "Barras por obra, flechas de lo que espera a qué y ruta crítica", href: "/dashboard/actividades?vista=linea", icon: GanttChart, color: "#a25ddc", estado: "listo" },
-    { t: "Dependencias", d: "No empieza hasta terminar la anterior; si una se atrasa, las siguientes se recorren solas", href: "/dashboard/actividades", icon: Link2, color: "#a25ddc", estado: "listo" },
-    { t: "Plantillas", d: "Arranque de obra en un clic", href: "/dashboard/domenica/plantillas", icon: LayoutTemplate, color: "#a25ddc", estado: "listo" },
-    { t: "Recurrentes", d: "Cada lunes, cada día 1", href: "/dashboard/domenica/recurrentes", icon: Repeat, color: "#a25ddc", estado: "listo" },
+    { t: "Línea de tiempo", d: "Cada tarea como una barra en el calendario; en rojo lo que, si se atrasa, atrasa toda la obra", href: "/dashboard/actividades?vista=linea", icon: GanttChart, color: "#a25ddc", estado: "listo" },
+    { t: "Qué va primero", d: "Una tarea espera a que termine otra; si una se atrasa, las siguientes se recorren solas", href: "/dashboard/actividades", icon: Link2, color: "#a25ddc", estado: "listo" },
+    { t: "Listas de pasos", d: "Ej. arranque de obra: crea todas las tareas de un jalón", href: "/dashboard/domenica/plantillas", icon: LayoutTemplate, color: "#a25ddc", estado: "listo" },
+    { t: "Lo que se repite", d: "Tareas que se crean solas: cada lunes, cada día 1", href: "/dashboard/domenica/recurrentes", icon: Repeat, color: "#a25ddc", estado: "listo" },
   ] },
   { titulo: "Coordinar", piezas: [
-    { t: "Tablero de actividades", d: "Mi trabajo · Tablero · Lista", href: "/dashboard/actividades", icon: LayoutGrid, color: "#3cde01", estado: "listo" },
+    { t: "Actividades", d: "Lo mío, por estado o en lista", href: "/dashboard/actividades", icon: LayoutGrid, color: "#3cde01", estado: "listo" },
     { t: "Espacio por obra", d: "Actividades, solicitudes, entregas y avance de cada obra", href: "/dashboard/domenica/obras", icon: Building2, color: "#3cde01", estado: "listo" },
     { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#3cde01", estado: "listo" },
-    { t: "Carga de trabajo", d: "Quién está saturado; también lo ves al asignar", href: "/dashboard/domenica/carga", icon: Users, color: "#3cde01", estado: "listo" },
-    { t: "Formularios públicos", d: "Links sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#3cde01", estado: "listo" },
+    { t: "Quién está muy cargado", d: "Antes de encargar, ve quién tiene menos trabajo", href: "/dashboard/domenica/carga", icon: Users, color: "#3cde01", estado: "listo" },
+    { t: "Enlaces para proveedores", d: "Sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#3cde01", estado: "listo" },
   ] },
   { titulo: "En la obra", piezas: [
     { t: "Bitácora diaria", d: "Se arma sola con avances, fotos y entregas; se comparte en PDF", href: "/dashboard/domenica/obras", icon: BookOpen, color: "#0077ad", estado: "listo" },
     { t: "Revisiones con firma", d: "Calidad y seguridad punto por punto, con foto y firma", href: "/dashboard/domenica/revisiones", icon: ShieldCheck, color: "#0077ad", estado: "listo" },
     { t: "Planos con marcas", d: "Pendientes, notas y fotos encima del plano", href: "/dashboard/domenica/planos", icon: MapIcon, color: "#0077ad", estado: "listo" },
-    { t: "Dictar por voz", d: "Botón + del celular: dilo y se arma la actividad o el pedido", icon: Mic, color: "#0077ad", estado: "listo" },
+    { t: "Dictar por voz", d: "Botón + Nuevo del celular: dilo y se arma la tarea o el pedido", icon: Mic, color: "#0077ad", estado: "listo" },
   ] },
   { titulo: "Controlar", piezas: [
-    { t: "Automatizaciones", d: "Si pasa esto, haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },
+    { t: "Avisos automáticos", d: "Si pasa esto, avisa o haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },
     { t: "Tablero por obra", d: "Avance contra presupuesto, gasto, atrasos y solicitudes detenidas", href: "/dashboard/domenica/obras", icon: BarChart3, color: "#fdab3d", estado: "listo" },
   ] },
 ];
@@ -62,7 +62,7 @@ export default function DomenicaHub() {
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Planea, organiza y sigue el trabajo de todas las obras.</p></div>
         </div>
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[["Actividades abiertas", k.abiertas, "var(--c-azul)", "/dashboard/actividades"], ["Atrasadas", k.atrasadas, "var(--c-rojo)", "/dashboard/actividades?vista=mi"], ["Obras activas", k.obras, "var(--c-verde)", "/dashboard/domenica/obras"], ["Automatizaciones activas", k.autos, "var(--c-ambar)", "/dashboard/domenica/automatizaciones"]].map(([l, n, c, h]) => (
+          {[["Actividades abiertas", k.abiertas, "var(--c-azul)", "/dashboard/actividades"], ["Atrasadas", k.atrasadas, "var(--c-rojo)", "/dashboard/actividades?vista=mi"], ["Obras activas", k.obras, "var(--c-verde)", "/dashboard/domenica/obras"], ["Avisos automáticos", k.autos, "var(--c-ambar)", "/dashboard/domenica/automatizaciones"]].map(([l, n, c, h]) => (
             <Link key={String(l)} href={String(h)} className="dom-card dom-in rounded-2xl p-3"><div className="text-[11px] text-[var(--d-muted)]">{l}</div><div className="text-2xl font-bold" style={{ color: Number(n) > 0 ? String(c) : "var(--d-faint)" }}><Contador n={Number(n)} /></div></Link>))}
         </div>
         {GRUPOS.map(g => (
