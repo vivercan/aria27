@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Building2, Loader2, Plus, LayoutTemplate, GanttChart, PlusCircle, LayoutGrid, AlertTriangle, ChevronRight, MapPin } from "lucide-react";
+import { BookOpen, ArrowLeft, Building2, Loader2, Plus, LayoutTemplate, GanttChart, PlusCircle, LayoutGrid, AlertTriangle, ChevronRight, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, fechaCorta, iniciales, colorPersona, COLUMNAS, type Actividad } from "@/lib/actividades";
 import { statusLabel } from "@/lib/requi-stepper";
@@ -68,8 +68,8 @@ export default function ObraDomPage() {
           {!x.presupuesto && <div className="mt-2 text-[11.5px] text-[var(--d-muted)]">Captura el presupuesto en Obras › Catálogo para ver el porcentaje.</div>}
         </div>
 
-        <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[{ href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: Plus, c: "#7e3bdd" }, { href: `/dashboard/domenica/plantillas?obra=${o.id}`, t: "Usar plantilla", icon: LayoutTemplate, c: "#a25ddc" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: GanttChart, c: "#0073ea" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: PlusCircle, c: "#00a35c" }].map(b => (
+        <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2">
+          {[{ href: `/dashboard/domenica/obras/${o.id}/bitacora`, t: "Bitácora de hoy", icon: BookOpen, c: "#0f766e" }, { href: `/dashboard/actividades?nueva=1&obra=${o.id}`, t: "Nueva actividad", icon: Plus, c: "#7e3bdd" }, { href: `/dashboard/domenica/plantillas?obra=${o.id}`, t: "Usar plantilla", icon: LayoutTemplate, c: "#a25ddc" }, { href: `/dashboard/actividades?vista=linea&obra=${o.id}`, t: "Línea de tiempo", icon: GanttChart, c: "#0073ea" }, { href: "/dashboard/requisiciones/requisiciones/nuevo", t: "Pedir material", icon: PlusCircle, c: "#00a35c" }].map(b => (
             <Link key={b.t} href={b.href} className="dom-card rounded-2xl p-3 flex items-center gap-2.5 active:scale-[0.98] transition"><span className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${b.c}1f` }}><b.icon className="w-5 h-5" style={{ color: b.c }} /></span><span className="text-[13px] font-semibold text-[var(--d-text)] leading-tight">{b.t}</span></Link>))}
         </div>
 

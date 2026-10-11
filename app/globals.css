@@ -1361,3 +1361,10 @@ body.dom-ruta { background: var(--d-bg); }
 @keyframes domShimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
 .dom-shimmer { background: linear-gradient(90deg, var(--d-card-2) 0px, var(--d-hover) 40px, var(--d-card-2) 80px); background-size: 200px 100%; animation: domShimmer 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .dom-shimmer { animation: none; } }
+
+/* Bitácora y reportes: al imprimir/guardar PDF solo sale el contenido */
+@media print {
+  main > header.sticky, nav[aria-label="Navegación"], aside, .aria-sidebar { display: none !important; }
+  body, body.dom-ruta { background: #fff !important; }
+  .dom-page { background: #fff !important; }
+}
