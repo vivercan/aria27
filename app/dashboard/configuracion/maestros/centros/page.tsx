@@ -87,8 +87,9 @@ export default function CentrosPage() {
       const { error } = await supabase.from("centros_trabajo").update(datos).eq("id", editando.id);
       if (error) { log.error("Error updating centro:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     } else {
-      const nextNum = centros.length + 1;
-      const { error } = await supabase.from("centros_trabajo").insert({ ...datos, codigo: `OBRA-${String(nextNum).padStart(3, "0")}`, activo: true });
+      // 10-Oct-2026: el codigo lo asigna la BD (secuencia OBRA-NNN); contar filas generaba codigos repetidos
+      if (datos.latitud == null || datos.longitud == null) { flash("err", "La obra necesita ubicación (latitud y longitud) para la geocerca de asistencia"); return; }
+      const { error } = await supabase.from("centros_trabajo").insert({ ...datos, estado: "ACTIVA", activo: true });
       if (error) { log.error("Error creating centro:", { error: error?.message }); flash("err", "Error: " + error?.message); return; }
     }
     setShowModal(false);

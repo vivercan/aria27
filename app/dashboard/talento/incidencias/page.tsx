@@ -41,9 +41,21 @@ export default function IncidenciasPage() {
 
   async function loadData() {
     try {
-      const { data: inc } = await supabase.from("incidencias").select("*").order("fecha", { ascending: false });
-      setIncidencias(inc || []);
-      const { data: emps } = await supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name");
+      // 10-Oct-2026: la tabla usa fecha_inicio/fecha_fin/descripcion/aprobado; la pantalla pedia columnas inexistentes y no cargaba ni guardaba
+      const [{ data: inc }, { data: emps }, { data: todos }] = await Promise.all([
+        supabase.from("incidencias").select("*").order("fecha_inicio", { ascending: false }),
+        supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name"),
+        supabase.from("employees").select("id, full_name"),
+      ]);
+      const nombres = new Map(((todos || []) as { id: string; full_name: string }[]).map(e => [e.id, e.full_name]));
+      setIncidencias(((inc || []) as Record<string, unknown>[]).map(r => ({
+        ...(r as unknown as Incidencia),
+        fecha: String(r.fecha_inicio || ""),
+        motivo: String(r.descripcion || r.notas || ""),
+        autorizada: !!r.aprobado,
+        autorizada_por: String(r.aprobado_por || ""),
+        employee_name: nombres.get(String(r.employee_id)) || "",
+      })));
       setEmpleados(emps || []);
     } catch (e: unknown) { log.error(String(e)); } finally { setLoading(false); }
   }
@@ -52,11 +64,14 @@ export default function IncidenciasPage() {
     if (!form.employee_id) { flash("err", "Empleado es requerido"); return; }
     if (!form.tipo) { flash("err", "Tipo de incidencia es requerido"); return; }
     if (!form.fecha) { flash("err", "Fecha es requerida"); return; }
-    const emp = empleados.find(e => e.id === form.employee_id);
     const { error } = await supabase.from("incidencias").insert({
-      ...form,
-      employee_name: emp?.full_name || "",
-      autorizada: false,
+      employee_id: form.employee_id,
+      tipo: form.tipo,
+      fecha_inicio: form.fecha,
+      fecha_fin: form.fecha,
+      descripcion: form.motivo || null,
+      aprobado: false,
+      status: "activa",
     });
     if (error) flash("err", "Error: " + ((error as {message?: string})?.message || "Error desconocido"));
     else {
@@ -70,8 +85,8 @@ export default function IncidenciasPage() {
   async function autorizar(id: string) {
     const userName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "Sistema";
     const { error } = await supabase.from("incidencias").update({
-      autorizada: true,
-      autorizada_por: userName
+      aprobado: true,
+      aprobado_por: userName
     }).eq("id", id);
     if (error) { flash("err", "Error al autorizar: " + (error as {message?: string})?.message || "Error desconocido"); return; }
     loadData();

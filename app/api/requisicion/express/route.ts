@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
       created_by: userEmail,
       motivo_solicitud: motivo,
       descripcion_compra: "EXPRESS",
-      urgency: "NORMAL",
+      prioridad: "NORMAL", // 10-Oct-2026: requisitions no tiene columna urgency (el insert fallaba)
+      user_email: userEmail,
       status: "EN_AUTORIZACION",
     }).select("id").single();
 

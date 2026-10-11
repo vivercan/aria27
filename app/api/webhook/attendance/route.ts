@@ -542,6 +542,11 @@ async function handleGasto(from: string, phone10: string, gastoData: GastoData, 
       obra_nombre: gastoData.obra || null,
       foto_url: imageUrl || null,
       fuente: "WHATSAPP",
+      // 10-Oct-2026: columnas obligatorias reales de gastos_obra (antes el insert fallaba siempre)
+      folio: `GW-${Date.now().toString(36).toUpperCase()}`,
+      concepto: gastoData.descripcion || gastoData.proveedor || "Gasto WhatsApp",
+      fecha_gasto: gastoData.fecha || new Date().toISOString().split("T")[0],
+      tipo_pago: "EFECTIVO",
     });
 
   if (errGasto) {

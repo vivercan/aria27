@@ -38,7 +38,7 @@ export default function RecordatoriosPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const loadData = async () => {
-    const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("recordatorios_bitacora").select("*, created_at:fecha_hora").order("fecha_hora", { ascending: false });
     setRecords(data || []);
     setLoading(false);
   };
@@ -57,7 +57,7 @@ export default function RecordatoriosPage() {
     setSaving(true);
     const { error } = await supabase.from("recordatorios_bitacora").insert({ empleado_nombre: form.empleado_nombre, tipo: form.tipo, fecha_hora: form.fecha_hora || null, canal: form.canal, status_entrega: "PENDIENTE" });
     if (error) { flash("err", "Error al crear recordatorio: " + ((error as {message?: string})?.message || "Error desconocido")); setSaving(false); return; }
-    const { data } = await supabase.from("recordatorios_bitacora").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("recordatorios_bitacora").select("*, created_at:fecha_hora").order("fecha_hora", { ascending: false });
     setRecords(data || []);
     setForm(EMPTY); setShowForm(false); setSaving(false);
   };

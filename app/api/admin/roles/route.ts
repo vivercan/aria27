@@ -108,12 +108,7 @@ export async function PATCH(req: NextRequest) {
 
     // Log de auditoria best-effort
     try {
-      await sb.from("audit_log").insert({
-        actor_email: auth.email,
-        action: "admin.roles.update",
-        target_id: id,
-        payload: patch,
-      });
+      await sb.from("audit_log").insert({ table_name: "users", op: "admin.roles.update", row_pk: String(id ?? ""), actor: auth.email, after: patch });
     } catch { /* ignore */ }
 
     return NextResponse.json({ ok: true });
@@ -177,12 +172,7 @@ export async function POST(req: NextRequest) {
         if (errUpd) return NextResponse.json({ error: errUpd.message }, { status: 500 });
       }
       try {
-        await sb.from("audit_log").insert({
-          actor_email: auth.email,
-          action: "admin.roles.upsert.existing",
-          target_id: existing.data.id,
-          payload: upd,
-        });
+        await sb.from("audit_log").insert({ table_name: "users", op: "admin.roles.upsert.existing", row_pk: String(existing.data.id ?? ""), actor: auth.email, after: upd });
       } catch { /* ignore */ }
       return NextResponse.json({ ok: true, id: existing.data.id, mode: "updated" });
     }
@@ -205,12 +195,7 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     try {
-      await sb.from("audit_log").insert({
-        actor_email: auth.email,
-        action: "admin.roles.create",
-        target_id: data?.id || null,
-        payload: insRow,
-      });
+      await sb.from("audit_log").insert({ table_name: "users", op: "admin.roles.create", row_pk: String(data?.id ?? ""), actor: auth.email, after: insRow });
     } catch { /* ignore */ }
 
     return NextResponse.json({ ok: true, id: data?.id, mode: "created" });

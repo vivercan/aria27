@@ -71,7 +71,7 @@ export default function CosteoPage() {
       const { data: centers } = await supabase.from("centros_trabajo").select("id, codigo, nombre, activo, direccion");
 
       // Cargar OCs para calcular costos reales por obra
-      const { data: ocs } = await supabase.from("purchase_orders").select("obra_nombre, total, categoria");
+      const { data: ocs } = await supabase.from("purchase_orders").select("obra_nombre, total");
 
       // Cargar gastos de obra
       const { data: gastos } = await supabase.from("gastos").select("obra, monto, categoria");

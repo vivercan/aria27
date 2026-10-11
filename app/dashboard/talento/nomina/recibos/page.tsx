@@ -165,10 +165,11 @@ export default function RecibosNominaPage() {
               if (!unlockRows || unlockRows.length === 0) { setMensaje({ tipo: "error", texto: "La nómina ya no estaba CONFIRMADA. Recarga." }); return; }
 
               await supabase.from("audit_log").insert({
-                tabla: "nomina_historico",
-                accion: "DESBLOQUEO_NOMINA",
-                descripcion: `Semana ${semanaInfo.semana}/${semanaInfo.anio} desbloqueada. Motivo: ${motivoModificacion}`,
-                usuario: localStorage.getItem("userEmail") || "unknown",
+                table_name: "nomina_historico",
+                op: "DESBLOQUEO_NOMINA",
+                row_pk: `${semanaInfo.anio}-${semanaInfo.semana}`,
+                actor: localStorage.getItem("userEmail") || "unknown",
+                after: { motivo: motivoModificacion, semana: semanaInfo.semana, anio: semanaInfo.anio },
               });
 
               setNominaStatus("GENERADA");

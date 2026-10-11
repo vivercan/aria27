@@ -60,7 +60,7 @@ export default function EmpresaPage() {
       nombre: e.nombre || "",
       rfc: e.rfc || "",
       regimen: e.regimen || "",
-      domicilio_fiscal: e.domicilio_fiscal || "",
+      domicilio_fiscal: e.domicilio_fiscal || (e as unknown as { direccion_fiscal?: string }).direccion_fiscal || "",
       representante_legal: e.representante_legal || "",
       telefono: e.telefono || "",
       email: e.email || "",
@@ -81,6 +81,8 @@ export default function EmpresaPage() {
     setGuardando(true);
     const payload: Record<string, string | null> = { ...form };
     Object.keys(payload).forEach(k => { if (payload[k] === "") payload[k] = null; });
+    // 10-Oct-2026: la columna real es direccion_fiscal (domicilio_fiscal no existe; el guardado fallaba)
+    payload.direccion_fiscal = payload.domicilio_fiscal ?? null; delete payload.domicilio_fiscal;
 
     const { error } = await supabase.from("empresas").update(payload).eq("id", editEmpresa.id);
     if (error) { msg("error", error?.message ?? "Error"); }
@@ -162,7 +164,7 @@ export default function EmpresaPage() {
                     <MapPin className="w-4 h-4 text-[#4a6080] mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-[#4a6080] text-xs">Domicilio Fiscal</p>
-                      <p className="text-white">{emp.domicilio_fiscal || "—"}</p>
+                      <p className="text-white">{emp.domicilio_fiscal || (emp as unknown as { direccion_fiscal?: string }).direccion_fiscal || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">

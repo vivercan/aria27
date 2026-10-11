@@ -58,9 +58,10 @@ export async function POST(req: NextRequest) {
     // Audit
     try {
       await sb.from("audit_log").insert({
-        actor_email: auth.email,
-        action: "admin.wipe-requisiciones",
-        payload: result,
+        table_name: "requisitions",
+        op: "admin.wipe-requisiciones",
+        actor: auth.email,
+        after: result,
       });
     } catch { /* ignore */ }
 

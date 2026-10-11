@@ -70,7 +70,7 @@ export default function CotizacionesIAPage() {
   const loadRequisiciones = async () => {
     const { data: reqs } = await supabase
       .from("Requisiciones")
-      .select("id, folio, cost_center_name, urgency, status, created_at")
+      .select("id, folio, cost_center_name, urgency:prioridad, status, created_at")
       .in("status", ["VALIDADA", "APROBADA", "EN_COTIZACION"])
       .order("created_at", { ascending: false });
 

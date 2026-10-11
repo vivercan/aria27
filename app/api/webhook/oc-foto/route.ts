@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
         status: "COMPLETA",
         purchase_order_id: oc.id,
         purchase_order_folio: folioOC,
-        requisition_id: oc.requisition_id,
+        requisicion_id: oc.requisition_id, // 10-Oct-2026: la columna real es requisicion_id
         foto_url: fotoUrl,
         foto_hash: fotoHash || null,
         foto_uploaded_at: new Date().toISOString(),

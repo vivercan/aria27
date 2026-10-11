@@ -97,7 +97,7 @@ export default function MantenimientoPage() {
     const [oRes, pRes, aRes] = await Promise.all([
       supabase.from("mantenimiento_ordenes").select("*").order("fecha_solicitud", { ascending: false }),
       supabase.from("mantenimiento_programas").select("*").order("proxima_ejecucion"),
-      supabase.from("activos").select("id, nombre, tipo, ubicacion").order("nombre"),
+      supabase.from("activos").select("id, nombre, tipo, ubicacion:ubicacion_actual").order("nombre"),
     ]);
     const activosArr = (aRes.data || []) as Activo[];
     const aMap = Object.fromEntries(activosArr.map(a => [a.id, a.nombre]));

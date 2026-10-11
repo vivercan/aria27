@@ -15,7 +15,7 @@ interface Cot { id: string; folio: string | null; cliente_nombre: string; total:
 interface Cob { obra_nombre: string | null; cliente_nombre: string; monto: number; saldo: number; estatus: string; fecha: string; }
 interface PO { id: string; total: number; status: string; created_at: string; requisition_id: string | null; po_number?: string | null; }
 interface Req { id: string; cost_center_name: string | null; }
-interface Nom { obra: string | null; sueldo_neto: number; status: string; semana_iso: string | null; }
+interface Nom { obra: string | null; sueldo_neto: number; status: string; semana?: number | null; anio?: number | null; }
 interface Part { obra_nombre: string; importe: number; }
 interface Av { obra_nombre: string; semana_iso: string; pct_fisico: number; }
 
@@ -49,9 +49,9 @@ export default function CeoDashboardPage() {
       const [c, co, p, r, n, pp, a] = await Promise.all([
         supabase.from("cotizaciones_clientes").select("id,folio,cliente_nombre,total,estatus,fecha,vigencia_dias").order("fecha", { ascending: false }),
         supabase.from("cobros_manuales").select("obra_nombre,cliente_nombre,monto,saldo,estatus,fecha").neq("estatus", "CANCELADO"),
-        supabase.from("purchase_orders").select("id,po_number,total,status,created_at,requisition_id"),
+        supabase.from("purchase_orders").select("id,po_number:folio,total,status,created_at,requisition_id"),
         supabase.from("requisitions").select("id,cost_center_name"),
-        supabase.from("nomina_historico").select("obra,sueldo_neto,status,semana_iso").eq("status", "CONFIRMADA"),
+        supabase.from("nomina_historico").select("obra,sueldo_neto,status,semana,anio").eq("status", "CONFIRMADA"),
         supabase.from("presupuestos_partidas").select("obra_nombre,importe"),
         supabase.from("obra_avances").select("obra_nombre,semana_iso,pct_fisico").order("semana_iso", { ascending: false }),
       ]);

@@ -748,7 +748,7 @@ export default function InboxPage() {
       )}
 
       {/* ═══ SIDEBAR ═══ */}
-      <aside className="flex-shrink-0 flex flex-col pt-3 pb-2"
+      <aside className="flex-shrink-0 hidden md:flex flex-col pt-3 pb-2"
         style={{width:220,background:G.sidebar,boxShadow:"4px 0 20px rgba(0,0,0,0.22)",zIndex:1}}>
 
         {/* Redactar */}
@@ -870,11 +870,19 @@ export default function InboxPage() {
       </aside>
 
       {/* ═══ MAIN ═══ */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0">
+        {/* 10-Oct-2026 celular: la barra lateral de carpetas (220px) no cabe; carpeta + Redactar en una fila */}
+        <div className="md:hidden flex items-center gap-2 px-3 py-2 border-b" style={{borderColor:G.border}}>
+          <select value={carpeta} onChange={e=>{setCarpeta(e.target.value as Carpeta);setVista("lista");setBusqueda("");setFiltro("todos");setEmailActual(null);}} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm">
+            {CARPETAS_SISTEMA.map(({key,label})=><option key={key} value={key}>{label}{key==="INBOX"&&unreadCount?` (${unreadCount})`:""}</option>)}
+            {carpetasCustom.map(cp=><option key={cp} value={cp}>{cp}</option>)}
+          </select>
+          <button onClick={()=>{setCompTo("");setCompSubject("");setCompBody("");setCompCc("");setCompBcc("");setComposeOpen(true);setCompMinimized(false);}} className="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold text-white" style={{background:G.blue}}>Redactar</button>
+        </div>
 
         {/* PANEL LISTA */}
         <div className="flex flex-col overflow-hidden"
-          style={{width:splitView?430:"100%",flexShrink:0,borderRight:splitView?`1px solid ${G.border}`:"none",display:!splitView&&vista==="leer"?"none":"flex"}}>
+          style={{width:splitView&&typeof window!=="undefined"&&window.innerWidth>=768?430:"100%",flexShrink:0,borderRight:splitView?`1px solid ${G.border}`:"none",display:!splitView&&vista==="leer"?"none":"flex"}}>
 
           <FlashBanner msg={msg} className="px-4 pt-2"/>
 

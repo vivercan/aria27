@@ -52,7 +52,7 @@ export default function AsignacionPage() {
   const load = async () => {
     const [{ data: asig, error: asigError }, { data: acts, error: actsError }, { data: emps, error: empsError }] = await Promise.all([
       supabase.from("activos_asignaciones").select("*").order("fecha_asignacion", { ascending: false }),
-      supabase.from("activos").select("id, nombre, name").order("nombre"),
+      supabase.from("activos").select("id, nombre").order("nombre"),
       supabase.from("Personal").select("id, full_name, employee_number").eq("status", "ACTIVO").order("full_name")
     ]);
 
@@ -77,7 +77,7 @@ export default function AsignacionPage() {
       const actIds = [...new Set(asig.map((a) => a.activo_id).filter(Boolean))];
       const [{ data: empData, error: empDataError }, { data: actData, error: actDataError }] = await Promise.all([
         supabase.from("Personal").select("id, full_name, employee_number").in("id", empIds),
-        supabase.from("activos").select("id, nombre, name").in("id", actIds)
+        supabase.from("activos").select("id, nombre").in("id", actIds)
       ]);
 
       if (empDataError) {
