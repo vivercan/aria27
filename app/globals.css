@@ -1413,3 +1413,5 @@ body.dom-ruta .aria-raiz { background: var(--d-bg) !important; }
 /* Doménica oscuro: pantallas viejas de ARIA sin degradados (11-Oct-2026) */
 body.dom-ruta.dom-oscuro .aria-page-canon, body.dom-ruta.dom-oscuro .aria-bg-canon { background: var(--d-bg) !important; }
 body.dom-ruta.dom-oscuro .aria-back-btn { background: var(--d-card) !important; border: 1px solid var(--d-border) !important; box-shadow: none !important; }
+/* Celular: mientras React decide, no mostrar la pantalla de computadora (11-Oct-2026) */
+html.pantalla-compu .aria-shell-scroll > :not(.aviso-compu) { display: none !important; }

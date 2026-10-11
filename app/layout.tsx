@@ -27,6 +27,7 @@ export const viewport: Viewport = {
 };
 
 // Misma regla que src/lib/device.ts (isMobileDevice), dom-tema.ts (esRutaDomenica/Movil) y HUBS_WEB, pero corre antes de React.
+import { RUTAS_TEL, EQUIV_TEL } from "@/lib/rutas-tel";
 const MODO_TELEFONO = `(function(){try{var n=navigator,u=n.userAgent||"",t=n.maxTouchPoints||0,w=innerWidth;
 var m=(n.userAgentData&&n.userAgentData.mobile)||/Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(u)||(/Macintosh/i.test(u)&&t>1)||(matchMedia("(pointer: coarse)").matches&&t>0&&w<900)||w<600;
 var p=location.pathname,d=document.documentElement,b=document.body;if(p.length>1&&p.charAt(p.length-1)==="/")p=p.slice(0,-1);
@@ -34,7 +35,9 @@ if(!m){return}
 d.classList.add("es-tel");
 var hubs=["/dashboard","/dashboard/requisiciones","/dashboard/obras","/dashboard/talento","/dashboard/finanzas","/dashboard/activos","/dashboard/administracion","/dashboard/configuracion","/dashboard/comunicacion","/dashboard/reportes","/dashboard/clientes","/dashboard/admin","/dashboard/plantillas"];
 if(hubs.indexOf(p)>=0){location.replace("/dashboard/campo");return}
-var pre=["/dashboard/campo","/dashboard/actividades","/dashboard/domenica","/dashboard/domingo","/dashboard/requisiciones/requisiciones/nuevo","/dashboard/requisiciones/requisiciones/estatus","/dashboard/requisiciones/requisiciones/entrega","/dashboard/talento/usuarios","/dashboard/talento/personal","/dashboard/talento/checadas","/dashboard/requisiciones/proveedores","/dashboard/requisiciones/productos","/dashboard/obras/catalogo"],dom=false;if(/[?&]web=1(&|$)/.test(location.search)){d.classList.add("ver-web");pre=pre.slice(0,4)}for(var i=0;i<pre.length;i++){if(p.indexOf(pre[i])===0)dom=true}
+var eq=${JSON.stringify(EQUIV_TEL)};if(eq[p]&&!/[?&]web=1(&|$)/.test(location.search)){location.replace(eq[p]+location.search);return}
+var pre=${JSON.stringify(RUTAS_TEL)},dom=false;if(/[?&]web=1(&|$)/.test(location.search)){d.classList.add("ver-web");pre=pre.slice(0,4)}for(var i=0;i<pre.length;i++){if(p.indexOf(pre[i])===0)dom=true}
+if(!dom&&p.indexOf("/dashboard")===0&&!d.classList.contains("ver-web")){d.classList.add("pantalla-compu");dom=true}
 if(dom){b.classList.add("dom-ruta");if(localStorage.getItem("dom:tema")==="oscuro")b.classList.add("dom-oscuro")}
 }catch(e){}})();`;
 

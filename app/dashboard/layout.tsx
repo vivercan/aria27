@@ -18,6 +18,8 @@ import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
 import { revisarVersion } from "@/lib/version-check";
+import PantallaCompu from "@/components/campo/PantallaCompu";
+import { esPantallaCompu } from "@/lib/rutas-tel";
 import { esRutaDomenica, leerTema, aplicarTema, guardarTema, useTemaDom, esRutaDomenicaMovil } from "@/lib/dom-tema";
 import { isMobileDevice, HUBS_WEB } from "@/lib/device";
 import { registrarSW } from "@/lib/push-client";
@@ -206,7 +208,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
   // Doménica: diseño claro (u oscuro si el usuario lo eligio) en sus pantallas
-  useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
+  const [compu, setCompu] = useState(false);
+  useEffect(() => { try { const verWeb = /[?&]web=1(&|$)/.test(window.location.search); const pc = isMobileDevice() && !verWeb && esPantallaCompu(pathname || ""); setCompu(pc); document.documentElement.classList.toggle("pantalla-compu", pc); document.body.classList.toggle("dom-ruta", pc || esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
   // 11-Oct-2026: al publicar una versión nueva, se actualiza sola al cambiar de pantalla (nunca a media captura)
   useEffect(() => { revisarVersion(); }, [pathname]);
   // Doménica: vibración cortita al tocar un botón principal (fondo sólido) en el celular · 11-Oct-2026
@@ -822,8 +825,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {sinSenal && <div className="flex-none bg-[#fdab3d] text-[#2a1a00] text-[12.5px] font-semibold text-center py-1.5 px-3">📶 Sin señal · ves lo último que se cargó. En Actividades tus cambios se envían solos al volver la señal.</div>}
-        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{children}</div>
+        {sinSenal && <div className="flex-none bg-[#fdab3d] text-[#2a1a00] text-[12.5px] font-semibold text-center py-1.5 px-3">Sin señal · ves lo último que se cargó. En Actividades tus cambios se envían solos al volver la señal.</div>}
+        <div className={`flex-1 overflow-hidden aria-shell-scroll ${modoCampo ? "pb-14 md:pb-0" : ""}`}>{compu ? <PantallaCompu ruta={pathname || ""} /> : children}</div>
         {modoCampo && <CampoNav />}
       </main>
 
