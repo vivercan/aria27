@@ -69,7 +69,7 @@ export default function BitacoraPage() {
           {b.registro && (
             <div className="mt-4 flex flex-wrap gap-2">
               {b.registro.clima && <span className={chip}><Sun className="w-4 h-4" />{b.registro.clima}</span>}
-              {b.registro.personal_en_obra !== null && <span className={chip}><Users className="w-4 h-4" />{b.registro.personal_en_obra} personas en obra</span>}
+              {!!b.registro.personal_en_obra && <span className={chip}><Users className="w-4 h-4" />{b.registro.personal_en_obra} personas en obra</span>}
               {b.registro.maquinaria && <span className={chip}><Wrench className="w-4 h-4" />{b.registro.maquinaria}</span>}
             </div>)}
           {(b.registro?.actividades || b.terminadas.length || b.avances.length || b.fotos.length) ? (

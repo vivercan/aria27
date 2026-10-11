@@ -27,7 +27,7 @@ Datos: ${JSON.stringify(datos)}`;
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY || "", "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 500, messages: [{ role: "user", content: prompt }] }) });
-    const j = await r.json(); const texto = String(j?.content?.[0]?.text || "").trim();
+    const j = await r.json(); const texto = String(j?.content?.[0]?.text || "").replace(/\*\*|__|^#+\s*/gm, "").replace(/^resumen del d[ií]a[^\n]*\n+/i, "").trim();
     if (!texto) return NextResponse.json({ error: "No se pudo redactar" }, { status: 502 });
     const { data: prev } = await db.from("bitacora_obra").select("id").eq("obra_id", id).eq("fecha", fecha).limit(1).maybeSingle();
     if (prev) await db.from("bitacora_obra").update({ actividades: texto }).eq("id", (prev as { id: string }).id);
