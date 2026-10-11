@@ -16,21 +16,21 @@ const NOMBRE_MODULO = "ARIA Doménica";
 type Pieza = { t: string; d: string; href?: string; icon: typeof Sun; color: string; estado: "listo" | "parcial" | "pronto" };
 const GRUPOS: { titulo: string; piezas: Pieza[] }[] = [
   { titulo: "Planear", piezas: [
-    { t: "Línea de tiempo", d: "Barras por obra, con lo que espera a qué", href: "/dashboard/actividades?vista=linea", icon: GanttChart, color: "#a25ddc", estado: "listo" },
-    { t: "Dependencias", d: "Colado antes de curado; avisa “ya puedes empezar”", href: "/dashboard/actividades", icon: Link2, color: "#a25ddc", estado: "listo" },
+    { t: "Línea de tiempo", d: "Barras por obra, flechas de lo que espera a qué y ruta crítica", href: "/dashboard/actividades?vista=linea", icon: GanttChart, color: "#a25ddc", estado: "listo" },
+    { t: "Dependencias", d: "No empieza hasta terminar la anterior; si una se atrasa, las siguientes se recorren solas", href: "/dashboard/actividades", icon: Link2, color: "#a25ddc", estado: "listo" },
     { t: "Plantillas", d: "Arranque de obra en un clic", href: "/dashboard/domenica/plantillas", icon: LayoutTemplate, color: "#a25ddc", estado: "listo" },
     { t: "Recurrentes", d: "Cada lunes, cada día 1", href: "/dashboard/domenica/recurrentes", icon: Repeat, color: "#a25ddc", estado: "listo" },
   ] },
   { titulo: "Coordinar", piezas: [
     { t: "Tablero de actividades", d: "Mi trabajo · Tablero · Lista", href: "/dashboard/actividades", icon: LayoutGrid, color: "#00c875", estado: "listo" },
-    { t: "Espacio por obra", d: "Todo de una obra junto", href: "/dashboard/domenica/obras", icon: Building2, color: "#00c875", estado: "listo" },
+    { t: "Espacio por obra", d: "Actividades, solicitudes, entregas y avance de cada obra", href: "/dashboard/domenica/obras", icon: Building2, color: "#00c875", estado: "listo" },
     { t: "Menciones", d: "Escribe @Daisy en un comentario y le avisa", href: "/dashboard/actividades", icon: AtSign, color: "#00c875", estado: "listo" },
-    { t: "Carga de trabajo", d: "Quién está saturado", href: "/dashboard/domenica/carga", icon: Users, color: "#00c875", estado: "listo" },
-    { t: "Formularios públicos", d: "Link para que el proveedor cotice sin cuenta (en el detalle de cada solicitud)", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00c875", estado: "listo" },
+    { t: "Carga de trabajo", d: "Quién está saturado; también lo ves al asignar", href: "/dashboard/domenica/carga", icon: Users, color: "#00c875", estado: "listo" },
+    { t: "Formularios públicos", d: "Links sin cuenta: el proveedor cotiza y el destajista sube fotos de avance", href: "/dashboard/requisiciones/requisiciones/estatus", icon: FileInput, color: "#00c875", estado: "listo" },
   ] },
   { titulo: "Controlar", piezas: [
     { t: "Automatizaciones", d: "Si pasa esto, haz aquello", href: "/dashboard/domenica/automatizaciones", icon: Zap, color: "#fdab3d", estado: "listo" },
-    { t: "Tablero por obra", d: "Avance y gasto contra presupuesto", href: "/dashboard/domenica/obras", icon: BarChart3, color: "#fdab3d", estado: "listo" },
+    { t: "Tablero por obra", d: "Avance contra presupuesto, gasto, atrasos y solicitudes detenidas", href: "/dashboard/domenica/obras", icon: BarChart3, color: "#fdab3d", estado: "listo" },
   ] },
 ];
 

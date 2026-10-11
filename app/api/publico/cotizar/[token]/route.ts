@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 async function enlace(token: string) {
   if (!tokenValido(token)) return null;
   const db = getSupabaseAdmin();
-  const { data } = await db.from("enlaces_cotizacion").select("*").eq("token_hash", hashToken(token)).maybeSingle();
+  const { data } = await db.from("enlaces_cotizacion").select("*").eq("token_hash", hashToken(token)).eq("tipo", "COTIZACION").maybeSingle();
   const e = data as { id: string; requisition_id: string; supplier_id: number | null; supplier_name: string; expira: string; activo: boolean; usado_veces: number; creado_por: string } | null;
   if (!e) return null;
   return { db, e, vencido: !e.activo || new Date(e.expira).getTime() < Date.now() };

@@ -21,3 +21,7 @@ export const MAX_ARCHIVO = 10 * 1024 * 1024;
 export function tipoArchivo(b: Uint8Array): { tipo: string; ext: string } | null {
   const f = FIRMAS.find(x => b.length > 12 && x.ok(b)); return f ? { tipo: f.tipo, ext: f.ext } : null;
 }
+export function urlEvidencia(token: string): string {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://aria.jjcrm27.com").replace(/\/$/, "");
+  return `${base}/evidencia/${token}`;
+}

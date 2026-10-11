@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { mencionesEnTexto } from "@/lib/plantillas";
 import { rutaCritica } from "@/lib/dependencias";
+import LinkEvidencia from "@/components/domenica/LinkEvidencia";
 
 type Emp = { id: string; full_name: string; whatsapp?: string | null };
 type Obra = { id: string; nombre: string };
@@ -683,6 +684,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           {/* Actualizaciones */}
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Actualizaciones</div>
+            {puedeEditar && <div className="mb-2"><LinkEvidencia tareaId={a.id} /></div>}
             <div className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-2">
               {sugeridas.length > 0 && <div className="mb-1 rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] shadow-[var(--d-shadow)] overflow-hidden">{sugeridas.map(e => (
                 <button key={e.id} type="button" onMouseDown={ev => ev.preventDefault()} onClick={() => elegirMencion(e.full_name)} className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-[var(--d-text)] hover:bg-[var(--d-hover)]"><Avatar nombre={e.full_name} size={24} />{e.full_name}</button>))}</div>}
