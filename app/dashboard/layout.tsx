@@ -173,7 +173,7 @@ function ThemeToggle() {
   );
 }
 
-/** Doménica.27: en celular el sol/luna del encabezado cambia el tema claro/oscuro de Doménica */
+/** Doménica 27: en celular el sol/luna del encabezado cambia el tema claro/oscuro de Doménica */
 function DomTemaToggle() {
   const t = useTemaDom();
   return (
@@ -208,7 +208,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     upd(); window.addEventListener("online", upd); window.addEventListener("offline", upd);
     return () => { window.removeEventListener("online", upd); window.removeEventListener("offline", upd); };
   }, []);
-  // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Doménica.27.
+  // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Doménica 27.
   // En celular NUNCA se muestran los menus de la web (hubs): si regresas o abres uno, te manda a Inicio.
   const [esMovil, setEsMovil] = useState(false);
   useEffect(() => {

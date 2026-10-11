@@ -1,6 +1,6 @@
 "use client";
 /**
- * /dashboard/campo/mas — "Más" de Doménica.27 (10-Oct-2026)
+ * /dashboard/campo/mas — "Más" de Doménica 27 (10-Oct-2026)
  * Reemplaza al menu de la web en el celular: solo lo del dia a dia, por rol, mas ajustes (tema, avisos, salir).
  */
 import { useEffect, useState } from "react";
@@ -91,7 +91,7 @@ export default function MasPage() {
             </button>
             <div className="flex items-center gap-3 px-4 py-3.5">
               <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0073ea1f]"><Smartphone className="w-5 h-5 text-[#0073ea]" /></span>
-              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Tener Doménica.27 como app</div><div className="text-[12px] text-[var(--d-muted)]">iPhone: Compartir › Agregar a inicio · Android: ⋮ › Instalar app</div></div>
+              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Tener Doménica 27 como app</div><div className="text-[12px] text-[var(--d-muted)]">iPhone: Compartir › Agregar a inicio · Android: ⋮ › Instalar app</div></div>
             </div>
             <button onClick={salir} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
               <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#e2445c1f]"><LogOut className="w-5 h-5 text-[#e2445c]" /></span>
@@ -99,7 +99,7 @@ export default function MasPage() {
             </button>
           </div>
         </section>
-        <p className="mt-6 text-center text-[11px] text-[var(--d-faint)]">Doménica.27 · parte de ARIA27</p>
+        <p className="mt-6 text-center text-[11px] text-[var(--d-faint)]">Doménica 27 · parte de ARIA27</p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 {
-  "name": "Doménica.27",
+  "name": "Doménica 27",
   "short_name": "Doménica",
-  "description": "Doménica.27 · el día a día de Grupo Constructor Urbano Avante: solicitudes, actividades, entregas y avisos desde el celular. Parte de ARIA27.",
+  "description": "Doménica 27 · el día a día de Grupo Constructor Urbano Avante: solicitudes, actividades, entregas y avisos desde el celular. Parte de ARIA27.",
   "start_url": "/dashboard/campo?source=pwa",
   "scope": "/",
   "display": "standalone",

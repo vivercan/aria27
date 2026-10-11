@@ -1307,7 +1307,7 @@ select:not([multiple]):not([size]) { padding-right: 1.9rem !important; }
 }
 
 
-/* ═══ Doménica.27 (10-Oct-2026): tema claro por defecto en sus pantallas, oscuro opcional ═══ */
+/* ═══ Doménica 27 (10-Oct-2026): tema claro por defecto en sus pantallas, oscuro opcional ═══ */
 body {
   --d-bg: #0a1628; --d-surface: #0b1830; --d-card: rgba(255,255,255,.04); --d-card-2: rgba(255,255,255,.07); --d-hover: rgba(255,255,255,.06);
   --d-border: rgba(255,255,255,.09); --d-text: #ffffff; --d-text-2: #c9d8ed; --d-muted: #9fb4d4; --d-faint: #6f84a3;
@@ -1321,7 +1321,7 @@ body.dom-ruta:not(.dom-oscuro) {
   --d-shadow: 0 1px 2px rgba(15,23,42,.05), 0 6px 20px rgba(15,23,42,.06); --d-field: #ffffff; --d-nav: rgba(255,255,255,.97);
 }
 .dom-wordmark { font-weight: 800; letter-spacing: -0.035em; font-style: italic; background: linear-gradient(100deg, #0073ea 0%, #7e3bdd 55%, #e2445c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; padding-right: 1px; }
-.dom-wordmark-27 { font-weight: 800; letter-spacing: -0.03em; color: #fdab3d; line-height: 1; }
+.dom-wordmark-27 { margin-left: .22em; font-weight: 800; letter-spacing: -0.03em; color: #fdab3d; line-height: 1; }
 .dom-page { background: var(--d-bg); color: var(--d-text); }
 .dom-page select, .dom-page input:not([type=checkbox]):not([type=radio]):not([type=range]), .dom-page textarea { background-color: var(--d-field); color: var(--d-text); border-color: var(--d-border); }
 .dom-card { background: var(--d-card); border: 1px solid var(--d-border); box-shadow: var(--d-shadow); }
