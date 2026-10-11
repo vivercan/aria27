@@ -26,11 +26,13 @@ export async function createSession(opts: {
   userEmail: string;
   userAgent?: string | null;
   ip?: string | null;
+  /** 11-Oct-2026: "Mantener sesión iniciada" → 30 días (sin guardar la contraseña en el teléfono) */
+  ttlSeconds?: number;
 }): Promise<{ token: string; expiresAt: Date } | null> {
   const email = opts.userEmail.toLowerCase().trim();
   const token = randomBytes(32).toString("hex");
   const tokenHash = hashToken(token);
-  const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
+  const expiresAt = new Date(Date.now() + (opts.ttlSeconds || SESSION_TTL_SECONDS) * 1000);
   const db = getSupabaseAdmin();
   // Resolver user_id estable (no bloquea si no existe)
   const { data: u } = await db.from("users").select("id").eq("email", email).maybeSingle();
@@ -94,9 +96,10 @@ export async function revokeAllSessionsFor(userEmail: string, reason = "force_lo
     .is("revoked_at", null);
 }
 
-export function buildSessionCookieHeader(token: string): string {
+export const SESSION_TTL_RECORDAR = 30 * 24 * 60 * 60; // 30 días
+export function buildSessionCookieHeader(token: string, maxAge: number = SESSION_TTL_SECONDS): string {
   // __Host- prefix exige Path=/ + Secure + sin Domain
-  return `${SESSION_COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_TTL_SECONDS}`;
+  return `${SESSION_COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
 }
 
 export function buildClearCookieHeader(): string {

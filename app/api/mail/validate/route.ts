@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from "@/lib/rate-limit";
-import { createSession, buildSessionCookieHeader } from "@/lib/session";
+import { createSession, buildSessionCookieHeader, SESSION_TTL_RECORDAR, SESSION_TTL_SECONDS } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   const rl = checkRateLimit(getClientIdentifier(req), { key: "mail:validate", ...RATE_LIMITS.WRITE });
   if (!rl.allowed) return rateLimitResponse(rl);
 
   let email = "";
+  let recordar = false;
   let password = "";
   
   try {
     const body = await req.json().catch(() => ({}));
     email = body.email || "";
     password = body.password || "";
+    recordar = body.recordar === true;
   } catch {
 
     return NextResponse.json({ valid: false, error: "Datos inválidos" }, { status: 400 });
@@ -77,12 +79,13 @@ export async function POST(req: NextRequest) {
       // FIX 541.1 24-Jun-2026: crear sesión opaca server-side. Cookie HttpOnly.
       const ua = req.headers.get("user-agent");
       const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip");
-      const session = await createSession({ userEmail: email, userAgent: ua, ip });
+      const ttl = recordar ? SESSION_TTL_RECORDAR : SESSION_TTL_SECONDS;
+      const session = await createSession({ userEmail: email, userAgent: ua, ip, ttlSeconds: ttl });
       if (!session) {
         return NextResponse.json({ valid: false, error: "Error creando sesion" }, { status: 500 });
       }
       const res = NextResponse.json({ valid: true });
-      res.headers.set("Set-Cookie", buildSessionCookieHeader(session.token));
+      res.headers.set("Set-Cookie", buildSessionCookieHeader(session.token, ttl));
       return res;
     } else {
 

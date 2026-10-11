@@ -3,8 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import { landingPath, isMobileDevice } from '@/lib/device'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Eye, EyeOff, ScanFace } from 'lucide-react'
+import { Eye, EyeOff, ScanFace, Fingerprint } from 'lucide-react'
 import DomenicaLogo from '@/components/campo/DomenicaLogo'
+import { huellaDisponible, huellaActivada, activarHuella, entrarConHuella } from '@/lib/huella-client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -16,7 +17,12 @@ export default function LoginPage() {
   const [checkingSession, setCheckingSession] = useState(true)
   // 11-Oct-2026: en teléfono el login ya es claro (mismo estilo que Doménica) → al entrar no hay cambios bruscos
   const [tel, setTel] = useState(false)
-  useEffect(() => { try { const m = isMobileDevice(); setTel(m); if (m) localStorage.setItem('aria:modo', 'campo') } catch { /* */ } }, [])
+  // 11-Oct-2026: entrar con huella o rostro (passkeys) en lugar de guardar la contraseña
+  const [hDisp, setHDisp] = useState(false)
+  const [hAct, setHAct] = useState(false)
+  const [ofrecer, setOfrecer] = useState(false)
+  useEffect(() => { huellaDisponible().then(d => { setHDisp(d); setHAct(d && huellaActivada()) }) }, [])
+  useEffect(() => { try { const m = isMobileDevice(); setTel(m); if (m) { localStorage.setItem('aria:modo', 'campo'); setRememberMe(true) } } catch { /* */ } }, [])
   const router = useRouter()
 
   // HOTFIX4 25-Jun-2026: flujo determinista anti-loop
@@ -76,7 +82,7 @@ export default function LoginPage() {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: creds.e, password: creds.p }),
+          body: JSON.stringify({ email: creds.e, password: creds.p, recordar: true }),
           cache: 'no-store',
         })
         validateOk = v.ok
@@ -88,6 +94,8 @@ export default function LoginPage() {
         return
       }
       // Validate OK -> hidratar cache UI minimo y redirigir
+      // 11-Oct-2026: ya no se guarda la contraseña en el teléfono (sesión de 30 días + huella/rostro)
+      try { localStorage.removeItem('ariaSession') } catch {}
       try { localStorage.setItem('userEmail', creds.e.toLowerCase()) } catch {}
       try {
         const { data: userData } = await supabase
@@ -148,7 +156,7 @@ export default function LoginPage() {
       const validateRes = await fetch('/api/mail/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password: pass })
+        body: JSON.stringify({ email: email.trim(), password: pass, recordar: rememberMe })
       })
       
       if (validateRes.ok) {
@@ -177,11 +185,8 @@ export default function LoginPage() {
     // PASO 3: Login exitoso — cargar role y permisos ANTES de redirigir
     localStorage.setItem('userEmail', emailLower)
     sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
-    if (rememberMe) {
-      localStorage.setItem('ariaSession', btoa(JSON.stringify({ e: email.trim(), p: pass })))
-    } else {
-      localStorage.removeItem('ariaSession')
-    }
+    // 11-Oct-2026: la contraseña ya NO se guarda en el teléfono; "Mantener sesión" = sesión de 30 días en el servidor
+    localStorage.removeItem('ariaSession')
 
     // FIX: Precargar role y permisos para que AccessGuard los encuentre al montar
     try {
@@ -196,7 +201,23 @@ export default function LoginPage() {
       }
     } catch { /* si falla, layout.tsx los cargará como fallback */ }
 
+    // Ofrecer huella/rostro la primera vez en este teléfono
+    if (hDisp && !huellaActivada()) { setLoading(false); setOfrecer(true); return }
     router.push(landingPath())
+  }
+
+  const conHuella = async () => {
+    setError(''); setLoading(true)
+    try {
+      const r = await entrarConHuella()
+      try { localStorage.setItem('userEmail', r.email); localStorage.setItem('userRole', r.role || 'user'); localStorage.setItem('userPermissions', JSON.stringify(r.permissions || {})) } catch {}
+      router.replace(landingPath())
+    } catch (e) { setError((e as Error).message === 'Se canceló' ? '' : (e as Error).message); setLoading(false); setHAct(huellaActivada()) }
+  }
+  const activar = async () => {
+    setError(''); setLoading(true)
+    try { await activarHuella(); router.push(landingPath()) }
+    catch (e) { setLoading(false); if ((e as Error).message !== 'Se canceló') setError((e as Error).message); else router.push(landingPath()) }
   }
 
   if (checkingSession) {
@@ -214,10 +235,24 @@ export default function LoginPage() {
     <div className="min-h-[100dvh] w-full flex flex-col bg-[#f6f7fa] text-slate-900" style={{ fontFamily: 'var(--font-dom), system-ui, sans-serif' }}>
       <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md w-full mx-auto">
         <div className="text-center">
-          <div className="flex justify-center"><DomenicaLogo grande /></div>
-          <p className="mt-2 text-[14px] text-slate-600">Grupo Constructor Urbano Avante · <span className="font-semibold text-slate-800">ARIA27</span></p>
+          <div className="flex justify-center scale-[1.35] origin-bottom"><DomenicaLogo grande /></div>
+          <p className="mt-3 text-[13px] font-semibold tracking-[0.22em] uppercase text-slate-500">by <span className="text-[#0060c7] font-extrabold">ARIA</span><span className="text-[#b85507] font-extrabold">27</span></p>
         </div>
-        <form onSubmit={handleLogin} className="mt-8 rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3">
+        {ofrecer ? (
+          <div className="mt-8 rounded-3xl bg-white p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] text-center">
+            <span className="mx-auto w-16 h-16 rounded-2xl bg-[#0073ea] flex items-center justify-center"><Fingerprint size={34} color="#fff" strokeWidth={2} /></span>
+            <h2 className="mt-4 text-[20px] font-bold text-slate-900">¿La próxima vez entras con tu huella o tu rostro?</h2>
+            <p className="mt-1.5 text-[14px] text-slate-600">Sin escribir la contraseña. Tu huella no sale del teléfono.</p>
+            {error && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
+            <button type="button" onClick={activar} disabled={loading} className="mt-5 w-full py-3.5 rounded-2xl bg-[#0073ea] text-white text-[17px] font-bold disabled:opacity-70">{loading ? 'Un momento…' : 'Sí, activarlo'}</button>
+            <button type="button" onClick={() => router.push(landingPath())} className="mt-2 w-full py-3 text-[15px] font-semibold text-slate-600">Ahora no</button>
+          </div>
+        ) : (<>
+        {hAct && (
+          <button type="button" onClick={conHuella} disabled={loading} className="mt-8 w-full flex items-center justify-center gap-3 rounded-3xl bg-[#0073ea] py-4 text-white text-[17px] font-bold shadow-[0_10px_30px_-16px_rgba(0,115,234,.8)] disabled:opacity-70">
+            <Fingerprint size={26} strokeWidth={2} />{loading ? 'Verificando…' : 'Entrar con huella o rostro'}</button>
+        )}
+        <form onSubmit={handleLogin} className={`${hAct ? 'mt-4' : 'mt-8'} rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3`}>
           <label className="block"><span className="text-[13px] font-semibold text-slate-600">Correo</span>
             <input type="email" inputMode="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} disabled={loading} required placeholder="usuario@gcuavante.com"
               className="mt-1 w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[16px] outline-none focus:border-[#0073ea] focus:bg-white" /></label>
@@ -229,13 +264,14 @@ export default function LoginPage() {
             </div></label>
           <label className="flex items-center gap-2.5 py-2.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
           {error && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
-          <button type="submit" disabled={loading} className="w-full h-13 py-3.5 rounded-2xl bg-[#0073ea] text-white text-[17px] font-bold disabled:opacity-70">{loading ? 'Entrando…' : 'Entrar'}</button>
+          <button type="submit" disabled={loading} className={`w-full h-13 py-3.5 rounded-2xl text-[17px] font-bold disabled:opacity-70 ${hAct ? 'bg-slate-100 text-slate-800' : 'bg-[#0073ea] text-white'}`}>{loading ? 'Entrando…' : hAct ? 'Entrar con contraseña' : 'Entrar'}</button>
         </form>
         <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 shadow-[0_10px_30px_-20px_rgba(15,23,42,.5)]">
           <span className="w-11 h-11 rounded-xl bg-[#0060c7] flex items-center justify-center"><ScanFace size={24} color="#fff" strokeWidth={2.2} /></span>
           <span className="flex-1"><span className="block text-[15px] font-bold text-slate-900">ARIA27 FaceID</span><span className="block text-[12.5px] text-slate-500">Checar asistencia con tu cara</span></span>
         </a>
-        <p className="mt-6 text-center text-[12px] text-slate-600">Usa tu contraseña de Zoho Mail · Acceso exclusivo GCUAVANTE</p>
+        </>)}
+        <p className="mt-6 text-center text-[12px] text-slate-600">Grupo Constructor Urbano Avante · Usa tu contraseña de Zoho Mail</p>
       </div>
     </div>
   )

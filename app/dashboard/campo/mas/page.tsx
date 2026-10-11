@@ -6,6 +6,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Fingerprint } from "lucide-react";
+import { huellaDisponible, huellaActivada, activarHuella, olvidarHuellaLocal } from "@/lib/huella-client";
 import { Sun, Moon, BellRing, LogOut, ChevronRight, Smartphone, UserCog, LayoutTemplate, Repeat, BarChart3, Zap, Package } from "lucide-react";
 import { Ficha, IcoCalendario, IcoCamion, IcoObra, IcoRevision, IcoPlano, IcoCasco, IcoBodega, IcoEquipo, IcoChecada, IcoOrganizar, IcoSello, IcoPregunta, type Ico } from "@/components/domenica/IconosObra";
 import { guardarTema, useTemaDom, type TemaDom } from "@/lib/dom-tema";
@@ -52,6 +54,18 @@ export default function MasPage() {
   useEffect(() => { try { setAbiertas(JSON.parse(localStorage.getItem("dom:mas-abiertas") || "{}")); } catch { /* */ } }, []);
   const alternar = (k: string) => setAbiertas(a => { const n = { ...a, [k]: !a[k] }; try { localStorage.setItem("dom:mas-abiertas", JSON.stringify(n)); } catch { /* */ } return n; });
   const [push, setPush] = useState(""); const [pushMsg, setPushMsg] = useState("");
+  const [huella, setHuella] = useState<"no" | "si" | "off">("off"); const [huellaMsg, setHuellaMsg] = useState("");
+  useEffect(() => { huellaDisponible().then(d => setHuella(!d ? "no" : huellaActivada() ? "si" : "off")); }, []);
+  const tocarHuella = async () => {
+    if (huella === "no") return;
+    if (huella === "si") {
+      if (!window.confirm("¿Quitar la entrada con huella o rostro en este teléfono?")) return;
+      try { const r = await fetch("/api/auth/huella/mias", { credentials: "include" }).then(x => x.json()); for (const l of (r.llaves || []) as { id: string }[]) await fetch(`/api/auth/huella/mias?id=${l.id}`, { method: "DELETE", credentials: "include" }); } catch { /* */ }
+      olvidarHuellaLocal(); setHuella("off"); setHuellaMsg("Quitada"); return;
+    }
+    try { setHuellaMsg("Sigue las indicaciones del teléfono…"); await activarHuella(); setHuella("si"); setHuellaMsg("Listo: la próxima vez entras con tu huella o rostro"); }
+    catch (e) { setHuellaMsg((e as Error).message); }
+  };
   useEffect(() => {
     estadoPush().then(setPush).catch(() => setPush("no-soportado"));
     fetch("/api/auth/me", { credentials: "include", cache: "no-store" }).then(r => r.ok ? r.json() : null).then(u => { if (u) setMe({ email: String(u.email || ""), role: String(u.role || "").toLowerCase(), name: u.display_name || u.name || u.email }); }).catch(() => {});
@@ -103,6 +117,11 @@ export default function MasPage() {
               <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#7e3bdd]"><BellRing className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Notificaciones del teléfono</div><div className="text-[12px] text-[var(--d-muted)]">{pushMsg || (push === "activo" ? "Activas" : push === "instalar-primero" ? "En iPhone, primero agrega la app a tu pantalla de inicio" : push === "bloqueado" ? "Bloqueadas en el navegador" : "Toca para activarlas")}</div></div>
               {push === "activo" ? <span className="text-[11px] font-bold text-[var(--d-ok)]">● Activas</span> : <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />}
+            </button>
+            <button onClick={tocarHuella} disabled={huella === "no"} className="w-full flex items-center gap-3 px-4 py-3.5 text-left disabled:opacity-60">
+              <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0060c7]"><Fingerprint className="w-5 h-5 text-white" /></span>
+              <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--d-text)]">Entrar con huella o rostro</div><div className="text-[12px] text-[var(--d-muted)]">{huellaMsg || (huella === "si" ? "Activo en este teléfono · toca para quitarlo" : huella === "no" ? "Este teléfono no tiene huella ni rostro configurados" : "Toca para activarlo y no escribir la contraseña")}</div></div>
+              {huella === "si" ? <span className="text-[11px] font-bold text-[var(--d-ok)]">Activo</span> : <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />}
             </button>
             <div className="flex items-center gap-3 px-4 py-3.5">
               <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#0073ea]"><Smartphone className="w-5 h-5 text-white" /></span>
