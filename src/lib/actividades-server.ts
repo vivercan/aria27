@@ -123,3 +123,23 @@ export async function avisarDependientes(db: SupabaseClient, terminada: { id: st
   }
   return n;
 }
+
+// ── 11-Oct-2026: recorrer las que siguen cuando una se atrasa (dependencias tipo Monday) ──
+import { recorrerSiguientes, type ActDep } from "@/lib/dependencias";
+export async function aplicarRecorrido(db: SupabaseClient, id: string, nuevoFin: string, porEmail: string, avisar = true): Promise<number> {
+  const { data } = await db.from("tareas_asignadas").select("id, titulo, depende_de, fecha_inicio, fecha_compromiso, estatus, asignado_id, obra").neq("estatus", "CANCELADA").limit(3000);
+  const acts = (data || []) as (ActDep & { titulo: string; asignado_id: string | null })[];
+  const origen = acts.find(a => a.id === id);
+  const cambios = recorrerSiguientes(acts, id, nuevoFin);
+  for (const c of cambios) {
+    await db.from("tareas_asignadas").update({ fecha_inicio: c.fecha_inicio, fecha_compromiso: c.fecha_compromiso, updated_at: new Date().toISOString() }).eq("id", c.id);
+    const a = acts.find(x => x.id === c.id);
+    const texto = `Se recorrió ${c.dias} día${c.dias === 1 ? "" : "s"} (inicia ${fechaCorta(c.fecha_inicio)}, entrega ${fechaCorta(c.fecha_compromiso)}) porque "${origen?.titulo || "la anterior"}" terminará después`;
+    await registrarActualizacion(db, { tarea_id: c.id, autor_email: porEmail, tipo: "sistema", texto });
+    if (avisar && a?.asignado_id) {
+      const p = await personaPorEmpleado(db, a.asignado_id);
+      if (p && p.email !== porEmail.toLowerCase()) await avisarWA(p, `Tu actividad "${a.titulo}"${a.obra ? ` (${a.obra})` : ""} se recorrió ${c.dias} día${c.dias === 1 ? "" : "s"}: ahora inicia ${fechaCorta(c.fecha_inicio)} y se entrega ${fechaCorta(c.fecha_compromiso)}, porque "${origen?.titulo || "la anterior"}" se atrasó.`, "actividad-recorrida", porEmail, { title: "📅 Se recorrió tu actividad", url: `/dashboard/actividades?abrir=${c.id}`, tag: `act-${c.id}` });
+    }
+  }
+  return cambios.length;
+}

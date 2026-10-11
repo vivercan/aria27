@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-import { avisarWA, avisarDependientes, personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
+import { avisarWA, avisarDependientes, aplicarRecorrido, personaPorEmail, personaPorEmpleado, registrarActualizacion } from "@/lib/actividades-server";
 import { COLUMNAS, cambiosPorAvance, cambiosPorColumna, columnaDe, fechaCorta, type Actividad, type ColumnaId } from "@/lib/actividades";
 import { logger } from "@/lib/logger";
 
@@ -37,6 +37,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const cambios: Record<string, unknown> = {};
     const notas: string[] = [];
     const colAntes = columnaDe(t);
+
+    // Dependencias (Monday): no se puede empezar ni terminar si la que espera no está terminada
+    const quiereAvanzar = (b.columna !== undefined && ["EN_PROCESO", "TERMINADA"].includes(String(b.columna))) || (b.avance !== undefined && Number(b.avance) > 0);
+    if (quiereAvanzar && t.depende_de && colAntes === "POR_HACER") {
+      const { data: p } = await db.from("tareas_asignadas").select("id, titulo, estatus, asignado_nombre").eq("id", t.depende_de).maybeSingle();
+      const pp = p as { titulo: string; estatus: string; asignado_nombre: string | null } | null;
+      if (pp && pp.estatus !== "COMPLETADA" && pp.estatus !== "CANCELADA" && !(b.forzar === true && SUPER.includes(auth.role))) {
+        return NextResponse.json({ error: `Primero se tiene que terminar "${pp.titulo}"${pp.asignado_nombre ? ` (la tiene ${pp.asignado_nombre})` : ""}. Te avisamos cuando quede.`, bloqueada: true, puedeForzar: SUPER.includes(auth.role) }, { status: 409 });
+      }
+    }
 
     if (b.columna !== undefined) {
       const dest = String(b.columna) as ColumnaId;
@@ -109,6 +119,12 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       if (colDespues === "TERMINADA") await avisarWA(asignador, `${quien} terminó la actividad "${nueva.titulo}"${obraTxt}.`, "actividad-terminada", me, { title: "✅ Actividad terminada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
       else if (colDespues === "BLOQUEADA") await avisarWA(asignador, `La actividad "${nueva.titulo}"${obraTxt} está atorada: ${nueva.motivo_bloqueo}. Avisó ${quien}.`, "actividad-atorada", me, { title: "⚠️ Actividad atorada", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });
     }
+    // Si la entrega se movió a después, o se terminó tarde, se recorren las que siguen
+    try {
+      const hoy = new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10);
+      if (cambios.fecha_compromiso && t.fecha_compromiso && String(cambios.fecha_compromiso) > String(t.fecha_compromiso).slice(0, 10)) await aplicarRecorrido(db, id, String(cambios.fecha_compromiso), me);
+      else if (colDespues === "TERMINADA" && colAntes !== "TERMINADA" && t.fecha_compromiso && hoy > String(t.fecha_compromiso).slice(0, 10)) await aplicarRecorrido(db, id, hoy, me);
+    } catch (e) { log.warn("recorrido", { error: (e as Error)?.message }); }
     if (colDespues === "TERMINADA" && colAntes !== "TERMINADA") { try { await avisarDependientes(db, nueva, me); } catch (e) { log.warn("dependientes", { error: (e as Error)?.message }); } }
     if (nuevoAsignado && nuevoAsignado.email !== me) {
       await avisarWA(nuevoAsignado, `${quien} te pasó la actividad "${nueva.titulo}"${obraTxt}. Entrega: ${fechaCorta(nueva.fecha_compromiso) || "sin fecha"}. Contesta LISTO, AVANCE 50 o BLOQUEADO y el motivo.`, "actividad-reasignada", me, { title: "📋 Te pasaron una actividad", url: `/dashboard/actividades?abrir=${id}`, tag: `act-${id}` });

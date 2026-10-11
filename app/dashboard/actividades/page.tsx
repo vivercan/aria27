@@ -18,6 +18,7 @@ import {
   ChevronDown, ChevronRight, AlertTriangle, Flag, MapPin, Paperclip, User as UserIcon, GanttChart, Hourglass,
 } from "lucide-react";
 import { mencionesEnTexto } from "@/lib/plantillas";
+import { rutaCritica } from "@/lib/dependencias";
 
 type Emp = { id: string; full_name: string; whatsapp?: string | null };
 type Obra = { id: string; nombre: string };
@@ -190,6 +191,8 @@ export default function ActividadesPage() {
   }, [acts, me, miEmp, ambito, fObra, fPersona, q, obras, esSuper]);
 
   const kpi = useMemo(() => resumen(visibles), [visibles]);
+  // Carga de trabajo para decidir a quién asignar (abiertas por persona)
+  const carga = useMemo(() => { const m: Record<string, number> = {}; for (const a of acts) if (a.asignado_id && columnaDe(a) !== "TERMINADA") m[a.asignado_id] = (m[a.asignado_id] || 0) + 1; return m; }, [acts]);
   const chkDe = useCallback((id: string) => chk.filter(c => c.tarea_id === id), [chk]);
   const actual = useMemo(() => acts.find(a => a.id === abierta) || null, [acts, abierta]);
 
@@ -202,7 +205,12 @@ export default function ActividadesPage() {
       if (r.tarea) setActs(prev => prev.map(a => a.id === id ? r.tarea as Actividad : a));
       setUpdCount(c => ({ ...c, [id]: (c[id] || 0) + 1 }));
       return true;
-    } catch (e) { setActs(antes); flash("err", (e as Error).message); return false; }
+    } catch (e) {
+      setActs(antes);
+      const m = (e as Error).message;
+      if (esSuper && m.startsWith("Primero se tiene que terminar") && !body.forzar && window.confirm(`${m}\n\n¿Empezarla de todos modos?`)) return patch(id, { ...body, forzar: true }, optimista);
+      flash("err", m); return false;
+    }
   };
 
   const mover = async (id: string, col: ColumnaId, motivo?: string) => {
@@ -250,7 +258,7 @@ export default function ActividadesPage() {
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
-            {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><Hourglass className="w-3 h-3 shrink-0" /><span className="truncate">Espera a: {p.titulo}</span></div> : null; })()}
+            {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">🔒</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
@@ -309,6 +317,7 @@ export default function ActividadesPage() {
     const grupos = new Map<string, Actividad[]>();
     for (const a of items.sort((p, q) => ini(p) - ini(q))) { const k = a.obra || "Oficina"; grupos.set(k, [...(grupos.get(k) || []), a]); }
     const dias = Array.from({ length: nDias }, (_, i) => new Date(min + i * DAY));
+    const critica = rutaCritica(items);
     return (
       <div className="mt-5 rounded-2xl border border-[var(--d-border)] overflow-hidden">
         <div className="overflow-x-auto">
@@ -325,7 +334,16 @@ export default function ActividadesPage() {
             {[...grupos.entries()].map(([obra, list]) => (
               <div key={obra}>
                 <div className="flex items-center gap-1.5 sticky left-0 px-3 py-1.5 text-[11.5px] font-bold text-[var(--d-link)] bg-[var(--d-card)] border-y border-[var(--d-border)]" style={{ width: LBL + nDias * W }}><MapPin className="w-3 h-3" />{obra}<span className="text-[var(--d-faint)] font-normal">· {list.length}</span></div>
-                {list.map(a => { const col = columnaDe(a); const c = COLUMNAS.find(k => k.id === col)!; const l = x(ini(a)); const w = Math.max(W, x(fin(a)) - l + W); const atr = diasAtraso(a) > 0;
+                <div className="relative">
+                {/* Flechas "espera a" (dependencias) dentro de la obra */}
+                <svg className="absolute top-0 pointer-events-none z-[4]" style={{ left: LBL }} width={nDias * W} height={list.length * 44}>
+                  <defs><marker id={`fl-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--d-muted)" /></marker><marker id={`flc-${obra.length}`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#e2445c" /></marker></defs>
+                  {list.map((a, ia) => { const ip = a.depende_de ? list.findIndex(p => p.id === a.depende_de) : -1; if (ip < 0) return null; const p = list[ip];
+                    const x1 = x(fin(p)) + W - 2, y1 = ip * 44 + 22, x2 = x(ini(a)) + 1, y2 = ia * 44 + 22; const crit = critica.has(a.id) && critica.has(p.id);
+                    const xm = Math.max(x1 + 6, Math.min(x2 - 6, x1 + 10));
+                    return <path key={a.id} d={`M${x1},${y1} H${xm} V${y2} H${x2 - 1}`} fill="none" stroke={crit ? "#e2445c" : "var(--d-muted)"} strokeWidth={crit ? 2 : 1.4} strokeDasharray={crit ? "" : "4 3"} markerEnd={`url(#${crit ? "flc" : "fl"}-${obra.length})`} />; })}
+                </svg>
+                {list.map(a => { const col = columnaDe(a); const c = COLUMNAS.find(k => k.id === col)!; const l = x(ini(a)); const w = Math.max(W, x(fin(a)) - l + W); const atr = diasAtraso(a) > 0; const crit = critica.has(a.id);
                   return (
                     <div key={a.id} className="flex items-center h-11 border-b border-[var(--d-border)] hover:bg-[var(--d-hover)]">
                       <button onClick={() => setAbierta(a.id)} style={{ width: LBL }} className="shrink-0 sticky left-0 z-[6] bg-[var(--d-surface)] h-full flex items-center gap-2 px-3 text-left border-r border-[var(--d-border)]">
@@ -334,14 +352,20 @@ export default function ActividadesPage() {
                       <div className="relative h-full" style={{ width: nDias * W }}>
                         {atr && col !== "TERMINADA" && <div className="absolute top-3 h-5 rounded-r-md" style={{ left: l + w - 2, width: Math.max(0, x(hoyT) - (l + w) + W), background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 6px, rgba(226,68,92,.25) 6px 12px)" }} />}
                         <button onClick={() => setAbierta(a.id)} title={`${a.titulo} · ${fechaCorta(a.fecha_inicio || a.fecha_compromiso)} → ${fechaCorta(a.fecha_compromiso)}`}
-                          className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}` }}>
+                          className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}`, boxShadow: crit && col !== "TERMINADA" ? "0 0 0 2px #e2445c" : undefined }}>
                           <div className="h-full" style={{ width: `${Number(a.avance) || 0}%`, background: c.color, opacity: 0.85 }} />
                           <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-[var(--d-text)] truncate">{Number(a.avance) || 0}%</span>
                         </button>
                       </div>
                     </div>); })}
+                </div>
               </div>))}
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 text-[11px] text-[var(--d-muted)] border-t border-[var(--d-border)]">
+          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 h-3 rounded-sm" style={{ boxShadow: "0 0 0 2px #e2445c" }} />Ruta crítica: si se atrasa, se atrasa la obra</span>
+          <span className="inline-flex items-center gap-1.5"><svg width="22" height="8"><path d="M0,4 H18" stroke="var(--d-muted)" strokeDasharray="4 3" /><path d="M16,1 L21,4 L16,7 z" fill="var(--d-muted)" /></svg>Espera a</span>
+          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 h-3 rounded-sm" style={{ background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 4px, rgba(226,68,92,.25) 4px 8px)" }} />Atraso</span>
         </div>
       </div>
     );
@@ -484,14 +508,14 @@ export default function ActividadesPage() {
       )}
 
       {actual && me && (
-        <Ficha key={actual.id} a={actual} todas={acts} me={me} emps={emps} obras={obras} checklist={chkDe(actual.id)} esSuper={esSuper}
+        <Ficha key={actual.id} a={actual} todas={acts} carga={carga} me={me} emps={emps} obras={obras} checklist={chkDe(actual.id)} esSuper={esSuper}
           onClose={() => { setAbierta(null); try { const u = new URL(window.location.href); u.searchParams.delete("abrir"); u.searchParams.delete("id"); window.history.replaceState(null, "", u.toString()); } catch {} }}
           onPatch={(body, opt) => patch(actual.id, body, opt)} onMover={(col) => mover(actual.id, col)}
           onChk={setChk} onUpd={() => setUpdCount(c => ({ ...c, [actual.id]: (c[actual.id] || 0) + 1 }))}
           onDeleted={() => { setActs(p => p.filter(x => x.id !== actual.id)); setAbierta(null); flash("ok", "Actividad borrada"); }} flash={flash} />
       )}
 
-      {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
+      {nueva && me && <Nueva emps={emps} obras={obras} miEmp={miEmp} carga={carga} onClose={() => setNueva(false)} onCreated={async (id, notif) => { setNueva(false); await cargar(); setAbierta(id); flash("ok", notif ? "Creada y avisada por WhatsApp" : "Actividad creada"); }} flash={flash} />}
 
       {toast && <div className={`fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-[80] rounded-xl px-4 py-2.5 text-sm font-medium shadow-2xl ${toast.t === "ok" ? "bg-[#00c875] text-[#06281a]" : "bg-[#e2445c] text-white"}`}>{toast.m}</div>}
     </div>
@@ -499,8 +523,8 @@ export default function ActividadesPage() {
 }
 
 /* ───────────────────────── Ficha de la actividad ───────────────────────── */
-function Ficha({ a, todas, me, emps, obras, checklist, esSuper, onClose, onPatch, onMover, onChk, onUpd, onDeleted, flash }: {
-  a: Actividad; todas: Actividad[]; me: { email: string; role: string; name: string }; emps: Emp[]; obras: Obra[]; checklist: Chk[]; esSuper: boolean;
+function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, onPatch, onMover, onChk, onUpd, onDeleted, flash }: {
+  a: Actividad; todas: Actividad[]; carga: Record<string, number>; me: { email: string; role: string; name: string }; emps: Emp[]; obras: Obra[]; checklist: Chk[]; esSuper: boolean;
   onClose: () => void; onPatch: (b: Record<string, unknown>, opt?: Partial<Actividad>) => Promise<boolean>; onMover: (c: ColumnaId) => void;
   onChk: React.Dispatch<React.SetStateAction<Chk[]>>; onUpd: () => void; onDeleted: () => void; flash: (t: "ok" | "err", m: string) => void;
 }) {
@@ -617,7 +641,7 @@ function Ficha({ a, todas, me, emps, obras, checklist, esSuper, onClose, onPatch
           <div className="grid grid-cols-2 gap-3">
             <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><UserIcon className="w-3 h-3" />Responsable</span>
               <div className="mt-1 flex items-center gap-2"><Avatar nombre={a.asignado_nombre} size={32} />
-                <select disabled={!puedeEditar} value={a.asignado_id || ""} onChange={e => onPatch({ asignado_id: e.target.value })} className="flex-1 rounded-xl px-3 py-2 text-sm">{!a.asignado_id && <option value="">{a.asignado_nombre || "Sin asignar"}</option>}{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select></div>
+                <select disabled={!puedeEditar} value={a.asignado_id || ""} onChange={e => onPatch({ asignado_id: e.target.value })} className="flex-1 rounded-xl px-3 py-2 text-sm">{!a.asignado_id && <option value="">{a.asignado_nombre || "Sin asignar"}</option>}{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}{carga[p.id] ? ` · ${carga[p.id]} abiertas` : ""}</option>)}</select></div>
             </label>
             <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Entrega</span>
               <input type="date" disabled={!puedeEditar} value={(a.fecha_compromiso || "").slice(0, 10)} onChange={e => onPatch({ fecha_compromiso: e.target.value }, { fecha_compromiso: e.target.value })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
@@ -696,7 +720,7 @@ function Ficha({ a, todas, me, emps, obras, checklist, esSuper, onClose, onPatch
 }
 
 /* ───────────────────────── Nueva actividad ───────────────────────── */
-function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[]; obras: Obra[]; miEmp: string | null; onClose: () => void; onCreated: (id: string, notificado: boolean) => void; flash: (t: "ok" | "err", m: string) => void }) {
+function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps: Emp[]; obras: Obra[]; miEmp: string | null; carga: Record<string, number>; onClose: () => void; onCreated: (id: string, notificado: boolean) => void; flash: (t: "ok" | "err", m: string) => void }) {
   const hoy = new Date();
   const dia = (n: number) => { const d = new Date(hoy); d.setDate(hoy.getDate() + n); return ymd(d); };
   const viernes = (() => { const d = new Date(hoy); const k = (5 - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate() + k); return ymd(d); })();
@@ -722,12 +746,12 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace?</div>
+            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>
             {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />}
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
+              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
-                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}</button>))}
+                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/15 text-[var(--d-text)] font-semibold" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}{(carga[p.id] || 0) > 0 && <span title="Actividades abiertas" className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${carga[p.id] >= 15 ? "bg-[#e2445c] text-white" : carga[p.id] >= 8 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{carga[p.id]}</span>}</button>))}
             </div>
           </div>
           <div>
