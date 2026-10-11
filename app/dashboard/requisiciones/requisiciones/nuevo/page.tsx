@@ -876,7 +876,7 @@ export default function NewRequisitionPage() {
                 {searching && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
               <div className="max-h-48 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)]">
-                <div className="grid grid-cols-[70px_1fr_80px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-bg)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0 z-10">
+                <div className="hidden md:grid grid-cols-[70px_1fr_80px] gap-2 border-b border-[var(--d-border)] bg-[var(--d-bg)] px-3 py-2 text-[11px] font-medium uppercase text-[var(--d-text-2)] sticky top-0 z-10">
                   <div>Cat</div><div>Descripción</div><div className="text-right">Unidad</div>
                 </div>
                 {searchResults.length === 0 ? (
@@ -886,9 +886,9 @@ export default function NewRequisitionPage() {
                   return (
                     <div key={p.id} onClick={() => isSel ? setMaterials(prev=>prev.filter(m=>m.id!==p.id)) : addMaterial(p)}
                       className={`grid grid-cols-[70px_1fr_80px] gap-2 items-center px-3 py-2.5 text-xs cursor-pointer transition-all ${isSel ? "bg-emerald-500/20 border-l-2 border-emerald-400" : "hover:bg-white/[0.04] border-l-2 border-transparent"}`}>
-                      <div className="text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
-                      <div className={`truncate ${isSel ? "text-aria-accent font-medium" : ""}`}>{p.name}</div>
-                      <div className="text-[var(--d-muted)] truncate text-right">{p.unit}</div>
+                      <div className="hidden md:block text-aria-accent/80 text-[10px] truncate">{shortCat(p.category)}</div>
+                      <div className={`col-span-3 md:col-span-1 ${isSel ? "text-aria-accent font-medium" : ""}`}><span className="block md:truncate text-[13px] md:text-xs">{isSel ? "✓ " : ""}{p.name}</span><span className="md:hidden text-[11px] text-[var(--d-muted)]">{shortCat(p.category)} · {p.unit}</span></div>
+                      <div className="hidden md:block text-[var(--d-muted)] truncate text-right">{p.unit}</div>
                     </div>
                   );
                 })}
@@ -1030,7 +1030,7 @@ export default function NewRequisitionPage() {
             const totalConIva = subtotal + ivaMonto;
             const fmt = (n: number) => n.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             return (
-              <div className="flex items-center gap-4 text-xs">
+              <div className={`${subtotal > 0 ? "flex" : "hidden md:flex"} items-center gap-4 text-xs`}>
                 <div className="flex flex-col items-end">
                   <span className="text-[10px] uppercase text-[var(--d-muted)]">Subtotal</span>
                   <span className="text-[var(--d-text)] font-medium">${fmt(subtotal)}</span>
