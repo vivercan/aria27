@@ -334,7 +334,7 @@ export default function ActividadesPage() {
             <div className="absolute top-0 bottom-0 w-0.5 bg-[#579bfc] z-[5] pointer-events-none" style={{ left: LBL + x(hoyT) + W / 2 }} />
             {[...grupos.entries()].map(([obra, list]) => (
               <div key={obra}>
-                <div className="flex items-center gap-1.5 sticky left-0 px-3 py-1.5 text-[11.5px] font-bold text-[var(--d-link)] bg-[var(--d-card)] border-y border-[var(--d-border)]" style={{ width: LBL + nDias * W }}><MapPin className="w-3 h-3" />{obra}<span className="text-[var(--d-faint)] font-normal">· {list.length}</span></div>
+                <div className="flex items-center py-1.5 text-[11.5px] font-bold text-[var(--d-link)] bg-[var(--d-card)] border-y border-[var(--d-border)]" style={{ width: LBL + nDias * W }}><span className="sticky left-0 inline-flex items-center gap-1.5 px-3"><MapPin className="w-3 h-3" />{obra}<span className="text-[var(--d-faint)] font-normal">· {list.length}</span></span></div>
                 <div className="relative">
                 {/* Flechas "espera a" (dependencias) dentro de la obra */}
                 <svg className="absolute top-0 pointer-events-none z-[4]" style={{ left: LBL }} width={nDias * W} height={list.length * 44}>
