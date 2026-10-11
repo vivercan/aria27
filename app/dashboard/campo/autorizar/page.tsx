@@ -71,12 +71,12 @@ export default function AutorizarPage() {
       <div className="px-4 pt-4 pb-40 max-w-2xl mx-auto">
         <div className="flex items-center gap-3">
           <Ficha ico={IcoSello} color="#00a35c" size="lg" />
-          <div className="flex-1 min-w-0"><h1 className="text-[22px] font-bold text-[var(--d-text)] leading-tight">Por autorizar</h1>
+          <div className="flex-1 min-w-0"><h1 className="text-[22px] font-bold text-[var(--d-text)] leading-tight whitespace-nowrap">Por autorizar</h1>
             <p className="text-[13px] text-[var(--d-muted)]">{lista === null ? "Cargando…" : visibles.length ? `${visibles.length} esperan · ${$(suma)}` : "Nada pendiente aquí"}</p></div>
-          {visibles.length > 1 && <button onClick={() => { setVarias(v => !v); setSel(new Set()); }} className={`shrink-0 rounded-xl px-3 py-2 text-[13px] font-bold ${varias ? "bg-[#0f172a] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{varias ? "Listo" : "Elegir varias"}</button>}
+          {visibles.length > 1 && <button onClick={() => { setVarias(v => !v); setSel(new Set()); }} className={`shrink-0 rounded-xl px-2.5 py-2 text-[12px] font-bold ${varias ? "bg-[#0f172a] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{varias ? "Listo" : "Elegir varias"}</button>}
         </div>
 
-        {dir && (cuenta("OBRA") > 0 || cuenta("DIRECCION") > 0) && (
+        {dir && cuenta("OBRA") > 0 && cuenta("DIRECCION") > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-[var(--d-card-2)] p-1">
             {(["OBRA", "DIRECCION"] as const).map(n => <button key={n} onClick={() => { setNivel(n); setVarias(false); setSel(new Set()); }} className={`rounded-xl py-2.5 text-[14px] font-bold ${nivel === n ? "bg-[var(--d-card)] text-[var(--d-text)] shadow-sm" : "text-[var(--d-muted)]"}`}>{n === "OBRA" ? "En obra" : "Dirección"} <span className="ml-1 rounded-full bg-[#00a35c] px-1.5 text-[11px] text-white">{cuenta(n)}</span></button>)}
           </div>
@@ -141,7 +141,7 @@ export default function AutorizarPage() {
 function Rechazo({ items, busy, onClose, onOk }: { items: P[]; busy: boolean; onClose: () => void; onOk: (m: string) => void }) {
   const [m, setM] = useState("");
   return (
-    <Hoja titulo={items.length === 1 ? `Rechazar ${items[0].folio}` : `Rechazar ${items.length}`} onClose={onClose}
+    <Hoja titulo={items.length === 1 ? "Rechazar solicitud" : `Rechazar ${items.length} solicitudes`} onClose={onClose}
       pie={<button disabled={busy || m.trim().length < 3} onClick={() => onOk(m.trim())} className="w-full rounded-2xl bg-[#e2445c] py-3.5 text-[15px] font-bold text-white disabled:opacity-50 inline-flex items-center justify-center gap-1.5">{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />}Rechazar y avisar</button>}>
       <p className="text-[14px] text-[var(--d-text-2)]">¿Por qué? Se lo avisamos a quien lo pidió.</p>
       <div className="mt-3 flex flex-wrap gap-2">{MOTIVOS.map(x => <button key={x} type="button" onClick={() => setM(x)} className={`rounded-full px-3 py-2 text-[13px] font-semibold ${m === x ? "bg-[#e2445c] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{x}</button>)}</div>
