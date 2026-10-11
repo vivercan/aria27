@@ -213,11 +213,12 @@ export default function RequisicionesStatusPage() {
       .from("Requisiciones")
       .select("*")
       .order("created_at", { ascending: false });
-    // Admin y compras ven todas, los demas solo las suyas
+    // Admin, compras, RH, Dirección y Superintendencia ven todas; los demás las suyas y las de las obras donde son responsables
+    // (11-Oct-2026: antes Dirección/Superintendencia/responsables no veían lo que les toca autorizar)
     const { data: uData } = await supabase.from("Users").select("role").eq("email", email).single();
     const uRole = uData?.role || "user";
-    if (uRole !== "admin" && uRole !== "compras" && uRole !== "rh") {
-      query = query.eq("user_email", email);
+    if (!["admin", "compras", "rh", "direccion", "validador"].includes(uRole)) {
+      query = query.or(`user_email.eq.${email},responsable_email.eq.${email}`);
     }
 
     const { data } = await query;

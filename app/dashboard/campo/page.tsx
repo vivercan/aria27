@@ -47,7 +47,7 @@ export default function CampoHome() {
         const email = String(u.email || "").toLowerCase(); const role = String(u.role || "").toLowerCase();
         setMe({ email, role, name: u.display_name || u.name || email });
         let q = supabase.from("Requisiciones").select("id, folio, cost_center_name, status, purchase_status, user_email, responsable_email, tipo_solicitud, created_at, required_date, proveedor").order("created_at", { ascending: false }).limit(400);
-        if (!["admin", "compras", "rh", "direccion"].includes(role)) q = q.or(`user_email.eq.${email},responsable_email.eq.${email}`);
+        if (!["admin", "compras", "rh", "direccion", "validador"].includes(role)) q = q.or(`user_email.eq.${email},responsable_email.eq.${email}`);
         const [{ data: rq }, { data: emp }] = await Promise.all([q, supabase.from("employees").select("id").or(`usuario_email.eq.${email},email.eq.${email}`).limit(1).maybeSingle()]);
         const empId = (emp as { id?: string } | null)?.id || null;
         let aq = supabase.from("tareas_asignadas").select("*").not("estatus", "in", "(COMPLETADA,CANCELADA)");
