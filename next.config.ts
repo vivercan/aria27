@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
+  // 11-Oct-2026: versión del build para que el celular se actualice solo al publicar cambios
+  env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_GIT_COMMIT_SHA || "dev" },
   async rewrites() {
     return [
       {

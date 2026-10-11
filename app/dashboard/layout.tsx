@@ -17,6 +17,7 @@ import {
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
 import DomenicaLogo from "@/components/campo/DomenicaLogo";
+import { revisarVersion } from "@/lib/version-check";
 import { esRutaDomenica, leerTema, aplicarTema, guardarTema, useTemaDom, esRutaDomenicaMovil } from "@/lib/dom-tema";
 import { isMobileDevice, HUBS_WEB } from "@/lib/device";
 import { registrarSW } from "@/lib/push-client";
@@ -204,6 +205,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
   // Doménica: diseño claro (u oscuro si el usuario lo eligio) en sus pantallas
   useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname) || (isMobileDevice() && esRutaDomenicaMovil(pathname))); aplicarTema(leerTema()); sessionStorage.setItem("dom:nav", String(Number(sessionStorage.getItem("dom:nav") || 0) + 1)); } catch {} }, [pathname]);
+  // 11-Oct-2026: al publicar una versión nueva, se actualiza sola al cambiar de pantalla (nunca a media captura)
+  useEffect(() => { revisarVersion(); }, [pathname]);
   // 10-Oct-2026: service worker (notificaciones del telefono + abrir sin senal) y aviso de "Sin senal"
   const [sinSenal, setSinSenal] = useState(false);
   useEffect(() => {

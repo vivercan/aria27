@@ -122,7 +122,7 @@ export default function CampoHome() {
         {/* 3 numeros */}
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
-            { n: pendReq.length, l: "Solicitudes por atender", c: "#fdab3d", href: "/dashboard/requisiciones/requisiciones/estatus?chip=mis_pendientes" },
+            { n: pendReq.length, l: "Solicitudes por atender", c: "#fdab3d", href: "/dashboard/requisiciones/requisiciones/estatus?tab=toca" },
             { n: acts.length, l: "Mis actividades", c: "#579bfc", href: "/dashboard/actividades?vista=mi" },
             { n: atrasadas.length, l: "Atrasadas", c: "#e2445c", href: "/dashboard/actividades?vista=mi" },
           ].map((k, ki) => (

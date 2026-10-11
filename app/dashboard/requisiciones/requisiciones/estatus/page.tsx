@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import ListToolbar from "@/components/ListToolbar";
 import { useListFilter } from "@/hooks/useListFilter";
 import RequiStepper from "@/components/RequiStepper";
-import { statusLabel, accionPara } from "@/lib/requi-stepper";
+import { statusLabel, accionPara, queSigue, ACCION_TXT, meToca } from "@/lib/requi-stepper";
 import { supabase } from "@/lib/supabase";
 import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
@@ -93,6 +93,8 @@ export default function RequisicionesStatusPage() {
   const [requisiciones, setRequisiciones] = useState<Requisition[]>([]);
   const [loading, setLoading] = useState(true);
   const [nMovil, setNMovil] = useState(40); // celular: tarjetas por tandas
+  const [tabMovil, setTabMovil] = useState<"" | "toca" | "mias" | "todas">("");
+  const [qMovil, setQMovil] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -162,10 +164,28 @@ export default function RequisicionesStatusPage() {
     searchFields, chips: chipsDef, chipOf, chipPredicates, selects: selectsDef,
   });
   const visibles = lf.filtered;
+  // Celular: Me toca / Las mías / Todas (sin chips ni filtros técnicos)
+  const puedeVerTodas = ["admin", "rh", "direccion", "validador", "compras"].includes(userRole);
+  const cuentaMovil = useMemo(() => ({
+    toca: requisiciones.filter(r => meToca(r, userRole, userEmail)).length,
+    mias: requisiciones.filter(r => (r.user_email || "").toLowerCase() === userEmail.toLowerCase()).length,
+    todas: requisiciones.length,
+  }), [requisiciones, userRole, userEmail]);
+  const tabActiva = tabMovil || (cuentaMovil.toca > 0 ? "toca" : cuentaMovil.mias > 0 || !puedeVerTodas ? "mias" : "todas");
+  const listaMovil = useMemo(() => {
+    const n = qMovil.trim().toLowerCase();
+    return requisiciones.filter(r => {
+      if (tabActiva === "toca" && !meToca(r, userRole, userEmail)) return false;
+      if (tabActiva === "mias" && (r.user_email || "").toLowerCase() !== userEmail.toLowerCase()) return false;
+      if (tabActiva === "todas" && !puedeVerTodas) return false;
+      return !n || `${r.folio} ${r.cost_center_name || ""} ${r.proveedor || ""} ${nombresPorEmail[(r.user_email || "").toLowerCase()] || ""}`.toLowerCase().includes(n);
+    });
+  }, [requisiciones, tabActiva, qMovil, userRole, userEmail, puedeVerTodas, nombresPorEmail]);
   // F4: llegar desde Campo con ?chip=mis_pendientes o ?open=<id>
   const sp = useSearchParams();
   useEffect(() => {
     const chip = sp.get("chip"); if (chip) lf.setChip(chip);
+    const tab = sp.get("tab"); if (tab === "toca" || tab === "mias" || tab === "todas") setTabMovil(tab);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sp]);
   useEffect(() => {
@@ -422,8 +442,8 @@ export default function RequisicionesStatusPage() {
         <div className="flex items-center gap-3">
           <AriaBackButton href="/dashboard/requisiciones/requisiciones" />
           <div>
-            <h1 className="text-2xl font-bold text-[var(--d-text)]">Estatus de Requisiciones</h1>
-            <p className="text-[var(--d-faint)] text-sm">{lf.isActive ? `${visibles.length} de ${requisiciones.length}` : requisiciones.length} requisiciones</p>
+            <h1 className="text-2xl font-bold text-[var(--d-text)]"><span className="md:hidden">Solicitudes</span><span className="hidden md:inline">Estatus de Requisiciones</span></h1>
+            <p className="hidden md:block text-[var(--d-faint)] text-sm">{lf.isActive ? `${visibles.length} de ${requisiciones.length}` : requisiciones.length} requisiciones</p>
           </div>
         </div>
 
@@ -462,7 +482,7 @@ export default function RequisicionesStatusPage() {
       )}
 
       {!loading && (
-        <ListToolbar
+        <div className="hidden md:block"><ListToolbar
           search={lf.search} onSearch={lf.setSearch}
           placeholder="Buscar folio, obra, proveedor, concepto…"
           chips={chipsDef} chip={lf.chip} onChip={lf.setChip} counts={lf.counts}
@@ -470,7 +490,7 @@ export default function RequisicionesStatusPage() {
           onSelect={lf.setSelect}
           shown={visibles.length} total={requisiciones.length}
           isActive={lf.isActive} onClear={lf.clear}
-        />
+        /></div>
       )}
 
       {loading ? (
@@ -479,24 +499,32 @@ export default function RequisicionesStatusPage() {
         </div>
       ) : (
         <>
-        {/* Celular: tarjetas (Doménica 27) */}
-        <div className="md:hidden space-y-2 pb-24">
-          {visibles.slice(0, nMovil).map(req => (
-            <button key={req.id} type="button" onClick={() => openDetail(req)} className="dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[13px] font-semibold text-aria-accent">{req.folio}</span>
-                <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(req.status)}`}>{statusLabel(req.status)}</span>
-              </div>
-              <div className="mt-1 text-[15px] font-semibold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
-              <div className="text-[12.5px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div>
-              <div className="mt-2 flex items-center justify-between text-[12.5px]">
-                <span className="text-[var(--d-faint)]">Para {formatDate(req.required_date)}</span>
-                <span className="font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</span>
-              </div>
-            </button>
-          ))}
-          {visibles.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({visibles.length - nMovil})</button>}
-          {visibles.length === 0 && <div className="py-12 text-center text-sm text-[var(--d-muted)]">{requisiciones.length === 0 ? "No hay requisiciones." : "Nada coincide con tu búsqueda."}</div>}
+        {/* Celular: 3 pestañas claras (Doménica 27) */}
+        <div className="md:hidden pb-28">
+          <div className="grid gap-1 rounded-2xl bg-[var(--d-card-2)] p-1" style={{ gridTemplateColumns: `repeat(${puedeVerTodas ? 3 : 2}, minmax(0, 1fr))` }}>
+            {([["toca", "Me toca", cuentaMovil.toca], ["mias", "Las mías", cuentaMovil.mias], ...(puedeVerTodas ? [["todas", "Todas", cuentaMovil.todas]] : [])] as [string, string, number][]).map(([k, l, n]) => (
+              <button key={k} type="button" onClick={() => { setTabMovil(k as "toca"); setNMovil(40); }} className={`rounded-xl py-2.5 text-[13px] font-bold transition ${tabActiva === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>
+                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#fdab3d] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
+              </button>))}
+          </div>
+          <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
+          <div className="mt-3 space-y-2">
+            {listaMovil.slice(0, nMovil).map(req => { const acc = accionPara(req, userRole, userEmail); const toca = meToca(req, userRole, userEmail); return (
+              <button key={req.id} type="button" onClick={() => openDetail(req)} className={`dom-card w-full text-left rounded-2xl p-3.5 active:scale-[0.99] transition ${toca ? "ring-2 ring-[#fdab3d]/60" : ""}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{req.cost_center_name || "Sin obra"}</div>
+                    <div className="text-[12px] text-[var(--d-muted)] truncate">{req.proveedor || (nombresPorEmail[(req.user_email || "").toLowerCase()] || req.created_by || "")}</div></div>
+                  <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="font-mono text-[10.5px] text-[var(--d-faint)]">{req.folio}</div></div>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span> : null}
+                  <span className="text-[12.5px] text-[var(--d-text-2)] truncate">{queSigue(req.status)}</span>
+                </div>
+              </button>); })}
+            {listaMovil.length > nMovil && <button type="button" onClick={() => setNMovil(n => n + 40)} className="w-full rounded-2xl py-3 text-sm font-semibold text-aria-accent dom-card">Ver más ({listaMovil.length - nMovil})</button>}
+            {listaMovil.length === 0 && <div className="py-12 text-center text-sm text-[var(--d-muted)]">{tabActiva === "toca" ? "No tienes nada pendiente 🎉" : tabActiva === "mias" ? "No has pedido nada todavía." : "Nada coincide con tu búsqueda."}</div>}
+          </div>
+          <Link href="/dashboard/requisiciones/requisiciones/nuevo" className="fixed right-4 z-30 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_28px_-10px_#0073ea]" style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}>＋ Pedir material</Link>
         </div>
         <div className="hidden md:flex rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] overflow-hidden flex-col" style={{maxHeight:"calc(100vh - 220px)"}}>
           <div className="overflow-auto flex-1">

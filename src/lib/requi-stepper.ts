@@ -114,3 +114,24 @@ export function accionPara(r: RequiLike & { user_email?: string | null }, role: 
   if (!cerrada && (r.tipo_solicitud || "MATERIALES") !== "DESTAJO" && ((r.user_email || "").toLowerCase() === me || role === "compras" || role === "validador" || role === "residente" || esAdmin)) return "REGISTRAR_ENTREGA";
   return null;
 }
+
+/** 11-Oct-2026 · Lenguaje simple para el celular: qué sigue con esta solicitud */
+export function queSigue(st: string | null | undefined): string {
+  switch (String(st || "")) {
+    case "PENDIENTE_RESPONSABLE": return "Espera que el responsable de la obra la autorice";
+    case "PENDIENTE": case "EN_COTIZACION": return "Compras la está cotizando";
+    case "EN_AUTORIZACION": return "Espera que Dirección la autorice";
+    case "APROBADA": case "OC_GENERADA": return "Autorizada: falta pagar y entregar";
+    case "PAGADA": return "Pagada: falta que llegue y se registre la entrega";
+    case "ENTREGA_PARCIAL": return "Llegó una parte; falta el resto";
+    case "ENTREGADA": return "Entregada ✓";
+    case "RECHAZADA_RESPONSABLE": case "RECHAZADA_DIRECCION": return "Rechazada";
+    case "CANCELADA": return "Cancelada";
+    default: return statusLabel(st);
+  }
+}
+export const ACCION_TXT: Record<string, string> = { AUTORIZAR_RESPONSABLE: "Autorizar", COTIZAR: "Cotizar", APROBAR_DIRECCION: "Aprobar", PAGAR: "Pagar", REGISTRAR_ENTREGA: "Registrar entrega" };
+/** Lo que a esta persona le toca hacer (igual que "Solicitudes por atender" en Inicio) */
+export function meToca(r: RequiLike & { user_email?: string | null }, role: string, email: string): boolean {
+  const a = accionPara(r, role, email); return a !== null && a !== "REGISTRAR_ENTREGA";
+}
