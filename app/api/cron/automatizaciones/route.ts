@@ -1,5 +1,5 @@
 /**
- * Cron cada 30 min · ARIA Domingo · corre las automatizaciones activas (10-Oct-2026)
+ * Cron cada 30 min · ARIA Doménica · corre las automatizaciones activas (10-Oct-2026)
  * Solo manda avisos de 7:00 a 20:00 de Aguascalientes; fuera de horario no corre (los casos se avisan en la siguiente ventana).
  */
 import { NextRequest, NextResponse } from "next/server";

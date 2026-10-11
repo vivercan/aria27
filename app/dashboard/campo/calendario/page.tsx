@@ -56,29 +56,29 @@ export default function CalendarioPage() {
   const Icon = ({ k }: { k: Ev["kind"] }) => k === "tarea" ? <ClipboardList className="w-4 h-4 text-aria-accent" /> : k === "entrega" ? <Package className="w-4 h-4 text-emerald-400" /> : <FileText className="w-4 h-4 text-amber-300" />;
 
   return (
-    <div className="aria-page-canon pb-24 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><h1 className="text-xl font-bold text-white">Calendario</h1></div>
+    <div className="dom-page min-h-full"><div className="px-4 pt-4 pb-28 max-w-2xl mx-auto space-y-4">
+      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><h1 className="text-xl font-bold text-[var(--d-text)]">Calendario</h1></div>
       <div className="mt-3 flex items-center justify-between">
-        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() - 1, 1))} className="btn-flat p-2 rounded-lg bg-white/[0.05]" aria-label="Mes anterior"><ChevronLeft className="w-5 h-5" /></button>
-        <div className="text-white font-semibold capitalize">{MESES[cur.getMonth()]} {cur.getFullYear()}</div>
-        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() + 1, 1))} className="btn-flat p-2 rounded-lg bg-white/[0.05]" aria-label="Mes siguiente"><ChevronRight className="w-5 h-5" /></button>
+        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() - 1, 1))} className="btn-flat p-2 rounded-lg bg-[var(--d-card)]" aria-label="Mes anterior"><ChevronLeft className="w-5 h-5" /></button>
+        <div className="text-[var(--d-text)] font-semibold capitalize">{MESES[cur.getMonth()]} {cur.getFullYear()}</div>
+        <button onClick={() => setCur(new Date(cur.getFullYear(), cur.getMonth() + 1, 1))} className="btn-flat p-2 rounded-lg bg-[var(--d-card)]" aria-label="Mes siguiente"><ChevronRight className="w-5 h-5" /></button>
       </div>
-      <div className="mt-2 grid grid-cols-7 text-center text-[10px] text-[#7f93b0]">{DIAS.map(d => <div key={d} className="py-1">{d}</div>)}</div>
+      <div className="mt-2 grid grid-cols-7 text-center text-[10px] text-[var(--d-muted)]">{DIAS.map(d => <div key={d} className="py-1">{d}</div>)}</div>
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d, i) => d === null ? <div key={`e${i}`} /> : (() => { const l = byDay[d] || []; const isSel = d === sel; const isHoy = d === iso(hoy); const pend = l.filter(e => !e.done); return (
-          <button key={d} onClick={() => setSel(d)} className={`btn-flat aspect-square rounded-xl border text-sm flex flex-col items-center justify-center gap-0.5 ${isSel ? "border-aria-accent bg-aria-accent/20 text-white" : isHoy ? "border-white/30 text-white" : "border-white/[0.06] text-[#c9d8ed]"}`} aria-label={`${d}, ${l.length} eventos`}>
+          <button key={d} onClick={() => setSel(d)} className={`btn-flat aspect-square rounded-xl border text-sm flex flex-col items-center justify-center gap-0.5 ${isSel ? "border-aria-accent bg-aria-accent/20 text-[var(--d-text)]" : isHoy ? "border-[var(--d-muted)] text-[var(--d-text)]" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`} aria-label={`${d}, ${l.length} eventos`}>
             <span className={isHoy ? "font-bold" : ""}>{Number(d.slice(-2))}</span>
-            <span className="flex gap-0.5 h-1.5">{l.slice(0, 3).map((e, j) => <span key={j} className={`w-1.5 h-1.5 rounded-full ${e.done ? "bg-white/20" : e.kind === "tarea" ? "bg-aria-accent" : e.kind === "entrega" ? "bg-emerald-400" : (e.urgent ? "bg-red-400" : "bg-amber-300")}`} />)}</span>
-            {pend.length > 3 && <span className="text-[8px] text-[#7f93b0] -mt-0.5">+{pend.length - 3}</span>}
+            <span className="flex gap-0.5 h-1.5">{l.slice(0, 3).map((e, j) => <span key={j} className={`w-1.5 h-1.5 rounded-full ${e.done ? "bg-[var(--d-border)]" : e.kind === "tarea" ? "bg-aria-accent" : e.kind === "entrega" ? "bg-emerald-400" : (e.urgent ? "bg-red-400" : "bg-amber-300")}`} />)}</span>
+            {pend.length > 3 && <span className="text-[8px] text-[var(--d-muted)] -mt-0.5">+{pend.length - 3}</span>}
           </button>); })())}
       </div>
       <section className="mt-4">
-        <h2 className="text-xs font-semibold tracking-wider text-[#7f93b0] uppercase mb-2">{new Date(sel + "T12:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</h2>
-        {list.length === 0 ? <p className="text-sm text-[#7f93b0]">Nada programado este día.</p> : (
-          <ul className="space-y-2">{list.map((e, i) => (<li key={i}><Link href={e.href} className={`flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 ${e.done ? "opacity-60" : ""}`}><Icon k={e.kind} /><div className="flex-1 min-w-0"><div className={`text-sm text-white ${e.done ? "line-through" : ""}`}>{e.title}</div><div className="text-[11px] text-[#7f93b0] truncate">{e.sub}</div></div></Link></li>))}</ul>
+        <h2 className="text-xs font-semibold tracking-wider text-[var(--d-muted)] uppercase mb-2">{new Date(sel + "T12:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}</h2>
+        {list.length === 0 ? <p className="text-sm text-[var(--d-muted)]">Nada programado este día.</p> : (
+          <ul className="space-y-2">{list.map((e, i) => (<li key={i}><Link href={e.href} className={`flex items-center gap-3 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] p-3 ${e.done ? "opacity-60" : ""}`}><Icon k={e.kind} /><div className="flex-1 min-w-0"><div className={`text-sm text-[var(--d-text)] ${e.done ? "line-through" : ""}`}>{e.title}</div><div className="text-[11px] text-[var(--d-muted)] truncate">{e.sub}</div></div></Link></li>))}</ul>
         )}
       </section>
       <CampoNav />
-    </div>
+    </div></div>
   );
 }

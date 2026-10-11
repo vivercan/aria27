@@ -1,17 +1,30 @@
 {
-  "name": "ARIA27",
-  "short_name": "ARIA27",
-  "description": "ERP de Grupo Constructor Urbano Avante. Requisiciones, obras, actividades y evidencia desde el celular.",
+  "name": "Doménica.27",
+  "short_name": "Doménica",
+  "description": "Doménica.27 · el día a día de Grupo Constructor Urbano Avante: solicitudes, actividades, entregas y avisos desde el celular. Parte de ARIA27.",
   "start_url": "/dashboard/campo?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a1628",
-  "theme_color": "#0a1628",
+  "background_color": "#f4f6fb",
+  "theme_color": "#ffffff",
   "lang": "es-MX",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/domenica-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/domenica-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/domenica-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

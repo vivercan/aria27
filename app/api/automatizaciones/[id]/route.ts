@@ -1,4 +1,4 @@
-/** PATCH/DELETE /api/automatizaciones/[id] — ARIA Domingo · 10-Oct-2026 */
+/** PATCH/DELETE /api/automatizaciones/[id] — ARIA Doménica · 10-Oct-2026 */
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";

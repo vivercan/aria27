@@ -68,7 +68,7 @@ async function comprimir(file: File): Promise<Blob> {
 
 function Avatar({ nombre, size = 28 }: { nombre?: string | null; size?: number }) {
   return (
-    <span title={nombre || ""} className="inline-flex items-center justify-center rounded-full font-bold text-white shrink-0 ring-2 ring-[#0a1628]"
+    <span title={nombre || ""} className="inline-flex items-center justify-center rounded-full font-bold text-[var(--d-text)] shrink-0 ring-2 ring-[var(--d-surface)]"
       style={{ width: size, height: size, fontSize: Math.round(size * 0.38), background: colorPersona(nombre) }}>{iniciales(nombre)}</span>
   );
 }
@@ -79,15 +79,15 @@ function StatusPill({ col, small }: { col: ColumnaId; small?: boolean }) {
 }
 
 function Fecha({ a }: { a: Actividad }) {
-  if (!a.fecha_compromiso) return <span className="text-[11px] text-[#5f7390]">Sin fecha</span>;
+  if (!a.fecha_compromiso) return <span className="text-[11px] text-[var(--d-faint)]">Sin fecha</span>;
   const d = diasAtraso(a); const h = venceHoy(a); const term = columnaDe(a) === "TERMINADA";
-  const cls = term ? "text-[#7f93b0]" : d > 0 ? "text-[#ff8a9c] font-semibold" : h ? "text-[#ffc978] font-semibold" : "text-[#c9d8ed]";
+  const cls = term ? "text-[var(--d-muted)]" : d > 0 ? "text-[#ff8a9c] font-semibold" : h ? "text-[#ffc978] font-semibold" : "text-[var(--d-text-2)]";
   return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{d > 0 && !term ? ` · ${d}d tarde` : ""}</span>;
 }
 
 function Barra({ pct, col }: { pct: number; col: ColumnaId }) {
   const c = COLUMNAS.find(x => x.id === col)!;
-  return <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: c.color }} /></div>;
+  return <div className="h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: c.color }} /></div>;
 }
 
 export default function ActividadesPage() {
@@ -224,7 +224,7 @@ export default function ActividadesPage() {
     const prio = PRIORIDADES.find(p => p.id === prioridadDe(a.prioridad));
     return (
       <button key={a.id} data-card type="button" draggable={vista === "tablero"} onDragStart={() => setDragId(a.id)} onDragEnd={() => setDragId(null)} onClick={() => { if (suprimirClick.current) { suprimirClick.current = false; return; } setAbierta(a.id); }}
-        className={`group w-full text-left rounded-xl border border-white/[0.08] bg-[#0f1f3a] hover:bg-[#13274a] hover:border-white/[0.16] active:scale-[0.99] transition shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
+        className={`group w-full text-left rounded-xl border border-[var(--d-border)] bg-[var(--d-surface)] hover:bg-[var(--d-surface)] hover:border-[var(--d-border)] active:scale-[0.99] transition shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden ${dragId === a.id ? "opacity-40" : ""}`}>
         <div className="flex">
           <span className="w-1 shrink-0" style={{ background: COLUMNAS.find(c => c.id === col)!.color }} />
           <div className="flex-1 min-w-0 p-3 space-y-2">
@@ -237,19 +237,19 @@ export default function ActividadesPage() {
                   {col === "TERMINADA" ? <span className="text-[13px] font-black">✓</span> : null}
                 </span>
               </span>
-              <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[#7f93b0] line-through" : "text-white"} line-clamp-2`}>{a.titulo}</div>
+              <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
-            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[#ff8a9c] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
-            {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[#9fb4d4] bg-white/[0.05] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
+            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
+            {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
             <Barra pct={Number(a.avance) || 0} col={col} />
             <div className="flex items-center gap-2">
               <Avatar nombre={a.asignado_nombre} size={24} />
               <Fecha a={a} />
-              <span className="ml-auto flex items-center gap-2 text-[11px] text-[#7f93b0]">
+              <span className="ml-auto flex items-center gap-2 text-[11px] text-[var(--d-muted)]">
                 {cl.length > 0 && <span className={`inline-flex items-center gap-0.5 ${hechos === cl.length ? "text-[#5be3a8]" : ""}`}><CheckSquare className="w-3 h-3" />{hechos}/{cl.length}</span>}
                 {nUpd > 0 && <span className="inline-flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{nUpd}</span>}
-                <span className="font-semibold text-[#c9d8ed]">{Number(a.avance) || 0}%</span>
+                <span className="font-semibold text-[var(--d-text-2)]">{Number(a.avance) || 0}%</span>
               </span>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function ActividadesPage() {
   // ── Línea de tiempo (Gantt) por obra ──
   const lineaDeTiempo = () => {
     const items = terminadasOcultas(visibles).filter(a => a.fecha_compromiso || a.fecha_inicio);
-    if (!items.length) return <div className="mt-10 text-center text-[#7f93b0]">Ponle fecha de entrega a las actividades para verlas en la línea de tiempo.</div>;
+    if (!items.length) return <div className="mt-10 text-center text-[var(--d-muted)]">Ponle fecha de entrega a las actividades para verlas en la línea de tiempo.</div>;
     const DAY = 86400000; const dia = (iso: string) => new Date(iso.slice(0, 10) + "T12:00:00").getTime();
     const hoyT = dia(ymd(new Date()));
     const ini = (a: Actividad) => dia(String(a.fecha_inicio || a.fecha_compromiso));
@@ -299,33 +299,33 @@ export default function ActividadesPage() {
     for (const a of items.sort((p, q) => ini(p) - ini(q))) { const k = a.obra || "Oficina"; grupos.set(k, [...(grupos.get(k) || []), a]); }
     const dias = Array.from({ length: nDias }, (_, i) => new Date(min + i * DAY));
     return (
-      <div className="mt-5 rounded-2xl border border-white/[0.08] overflow-hidden">
+      <div className="mt-5 rounded-2xl border border-[var(--d-border)] overflow-hidden">
         <div className="overflow-x-auto">
           <div style={{ width: LBL + nDias * W }} className="relative">
-            <div className="flex sticky top-0 z-10 bg-[#0b1830] border-b border-white/[0.08]">
-              <div style={{ width: LBL }} className="shrink-0 sticky left-0 z-20 bg-[#0b1830] px-3 py-2 text-[11px] font-semibold text-[#7f93b0]">Actividad</div>
+            <div className="flex sticky top-0 z-10 bg-[var(--d-surface)] border-b border-[var(--d-border)]">
+              <div style={{ width: LBL }} className="shrink-0 sticky left-0 z-20 bg-[var(--d-surface)] px-3 py-2 text-[11px] font-semibold text-[var(--d-muted)]">Actividad</div>
               {dias.map((d, i) => { const fin_ = d.getDay() === 0 || d.getDay() === 6; const esHoy = Math.round((d.getTime() - hoyT) / DAY) === 0; return (
-                <div key={i} style={{ width: W }} className={`shrink-0 text-center py-1 border-l border-white/[0.04] ${fin_ ? "bg-white/[0.02]" : ""}`}>
+                <div key={i} style={{ width: W }} className={`shrink-0 text-center py-1 border-l border-[var(--d-border)] ${fin_ ? "bg-[var(--d-card)]" : ""}`}>
                   {(d.getDate() === 1 || i === 0) && <div className="text-[9px] uppercase text-[#579bfc] font-bold leading-none">{d.toLocaleDateString("es-MX", { month: "short" })}</div>}
-                  <div className={`text-[10.5px] leading-tight ${esHoy ? "text-white font-bold" : "text-[#7f93b0]"}`}>{d.getDate()}</div>
+                  <div className={`text-[10.5px] leading-tight ${esHoy ? "text-[var(--d-text)] font-bold" : "text-[var(--d-muted)]"}`}>{d.getDate()}</div>
                 </div>); })}
             </div>
             <div className="absolute top-0 bottom-0 w-0.5 bg-[#579bfc] z-[5] pointer-events-none" style={{ left: LBL + x(hoyT) + W / 2 }} />
             {[...grupos.entries()].map(([obra, list]) => (
               <div key={obra}>
-                <div className="flex items-center gap-1.5 sticky left-0 px-3 py-1.5 text-[11.5px] font-bold text-[#9cc3ff] bg-white/[0.03] border-y border-white/[0.05]" style={{ width: LBL + nDias * W }}><MapPin className="w-3 h-3" />{obra}<span className="text-[#5f7390] font-normal">· {list.length}</span></div>
+                <div className="flex items-center gap-1.5 sticky left-0 px-3 py-1.5 text-[11.5px] font-bold text-[var(--d-link)] bg-[var(--d-card)] border-y border-[var(--d-border)]" style={{ width: LBL + nDias * W }}><MapPin className="w-3 h-3" />{obra}<span className="text-[var(--d-faint)] font-normal">· {list.length}</span></div>
                 {list.map(a => { const col = columnaDe(a); const c = COLUMNAS.find(k => k.id === col)!; const l = x(ini(a)); const w = Math.max(W, x(fin(a)) - l + W); const atr = diasAtraso(a) > 0;
                   return (
-                    <div key={a.id} className="flex items-center h-11 border-b border-white/[0.03] hover:bg-white/[0.02]">
-                      <button onClick={() => setAbierta(a.id)} style={{ width: LBL }} className="shrink-0 sticky left-0 z-[6] bg-[#0a1628] h-full flex items-center gap-2 px-3 text-left border-r border-white/[0.06]">
-                        <Avatar nombre={a.asignado_nombre} size={20} /><span className={`text-[12px] truncate ${col === "TERMINADA" ? "text-[#7f93b0] line-through" : "text-white"}`}>{a.titulo}</span>
+                    <div key={a.id} className="flex items-center h-11 border-b border-[var(--d-border)] hover:bg-[var(--d-hover)]">
+                      <button onClick={() => setAbierta(a.id)} style={{ width: LBL }} className="shrink-0 sticky left-0 z-[6] bg-[var(--d-surface)] h-full flex items-center gap-2 px-3 text-left border-r border-[var(--d-border)]">
+                        <Avatar nombre={a.asignado_nombre} size={20} /><span className={`text-[12px] truncate ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{a.titulo}</span>
                       </button>
                       <div className="relative h-full" style={{ width: nDias * W }}>
                         {atr && col !== "TERMINADA" && <div className="absolute top-3 h-5 rounded-r-md" style={{ left: l + w - 2, width: Math.max(0, x(hoyT) - (l + w) + W), background: "repeating-linear-gradient(45deg, rgba(226,68,92,.55) 0 6px, rgba(226,68,92,.25) 6px 12px)" }} />}
                         <button onClick={() => setAbierta(a.id)} title={`${a.titulo} · ${fechaCorta(a.fecha_inicio || a.fecha_compromiso)} → ${fechaCorta(a.fecha_compromiso)}`}
                           className="absolute top-2.5 h-6 rounded-md overflow-hidden text-left shadow" style={{ left: l + 2, width: w - 4, background: c.soft, border: `1px solid ${c.color}` }}>
                           <div className="h-full" style={{ width: `${Number(a.avance) || 0}%`, background: c.color, opacity: 0.85 }} />
-                          <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-white truncate">{Number(a.avance) || 0}%</span>
+                          <span className="absolute inset-0 flex items-center px-2 text-[10.5px] font-semibold text-[var(--d-text)] truncate">{Number(a.avance) || 0}%</span>
                         </button>
                       </div>
                     </div>); })}
@@ -337,9 +337,9 @@ export default function ActividadesPage() {
   };
 
   const kpiBtn = (label: string, n: number, color: string, onClick?: () => void) => (
-    <button key={label} onClick={onClick} className="flex-1 min-w-[96px] rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-left hover:bg-white/[0.06] transition">
-      <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[#7f93b0]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
-      <div className="text-xl font-bold text-white mt-0.5">{n}</div>
+    <button key={label} onClick={onClick} className="flex-1 min-w-[96px] rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-left hover:bg-[var(--d-hover)] transition">
+      <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--d-muted)]"><span className="w-2 h-2 rounded-full" style={{ background: color }} />{label}</div>
+      <div className="text-xl font-bold text-[var(--d-text)] mt-0.5">{n}</div>
     </button>
   );
 
@@ -349,7 +349,7 @@ export default function ActividadesPage() {
       <section key={id} className="mb-4">
         <button onClick={() => setColapsados(c => ({ ...c, [id]: !c[id] }))} className="flex items-center gap-2 mb-2 w-full text-left">
           {col ? <ChevronRight className="w-4 h-4" style={{ color }} /> : <ChevronDown className="w-4 h-4" style={{ color }} />}
-          <span className="text-sm font-bold" style={{ color }}>{titulo}</span><span className="text-xs text-[#7f93b0]">{list.length}</span>
+          <span className="text-sm font-bold" style={{ color }}>{titulo}</span><span className="text-xs text-[var(--d-muted)]">{list.length}</span>
         </button>
         {!col && <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{list.map(a => deslizable(a))}</div>}
       </section>
@@ -357,13 +357,13 @@ export default function ActividadesPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 md:px-6 pt-4 pb-28 md:pb-8 max-w-[1500px] mx-auto">
         {/* Encabezado */}
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl md:text-[26px] font-bold text-white tracking-tight">Actividades</h1>
-            <p className="text-xs text-[#7f93b0]">{loading ? "Cargando…" : `${kpi.abiertas} abiertas · ${kpi.terminadas} terminadas`}</p>
+            <h1 className="text-2xl md:text-[26px] font-bold text-[var(--d-text)] tracking-tight">Actividades</h1>
+            <p className="text-xs text-[var(--d-muted)]">{loading ? "Cargando…" : `${kpi.abiertas} abiertas · ${kpi.terminadas} terminadas`}</p>
           </div>
           <button onClick={() => setNueva(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] active:scale-95 transition">
             <Plus className="w-4 h-4" /> Nueva
@@ -380,35 +380,35 @@ export default function ActividadesPage() {
 
         {/* Vistas + filtros */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
+          <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mi", "Mi trabajo", Sun], ["tablero", "Tablero", LayoutGrid], ["lista", "Lista", List], ["linea", "Línea", GanttChart]] as const).map(([v, l, I]) => (
-              <button key={v} onClick={() => setVista(v)} className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[#c9d8ed] hover:text-white"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
+              <button key={v} onClick={() => setVista(v)} className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${vista === v ? "bg-white text-[#0a1628] shadow" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}><I className="w-3.5 h-3.5 hidden sm:block" />{l}</button>
             ))}
           </div>
-          <div className="inline-flex rounded-xl bg-white/[0.05] p-1 border border-white/[0.06]">
+          <div className="inline-flex rounded-xl bg-[var(--d-card)] p-1 border border-[var(--d-border)]">
             {([["mias", "Mías"], ["asigne", "Que pedí"], ["todas", "Todas"]] as const).map(([v, l]) => (
-              <button key={v} onClick={() => setAmbito(v)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${ambito === v ? "bg-[#0073ea] text-white" : "text-[#c9d8ed] hover:text-white"}`}>{l}</button>
+              <button key={v} onClick={() => setAmbito(v)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${ambito === v ? "bg-[#0073ea] text-white" : "text-[var(--d-text-2)] hover:text-[var(--d-text)]"}`}>{l}</button>
             ))}
           </div>
-          <button onClick={() => setVerFiltros(v => !v)} className={`md:hidden inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold border ${verFiltros || fObra || fPersona || q ? "border-[#0073ea] text-white bg-[#0073ea]/15" : "border-white/[0.08] text-[#c9d8ed] bg-white/[0.05]"}`}><Search className="w-3.5 h-3.5" />Buscar{fObra || fPersona || q ? " •" : ""}</button>
+          <button onClick={() => setVerFiltros(v => !v)} className={`md:hidden inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold border ${verFiltros || fObra || fPersona || q ? "border-[#0073ea] text-white bg-[#0073ea]/15" : "border-[var(--d-border)] text-[var(--d-text-2)] bg-[var(--d-card)]"}`}><Search className="w-3.5 h-3.5" />Buscar{fObra || fPersona || q ? " •" : ""}</button>
           <div className={`${verFiltros ? "flex" : "hidden"} md:flex w-full md:w-auto flex-wrap gap-2 md:flex-1`}>
           <div className="relative flex-1 min-w-[160px]">
-            <Search className="w-4 h-4 text-[#7f93b0] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar actividad, obra o persona" className="w-full rounded-xl bg-white/[0.05] border border-white/[0.08] pl-9 pr-3 py-2 text-sm text-white placeholder-[#5f7390]" />
+            <Search className="w-4 h-4 text-[var(--d-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar actividad, obra o persona" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] pl-9 pr-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
           </div>
           <select value={fObra} onChange={e => setFObra(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las obras</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select>
           {esSuper && <select value={fPersona} onChange={e => setFPersona(e.target.value)} className="rounded-xl px-3 py-2 text-sm max-w-[170px]"><option value="">Todas las personas</option>{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select>}
           </div>
         </div>
 
-        {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[#7f93b0]">{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
+        {!loading && visibles.length > 0 && <p className="mt-3 text-[11.5px] text-[var(--d-muted)]">{vista === "mi" ? "Desliza a la derecha para terminar, a la izquierda si está atorada · toca para ver, comentar o subir foto." : vista === "tablero" ? "Toca el círculo para terminarla · en computadora arrastra la tarjeta de columna." : vista === "linea" ? "Cada barra va del inicio a la entrega · la línea azul es hoy." : "Toca una fila para abrirla."}</p>}
 
         {loading ? (
           <div className="flex items-center justify-center py-24"><Loader2 className="w-7 h-7 animate-spin text-[#579bfc]" /></div>
         ) : visibles.length === 0 ? (
-          <div className="mt-10 text-center rounded-2xl border border-dashed border-white/[0.12] p-10">
+          <div className="mt-10 text-center rounded-2xl border border-dashed border-[var(--d-border)] p-10">
             <div className="text-4xl">🎯</div>
-            <div className="mt-2 text-white font-semibold">{ambito === "mias" ? "No tienes actividades pendientes" : "No hay actividades con estos filtros"}</div>
+            <div className="mt-2 text-[var(--d-text)] font-semibold">{ambito === "mias" ? "No tienes actividades pendientes" : "No hay actividades con estos filtros"}</div>
             <button onClick={() => setNueva(true)} className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#0073ea] px-4 py-2 text-sm font-semibold text-white"><Plus className="w-4 h-4" />Crear una actividad</button>
           </div>
         ) : vista === "mi" ? (
@@ -417,8 +417,8 @@ export default function ActividadesPage() {
             {grupo("hoy", "Hoy", "#ffcb00", gruposMi.hoy)}
             {grupo("sem", "Esta semana", "#579bfc", gruposMi.semana)}
             {grupo("des", "Más adelante", "#a25ddc", gruposMi.despues)}
-            {grupo("sf", "Sin fecha", "#7f93b0", gruposMi.sinFecha)}
-            {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[#7f93b0] py-10">Todo terminado 🎉</div>}
+            {grupo("sf", "Sin fecha", "var(--d-muted)", gruposMi.sinFecha)}
+            {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[var(--d-muted)] py-10">Todo terminado 🎉</div>}
           </div>
         ) : vista === "linea" ? (
           lineaDeTiempo()
@@ -426,34 +426,34 @@ export default function ActividadesPage() {
           <div className="mt-5 -mx-4 md:mx-0 px-4 md:px-0 flex md:grid md:grid-cols-4 gap-3 overflow-x-auto snap-x snap-mandatory pb-4">
             {COLUMNAS.map(c => { const list = porColumna(c.id); return (
               <div key={c.id} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragId) mover(dragId, c.id); setDragId(null); }}
-                className={`snap-start shrink-0 w-[84vw] sm:w-[340px] md:w-auto rounded-2xl border border-white/[0.06] bg-white/[0.02] flex flex-col max-h-[calc(100dvh-300px)] min-h-[260px] ${dragId ? "ring-1 ring-white/[0.08]" : ""}`}>
+                className={`snap-start shrink-0 w-[84vw] sm:w-[340px] md:w-auto rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] flex flex-col max-h-[calc(100dvh-300px)] min-h-[260px] ${dragId ? "ring-1 ring-[var(--d-border)]" : ""}`}>
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-t-2xl" style={{ background: c.soft, borderTop: `3px solid ${c.color}` }}>
                   <span className="text-sm font-bold" style={{ color: c.text }}>{c.label}</span>
-                  <span className="text-xs font-semibold text-white/70 bg-white/10 rounded-full px-2">{list.length}</span>
-                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md hover:bg-white/10 text-white/80" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
-                  {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[10.5px] text-white/70 underline">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
+                  <span className="text-xs font-semibold text-[var(--d-muted)] bg-[var(--d-card-2)] rounded-full px-2">{list.length}</span>
+                  {c.id === "POR_HACER" && <button onClick={() => setNueva(true)} className="ml-auto p-2 -m-1 rounded-md hover:bg-[var(--d-hover)] text-[var(--d-muted)]" aria-label="Nueva actividad"><Plus className="w-4 h-4" /></button>}
+                  {c.id === "TERMINADA" && <button onClick={() => setVerTerminadas(v => !v)} className="ml-auto text-[10.5px] text-[var(--d-muted)] underline">{verTerminadas ? "Solo 7 días" : "Ver todas"}</button>}
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
                   {list.map(a => tarjeta(a))}
-                  {list.length === 0 && <div className="text-center text-[11px] text-[#5f7390] py-6">{dragId ? "Suelta aquí" : "Sin actividades"}</div>}
+                  {list.length === 0 && <div className="text-center text-[11px] text-[var(--d-faint)] py-6">{dragId ? "Suelta aquí" : "Sin actividades"}</div>}
                 </div>
               </div>); })}
           </div>
         ) : (
           <div className="mt-5 space-y-4">
             {COLUMNAS.map(c => { const list = porColumna(c.id); if (!list.length) return null; const cerrado = !!colapsados["l" + c.id]; return (
-              <section key={c.id} className="rounded-2xl border border-white/[0.06] overflow-hidden">
+              <section key={c.id} className="rounded-2xl border border-[var(--d-border)] overflow-hidden">
                 <button onClick={() => setColapsados(x => ({ ...x, ["l" + c.id]: !x["l" + c.id] }))} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ borderLeft: `4px solid ${c.color}`, background: c.soft }}>
                   {cerrado ? <ChevronRight className="w-4 h-4" style={{ color: c.text }} /> : <ChevronDown className="w-4 h-4" style={{ color: c.text }} />}
-                  <span className="font-bold text-sm" style={{ color: c.text }}>{c.label}</span><span className="text-xs text-white/60">{list.length}</span>
+                  <span className="font-bold text-sm" style={{ color: c.text }}>{c.label}</span><span className="text-xs text-[var(--d-muted)]">{list.length}</span>
                 </button>
-                {!cerrado && <div className="divide-y divide-white/[0.05]">{list.map(a => (
-                  <button key={a.id} onClick={() => setAbierta(a.id)} className="w-full grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,1fr)_150px_110px_120px_90px] items-center gap-3 px-4 py-2.5 text-left hover:bg-white/[0.03]">
-                    <div className="min-w-0"><div className="text-sm text-white truncate">{a.titulo}</div><div className="text-[11px] text-[#7f93b0] truncate md:hidden">{a.asignado_nombre} · {a.obra || "Sin obra"}</div></div>
-                    <div className="hidden md:flex items-center gap-2 min-w-0"><Avatar nombre={a.asignado_nombre} size={22} /><span className="text-xs text-[#c9d8ed] truncate">{a.asignado_nombre}</span></div>
+                {!cerrado && <div className="divide-y divide-[var(--d-border)]">{list.map(a => (
+                  <button key={a.id} onClick={() => setAbierta(a.id)} className="w-full grid grid-cols-[1fr_auto] md:grid-cols-[minmax(0,1fr)_150px_110px_120px_90px] items-center gap-3 px-4 py-2.5 text-left hover:bg-[var(--d-hover)]">
+                    <div className="min-w-0"><div className="text-sm text-[var(--d-text)] truncate">{a.titulo}</div><div className="text-[11px] text-[var(--d-muted)] truncate md:hidden">{a.asignado_nombre} · {a.obra || "Sin obra"}</div></div>
+                    <div className="hidden md:flex items-center gap-2 min-w-0"><Avatar nombre={a.asignado_nombre} size={22} /><span className="text-xs text-[var(--d-text-2)] truncate">{a.asignado_nombre}</span></div>
                     <div className="hidden md:block"><StatusPill col={columnaDe(a)} small /></div>
                     <div className="hidden md:block"><Fecha a={a} /></div>
-                    <div className="flex items-center gap-2 justify-end"><div className="w-12 hidden md:block"><Barra pct={Number(a.avance) || 0} col={columnaDe(a)} /></div><span className="text-xs font-semibold text-[#c9d8ed]">{Number(a.avance) || 0}%</span></div>
+                    <div className="flex items-center gap-2 justify-end"><div className="w-12 hidden md:block"><Barra pct={Number(a.avance) || 0} col={columnaDe(a)} /></div><span className="text-xs font-semibold text-[var(--d-text-2)]">{Number(a.avance) || 0}%</span></div>
                   </button>))}</div>}
               </section>); })}
           </div>
@@ -463,10 +463,10 @@ export default function ActividadesPage() {
       {/* Motivo de atorada */}
       {motivoPara && (
         <div className="aria-sheet fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4" onClick={() => setMotivoPara(null)}>
-          <div className="w-full md:max-w-md rounded-t-3xl md:rounded-2xl bg-[#0f1f3a] border border-white/[0.1] p-5 space-y-3" onClick={e => e.stopPropagation()} style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
-            <div className="flex items-center gap-2 text-white font-semibold"><AlertTriangle className="w-5 h-5 text-[#e2445c]" />¿Qué la tiene atorada?</div>
-            <textarea autoFocus value={motivoTxt} onChange={e => setMotivoTxt(e.target.value)} rows={3} placeholder="Ej. no ha llegado el material, falta autorización…" className="w-full rounded-xl bg-white/[0.05] border border-white/[0.1] p-3 text-white text-sm" />
-            <div className="flex gap-2 justify-end"><button onClick={() => setMotivoPara(null)} className="px-4 py-2 rounded-xl text-sm text-[#c9d8ed] bg-white/[0.05]">Cancelar</button>
+          <div className="w-full md:max-w-md rounded-t-3xl md:rounded-2xl bg-[var(--d-surface)] border border-[var(--d-border)] p-5 space-y-3" onClick={e => e.stopPropagation()} style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
+            <div className="flex items-center gap-2 text-[var(--d-text)] font-semibold"><AlertTriangle className="w-5 h-5 text-[#e2445c]" />¿Qué la tiene atorada?</div>
+            <textarea autoFocus value={motivoTxt} onChange={e => setMotivoTxt(e.target.value)} rows={3} placeholder="Ej. no ha llegado el material, falta autorización…" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-[var(--d-text)] text-sm" />
+            <div className="flex gap-2 justify-end"><button onClick={() => setMotivoPara(null)} className="px-4 py-2 rounded-xl text-sm text-[var(--d-text-2)] bg-[var(--d-card)]">Cancelar</button>
               <button disabled={!motivoTxt.trim()} onClick={async () => { const id = motivoPara.id; setMotivoPara(null); await mover(id, "BLOQUEADA", motivoTxt.trim()); }} className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#e2445c] disabled:opacity-50">Marcar atorada y avisar</button></div>
           </div>
         </div>
@@ -552,82 +552,82 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
 
   return (
     <div className="aria-sheet fixed inset-0 z-[60] flex md:justify-end bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="mt-auto md:mt-0 w-full md:w-[520px] h-[94dvh] md:h-full rounded-t-3xl md:rounded-none bg-[#0b1830] border-t md:border-t-0 md:border-l border-white/[0.1] flex flex-col shadow-2xl">
-        <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-white/20" />
+      <div onClick={e => e.stopPropagation()} className="mt-auto md:mt-0 w-full md:w-[520px] h-[94dvh] md:h-full rounded-t-3xl md:rounded-none bg-[var(--d-surface)] border-t md:border-t-0 md:border-l border-[var(--d-border)] flex flex-col shadow-2xl">
+        <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         {/* Cabecera */}
-        <div className="px-5 pt-3 md:pt-5 pb-3 border-b border-white/[0.06]">
+        <div className="px-5 pt-3 md:pt-5 pb-3 border-b border-[var(--d-border)]">
           <div className="flex items-start gap-2">
             <textarea value={titulo} disabled={!puedeEditar} onChange={e => setTitulo(e.target.value)} onBlur={() => { if (titulo.trim() && titulo.trim() !== a.titulo) onPatch({ titulo: titulo.trim() }, { titulo: titulo.trim() }); }} rows={2}
-              className="flex-1 resize-none bg-transparent text-lg font-bold text-white leading-snug focus:outline-none focus:bg-white/[0.04] rounded-lg px-1 -mx-1" />
-            <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/[0.08] text-[#c9d8ed]" aria-label="Cerrar"><X className="w-5 h-5" /></button>
+              className="flex-1 resize-none bg-transparent text-lg font-bold text-[var(--d-text)] leading-snug focus:outline-none focus:bg-[var(--d-hover)] rounded-lg px-1 -mx-1" />
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button>
           </div>
-          <div className="mt-1 text-[11px] text-[#7f93b0]">Asignó {a.asignado_por_email || a.asignado_por || "—"} · {haceCuanto(a.created_at)}</div>
+          <div className="mt-1 text-[11px] text-[var(--d-muted)]">Asignó {a.asignado_por_email || a.asignado_por || "—"} · {haceCuanto(a.created_at)}</div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
           {/* Estado */}
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[#7f93b0] mb-2">Estado</div>
+            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Estado</div>
             <div className="grid grid-cols-4 gap-1.5">
               {COLUMNAS.map(c => (
-                <button key={c.id} disabled={!puedeEditar} onClick={() => onMover(c.id)} className={`rounded-lg py-2.5 text-[12px] font-bold transition ${col === c.id ? "text-white shadow-lg scale-[1.03]" : "text-white/70 bg-white/[0.05] hover:bg-white/[0.09]"}`} style={col === c.id ? { background: c.color } : undefined}>{c.label}</button>
+                <button key={c.id} disabled={!puedeEditar} onClick={() => onMover(c.id)} className={`rounded-lg py-2.5 text-[12px] font-bold transition ${col === c.id ? "text-white shadow-lg scale-[1.03]" : "text-[var(--d-muted)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`} style={col === c.id ? { background: c.color } : undefined}>{c.label}</button>
               ))}
             </div>
-            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#e2445c]/12 border border-[#e2445c]/30 px-3 py-2 text-sm text-[#ffb3be]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
+            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#e2445c]/12 border border-[#e2445c]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
           </div>
 
           {/* Avance */}
           <div>
-            <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Avance</span><span className="text-2xl font-bold text-white">{avance}%</span></div>
+            <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Avance</span><span className="text-2xl font-bold text-[var(--d-text)]">{avance}%</span></div>
             <input type="range" min={0} max={100} step={5} value={avance} disabled={!puedeEditar} onChange={e => setAvance(Number(e.target.value))} onMouseUp={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }} onTouchEnd={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }}
               className="w-full accent-[#00c875]" />
             <div className="mt-2 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => (
-              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00c875] text-[#06281a]" : "bg-white/[0.05] text-[#c9d8ed] hover:bg-white/[0.09]"}`}>{p}%</button>))}</div>
+              <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#00c875] text-[#06281a]" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}>{p}%</button>))}</div>
           </div>
 
           {/* Campos */}
           <div className="grid grid-cols-2 gap-3">
-            <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0] flex items-center gap-1"><UserIcon className="w-3 h-3" />Responsable</span>
+            <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><UserIcon className="w-3 h-3" />Responsable</span>
               <div className="mt-1 flex items-center gap-2"><Avatar nombre={a.asignado_nombre} size={32} />
                 <select disabled={!puedeEditar} value={a.asignado_id || ""} onChange={e => onPatch({ asignado_id: e.target.value })} className="flex-1 rounded-xl px-3 py-2 text-sm">{!a.asignado_id && <option value="">{a.asignado_nombre || "Sin asignar"}</option>}{emps.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select></div>
             </label>
-            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Entrega</span>
-              <input type="date" disabled={!puedeEditar} value={(a.fecha_compromiso || "").slice(0, 10)} onChange={e => onPatch({ fecha_compromiso: e.target.value }, { fecha_compromiso: e.target.value })} className="mt-1 w-full rounded-xl bg-white/[0.05] border border-white/[0.08] px-3 py-2 text-sm text-white" /></label>
-            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Inicio</span>
-              <input type="date" disabled={!puedeEditar} value={(a.fecha_inicio || "").slice(0, 10)} onChange={e => onPatch({ fecha_inicio: e.target.value }, { fecha_inicio: e.target.value })} className="mt-1 w-full rounded-xl bg-white/[0.05] border border-white/[0.08] px-3 py-2 text-sm text-white" /></label>
-            <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0] flex items-center gap-1"><MapPin className="w-3 h-3" />Obra</span>
+            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Entrega</span>
+              <input type="date" disabled={!puedeEditar} value={(a.fecha_compromiso || "").slice(0, 10)} onChange={e => onPatch({ fecha_compromiso: e.target.value }, { fecha_compromiso: e.target.value })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
+            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Inicio</span>
+              <input type="date" disabled={!puedeEditar} value={(a.fecha_inicio || "").slice(0, 10)} onChange={e => onPatch({ fecha_inicio: e.target.value }, { fecha_inicio: e.target.value })} className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)]" /></label>
+            <label className="col-span-2 block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] flex items-center gap-1"><MapPin className="w-3 h-3" />Obra</span>
               <select disabled={!puedeEditar} value={a.obra_id || ""} onChange={e => onPatch({ obra_id: e.target.value })} className="mt-1 w-full rounded-xl px-3 py-2 text-sm"><option value="">{a.obra && !a.obra_id ? a.obra : "Sin obra (oficina)"}</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>
-            <div className="col-span-2"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Prioridad</span>
+            <div className="col-span-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Prioridad</span>
               <div className="mt-1 grid grid-cols-4 gap-1.5">{PRIORIDADES.map(p => (
-                <button key={p.id} disabled={!puedeEditar} onClick={() => onPatch({ prioridad: p.id }, { prioridad: p.id })} className={`rounded-lg py-2 text-xs font-semibold ${prioridadDe(a.prioridad) === p.id ? "text-white" : "text-white/60 bg-white/[0.05]"}`} style={prioridadDe(a.prioridad) === p.id ? { background: p.color } : undefined}>{p.label}</button>))}</div></div>
+                <button key={p.id} disabled={!puedeEditar} onClick={() => onPatch({ prioridad: p.id }, { prioridad: p.id })} className={`rounded-lg py-2 text-xs font-semibold ${prioridadDe(a.prioridad) === p.id ? "text-white" : "text-[var(--d-muted)] bg-[var(--d-card)]"}`} style={prioridadDe(a.prioridad) === p.id ? { background: p.color } : undefined}>{p.label}</button>))}</div></div>
           </div>
 
-          <label className="block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Descripción</span>
-            <textarea value={desc} disabled={!puedeEditar} onChange={e => setDesc(e.target.value)} onBlur={() => { if (desc !== (a.descripcion || "")) onPatch({ descripcion: desc }, { descripcion: desc }); }} rows={3} placeholder="Detalles, medidas, a quién buscar…" className="mt-1 w-full rounded-xl bg-white/[0.05] border border-white/[0.08] p-3 text-sm text-white placeholder-[#5f7390]" /></label>
+          <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Descripción</span>
+            <textarea value={desc} disabled={!puedeEditar} onChange={e => setDesc(e.target.value)} onBlur={() => { if (desc !== (a.descripcion || "")) onPatch({ descripcion: desc }, { descripcion: desc }); }} rows={3} placeholder="Detalles, medidas, a quién buscar…" className="mt-1 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" /></label>
 
           {/* Checklist */}
           <div>
-            <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Pasos</span>{checklist.length > 0 && <span className="text-xs text-[#c9d8ed]">{hechos} de {checklist.length}</span>}</div>
-            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-white/[0.08] overflow-hidden"><div className="h-full bg-[#00c875] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
+            <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Pasos</span>{checklist.length > 0 && <span className="text-xs text-[var(--d-text-2)]">{hechos} de {checklist.length}</span>}</div>
+            {checklist.length > 0 && <div className="mb-2 h-1.5 rounded-full bg-[var(--d-card-2)] overflow-hidden"><div className="h-full bg-[#00c875] transition-all" style={{ width: `${(hechos / checklist.length) * 100}%` }} /></div>}
             <div className="space-y-1">{checklist.map(c => (
-              <div key={c.id} className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white/[0.04]">
-                <button onClick={() => toggleChk(c)} className="shrink-0" aria-label={c.hecho ? "Desmarcar" : "Marcar"}>{c.hecho ? <CheckSquare className="w-5 h-5 text-[#00c875]" /> : <Square className="w-5 h-5 text-[#7f93b0]" />}</button>
-                <span className={`flex-1 text-sm ${c.hecho ? "text-[#7f93b0] line-through" : "text-white"}`}>{c.texto}</span>
-                <button onClick={() => delChk(c)} className="opacity-60 md:opacity-0 group-hover:opacity-100 p-1 text-[#7f93b0] hover:text-[#ff8a9c]" aria-label="Quitar paso"><X className="w-3.5 h-3.5" /></button>
+              <div key={c.id} className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-[var(--d-hover)]">
+                <button onClick={() => toggleChk(c)} className="shrink-0" aria-label={c.hecho ? "Desmarcar" : "Marcar"}>{c.hecho ? <CheckSquare className="w-5 h-5 text-[#00c875]" /> : <Square className="w-5 h-5 text-[var(--d-muted)]" />}</button>
+                <span className={`flex-1 text-sm ${c.hecho ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"}`}>{c.texto}</span>
+                <button onClick={() => delChk(c)} className="opacity-60 md:opacity-0 group-hover:opacity-100 p-1 text-[var(--d-muted)] hover:text-[var(--d-danger)]" aria-label="Quitar paso"><X className="w-3.5 h-3.5" /></button>
               </div>))}</div>
-            <div className="mt-1 flex gap-2"><input value={nuevoChk} onChange={e => setNuevoChk(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addChk(); }} placeholder="Agregar paso…" className="flex-1 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 py-2 text-sm text-white placeholder-[#5f7390]" />
-              <button onClick={addChk} className="rounded-xl bg-white/[0.08] px-3 text-white" aria-label="Agregar paso"><Plus className="w-4 h-4" /></button></div>
+            <div className="mt-1 flex gap-2"><input value={nuevoChk} onChange={e => setNuevoChk(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addChk(); }} placeholder="Agregar paso…" className="flex-1 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
+              <button onClick={addChk} className="rounded-xl bg-[var(--d-card-2)] px-3 text-[var(--d-text)]" aria-label="Agregar paso"><Plus className="w-4 h-4" /></button></div>
           </div>
 
           {/* Actualizaciones */}
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[#7f93b0] mb-2">Actualizaciones</div>
-            <div className="rounded-2xl border border-white/[0.1] bg-white/[0.03] p-2">
-              <textarea value={txt} onChange={e => setTxt(e.target.value)} rows={2} placeholder="Escribe una actualización o pregunta…" className="w-full bg-transparent p-2 text-sm text-white placeholder-[#5f7390] focus:outline-none" />
+            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">Actualizaciones</div>
+            <div className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-2">
+              <textarea value={txt} onChange={e => setTxt(e.target.value)} rows={2} placeholder="Escribe una actualización o pregunta…" className="w-full bg-transparent p-2 text-sm text-[var(--d-text)] placeholder-[#5f7390] focus:outline-none" />
               <div className="flex items-center gap-2 px-1 pb-1">
                 <input ref={fileRef} type="file" accept="image/*,application/pdf" capture="environment" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) subir(f); e.target.value = ""; }} />
-                <button onClick={() => fileRef.current?.click()} disabled={enviando} className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-2 text-xs text-[#c9d8ed]"><Camera className="w-4 h-4" />Foto</button>
-                <button onClick={() => { if (fileRef.current) { fileRef.current.removeAttribute("capture"); fileRef.current.click(); setTimeout(() => fileRef.current?.setAttribute("capture", "environment"), 500); } }} disabled={enviando} className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-2 text-xs text-[#c9d8ed]"><Paperclip className="w-4 h-4" />Archivo</button>
+                <button onClick={() => fileRef.current?.click()} disabled={enviando} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-2 text-xs text-[var(--d-text-2)]"><Camera className="w-4 h-4" />Foto</button>
+                <button onClick={() => { if (fileRef.current) { fileRef.current.removeAttribute("capture"); fileRef.current.click(); setTimeout(() => fileRef.current?.setAttribute("capture", "environment"), 500); } }} disabled={enviando} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--d-card-2)] px-3 py-2 text-xs text-[var(--d-text-2)]"><Paperclip className="w-4 h-4" />Archivo</button>
                 <button onClick={() => enviar()} disabled={enviando || !txt.trim()} className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-[#0073ea] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">{enviando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Enviar</button>
               </div>
             </div>
@@ -636,19 +636,19 @@ function Ficha({ a, me, emps, obras, checklist, esSuper, onClose, onPatch, onMov
                 <li key={u.id} className="flex gap-3">
                   <Avatar nombre={u.autor_nombre || u.autor_email} size={30} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs"><span className="font-semibold text-white">{u.autor_nombre || u.autor_email || "Sistema"}</span> <span className="text-[#5f7390]">· {haceCuanto(u.created_at)}</span></div>
-                    {u.texto && <div className={`mt-0.5 text-sm whitespace-pre-wrap break-words ${u.tipo === "estado" || u.tipo === "sistema" ? "text-[#9fb4d4] italic" : u.tipo === "whatsapp" ? "text-[#5be3a8]" : "text-[#e6eefa]"}`}>{u.texto}</div>}
-                    {u.foto_url && <a href={u.foto_url} target="_blank" rel="noreferrer" className="mt-1.5 block"><img src={u.foto_url} alt="Foto de avance" className="rounded-xl max-h-60 border border-white/[0.08]" /></a>}
-                    {u.archivo_url && <a href={u.archivo_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-sm text-[#9cc3ff] underline"><Paperclip className="w-3.5 h-3.5" />{u.archivo_nombre || "Archivo"}</a>}
+                    <div className="text-xs"><span className="font-semibold text-[var(--d-text)]">{u.autor_nombre || u.autor_email || "Sistema"}</span> <span className="text-[var(--d-faint)]">· {haceCuanto(u.created_at)}</span></div>
+                    {u.texto && <div className={`mt-0.5 text-sm whitespace-pre-wrap break-words ${u.tipo === "estado" || u.tipo === "sistema" ? "text-[var(--d-muted)] italic" : u.tipo === "whatsapp" ? "text-[#5be3a8]" : "text-[#e6eefa]"}`}>{u.texto}</div>}
+                    {u.foto_url && <a href={u.foto_url} target="_blank" rel="noreferrer" className="mt-1.5 block"><img src={u.foto_url} alt="Foto de avance" className="rounded-xl max-h-60 border border-[var(--d-border)]" /></a>}
+                    {u.archivo_url && <a href={u.archivo_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-sm text-[var(--d-link)] underline"><Paperclip className="w-3.5 h-3.5" />{u.archivo_nombre || "Archivo"}</a>}
                   </div>
                 </li>))}
-              {upds.length === 0 && <li className="text-xs text-[#5f7390]">Aún no hay actualizaciones.</li>}
+              {upds.length === 0 && <li className="text-xs text-[var(--d-faint)]">Aún no hay actualizaciones.</li>}
             </ol>
           </div>
         </div>
 
-        <div className="px-5 py-3 border-t border-white/[0.06] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-          {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[#ff8a9c] hover:bg-[#e2445c]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
+        <div className="px-5 py-3 border-t border-[var(--d-border)] flex items-center gap-2" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+          {puedeBorrar && <button onClick={borrar} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-[var(--d-danger)] hover:bg-[#e2445c]/10"><Trash2 className="w-4 h-4" />Borrar</button>}
           {col !== "TERMINADA" && puedeEditar && <button onClick={() => onMover("TERMINADA")} className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-[#00c875] px-5 py-2.5 text-sm font-bold text-[#06281a] active:scale-95">✓ Terminada</button>}
         </div>
       </div>
@@ -677,38 +677,38 @@ function Nueva({ emps, obras, miEmp, onClose, onCreated, flash }: { emps: Emp[];
   };
   return (
     <div className="aria-sheet fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/55 backdrop-blur-[2px]" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="w-full md:max-w-xl max-h-[94dvh] rounded-t-3xl md:rounded-3xl bg-[#0b1830] border border-white/[0.1] flex flex-col shadow-2xl">
-        <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-white/20" />
-        <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-white">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-white/[0.08] text-[#c9d8ed]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
+      <div onClick={e => e.stopPropagation()} className="w-full md:max-w-xl max-h-[94dvh] rounded-t-3xl md:rounded-3xl bg-[var(--d-surface)] border border-[var(--d-border)] flex flex-col shadow-2xl">
+        <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
+        <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-white/[0.05] border border-white/[0.1] px-4 py-3 text-base text-white placeholder-[#5f7390]" />
+          <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[#5f7390]" />
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[#7f93b0] mb-2">¿Quién la hace?</div>
-            {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 py-2 text-sm text-white placeholder-[#5f7390]" />}
+            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace?</div>
+            {emps.length > 8 && <input value={buscaP} onChange={e => setBuscaP(e.target.value)} placeholder="Buscar persona" className="mb-2 w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-3 py-2 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />}
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-white/[0.1] text-[#c9d8ed]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
+              {miEmp && <button onClick={() => setF({ ...f, asignado_id: miEmp })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === miEmp ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-[var(--d-border)] text-[var(--d-text-2)]"}`}><Avatar nombre="Yo" size={22} />Yo</button>}
               {personas.filter(p => p.id !== miEmp).map(p => (
-                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-white/[0.1] text-[#c9d8ed] hover:bg-white/[0.05]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}</button>))}
+                <button key={p.id} onClick={() => setF({ ...f, asignado_id: p.id })} className={`inline-flex items-center gap-1.5 rounded-full border pl-1 pr-3 py-1 text-xs ${f.asignado_id === p.id ? "border-[#0073ea] bg-[#0073ea]/20 text-white" : "border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"}`}><Avatar nombre={p.full_name} size={22} />{p.full_name.split(" ").slice(0, 2).join(" ")}</button>))}
             </div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wide text-[#7f93b0] mb-2">¿Para cuándo?</div>
+            <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Para cuándo?</div>
             <div className="flex flex-wrap gap-2">
               {[["Hoy", dia(0)], ["Mañana", dia(1)], ["Viernes", viernes], ["En una semana", dia(7)]].map(([l, v]) => (
-                <button key={l} onClick={() => setF({ ...f, fecha_compromiso: v })} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${f.fecha_compromiso === v ? "bg-[#0073ea] text-white" : "bg-white/[0.06] text-[#c9d8ed]"}`}>{l}</button>))}
-              <input type="date" value={f.fecha_compromiso} onChange={e => setF({ ...f, fecha_compromiso: e.target.value })} className="rounded-full bg-white/[0.06] border border-white/[0.08] px-3 py-1 text-xs text-white" />
+                <button key={l} onClick={() => setF({ ...f, fecha_compromiso: v })} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${f.fecha_compromiso === v ? "bg-[#0073ea] text-white" : "bg-[var(--d-card-2)] text-[var(--d-text-2)]"}`}>{l}</button>))}
+              <input type="date" value={f.fecha_compromiso} onChange={e => setF({ ...f, fecha_compromiso: e.target.value })} className="rounded-full bg-[var(--d-card-2)] border border-[var(--d-border)] px-3 py-1 text-xs text-[var(--d-text)]" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Obra</span>
+            <label className="block"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Obra</span>
               <select value={f.obra_id} onChange={e => setF({ ...f, obra_id: e.target.value })} className="mt-1 w-full rounded-xl px-3 py-2 text-sm"><option value="">Oficina / sin obra</option>{obras.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}</select></label>
-            <div><span className="text-[11px] uppercase tracking-wide text-[#7f93b0]">Prioridad</span>
-              <div className="mt-1 grid grid-cols-4 gap-1">{PRIORIDADES.map(p => <button key={p.id} onClick={() => setF({ ...f, prioridad: p.id })} className={`rounded-lg py-2 text-[11px] font-semibold ${f.prioridad === p.id ? "text-white" : "text-white/60 bg-white/[0.05]"}`} style={f.prioridad === p.id ? { background: p.color } : undefined}>{p.label}</button>)}</div></div>
+            <div><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Prioridad</span>
+              <div className="mt-1 grid grid-cols-4 gap-1">{PRIORIDADES.map(p => <button key={p.id} onClick={() => setF({ ...f, prioridad: p.id })} className={`rounded-lg py-2 text-[11px] font-semibold ${f.prioridad === p.id ? "text-white" : "text-[var(--d-muted)] bg-[var(--d-card)]"}`} style={f.prioridad === p.id ? { background: p.color } : undefined}>{p.label}</button>)}</div></div>
           </div>
-          <textarea value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} rows={2} placeholder="Detalles (opcional)" className="w-full rounded-xl bg-white/[0.05] border border-white/[0.08] p-3 text-sm text-white placeholder-[#5f7390]" />
-          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-white/[0.05] border border-white/[0.08] p-3 text-sm text-white placeholder-[#5f7390]" />
+          <textarea value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} rows={2} placeholder="Detalles (opcional)" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
+          <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[#5f7390]" />
         </div>
-        <div className="px-5 py-3 border-t border-white/[0.06]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+        <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] disabled:opacity-60">{busy ? "Creando…" : "Crear y avisar por WhatsApp"}</button>
         </div>
       </div>

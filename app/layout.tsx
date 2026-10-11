@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   // ARIA27 Campo F4: instalable en iPhone/Android (sin service worker en v1)
   manifest: "/manifest.webmanifest",
   applicationName: "ARIA27",
-  appleWebApp: { capable: true, title: "ARIA27", statusBarStyle: "black-translucent" },
-  icons: { icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }, { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }], apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Doménica.27", statusBarStyle: "default" },
+  icons: { icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }, { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" }], apple: "/icons/domenica-apple-180.png" },
 };
 
 // 18-Abr-2026: responsive mobile — viewport-fit cover para Android Chrome y

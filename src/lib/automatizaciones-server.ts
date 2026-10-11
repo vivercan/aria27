@@ -1,4 +1,4 @@
-/** ARIA Domingo · ejecutor de automatizaciones (servidor) · 10-Oct-2026 */
+/** ARIA Doménica · ejecutor de automatizaciones (servidor) · 10-Oct-2026 */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
 import { componerMensaje, evaluar, type Caso, type Regla } from "@/lib/automatizaciones";

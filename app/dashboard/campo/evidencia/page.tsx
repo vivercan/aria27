@@ -25,13 +25,13 @@ export default function EvidenciaPage() {
   } finally { if (alive) setLoading(false); } })(); return () => { alive = false; }; }, [router]);
   const lf = useListFilter<R>({ items, storageKey: "aria:filtro:campo-evidencia", searchFields: r => [r.folio, r.cost_center_name, r.proveedor], chips: [{ key: "", label: "Todas" }], chipOf: () => null, selects: { obra: { label: "Obra", pick: r => r.cost_center_name } } });
   return (
-    <div className="aria-page-canon pb-24 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><div><h1 className="text-xl font-bold text-white">Evidencia de entrega</h1><p className="text-[#7f93b0] text-sm">Toca una requi para registrar qué llegó, con foto y ubicación.</p></div></div>
+    <div className="dom-page min-h-full"><div className="px-4 pt-4 pb-28 max-w-2xl mx-auto space-y-4">
+      <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><div><h1 className="text-xl font-bold text-[var(--d-text)]">Evidencia de entrega</h1><p className="text-[var(--d-muted)] text-sm">Toca una requi para registrar qué llegó, con foto y ubicación.</p></div></div>
       <div className="mt-3"><ListToolbar search={lf.search} onSearch={lf.setSearch} placeholder="Buscar folio, obra, proveedor…" chips={[{ key: "", label: "Todas" }]} chip={lf.chip} onChip={lf.setChip} counts={lf.counts} selects={[{ key: "obra", label: "Obra", options: lf.selectOptions.obra || [], value: lf.selects.obra || "" }]} onSelect={lf.setSelect} shown={lf.filtered.length} total={items.length} isActive={lf.isActive} onClear={lf.clear} /></div>
-      {loading ? <div className="py-12 text-center"><Loader2 className="w-7 h-7 animate-spin text-aria-accent mx-auto" /></div> : lf.filtered.length === 0 ? <div className="py-12 text-center text-sm text-[#7f93b0]">No tienes requisiciones por entregar.</div> : (
-        <ul className="mt-3 space-y-2">{lf.filtered.map(r => (<li key={r.id}><Link href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 active:bg-white/[0.06]"><Camera className="w-5 h-5 text-aria-accent shrink-0" /><div className="flex-1 min-w-0"><div className="text-sm text-white font-medium">{r.folio} <span className="text-[#7f93b0] font-normal">· {r.cost_center_name}</span></div><div className="text-[11px] text-[#7f93b0] truncate">{statusLabel(r.status)}{r.proveedor ? ` · ${r.proveedor}` : ""}</div></div><ChevronRight className="w-4 h-4 text-[#7f93b0]" /></Link></li>))}</ul>
+      {loading ? <div className="py-12 text-center"><Loader2 className="w-7 h-7 animate-spin text-aria-accent mx-auto" /></div> : lf.filtered.length === 0 ? <div className="py-12 text-center text-sm text-[var(--d-muted)]">No tienes requisiciones por entregar.</div> : (
+        <ul className="mt-3 space-y-2">{lf.filtered.map(r => (<li key={r.id}><Link href={`/dashboard/requisiciones/requisiciones/entrega/${r.id}`} className="flex items-center gap-3 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] p-3 active:bg-[var(--d-hover)]"><Camera className="w-5 h-5 text-aria-accent shrink-0" /><div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] font-medium">{r.folio} <span className="text-[var(--d-muted)] font-normal">· {r.cost_center_name}</span></div><div className="text-[11px] text-[var(--d-muted)] truncate">{statusLabel(r.status)}{r.proveedor ? ` · ${r.proveedor}` : ""}</div></div><ChevronRight className="w-4 h-4 text-[var(--d-muted)]" /></Link></li>))}</ul>
       )}
       <CampoNav />
-    </div>
+    </div></div>
   );
 }

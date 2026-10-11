@@ -16,13 +16,15 @@ import {
 } from "lucide-react";
 import React from "react";
 import CampoNav from "@/components/campo/CampoNav";
-import { isMobileDevice, DESKTOP_LANDINGS } from "@/lib/device";
+import DomenicaLogo from "@/components/campo/DomenicaLogo";
+import { esRutaDomenica, leerTema, aplicarTema } from "@/lib/dom-tema";
+import { isMobileDevice, HUBS_WEB } from "@/lib/device";
 import { registrarSW } from "@/lib/push-client";
 
 const menuItems = [
   { name: "Inbox", icon: Bell, href: "/dashboard/inbox" },
   // 10-Oct-2026: tablero de actividades tipo Monday (para todos; cada quien ve las suyas)
-  { name: "ARIA Domingo", icon: Sun, href: "/dashboard/domingo" },
+  { name: "ARIA Doménica", icon: Sun, href: "/dashboard/domenica" },
   { name: "Obras", icon: HardHat, href: "/dashboard/obras" },
   { name: "Talento", icon: Users, href: "/dashboard/talento" },
   { name: "Requisiciones", icon: Package, href: "/dashboard/requisiciones" },
@@ -54,7 +56,7 @@ const searchableItems = [
   { name: "Concreto", icon: ChevronRight, href: "/dashboard/obras/concreto" },
   { name: "Planos", icon: ChevronRight, href: "/dashboard/obras/planos" },
   { name: "Actividades (tablero)", icon: ChevronRight, href: "/dashboard/actividades" },
-  { name: "Automatizaciones", icon: ChevronRight, href: "/dashboard/domingo/automatizaciones" },
+  { name: "Automatizaciones", icon: ChevronRight, href: "/dashboard/domenica/automatizaciones" },
   { name: "Linea de tiempo (Gantt)", icon: ChevronRight, href: "/dashboard/actividades?vista=linea" },
   { name: "Fotos de Avance", icon: ChevronRight, href: "/dashboard/obras/fotos" },
   { name: "Personal", icon: ChevronRight, href: "/dashboard/talento/personal" },
@@ -186,6 +188,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [modoCampo, setModoCampo] = useState(false);
   useEffect(() => { try { setModoCampo(localStorage.getItem("aria:modo") === "campo"); } catch {} }, [pathname]);
   useEffect(() => { try { document.body.classList.toggle("aria-campo", modoCampo); } catch {} }, [modoCampo]);
+  // Doménica: diseño claro (u oscuro si el usuario lo eligio) en sus pantallas
+  useEffect(() => { try { document.body.classList.toggle("dom-ruta", esRutaDomenica(pathname)); aplicarTema(leerTema()); } catch {} }, [pathname]);
   // 10-Oct-2026: service worker (notificaciones del telefono + abrir sin senal) y aviso de "Sin senal"
   const [sinSenal, setSinSenal] = useState(false);
   useEffect(() => {
@@ -194,18 +198,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     upd(); window.addEventListener("online", upd); window.addEventListener("offline", upd);
     return () => { window.removeEventListener("online", upd); window.removeEventListener("offline", upd); };
   }, []);
-  // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Campo.
-  // Solo la PRIMERA llegada de la pestaña a una ruta de escritorio se redirige; deep links (estatus?open=, entrega/[id]) y el boton "Mas" no se tocan.
+  // 10-Oct-2026 (regla JJ): en celular no hay boton; el sistema detecta el dispositivo y entra solo a Doménica.27.
+  // En celular NUNCA se muestran los menus de la web (hubs): si regresas o abres uno, te manda a Inicio.
+  const [esMovil, setEsMovil] = useState(false);
   useEffect(() => {
     try {
-      if (!isMobileDevice()) return;
+      const m = isMobileDevice(); setEsMovil(m);
+      if (!m) return;
       if (localStorage.getItem("aria:modo") !== "campo") { localStorage.setItem("aria:modo", "campo"); setModoCampo(true); }
-      if (sessionStorage.getItem("aria:entro") === "1") return;
-      sessionStorage.setItem("aria:entro", "1");
-      if (DESKTOP_LANDINGS.has((pathname || "").replace(/\/$/, ""))) router.replace("/dashboard/campo");
+      if (HUBS_WEB.has((pathname || "").replace(/\/$/, ""))) router.replace("/dashboard/campo");
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pathname]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<typeof menuItems>([]);
   // Búsqueda global: resultados de datos (obras, requisiciones, clientes, etc.)
@@ -465,7 +469,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 py-3 overflow-y-auto" style={{ overflowX: "hidden" }}>
           <div className="px-2" style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
             {menuItems.filter((item) => {
-              if (item.href === "#pulso" || item.href === "/dashboard/domingo") return true;
+              if (item.href === "#pulso" || item.href === "/dashboard/domenica") return true;
               const moduleKey = item.href.replace("/dashboard/", "");
               return canAccessModule(userRole, userPermissions, moduleKey);
             }).map((item) => {
@@ -731,9 +735,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         >
           <div className="flex items-center h-full px-5 gap-4">
             {/* Mobile menu button */}
+            {esMovil && <DomenicaLogo />}
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/[0.06] min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className={`${esMovil ? "hidden" : "md:hidden"} p-2 rounded-lg hover:bg-white/[0.06] min-w-[40px] min-h-[40px] flex items-center justify-center`}
               style={{ color: navMuted }}
               aria-label="Abrir menú"
             >

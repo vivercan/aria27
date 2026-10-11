@@ -28,3 +28,17 @@ export function landingPath(): string {
 
 /** Rutas "de escritorio" a las que un celular recién llegado se redirige a Campo (nunca deep links). */
 export const DESKTOP_LANDINGS = new Set(["/dashboard", "/dashboard/requisiciones"]);
+
+/** 10-Oct-2026: menus/hubs de la web. En celular nunca se muestran (regresar o un link viejo te llevaria al menu web); se manda a Inicio. */
+export const HUBS_WEB = new Set([
+  "/dashboard", "/dashboard/requisiciones", "/dashboard/obras", "/dashboard/talento", "/dashboard/finanzas",
+  "/dashboard/activos", "/dashboard/administracion", "/dashboard/configuracion", "/dashboard/comunicacion",
+  "/dashboard/reportes", "/dashboard/clientes", "/dashboard/admin", "/dashboard/plantillas",
+]);
+
+/** Regresar en celular: historial si hay, si no Inicio. Nunca a un menu web. */
+export function rutaRegresoMovil(href?: string): string | null {
+  if (!href) return null;
+  const limpio = href.split("?")[0].replace(/\/$/, "");
+  return HUBS_WEB.has(limpio) ? "/dashboard/campo" : href;
+}

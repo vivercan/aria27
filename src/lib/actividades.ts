@@ -33,10 +33,10 @@ export type Actividad = {
 export type ColumnaId = "POR_HACER" | "EN_PROCESO" | "BLOQUEADA" | "TERMINADA";
 
 export const COLUMNAS: { id: ColumnaId; label: string; color: string; soft: string; text: string }[] = [
-  { id: "POR_HACER", label: "Por hacer", color: "#579bfc", soft: "rgba(87,155,252,0.14)", text: "#9cc3ff" },
-  { id: "EN_PROCESO", label: "En proceso", color: "#fdab3d", soft: "rgba(253,171,61,0.14)", text: "#ffc978" },
-  { id: "BLOQUEADA", label: "Atorada", color: "#e2445c", soft: "rgba(226,68,92,0.14)", text: "#ff8a9c" },
-  { id: "TERMINADA", label: "Terminada", color: "#00c875", soft: "rgba(0,200,117,0.14)", text: "#5be3a8" },
+  { id: "POR_HACER", label: "Por hacer", color: "#579bfc", soft: "rgba(87,155,252,0.14)", text: "var(--d-link)" },
+  { id: "EN_PROCESO", label: "En proceso", color: "#fdab3d", soft: "rgba(253,171,61,0.14)", text: "var(--d-warn)" },
+  { id: "BLOQUEADA", label: "Atorada", color: "#e2445c", soft: "rgba(226,68,92,0.14)", text: "var(--d-danger)" },
+  { id: "TERMINADA", label: "Terminada", color: "#00c875", soft: "rgba(0,200,117,0.14)", text: "var(--d-ok)" },
 ];
 
 export const PRIORIDADES: { id: string; label: string; color: string }[] = [

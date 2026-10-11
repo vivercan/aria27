@@ -1,5 +1,5 @@
 /**
- * ARIA Domingo · Automatizaciones "si pasa X, haz Y" (10-Oct-2026)
+ * ARIA Doménica · Automatizaciones "si pasa X, haz Y" (10-Oct-2026)
  * Reglas configurables sin programar. El cron las evalua cada 30 min (solo de 7:00 a 20:00 de Aguascalientes).
  * Anti-spam: un solo mensaje por persona por corrida (resumen), el mismo caso no se repite antes de N horas,
  * se ignoran casos mas viejos que "antiguedad maxima" y existe modo prueba (solo le llega a quien creo la regla).

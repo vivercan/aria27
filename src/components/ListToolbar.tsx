@@ -53,7 +53,7 @@ export default function ListToolbar(p: Props) {
     <div className="space-y-2">
       <div className="flex flex-col md:flex-row md:items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f93b0] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--d-muted)] pointer-events-none" />
           <input
             ref={inputRef}
             type="text"
@@ -64,14 +64,14 @@ export default function ListToolbar(p: Props) {
             onChange={(e) => p.onSearch(e.target.value)}
             placeholder={p.placeholder || "Buscar..."}
             aria-label="Buscar en la lista"
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.10] text-white text-sm placeholder:text-[#4a6080] outline-none focus:border-aria-accent transition"
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] text-[var(--d-text)] text-sm placeholder:text-[var(--d-faint)] outline-none focus:border-aria-accent transition"
           />
           {p.search && (
             <button
               type="button"
               onClick={() => p.onSearch("")}
               aria-label="Borrar busqueda"
-              className="aria-no-min-tap absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-[#7f93b0] hover:text-white hover:bg-white/[0.08]"
+              className="aria-no-min-tap absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-[var(--d-muted)] hover:text-[var(--d-text)] hover:bg-[var(--d-hover)]"
             >
               <X className="w-4 h-4" />
             </button>
@@ -105,20 +105,20 @@ export default function ListToolbar(p: Props) {
                 aria-pressed={active}
                 className={`btn-flat aria-no-min-tap shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
                   active
-                    ? "bg-aria-accent/20 border-aria-accent text-white"
-                    : "bg-white/[0.03] border-white/[0.10] text-[#c9d8ed] hover:bg-white/[0.07]"
+                    ? "bg-aria-accent/20 border-aria-accent text-[var(--d-text)]"
+                    : "bg-[var(--d-card)] border-[var(--d-border)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"
                 }`}
               >
                 {c.label}
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${active ? "bg-aria-accent/40 text-white" : "bg-white/[0.08] text-[#7f93b0]"}`}>{n}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${active ? "bg-aria-accent/40 text-[var(--d-text)]" : "bg-[var(--d-card-2)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>
             );
           })}
         </div>
-        <div className="shrink-0 flex items-center justify-end gap-2 text-xs text-[#7f93b0]">
-          <span>Mostrando <span className="text-white font-semibold">{p.shown}</span> de {p.total}</span>
+        <div className="shrink-0 flex items-center justify-end gap-2 text-xs text-[var(--d-muted)]">
+          <span>Mostrando <span className="text-[var(--d-text)] font-semibold">{p.shown}</span> de {p.total}</span>
           {p.isActive && (
-            <button type="button" onClick={p.onClear} className="btn-flat aria-no-min-tap underline hover:text-white">Limpiar</button>
+            <button type="button" onClick={p.onClear} className="btn-flat aria-no-min-tap underline hover:text-[var(--d-text)]">Limpiar</button>
           )}
         </div>
       </div>

@@ -7,7 +7,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing } from "lucide-react";
+import { PlusCircle, ClipboardCheck, PackageCheck, CalendarDays, FileText, ChevronRight, Loader2, X, Share, ListTodo, BellRing, Sun, Moon } from "lucide-react";
+import { leerTema, guardarTema, type TemaDom } from "@/lib/dom-tema";
 import { estadoPush, activarPush } from "@/lib/push-client";
 import { supabase } from "@/lib/supabase";
 import { accionPara, statusLabel } from "@/lib/requi-stepper";
@@ -22,6 +23,8 @@ export default function CampoHome() {
   const [reqs, setReqs] = useState<R[]>([]);
   const [acts, setActs] = useState<Actividad[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tema, setTema] = useState<TemaDom>("claro");
+  useEffect(() => { setTema(leerTema()); const h = () => setTema(leerTema()); window.addEventListener("dom:tema", h); return () => window.removeEventListener("dom:tema", h); }, []);
   const [saludo, setSaludo] = useState("Hola"); const [hoyTxt, setHoyTxt] = useState("");
   const [isIos, setIsIos] = useState(false); const [verInstalar, setVerInstalar] = useState(false);
   const [push, setPush] = useState<string>(""); const [pushBusy, setPushBusy] = useState(false); const [pushMsg, setPushMsg] = useState("");
@@ -87,29 +90,30 @@ export default function CampoHome() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="dom-page h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-28 max-w-2xl mx-auto">
         {/* Saludo */}
-        <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#123a7a] via-[#0d2a5c] to-[#1b1350] border border-white/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+        <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0073ea] via-[#4f46e5] to-[#7e3bdd] shadow-[0_14px_34px_rgba(79,70,229,0.35)]">
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[#579bfc]/20 blur-2xl" />
           <div className="relative flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] text-[#b9cdf0] capitalize">{hoyTxt}</p>
+              <p className="text-[13px] text-white/85 capitalize">{hoyTxt}</p>
               <h1 className="text-[26px] font-bold text-white leading-tight">{saludo}{nombre ? `, ${nombre}` : ""}</h1>
-              <p className="mt-1 text-[13px] text-[#c9d8ed]">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente 🎉" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
+              <p className="mt-1 text-[13px] text-white/85">{loading ? "Revisando tus pendientes…" : items.length === 0 ? "Todo al día. No tienes nada pendiente 🎉" : `Tienes ${items.length} cosa${items.length === 1 ? "" : "s"} por atender`}</p>
             </div>
+            <button onClick={() => { const t = tema === "claro" ? "oscuro" : "claro"; setTema(t); guardarTema(t); }} className="shrink-0 w-10 h-10 rounded-full bg-white/15 flex items-center justify-center active:scale-90 transition" aria-label={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>{tema === "claro" ? <Moon className="w-5 h-5 text-white" /> : <Sun className="w-5 h-5 text-white" />}</button>
             {me && <span className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/30" style={{ background: colorPersona(me.name) }}>{iniciales(me.name)}</span>}
           </div>
         </div>
 
         {/* Notificaciones del telefono */}
         {(push === "pendiente" || push === "instalar-primero" || push === "bloqueado" || pushMsg) && (
-          <div className="mt-3 rounded-2xl border border-[#a25ddc]/40 bg-gradient-to-r from-[#a25ddc]/20 to-[#579bfc]/15 p-4">
+          <div className="mt-3 rounded-2xl bg-gradient-to-r from-[#a25ddc] to-[#579bfc] shadow-[0_8px_24px_rgba(162,93,220,0.3)] p-4">
             <div className="flex items-center gap-3">
               <span className="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center"><BellRing className="w-5 h-5 text-white" /></span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-bold text-white">{push === "activo" ? "Notificaciones activas" : "Que te avise el teléfono"}</div>
-                <div className="text-[12px] text-[#d6e2f5]">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega ARIA27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
+                <div className="text-[12px] text-white/85">{pushMsg || (push === "instalar-primero" ? "En iPhone: primero agrega Doménica.27 a tu pantalla de inicio (abajo te decimos cómo) y ábrela desde ese ícono." : push === "bloqueado" ? "Las bloqueaste antes. Actívalas en Ajustes del navegador › Notificaciones." : "Te avisamos al momento cuando te asignen algo, te autoricen o algo se atore.")}</div>
               </div>
               {push === "pendiente" && <button onClick={onActivarPush} disabled={pushBusy} className="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#3b1d6e] active:scale-95 disabled:opacity-60">{pushBusy ? "…" : "Activar"}</button>}
             </div>
@@ -123,9 +127,9 @@ export default function CampoHome() {
             { n: acts.length, l: "Mis actividades", c: "#579bfc", href: "/dashboard/actividades?vista=mi" },
             { n: atrasadas.length, l: "Atrasadas", c: "#e2445c", href: "/dashboard/actividades?vista=mi" },
           ].map(k => (
-            <Link key={k.l} href={k.href} className="rounded-2xl bg-white/[0.04] border border-white/[0.08] p-3 active:scale-[0.97] transition">
-              <div className="text-[26px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "#5f7390" }}>{loading ? "–" : k.n}</div>
-              <div className="mt-1.5 text-[11px] leading-tight text-[#9fb4d4]">{k.l}</div>
+            <Link key={k.l} href={k.href} className="dom-card rounded-2xl p-3 active:scale-[0.97] transition">
+              <div className="text-[26px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "var(--d-faint)" }}>{loading ? "–" : k.n}</div>
+              <div className="mt-1.5 text-[11px] leading-tight text-[var(--d-muted)]">{k.l}</div>
             </Link>
           ))}
         </div>
@@ -133,7 +137,7 @@ export default function CampoHome() {
         {/* Acciones grandes */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           {acciones.map(({ href, t, d, icon: Icon, from, to }) => (
-            <Link key={href} href={href} className="rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition shadow-[0_6px_18px_rgba(0,0,0,0.25)]" style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
+            <Link key={href} href={href} className="rounded-2xl p-4 min-h-[118px] flex flex-col justify-between active:scale-[0.97] transition shadow-[0_6px_18px_rgba(15,23,42,0.18)]" style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
               <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center"><Icon className="w-6 h-6 text-white" /></span>
               <div><div className="text-[15px] font-bold text-white">{t}</div><div className="text-[11.5px] text-white/80">{d}</div></div>
             </Link>
@@ -143,53 +147,53 @@ export default function CampoHome() {
         {/* Lo que te toca */}
         <section className="mt-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[15px] font-bold text-white">Lo que te toca</h2>
+            <h2 className="text-[15px] font-bold text-[var(--d-text)]">Lo que te toca</h2>
             {loading && <Loader2 className="w-4 h-4 animate-spin text-[#579bfc]" />}
           </div>
           {!loading && items.length === 0 && (
-            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 text-center">
+            <div className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5 text-center">
               <div className="text-3xl">✅</div>
-              <div className="mt-1 text-sm text-white font-semibold">Nada pendiente de tu parte</div>
-              <div className="text-xs text-[#7f93b0]">{enCurso} solicitud{enCurso === 1 ? "" : "es"} tuya{enCurso === 1 ? "" : "s"} en camino</div>
+              <div className="mt-1 text-sm text-[var(--d-text)] font-semibold">Nada pendiente de tu parte</div>
+              <div className="text-xs text-[var(--d-muted)]">{enCurso} solicitud{enCurso === 1 ? "" : "es"} tuya{enCurso === 1 ? "" : "s"} en camino</div>
             </div>
           )}
           <ul className="space-y-2">
             {items.slice(0, 12).map(it => (
               <li key={it.key}>
-                <Link href={it.href} className="flex items-center gap-3 rounded-2xl bg-white/[0.04] border border-white/[0.07] p-3 active:scale-[0.99] transition">
+                <Link href={it.href} className="flex items-center gap-3 rounded-2xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 active:scale-[0.99] transition">
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${it.color}26` }}>
                     {it.icon === "req" ? <FileText className="w-5 h-5" style={{ color: it.color }} /> : <ListTodo className="w-5 h-5" style={{ color: it.color }} />}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-semibold text-white truncate">{it.titulo}</div>
-                    <div className="text-[11.5px] text-[#9fb4d4] truncate">{it.sub}</div>
+                    <div className="text-[14px] font-semibold text-[var(--d-text)] truncate">{it.titulo}</div>
+                    <div className="text-[11.5px] text-[var(--d-muted)] truncate">{it.sub}</div>
                   </div>
                   <span className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold" style={{ background: it.color, color: it.color === "#ffcb00" || it.color === "#fdab3d" ? "#2a1a00" : "#fff" }}>{it.boton}</span>
                 </Link>
               </li>
             ))}
           </ul>
-          {items.length > 12 && <Link href="/dashboard/actividades?vista=mi" className="mt-2 flex items-center justify-center gap-1 text-sm text-[#9cc3ff]">Ver todo <ChevronRight className="w-4 h-4" /></Link>}
+          {items.length > 12 && <Link href="/dashboard/actividades?vista=mi" className="mt-2 flex items-center justify-center gap-1 text-sm text-[var(--d-link)]">Ver todo <ChevronRight className="w-4 h-4" /></Link>}
         </section>
 
         {/* Accesos secundarios */}
-        <div className="mt-6 rounded-2xl border border-white/[0.07] bg-white/[0.03] divide-y divide-white/[0.06]">
+        <div className="mt-6 rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] divide-y divide-[var(--d-border)]">
           {[
             { href: "/dashboard/requisiciones/requisiciones/estatus", t: "Mis solicitudes", d: `${reqs.length} en total` },
             { href: "/dashboard/actividades?vista=tablero", t: "Tablero de actividades", d: "Por hacer · En proceso · Atoradas · Terminadas" },
           ].map(x => (
             <Link key={x.href} href={x.href} className="flex items-center gap-3 px-4 py-3.5">
-              <div className="flex-1 min-w-0"><div className="text-sm text-white font-medium">{x.t}</div><div className="text-[11px] text-[#7f93b0] truncate">{x.d}</div></div>
-              <ChevronRight className="w-4 h-4 text-[#5f7390]" />
+              <div className="flex-1 min-w-0"><div className="text-sm text-[var(--d-text)] font-medium">{x.t}</div><div className="text-[11px] text-[var(--d-muted)] truncate">{x.d}</div></div>
+              <ChevronRight className="w-4 h-4 text-[var(--d-faint)]" />
             </Link>
           ))}
         </div>
 
         {verInstalar && (
-          <div className="mt-5 relative rounded-2xl border border-[#579bfc]/30 bg-[#579bfc]/10 p-4 pr-10 text-[13px] text-[#c9d8ed]">
-            <button onClick={() => { setVerInstalar(false); try { localStorage.setItem("aria:instalar-oculto", "1"); } catch {} }} className="absolute right-2 top-2 p-1.5 rounded-lg text-[#9fb4d4]" aria-label="Ocultar"><X className="w-4 h-4" /></button>
-            <div className="flex items-center gap-2 font-semibold text-white mb-1"><Share className="w-4 h-4 text-[#579bfc]" />Ponla como app en tu celular</div>
-            {isIos ? <p>En Safari toca <b className="text-white">Compartir</b> y luego <b className="text-white">Agregar a pantalla de inicio</b>.</p> : <p>En Chrome toca <b className="text-white">⋮</b> y luego <b className="text-white">Instalar app</b>.</p>}
+          <div className="mt-5 relative rounded-2xl border border-[#579bfc]/30 bg-[#579bfc]/10 p-4 pr-10 text-[13px] text-[var(--d-text-2)]">
+            <button onClick={() => { setVerInstalar(false); try { localStorage.setItem("aria:instalar-oculto", "1"); } catch {} }} className="absolute right-2 top-2 p-1.5 rounded-lg text-[var(--d-muted)]" aria-label="Ocultar"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-2 font-semibold text-[var(--d-text)] mb-1"><Share className="w-4 h-4 text-[#579bfc]" />Ponla como app en tu celular</div>
+            {isIos ? <p>En Safari toca <b className="text-[var(--d-text)]">Compartir</b> y luego <b className="text-[var(--d-text)]">Agregar a pantalla de inicio</b>.</p> : <p>En Chrome toca <b className="text-[var(--d-text)]">⋮</b> y luego <b className="text-[var(--d-text)]">Instalar app</b>.</p>}
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { isMobileDevice, rutaRegresoMovil } from "@/lib/device";
 
 /**
  * AriaBackButton v3 (22-Abr-2026): boton solido 3D, alineado al canon AAA.
@@ -34,6 +35,11 @@ export default function AriaBackButton({
     <button
       onClick={() => {
         if (onClick) { onClick(); return; }
+        // 10-Oct-2026: en celular, regresar nunca abre un menu de la web
+        if (isMobileDevice()) {
+          if (typeof window !== "undefined" && window.history.length > 1) { router.back(); return; }
+          router.push(rutaRegresoMovil(href) || "/dashboard/campo"); return;
+        }
         if (href) { router.push(href); return; }
         router.back();
       }}

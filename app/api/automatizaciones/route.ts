@@ -1,4 +1,4 @@
-/** GET/POST /api/automatizaciones — ARIA Domingo · 10-Oct-2026 */
+/** GET/POST /api/automatizaciones — ARIA Doménica · 10-Oct-2026 */
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth-api";
 import { getSupabaseAdmin } from "@/lib/supabase-server";

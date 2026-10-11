@@ -1305,3 +1305,27 @@ select:not([multiple]):not([size]) { padding-right: 1.9rem !important; }
 @media (max-width: 767px) {
   .aria-shell-scroll { padding-bottom: env(safe-area-inset-bottom); }
 }
+
+
+/* ═══ Doménica.27 (10-Oct-2026): tema claro por defecto en sus pantallas, oscuro opcional ═══ */
+body {
+  --d-bg: #0a1628; --d-surface: #0b1830; --d-card: rgba(255,255,255,.04); --d-card-2: rgba(255,255,255,.07); --d-hover: rgba(255,255,255,.06);
+  --d-border: rgba(255,255,255,.09); --d-text: #ffffff; --d-text-2: #c9d8ed; --d-muted: #9fb4d4; --d-faint: #6f84a3;
+  --d-link: #9cc3ff; --d-ok: #5be3a8; --d-warn: #ffc978; --d-danger: #ff8a9c; --d-purple: #d3b3f5;
+  --d-shadow: none; --d-field: rgba(255,255,255,.05); --d-nav: rgba(7,17,34,.96);
+}
+body.dom-ruta:not(.dom-oscuro) {
+  --d-bg: #f4f6fb; --d-surface: #ffffff; --d-card: #ffffff; --d-card-2: #eef2f8; --d-hover: #f1f4f9;
+  --d-border: rgba(15,23,42,.09); --d-text: #0f172a; --d-text-2: #334155; --d-muted: #5b6b82; --d-faint: #94a3b8;
+  --d-link: #0060d0; --d-ok: #037f4c; --d-warn: #b45309; --d-danger: #d0213d; --d-purple: #6d28d9;
+  --d-shadow: 0 1px 2px rgba(15,23,42,.05), 0 6px 20px rgba(15,23,42,.06); --d-field: #ffffff; --d-nav: rgba(255,255,255,.97);
+}
+.dom-wordmark { font-weight: 800; letter-spacing: -0.035em; font-style: italic; background: linear-gradient(100deg, #0073ea 0%, #7e3bdd 55%, #e2445c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; padding-right: 1px; }
+.dom-wordmark-27 { font-weight: 800; letter-spacing: -0.03em; color: #fdab3d; line-height: 1; }
+.dom-page { background: var(--d-bg); color: var(--d-text); }
+.dom-page select, .dom-page input:not([type=checkbox]):not([type=radio]):not([type=range]), .dom-page textarea { background-color: var(--d-field); color: var(--d-text); border-color: var(--d-border); }
+.dom-card { background: var(--d-card); border: 1px solid var(--d-border); box-shadow: var(--d-shadow); }
+/* Encabezado claro en pantallas Doménica */
+body.dom-ruta:not(.dom-oscuro) main > header.sticky { background-color: rgba(255,255,255,.94) !important; border-bottom-color: rgba(15,23,42,.08) !important; }
+body.dom-ruta:not(.dom-oscuro) main > header.sticky button, body.dom-ruta:not(.dom-oscuro) main > header.sticky svg { color: #334155 !important; }
+body.dom-ruta { background: var(--d-bg); }
