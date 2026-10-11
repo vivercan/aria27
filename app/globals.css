@@ -1387,3 +1387,8 @@ body.dom-ruta button[style*="background"], body.dom-ruta button [style*="backgro
 body.dom-ruta a [style*="background"], body.dom-ruta .aria-sheet [style*="background"] { box-shadow: none !important; transform: none !important; }
 body.dom-ruta button[style*="background"]::after, body.dom-ruta button [style*="background"]::after,
 body.dom-ruta .aria-sheet [style*="background"]::after { content: none !important; }
+
+/* Barra de avance propia (Chrome pinta oscura la parte vacía con acentos claros) */
+.rango { -webkit-appearance: none; appearance: none; height: 10px; border-radius: 999px; background: linear-gradient(to right, #3cde01 var(--p, 0%), var(--d-card-2) var(--p, 0%)); outline: none; }
+.rango::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; box-shadow: 0 1px 4px rgba(15,23,42,.25); }
+.rango::-moz-range-thumb { width: 22px; height: 22px; border-radius: 999px; background: #fff; border: 3px solid #3cde01; }

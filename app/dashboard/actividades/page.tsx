@@ -655,7 +655,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
           <div>
             <div className="flex items-center justify-between mb-2"><span className="text-[11px] uppercase tracking-wide text-[var(--d-muted)]">Avance</span><span className="text-2xl font-bold text-[var(--d-text)]">{avance}%</span></div>
             <input type="range" min={0} max={100} step={5} value={avance} disabled={!puedeEditar} onChange={e => setAvance(Number(e.target.value))} onMouseUp={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }} onTouchEnd={() => { if (avance !== (Number(a.avance) || 0)) onPatch({ avance }, { avance }); }}
-              className="w-full accent-[#3cde01]" />
+              className="rango w-full" style={{ ["--p" as string]: `${avance}%` } as React.CSSProperties} />
             <div className="mt-2 grid grid-cols-5 gap-1.5">{[0, 25, 50, 75, 100].map(p => (
               <button key={p} disabled={!puedeEditar} onClick={() => { setAvance(p); onPatch({ avance: p }, { avance: p }); }} className={`rounded-lg py-2 text-xs font-semibold ${avance === p ? "bg-[#3cde01] text-white" : "bg-[var(--d-card)] text-[var(--d-text-2)] hover:bg-[var(--d-hover)]"} sobre-verde`}>{p}%</button>))}</div>
           </div>
