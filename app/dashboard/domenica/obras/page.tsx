@@ -49,7 +49,7 @@ export default function ObrasDomPage() {
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                   <div><div className="text-lg font-bold text-[var(--d-text)]">{x.abiertas.length}</div><div className="text-[10.5px] text-[var(--d-muted)]">abiertas</div></div>
-                  <div><div className="text-lg font-bold" style={{ color: x.atrasadas ? "#e2445c" : "var(--d-faint)" }}>{x.atrasadas}</div><div className="text-[10.5px] text-[var(--d-muted)]">atrasadas</div></div>
+                  <div><div className="text-lg font-bold" style={{ color: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }}>{x.atrasadas}</div><div className="text-[10.5px] text-[var(--d-muted)]">atrasadas</div></div>
                   <div><div className="text-lg font-bold text-[var(--d-text)]">{x.avance}%</div><div className="text-[10.5px] text-[var(--d-muted)]">avance</div></div>
                 </div>
                 <div className="mt-3">

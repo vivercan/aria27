@@ -1,3 +1,4 @@
+import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { sendWhatsAppText } from "@/lib/whatsapp";
@@ -27,13 +28,8 @@ const CRITICAL_CHECK_NAMES = [
 
 export async function GET(req: NextRequest) {
   // ── Auth ─────────────────────────────────────────────────────
-  const cronSecret = process.env.CRON_SECRET || "";
-  const auth       = req.headers.get("authorization") || "";
-  const isVercelCron =
-    req.headers.get("x-vercel-cron") === "1" ||
-    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
 
-  if (!isVercelCron && (!cronSecret || auth !== `Bearer ${cronSecret}`)) {
+  if (!cronAutorizado(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

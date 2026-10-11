@@ -55,7 +55,7 @@ export default function DomenicaHub() {
           <div><h1 className="text-[26px] font-bold text-[var(--d-text)] tracking-tight leading-tight">{NOMBRE_MODULO}</h1><p className="text-[13px] text-[var(--d-muted)]">Lo que Monday promete, conectado a tus obras, requisiciones y personal.</p></div>
         </div>
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[["Actividades abiertas", k.abiertas, "#579bfc", "/dashboard/actividades"], ["Atrasadas", k.atrasadas, "#e2445c", "/dashboard/actividades?vista=mi"], ["Obras activas", k.obras, "#00c875", "/dashboard/domenica/obras"], ["Automatizaciones activas", k.autos, "#fdab3d", "/dashboard/domenica/automatizaciones"]].map(([l, n, c, h]) => (
+          {[["Actividades abiertas", k.abiertas, "var(--c-azul)", "/dashboard/actividades"], ["Atrasadas", k.atrasadas, "var(--c-rojo)", "/dashboard/actividades?vista=mi"], ["Obras activas", k.obras, "var(--c-verde)", "/dashboard/domenica/obras"], ["Automatizaciones activas", k.autos, "var(--c-ambar)", "/dashboard/domenica/automatizaciones"]].map(([l, n, c, h]) => (
             <Link key={String(l)} href={String(h)} className="dom-card dom-in rounded-2xl p-3"><div className="text-[11px] text-[var(--d-muted)]">{l}</div><div className="text-2xl font-bold" style={{ color: Number(n) > 0 ? String(c) : "var(--d-faint)" }}><Contador n={Number(n)} /></div></Link>))}
         </div>
         {GRUPOS.map(g => (

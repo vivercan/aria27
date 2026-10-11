@@ -51,7 +51,7 @@ export default function ObraDomPage() {
         </div>
 
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[{ n: `${x.avance}%`, l: "Avance de actividades", c: "#0073ea" }, { n: String(x.abiertas.length), l: "Actividades abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "#e2445c" : "var(--d-faint)" }, { n: String(x.atoradas), l: "Atoradas", c: x.atoradas ? "#e2445c" : "var(--d-faint)" }].map((k, i) => (
+          {[{ n: `${x.avance}%`, l: "Avance de actividades", c: "var(--c-azul)" }, { n: String(x.abiertas.length), l: "Actividades abiertas", c: "var(--d-text)" }, { n: String(x.atrasadas), l: "Atrasadas", c: x.atrasadas ? "var(--c-rojo)" : "var(--d-faint)" }, { n: String(x.atoradas), l: "Atoradas", c: x.atoradas ? "var(--c-rojo)" : "var(--d-faint)" }].map((k, i) => (
             <div key={k.l} className="dom-card dom-in rounded-2xl p-3" style={{ animationDelay: `${i * 50}ms` }}><div className="text-[24px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[11.5px] text-[var(--d-muted)]">{k.l}</div></div>))}
         </div>
 

@@ -1,6 +1,7 @@
 // 23-Jun-2026 — Cron diario 6 PM: si hay solicitudes SOLICITADAS sin consolidar,
 // manda WA a Jessica recordándole consolidar.
 
+import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendCombConsolidadoJessica } from "@/lib/wa-comb-helpers";
@@ -11,12 +12,7 @@ export const dynamic = "force-dynamic";
 const JESSICA_WA = "4495880244";
 
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get("authorization") || "";
-  const expected = process.env.CRON_SECRET || "";
-  const isVercelCron =
-    req.headers.get("x-vercel-cron") === "1" ||
-    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
-  if (!isVercelCron && (!expected || auth !== `Bearer ${expected}`)) {
+  if (!cronAutorizado(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

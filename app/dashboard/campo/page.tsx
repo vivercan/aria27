@@ -122,9 +122,9 @@ export default function CampoHome() {
         {/* 3 numeros */}
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
-            { n: pendReq.length, l: "Solicitudes por atender", c: "#fdab3d", href: "/dashboard/requisiciones/requisiciones/estatus?tab=toca" },
-            { n: acts.length, l: "Mis actividades", c: "#579bfc", href: "/dashboard/actividades?vista=mi" },
-            { n: atrasadas.length, l: "Atrasadas", c: "#e2445c", href: "/dashboard/actividades?vista=mi" },
+            { n: pendReq.length, l: "Solicitudes por atender", c: "var(--c-ambar)", href: "/dashboard/requisiciones/requisiciones/estatus?tab=toca" },
+            { n: acts.length, l: "Mis actividades", c: "var(--c-azul)", href: "/dashboard/actividades?vista=mi" },
+            { n: atrasadas.length, l: "Atrasadas", c: "var(--c-rojo)", href: "/dashboard/actividades?vista=mi" },
           ].map((k, ki) => (
             <Link key={k.l} href={k.href} style={{ animationDelay: `${80 + ki * 60}ms` }} className="dom-card dom-in rounded-2xl p-3 active:scale-[0.97] transition">
               <div className="text-[26px] font-bold leading-none" style={{ color: k.n > 0 ? k.c : "var(--d-faint)" }}>{loading ? "–" : <Contador n={k.n} />}</div>

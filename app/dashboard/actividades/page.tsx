@@ -89,7 +89,7 @@ function StatusPill({ col, small }: { col: ColumnaId; small?: boolean }) {
 function Fecha({ a }: { a: Actividad }) {
   if (!a.fecha_compromiso) return <span className="text-[11px] text-[var(--d-faint)]">Sin fecha</span>;
   const d = diasAtraso(a); const h = venceHoy(a); const term = columnaDe(a) === "TERMINADA";
-  const cls = term ? "text-[var(--d-muted)]" : d > 0 ? "text-[#ff8a9c] font-semibold" : h ? "text-[#ffc978] font-semibold" : "text-[var(--d-text-2)]";
+  const cls = term ? "text-[var(--d-muted)]" : d > 0 ? "text-[var(--d-danger)] font-semibold" : h ? "text-[var(--d-warn)] font-semibold" : "text-[var(--d-text-2)]";
   return <span className={`inline-flex items-center gap-1 text-[11px] ${cls}`}><CalendarDays className="w-3 h-3" />{h && !term ? "Hoy" : fechaCorta(a.fecha_compromiso)}{d > 0 && !term ? ` · ${d}d tarde` : ""}</span>;
 }
 
@@ -424,10 +424,10 @@ export default function ActividadesPage() {
           </div>
         ) : vista === "mi" ? (
           <div className="mt-5">
-            {grupo("atr", "Atrasadas", "#ff642e", gruposMi.atrasadas)}
-            {grupo("hoy", "Hoy", "#ffcb00", gruposMi.hoy)}
-            {grupo("sem", "Esta semana", "#579bfc", gruposMi.semana)}
-            {grupo("des", "Más adelante", "#a25ddc", gruposMi.despues)}
+            {grupo("atr", "Atrasadas", "var(--c-naranja)", gruposMi.atrasadas)}
+            {grupo("hoy", "Hoy", "var(--c-amarillo)", gruposMi.hoy)}
+            {grupo("sem", "Esta semana", "var(--c-azul)", gruposMi.semana)}
+            {grupo("des", "Más adelante", "var(--c-morado)", gruposMi.despues)}
             {grupo("sf", "Sin fecha", "var(--d-muted)", gruposMi.sinFecha)}
             {gruposMi.atrasadas.length + gruposMi.hoy.length + gruposMi.semana.length + gruposMi.despues.length + gruposMi.sinFecha.length === 0 && <div className="text-center text-[var(--d-muted)] py-10">Todo terminado 🎉</div>}
           </div>

@@ -17,6 +17,8 @@ const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function CalendarioPage() {
+  const [montado, setMontado] = useState(false);
+  useEffect(() => { setMontado(true); }, []);
   const hoy = new Date(); const [cur, setCur] = useState(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
   const [sel, setSel] = useState<string>(iso(hoy)); const [evs, setEvs] = useState<Ev[]>([]); const [me, setMe] = useState<{ email: string; role: string } | null>(null);
 
@@ -55,6 +57,7 @@ export default function CalendarioPage() {
   const list = byDay[sel] || [];
   const Icon = ({ k }: { k: Ev["kind"] }) => k === "tarea" ? <ClipboardList className="w-4 h-4 text-aria-accent" /> : k === "entrega" ? <Package className="w-4 h-4 text-emerald-400" /> : <FileText className="w-4 h-4 text-amber-300" />;
 
+  if (!montado) return <div className="dom-page min-h-full" />; // fechas solo en el teléfono (evita desfase de zona horaria)
   return (
     <div className="dom-page min-h-full"><div className="px-4 pt-4 pb-28 max-w-2xl mx-auto space-y-4">
       <div className="flex items-center gap-3"><AriaBackButton href="/dashboard/campo" /><h1 className="text-xl font-bold text-[var(--d-text)]">Calendario</h1></div>

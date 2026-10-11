@@ -17,6 +17,7 @@
  *
  * 24-Abr-2026 PR feat/synthetic-monitoring.
  */
+import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
@@ -323,12 +324,7 @@ async function runRpcHealth(): Promise<Check[]> {
 // ============================================================================
 export async function GET(req: NextRequest) {
   // Auth: cron header de Vercel o token bearer
-  const cronSecret = process.env.CRON_SECRET || "";
-  const isVercelCron =
-    req.headers.get("x-vercel-cron") === "1" ||
-    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
-  const auth = req.headers.get("authorization") || "";
-  if (!isVercelCron && (!cronSecret || auth !== `Bearer ${cronSecret}`)) {
+  if (!cronAutorizado(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

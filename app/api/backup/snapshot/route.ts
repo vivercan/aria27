@@ -1,3 +1,4 @@
+import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
@@ -33,12 +34,7 @@ export async function GET(req: NextRequest) {
   const rl = checkRateLimit(getClientIdentifier(req), { key: "backup:snapshot", ...RATE_LIMITS.EXPENSIVE });
   if (!rl.allowed) return rateLimitResponse(rl);
 
-  const auth = req.headers.get("authorization") || "";
-  const expected = process.env.BACKUP_TOKEN || process.env.CRON_SECRET || "";
-  const isVercelCron =
-    req.headers.get("x-vercel-cron") === "1" ||
-    req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
-  if (!isVercelCron && (!expected || auth !== `Bearer ${expected}`)) {
+  if (!cronAutorizado(req, process.env.BACKUP_TOKEN)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

@@ -505,7 +505,7 @@ export default function RequisicionesStatusPage() {
           <div className="grid gap-1 rounded-2xl bg-[var(--d-card-2)] p-1" style={{ gridTemplateColumns: `repeat(${puedeVerTodas ? 3 : 2}, minmax(0, 1fr))` }}>
             {([["toca", "Me toca", cuentaMovil.toca], ["mias", "Las mías", cuentaMovil.mias], ...(puedeVerTodas ? [["todas", "Todas", cuentaMovil.todas]] : [])] as [string, string, number][]).map(([k, l, n]) => (
               <button key={k} type="button" onClick={() => { setTabMovil(k as "toca"); setNMovil(40); }} className={`rounded-xl py-2.5 text-[13px] font-bold transition ${tabActiva === k ? "bg-[var(--d-surface)] text-[var(--d-text)] shadow-[var(--d-shadow)]" : "text-[var(--d-muted)]"}`}>
-                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#fdab3d] text-white" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
+                {l} <span className={`ml-0.5 rounded-full px-1.5 text-[11px] ${tabActiva === k && k === "toca" && n > 0 ? "bg-[#fdab3d] text-[#3d2300]" : "bg-[var(--d-card)] text-[var(--d-muted)]"}`}>{n}</span>
               </button>))}
           </div>
           <input value={qMovil} onChange={e => setQMovil(e.target.value)} placeholder="Buscar folio, obra o proveedor…" className="mt-3 w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3.5 py-2.5 text-sm text-[var(--d-text)]" />
@@ -518,7 +518,7 @@ export default function RequisicionesStatusPage() {
                   <div className="shrink-0 text-right"><div className="text-[15px] font-bold text-[var(--d-text)]">{formatCurrency(req.monto || req.total)}</div><div className="font-mono text-[10.5px] text-[var(--d-faint)]">{req.folio}</div></div>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-white">Te toca: {ACCION_TXT[acc]}</span>
+                  {toca && acc ? <span className="shrink-0 rounded-full bg-[#fdab3d] px-2.5 py-1 text-[11px] font-bold text-[#3d2300]">Te toca: {ACCION_TXT[acc]}</span>
                     : <span className="text-[12.5px] text-[var(--d-text-2)] truncate">{queSigue(req.status)}</span>}
                 </div>
               </button>); })}

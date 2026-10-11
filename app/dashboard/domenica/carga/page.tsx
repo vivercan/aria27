@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { columnaDe, diasAtraso, iniciales, colorPersona, type Actividad } from "@/lib/actividades";
 
 type Fila = { id: string; nombre: string; abiertas: number; atrasadas: number; semana: number; atoradas: number; obras: Set<string> };
-const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#e2445c" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#fdab3d" } : n === 0 ? { t: "Libre", c: "#94a3b8" } : { t: "Bien", c: "#00c875" };
+const nivel = (n: number, atr = 0) => n >= 15 || atr >= 5 ? { t: n >= 15 ? "Saturado" : "Muy atrasado", c: "#c2182b" } : n >= 8 || atr >= 2 ? { t: n >= 8 ? "Cargado" : "Con atrasos", c: "#b45309" } : n === 0 ? { t: "Libre", c: "#64748b" } : { t: "Bien", c: "#047857" };
 
 export default function CargaPage() {
   const [acts, setActs] = useState<Actividad[] | null>(null);
@@ -53,7 +53,7 @@ export default function CargaPage() {
         {acts === null ? <div className="py-16 text-center"><Loader2 className="w-7 h-7 mx-auto animate-spin text-[var(--d-muted)]" /></div> : (
           <>
             <div className="mt-5 grid grid-cols-3 gap-2">
-              {[{ n: conTrabajo.length, l: "Con actividades", c: "#0073ea" }, { n: saturados, l: "Saturados o muy atrasados", c: "#e2445c" }, { n: libres.length, l: "Sin actividades", c: "#94a3b8" }].map((k, i) => (
+              {[{ n: conTrabajo.length, l: "Con actividades", c: "var(--c-azul)" }, { n: saturados, l: "Saturados o muy atrasados", c: "var(--c-rojo)" }, { n: libres.length, l: "Sin actividades", c: "var(--d-muted)" }].map((k, i) => (
                 <div key={k.l} className="dom-card dom-in rounded-2xl p-3" style={{ animationDelay: `${i * 60}ms` }}><div className="text-[26px] font-bold leading-none" style={{ color: k.c }}>{k.n}</div><div className="mt-1.5 text-[11.5px] text-[var(--d-muted)]">{k.l}</div></div>))}
             </div>
             <div className="mt-5 space-y-2">

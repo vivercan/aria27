@@ -4,6 +4,7 @@
  * - A quien asigno: resumen de sus actividades atrasadas (1 mensaje).
  * Plantilla aprobada aria_tarea_status (funciona fuera de la ventana de 24 h).
  */
+import { cronAutorizado } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
@@ -19,10 +20,7 @@ function hoyMx(): Date {
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get("authorization") || "";
-  const expected = process.env.CRON_SECRET || "";
-  const isVercelCron = req.headers.get("x-vercel-cron") === "1" || req.headers.get("user-agent")?.startsWith("vercel-cron") === true;
-  if (!isVercelCron && (!expected || auth !== `Bearer ${expected}`)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!cronAutorizado(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const dry = new URL(req.url).searchParams.get("dry") === "1";
   const db = getSupabaseAdmin();
