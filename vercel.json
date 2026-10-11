@@ -46,7 +46,7 @@
     },
     {
       "path": "/api/cron/bitacora-diaria",
-      "schedule": "0 1 * * 2-7"
+      "schedule": "0 1 * * 0,2-6"
     }
   ]
 }
