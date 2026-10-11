@@ -13,6 +13,7 @@ import { handlePrint, handleDownloadPDF } from "@/components/RequisicionPrint";
 import FlashBanner from "@/components/FlashBanner";
 import { useFlashMessage } from "@/hooks/useFlashMessage";
 import AriaBackButton from "@/components/AriaBackButton";
+import CotizacionesProveedor from "@/components/CotizacionesProveedor";
 import { fmtMoney, fmtDate } from "@/lib/formatters";
 
 interface Requisition {
@@ -697,6 +698,7 @@ export default function RequisicionesStatusPage() {
                     </table>
                   </div>
                 )}
+                <CotizacionesProveedor reqId={detailReq.id} puedePedir={["admin", "compras", "rh", "direccion", "validador"].includes(userRole)} />
               </div>
             </div>
             {accionPara(detailReq, userRole, userEmail) === "AUTORIZAR_RESPONSABLE" && (
