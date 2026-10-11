@@ -291,6 +291,28 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 11-Oct-2026: otra pestaña abrió el login o entró con otra cuenta (comparten cookie y localStorage).
+  // Esta pestaña vuelve a preguntar al servidor quién es: si es otra persona recarga; si es la misma, restaura sus permisos.
+  useEffect(() => {
+    const onStorage = async (e: StorageEvent) => {
+      if (e.key && !["userEmail", "userRole", "userPermissions"].includes(e.key)) return;
+      try {
+        const r = await fetch("/api/auth/me", { credentials: "include", cache: "no-store" });
+        if (r.status === 401 || r.status === 403) { router.replace("/"); return; }
+        if (!r.ok) return;
+        const me = await r.json() as { email?: string; role?: string; permissions?: UserPermissions; name?: string };
+        if (!me?.email) return;
+        if (userEmail && me.email.toLowerCase() !== userEmail.toLowerCase()) { window.location.reload(); return; }
+        localStorage.setItem("userEmail", me.email);
+        if (me.role) localStorage.setItem("userRole", me.role);
+        localStorage.setItem("userPermissions", JSON.stringify(me.permissions || {}));
+        window.dispatchEvent(new Event("aria:perms"));
+      } catch { /* sin red: se queda como está */ }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [userEmail, router]);
+
   /* ── Polling no-leídos Inbox (cada 30s) — PAUSA si inbox/page está activo ── */
   useEffect(() => {
     const fetchUnread = async () => {
@@ -741,7 +763,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               {userName || "—"}
             </p>
             <p className="text-[10px] truncate" style={{ color: navMuted }}>
-              {userRole === "admin" ? "Administrador" : "Usuario"}
+              {({ admin: "Administrador", Administrador: "Administrador", rh: "Recursos Humanos", direccion: "Dirección", validador: "Superintendencia", compras: "Compras", residente: "Residente de obra", usuario: "Ejecutivo de administración", almacen: "Almacén", operador: "Operador" } as Record<string, string>)[userRole] || "Usuario"}
             </p>
           </div>
           <button

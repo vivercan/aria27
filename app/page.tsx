@@ -218,7 +218,8 @@ export default function LoginPage() {
     } catch { /* si falla, layout.tsx los cargará como fallback */ }
 
     // Ofrecer huella/rostro la primera vez en este teléfono
-    if (hDisp && !huellaActivada()) { setLoading(false); setOfrecer(true); return }
+    // 11-Oct-2026: solo en teléfono. En la computadora (Windows Hello) se quedaba en el login sin avisar y parecía que no entraba
+    if (tel && hDisp && !huellaActivada()) { setLoading(false); setOfrecer(true); return }
     router.push(landingPath())
   }
 
