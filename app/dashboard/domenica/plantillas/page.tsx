@@ -49,9 +49,9 @@ export default function PlantillasPage() {
                   {p.descripcion && <div className="text-[12.5px] text-[var(--d-muted)] mt-0.5">{p.descripcion}</div>}
                 </div>
                 <div className="flex flex-wrap gap-1.5 text-[11.5px]">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#a25ddc]/12 text-[var(--d-purple)] px-2.5 py-1 font-semibold"><ListChecks className="w-3.5 h-3.5" />{p.items.length} actividades</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#a25ddc]/10 text-[var(--d-purple)] px-2.5 py-1 font-semibold"><ListChecks className="w-3.5 h-3.5" />{p.items.length} actividades</span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-[var(--d-card-2)] text-[var(--d-text-2)] px-2.5 py-1"><CalendarDays className="w-3.5 h-3.5" />{duracionTotal(p.items)} días</span>
-                  {p.items.some(it => it.depende !== null && it.depende !== undefined) && <span className="inline-flex items-center gap-1 rounded-full bg-[#fdab3d]/12 text-[var(--d-warn)] px-2.5 py-1"><Hourglass className="w-3.5 h-3.5" />con orden</span>}
+                  {p.items.some(it => it.depende !== null && it.depende !== undefined) && <span className="inline-flex items-center gap-1 rounded-full bg-[#fdab3d]/10 text-[var(--d-warn)] px-2.5 py-1"><Hourglass className="w-3.5 h-3.5" />con orden</span>}
                 </div>
                 <ol className="text-[12.5px] text-[var(--d-text-2)] space-y-0.5 list-decimal list-inside">
                   {p.items.slice(0, 4).map((it, k) => <li key={k} className="truncate">{it.titulo}</li>)}

@@ -263,7 +263,7 @@ export default function ActividadesPage() {
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
-            {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/12 rounded-md px-2 py-1"><span className="shrink-0">⚠</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
+            {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">⚠</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
             {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">🔒</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
@@ -638,7 +638,7 @@ function Ficha({ a, todas, carga, me, emps, obras, checklist, esSuper, onClose, 
                 <button key={c.id} disabled={!puedeEditar} onClick={() => onMover(c.id)} className={`rounded-lg py-2.5 text-[12px] font-bold transition ${col === c.id ? "text-white shadow-lg scale-[1.03]" : "text-[var(--d-muted)] bg-[var(--d-card)] hover:bg-[var(--d-hover)]"}`} style={col === c.id ? { background: c.color } : undefined}>{c.label}</button>
               ))}
             </div>
-            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#e2445c]/12 border border-[#e2445c]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
+            {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#e2445c]/10 border border-[#e2445c]/30 px-3 py-2 text-sm text-[var(--d-danger)]"><AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />{a.motivo_bloqueo}</div>}
           </div>
 
           {/* Avance */}
@@ -777,7 +777,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
         <div className="md:hidden mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         <div className="flex items-center justify-between px-5 pt-3 md:pt-5"><h2 className="text-lg font-bold text-[var(--d-text)]">Nueva actividad</h2><button onClick={onClose} className="p-2 rounded-xl hover:bg-[var(--d-hover)] text-[var(--d-text-2)]" aria-label="Cerrar"><X className="w-5 h-5" /></button></div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {deVoz && <div className="rounded-xl bg-[#a25ddc]/12 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">🎤 Lo llenamos con tu nota de voz. Revisa y toca Crear.</div>}
+          {deVoz && <div className="rounded-xl bg-[#a25ddc]/10 border border-[#a25ddc]/30 px-3 py-2 text-[12.5px] font-semibold text-[var(--d-purple)]">🎤 Lo llenamos con tu nota de voz. Revisa y toca Crear.</div>}
           <input autoFocus value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="¿Qué hay que hacer?" className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] px-4 py-3 text-base text-[var(--d-text)] placeholder-[var(--d-faint)]" />
           <div>
             <div className="text-[11px] uppercase tracking-wide text-[var(--d-muted)] mb-2">¿Quién la hace? <span className="normal-case tracking-normal font-normal">· el número es cuántas tiene abiertas</span></div>

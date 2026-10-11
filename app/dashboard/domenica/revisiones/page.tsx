@@ -45,7 +45,7 @@ export default function RevisionesPage() {
           <div className="mt-5 space-y-2">
             {d.revisiones.map((r, i) => (
               <button key={r.id} onClick={() => setVer(r)} className="dom-card dom-in w-full text-left rounded-2xl p-4 flex items-center gap-3" style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}>
-                <span className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-[15px] font-extrabold ${r.fallas ? "bg-[#e2445c]/12 text-[var(--d-danger)]" : "bg-[#00c875]/15 text-[var(--d-ok)]"}`}>{r.ok}/{r.total}</span>
+                <span className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-[15px] font-extrabold ${r.fallas ? "bg-[#e2445c]/10 text-[var(--d-danger)]" : "bg-[#00c875]/15 text-[var(--d-ok)]"}`}>{r.ok}/{r.total}</span>
                 <div className="flex-1 min-w-0"><div className="text-[15px] font-bold text-[var(--d-text)] truncate">{r.formato_nombre}</div>
                   <div className="text-[12.5px] text-[var(--d-muted)] truncate">{r.obra_nombre} · {new Date(r.created_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })} · {r.realizada_nombre}</div></div>
                 {r.fallas > 0 && <span className="shrink-0 rounded-full bg-[#e2445c] px-2.5 py-1 text-[11px] font-bold text-white">{r.fallas} falla{r.fallas === 1 ? "" : "s"}</span>}
@@ -71,7 +71,7 @@ export default function RevisionesPage() {
 function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { formatos: Formato[]; obras: { id: string; nombre: string }[]; emps: { id: string; full_name: string }[]; miEmp: string | null; onClose: () => void; onSaved: (n: number) => void; flash: (t: "ok" | "err", m: string) => void }) {
   const [f, setF] = useState<Formato | null>(null); const [obra, setObra] = useState(""); const [i, setI] = useState(-1);
   const [resp, setResp] = useState<Resp[]>([]); const [subiendo, setSubiendo] = useState(false);
-  const [nombreFirma, setNombreFirma] = useState(""); const [crear, setCrear] = useState(true); const [asignar, setAsignar] = useState(miEmp || ""); const [busy, setBusy] = useState(false);
+  const [nombreFirma, setNombreFirma] = useState(() => emps.find(e => e.id === miEmp)?.full_name || ""); const [crear, setCrear] = useState(true); const [asignar, setAsignar] = useState(miEmp || ""); const [busy, setBusy] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null); const dibujando = useRef(false); const [firmado, setFirmado] = useState(false);
   const fotoRef = useRef<HTMLInputElement>(null);
   const empezar = () => { if (!f) { flash("err", "Elige qué vas a revisar"); return; } if (!obra) { flash("err", "Elige la obra"); return; } setResp(f.puntos.map(t => ({ texto: t, estado: "NA" }))); setI(0); };
@@ -112,7 +112,7 @@ function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { form
       <div key={i} className="dom-in mt-6 min-h-[110px] text-center text-[22px] font-bold leading-snug text-[var(--d-text)]">{actual.texto}</div>
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button onClick={() => marcar("OK")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "OK" ? "bg-[#00a35c] text-white" : "bg-[#00c875]/15 text-[var(--d-ok)]"}`}><Check className="w-9 h-9" strokeWidth={3} />Bien</button>
-        <button onClick={() => marcar("NO")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "NO" ? "bg-[#e2445c] text-white" : "bg-[#e2445c]/12 text-[var(--d-danger)]"}`}><X className="w-9 h-9" strokeWidth={3} />Mal</button>
+        <button onClick={() => marcar("NO")} className={`rounded-3xl py-6 text-[18px] font-bold flex flex-col items-center gap-1 ${actual.estado === "NO" ? "bg-[#e2445c] text-white" : "bg-[#e2445c]/10 text-[var(--d-danger)]"}`}><X className="w-9 h-9" strokeWidth={3} />Mal</button>
       </div>
       <button onClick={() => marcar("NA")} className="mt-3 w-full rounded-2xl bg-[var(--d-card-2)] py-3 text-[14px] font-semibold text-[var(--d-text-2)] inline-flex items-center justify-center gap-1.5"><Minus className="w-4 h-4" />No aplica</button>
       {actual.estado === "NO" && (
@@ -130,7 +130,7 @@ function Nueva({ formatos, obras, emps, miEmp, onClose, onSaved, flash }: { form
 
   return (
     <Hoja titulo="Firma y listo" onClose={onClose} pie={<button onClick={guardar} disabled={busy} className={`${boton} w-full py-3.5 text-base`}>{busy ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}Guardar revisión</button>}>
-      <div className={`rounded-2xl p-4 text-center ${fallas ? "bg-[#e2445c]/10" : "bg-[#00c875]/12"}`}>
+      <div className={`rounded-2xl p-4 text-center ${fallas ? "bg-[#e2445c]/10" : "bg-[#00c875]/10"}`}>
         <div className={`text-[34px] font-extrabold ${fallas ? "text-[var(--d-danger)]" : "text-[var(--d-ok)]"}`}>{resp.filter(r => r.estado === "OK").length}/{resp.filter(r => r.estado !== "NA").length}</div>
         <div className="text-[14px] font-semibold text-[var(--d-text)]">{fallas ? `${fallas} punto${fallas === 1 ? "" : "s"} con falla` : "¡Todo bien!"}</div>
       </div>

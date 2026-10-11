@@ -44,7 +44,7 @@ export default function EvidenciaPublica() {
             <div className="mt-3"><div className="flex justify-between text-[12px] text-slate-500"><span>Avance registrado</span><b className="text-slate-800">{d.avance}%</b></div>
               <div className="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-[#00c875]" style={{ width: `${d.avance}%` }} /></div></div>
           </div>
-          {listo > 0 && <div className="mt-4 rounded-2xl bg-[#00c875]/12 border border-[#00c875]/40 p-4 text-center font-semibold text-[#047857]">✅ ¡Listo! Se enviaron {listo} foto{listo === 1 ? "" : "s"}. Ya le avisamos al responsable.</div>}
+          {listo > 0 && <div className="mt-4 rounded-2xl bg-[#00c875]/10 border border-[#00c875]/40 p-4 text-center font-semibold text-[#047857]">✅ ¡Listo! Se enviaron {listo} foto{listo === 1 ? "" : "s"}. Ya le avisamos al responsable.</div>}
           <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
             <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
             <input ref={galRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => { agregar(e.target.files); e.target.value = ""; }} />
