@@ -4,7 +4,6 @@ import { landingPath, isMobileDevice } from '@/lib/device'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff, ScanFace, Fingerprint } from 'lucide-react'
-import DomenicaLogo from '@/components/campo/DomenicaLogo'
 import { huellaDisponible, huellaActivada, activarHuella, entrarConHuella } from '@/lib/huella-client'
 
 export default function LoginPage() {
@@ -21,7 +20,8 @@ export default function LoginPage() {
   const [hDisp, setHDisp] = useState(false)
   const [hAct, setHAct] = useState(false)
   const [ofrecer, setOfrecer] = useState(false)
-  const [verForm, setVerForm] = useState(false)
+  const [aviso, setAviso] = useState('')
+  const [verOlvido, setVerOlvido] = useState(false)
   useEffect(() => { huellaDisponible().then(d => { setHDisp(d); setHAct(d && huellaActivada()) }) }, [])
   useEffect(() => { try { const m = isMobileDevice(); setTel(m); if (m) { localStorage.setItem('aria:modo', 'campo'); setRememberMe(true) } } catch { /* */ } }, [])
   const router = useRouter()
@@ -122,12 +122,14 @@ export default function LoginPage() {
     setError('')
     
     if (!email.trim() || !pass) {
-      setError('Ingresa email y contraseña')
+      setError('Escribe tu correo o usuario y tu contraseña')
       return
     }
     
     setLoading(true)
-    const emailLower = email.trim().toLowerCase()
+    // 11-Oct-2026: se puede entrar solo con el usuario (sin @) → se completa con el dominio de la empresa
+    const emailFull = email.trim().includes('@') ? email.trim() : `${email.trim()}@gcuavante.com`
+    const emailLower = emailFull.toLowerCase()
 
     // PASO 1: Verificar usuario en Supabase
     let userExists = false
@@ -157,7 +159,7 @@ export default function LoginPage() {
       const validateRes = await fetch('/api/mail/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password: pass, recordar: rememberMe })
+        body: JSON.stringify({ email: emailFull, password: pass, recordar: rememberMe })
       })
       
       if (validateRes.ok) {
@@ -185,7 +187,7 @@ export default function LoginPage() {
 
     // PASO 3: Login exitoso — cargar role y permisos ANTES de redirigir
     localStorage.setItem('userEmail', emailLower)
-    sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: email.trim(), p: pass })))
+    sessionStorage.setItem('zohoCreds', btoa(JSON.stringify({ e: emailFull, p: pass })))
     // 11-Oct-2026: la contraseña ya NO se guarda en el teléfono; "Mantener sesión" = sesión de 30 días en el servidor
     localStorage.removeItem('ariaSession')
 
@@ -232,51 +234,62 @@ export default function LoginPage() {
     )
   }
 
+  // 11-Oct-2026 · Login de teléfono "Termina el día sin pendientes" (propuesta 12 elegida por JJ).
+  // Correo/usuario + contraseña y huella/rostro siempre visibles. Verde #2aa300 = 3.3:1 con letra blanca
+  // de 19px en negrita (texto grande, WCAG AA); el #3cde01 con blanco daba 1.8:1.
+  const tocarHuella = () => {
+    setError(''); setAviso('')
+    if (hAct) { conHuella(); return }
+    setAviso(hDisp ? 'Entra una vez con tu correo y te ofrecemos activar tu huella o rostro en este teléfono.' : 'Este teléfono no permite entrar con huella o rostro. Usa tu correo o usuario.')
+  }
   if (tel) return (
-    <div className="min-h-[100dvh] w-full flex flex-col bg-[#f6f7fa] text-slate-900" style={{ fontFamily: 'var(--font-dom), system-ui, sans-serif' }}>
-      <div className="flex-1 flex flex-col justify-center px-5 py-8 max-w-md w-full mx-auto">
-        <div className="text-center">
-          <div className="flex justify-center scale-[1.35] origin-bottom"><DomenicaLogo grande /></div>
-          <div className="mt-3 flex flex-col items-center gap-1">
-            <div className="flex items-baseline gap-1.5"><span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500">by</span><span className="text-[19px] font-black tracking-[-0.04em] text-[#2563EB]">ARIA</span><span className="-ml-1.5 text-[19px] font-black tracking-[-0.04em] text-[#1e293b]">27</span></div>
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500"><svg width="18" height="9" viewBox="0 0 36 18" aria-hidden="true"><path d="M9 3c3.5 0 6 3 9 6s5.5 6 9 6a6 6 0 0 0 0-12c-3.5 0-6 3-9 6s-5.5 6-9 6A6 6 0 0 1 9 3Z" fill="none" stroke="#2563EB" strokeWidth="3" /></svg>Infinity Loop</div>
+    <div className="relative min-h-[100dvh] w-full flex flex-col text-white overflow-hidden" style={{ fontFamily: 'var(--font-dom), system-ui, sans-serif', background: '#1c3267' }}>
+      <div aria-hidden="true" className="absolute inset-0 bg-cover bg-no-repeat" style={{ backgroundImage: 'url(/login/noche.webp)', backgroundPosition: 'center 30%' }} />
+      <div className="relative z-10 flex-1 flex flex-col w-full max-w-md mx-auto px-3" style={{ paddingTop: 'max(env(safe-area-inset-top), 18px)', paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
+        <div className="pt-7 flex flex-col items-center text-center">
+          <div className="flex items-baseline" role="img" aria-label="Doménica 27"><span className="text-[40px] font-extrabold italic tracking-[-0.04em] leading-none pr-0.5">Doménica</span><span className="ml-2 text-[40px] font-extrabold tracking-[-0.03em] leading-none text-[#fdab3d]">27</span></div>
+          <div className="mt-2.5 flex flex-col items-center gap-1">
+            <div className="flex items-baseline gap-1.5"><span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#c3d3ea]">by</span><span className="text-[19px] font-black tracking-[-0.04em] text-[#2563EB]">ARIA</span><span className="-ml-1.5 text-[19px] font-black tracking-[-0.04em] text-white">27</span></div>
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.22em] uppercase text-[#c3d3ea]"><svg width="18" height="9" viewBox="0 0 36 18" aria-hidden="true"><path d="M9 3c3.5 0 6 3 9 6s5.5 6 9 6a6 6 0 0 0 0-12c-3.5 0-6 3-9 6s-5.5 6-9 6A6 6 0 0 1 9 3Z" fill="none" stroke="#8ec2ff" strokeWidth="3" /></svg>Infinity Loop</div>
           </div>
+          <h1 className="mt-9 text-[34px] font-extrabold leading-[1.06] tracking-[-0.035em]">Termina el día<br />sin pendientes.</h1>
         </div>
+        <div className="flex-1 min-h-6" />
         {ofrecer ? (
-          <div className="mt-8 rounded-3xl bg-white p-6 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] text-center">
-            <span className="mx-auto w-16 h-16 rounded-2xl bg-[#0073ea] flex items-center justify-center"><Fingerprint size={34} color="#fff" strokeWidth={2} /></span>
-            <h2 className="mt-4 text-[20px] font-bold text-slate-900">¿La próxima vez entras con tu huella o tu rostro?</h2>
-            <p className="mt-1.5 text-[14px] text-slate-600">Sin escribir la contraseña. Tu huella no sale del teléfono.</p>
-            {error && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
-            <button type="button" onClick={activar} disabled={loading} className="mt-5 w-full py-3.5 rounded-2xl bg-[#0073ea] text-white text-[17px] font-bold disabled:opacity-70">{loading ? 'Un momento…' : 'Sí, activarlo'}</button>
-            <button type="button" onClick={() => router.push(landingPath())} className="mt-2 w-full py-3 text-[15px] font-semibold text-slate-600">Ahora no</button>
+          <div className="rounded-[28px] bg-[#0b1830] border border-[#22406e] p-6 text-center">
+            <span className="mx-auto w-16 h-16 rounded-2xl bg-[#2aa300] flex items-center justify-center"><Fingerprint size={34} color="#fff" strokeWidth={2} /></span>
+            <h2 className="mt-4 text-[20px] font-bold">¿La próxima vez entras con tu huella o tu rostro?</h2>
+            <p className="mt-1.5 text-[14px] text-[#c3d3ea]">Sin escribir la contraseña. Tu huella no sale del teléfono.</p>
+            {error && <div role="alert" className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
+            <button type="button" onClick={activar} disabled={loading} className="mt-5 w-full h-14 rounded-[18px] bg-[#2aa300] text-white text-[19px] font-bold disabled:opacity-70">{loading ? 'Un momento…' : 'Sí, activarlo'}</button>
+            <button type="button" onClick={() => router.push(landingPath())} className="mt-2 w-full py-3 text-[15px] font-semibold text-[#c3d3ea]">Ahora no</button>
           </div>
-        ) : (<>
-        {hAct && (
-          <button type="button" onClick={conHuella} disabled={loading} className="mt-8 w-full flex items-center justify-center gap-3 rounded-3xl bg-[#0073ea] py-4 text-white text-[17px] font-bold shadow-[0_10px_30px_-16px_rgba(0,115,234,.8)] disabled:opacity-70">
-            <Fingerprint size={26} strokeWidth={2} />{loading ? 'Verificando…' : 'Entrar con huella o rostro'}</button>
+        ) : (
+          <div className="rounded-[28px] bg-[#0b1830] border border-[#22406e] p-5">
+            <button type="button" onClick={tocarHuella} disabled={loading} className="w-full h-14 flex items-center justify-center gap-3 rounded-[18px] bg-[#2aa300] active:bg-[#239000] text-white text-[19px] font-bold disabled:opacity-70">
+              <Fingerprint size={26} strokeWidth={2.2} />{loading && hAct && !pass ? 'Verificando…' : 'Entrar con huella o rostro'}</button>
+            {aviso && <div role="status" className="mt-3 rounded-xl bg-[#13284a] px-3 py-2.5 text-[14px] text-[#dbe7f7]">{aviso}</div>}
+            <div className="flex items-center gap-3 my-3.5"><i className="flex-1 h-px bg-[#22406e]" /><span className="text-[12.5px] text-[#9cb3d6]">o con tu correo o usuario</span><i className="flex-1 h-px bg-[#22406e]" /></div>
+            <form onSubmit={handleLogin} className="space-y-2.5">
+              <input type="text" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="username" aria-label="Correo o usuario" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} disabled={loading} required placeholder="Correo o usuario"
+                className="w-full h-12 rounded-[15px] border-[1.5px] border-[#22406e] bg-[#13284a] px-4 text-[16px] text-white placeholder:text-[#7f97bd] outline-none focus:border-[#6fb2ff]" />
+              <div className="relative">
+                <input type={showPass ? 'text' : 'password'} autoComplete="current-password" aria-label="Contraseña" value={pass} onChange={(e) => { setPass(e.target.value); setError('') }} disabled={loading} required placeholder="Contraseña"
+                  className="w-full h-12 rounded-[15px] border-[1.5px] border-[#22406e] bg-[#13284a] pl-4 pr-12 text-[16px] text-white placeholder:text-[#7f97bd] outline-none focus:border-[#6fb2ff]" />
+                <button type="button" onClick={() => setShowPass(v => !v)} aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-[#9cb3d6]">{showPass ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-2 py-1.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[13.5px] text-[#c3d3ea]">Recordarme</span></label>
+                <button type="button" onClick={() => setVerOlvido(v => !v)} className="py-1.5 text-[13.5px] font-semibold text-[#8ec2ff]">¿Olvidaste tu contraseña?</button>
+              </div>
+              {verOlvido && <div className="rounded-xl bg-[#13284a] px-3 py-2.5 text-[13.5px] text-[#dbe7f7]">Tu contraseña es la de tu correo de trabajo. Pide a tu administrador que la restablezca.</div>}
+              {error && <div role="alert" className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
+              <button type="submit" disabled={loading} className={`w-full h-12 rounded-[15px] text-[16px] font-bold disabled:opacity-70 ${email && pass ? 'bg-[#0073ea] text-white' : 'border-[1.5px] border-[#3a5c8f] text-white'}`}>{loading && pass ? 'Entrando…' : 'Entrar'}</button>
+            </form>
+            <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-2 min-h-11 flex items-center justify-center gap-2 text-[13.5px] text-[#c3d3ea]">
+              <ScanFace size={18} strokeWidth={2.2} color="#8ec2ff" />¿Solo checar asistencia? <b className="font-bold text-[#8ec2ff]">Abrir checador</b></a>
+          </div>
         )}
-        {hAct && !verForm && error && <div className="mt-3 rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
-        {hAct && !verForm ? <button type="button" onClick={() => setVerForm(true)} className="mt-3 w-full py-3 text-[15px] font-semibold text-slate-700">Usar mi contraseña</button> : <form onSubmit={handleLogin} className={`${hAct ? 'mt-4' : 'mt-8'} rounded-3xl bg-white p-5 shadow-[0_10px_30px_-18px_rgba(15,23,42,.5)] space-y-3`}>
-          <label className="block"><span className="text-[13px] font-semibold text-slate-600">Correo</span>
-            <input type="email" inputMode="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} disabled={loading} required placeholder="usuario@gcuavante.com"
-              className="mt-1 w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[16px] outline-none focus:border-[#0073ea] focus:bg-white" /></label>
-          <label className="block"><span className="text-[13px] font-semibold text-slate-600">Contraseña</span>
-            <div className="relative mt-1">
-              <input type={showPass ? 'text' : 'password'} autoComplete="current-password" value={pass} onChange={(e) => { setPass(e.target.value); setError('') }} disabled={loading} required placeholder="Tu contraseña de Zoho"
-                className="w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 pl-4 pr-12 text-[16px] outline-none focus:border-[#0073ea] focus:bg-white" />
-              <button type="button" onClick={() => setShowPass(v => !v)} aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-500">{showPass ? <EyeOff size={20} /> : <Eye size={20} />}</button>
-            </div></label>
-          <label className="flex items-center gap-2.5 py-2.5 select-none"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-5 h-5" style={{ accentColor: '#0073ea' }} /><span className="text-[14px] text-slate-700">Mantener sesión iniciada</span></label>
-          {error && <div className="rounded-xl bg-[#d0304a] px-3 py-2.5 text-[14px] font-semibold text-white">{error}</div>}
-          <button type="submit" disabled={loading} className={`w-full h-13 py-3.5 rounded-2xl text-[17px] font-bold disabled:opacity-70 ${hAct ? 'bg-slate-100 text-slate-800' : 'bg-[#0073ea] text-white'}`}>{loading ? 'Entrando…' : hAct ? 'Entrar con contraseña' : 'Entrar'}</button>
-        </form>}
-        <a href="https://104.248.119.60.nip.io/checador.html" target="_blank" rel="noopener noreferrer" className="mt-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 shadow-[0_10px_30px_-20px_rgba(15,23,42,.5)]">
-          <span className="w-11 h-11 rounded-xl bg-[#0060c7] flex items-center justify-center"><ScanFace size={24} color="#fff" strokeWidth={2.2} /></span>
-          <span className="flex-1"><span className="block text-[15px] font-bold text-slate-900">ARIA27 FaceID</span><span className="block text-[12.5px] text-slate-500">Checar asistencia con tu cara</span></span>
-        </a>
-        </>)}
-        <p className="mt-6 text-center text-[12px] text-slate-600">Grupo Constructor Urbano Avante · Usa tu contraseña de Zoho Mail</p>
       </div>
     </div>
   )
