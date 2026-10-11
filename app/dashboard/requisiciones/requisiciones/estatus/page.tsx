@@ -429,13 +429,15 @@ export default function RequisicionesStatusPage() {
 
         {/* Botón eliminar todas — solo RH */}
         {canDelete && requisiciones.length > 0 && selectedIds.length === 0 && !lf.isActive && (
+          <div className="hidden md:block">
           <button
             onClick={() => openDeleteModal("all")}
-            className="aria-btn aria-btn-danger hidden md:inline-flex"
+            className="aria-btn aria-btn-danger"
           >
             <Trash2 className="w-4 h-4" />
             Eliminar todas
           </button>
+          </div>
         )}
       </div>
 
