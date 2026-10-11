@@ -10,6 +10,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { avisarWA, personaPorEmail, personaPorEmpleado } from "@/lib/actividades-server";
 import { columnaDe, diasAtraso, fechaCorta, type Actividad } from "@/lib/actividades";
 import { meToca, accionPara, ACCION_TXT } from "@/lib/requi-stepper";
+import { enRiesgo } from "@/lib/riesgo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
     if (columnaDe(a) === "TERMINADA") continue;
     const f = (a.fecha_compromiso || "").slice(0, 10);
     const atraso = diasAtraso(a, hoy);
-    if (f === H || f === M || atraso > 0) {
+    if (f === H || f === M || atraso > 0 || enRiesgo(a, H)) {
       const k = a.asignado_id || a.asignado_email || "";
       if (k) porPersona.set(k, [...(porPersona.get(k) || []), a]);
     }
@@ -68,7 +69,8 @@ export async function GET(req: NextRequest) {
     const p = list[0].asignado_id ? await personaPorEmpleado(db, list[0].asignado_id) : await personaPorEmail(db, k);
     const partes = list.slice(0, 6).map((a, i) => {
       const f = (a.fecha_compromiso || "").slice(0, 10); const d = diasAtraso(a, hoy);
-      return `${i + 1}) ${a.titulo.slice(0, 60)} - ${d > 0 ? `atrasada ${d} día${d === 1 ? "" : "s"}` : f === H ? "vence HOY" : "vence mañana"}`;
+      const rg = enRiesgo(a, H);
+      return `${i + 1}) ${a.titulo.slice(0, 60)} - ${d > 0 ? `atrasada ${d} día${d === 1 ? "" : "s"}` : f === H ? "vence HOY" : f === M ? "vence mañana" : rg ? `en riesgo (${rg.motivo.toLowerCase()})` : `entrega ${fechaCorta(a.fecha_compromiso)}`}`;
     });
     const rq = p?.email ? reqPorEmail.get(p.email) : undefined; if (p?.email) reqPorEmail.delete(p.email);
     const msg = `Buenos días. Tus actividades: ${partes.join(" | ")}${list.length > 6 ? ` y ${list.length - 6} más` : ""}.${rq ? ` Solicitudes: ${textoReq(rq)}.` : ""} Contesta 1 LISTO o 1 AVANCE 50 para actualizar.`;

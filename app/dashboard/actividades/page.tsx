@@ -21,6 +21,7 @@ import { mencionesEnTexto } from "@/lib/plantillas";
 import { parecido, type VozActividad } from "@/lib/voz";
 import { rutaCritica } from "@/lib/dependencias";
 import LinkEvidencia from "@/components/domenica/LinkEvidencia";
+import { enRiesgo } from "@/lib/riesgo";
 import { Esqueleto } from "@/components/domenica/Esqueleto";
 import { Vacio } from "@/components/domenica/Vacio";
 
@@ -262,6 +263,7 @@ export default function ActividadesPage() {
               <div className={`flex-1 text-[14px] font-semibold leading-snug ${col === "TERMINADA" ? "text-[var(--d-muted)] line-through" : "text-[var(--d-text)]"} line-clamp-2`}>{a.titulo}</div>
               {prio && prio.id !== "MEDIA" && <Flag className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: prio.color }} />}
             </div>
+            {(() => { const rg = enRiesgo(a, ymd(new Date())); return rg ? <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--d-warn)] bg-[#fdab3d]/12 rounded-md px-2 py-1"><span className="shrink-0">⚠</span><span className="truncate">{rg.motivo}</span></div> : null; })()}
             {(() => { const p = a.depende_de ? acts.find(x => x.id === a.depende_de) : null; return p && columnaDe(p) !== "TERMINADA" && col !== "TERMINADA" ? <div className="flex items-center gap-1.5 text-[11px] text-[var(--d-warn)] bg-[#fdab3d]/10 rounded-md px-2 py-1"><span className="shrink-0">🔒</span><span className="truncate">No empieza hasta: {p.titulo}</span></div> : null; })()}
             {col === "BLOQUEADA" && a.motivo_bloqueo && <div className="flex items-start gap-1.5 text-[11px] text-[var(--d-danger)] bg-[#e2445c]/10 rounded-md px-2 py-1"><AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" /><span className="line-clamp-2">{a.motivo_bloqueo}</span></div>}
             {!compacta && a.obra && <div className="inline-flex items-center gap-1 text-[10.5px] text-[var(--d-muted)] bg-[var(--d-card)] rounded-md px-1.5 py-0.5 max-w-full"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{a.obra}</span></div>}
@@ -415,6 +417,7 @@ export default function ActividadesPage() {
           {kpiBtn("Atoradas", kpi.atoradas, "#e2445c", () => setVista("tablero"))}
           {kpiBtn("Atrasadas", kpi.atrasadas, "#ff642e", () => setVista("mi"))}
           {kpiBtn("Vencen hoy", kpi.hoy, "#ffcb00", () => setVista("mi"))}
+          {kpiBtn("En riesgo", visibles.filter(x => enRiesgo(x, ymd(new Date()))).length, "#fdab3d", () => setVista("mi"))}
         </div>
 
         {/* Vistas + filtros */}
