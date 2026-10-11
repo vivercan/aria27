@@ -18,6 +18,8 @@ const crearReco = (): Reco | null => { if (typeof window === "undefined") return
 export default function AccionRapida({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [fase, setFase] = useState<Fase>("menu");
+  // Evita el "toque fantasma": el mismo toque que abrió la hoja no debe elegir el botón que quedó debajo del dedo
+  const abiertoEn = useRef(0); useEffect(() => { abiertoEn.current = Date.now(); }, []);
   const [seg, setSeg] = useState(0); const [res, setRes] = useState<VozResultado | null>(null); const [err, setErr] = useState("");
   const [vivo, setVivo] = useState(""); const [escrito, setEscrito] = useState(""); const reco = useRef<Reco | null>(null); const textoRef = useRef("");
   const rec = useRef<MediaRecorder | null>(null); const chunks = useRef<Blob[]>([]); const blobRef = useRef<Blob | null>(null); const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -80,7 +82,7 @@ export default function AccionRapida({ onClose }: { onClose: () => void }) {
   const tile = "rounded-3xl p-4 min-h-[112px] flex flex-col justify-between text-left text-white active:scale-[0.97] transition";
   return (
     <div className="aria-sheet fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] p-5 shadow-2xl" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
+      <div onClick={e => e.stopPropagation()} onClickCapture={e => { if (Date.now() - abiertoEn.current < 400) { e.stopPropagation(); e.preventDefault(); } }} className="dom-in w-full max-w-md rounded-t-[28px] bg-[var(--d-surface)] p-5 shadow-2xl" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-[var(--d-border)]" />
         <div className="flex items-center mb-4"><h2 className="flex-1 text-[19px] font-bold text-[var(--d-text)]">{fase === "menu" ? "¿Qué quieres hacer?" : fase === "escribir" ? "Escríbelo" : fase === "resultado" ? "¿Así está bien?" : "Habla con Doménica"}</h2><button onClick={onClose} className="p-2 -m-2 rounded-xl text-[var(--d-muted)]" aria-label="Cerrar"><X className="w-6 h-6" /></button></div>
 
