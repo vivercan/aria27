@@ -835,7 +835,7 @@ export default function NewRequisitionPage() {
           )}
           <div className="md:hidden mt-5 grid grid-cols-[auto_1fr] gap-2">
             <button type="button" onClick={() => setPasoM(1)} className="rounded-2xl bg-[var(--d-card-2)] px-5 py-3.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
-            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]">Siguiente: qué necesitas →</button>
+            <button type="button" onClick={() => { if (!selectedCostCenterId) { setErrorMsg("Elige la obra."); return; } if (!requiredDate) { setErrorMsg("Elige para cuándo."); return; } setErrorMsg(null); setPasoM(3); try { window.scrollTo({ top: 0 }); } catch { /* */ } }} className="rounded-2xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3.5 text-[15px] font-bold text-white shadow-[0_10px_22px_-10px_#0073ea]">Siguiente →</button>
           </div>
         </section>
 
@@ -885,7 +885,7 @@ export default function NewRequisitionPage() {
               <h2 className="mb-4 text-lg font-semibold"><span className="md:hidden">2. ¿Qué necesitas? Búscalo o escríbelo</span><span className="hidden md:inline">2. BUSCAR EN CATÁLOGO</span></h2>
               <div className="flex items-center gap-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-input)] px-3 py-2 mb-3">
                 <Search className="h-4 w-4 opacity-70" />
-                <input className="w-full bg-transparent text-sm outline-none" placeholder="Buscar por nombre, código o descripción..." value={searchTerm} onChange={e => handleSearch(e.target.value)} />
+                <input className="w-full bg-transparent text-sm outline-none" placeholder="Ej. cemento, varilla, cable…" value={searchTerm} onChange={e => handleSearch(e.target.value)} />
                 {searching && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
               <div className="max-h-48 overflow-auto rounded-xl border border-[var(--d-border)] bg-[var(--d-sunken)]">
@@ -1145,7 +1145,7 @@ export default function NewRequisitionPage() {
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" onClick={() => setPasoM(2)} className="md:hidden rounded-full bg-[var(--d-card-2)] px-5 py-2.5 text-sm font-semibold text-[var(--d-text-2)]">Atrás</button>
           <button onClick={handleSubmit} disabled={sending || isEmpty}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-gray-600 text-[var(--d-muted)] cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
+            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-lg transition ${isEmpty ? "bg-[var(--d-card-2)] text-[var(--d-muted)] shadow-none cursor-not-allowed" : "bg-emerald-500 text-slate-900 hover:bg-emerald-400"}`}>
             {sending ? <><Loader2 className="h-4 w-4 animate-spin" />Generando...</> : <><Check className="h-4 w-4" /><span className="md:hidden">Enviar solicitud</span><span className="hidden md:inline">Generar Requisición</span></>}
           </button>
         </div>

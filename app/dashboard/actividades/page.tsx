@@ -806,7 +806,7 @@ function Nueva({ emps, obras, miEmp, carga, onClose, onCreated, flash }: { emps:
           <textarea value={f.pasos} onChange={e => setF({ ...f, pasos: e.target.value })} rows={3} placeholder={"Pasos (opcional, uno por renglón)\nEj. Medir\nCotizar\nComprar"} className="w-full rounded-xl bg-[var(--d-card)] border border-[var(--d-border)] p-3 text-sm text-[var(--d-text)] placeholder-[var(--d-faint)]" />
         </div>
         <div className="px-5 py-3 border-t border-[var(--d-border)]" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-          <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] disabled:opacity-60">{busy ? "Creando…" : "Crear y avisar por WhatsApp"}</button>
+          <button onClick={crear} disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#0073ea] to-[#579bfc] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(0,115,234,0.35)] disabled:opacity-60">{busy ? "Creando…" : f.asignado_id && f.asignado_id === miEmp ? "Crear" : "Crear y avisar por WhatsApp"}</button>
         </div>
       </div>
     </div>

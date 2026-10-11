@@ -23,7 +23,8 @@ export default function BitacoraPage() {
   const { id } = useParams<{ id: string }>();
   const [fecha, setFecha] = useState("");
   const [b, setB] = useState<BitacoraDia | null>(null); const [cargando, setCargando] = useState(true);
-  const [editar, setEditar] = useState(false); const [foto, setFoto] = useState<string | null>(null);
+  const [editar, setEditar] = useState(false); const [foto, setFoto] = useState<string | null>(null); const [redactando, setRedactando] = useState(false);
+  const redactar = async () => { setRedactando(true); try { await api(`/api/obras/${id}/bitacora/resumen`, "POST", { fecha }); await cargar(); } catch (e) { flash("err", (e as Error).message); } finally { setRedactando(false); } };
   const { flash, nodo } = useAviso();
   useEffect(() => { if (fecha) return; let f = ""; try { f = new URLSearchParams(window.location.search).get("fecha") || ""; } catch { /* */ } setFecha(/^\d{4}-\d{2}-\d{2}$/.test(f) ? f : hoyMX()); }, [fecha]);
   const cargar = useCallback(async () => {
@@ -35,7 +36,7 @@ export default function BitacoraPage() {
   const compartir = async () => {
     if (!b) return;
     const url = `${window.location.origin}/dashboard/domenica/obras/${id}/bitacora?fecha=${fecha}`;
-    const texto = `Bitácora ${b.obra.nombre} · ${largo(fecha)}: ${b.terminadas.length} terminadas, ${b.avances.length} avances, ${b.fotos.length} fotos${b.registro?.incidentes ? `. Incidentes: ${b.registro.incidentes}` : ""}.`;
+    const texto = b.registro?.actividades ? `Bitácora ${b.obra.nombre} · ${largo(fecha)}\n\n${b.registro.actividades}` : `Bitácora ${b.obra.nombre} · ${largo(fecha)}: ${b.terminadas.length} terminadas, ${b.avances.length} avances, ${b.fotos.length} fotos${b.registro?.incidentes ? `. Incidentes: ${b.registro.incidentes}` : ""}.`;
     try { if (navigator.share) { await navigator.share({ title: `Bitácora ${b.obra.nombre}`, text: texto, url }); return; } } catch { return; }
     window.open(`https://wa.me/?text=${encodeURIComponent(texto + " " + url)}`, "_blank");
   };
@@ -71,6 +72,12 @@ export default function BitacoraPage() {
               {b.registro.personal_en_obra !== null && <span className={chip}><Users className="w-4 h-4" />{b.registro.personal_en_obra} personas en obra</span>}
               {b.registro.maquinaria && <span className={chip}><Wrench className="w-4 h-4" />{b.registro.maquinaria}</span>}
             </div>)}
+          {(b.registro?.actividades || b.terminadas.length || b.avances.length || b.fotos.length) ? (
+            <div className="mt-4 rounded-2xl border border-[#a25ddc]/30 bg-[#a25ddc]/8 p-4">
+              <div className="flex items-center justify-between"><span className="text-[12px] font-bold uppercase tracking-wider text-[var(--d-purple)]">✨ Resumen del día</span>
+                <button onClick={redactar} disabled={redactando} className="print:hidden rounded-lg bg-[var(--d-surface)] px-2.5 py-1 text-[12px] font-semibold text-[var(--d-purple)] disabled:opacity-60">{redactando ? "Redactando…" : b.registro?.actividades ? "Rehacer" : "Redactar con IA"}</button></div>
+              {b.registro?.actividades ? <p className="mt-2 text-[14.5px] leading-relaxed text-[var(--d-text)] whitespace-pre-wrap">{b.registro.actividades}</p> : <p className="mt-1 text-[13px] text-[var(--d-muted)]">Toca “Redactar con IA” y se escribe solo con lo que pasó hoy, listo para mandarlo al cliente.</p>}
+            </div>) : null}
           {b.registro?.incidentes && <div className="mt-3 rounded-2xl bg-[#e2445c]/10 border border-[#e2445c]/30 p-3 text-[14px] text-[var(--d-danger)] flex gap-2"><AlertTriangle className="w-5 h-5 shrink-0" /><div><b>Incidentes:</b> {b.registro.incidentes}</div></div>}
 
           {!b.registro && !b.terminadas.length && !b.avances.length && !b.fotos.length && !b.entregas.length && !b.solicitudes.length ? (
