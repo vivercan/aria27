@@ -88,7 +88,7 @@ export async function evaluar(db: SupabaseClient, r: Regla, ahora: Date = new Da
       const involucrado = x.status === "PENDIENTE_RESPONSABLE" ? x.responsable_email : x.user_email;
       out.push({ tipo: "requi", id: x.id, etiqueta: x.folio, obra: x.cost_center_name || "", dias, involucrado: involucrado ? involucrado.toLowerCase() : null, url: `/dashboard/requisiciones/requisiciones/estatus?open=${x.id}`, extra: r.disparador === "REQUI_MONTO_ALTO" ? `$${Number(x.total || 0).toLocaleString("es-MX")}` : undefined });
     }
-    return out;
+    return out.sort((a, b) => b.dias - a.dias); // lo mas atrasado primero
   }
   // Actividades
   let q = db.from("tareas_asignadas").select("id, titulo, obra, estatus, motivo_bloqueo, fecha_compromiso, updated_at, created_at, asignado_email, asignado_por_email, asignado_por").not("estatus", "in", "(COMPLETADA,CANCELADA)").gte("created_at", desde).limit(500);
@@ -107,7 +107,7 @@ export async function evaluar(db: SupabaseClient, r: Regla, ahora: Date = new Da
     const involucrado = r.disparador === "ACTIVIDAD_ATORADA" ? (a.asignado_por_email || a.asignado_por) : a.asignado_email;
     out.push({ tipo: "actividad", id: a.id, etiqueta: a.titulo.slice(0, 50), obra: a.obra || "Oficina", dias, involucrado: involucrado && involucrado.includes("@") ? involucrado.toLowerCase() : null, url: `/dashboard/actividades?abrir=${a.id}`, extra: a.motivo_bloqueo || undefined });
   }
-  return out;
+  return r.disparador === "ACTIVIDAD_POR_VENCER" ? out.sort((a, b) => a.dias - b.dias) : out.sort((a, b) => b.dias - a.dias);
 }
 
 /** Arma el mensaje (una sola linea, Meta no acepta saltos en parametros). */
